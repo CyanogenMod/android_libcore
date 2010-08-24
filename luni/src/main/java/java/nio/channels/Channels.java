@@ -231,8 +231,7 @@ public final class Channels {
     /*
      * Wrapper class used for newInputStream(ReadableByteChannel channel)
      */
-    private static class ReadableByteChannelInputStream extends
-            ChannelInputStream {
+    private static class ReadableByteChannelInputStream extends ChannelInputStream {
 
         public ReadableByteChannelInputStream(ReadableByteChannel aChannel) {
             super(aChannel);

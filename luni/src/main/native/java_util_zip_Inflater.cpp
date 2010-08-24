@@ -167,16 +167,16 @@ static jlong Inflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "createStream", "(Z)J", (void*) Inflater_createStream },
-    { "endImpl", "(J)V", (void*) Inflater_endImpl },
-    { "getAdlerImpl", "(J)I", (void*) Inflater_getAdlerImpl },
-    { "getTotalInImpl", "(J)J", (void*) Inflater_getTotalInImpl },
-    { "getTotalOutImpl", "(J)J", (void*) Inflater_getTotalOutImpl },
-    { "inflateImpl", "([BIIJ)I", (void*) Inflater_inflateImpl },
-    { "resetImpl", "(J)V", (void*) Inflater_resetImpl },
-    { "setDictionaryImpl", "([BIIJ)V", (void*) Inflater_setDictionaryImpl },
-    { "setFileInputImpl", "(Ljava/io/FileDescriptor;JIJ)I", (void*) Inflater_setFileInputImpl },
-    { "setInputImpl", "([BIIJ)V", (void*) Inflater_setInputImpl },
+    NATIVE_METHOD(Inflater, createStream, "(Z)J"),
+    NATIVE_METHOD(Inflater, endImpl, "(J)V"),
+    NATIVE_METHOD(Inflater, getAdlerImpl, "(J)I"),
+    NATIVE_METHOD(Inflater, getTotalInImpl, "(J)J"),
+    NATIVE_METHOD(Inflater, getTotalOutImpl, "(J)J"),
+    NATIVE_METHOD(Inflater, inflateImpl, "([BIIJ)I"),
+    NATIVE_METHOD(Inflater, resetImpl, "(J)V"),
+    NATIVE_METHOD(Inflater, setDictionaryImpl, "([BIIJ)V"),
+    NATIVE_METHOD(Inflater, setFileInputImpl, "(Ljava/io/FileDescriptor;JIJ)I"),
+    NATIVE_METHOD(Inflater, setInputImpl, "([BIIJ)V"),
 };
 int register_java_util_zip_Inflater(JNIEnv* env) {
     gCachedFields.finished = env->GetFieldID(JniConstants::inflaterClass, "finished", "Z");

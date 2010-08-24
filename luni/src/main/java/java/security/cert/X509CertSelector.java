@@ -20,8 +20,6 @@ package java.security.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
-import java.security.cert.CertSelector;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.CertificatePolicies;

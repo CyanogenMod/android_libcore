@@ -5,8 +5,8 @@
  */
 
 package java.util.concurrent.atomic;
+
 import sun.misc.Unsafe;
-import java.util.*;
 
 /**
  * A {@code long} array in which elements may be updated atomically.

@@ -199,18 +199,18 @@ static void Matcher_useTransparentBoundsImpl(JNIEnv* env, jclass, jint addr, jbo
 }
 
 static JNINativeMethod gMethods[] = {
-    { "closeImpl", "(I)V", (void*) Matcher_closeImpl },
-    { "findImpl", "(ILjava/lang/String;I[I)Z", (void*) Matcher_findImpl },
-    { "findNextImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_findNextImpl },
-    { "groupCountImpl", "(I)I", (void*) Matcher_groupCountImpl },
-    { "hitEndImpl", "(I)Z", (void*) Matcher_hitEndImpl },
-    { "lookingAtImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_lookingAtImpl },
-    { "matchesImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_matchesImpl },
-    { "openImpl", "(I)I", (void*) Matcher_openImpl },
-    { "requireEndImpl", "(I)Z", (void*) Matcher_requireEndImpl },
-    { "setInputImpl", "(ILjava/lang/String;II)V", (void*) Matcher_setInputImpl },
-    { "useAnchoringBoundsImpl", "(IZ)V", (void*) Matcher_useAnchoringBoundsImpl },
-    { "useTransparentBoundsImpl", "(IZ)V", (void*) Matcher_useTransparentBoundsImpl },
+    NATIVE_METHOD(Matcher, closeImpl, "(I)V"),
+    NATIVE_METHOD(Matcher, findImpl, "(ILjava/lang/String;I[I)Z"),
+    NATIVE_METHOD(Matcher, findNextImpl, "(ILjava/lang/String;[I)Z"),
+    NATIVE_METHOD(Matcher, groupCountImpl, "(I)I"),
+    NATIVE_METHOD(Matcher, hitEndImpl, "(I)Z"),
+    NATIVE_METHOD(Matcher, lookingAtImpl, "(ILjava/lang/String;[I)Z"),
+    NATIVE_METHOD(Matcher, matchesImpl, "(ILjava/lang/String;[I)Z"),
+    NATIVE_METHOD(Matcher, openImpl, "(I)I"),
+    NATIVE_METHOD(Matcher, requireEndImpl, "(I)Z"),
+    NATIVE_METHOD(Matcher, setInputImpl, "(ILjava/lang/String;II)V"),
+    NATIVE_METHOD(Matcher, useAnchoringBoundsImpl, "(IZ)V"),
+    NATIVE_METHOD(Matcher, useTransparentBoundsImpl, "(IZ)V"),
 };
 int register_java_util_regex_Matcher(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/regex/Matcher", gMethods, NELEM(gMethods));

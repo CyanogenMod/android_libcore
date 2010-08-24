@@ -1028,7 +1028,7 @@ static void ExpatParser_appendBytes(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void ExpatParser_appendCharacters(JNIEnv* env, jobject object, jint pointer,
+static void ExpatParser_appendChars(JNIEnv* env, jobject object, jint pointer,
         jcharArray xml, jint charOffset, jint charCount) {
     ScopedCharArrayRO charArray(env, xml);
     if (charArray.get() == NULL) {
@@ -1371,29 +1371,29 @@ static void ExpatParser_staticInitialize(JNIEnv* env, jobject classObject, jstri
 }
 
 static JNINativeMethod parserMethods[] = {
-    { "append", "(ILjava/lang/String;Z)V", (void*) ExpatParser_appendString },
-    { "append", "(I[BII)V", (void*) ExpatParser_appendBytes },
-    { "append", "(I[CII)V", (void*) ExpatParser_appendCharacters },
-    { "cloneAttributes", "(II)I", (void*) ExpatParser_cloneAttributes },
-    { "column", "(I)I", (void*) ExpatParser_column },
-    { "createEntityParser", "(ILjava/lang/String;)I", (void*) ExpatParser_createEntityParser},
-    { "initialize", "(Ljava/lang/String;Z)I", (void*) ExpatParser_initialize},
-    { "line", "(I)I", (void*) ExpatParser_line },
-    { "release", "(I)V", (void*) ExpatParser_release },
-    { "releaseParser", "(I)V", (void*) ExpatParser_releaseParser },
-    { "staticInitialize", "(Ljava/lang/String;)V", (void*) ExpatParser_staticInitialize},
+    NATIVE_METHOD(ExpatParser, appendString, "(ILjava/lang/String;Z)V"),
+    NATIVE_METHOD(ExpatParser, appendBytes, "(I[BII)V"),
+    NATIVE_METHOD(ExpatParser, appendChars, "(I[CII)V"),
+    NATIVE_METHOD(ExpatParser, cloneAttributes, "(II)I"),
+    NATIVE_METHOD(ExpatParser, column, "(I)I"),
+    NATIVE_METHOD(ExpatParser, createEntityParser, "(ILjava/lang/String;)I"),
+    NATIVE_METHOD(ExpatParser, initialize, "(Ljava/lang/String;Z)I"),
+    NATIVE_METHOD(ExpatParser, line, "(I)I"),
+    NATIVE_METHOD(ExpatParser, release, "(I)V"),
+    NATIVE_METHOD(ExpatParser, releaseParser, "(I)V"),
+    NATIVE_METHOD(ExpatParser, staticInitialize, "(Ljava/lang/String;)V"),
 };
 
 static JNINativeMethod attributeMethods[] = {
-    { "freeAttributes", "(I)V", (void*) ExpatAttributes_freeAttributes },
-    { "getIndex", "(ILjava/lang/String;)I", (void*) ExpatAttributes_getIndexForQName },
-    { "getIndex", "(ILjava/lang/String;Ljava/lang/String;)I", (void*) ExpatAttributes_getIndex },
-    { "getLocalName", "(III)Ljava/lang/String;", (void*) ExpatAttributes_getLocalName },
-    { "getQName", "(III)Ljava/lang/String;", (void*) ExpatAttributes_getQName },
-    { "getURI", "(III)Ljava/lang/String;", (void*) ExpatAttributes_getURI },
-    { "getValue", "(II)Ljava/lang/String;", (void*) ExpatAttributes_getValueByIndex },
-    { "getValue", "(ILjava/lang/String;)Ljava/lang/String;", (void*) ExpatAttributes_getValueForQName },
-    { "getValue", "(ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;", (void*) ExpatAttributes_getValue },
+    NATIVE_METHOD(ExpatAttributes, freeAttributes, "(I)V"),
+    NATIVE_METHOD(ExpatAttributes, getIndexForQName, "(ILjava/lang/String;)I"),
+    NATIVE_METHOD(ExpatAttributes, getIndex, "(ILjava/lang/String;Ljava/lang/String;)I"),
+    NATIVE_METHOD(ExpatAttributes, getLocalName, "(III)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getQName, "(III)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getURI, "(III)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValueByIndex, "(II)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValueForQName, "(ILjava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValue, "(ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
 int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env) {
     int result = jniRegisterNativeMethods(env, "org/apache/harmony/xml/ExpatParser",

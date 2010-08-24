@@ -5,7 +5,12 @@
  */
 
 package java.util.concurrent;
-import java.util.*;
+
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 // BEGIN android-note
 // removed link to collections framework docs

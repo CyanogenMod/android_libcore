@@ -12,10 +12,10 @@
 
 package org.w3c.dom.ls;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.DOMConfiguration;
-import org.w3c.dom.Node;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  *  An interface to an object that is able to build, or augment, a DOM tree

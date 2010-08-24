@@ -18,9 +18,6 @@
 package java.text;
 
 import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Locale;
 
 /**
  * The base class for all formats.

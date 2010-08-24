@@ -22,7 +22,6 @@ package javax.xml.transform.stream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
-
 import javax.xml.transform.Source;
 
 /**

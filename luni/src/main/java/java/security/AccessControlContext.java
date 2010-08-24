@@ -32,9 +32,8 @@
 
 package java.security;
 
-import org.apache.harmony.security.fortress.PolicyUtils;
-
 import java.util.ArrayList;
+import org.apache.harmony.security.fortress.PolicyUtils;
 
 /**
  * {@code AccessControlContext} encapsulates the {@code ProtectionDomain}s on

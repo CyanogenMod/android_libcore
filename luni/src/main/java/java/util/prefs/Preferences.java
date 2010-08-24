@@ -20,9 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Locale;
 import java.util.ServiceLoader;
 
 /**

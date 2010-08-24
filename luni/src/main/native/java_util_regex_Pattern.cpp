@@ -62,8 +62,8 @@ static jint Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint fla
 }
 
 static JNINativeMethod gMethods[] = {
-    { "closeImpl", "(I)V", (void*) Pattern_closeImpl },
-    { "compileImpl", "(Ljava/lang/String;I)I", (void*) Pattern_compileImpl },
+    NATIVE_METHOD(Pattern, closeImpl, "(I)V"),
+    NATIVE_METHOD(Pattern, compileImpl, "(Ljava/lang/String;I)I"),
 };
 int register_java_util_regex_Pattern(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/regex/Pattern", gMethods, NELEM(gMethods));

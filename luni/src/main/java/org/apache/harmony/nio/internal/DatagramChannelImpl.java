@@ -39,7 +39,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
-
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
@@ -86,7 +85,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
         fd = new FileDescriptor();
-        networkSystem.createDatagramSocket(fd);
+        networkSystem.socket(fd, false);
     }
 
     /*
@@ -158,8 +157,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         try {
             begin();
-            networkSystem.connectDatagram(fd,
-                    inetSocketAddress.getPort(), inetSocketAddress.getAddress());
+            networkSystem.connect(fd,
+                    inetSocketAddress.getAddress(), inetSocketAddress.getPort(), 0);
         } catch (ConnectException e) {
             // ConnectException means connect fail, not exception
         } finally {

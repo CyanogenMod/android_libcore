@@ -18,8 +18,8 @@
 package java.security;
 
 import java.io.Serializable;
-import java.util.Vector;
 import java.util.Arrays;
+import java.util.Vector;
 import libcore.base.Objects;
 
 /**

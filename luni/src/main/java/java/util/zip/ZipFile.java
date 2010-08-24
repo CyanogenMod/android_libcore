@@ -25,8 +25,8 @@ import java.io.RandomAccessFile;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * This class provides random read access to a <i>ZIP-archive</i> file.

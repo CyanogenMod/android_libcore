@@ -16,20 +16,16 @@
 
 package dalvik.system;
 
-import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.luni.platform.INetworkSystem;
-
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.SocketOptions;
 import java.net.SocketImpl;
-import java.net.UnknownHostException;
-import java.nio.channels.Channel;
+import java.net.SocketOptions;
+import org.apache.harmony.luni.platform.IFileSystem;
+import org.apache.harmony.luni.platform.INetworkSystem;
 
 /**
  * Mechanism to let threads set restrictions on what code is allowed
@@ -214,10 +210,9 @@ public final class BlockGuard {
             return mFileSystem.seek(fileDescriptor, offset, whence);
         }
 
-        public void fflush(int fileDescriptor, boolean metadata)
-                throws IOException {
+        public void fsync(int fileDescriptor, boolean metadata) throws IOException {
             BlockGuard.getThreadPolicy().onWriteToDisk();
-            mFileSystem.fflush(fileDescriptor, metadata);
+            mFileSystem.fsync(fileDescriptor, metadata);
         }
 
         public void truncate(int fileDescriptor, long size) throws IOException {
@@ -295,16 +290,15 @@ public final class BlockGuard {
             return mNetwork.writeDirect(fd, address, offset, count);
         }
 
-        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port)
+        public boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
                 throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connect(aFD, inetAddress, port);
+            return mNetwork.connectNonBlocking(fd, inetAddress, port);
         }
 
-        public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
-                InetAddress hostname, int port, int step, byte[] context) throws IOException {
+        public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connectWithTimeout(aFD, timeout, hostname, port, step, context);
+            return mNetwork.isConnected(fd, timeout);
         }
 
         public int send(FileDescriptor fd, byte[] data, int offset, int length,
@@ -337,13 +331,8 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void createDatagramSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createDatagramSocket(aFD);
-        }
-
-        public void connectDatagram(FileDescriptor aFD, int port, InetAddress inetAddress)
-                throws SocketException {
-            mNetwork.connectDatagram(aFD, port, inetAddress);
+        public void socket(FileDescriptor aFD, boolean stream) throws SocketException {
+            mNetwork.socket(aFD, stream);
         }
 
         public void shutdownInput(FileDescriptor descriptor) throws IOException {
@@ -358,22 +347,14 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public void createServerStreamSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createServerStreamSocket(aFD);
-        }
-
-        public void createStreamSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createStreamSocket(aFD);
-        }
-
         public void listen(FileDescriptor aFD, int backlog) throws SocketException {
             mNetwork.listen(aFD, backlog);
         }
 
-        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int port,
-                int timeout, InetAddress inetAddress) throws IOException {
+        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port,
+                int timeout) throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connectStreamWithTimeoutSocket(aFD, port, timeout, inetAddress);
+            mNetwork.connect(aFD, inetAddress, port, timeout);
         }
 
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {

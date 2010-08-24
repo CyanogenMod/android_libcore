@@ -21,12 +21,9 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.security.AccessController;
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * A class for turning a character stream into a byte stream. Data written to

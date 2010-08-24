@@ -31,8 +31,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketImpl;
-import java.net.SocketOptions;
 import java.net.SocketUtils;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -78,12 +76,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     // Status closed.
     static final int SOCKET_STATUS_CLOSED = 3;
 
-    // Step used for connect.
-    private static final int HY_SOCK_STEP_START = 0;
-
-    // Step used for finishConnect.
-    private static final int HY_PORT_SOCKET_STEP_CHECK = 1;
-
     // The descriptor to interact with native code.
     FileDescriptor fd;
 
@@ -111,12 +103,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     private static class WriteLock {}
     private final Object writeLock = new WriteLock();
 
-    // BEGIN android-changed
-    // this content is a struct used in connect_withtimeout().
-    // The structure its holding has a size of 392 bytes.
-    private byte[] connectContext = new byte[392];
-    // END android-changed
-
     /*
      * Constructor for creating a connected socket channel.
      */
@@ -132,7 +118,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         fd = new FileDescriptor();
         status = SOCKET_STATUS_UNCONNECTED;
         if (connect) {
-            networkSystem.createStreamSocket(fd);
+            networkSystem.socket(fd, true);
         }
     }
 
@@ -208,14 +194,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         try {
             if (isBlocking()) {
                 begin();
-                networkSystem.connect(fd, normalAddr, port);
+                networkSystem.connect(fd, normalAddr, port, 0);
                 finished = true; // Or we'd have thrown an exception.
             } else {
-                finished = networkSystem.connectWithTimeout(fd, 0,
-                        normalAddr, port, HY_SOCK_STEP_START, connectContext);
+                finished = networkSystem.connectNonBlocking(fd, normalAddr, port);
                 // set back to nonblocking to work around with a bug in portlib
-                if (!this.isBlocking()) {
-                    IoUtils.setNonBlocking(fd, true);
+                if (!isBlocking()) {
+                    IoUtils.setBlocking(fd, false);
                 }
             }
             isBound = finished;
@@ -278,9 +263,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         boolean finished = false;
         try {
             begin();
-            finished = networkSystem.connectWithTimeout(fd, isBlocking() ? -1 : 0,
-                    connectAddress.getAddress(), connectAddress.getPort(),
-                    HY_PORT_SOCKET_STEP_CHECK, connectContext);
+            final int WAIT_FOREVER = -1;
+            final int POLL = 0;
+            finished = networkSystem.isConnected(fd, isBlocking() ? WAIT_FOREVER : POLL);
             isBound = finished;
             initLocalAddressAndPort();
         } catch (ConnectException e) {
@@ -559,7 +544,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     @Override
     protected void implConfigureBlocking(boolean blockMode) throws IOException {
         synchronized (blockingLock()) {
-            IoUtils.setNonBlocking(fd, !blockMode);
+            IoUtils.setBlocking(fd, blockMode);
         }
     }
 

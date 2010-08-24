@@ -22,12 +22,9 @@ package javax.xml.parsers;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.validation.Schema;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.DOMImplementation;
-
+import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;

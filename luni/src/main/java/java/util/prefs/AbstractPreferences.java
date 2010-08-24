@@ -19,7 +19,6 @@ package java.util.prefs;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charsets;
 import java.util.Collection;
 import java.util.EventListener;
@@ -30,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-
 import org.apache.harmony.luni.util.Base64;
 
 /**

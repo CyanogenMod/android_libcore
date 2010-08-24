@@ -16,10 +16,10 @@
 
 package dalvik.system;
 
-import java.util.logging.Logger;
-import java.io.DataInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * A sampling profiler.

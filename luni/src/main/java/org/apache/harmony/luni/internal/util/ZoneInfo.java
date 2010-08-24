@@ -16,17 +16,17 @@
 
 package org.apache.harmony.luni.internal.util;
 
-import java.io.IOException;
+import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 import libcore.base.Objects;
 
-public final class ZoneInfo extends TimeZone {
+final class ZoneInfo extends TimeZone {
 
     private static final long MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
     private static final long MILLISECONDS_PER_400_YEARS =
-        MILLISECONDS_PER_DAY * (400 * 365 + 100 - 3);
+            MILLISECONDS_PER_DAY * (400 * 365 + 100 - 3);
 
     private static final long UNIX_OFFSET = 62167219200000L;
 
@@ -38,71 +38,60 @@ public final class ZoneInfo extends TimeZone {
         0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335,
     };
 
-    public static TimeZone getTimeZone(String name) {
-        if (name == null) {
+    private static String nullName(byte[] bytes, int begin) {
+        if (begin < 0) {
             return null;
         }
-
-        try {
-            return ZoneInfoDB._getTimeZone(name);
-        } catch (IOException e) {
-            return null;
+        int end = begin;
+        while (end < bytes.length && bytes[end] != 0) {
+            ++end;
         }
-    }
-
-    private static String nullName(byte[] data, int where, int off) {
-        if (off < 0) {
-            return null;
-        }
-
-        int end = where + off;
-        while (end < data.length && data[end] != '\0') {
-            end++;
-        }
-
-        return new String(data, where + off, end - (where + off));
+        return new String(bytes, begin, end - begin, Charsets.US_ASCII);
     }
 
     private int mRawOffset;
-    private int[] mTransitions;
-    private int[] mGmtOffs;
-    private byte[] mTypes;
-    private byte[] mIsDsts;
-    private boolean mUseDst;
-    private String mDaylightName;
-    private String mStandardName;
 
-    ZoneInfo(String name, int[] transitions, byte[] type,
-                     int[] gmtoff, byte[] isdst, byte[] abbrev,
-                     byte[] data, int abbrevoff) {
+    private final int[] mTransitions;
+    private final int[] mGmtOffs;
+    private final byte[] mTypes;
+    private final byte[] mIsDsts;
+    private final boolean mUseDst;
+    private final String mDaylightName;
+    private final String mStandardName;
+
+    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtoff, byte[] isdst,
+            byte[] abbreviationIndexes, byte[] abbreviationList) {
         mTransitions = transitions;
         mTypes = type;
         mGmtOffs = gmtoff;
         mIsDsts = isdst;
-        mUseDst = false;
         setID(name);
 
         // Find the latest GMT and non-GMT offsets for their abbreviations
 
         int lastdst;
         for (lastdst = mTransitions.length - 1; lastdst >= 0; lastdst--) {
-            if (mIsDsts[mTypes[lastdst] & 0xFF] != 0)
+            if (mIsDsts[mTypes[lastdst] & 0xFF] != 0) {
                 break;
+            }
         }
 
         int laststd;
         for (laststd = mTransitions.length - 1; laststd >= 0; laststd--) {
-            if (mIsDsts[mTypes[laststd] & 0xFF] == 0)
+            if (mIsDsts[mTypes[laststd] & 0xFF] == 0) {
                 break;
+            }
         }
 
         if (lastdst >= 0) {
-            mDaylightName = nullName(data, abbrevoff,
-                                     abbrev[mTypes[lastdst] & 0xFF]);
+            mDaylightName = nullName(abbreviationList, abbreviationIndexes[mTypes[lastdst] & 0xFF]);
+        } else {
+            mDaylightName = null;
         }
         if (laststd >= 0) {
-            mStandardName = nullName(data, abbrevoff,
-                                     abbrev[mTypes[laststd] & 0xFF]);
+            mStandardName = nullName(abbreviationList, abbreviationIndexes[mTypes[laststd] & 0xFF]);
+        } else {
+            mStandardName = null;
         }
 
         // Use the latest non-DST offset if any as the raw offset
@@ -131,14 +120,16 @@ public final class ZoneInfo extends TimeZone {
         // This test means that for somewhere like Morocco, which tried DST in 2009 but has
         // no future plans (and thus no future schedule info) will report "true" from
         // useDaylightTime at the start of 2009 but "false" at the end. This seems appropriate.
+        boolean usesDst = false;
         long currentUnixTime = System.currentTimeMillis() / 1000;
         if (mTransitions.length > 0) {
             // (We're really dealing with uint32_t values, so long is most convenient in Java.)
             long latestScheduleTime = mTransitions[mTransitions.length - 1] & 0xffffffff;
             if (currentUnixTime < latestScheduleTime) {
-                mUseDst = true;
+                usesDst = true;
             }
         }
+        mUseDst = usesDst;
 
         mRawOffset *= 1000;
     }

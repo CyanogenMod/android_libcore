@@ -13,8 +13,8 @@
 package org.w3c.dom.ls;
 
 import org.w3c.dom.DOMConfiguration;
-import org.w3c.dom.Node;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 
 /**
  *  A <code>LSSerializer</code> provides an API for serializing (writing) a

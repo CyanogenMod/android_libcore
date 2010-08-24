@@ -31,11 +31,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
 import org.apache.harmony.luni.util.Base64;
-import org.apache.harmony.security.utils.JarUtils;
-
 import org.apache.harmony.luni.util.Util;
+import org.apache.harmony.security.utils.JarUtils;
 
 /**
  * Non-public class used by {@link JarFile} and {@link JarInputStream} to manage

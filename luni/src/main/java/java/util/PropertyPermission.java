@@ -24,7 +24,6 @@ import java.io.ObjectStreamField;
 import java.security.BasicPermission;
 import java.security.Permission;
 import java.security.PermissionCollection;
-
 import org.apache.harmony.luni.util.Util;
 
 /**

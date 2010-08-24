@@ -91,8 +91,7 @@ public interface IFileSystem {
     public long seek(int fileDescriptor, long offset, int whence)
             throws IOException;
 
-    public void fflush(int fileDescriptor, boolean metadata)
-            throws IOException;
+    public void fsync(int fileDescriptor, boolean metadata) throws IOException;
 
     public void truncate(int fileDescriptor, long size) throws IOException;
 

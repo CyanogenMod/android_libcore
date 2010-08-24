@@ -17,6 +17,7 @@
 #define LOG_TAG "String"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
 #include "unicode/utf16.h"
@@ -237,11 +238,11 @@ static jbyteArray Charsets_toUtf8Bytes(JNIEnv* env, jclass, jcharArray javaChars
 }
 
 static JNINativeMethod gMethods[] = {
-    { "asciiBytesToChars", "([BII[C)V", (void*) Charsets_asciiBytesToChars },
-    { "isoLatin1BytesToChars", "([BII[C)V", (void*) Charsets_isoLatin1BytesToChars },
-    { "toAsciiBytes", "([CII)[B", (void*) Charsets_toAsciiBytes },
-    { "toIsoLatin1Bytes", "([CII)[B", (void*) Charsets_toIsoLatin1Bytes },
-    { "toUtf8Bytes", "([CII)[B", (void*) Charsets_toUtf8Bytes },
+    NATIVE_METHOD(Charsets, asciiBytesToChars, "([BII[C)V"),
+    NATIVE_METHOD(Charsets, isoLatin1BytesToChars, "([BII[C)V"),
+    NATIVE_METHOD(Charsets, toAsciiBytes, "([CII)[B"),
+    NATIVE_METHOD(Charsets, toIsoLatin1Bytes, "([CII)[B"),
+    NATIVE_METHOD(Charsets, toUtf8Bytes, "([CII)[B"),
 };
 int register_java_nio_charset_Charsets(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/nio/charset/Charsets", gMethods, NELEM(gMethods));

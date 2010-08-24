@@ -18,8 +18,8 @@
 package java.sql;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Writer;
 
 /**

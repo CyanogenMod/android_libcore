@@ -16,9 +16,9 @@
 
 package org.json;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 // Note: this class was written without inspecting the non-free org.json sourcecode.
 

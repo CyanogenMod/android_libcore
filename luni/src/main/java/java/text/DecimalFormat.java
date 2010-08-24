@@ -26,8 +26,6 @@ import java.io.ObjectStreamField;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Currency;
 import java.util.Locale;
 
@@ -60,49 +58,7 @@ import java.util.Locale;
  * </pre>
  *
  * </blockquote>
- * <h5>Example:</h5>
- * <blockquote>
  *
- * <pre>
- * // Print out a number using the localized number, currency,
- * // and percent format for each locale
- * Locale[] locales = NumberFormat.getAvailableLocales();
- * double myNumber = -1234.56;
- * NumberFormat format;
- * for (int j = 0; j &lt; 3; ++j) {
- *     System.out.println(&quot;FORMAT&quot;);
- *     for (int i = 0; i &lt; locales.length; ++i) {
- *         if (locales[i].getCountry().length() == 0) {
- *             // Skip language-only locales
- *             continue;
- *         }
- *         System.out.print(locales[i].getDisplayName());
- *         switch (j) {
- *             case 0:
- *                 format = NumberFormat.getInstance(locales[i]);
- *                 break;
- *             case 1:
- *                 format = NumberFormat.getCurrencyInstance(locales[i]);
- *                 break;
- *             default:
- *                 format = NumberFormat.getPercentInstance(locales[i]);
- *                 break;
- *         }
- *         try {
- *             // Assume format is a DecimalFormat
- *             System.out.print(&quot;: &quot;; + ((DecimalFormat)format).toPattern() + &quot; -&gt; &quot;
- *                     + form.format(myNumber));
- *         } catch (Exception e) {
- *         }
- *         try {
- *             System.out.println(&quot; -&gt; &quot; + format.parse(form.format(myNumber)));
- *         } catch (ParseException e) {
- *         }
- *     }
- * }
- * </pre>
- *
- * </blockquote>
  * <h4>Patterns</h4>
  * <p>
  * A {@code DecimalFormat} consists of a <em>pattern</em> and a set of

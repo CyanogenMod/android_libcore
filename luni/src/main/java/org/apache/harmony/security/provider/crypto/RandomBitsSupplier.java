@@ -21,12 +21,10 @@ package org.apache.harmony.security.provider.crypto;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.FileNotFoundException;
-
-import java.security.ProviderException;
+import java.io.IOException;
 import java.security.AccessController;
-import java.security.PrivilegedActionException;
+import java.security.ProviderException;
 
 
 /**

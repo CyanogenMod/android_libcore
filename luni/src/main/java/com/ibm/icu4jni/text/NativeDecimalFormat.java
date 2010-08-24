@@ -213,7 +213,7 @@ public final class NativeDecimalFormat {
         }
 
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(format(this.addr, value.toString(), fpi));
+        buffer.append(formatDigitList(this.addr, value.toString(), fpi));
         FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
@@ -223,7 +223,7 @@ public final class NativeDecimalFormat {
             throw new NullPointerException();
         }
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(format(this.addr, value.toString(10), fpi));
+        buffer.append(formatDigitList(this.addr, value.toString(10), fpi));
         FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
@@ -233,7 +233,7 @@ public final class NativeDecimalFormat {
             throw new NullPointerException();
         }
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(format(this.addr, value, fpi));
+        buffer.append(formatLong(this.addr, value, fpi));
         FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
@@ -243,7 +243,7 @@ public final class NativeDecimalFormat {
             throw new NullPointerException();
         }
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(format(this.addr, value, fpi));
+        buffer.append(formatDouble(this.addr, value, fpi));
         FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
@@ -272,16 +272,16 @@ public final class NativeDecimalFormat {
 
         if (number instanceof BigInteger) {
             BigInteger valBigInteger = (BigInteger) number;
-            text = format(this.addr, valBigInteger.toString(10), fpIter);
+            text = formatDigitList(this.addr, valBigInteger.toString(10), fpIter);
         } else if (number instanceof BigDecimal) {
             BigDecimal valBigDecimal = (BigDecimal) number;
-            text = format(this.addr, valBigDecimal.toString(), fpIter);
+            text = formatDigitList(this.addr, valBigDecimal.toString(), fpIter);
         } else if (number instanceof Double || number instanceof Float) {
             double dv = number.doubleValue();
-            text = format(this.addr, dv, fpIter);
+            text = formatDouble(this.addr, dv, fpIter);
         } else {
             long lv = number.longValue();
-            text = format(this.addr, lv, fpIter);
+            text = formatLong(this.addr, lv, fpIter);
         }
 
         AttributedString as = new AttributedString(text);
@@ -608,9 +608,9 @@ public final class NativeDecimalFormat {
     private static native void applyPatternImpl(int addr, boolean localized, String pattern);
     private static native int cloneImpl(int addr);
     private static native void close(int addr);
-    private static native String format(int addr, long value, FieldPositionIterator iter);
-    private static native String format(int addr, double value, FieldPositionIterator iter);
-    private static native String format(int addr, String value, FieldPositionIterator iter);
+    private static native String formatLong(int addr, long value, FieldPositionIterator iter);
+    private static native String formatDouble(int addr, double value, FieldPositionIterator iter);
+    private static native String formatDigitList(int addr, String value, FieldPositionIterator iter);
     private static native int getAttribute(int addr, int symbol);
     private static native String getTextAttribute(int addr, int symbol);
     private static native int open(String pattern, String currencySymbol,

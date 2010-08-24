@@ -21,10 +21,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.channels.Pipe;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import static java.nio.channels.SelectionKey.*;
 import java.nio.channels.Selector;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.AbstractSelectionKey;
@@ -46,8 +46,7 @@ final class SelectorImpl extends AbstractSelector {
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-    private static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY
-            = new FileDescriptor[0];
+    private static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
     private static final SelectionKeyImpl[] EMPTY_SELECTION_KEY_IMPLS_ARRAY
             = new SelectionKeyImpl[0];
 
@@ -55,15 +54,15 @@ final class SelectorImpl extends AbstractSelector {
 
     private static final int ACCEPT_OR_READ = OP_ACCEPT | OP_READ;
 
-    private static final int MOCK_WRITEBUF_SIZE = 1;
+    private static final int WAKEUP_WRITE_SIZE = 1;
 
-    private static final int MOCK_READBUF_SIZE = 8;
+    private static final int WAKEUP_READ_SIZE = 8;
 
     private static final int NA = 0;
 
     private static final int READABLE = 1;
 
-    private static final int WRITEABLE = 2;
+    private static final int WRITABLE = 2;
 
     private static final int SELECT_BLOCK = -1;
 
@@ -94,8 +93,13 @@ final class SelectorImpl extends AbstractSelector {
             = new UnaddableSet<SelectionKey>(mutableSelectedKeys);
 
     /**
+     * The pipe used to implement wakeup.
+     */
+    private final Pipe wakeupPipe;
+
+    /**
      * File descriptors we're interested in reading from. When actively
-     * selecting, the first element is always the mock channel's file
+     * selecting, the first element is always the wakeup channel's file
      * descriptor, and the other elements are user-specified file descriptors.
      * Otherwise, all elements are null.
      */
@@ -121,22 +125,10 @@ final class SelectorImpl extends AbstractSelector {
      */
     private int[] flags = EMPTY_INT_ARRAY;
 
-    /**
-     * A mock channel is used to signal wake ups. Whenever the selector should
-     * stop blocking on a select(), a byte is written to the sink and will be
-     * picked up in source by the selecting thread.
-     */
-    private Pipe.SinkChannel sink;
-    private Pipe.SourceChannel source;
-    private FileDescriptor sourcefd;
-
     public SelectorImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
-        Pipe mockSelector = selectorProvider.openPipe();
-        sink = mockSelector.sink();
-        source = mockSelector.source();
-        sourcefd = ((FileDescriptorHandler) source).getFD();
-        source.configureBlocking(false);
+        wakeupPipe = selectorProvider.openPipe();
+        wakeupPipe.source().configureBlocking(false);
     }
 
     @Override protected void implCloseSelector() throws IOException {
@@ -144,8 +136,8 @@ final class SelectorImpl extends AbstractSelector {
         synchronized (this) {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
-                    sink.close();
-                    source.close();
+                    wakeupPipe.sink().close();
+                    wakeupPipe.source().close();
                     doCancel();
                     for (SelectionKey sk : mutableKeys) {
                         deregister((AbstractSelectionKey) sk);
@@ -206,7 +198,7 @@ final class SelectorImpl extends AbstractSelector {
                 synchronized (selectedKeys) {
                     doCancel();
                     boolean isBlock = (SELECT_NOW != timeout);
-                    int readableKeysCount = 1; // first is always the mock channel
+                    int readableKeysCount = 1; // first is always the wakeup channel
                     int writableKeysCount = 0;
                     synchronized (keysLock) {
                         for (SelectionKeyImpl key : mutableKeys) {
@@ -277,8 +269,8 @@ final class SelectorImpl extends AbstractSelector {
             flags = new int[newSize];
         }
 
-        // populate the FDs, including the mock channel
-        readableFDs[0] = sourcefd;
+        // populate the FDs, including the wakeup channel
+        readableFDs[0] = ((FileDescriptorHandler) wakeupPipe.source()).getFD();
         int r = 1;
         int w = 0;
         for (SelectionKeyImpl key : mutableKeys) {
@@ -301,15 +293,17 @@ final class SelectorImpl extends AbstractSelector {
      * array.
      */
     private int processSelectResult() throws IOException {
-        // if the mock channel is selected, read the content.
-        if (READABLE == flags[0]) {
-            ByteBuffer readbuf = ByteBuffer.allocate(MOCK_READBUF_SIZE);
-            while (source.read(readbuf) > 0) {
-                readbuf.flip();
+        // If there's something in the wakeup pipe, read it all --- the definition of the various
+        // select methods says that one select swallows all outstanding wakeups. We made this
+        // channel non-blocking in our constructor so that we can just loop until read returns 0.
+        if (flags[0] == READABLE) {
+            ByteBuffer buf = ByteBuffer.allocate(WAKEUP_READ_SIZE);
+            while (wakeupPipe.source().read(buf) > 0) {
+                buf.flip();
             }
         }
-        int selected = 0;
 
+        int selected = 0;
         for (int i = 1; i < flags.length; i++) {
             if (flags[i] == NA) {
                 continue;
@@ -323,7 +317,7 @@ final class SelectorImpl extends AbstractSelector {
                 case READABLE:
                     selectedOp = ACCEPT_OR_READ & ops;
                     break;
-                case WRITEABLE:
+                case WRITABLE:
                     if (key.isConnected()) {
                         selectedOp = OP_WRITE & ops;
                     } else {
@@ -332,7 +326,7 @@ final class SelectorImpl extends AbstractSelector {
                     break;
             }
 
-            if (0 != selectedOp) {
+            if (selectedOp != 0) {
                 boolean wasSelected = mutableSelectedKeys.contains(key);
                 if (wasSelected && key.readyOps() != selectedOp) {
                     key.setReadyOps(key.readyOps() | selectedOp);
@@ -364,10 +358,10 @@ final class SelectorImpl extends AbstractSelector {
         Set<SelectionKey> cancelledKeys = cancelledKeys();
         synchronized (cancelledKeys) {
             if (cancelledKeys.size() > 0) {
-                for (SelectionKey currentkey : cancelledKeys) {
-                    mutableKeys.remove(currentkey);
-                    deregister((AbstractSelectionKey) currentkey);
-                    if (mutableSelectedKeys.remove(currentkey)) {
+                for (SelectionKey currentKey : cancelledKeys) {
+                    mutableKeys.remove(currentKey);
+                    deregister((AbstractSelectionKey) currentKey);
+                    if (mutableSelectedKeys.remove(currentKey)) {
                         deselected++;
                     }
                 }
@@ -380,9 +374,8 @@ final class SelectorImpl extends AbstractSelector {
 
     @Override public Selector wakeup() {
         try {
-            sink.write(ByteBuffer.allocate(MOCK_WRITEBUF_SIZE));
-        } catch (IOException e) {
-            // do nothing
+            wakeupPipe.sink().write(ByteBuffer.allocate(WAKEUP_WRITE_SIZE));
+        } catch (IOException ignored) {
         }
         return this;
     }

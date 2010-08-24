@@ -27,9 +27,8 @@ import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import javax.security.auth.x500.X500Principal;
-
+import org.apache.harmony.security.Util;
 import org.apache.harmony.security.asn1.ASN1Constants;
 import org.apache.harmony.security.asn1.ASN1Oid;
 import org.apache.harmony.security.asn1.ASN1Sequence;
@@ -38,7 +37,6 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.BerOutputStream;
 import org.apache.harmony.security.utils.ObjectIdentifier;
-import org.apache.harmony.security.Util;
 
 
 /**

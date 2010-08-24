@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "cbigint.h"
 
@@ -68,15 +69,8 @@
  *           1.2341234124312331E107
  *
  */
-JNIEXPORT void JNICALL
-Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
-        JNIEnv* env,
-        jobject inst,
-        jlong f,
-        jint e,
-        jboolean isDenormalized,
-        jboolean mantissaIsZero,
-        jint p) {
+void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlong f, jint e,
+        jboolean isDenormalized, jint p) {
   int RLength, SLength, TempLength, mplus_Length, mminus_Length;
   int high, low, i;
   jint k, firstK, U;
@@ -86,14 +80,14 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   jfieldID fid;
   jintArray uArrayObject;
 
-  U_64 R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE],
+  uint64_t R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE],
     Temp[STemp_SIZE];
 
-  memset (R     , 0, RM_SIZE    * sizeof (U_64));
-  memset (S     , 0, STemp_SIZE * sizeof (U_64));
-  memset (mplus , 0, RM_SIZE    * sizeof (U_64));
-  memset (mminus, 0, RM_SIZE    * sizeof (U_64));
-  memset (Temp  , 0, STemp_SIZE * sizeof (U_64));
+  memset (R     , 0, RM_SIZE    * sizeof (uint64_t));
+  memset (S     , 0, STemp_SIZE * sizeof (uint64_t));
+  memset (mplus , 0, RM_SIZE    * sizeof (uint64_t));
+  memset (mminus, 0, RM_SIZE    * sizeof (uint64_t));
+  memset (Temp  , 0, STemp_SIZE * sizeof (uint64_t));
 
   if (e >= 0)
     {
@@ -140,7 +134,7 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
         }
     }
 
-  k = (int) ceil ((e + p - 1) * INV_LOG_OF_TEN_BASE_2 - 1e-10);
+  k = static_cast<int>(ceil ((e + p - 1) * INV_LOG_OF_TEN_BASE_2 - 1e-10));
 
   if (k > 0)
     {
@@ -156,8 +150,8 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   RLength = mplus_Length = mminus_Length = RM_SIZE;
   SLength = TempLength = STemp_SIZE;
 
-  memset (Temp + RM_SIZE, 0, (STemp_SIZE - RM_SIZE) * sizeof (U_64));
-  memcpy (Temp, R, RM_SIZE * sizeof (U_64));
+  memset (Temp + RM_SIZE, 0, (STemp_SIZE - RM_SIZE) * sizeof (uint64_t));
+  memcpy (Temp, R, RM_SIZE * sizeof (uint64_t));
 
   while (RLength > 1 && R[RLength - 1] == 0)
     --RLength;
@@ -190,7 +184,7 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
 
   clazz = env->GetObjectClass(inst);
   fid = env->GetFieldID(clazz, "uArray", "[I");
-  uArrayObject = (jintArray) env->GetObjectField(inst, fid);
+  uArrayObject = reinterpret_cast<jintArray>(env->GetObjectField(inst, fid));
   ScopedIntArrayRW uArray(env, uArrayObject);
   if (uArray.get() == NULL) {
     return;
@@ -204,7 +198,7 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
         {
           TempLength = SLength + 1;
           Temp[SLength] = 0;
-          memcpy (Temp, S, SLength * sizeof (U_64));
+          memcpy (Temp, S, SLength * sizeof (uint64_t));
           simpleShiftLeftHighPrecision (Temp, TempLength, i);
           if (compareHighPrecision (R, RLength, Temp, TempLength) >= 0)
             {
@@ -215,8 +209,8 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
 
       low = compareHighPrecision (R, RLength, mminus, mminus_Length) <= 0;
 
-      memset (Temp + RLength, 0, (STemp_SIZE - RLength) * sizeof (U_64));
-      memcpy (Temp, R, RLength * sizeof (U_64));
+      memset (Temp + RLength, 0, (STemp_SIZE - RLength) * sizeof (uint64_t));
+      memcpy (Temp, R, RLength * sizeof (uint64_t));
       TempLength = (RLength > mplus_Length ? RLength : mplus_Length) + 1;
       addHighPrecision (Temp, TempLength, mplus, mplus_Length);
 
@@ -259,10 +253,9 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
 }
 
 static JNINativeMethod gMethods[] = {
-    { "bigIntDigitGeneratorInstImpl", "(JIZZI)V"              ,
-      (void*)Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl },
+    NATIVE_METHOD(NumberConverter, bigIntDigitGeneratorInstImpl, "(JIZI)V"),
 };
-int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv *env) {
+int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",
                 gMethods, NELEM(gMethods));
 }

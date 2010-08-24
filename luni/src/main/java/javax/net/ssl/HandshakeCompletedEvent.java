@@ -19,8 +19,8 @@ package javax.net.ssl;
 
 import java.security.Principal;
 import java.security.cert.Certificate;
-import javax.security.cert.X509Certificate;
 import java.util.EventObject;
+import javax.security.cert.X509Certificate;
 
 /**
  * The event object encapsulating the information about a completed SSL

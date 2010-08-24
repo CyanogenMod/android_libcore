@@ -17,8 +17,6 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.Endianness;
-
 /**
  * HeapByteBuffer, ReadWriteHeapByteBuffer and ReadOnlyHeapByteBuffer compose
  * the implementation of array based byte buffers.
@@ -177,7 +175,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     protected final int loadInt(int index) {
         int baseOffset = offset + index;
         int bytes = 0;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             for (int i = 0; i < 4; i++) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
@@ -194,7 +192,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     protected final long loadLong(int index) {
         int baseOffset = offset + index;
         long bytes = 0;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             for (int i = 0; i < 8; i++) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
@@ -211,7 +209,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     protected final short loadShort(int index) {
         int baseOffset = offset + index;
         short bytes = 0;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             bytes = (short) (backingArray[baseOffset] << 8);
             bytes |= (backingArray[baseOffset + 1] & 0xFF);
         } else {
@@ -223,7 +221,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     protected final void store(int index, int value) {
         int baseOffset = offset + index;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             for (int i = 3; i >= 0; i--) {
                 backingArray[baseOffset + i] = (byte) (value & 0xFF);
                 value = value >> 8;
@@ -238,7 +236,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     protected final void store(int index, long value) {
         int baseOffset = offset + index;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             for (int i = 7; i >= 0; i--) {
                 backingArray[baseOffset + i] = (byte) (value & 0xFF);
                 value = value >> 8;
@@ -253,7 +251,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     protected final void store(int index, short value) {
         int baseOffset = offset + index;
-        if (order == Endianness.BIG_ENDIAN) {
+        if (order == ByteOrder.BIG_ENDIAN) {
             backingArray[baseOffset] = (byte) ((value >> 8) & 0xFF);
             backingArray[baseOffset + 1] = (byte) (value & 0xFF);
         } else {

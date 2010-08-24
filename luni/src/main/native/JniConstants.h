@@ -52,7 +52,6 @@ struct JniConstants {
     static jclass doubleClass;
     static jclass fieldClass;
     static jclass fieldPositionIteratorClass;
-    static jclass genericIPMreqClass;
     static jclass inetAddressClass;
     static jclass inflaterClass;
     static jclass integerClass;
@@ -60,6 +59,7 @@ struct JniConstants {
     static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;
+    static jclass multicastGroupRequestClass;
     static jclass parsePositionClass;
     static jclass patternSyntaxExceptionClass;
     static jclass socketClass;
@@ -67,5 +67,8 @@ struct JniConstants {
     static jclass stringClass;
     static jclass vmRuntimeClass;
 };
+
+#define NATIVE_METHOD(className, functionName, signature) \
+    { #functionName, signature, reinterpret_cast<void*>(className ## _ ## functionName) }
 
 #endif  // JNI_CONSTANTS_H_included

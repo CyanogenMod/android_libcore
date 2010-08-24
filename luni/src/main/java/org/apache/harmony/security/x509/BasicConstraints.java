@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1Integer;
-import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.ASN1Sequence;
+import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**

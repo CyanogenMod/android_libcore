@@ -17,8 +17,6 @@
 
 package java.io;
 
-import java.util.logging.Logger;
-
 /**
  * Wraps an existing {@link Reader} and <em>buffers</em> the input. Expensive
  * interaction with the underlying reader is minimized, since most (smaller)

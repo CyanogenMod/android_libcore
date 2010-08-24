@@ -18,7 +18,6 @@
 package java.nio;
 
 import org.apache.harmony.luni.platform.PlatformAddress;
-// BEGIN android-added
 import org.apache.harmony.luni.platform.PlatformAddressFactory;
 // END android-added
 
@@ -35,8 +34,7 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
-    static ReadWriteDirectByteBuffer copy(DirectByteBuffer other,
-            int markOfOther) {
+    static ReadWriteDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
         ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(
                 other.safeAddress, other.capacity(), other.offset);
         buf.limit = other.limit();
@@ -79,8 +77,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     @Override
     public ByteBuffer compact() {
         PlatformAddress effectiveAddress = getEffectiveAddress();
-        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress,
-                remaining());
+        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

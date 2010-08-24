@@ -19,7 +19,6 @@ package org.apache.harmony.security.x509;
 
 import java.io.IOException;
 import java.util.Date;
-
 import org.apache.harmony.security.asn1.ASN1GeneralizedTime;
 import org.apache.harmony.security.asn1.ASN1Type;
 

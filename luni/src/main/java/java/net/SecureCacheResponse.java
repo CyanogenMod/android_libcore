@@ -18,7 +18,6 @@ package java.net;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.util.List;
-
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**

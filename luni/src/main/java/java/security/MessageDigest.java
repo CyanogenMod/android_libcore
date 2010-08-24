@@ -18,7 +18,6 @@
 package java.security;
 
 import java.nio.ByteBuffer;
-
 import org.apache.harmony.security.fortress.Engine;
 
 /**

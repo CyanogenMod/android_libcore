@@ -22,8 +22,6 @@
 package org.apache.harmony.security.pkcs7;
 
 import java.util.List;
-
-import org.apache.harmony.security.asn1.ASN1Any;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1Sequence;

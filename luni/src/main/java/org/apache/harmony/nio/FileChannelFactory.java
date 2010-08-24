@@ -23,11 +23,10 @@
 package org.apache.harmony.nio;
 
 import java.nio.channels.FileChannel;
-
+import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.nio.internal.ReadOnlyFileChannel;
 import org.apache.harmony.nio.internal.ReadWriteFileChannel;
 import org.apache.harmony.nio.internal.WriteOnlyFileChannel;
-import org.apache.harmony.luni.platform.IFileSystem;
 
 /**
  * A simple factory to provide a generic way to create FileChannel

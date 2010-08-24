@@ -18,6 +18,7 @@
 
 #include "jni.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -122,44 +123,44 @@ static jfloat Math_nextafterf(JNIEnv*, jclass, jfloat a, jfloat b) {
     return nextafterf(a, b);
 }
 
-static jdouble Math_copySign(JNIEnv*, jclass, jdouble a, jdouble b) {
+static jdouble Math_copysign(JNIEnv*, jclass, jdouble a, jdouble b) {
     // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
     return copysign(a, isnan(b) ? 1.0 : b);
 }
 
-static jfloat Math_copySign_f(JNIEnv*, jclass, jfloat a, jfloat b) {
+static jfloat Math_copysignf(JNIEnv*, jclass, jfloat a, jfloat b) {
     // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
     return copysignf(a, isnan(b) ? 1.0 : b);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "IEEEremainder", "(DD)D", (void*) Math_IEEEremainder },
-    { "acos",          "(D)D",  (void*) Math_acos },
-    { "asin",          "(D)D",  (void*) Math_asin },
-    { "atan",          "(D)D",  (void*) Math_atan },
-    { "atan2",         "(DD)D", (void*) Math_atan2 },
-    { "cbrt",          "(D)D",  (void*) Math_cbrt },
-    { "ceil",          "(D)D",  (void*) Math_ceil },
-    { "copySign",      "(DD)D", (void*) Math_copySign },
-    { "copySign",      "(FF)F", (void*) Math_copySign_f },
-    { "cos",           "(D)D",  (void*) Math_cos },
-    { "cosh",          "(D)D",  (void*) Math_cosh },
-    { "exp",           "(D)D",  (void*) Math_exp },
-    { "expm1",         "(D)D",  (void*) Math_expm1 },
-    { "floor",         "(D)D",  (void*) Math_floor },
-    { "hypot",         "(DD)D", (void*) Math_hypot },
-    { "log",           "(D)D",  (void*) Math_log },
-    { "log10",         "(D)D",  (void*) Math_log10 },
-    { "log1p",         "(D)D",  (void*) Math_log1p },
-    { "nextafter",     "(DD)D", (void*) Math_nextafter },
-    { "nextafterf",    "(FF)F", (void*) Math_nextafterf },
-    { "pow",           "(DD)D", (void*) Math_pow },
-    { "rint",          "(D)D",  (void*) Math_rint },
-    { "sin",           "(D)D",  (void*) Math_sin },
-    { "sinh",          "(D)D",  (void*) Math_sinh },
-    { "sqrt",          "(D)D",  (void*) Math_sqrt },
-    { "tan",           "(D)D",  (void*) Math_tan },
-    { "tanh",          "(D)D",  (void*) Math_tanh },
+    NATIVE_METHOD(Math, IEEEremainder, "(DD)D"),
+    NATIVE_METHOD(Math, acos, "(D)D"),
+    NATIVE_METHOD(Math, asin, "(D)D"),
+    NATIVE_METHOD(Math, atan, "(D)D"),
+    NATIVE_METHOD(Math, atan2, "(DD)D"),
+    NATIVE_METHOD(Math, cbrt, "(D)D"),
+    NATIVE_METHOD(Math, ceil, "(D)D"),
+    NATIVE_METHOD(Math, copysign, "(DD)D"),
+    NATIVE_METHOD(Math, copysignf, "(FF)F"),
+    NATIVE_METHOD(Math, cos, "(D)D"),
+    NATIVE_METHOD(Math, cosh, "(D)D"),
+    NATIVE_METHOD(Math, exp, "(D)D"),
+    NATIVE_METHOD(Math, expm1, "(D)D"),
+    NATIVE_METHOD(Math, floor, "(D)D"),
+    NATIVE_METHOD(Math, hypot, "(DD)D"),
+    NATIVE_METHOD(Math, log, "(D)D"),
+    NATIVE_METHOD(Math, log10, "(D)D"),
+    NATIVE_METHOD(Math, log1p, "(D)D"),
+    NATIVE_METHOD(Math, nextafter, "(DD)D"),
+    NATIVE_METHOD(Math, nextafterf, "(FF)F"),
+    NATIVE_METHOD(Math, pow, "(DD)D"),
+    NATIVE_METHOD(Math, rint, "(D)D"),
+    NATIVE_METHOD(Math, sin, "(D)D"),
+    NATIVE_METHOD(Math, sinh, "(D)D"),
+    NATIVE_METHOD(Math, sqrt, "(D)D"),
+    NATIVE_METHOD(Math, tan, "(D)D"),
+    NATIVE_METHOD(Math, tanh, "(D)D"),
 };
 
 int register_java_lang_Math(JNIEnv* env) {

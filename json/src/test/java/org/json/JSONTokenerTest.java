@@ -16,8 +16,8 @@
 
 package org.json;
 
-import junit.framework.TestCase;
 import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 
 /**
  * This black box test was written without inspecting the non-free org.json sourcecode.

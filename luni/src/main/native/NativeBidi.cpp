@@ -172,17 +172,17 @@ static jintArray NativeBidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "ubidi_close", "(J)V", (void*) NativeBidi_ubidi_close },
-    { "ubidi_countRuns", "(J)I", (void*) NativeBidi_ubidi_countRuns },
-    { "ubidi_getDirection", "(J)I", (void*) NativeBidi_ubidi_getDirection },
-    { "ubidi_getLength", "(J)I", (void*) NativeBidi_ubidi_getLength },
-    { "ubidi_getLevels", "(J)[B", (void*) NativeBidi_ubidi_getLevels },
-    { "ubidi_getParaLevel", "(J)B", (void*) NativeBidi_ubidi_getParaLevel },
-    { "ubidi_getRuns", "(J)[Lorg/apache/harmony/text/BidiRun;", (void*) NativeBidi_ubidi_getRuns },
-    { "ubidi_open", "()J", (void*) NativeBidi_ubidi_open },
-    { "ubidi_reorderVisual", "([BI)[I", (void*) NativeBidi_ubidi_reorderVisual },
-    { "ubidi_setLine", "(JII)J", (void*) NativeBidi_ubidi_setLine },
-    { "ubidi_setPara", "(J[CII[B)V", (void*) NativeBidi_ubidi_setPara },
+    NATIVE_METHOD(NativeBidi, ubidi_close, "(J)V"),
+    NATIVE_METHOD(NativeBidi, ubidi_countRuns, "(J)I"),
+    NATIVE_METHOD(NativeBidi, ubidi_getDirection, "(J)I"),
+    NATIVE_METHOD(NativeBidi, ubidi_getLength, "(J)I"),
+    NATIVE_METHOD(NativeBidi, ubidi_getLevels, "(J)[B"),
+    NATIVE_METHOD(NativeBidi, ubidi_getParaLevel, "(J)B"),
+    NATIVE_METHOD(NativeBidi, ubidi_getRuns, "(J)[Lorg/apache/harmony/text/BidiRun;"),
+    NATIVE_METHOD(NativeBidi, ubidi_open, "()J"),
+    NATIVE_METHOD(NativeBidi, ubidi_reorderVisual, "([BI)[I"),
+    NATIVE_METHOD(NativeBidi, ubidi_setLine, "(JII)J"),
+    NATIVE_METHOD(NativeBidi, ubidi_setPara, "(J[CII[B)V"),
 };
 int register_org_apache_harmony_text_NativeBidi(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/text/NativeBidi",

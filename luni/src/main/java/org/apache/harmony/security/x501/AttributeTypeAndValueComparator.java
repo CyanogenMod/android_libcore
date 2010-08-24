@@ -24,7 +24,6 @@ package org.apache.harmony.security.x501;
 
 import java.io.Serializable;
 import java.util.Comparator;
-
 import org.apache.harmony.security.utils.ObjectIdentifier;
 
 /**

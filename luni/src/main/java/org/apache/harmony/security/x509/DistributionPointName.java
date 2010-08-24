@@ -24,7 +24,6 @@ package org.apache.harmony.security.x509;
 
 import java.io.IOException;
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.asn1.ASN1Choice;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Type;
