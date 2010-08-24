@@ -301,12 +301,44 @@ public final class StandardNames extends Assert {
             provide("KeyStore", "BouncyCastle");
 
             // Noise to support KeyStore.PKCS12
+            provide("Cipher", "PBEWITHMD5AND128BITAES-CBC-OPENSSL");
+            provide("Cipher", "PBEWITHMD5AND192BITAES-CBC-OPENSSL");
+            provide("Cipher", "PBEWITHMD5AND256BITAES-CBC-OPENSSL");
+            provide("Cipher", "PBEWITHMD5ANDRC2");
+            provide("Cipher", "PBEWITHSHA1ANDDES");
+            provide("Cipher", "PBEWITHSHA1ANDRC2");
+            provide("Cipher", "PBEWITHSHA256AND128BITAES-CBC-BC");
+            provide("Cipher", "PBEWITHSHA256AND192BITAES-CBC-BC");
+            provide("Cipher", "PBEWITHSHA256AND256BITAES-CBC-BC");
+            provide("Cipher", "PBEWITHSHAAND128BITAES-CBC-BC");
+            provide("Cipher", "PBEWITHSHAAND128BITRC2-CBC");
+            provide("Cipher", "PBEWITHSHAAND128BITRC4");
+            provide("Cipher", "PBEWITHSHAAND192BITAES-CBC-BC");
+            provide("Cipher", "PBEWITHSHAAND2-KEYTRIPLEDES-CBC");
+            provide("Cipher", "PBEWITHSHAAND256BITAES-CBC-BC");
             provide("Cipher", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("Cipher", "PBEWITHSHAAND40BITRC4");
             provide("Cipher", "PBEWITHSHAANDTWOFISH-CBC");
             provide("Mac", "PBEWITHHMACSHA");
             provide("Mac", "PBEWITHHMACSHA1");
             provide("SecretKeyFactory", "PBEWITHHMACSHA1");
+            provide("SecretKeyFactory", "PBEWITHMD5AND128BITAES-CBC-OPENSSL");
+            provide("SecretKeyFactory", "PBEWITHMD5AND192BITAES-CBC-OPENSSL");
+            provide("SecretKeyFactory", "PBEWITHMD5AND256BITAES-CBC-OPENSSL");
+            provide("SecretKeyFactory", "PBEWITHMD5ANDRC2");
+            provide("SecretKeyFactory", "PBEWITHSHA1ANDDES");
+            provide("SecretKeyFactory", "PBEWITHSHA1ANDRC2");
+            provide("SecretKeyFactory", "PBEWITHSHA256AND128BITAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWITHSHA256AND192BITAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWITHSHA256AND256BITAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND128BITAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND128BITRC2-CBC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND128BITRC4");
+            provide("SecretKeyFactory", "PBEWITHSHAAND192BITAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND2-KEYTRIPLEDES-CBC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND256BITAES-CBC-BC");
             provide("SecretKeyFactory", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("SecretKeyFactory", "PBEWITHSHAAND40BITRC4");
             provide("SecretKeyFactory", "PBEWITHSHAANDTWOFISH-CBC");
 
             // removed LDAP
