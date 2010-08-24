@@ -25,9 +25,6 @@ extern "C" {
 // assumes no-one's been polluting the namespace.
 #undef __P
 
-// This controls fdlibm's error behavior. We don't want to take any POSIX/SysV shortcuts.
-_LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
-
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
