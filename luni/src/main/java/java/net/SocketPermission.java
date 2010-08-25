@@ -53,7 +53,7 @@ import java.security.PermissionCollection;
  * lowest or highest possible value respectively. For example:
  *
  * <pre>
- * {@code SocketPermission(&quot;www.company.com:7000-&quot;, &quot;connect,accept&quot;)}
+ * {@code SocketPermission("www.company.com:7000-", "connect,accept")}
  * </pre>
  *
  * represents the permission to connect to and accept connections from {@code
