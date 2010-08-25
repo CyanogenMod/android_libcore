@@ -66,6 +66,30 @@ public class FormatterTest extends junit.framework.TestCase {
         assertEquals("7.000000 7", String.format("%.6f %d", 7.0, 7));
     }
 
+    public void test_grouping() throws Exception {
+        // The interesting case is -123, where you might naively output "-,123" if you're just
+        // inserting a separator every three characters. The cases where there are three digits
+        // before the first separator may also be interesting.
+        assertEquals("-1", String.format("%,d", -1));
+        assertEquals("-12", String.format("%,d", -12));
+        assertEquals("-123", String.format("%,d", -123));
+        assertEquals("-1,234", String.format("%,d", -1234));
+        assertEquals("-12,345", String.format("%,d", -12345));
+        assertEquals("-123,456", String.format("%,d", -123456));
+        assertEquals("-1,234,567", String.format("%,d", -1234567));
+        assertEquals("-12,345,678", String.format("%,d", -12345678));
+        assertEquals("-123,456,789", String.format("%,d", -123456789));
+        assertEquals("1", String.format("%,d", 1));
+        assertEquals("12", String.format("%,d", 12));
+        assertEquals("123", String.format("%,d", 123));
+        assertEquals("1,234", String.format("%,d", 1234));
+        assertEquals("12,345", String.format("%,d", 12345));
+        assertEquals("123,456", String.format("%,d", 123456));
+        assertEquals("1,234,567", String.format("%,d", 1234567));
+        assertEquals("12,345,678", String.format("%,d", 12345678));
+        assertEquals("123,456,789", String.format("%,d", 123456789));
+    }
+
     public void test_formatNull() throws Exception {
         // We fast-path %s and %d (with no configuration) but need to make sure we handle the
         // special case of the null argument...
