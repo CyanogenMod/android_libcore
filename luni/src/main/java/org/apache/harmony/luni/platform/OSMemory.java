@@ -22,16 +22,10 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
 
 /**
- * This class enables direct access to OS memory.
+ * This class enables direct access to memory.
  */
 final class OSMemory {
-    /**
-     * Defines the natural byte order for this machine.
-     */
-    public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
-
-    private OSMemory() {
-    }
+    private OSMemory() { }
 
     /**
      * Allocates and returns a pointer to space for a memory block of
@@ -103,18 +97,6 @@ final class OSMemory {
      */
     public static native void memmove(int destAddress, int srcAddress, long length);
 
-    public static native void setByteArray(int address, byte[] src, int offset, int length)
-            throws NullPointerException, IndexOutOfBoundsException;
-
-    public static native void setShortArray(int address, short[] src, int offset,
-            int length, boolean swap) throws NullPointerException, IndexOutOfBoundsException;
-
-    public static native void setIntArray(int address, int[] src, int offset,
-            int length, boolean swap) throws NullPointerException, IndexOutOfBoundsException;
-
-    public static native void setFloatArray(int address, float[] src, int offset,
-            int length, boolean swap) throws NullPointerException, IndexOutOfBoundsException;
-
     public static native byte peekByte(int address);
     public static native float peekFloat(int address, boolean swap);
     public static native double peekDouble(int address, boolean swap);
@@ -122,8 +104,7 @@ final class OSMemory {
     public static native long peekLong(int address, boolean swap);
     public static native short peekShort(int address, boolean swap);
 
-    public static native void peekByteArray(int address, byte[] bytes, int offset, int length)
-            throws NullPointerException, IndexOutOfBoundsException;
+    public static native void peekByteArray(int address, byte[] bytes, int offset, int length);
 
     public static native void pokeByte(int address, byte value);
     public static native void pokeDouble(int address, double value, boolean swap);
@@ -131,6 +112,14 @@ final class OSMemory {
     public static native void pokeInt(int address, int value, boolean swap);
     public static native void pokeLong(int address, long value, boolean swap);
     public static native void pokeShort(int address, short value, boolean swap);
+
+    public static native void pokeByteArray(int address, byte[] src, int offset, int length);
+    public static native void pokeFloatArray(int address, float[] src, int offset, int length,
+            boolean swap);
+    public static native void pokeIntArray(int address, int[] src, int offset, int length,
+            boolean swap);
+    public static native void pokeShortArray(int address, short[] src, int offset, int length,
+            boolean swap);
 
     private static native int mmapImpl(int fd, long offset, long size, int mapMode);
 

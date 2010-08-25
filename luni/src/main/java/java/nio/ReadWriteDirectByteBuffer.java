@@ -127,7 +127,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (len > remaining()) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setByteArray(offset + position, src, off, len);
+        getBaseAddress().pokeByteArray(offset + position, src, off, len);
         position += len;
         return this;
     }
@@ -166,7 +166,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        getBaseAddress().setShortArray(offset + position, src, off, len, order.needsSwap);
+        getBaseAddress().pokeShortArray(offset + position, src, off, len, order.needsSwap);
         position += len << 1;
         return this;
     }
@@ -205,7 +205,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        getBaseAddress().setIntArray(offset + position, src, off, len, order.needsSwap);
+        getBaseAddress().pokeIntArray(offset + position, src, off, len, order.needsSwap);
         position += len << 2;
         return this;
     }
@@ -244,7 +244,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        getBaseAddress().setFloatArray(offset + position, src, off, len, order.needsSwap);
+        getBaseAddress().pokeFloatArray(offset + position, src, off, len, order.needsSwap);
         position += len << 2;
         return this;
     }

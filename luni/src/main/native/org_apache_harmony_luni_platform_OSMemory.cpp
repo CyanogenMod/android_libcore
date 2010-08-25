@@ -96,7 +96,7 @@ static void OSMemory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
     *cast<jbyte*>(dstAddress) = value;
 }
 
-static void OSMemory_setByteArray(JNIEnv* env, jclass,
+static void OSMemory_pokeByteArray(JNIEnv* env, jclass,
         jint dstAddress, jbyteArray src, jint offset, jint length) {
     env->GetByteArrayRegion(src, offset, length, cast<jbyte*>(dstAddress));
 }
@@ -127,7 +127,7 @@ static void swapInts(jint* ints, int count) {
     }
 }
 
-static void OSMemory_setFloatArray(JNIEnv* env, jclass, jint dstAddress,
+static void OSMemory_pokeFloatArray(JNIEnv* env, jclass, jint dstAddress,
         jfloatArray src, jint offset, jint length, jboolean swap) {
     jfloat* dst = cast<jfloat*>(dstAddress);
     env->GetFloatArrayRegion(src, offset, length, dst);
@@ -136,7 +136,7 @@ static void OSMemory_setFloatArray(JNIEnv* env, jclass, jint dstAddress,
     }
 }
 
-static void OSMemory_setIntArray(JNIEnv* env, jclass,
+static void OSMemory_pokeIntArray(JNIEnv* env, jclass,
        jint dstAddress, jintArray src, jint offset, jint length, jboolean swap) {
     jint* dst = cast<jint*>(dstAddress);
     env->GetIntArrayRegion(src, offset, length, dst);
@@ -145,7 +145,7 @@ static void OSMemory_setIntArray(JNIEnv* env, jclass,
     }
 }
 
-static void OSMemory_setShortArray(JNIEnv* env, jclass,
+static void OSMemory_pokeShortArray(JNIEnv* env, jclass,
        jint dstAddress, jshortArray src, jint offset, jint length, jboolean swap) {
     jshort* dst = cast<jshort*>(dstAddress);
     env->GetShortArrayRegion(src, offset, length, dst);
@@ -377,15 +377,15 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, peekLong, "(IZ)J"),
     NATIVE_METHOD(OSMemory, peekShort, "(IZ)S"),
     NATIVE_METHOD(OSMemory, pokeByte, "(IB)V"),
+    NATIVE_METHOD(OSMemory, pokeByteArray, "(I[BII)V"),
     NATIVE_METHOD(OSMemory, pokeDouble, "(IDZ)V"),
     NATIVE_METHOD(OSMemory, pokeFloat, "(IFZ)V"),
+    NATIVE_METHOD(OSMemory, pokeFloatArray, "(I[FIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeInt, "(IIZ)V"),
+    NATIVE_METHOD(OSMemory, pokeIntArray, "(I[IIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeLong, "(IJZ)V"),
     NATIVE_METHOD(OSMemory, pokeShort, "(ISZ)V"),
-    NATIVE_METHOD(OSMemory, setByteArray, "(I[BII)V"),
-    NATIVE_METHOD(OSMemory, setFloatArray, "(I[FIIZ)V"),
-    NATIVE_METHOD(OSMemory, setIntArray, "(I[IIIZ)V"),
-    NATIVE_METHOD(OSMemory, setShortArray, "(I[SIIZ)V"),
+    NATIVE_METHOD(OSMemory, pokeShortArray, "(I[SIIZ)V"),
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
     /*
