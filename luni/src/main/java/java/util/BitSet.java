@@ -257,7 +257,7 @@ public class BitSet implements Serializable, Cloneable {
 
     /**
      * Retrieves the bits starting from {@code fromIndex} to {@code toIndex} and returns
-     * back a new bitset made of these bits. Grows the {@code BitSet} if {@code toIndex &gt; size}.
+     * back a new bitset made of these bits. Grows the {@code BitSet} if {@code toIndex > size}.
      *
      * @param fromIndex
      *            inclusive beginning position.

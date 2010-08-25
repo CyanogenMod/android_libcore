@@ -163,13 +163,13 @@ import java.util.Locale;
  * <td>Multiply by 100 and show as percentage.</td>
  * </tr>
  * <tr valign="top" bgcolor="#eeeeff">
- * <td>{@code \u2030} ({@code &#92;u2030})</td>
+ * <td>{@code \u2030} ({@code \u005Cu2030})</td>
  * <td>Prefix or suffix</td>
  * <td>Yes</td>
  * <td>Multiply by 1000 and show as per mille.</td>
  * </tr>
  * <tr valign="top">
- * <td>{@code &#164;} ({@code &#92;u00A4})</td>
+ * <td>{@code \u00A4} ({@code \u005Cu00A4})</td>
  * <td>Prefix or suffix</td>
  * <td>No</td>
  * <td>Currency sign, replaced by currency symbol. If doubled, replaced by
@@ -319,11 +319,11 @@ import java.util.Locale;
  * <strong>Special Values</strong>
  * <p>
  * {@code NaN} is represented as a single character, typically
- * {@code &#92;uFFFD}. This character is determined by the
+ * {@code \u005cuFFFD}. This character is determined by the
  * {@link DecimalFormatSymbols} object. This is the only value for which the
  * prefixes and suffixes are not used.
  * <p>
- * Infinity is represented as a single character, typically {@code &#92;u221E},
+ * Infinity is represented as a single character, typically {@code \u005cu221E},
  * with the positive or negative prefixes and suffixes applied. The infinity
  * character is determined by the {@link DecimalFormatSymbols} object. <a
  * name="sci">
