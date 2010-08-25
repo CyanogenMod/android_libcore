@@ -75,12 +75,6 @@ public class ThreadLocalCache<T> {
         storage.clear();
     }
 
-    public static ThreadLocalCache<CharsetDecoder> utf8Decoder = new ThreadLocalCache<CharsetDecoder>() {
-        protected CharsetDecoder initialValue() {
-            return Charsets.UTF_8.newDecoder();
-        }
-    };
-
     public static ThreadLocalCache<CharsetEncoder> utf8Encoder = new ThreadLocalCache<CharsetEncoder>() {
         protected CharsetEncoder initialValue() {
             return Charsets.UTF_8.newEncoder();
@@ -89,15 +83,7 @@ public class ThreadLocalCache<T> {
 
     public static ThreadLocalCache<java.nio.ByteBuffer> byteBuffer = new ThreadLocalCache<java.nio.ByteBuffer>() {
         protected java.nio.ByteBuffer initialValue() {
-            return java.nio.ByteBuffer.allocate(72); // >=
-            // Manifest.LINE_LENGTH_LIMIT
+            return java.nio.ByteBuffer.allocate(72); // >= Manifest.LINE_LENGTH_LIMIT
         }
     };
-
-    public static ThreadLocalCache<CharBuffer> charBuffer = new ThreadLocalCache<CharBuffer>() {
-        protected CharBuffer initialValue() {
-            return CharBuffer.allocate(72); // no specific requirement
-        }
-    };
-
 }
