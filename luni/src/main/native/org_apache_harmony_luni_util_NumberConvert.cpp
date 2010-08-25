@@ -26,21 +26,12 @@
 #include "ScopedPrimitiveArray.h"
 #include "cbigint.h"
 
-#if defined(__linux__) || defined(FREEBSD)
-#define USE_LL
-#endif
-
 #define INV_LOG_OF_TEN_BASE_2 (0.30102999566398114) /* Local */
-#define ERROR_OCCURED(x) (HIGH_I32_FROM_VAR(x) < 0) /* Local */
 
 /*NB the Number converter methods are synchronized so it is possible to
  *have global data for use by bigIntDigitGenerator */
 #define RM_SIZE 21     /* Local. */
 #define STemp_SIZE 22  /* Local. */
-
-#if defined(WIN32)
-#pragma optimize("",on)         /*restore optimizations */
-#endif
 
 /* The algorithm for this particular function can be found in:
  *
