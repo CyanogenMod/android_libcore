@@ -27,14 +27,6 @@ import java.nio.ByteOrder;
  * The platform address class is an unsafe virtualization of an OS memory block.
  */
 public class PlatformAddress implements Comparable {
-    public static final int SIZEOF_JBYTE = 1;
-    public static final int SIZEOF_JSHORT = 2;
-    public static final int SIZEOF_JINT = 4;
-    public static final int SIZEOF_JSIZE = 4;
-    public static final int SIZEOF_JFLOAT = 4;
-    public static final int SIZEOF_JLONG = 8;
-    public static final int SIZEOF_JDOUBLE = 8;
-
     /**
      * This final field defines the sentinel for an unknown address value.
      */
@@ -97,7 +89,7 @@ public class PlatformAddress implements Comparable {
         }
     }
 
-    public final void setByte(int offset, byte value) {
+    public final void pokeByte(int offset, byte value) {
         OSMemory.pokeByte(osaddr + offset, value);
     }
 
@@ -128,7 +120,7 @@ public class PlatformAddress implements Comparable {
         OSMemory.peekByteArray(osaddr + offset, bytes, bytesOffset, length);
     }
 
-    public final void setShort(int offset, short value, ByteOrder order) {
+    public final void pokeShort(int offset, short value, ByteOrder order) {
         OSMemory.pokeShort(osaddr + offset, value, order.needsSwap);
     }
 
@@ -136,7 +128,7 @@ public class PlatformAddress implements Comparable {
         return OSMemory.peekShort(osaddr + offset, order.needsSwap);
     }
 
-    public final void setInt(int offset, int value, ByteOrder order) {
+    public final void pokeInt(int offset, int value, ByteOrder order) {
         OSMemory.pokeInt(osaddr + offset, value, order.needsSwap);
     }
 
@@ -144,7 +136,7 @@ public class PlatformAddress implements Comparable {
         return OSMemory.peekInt(osaddr + offset, order.needsSwap);
     }
 
-    public final void setLong(int offset, long value, ByteOrder order) {
+    public final void pokeLong(int offset, long value, ByteOrder order) {
         OSMemory.pokeLong(osaddr + offset, value, order.needsSwap);
     }
 
@@ -152,20 +144,20 @@ public class PlatformAddress implements Comparable {
         return OSMemory.peekLong(osaddr + offset, order.needsSwap);
     }
 
-    public final void setFloat(int offset, float value, ByteOrder order) {
-        OSMemory.pokeFloat(osaddr + offset, value, order.needsSwap);
+    public final void pokeFloat(int offset, float value, ByteOrder order) {
+        OSMemory.pokeInt(osaddr + offset, Float.floatToRawIntBits(value), order.needsSwap);
     }
 
     public final float peekFloat(int offset, ByteOrder order) {
-        return OSMemory.peekFloat(osaddr + offset, order.needsSwap);
+        return Float.intBitsToFloat(OSMemory.peekInt(osaddr + offset, order.needsSwap));
     }
 
-    public final void setDouble(int offset, double value, ByteOrder order) {
-        OSMemory.pokeDouble(osaddr + offset, value, order.needsSwap);
+    public final void pokeDouble(int offset, double value, ByteOrder order) {
+        OSMemory.pokeLong(osaddr + offset, Double.doubleToRawLongBits(value), order.needsSwap);
     }
 
     public final double peekDouble(int offset, ByteOrder order) {
-        return OSMemory.peekDouble(osaddr + offset, order.needsSwap);
+        return Double.longBitsToDouble(OSMemory.peekLong(osaddr + offset, order.needsSwap));
     }
 
     public final int toInt() {

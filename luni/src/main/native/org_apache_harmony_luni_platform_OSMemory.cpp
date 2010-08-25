@@ -28,6 +28,20 @@
 #include <string.h>
 #include <sys/mman.h>
 
+#if defined(__arm__)
+// ARM has some load/store alignment restrictions.
+#define INT_ALIGNMENT_MASK 0x3
+#define LONG_ALIGNMENT_MASK 0x3
+#define SHORT_ALIGNMENT_MASK 0x1
+#elif defined(__i386__)
+// x86 can load anything at any alignment.
+#define INT_ALIGNMENT_MASK 0x0
+#define LONG_ALIGNMENT_MASK 0x0
+#define SHORT_ALIGNMENT_MASK 0x0
+#else
+#error unknown load/store alignment restrictions for this architecture
+#endif
+
 /*
  * Cached dalvik.system.VMRuntime pieces.
  */
@@ -156,7 +170,7 @@ static void OSMemory_pokeShortArray(JNIEnv* env, jclass,
 
 static jshort OSMemory_peekShort(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jshort result;
-    if ((srcAddress & 0x1) == 0) {
+    if ((srcAddress & SHORT_ALIGNMENT_MASK) == 0) {
         result = *cast<const jshort*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
@@ -175,7 +189,7 @@ static void OSMemory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, j
     if (swap) {
         value = bswap_16(value);
     }
-    if ((dstAddress & 0x1) == 0) {
+    if ((dstAddress & SHORT_ALIGNMENT_MASK) == 0) {
         *cast<jshort*>(dstAddress) = value;
     } else {
         // Handle unaligned memory access one byte at a time
@@ -188,7 +202,7 @@ static void OSMemory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, j
 
 static jint OSMemory_peekInt(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jint result;
-    if ((srcAddress & 0x3) == 0) {
+    if ((srcAddress & INT_ALIGNMENT_MASK) == 0) {
         result = *cast<const jint*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
@@ -209,7 +223,7 @@ static void OSMemory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jbool
     if (swap) {
         value = bswap_32(value);
     }
-    if ((dstAddress & 0x3) == 0) {
+    if ((dstAddress & INT_ALIGNMENT_MASK) == 0) {
         *cast<jint*>(dstAddress) = value;
     } else {
         // Handle unaligned memory access one byte at a time
@@ -222,30 +236,23 @@ static void OSMemory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jbool
     }
 }
 
-template <typename T> static T get(jint srcAddress) {
-    if ((srcAddress & (sizeof(T) - 1)) == 0) {
-        return *cast<const T*>(srcAddress);
-    } else {
-        // Cast to void* so GCC can't assume correct alignment and optimize this out.
-        const void* src = cast<const void*>(srcAddress);
-        T result;
-        memcpy(&result, src, sizeof(T));
-        return result;
-    }
-}
-
-template <typename T> static void set(jint dstAddress, T value) {
-    if ((dstAddress & (sizeof(T) - 1)) == 0) {
-        *cast<T*>(dstAddress) = value;
-    } else {
-        // Cast to void* so GCC can't assume correct alignment and optimize this out.
-        void* dst = cast<void*>(dstAddress);
-        memcpy(dst, &value, sizeof(T));
-    }
-}
-
 static jlong OSMemory_peekLong(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
-    jlong result = get<jlong>(srcAddress);
+    jlong result;
+    if ((srcAddress & LONG_ALIGNMENT_MASK) == 0) {
+        result = *cast<const jlong*>(srcAddress);
+    } else {
+        // Handle unaligned memory access one byte at a time
+        const jbyte* src = cast<const jbyte*>(srcAddress);
+        jbyte* dst = reinterpret_cast<jbyte*>(&result);
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst[3] = src[3];
+        dst[4] = src[4];
+        dst[5] = src[5];
+        dst[6] = src[6];
+        dst[7] = src[7];
+    }
     if (swap) {
         result = bswap_64(result);
     }
@@ -256,39 +263,21 @@ static void OSMemory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jbo
     if (swap) {
         value = bswap_64(value);
     }
-    set<jlong>(dstAddress, value);
-}
-
-static jfloat OSMemory_peekFloat(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
-    jfloat result = get<jfloat>(srcAddress);
-    if (swap) {
-        result = Float::intBitsToFloat(bswap_32(Float::floatToRawIntBits(result)));
+    if ((dstAddress & LONG_ALIGNMENT_MASK) == 0) {
+        *cast<jlong*>(dstAddress) = value;
+    } else {
+        // Handle unaligned memory access one byte at a time
+        const jbyte* src = reinterpret_cast<const jbyte*>(&value);
+        jbyte* dst = cast<jbyte*>(dstAddress);
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst[3] = src[3];
+        dst[4] = src[4];
+        dst[5] = src[5];
+        dst[6] = src[6];
+        dst[7] = src[7];
     }
-    return result;
-}
-
-static void OSMemory_pokeFloat(JNIEnv*, jclass, jint dstAddress, jfloat value, jboolean swap) {
-    jint bits = Float::floatToRawIntBits(value);
-    if (swap) {
-        bits = bswap_32(bits);
-    }
-    set<jint>(dstAddress, bits);
-}
-
-static jdouble OSMemory_peekDouble(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
-    jdouble result = get<jdouble>(srcAddress);
-    if (swap) {
-        result = Double::longBitsToDouble(bswap_64(Double::doubleToRawLongBits(result)));
-    }
-    return result;
-}
-
-static void OSMemory_pokeDouble(JNIEnv*, jclass, jint dstAddress, jdouble value, jboolean swap) {
-    jlong bits = Double::doubleToRawLongBits(value);
-    if (swap) {
-        bits = bswap_64(bits);
-    }
-    set<jlong>(dstAddress, bits);
 }
 
 static jint OSMemory_mmapImpl(JNIEnv* env, jclass, jint fd, jlong offset, jlong size, jint mapMode) {
@@ -371,15 +360,11 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, munmap, "(IJ)V"),
     NATIVE_METHOD(OSMemory, peekByte, "(I)B"),
     NATIVE_METHOD(OSMemory, peekByteArray, "(I[BII)V"),
-    NATIVE_METHOD(OSMemory, peekDouble, "(IZ)D"),
-    NATIVE_METHOD(OSMemory, peekFloat, "(IZ)F"),
     NATIVE_METHOD(OSMemory, peekInt, "(IZ)I"),
     NATIVE_METHOD(OSMemory, peekLong, "(IZ)J"),
     NATIVE_METHOD(OSMemory, peekShort, "(IZ)S"),
     NATIVE_METHOD(OSMemory, pokeByte, "(IB)V"),
     NATIVE_METHOD(OSMemory, pokeByteArray, "(I[BII)V"),
-    NATIVE_METHOD(OSMemory, pokeDouble, "(IDZ)V"),
-    NATIVE_METHOD(OSMemory, pokeFloat, "(IFZ)V"),
     NATIVE_METHOD(OSMemory, pokeFloatArray, "(I[FIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeInt, "(IIZ)V"),
     NATIVE_METHOD(OSMemory, pokeIntArray, "(I[IIIZ)V"),
