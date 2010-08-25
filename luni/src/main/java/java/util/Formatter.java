@@ -15,6 +15,7 @@
  */
 package java.util;
 
+import com.ibm.icu4jni.text.NativeDecimalFormat;
 import com.ibm.icu4jni.util.LocaleData;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -35,7 +36,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import org.apache.harmony.luni.util.LocaleCache;
 
 /**
  * Formats arguments according to a format string (like {@code printf} in C).
@@ -557,6 +557,7 @@ public final class Formatter implements Closeable, Flushable {
     private FormatToken formatToken;
     private IOException lastIOException;
     private LocaleData localeData;
+    private NativeDecimalFormat cachedNativeDecimalFormat;
 
     /**
      * Constructs a {@code Formatter}.
@@ -1024,6 +1025,7 @@ public final class Formatter implements Closeable, Flushable {
             doFormat(format, args);
         } finally {
             this.locale = originalLocale;
+            clearCachedNativeDecimalFormat();
         }
         return this;
     }
@@ -1130,10 +1132,10 @@ public final class Formatter implements Closeable, Flushable {
         // These have package access for performance. They used to be represented by an int bitmask
         // and accessed via methods, but Android's JIT doesn't yet do a good job of such code.
         // Direct field access, on the other hand, is fast.
-        boolean flagAdd;
         boolean flagComma;
         boolean flagMinus;
         boolean flagParenthesis;
+        boolean flagPlus;
         boolean flagSharp;
         boolean flagSpace;
         boolean flagZero;
@@ -1148,7 +1150,7 @@ public final class Formatter implements Closeable, Flushable {
 
         // Tests whether there were no flags, no width, and no precision specified.
         boolean isDefault() {
-            return !flagAdd && !flagComma && !flagMinus && !flagParenthesis && !flagSharp &&
+            return !flagComma && !flagMinus && !flagParenthesis && !flagPlus && !flagSharp &&
                     !flagSpace && !flagZero && width == UNSET && precision == UNSET;
         }
 
@@ -1191,10 +1193,6 @@ public final class Formatter implements Closeable, Flushable {
         boolean setFlag(int ch) {
             boolean dupe = false;
             switch (ch) {
-            case '+':
-                dupe = flagAdd;
-                flagAdd = true;
-                break;
             case ',':
                 dupe = flagComma;
                 flagComma = true;
@@ -1206,6 +1204,10 @@ public final class Formatter implements Closeable, Flushable {
             case '(':
                 dupe = flagParenthesis;
                 flagParenthesis = true;
+                break;
+            case '+':
+                dupe = flagPlus;
+                flagPlus = true;
                 break;
             case '#':
                 dupe = flagSharp;
@@ -1256,10 +1258,10 @@ public final class Formatter implements Closeable, Flushable {
 
         void checkFlags(Object arg) {
             // Work out which flags are allowed.
-            boolean allowAdd = false;
             boolean allowComma = false;
             boolean allowMinus = true;
             boolean allowParenthesis = false;
+            boolean allowPlus = false;
             boolean allowSharp = false;
             boolean allowSpace = false;
             boolean allowZero = false;
@@ -1284,27 +1286,27 @@ public final class Formatter implements Closeable, Flushable {
 
             // Floating point.
             case 'g': case 'G':
-                allowAdd = allowComma = allowParenthesis = allowSpace = allowZero = true;
+                allowComma = allowParenthesis = allowPlus = allowSpace = allowZero = true;
                 break;
             case 'f':
-                allowAdd = allowComma = allowParenthesis = allowSharp = allowSpace = allowZero = true;
+                allowComma = allowParenthesis = allowPlus = allowSharp = allowSpace = allowZero = true;
                 break;
             case 'e': case 'E':
-                allowAdd = allowParenthesis = allowSharp = allowSpace = allowZero = true;
+                allowParenthesis = allowPlus = allowSharp = allowSpace = allowZero = true;
                 break;
             case 'a': case 'A':
-                allowAdd = allowSharp = allowSpace = allowZero = true;
+                allowPlus = allowSharp = allowSpace = allowZero = true;
                 break;
 
             // Integral.
             case 'd':
-                allowAdd = allowComma = allowParenthesis = allowSpace = allowZero = true;
+                allowComma = allowParenthesis = allowPlus = allowSpace = allowZero = true;
                 allowPrecision = false;
                 break;
             case 'o': case 'x': case 'X':
                 allowSharp = allowZero = true;
                 if (arg == null || arg instanceof BigInteger) {
-                    allowAdd = allowParenthesis = allowSpace = true;
+                    allowParenthesis = allowPlus = allowSpace = true;
                 }
                 allowPrecision = false;
                 break;
@@ -1331,14 +1333,14 @@ public final class Formatter implements Closeable, Flushable {
 
             // Check for disallowed flags.
             String mismatch = null;
-            if (!allowAdd && flagAdd) {
-                mismatch = "+";
-            } else if (!allowComma && flagComma) {
+            if (!allowComma && flagComma) {
                 mismatch = ",";
             } else if (!allowMinus && flagMinus) {
                 mismatch = "-";
             } else if (!allowParenthesis && flagParenthesis) {
                 mismatch = "(";
+            } else if (!allowPlus && flagPlus) {
+                mismatch = "+";
             } else if (!allowSharp && flagSharp) {
                 mismatch = "#";
             } else if (!allowSpace && flagSpace) {
@@ -1376,7 +1378,7 @@ public final class Formatter implements Closeable, Flushable {
             }
 
             // Some combinations make no sense...
-            if (flagAdd && flagSpace) {
+            if (flagPlus && flagSpace) {
                 throw new IllegalFormatFlagsException("the '+' and ' ' flags are incompatible");
             }
             if (flagMinus && flagZero) {
@@ -1391,10 +1393,6 @@ public final class Formatter implements Closeable, Flushable {
             }
             throw new UnknownFormatConversionException(String.valueOf(conversionType));
         }
-    }
-
-    private NumberFormat getNumberFormat() {
-        return LocaleCache.getNumberFormat(locale);
     }
 
     /*
@@ -1480,7 +1478,7 @@ public final class Formatter implements Closeable, Flushable {
      * Returns a CharSequence corresponding to {@code s} with all the ASCII digits replaced
      * by digits appropriate to this formatter's locale. Other characters remain unchanged.
      */
-    private CharSequence localizeDigits(String s) {
+    private CharSequence localizeDigits(CharSequence s) {
         int length = s.length();
         int offsetToLocalizedDigits = localeData.zeroDigit - '0';
         StringBuilder result = new StringBuilder(length);
@@ -1490,6 +1488,38 @@ public final class Formatter implements Closeable, Flushable {
                 ch += offsetToLocalizedDigits;
             }
             result.append(ch);
+        }
+        return result;
+    }
+
+    /**
+     * Inserts the grouping separator every 3 digits. DecimalFormat lets you configure grouping
+     * size, but you can't access that from Formatter, and the default is every 3 digits.
+     */
+    private CharSequence insertGrouping(CharSequence s) {
+        StringBuilder result = new StringBuilder(s.length() + s.length()/3);
+
+        // A leading '-' doesn't want to be included in the grouping.
+        int digitsLength = s.length();
+        int i = 0;
+        if (s.charAt(0) == '-') {
+            --digitsLength;
+            ++i;
+            result.append('-');
+        }
+
+        // Append the digits that come before the first separator.
+        int headLength = digitsLength % 3;
+        if (headLength == 0) {
+            headLength = 3;
+        }
+        result.append(s, i, i + headLength);
+        i += headLength;
+
+        // Append the remaining groups.
+        for (; i < s.length(); i += 3) {
+            result.append(localeData.groupingSeparator);
+            result.append(s, i, i + 3);
         }
         return result;
     }
@@ -1665,16 +1695,15 @@ public final class Formatter implements Closeable, Flushable {
             }
         }
 
-        if ('d' == currentConversionType) {
+        if (currentConversionType == 'd') {
+            CharSequence digits = Long.toString(value);
             if (formatToken.flagComma) {
-                NumberFormat numberFormat = getNumberFormat();
-                numberFormat.setGroupingUsed(true);
-                result.append(numberFormat.format(arg));
-            } else if (localeData.zeroDigit != '0') {
-                result.append(localizeDigits(Long.toString(value)));
-            } else {
-                result.append(value);
+                digits = insertGrouping(digits);
             }
+            if (localeData.zeroDigit != '0') {
+                digits = localizeDigits(digits);
+            }
+            result.append(digits);
 
             if (value < 0) {
                 if (formatToken.flagParenthesis) {
@@ -1683,7 +1712,7 @@ public final class Formatter implements Closeable, Flushable {
                     startIndex++;
                 }
             } else {
-                if (formatToken.flagAdd) {
+                if (formatToken.flagPlus) {
                     result.insert(0, '+');
                     startIndex += 1;
                 } else if (formatToken.flagSpace) {
@@ -1700,7 +1729,7 @@ public final class Formatter implements Closeable, Flushable {
             } else if (arg instanceof Integer) {
                 value &= 0xffffffffL;
             }
-            if ('o' == currentConversionType) {
+            if (currentConversionType == 'o') {
                 result.append(Long.toOctalString(value));
             } else {
                 result.append(Long.toHexString(value));
@@ -1708,39 +1737,6 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         return padding(result, startIndex);
-    }
-
-    private CharSequence transformFromSpecialNumber() {
-        if (!(arg instanceof Number) || arg instanceof BigDecimal) {
-            return null;
-        }
-
-        Number number = (Number) arg;
-        double d = number.doubleValue();
-        String source = null;
-        if (Double.isNaN(d)) {
-            source = "NaN";
-        } else if (d == Double.POSITIVE_INFINITY) {
-            if (formatToken.flagAdd) {
-                source = "+Infinity";
-            } else if (formatToken.flagSpace) {
-                source = " Infinity";
-            } else {
-                source = "Infinity";
-            }
-        } else if (d == Double.NEGATIVE_INFINITY) {
-            if (formatToken.flagParenthesis) {
-                source = "(Infinity)";
-            } else {
-                source = "-Infinity";
-            }
-        } else {
-            return null;
-        }
-
-        formatToken.setPrecision(FormatToken.UNSET);
-        formatToken.flagZero = false;
-        return padding(source, 0);
     }
 
     private CharSequence transformFromNull() {
@@ -1760,11 +1756,13 @@ public final class Formatter implements Closeable, Flushable {
 
         boolean isNegative = (bigInt.compareTo(BigInteger.ZERO) < 0);
 
-        if ('d' == currentConversionType) {
-            NumberFormat numberFormat = getNumberFormat();
-            numberFormat.setGroupingUsed(formatToken.flagComma);
-            result.append(numberFormat.format(bigInt));
-        } else if ('o' == currentConversionType) {
+        if (currentConversionType == 'd') {
+            CharSequence digits = bigInt.toString(10);
+            if (formatToken.flagComma) {
+                digits = insertGrouping(digits);
+            }
+            result.append(digits);
+        } else if (currentConversionType == 'o') {
             // convert BigInteger to a string presentation using radix 8
             result.append(bigInt.toString(8));
         } else {
@@ -1783,7 +1781,7 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         if (!isNegative) {
-            if (formatToken.flagAdd) {
+            if (formatToken.flagPlus) {
                 result.insert(0, '+');
                 startIndex += 1;
             }
@@ -1993,18 +1991,47 @@ public final class Formatter implements Closeable, Flushable {
         }
     }
 
+    private CharSequence transformFromSpecialNumber(double d) {
+        String source = null;
+        if (Double.isNaN(d)) {
+            source = "NaN";
+        } else if (d == Double.POSITIVE_INFINITY) {
+            if (formatToken.flagPlus) {
+                source = "+Infinity";
+            } else if (formatToken.flagSpace) {
+                source = " Infinity";
+            } else {
+                source = "Infinity";
+            }
+        } else if (d == Double.NEGATIVE_INFINITY) {
+            if (formatToken.flagParenthesis) {
+                source = "(Infinity)";
+            } else {
+                source = "-Infinity";
+            }
+        } else {
+            return null;
+        }
+
+        formatToken.setPrecision(FormatToken.UNSET);
+        formatToken.flagZero = false;
+        return padding(source, 0);
+    }
+
     private CharSequence transformFromFloat() {
         if (arg == null) {
             return transformFromNull();
-        }
-
-        if (!(arg instanceof Float || arg instanceof Double || arg instanceof BigDecimal)) {
+        } else if (arg instanceof Float || arg instanceof Double) {
+            Number number = (Number) arg;
+            double d = number.doubleValue();
+            if (d != d || d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY) {
+                return transformFromSpecialNumber(d);
+            }
+        } else if (arg instanceof BigDecimal) {
+            // BigDecimal can't represent NaN or infinities, but its doubleValue method will return
+            // infinities if the BigDecimal is too big for a double.
+        } else {
             throw badArgumentType();
-        }
-
-        CharSequence specialNumberResult = transformFromSpecialNumber();
-        if (specialNumberResult != null) {
-            return specialNumberResult;
         }
 
         char conversionType = formatToken.getConversionType();
@@ -2034,7 +2061,7 @@ public final class Formatter implements Closeable, Flushable {
         formatToken.setPrecision(FormatToken.UNSET);
 
         int startIndex = 0;
-        if (localeData.minusSign == result.charAt(0)) {
+        if (result.charAt(0) == localeData.minusSign) {
             if (formatToken.flagParenthesis) {
                 return wrapParentheses(result);
             }
@@ -2043,7 +2070,7 @@ public final class Formatter implements Closeable, Flushable {
                 result.insert(0, ' ');
                 startIndex++;
             }
-            if (formatToken.flagAdd) {
+            if (formatToken.flagPlus) {
                 result.insert(0, '+');
                 startIndex++;
             }
@@ -2070,12 +2097,16 @@ public final class Formatter implements Closeable, Flushable {
             pattern.append(zeros);
         }
         pattern.append("E+00");
-        DecimalFormat decimalFormat = (DecimalFormat) getNumberFormat();
-        decimalFormat.applyPattern(pattern.toString());
-        String formattedString = decimalFormat.format(arg);
-        result.append(formattedString.replace('E', 'e'));
 
-        // if the flag is sharp and decimal separator is always given out.
+        NativeDecimalFormat nf = getDecimalFormat(pattern.toString());
+        String formattedString;
+        if (arg instanceof BigDecimal) {
+            formattedString = nf.formatBigDecimal((BigDecimal) arg, null);
+        } else {
+            formattedString = nf.formatDouble(((Number) arg).doubleValue(), null);
+        }
+        result.append(formattedString.replace('E', 'e'));
+        // The # flag requires that we always output a decimal separator.
         if (formatToken.flagSharp && formatToken.getPrecision() == 0) {
             int indexOfE = result.indexOf("e");
             result.insert(indexOfE, localeData.decimalSeparator);
@@ -2145,35 +2176,61 @@ public final class Formatter implements Closeable, Flushable {
     }
 
     private void transform_f(StringBuilder result) {
-        // TODO: store a default DecimalFormat we can clone?
+        // All zeros in this method are *pattern* characters, so no localization.
         String pattern = "0.000000";
-        DecimalFormat decimalFormat = (DecimalFormat) getNumberFormat();
-        if (formatToken.flagComma || formatToken.getPrecision() != 6) {
+        final int precision = formatToken.getPrecision();
+        if (formatToken.flagComma || precision != FormatToken.DEFAULT_PRECISION) {
             StringBuilder patternBuilder = new StringBuilder();
             if (formatToken.flagComma) {
                 patternBuilder.append(',');
-                int groupingSize = decimalFormat.getGroupingSize();
-                if (groupingSize > 1) {
-                    char[] sharps = new char[groupingSize - 1];
-                    Arrays.fill(sharps, '#');
-                    patternBuilder.append(sharps);
-                }
+                int groupingSize = 3;
+                char[] sharps = new char[groupingSize - 1];
+                Arrays.fill(sharps, '#');
+                patternBuilder.append(sharps);
             }
             patternBuilder.append('0');
-            if (formatToken.getPrecision() > 0) {
+            if (precision > 0) {
                 patternBuilder.append('.');
-                char[] zeros = new char[formatToken.getPrecision()];
-                Arrays.fill(zeros, '0'); // This is a *pattern* character, so no localization.
-                patternBuilder.append(zeros);
+                for (int i = 0; i < precision; ++i) {
+                    patternBuilder.append('0');
+                }
             }
             pattern = patternBuilder.toString();
         }
-        // TODO: if DecimalFormat.toPattern was cheap, we could make this cheap (preferably *in* DecimalFormat).
-        decimalFormat.applyPattern(pattern);
-        result.append(decimalFormat.format(arg));
-        // if the flag is sharp and decimal separator is always given out.
-        if (formatToken.flagSharp && formatToken.getPrecision() == 0) {
+
+        NativeDecimalFormat nf = getDecimalFormat(pattern);
+        if (arg instanceof BigDecimal) {
+            result.append(nf.formatBigDecimal((BigDecimal) arg, null));
+        } else {
+            result.append(nf.formatDouble(((Number) arg).doubleValue(), null));
+        }
+        // The # flag requires that we always output a decimal separator.
+        if (formatToken.flagSharp && precision == 0) {
             result.append(localeData.decimalSeparator);
+        }
+    }
+
+    /**
+     * Creates a native peer if we don't already have one, or reconfigures an existing one.
+     * This means we get to reuse the peer in cases like "x=%.2f y=%.2f".
+     */
+    private NativeDecimalFormat getDecimalFormat(String pattern) {
+        if (cachedNativeDecimalFormat == null) {
+            cachedNativeDecimalFormat = new NativeDecimalFormat(pattern, localeData);
+        } else {
+            cachedNativeDecimalFormat.applyPattern(pattern);
+        }
+        return cachedNativeDecimalFormat;
+    }
+
+    /**
+     * If we allocated a native peer, we need to delete it. We don't use finalizers because that
+     * just makes extra work for the garbage collector.
+     */
+    private void clearCachedNativeDecimalFormat() {
+        if (cachedNativeDecimalFormat != null) {
+            cachedNativeDecimalFormat.close();
+            cachedNativeDecimalFormat = null;
         }
     }
 

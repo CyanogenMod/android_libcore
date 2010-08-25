@@ -16,6 +16,7 @@
 
 package com.ibm.icu4jni.text;
 
+import com.ibm.icu4jni.util.LocaleData;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -94,7 +95,7 @@ public final class NativeDecimalFormat {
     /**
      * The address of the ICU DecimalFormat* on the native heap.
      */
-    private final int addr;
+    private int addr;
 
     /**
      * The last pattern we gave to ICU, so we can make repeated applications cheap.
@@ -133,6 +134,16 @@ public final class NativeDecimalFormat {
         }
     }
 
+    // Used so java.util.Formatter doesn't need to allocate DecimalFormatSymbols instances.
+    public NativeDecimalFormat(String pattern, LocaleData data) {
+        this.addr = open(pattern, data.currencySymbol,
+                data.decimalSeparator, data.digit, data.groupingSeparator,
+                data.infinity, data.internationalCurrencySymbol, data.minusSign,
+                data.monetarySeparator, data.NaN, data.patternSeparator,
+                data.percent, data.perMill, data.zeroDigit);
+        this.lastPattern = pattern;
+    }
+
     // Used to implement clone.
     private NativeDecimalFormat(NativeDecimalFormat other) {
         this.addr = cloneImpl(other.addr);
@@ -149,14 +160,16 @@ public final class NativeDecimalFormat {
         return this.getPositivePrefix().hashCode();
     }
 
-    @Override
-    public Object clone() {
-        return new NativeDecimalFormat(this);
+    public synchronized void close() {
+        if (addr != 0) {
+            close(addr);
+            addr = 0;
+        }
     }
 
     @Override
-    protected void finalize() {
-        close(this.addr);
+    public Object clone() {
+        return new NativeDecimalFormat(this);
     }
 
     /**
@@ -207,45 +220,40 @@ public final class NativeDecimalFormat {
                 dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
     }
 
-    public StringBuffer formatBigDecimal(BigDecimal value, StringBuffer buffer, FieldPosition field) {
-        if (buffer == null || field == null) {
-            throw new NullPointerException();
-        }
-
+    public String formatBigDecimal(BigDecimal value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(formatDigitList(this.addr, value.toString(), fpi));
-        FieldPositionIterator.setFieldPosition(fpi, field);
-        return buffer;
+        String result = formatDigitList(this.addr, value.toString(), fpi);
+        if (fpi != null) {
+            FieldPositionIterator.setFieldPosition(fpi, field);
+        }
+        return result;
     }
 
-    public StringBuffer formatBigInteger(BigInteger value, StringBuffer buffer, FieldPosition field) {
-        if (buffer == null || field == null) {
-            throw new NullPointerException();
-        }
+    public String formatBigInteger(BigInteger value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(formatDigitList(this.addr, value.toString(10), fpi));
-        FieldPositionIterator.setFieldPosition(fpi, field);
-        return buffer;
+        String result = formatDigitList(this.addr, value.toString(10), fpi);
+        if (fpi != null) {
+            FieldPositionIterator.setFieldPosition(fpi, field);
+        }
+        return result;
     }
 
-    public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-        if (buffer == null || field == null) {
-            throw new NullPointerException();
-        }
+    public String formatLong(long value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(formatLong(this.addr, value, fpi));
-        FieldPositionIterator.setFieldPosition(fpi, field);
-        return buffer;
+        String result = formatLong(this.addr, value, fpi);
+        if (fpi != null) {
+            FieldPositionIterator.setFieldPosition(fpi, field);
+        }
+        return result;
     }
 
-    public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
-        if (buffer == null || field == null) {
-            throw new NullPointerException();
-        }
+    public String formatDouble(double value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        buffer.append(formatDouble(this.addr, value, fpi));
-        FieldPositionIterator.setFieldPosition(fpi, field);
-        return buffer;
+        String result = formatDouble(this.addr, value, fpi);
+        if (fpi != null) {
+            FieldPositionIterator.setFieldPosition(fpi, field);
+        }
+        return result;
     }
 
     public void applyLocalizedPattern(String pattern) {
@@ -499,7 +507,7 @@ public final class NativeDecimalFormat {
         private FieldPositionIterator() {
         }
 
-        private static FieldPositionIterator forFieldPosition(FieldPosition fp) {
+        public static FieldPositionIterator forFieldPosition(FieldPosition fp) {
             if (fp != null && fp.getField() != -1) {
                 return new FieldPositionIterator();
             }
