@@ -102,7 +102,8 @@ class VMThread
         Thread.State.NEW,            // INITIALIZING
         Thread.State.NEW,            // STARTING
         Thread.State.RUNNABLE,       // NATIVE
-        Thread.State.WAITING         // VMWAIT
+        Thread.State.WAITING,        // VMWAIT
+        Thread.State.RUNNABLE        // SUSPENDED
     };
 
     /**
