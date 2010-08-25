@@ -315,13 +315,6 @@ static jdouble createDouble1(JNIEnv* env, uint64_t* f, int32_t length, jint e) {
   return doubleAlgorithm (env, f, length, e, result);
 }
 
-#if defined(WIN32)
-/* disable global optimizations on the microsoft compiler for the
- * doubleAlgorithm function otherwise it won't compile */
-#pragma optimize("g",off)
-#endif
-
-
 /* The algorithm for the function doubleAlgorithm() below can be found
  * in:
  *
@@ -591,7 +584,7 @@ static const uint32_t float_tens[] = {
             break; \
         } \
     }
-#define ERROR_OCCURED(x) (HIGH_I32_FROM_VAR(x) < 0)
+#define ERROR_OCCURRED(x) (HIGH_I32_FROM_VAR(x) < 0)
 
 static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
   /* assumes s is a null terminated string with at least one
@@ -799,12 +792,6 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
   return floatAlgorithm (env, f, length, e, (jfloat) result);
 }
 
-#if defined(WIN32)
-/* disable global optimizations on the microsoft compiler for the
- * floatAlgorithm function otherwise it won't properly compile */
-#pragma optimize("g",off)
-#endif
-
 /* The algorithm for the function floatAlgorithm() below can be found
  * in:
  *
@@ -1006,10 +993,6 @@ OutOfMemory:
   return z;
 }
 
-#if defined(WIN32)
-#pragma optimize("",on)         /*restore optimizations */
-#endif
-
 static jfloat FloatingPointParser_parseFltImpl(JNIEnv* env, jclass, jstring s, jint e) {
     ScopedUtfChars str(env, s);
     if (str.c_str() == NULL) {
@@ -1034,7 +1017,7 @@ static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, 
     }
     jdouble dbl = createDouble(env, str.c_str(), e);
 
-    if (!ERROR_OCCURED (dbl)) {
+    if (!ERROR_OCCURRED (dbl)) {
         return dbl;
     } else if (LOW_I32_FROM_VAR (dbl) == (int32_t) - 1) {
         jniThrowException(env, "java/lang/NumberFormatException", NULL);
