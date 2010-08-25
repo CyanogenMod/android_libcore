@@ -18,9 +18,9 @@ package java.lang.reflect;
 
 /**
  * This interface represents a type variables such as {@code 'T'} in {@code
- * 'public interface Comparable&lt;T&gt;'}, the bounded {@code 'T'} in {@code
- * 'public interface A&lt;T extends Number&gt;'} or the multiple bounded {@code
- * 'T'} in {@code 'public interface B&lt;T extends Number & Cloneable&gt;'}.
+ * 'public interface Comparable<T>'}, the bounded {@code 'T'} in {@code
+ * 'public interface A<T extends Number>'} or the multiple bounded {@code
+ * 'T'} in {@code 'public interface B<T extends Number & Cloneable>'}.
  *
  * @param <D>
  *            the generic declaration that declares this type variable

@@ -1077,7 +1077,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * defined in the source code. If there is no name (that is, the class is
      * anonymous) then an empty string is returned. If the receiver is an array
      * then the name of the underlying type with square braces appended (for
-     * example {@code &quot;Integer[]&quot;}) is returned.
+     * example {@code "Integer[]"}) is returned.
      *
      * @return the simple name of the class represented by this {@code Class}.
      */

@@ -2093,10 +2093,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code boolean[]} passed.
-     * The result is surrounded by brackets ({@code &quot;[]&quot;}), each
+     * The result is surrounded by brackets ({@code "[]"}), each
      * element is converted to a {@code String} via the
-     * {@link String#valueOf(boolean)} and separated by {@code &quot;, &quot;}.
-     * If the array is {@code null}, then {@code &quot;null&quot;} is returned.
+     * {@link String#valueOf(boolean)} and separated by {@code ", "}.
+     * If the array is {@code null}, then {@code "null"} is returned.
      *
      * @param array
      *            the {@code boolean} array to convert.
@@ -2123,10 +2123,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code byte[]} passed. The
-     * result is surrounded by brackets ({@code &quot;[]&quot;}), each element
+     * result is surrounded by brackets ({@code "[]"}), each element
      * is converted to a {@code String} via the {@link String#valueOf(int)} and
-     * separated by {@code &quot;, &quot;}. If the array is {@code null}, then
-     * {@code &quot;null&quot;} is returned.
+     * separated by {@code ", "}. If the array is {@code null}, then
+     * {@code "null"} is returned.
      *
      * @param array
      *            the {@code byte} array to convert.
@@ -2153,10 +2153,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code char[]} passed. The
-     * result is surrounded by brackets ({@code &quot;[]&quot;}), each element
+     * result is surrounded by brackets ({@code "[]"}), each element
      * is converted to a {@code String} via the {@link String#valueOf(char)} and
-     * separated by {@code &quot;, &quot;}. If the array is {@code null}, then
-     * {@code &quot;null&quot;} is returned.
+     * separated by {@code ", "}. If the array is {@code null}, then
+     * {@code "null"} is returned.
      *
      * @param array
      *            the {@code char} array to convert.
@@ -2183,10 +2183,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code double[]} passed.
-     * The result is surrounded by brackets ({@code &quot;[]&quot;}), each
+     * The result is surrounded by brackets ({@code "[]"}), each
      * element is converted to a {@code String} via the
-     * {@link String#valueOf(double)} and separated by {@code &quot;, &quot;}.
-     * If the array is {@code null}, then {@code &quot;null&quot;} is returned.
+     * {@link String#valueOf(double)} and separated by {@code ", "}.
+     * If the array is {@code null}, then {@code "null"} is returned.
      *
      * @param array
      *            the {@code double} array to convert.
@@ -2213,10 +2213,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code float[]} passed.
-     * The result is surrounded by brackets ({@code &quot;[]&quot;}), each
+     * The result is surrounded by brackets ({@code "[]"}), each
      * element is converted to a {@code String} via the
-     * {@link String#valueOf(float)} and separated by {@code &quot;, &quot;}.
-     * If the array is {@code null}, then {@code &quot;null&quot;} is returned.
+     * {@link String#valueOf(float)} and separated by {@code ", "}.
+     * If the array is {@code null}, then {@code "null"} is returned.
      *
      * @param array
      *            the {@code float} array to convert.
@@ -2243,10 +2243,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code int[]} passed. The
-     * result is surrounded by brackets ({@code &quot;[]&quot;}), each element
+     * result is surrounded by brackets ({@code "[]"}), each element
      * is converted to a {@code String} via the {@link String#valueOf(int)} and
-     * separated by {@code &quot;, &quot;}. If the array is {@code null}, then
-     * {@code &quot;null&quot;} is returned.
+     * separated by {@code ", "}. If the array is {@code null}, then
+     * {@code "null"} is returned.
      *
      * @param array
      *            the {@code int} array to convert.
@@ -2273,10 +2273,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code long[]} passed. The
-     * result is surrounded by brackets ({@code &quot;[]&quot;}), each element
+     * result is surrounded by brackets ({@code "[]"}), each element
      * is converted to a {@code String} via the {@link String#valueOf(long)} and
-     * separated by {@code &quot;, &quot;}. If the array is {@code null}, then
-     * {@code &quot;null&quot;} is returned.
+     * separated by {@code ", "}. If the array is {@code null}, then
+     * {@code "null"} is returned.
      *
      * @param array
      *            the {@code long} array to convert.
@@ -2303,10 +2303,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code short[]} passed.
-     * The result is surrounded by brackets ({@code &quot;[]&quot;}), each
+     * The result is surrounded by brackets ({@code "[]"}), each
      * element is converted to a {@code String} via the
-     * {@link String#valueOf(int)} and separated by {@code &quot;, &quot;}. If
-     * the array is {@code null}, then {@code &quot;null&quot;} is returned.
+     * {@link String#valueOf(int)} and separated by {@code ", "}. If
+     * the array is {@code null}, then {@code "null"} is returned.
      *
      * @param array
      *            the {@code short} array to convert.
@@ -2333,10 +2333,10 @@ public class Arrays {
 
     /**
      * Creates a {@code String} representation of the {@code Object[]} passed.
-     * The result is surrounded by brackets ({@code &quot;[]&quot;}), each
+     * The result is surrounded by brackets ({@code "[]"}), each
      * element is converted to a {@code String} via the
-     * {@link String#valueOf(Object)} and separated by {@code &quot;, &quot;}.
-     * If the array is {@code null}, then {@code &quot;null&quot;} is returned.
+     * {@link String#valueOf(Object)} and separated by {@code ", "}.
+     * If the array is {@code null}, then {@code "null"} is returned.
      *
      * @param array
      *            the {@code Object} array to convert.

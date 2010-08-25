@@ -445,9 +445,9 @@ public final class Scanner implements Iterator<String> {
      * The {@code Scanner}'s search will never go more than {@code horizon} code points from current
      * position. The position of {@code horizon} does have an effect on the result of the
      * match. For example, when the input is "123" and current position is at zero,
-     * {@code findWithinHorizon(Pattern.compile("\\p&#123;Digit&#125;&#123;3&#125;"), 2)}
-     * will return {@code null}. While
-     * {@code findWithinHorizon(Pattern.compile("\\p&#123;Digit&#125;&#123;3&#125;"), 3)}
+     * <code>findWithinHorizon(Pattern.compile("\\p{Digit}{3}"), 2)</code>
+     * will return {@code null}, while
+     * <code>findWithinHorizon(Pattern.compile("\\p{Digit}{3}"), 3)</code>
      * will return {@code "123"}. {@code horizon} is treated as a transparent,
      * non-anchoring bound. (refer to
      * {@link Matcher#useTransparentBounds(boolean)} and

@@ -68,7 +68,7 @@ public interface ParameterizedType extends Type {
     /**
      * Returns the declaring type of this parameterized type.
      * <p>
-     * The raw type of {@code Set&lt;String&gt; field;} is {@code Set}.
+     * The raw type of {@code Set<String> field;} is {@code Set}.
      *
      * @return the raw type of this parameterized type
      */
