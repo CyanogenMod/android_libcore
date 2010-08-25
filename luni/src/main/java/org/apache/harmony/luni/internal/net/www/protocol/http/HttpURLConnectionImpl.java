@@ -990,8 +990,24 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     // BEGIN android-changed
     private synchronized void disconnect(boolean closeSocket) {
+        boolean forceClose = false;
+        String connInst = null;
+        if (resHeader != null) {
+            connInst = resHeader.get("Connection");
+            if (connInst != null && connInst.equalsIgnoreCase("close")) {
+                forceClose = true;
+            }
+        }
+
+        if (!forceClose && reqHeader != null) {
+            connInst = reqHeader.get("Connection");
+            if (connInst != null && connInst.equalsIgnoreCase("close")) {
+                forceClose = true;
+            }
+        }
+
         if (connection != null) {
-            if (closeSocket || ((os != null) && !os.closed)) {
+            if (forceClose || closeSocket || ((os != null) && !os.closed)) {
                 /*
                  * In addition to closing the socket if explicitly
                  * requested to do so, we also close it if there was
