@@ -101,23 +101,23 @@ public class PlatformAddress implements Comparable {
         OSMemory.pokeByte(osaddr + offset, value);
     }
 
-    public final void setByteArray(int offset, byte[] bytes, int bytesOffset, int length) {
-        OSMemory.setByteArray(osaddr + offset, bytes, bytesOffset, length);
+    public final void pokeByteArray(int offset, byte[] bytes, int bytesOffset, int length) {
+        OSMemory.pokeByteArray(osaddr + offset, bytes, bytesOffset, length);
     }
 
-    public final void setShortArray(int offset, short[] shorts,
+    public final void pokeShortArray(int offset, short[] shorts,
             int shortsOffset, int length, boolean swap) {
-        OSMemory.setShortArray(osaddr + offset, shorts, shortsOffset, length, swap);
+        OSMemory.pokeShortArray(osaddr + offset, shorts, shortsOffset, length, swap);
     }
 
-    public final void setIntArray(int offset, int[] ints,
+    public final void pokeIntArray(int offset, int[] ints,
             int intsOffset, int length, boolean swap) {
-        OSMemory.setIntArray(osaddr + offset, ints, intsOffset, length, swap);
+        OSMemory.pokeIntArray(osaddr + offset, ints, intsOffset, length, swap);
     }
 
-    public final void setFloatArray(int offset, float[] floats,
+    public final void pokeFloatArray(int offset, float[] floats,
             int floatsOffset, int length, boolean swap) {
-        OSMemory.setFloatArray(osaddr + offset, floats, floatsOffset, length, swap);
+        OSMemory.pokeFloatArray(osaddr + offset, floats, floatsOffset, length, swap);
     }
 
     public final byte peekByte(int offset) {
