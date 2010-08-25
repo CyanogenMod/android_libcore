@@ -54,23 +54,23 @@ public class OSMemoryTest extends TestCase {
             swappedValues[i] = Integer.reverseBytes(values[i]);
         }
 
-        int scale = PlatformAddress.SIZEOF_JINT;
+        int scale = 4;
         int ptr = OSMemory.malloc(scale * values.length);
         try {
             // Regular copy. Memset first so we start from a known state.
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
-            OSMemory.setIntArray(ptr, values, 0, values.length, false);
+            OSMemory.pokeIntArray(ptr, values, 0, values.length, false);
             assertIntsEqual(values, ptr, false);
 
             // Swapped copy.
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
-            OSMemory.setIntArray(ptr, values, 0, values.length, true);
+            OSMemory.pokeIntArray(ptr, values, 0, values.length, true);
             assertIntsEqual(swappedValues, ptr, true);
 
             // Swapped copies of slices (to ensure we test non-zero offsets).
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
             for (int i = 0; i < values.length; ++i) {
-                OSMemory.setIntArray(ptr + i * scale, values, i, 1, true);
+                OSMemory.pokeIntArray(ptr + i * scale, values, i, 1, true);
             }
             assertIntsEqual(swappedValues, ptr, true);
         } finally {
@@ -80,7 +80,7 @@ public class OSMemoryTest extends TestCase {
 
     private void assertIntsEqual(int[] expectedValues, int ptr, boolean swap) {
         for (int i = 0; i < expectedValues.length; ++i) {
-            assertEquals(expectedValues[i], OSMemory.peekInt(ptr + PlatformAddress.SIZEOF_JINT * i, swap));
+            assertEquals(expectedValues[i], OSMemory.peekInt(ptr + 4 * i, swap));
         }
     }
 
@@ -88,23 +88,23 @@ public class OSMemoryTest extends TestCase {
         short[] values = { 0x0001, 0x0020, 0x0300, 0x4000 };
         short[] swappedValues = { 0x0100, 0x2000, 0x0003, 0x0040 };
 
-        int scale = PlatformAddress.SIZEOF_JSHORT;
+        int scale = 2;
         int ptr = OSMemory.malloc(scale * values.length);
         try {
             // Regular copy. Memset first so we start from a known state.
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
-            OSMemory.setShortArray(ptr, values, 0, values.length, false);
+            OSMemory.pokeShortArray(ptr, values, 0, values.length, false);
             assertShortsEqual(values, ptr, false);
 
             // Swapped copy.
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
-            OSMemory.setShortArray(ptr, values, 0, values.length, true);
+            OSMemory.pokeShortArray(ptr, values, 0, values.length, true);
             assertShortsEqual(swappedValues, ptr, true);
 
             // Swapped copies of slices (to ensure we test non-zero offsets).
             OSMemory.memset(ptr, (byte) 0, scale * values.length);
             for (int i = 0; i < values.length; ++i) {
-                OSMemory.setShortArray(ptr + i * scale, values, i, 1, true);
+                OSMemory.pokeShortArray(ptr + i * scale, values, i, 1, true);
             }
             assertShortsEqual(swappedValues, ptr, true);
         } finally {
@@ -114,7 +114,7 @@ public class OSMemoryTest extends TestCase {
 
     private void assertShortsEqual(short[] expectedValues, int ptr, boolean swap) {
         for (int i = 0; i < expectedValues.length; ++i) {
-            assertEquals(expectedValues[i], OSMemory.peekShort(ptr + PlatformAddress.SIZEOF_JSHORT * i, swap));
+            assertEquals(expectedValues[i], OSMemory.peekShort(ptr + 2 * i, swap));
         }
     }
 }
