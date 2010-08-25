@@ -99,7 +99,7 @@ public class BigInteger extends Number
 
     BigInteger(BigInt bigInt) {
         if (bigInt == null || bigInt.getNativeBIGNUM() == 0) {
-            throw new IllegalArgumentException("bigInt == null || bigInt.getNativeBIGNUM() == 0");
+            throw new AssertionError();
         }
         setBigInt(bigInt);
     }
@@ -132,7 +132,7 @@ public class BigInteger extends Number
      */
     public BigInteger(int numBits, Random random) {
         if (numBits < 0) {
-            throw new IllegalArgumentException("numBits < 0");
+            throw new IllegalArgumentException("numBits < 0: " + numBits);
         }
         if (numBits == 0) {
             setJavaRepresentation(0, 1, new int[] { 0 });
@@ -168,7 +168,7 @@ public class BigInteger extends Number
      */
     public BigInteger(int bitLength, int certainty, Random unused) {
         if (bitLength < 2) {
-            throw new ArithmeticException("bitLength < 2");
+            throw new ArithmeticException("bitLength < 2: " + bitLength);
         }
         setBigInt(BigInt.generatePrimeDefault(bitLength));
     }
@@ -217,11 +217,10 @@ public class BigInteger extends Number
             setBigInt(bigInt);
         } else {
             if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-                throw new NumberFormatException(
-                        "radix < Character.MIN_RADIX || radix > Character.MAX_RADIX");
+                throw new NumberFormatException("bad radix: " + radix);
             }
-            if (value.length() == 0) {
-                throw new NumberFormatException("value.length() == 0");
+            if (value.isEmpty()) {
+                throw new NumberFormatException("value.isEmpty()");
             }
             BigInteger.parseFromString(this, value, radix);
         }
@@ -244,7 +243,7 @@ public class BigInteger extends Number
             throw new NullPointerException("magnitude == null");
         }
         if (signum < -1 || signum > 1) {
-            throw new NumberFormatException("signum < -1 || signum > 1");
+            throw new NumberFormatException("bad signum: " + signum);
         }
         if (signum == 0) {
             for (byte element : magnitude) {
@@ -304,10 +303,11 @@ public class BigInteger extends Number
     }
 
     private void setJavaRepresentation(int sign, int numberLength, int[] digits) {
-        // decrease numberLength while there are high elements equal to 0
+        // decrement numberLength to drop leading zeroes...
         while (numberLength > 0 && digits[--numberLength] == 0) {
             ;
         }
+        // ... and then increment it back because we always drop one too many
         if (digits[numberLength++] == 0) {
             sign = 0;
         }
@@ -339,7 +339,7 @@ public class BigInteger extends Number
                 return new BigInteger(-1, -value);
             }
             return MINUS_ONE;
-        } else if (value <= 10) {
+        } else if (value <= SMALL_VALUES.length) {
             return SMALL_VALUES[(int) value];
         } else {// (value > 10)
             return new BigInteger(1, value);
@@ -386,27 +386,27 @@ public class BigInteger extends Number
      * Returns a {@code BigInteger} whose value is {@code this + value}.
      */
     public BigInteger add(BigInteger value) {
-        BigInt bigInt = getBigInt();
-        BigInt valueBigInt = value.getBigInt();
-        if (valueBigInt.sign() == 0) {
+        BigInt lhs = getBigInt();
+        BigInt rhs = value.getBigInt();
+        if (rhs.sign() == 0) {
             return this;
         }
-        if (bigInt.sign() == 0) {
+        if (lhs.sign() == 0) {
             return value;
         }
-        return new BigInteger(BigInt.addition(bigInt, valueBigInt));
+        return new BigInteger(BigInt.addition(lhs, rhs));
     }
 
     /**
      * Returns a {@code BigInteger} whose value is {@code this - value}.
      */
     public BigInteger subtract(BigInteger value) {
-        BigInt bigInt = getBigInt();
-        BigInt valueBigInt = value.getBigInt();
-        if (valueBigInt.sign() == 0) {
+        BigInt lhs = getBigInt();
+        BigInt rhs = value.getBigInt();
+        if (rhs.sign() == 0) {
             return this;
         }
-        return new BigInteger(BigInt.subtraction(bigInt, valueBigInt));
+        return new BigInteger(BigInt.subtraction(lhs, rhs));
     }
 
     /**
@@ -416,7 +416,6 @@ public class BigInteger extends Number
      *     {@code 1} if {@code this > 0}.
      */
     public int signum() {
-        // Optimization to avoid unnecessary duplicate representation:
         if (javaIsValid) {
             return sign;
         }
@@ -508,7 +507,7 @@ public class BigInteger extends Number
      */
     public boolean testBit(int n) {
         if (n < 0) {
-            throw new ArithmeticException("n < 0");
+            throw new ArithmeticException("n < 0: " + n);
         }
         int sign = signum();
         if (sign > 0 && nativeIsValid && !javaIsValid) {
@@ -595,7 +594,7 @@ public class BigInteger extends Number
     public BigInteger flipBit(int n) {
         prepareJavaRepresentation();
         if (n < 0) {
-            throw new ArithmeticException("n < 0");
+            throw new ArithmeticException("n < 0: " + n);
         }
         return BitLevel.flipBit(this, n);
     }
@@ -711,7 +710,7 @@ public class BigInteger extends Number
 
     /**
      * Returns this {@code BigInteger} as an int value. If {@code this} is too
-     * big to be represented as an int, then {@code this % pow(2, 32)} is
+     * big to be represented as an int, then {@code this % (1 << 32)} is
      * returned.
      */
     @Override
@@ -724,8 +723,8 @@ public class BigInteger extends Number
     }
 
     /**
-     * Returns this {@code BigInteger} as an long value. If {@code this} is too
-     * big to be represented as an long, then {@code this} % pow(2, 64) is
+     * Returns this {@code BigInteger} as a long value. If {@code this} is too
+     * big to be represented as a long, then {@code this % pow(2, 64)} is
      * returned.
      */
     @Override
@@ -741,11 +740,11 @@ public class BigInteger extends Number
     }
 
     /**
-     * Returns this {@code BigInteger} as an float value. If {@code this} is too
-     * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
-     * or {@code Float.NEGATIVE_INFINITY} is returned. Note that not all
-     * integers in the range {@code [-Float.MAX_VALUE, Float.MAX_VALUE]} can
-     * be exactly represented as a float.
+     * Returns this {@code BigInteger} as a float. If {@code this} is too big to
+     * be represented as a float, then {@code Float.POSITIVE_INFINITY} or
+     * {@code Float.NEGATIVE_INFINITY} is returned. Note that not all integers
+     * in the range {@code [-Float.MAX_VALUE, Float.MAX_VALUE]} can be exactly
+     * represented as a float.
      */
     @Override
     public float floatValue() {
@@ -754,7 +753,7 @@ public class BigInteger extends Number
 
     /**
      * Returns this {@code BigInteger} as a double. If {@code this} is too big
-     * to be represented as an double, then {@code Double.POSITIVE_INFINITY} or
+     * to be represented as a double, then {@code Double.POSITIVE_INFINITY} or
      * {@code Double.NEGATIVE_INFINITY} is returned. Note that not all integers
      * in the range {@code [-Double.MAX_VALUE, Double.MAX_VALUE]} can be exactly
      * represented as a double.
@@ -875,7 +874,7 @@ public class BigInteger extends Number
      */
     public BigInteger pow(int exp) {
         if (exp < 0) {
-            throw new ArithmeticException("exp < 0");
+            throw new ArithmeticException("exp < 0: " + exp);
         }
         return new BigInteger(BigInt.exp(getBigInt(), exp));
     }
@@ -1150,7 +1149,7 @@ public class BigInteger extends Number
         /*
          * We use the following algorithm: split a string into portions of n
          * characters and convert each portion to an integer according to the
-         * radix. Then convert an exp(radix, n) based number to binary using the
+         * radix. Then convert an pow(radix, n) based number to binary using the
          * multiplication method. See D. Knuth, The Art of Computer Programming,
          * vol. 2.
          */
