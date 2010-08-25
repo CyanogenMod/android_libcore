@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * This class represents immutable integer numbers of arbitrary length. Large
@@ -122,7 +123,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     /** This is the serialVersionUID used by the sun implementation. */
     private static final long serialVersionUID = 6108874887143696463L;
 
-    /** The double closer to <code>Log10(2)</code>. */
+    /** The double closest to {@code Log10(2)}. */
     private static final double LOG10_2 = 0.3010299956639812;
 
     /** The <code>String</code> representation is cached. */
@@ -305,7 +306,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     public BigDecimal(char[] in, int offset, int len) {
         int begin = offset; // first index to be copied
         int last = offset + (len - 1); // last index to be copied
-        String scaleString = null; // buffer for scale
+        String scaleString; // buffer for scale
         StringBuilder unscaledBuffer; // buffer for unscaled value
         long newScale; // the new scale
 
@@ -523,36 +524,36 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             throw new NumberFormatException("Infinity or NaN");
         }
         long bits = Double.doubleToLongBits(val); // IEEE-754
-        long mantisa;
+        long mantissa;
         int trailingZeros;
         // Extracting the exponent, note that the bias is 1023
         scale = 1075 - (int)((bits >> 52) & 0x7FFL);
-        // Extracting the 52 bits of the mantisa.
-        mantisa = (scale == 1075) ? (bits & 0xFFFFFFFFFFFFFL) << 1
+        // Extracting the 52 bits of the mantissa.
+        mantissa = (scale == 1075) ? (bits & 0xFFFFFFFFFFFFFL) << 1
                 : (bits & 0xFFFFFFFFFFFFFL) | 0x10000000000000L;
-        if (mantisa == 0) {
+        if (mantissa == 0) {
             scale = 0;
             precision = 1;
         }
-        // To simplify all factors '2' in the mantisa
+        // To simplify all factors '2' in the mantissa
         if (scale > 0) {
-            trailingZeros = Math.min(scale, Long.numberOfTrailingZeros(mantisa));
-            mantisa >>>= trailingZeros;
+            trailingZeros = Math.min(scale, Long.numberOfTrailingZeros(mantissa));
+            mantissa >>>= trailingZeros;
             scale -= trailingZeros;
         }
         // Calculating the new unscaled value and the new scale
         if((bits >> 63) != 0) {
-            mantisa = -mantisa;
+            mantissa = -mantissa;
         }
-        int mantisaBits = bitLength(mantisa);
+        int mantissaBits = bitLength(mantissa);
         if (scale < 0) {
-            bitLength = mantisaBits == 0 ? 0 : mantisaBits - scale;
+            bitLength = mantissaBits == 0 ? 0 : mantissaBits - scale;
             if(bitLength < 64) {
-                smallValue = mantisa << (-scale);
+                smallValue = mantissa << (-scale);
             } else {
                 // BEGIN android-changed
                 BigInt bi = new BigInt();
-                bi.putLongInt(mantisa);
+                bi.putLongInt(mantissa);
                 bi.shift(-scale);
                 intVal = new BigInteger(bi);
                 // END android-changed
@@ -561,15 +562,15 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         } else if (scale > 0) {
             // m * 2^e =  (m * 5^(-e)) * 10^e
             if(scale < LONG_FIVE_POW.length
-                    && mantisaBits+LONG_FIVE_POW_BIT_LENGTH[scale] < 64) {
-                smallValue = mantisa * LONG_FIVE_POW[scale];
+                    && mantissaBits+LONG_FIVE_POW_BIT_LENGTH[scale] < 64) {
+                smallValue = mantissa * LONG_FIVE_POW[scale];
                 bitLength = bitLength(smallValue);
             } else {
-                setUnscaledValue(Multiplication.multiplyByFivePow(BigInteger.valueOf(mantisa), scale));
+                setUnscaledValue(Multiplication.multiplyByFivePow(BigInteger.valueOf(mantissa), scale));
             }
         } else { // scale == 0
-            smallValue = mantisa;
-            bitLength = mantisaBits;
+            smallValue = mantissa;
+            bitLength = mantissaBits;
         }
     }
 
@@ -881,16 +882,16 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             return add(augend).round(mc);
         }
         // Cases where there is room for optimizations
-        if (this.aproxPrecision() < diffScale - 1) {
+        if (this.approxPrecision() < diffScale - 1) {
             larger = augend;
             smaller = this;
-        } else if (augend.aproxPrecision() < -diffScale - 1) {
+        } else if (augend.approxPrecision() < -diffScale - 1) {
             larger = this;
             smaller = augend;
         } else {// No optimization is done
             return add(augend).round(mc);
         }
-        if (mc.getPrecision() >= larger.aproxPrecision()) {
+        if (mc.getPrecision() >= larger.approxPrecision()) {
             // No optimization is done
             return add(augend).round(mc);
         }
@@ -984,9 +985,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             return subtract(subtrahend).round(mc);
         }
         // Now:   this != 0   and   subtrahend != 0
-        if (subtrahend.aproxPrecision() < diffScale - 1) {
+        if (subtrahend.approxPrecision() < diffScale - 1) {
             // Cases where it is unnecessary to subtract two numbers with very different scales
-            if (mc.getPrecision() < this.aproxPrecision()) {
+            if (mc.getPrecision() < this.approxPrecision()) {
                 thisSignum = this.signum();
                 if (thisSignum != subtrahend.signum()) {
                     tempBI = Multiplication.multiplyByPositiveInt(this.getUnscaledValue(), 10)
@@ -1351,8 +1352,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     public BigDecimal divide(BigDecimal divisor, MathContext mc) {
         /* Calculating how many zeros must be append to 'dividend'
          * to obtain a  quotient with at least 'mc.precision()' digits */
-        long traillingZeros = mc.getPrecision() + 2L
-                + divisor.aproxPrecision() - aproxPrecision();
+        long trailingZeros = mc.getPrecision() + 2L
+                + divisor.approxPrecision() - approxPrecision();
         long diffScale = (long)scale - divisor.scale;
         long newScale = diffScale; // scale of the final quotient
         int compRem; // to compare the remainder
@@ -1365,10 +1366,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         || (divisor.isZero())) {
             return this.divide(divisor);
         }
-        if (traillingZeros > 0) {
+        if (trailingZeros > 0) {
             // To append trailing zeros at end of dividend
-            quotAndRem[0] = getUnscaledValue().multiply( Multiplication.powerOf10(traillingZeros) );
-            newScale += traillingZeros;
+            quotAndRem[0] = getUnscaledValue().multiply( Multiplication.powerOf10(trailingZeros) );
+            newScale += trailingZeros;
         }
         quotAndRem = quotAndRem[0].divideAndRemainder( divisor.getUnscaledValue() );
         integerQuot = quotAndRem[0];
@@ -1428,7 +1429,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (divisor.isZero()) {
             throw new ArithmeticException("Division by zero");
         }
-        if ((divisor.aproxPrecision() + newScale > this.aproxPrecision() + 1L)
+        if ((divisor.approxPrecision() + newScale > this.approxPrecision() + 1L)
         || (this.isZero())) {
             /* If the divisor's integer part is greater than this's integer part,
              * the result must be zero with the appropriate scale */
@@ -1879,29 +1880,31 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (precision > 0) {
             return precision;
         }
-        int bitLength = this.bitLength;
-        int decimalDigits = 1; // the precision to be calculated
-        double doubleUnsc = 1;  // intVal in 'double'
 
-        if (bitLength < 1024) {
-            // To calculate the precision for small numbers
-            if (bitLength >= 64) {
-                doubleUnsc = getUnscaledValue().doubleValue();
-            } else if (bitLength >= 1) {
-                doubleUnsc = smallValue;
-            }
-            decimalDigits += Math.log10(Math.abs(doubleUnsc));
-        } else {// (bitLength >= 1024)
-            /* To calculate the precision for large numbers
-             * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
-            decimalDigits += (bitLength - 1) * LOG10_2;
-            // If after division the number isn't zero, exists an aditional digit
+        int bitLength = this.bitLength;
+
+        if (bitLength == 0) {
+            precision = 1;
+        } else if (bitLength < 64) {
+            precision = decimalDigitsInLong(smallValue);
+        } else {
+            int decimalDigits = 1 + (int) ((bitLength - 1) * LOG10_2);
+            // If after division the number isn't zero, there exists an additional digit
             if (getUnscaledValue().divide(Multiplication.powerOf10(decimalDigits)).signum() != 0) {
                 decimalDigits++;
             }
+            precision = decimalDigits;
         }
-        precision = decimalDigits;
         return precision;
+    }
+
+    private int decimalDigitsInLong(long value) {
+        if (value == Long.MIN_VALUE) {
+            return 19; // special case required because abs(MIN_VALUE) == MIN_VALUE
+        } else {
+            int index = Arrays.binarySearch(LONG_TEN_POW, Math.abs(value));
+            return (index < 0) ? (-index - 1) : (index + 1);
+        }
     }
 
     /**
@@ -2191,7 +2194,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 return (smallValue < val.smallValue) ? -1 : (smallValue > val.smallValue) ? 1 : 0;
             }
             long diffScale = (long)this.scale - val.scale;
-            int diffPrecision = this.aproxPrecision() - val.aproxPrecision();
+            int diffPrecision = this.approxPrecision() - val.approxPrecision();
             if (diffPrecision > diffScale + 1) {
                 return thisSign;
             } else if (diffPrecision < diffScale - 1) {
@@ -2494,7 +2497,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         } else {// (scale > 0)
             BigInteger[] integerAndFraction;
             // An optimization before do a heavy division
-            if ((scale > aproxPrecision()) || (scale > getUnscaledValue().getLowestSetBit())) {
+            if ((scale > approxPrecision()) || (scale > getUnscaledValue().getLowestSetBit())) {
                 throw new ArithmeticException("Rounding necessary");
             }
             integerAndFraction = getUnscaledValue().divideAndRemainder(Multiplication.powerOf10(scale));
@@ -2520,7 +2523,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
          * 10^(-scale). If the scale is positive and very large the long value
          * could be zero.
          */
-        return ((scale <= -64) || (scale > aproxPrecision()) ? 0L
+        return ((scale <= -64) || (scale > approxPrecision()) ? 0L
                 : toBigInteger().longValue());
     }
 
@@ -2551,7 +2554,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
          * 10^(-scale). If the scale is positive and very large the long value
          * could be zero.
          */
-        return ((scale <= -32) || (scale > aproxPrecision())
+        return ((scale <= -32) || (scale > approxPrecision())
         ? 0
                 : toBigInteger().intValue());
     }
@@ -2660,7 +2663,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         long powerOfTwo = this.bitLength - (long)(scale / LOG10_2);
         long bits; // IEEE-754 Standard
         long tempBits; // for temporal calculations
-        BigInteger mantisa;
+        BigInteger mantissa;
 
         if ((powerOfTwo < -1074) || (sign == 0)) {
             // Cases which 'this' is very small
@@ -2669,11 +2672,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             // Cases which 'this' is very large
             return (sign * Double.POSITIVE_INFINITY);
         }
-        mantisa = getUnscaledValue().abs();
+        mantissa = getUnscaledValue().abs();
         // Let be:  this = [u,s], with s > 0
         if (scale <= 0) {
-            // mantisa = abs(u) * 10^s
-            mantisa = mantisa.multiply(Multiplication.powerOf10(-scale));
+            // mantissa = abs(u) * 10^s
+            mantissa = mantissa.multiply(Multiplication.powerOf10(-scale));
         } else {// (scale > 0)
             BigInteger quotAndRem[];
             BigInteger powerOfTen = Multiplication.powerOf10(scale);
@@ -2681,25 +2684,25 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             int compRem;
 
             if (k > 0) {
-                /* Computing (mantisa * 2^k) , where 'k' is a enough big
+                /* Computing (mantissa * 2^k) , where 'k' is a enough big
                  * power of '2' to can divide by 10^s */
-                mantisa = mantisa.shiftLeft(k);
+                mantissa = mantissa.shiftLeft(k);
                 exponent -= k;
             }
-            // Computing (mantisa * 2^k) / 10^s
-            quotAndRem = mantisa.divideAndRemainder(powerOfTen);
+            // Computing (mantissa * 2^k) / 10^s
+            quotAndRem = mantissa.divideAndRemainder(powerOfTen);
             // To check if the fractional part >= 0.5
             compRem = quotAndRem[1].shiftLeftOneBit().compareTo(powerOfTen);
-            // To add two rounded bits at end of mantisa
-            mantisa = quotAndRem[0].shiftLeft(2).add(
+            // To add two rounded bits at end of mantissa
+            mantissa = quotAndRem[0].shiftLeft(2).add(
                     BigInteger.valueOf((compRem * (compRem + 3)) / 2 + 1));
             exponent -= 2;
         }
-        lowestSetBit = mantisa.getLowestSetBit();
-        discardedSize = mantisa.bitLength() - 54;
+        lowestSetBit = mantissa.getLowestSetBit();
+        discardedSize = mantissa.bitLength() - 54;
         if (discardedSize > 0) {// (n > 54)
-            // mantisa = (abs(u) * 10^s) >> (n - 54)
-            bits = mantisa.shiftRight(discardedSize).longValue();
+            // mantissa = (abs(u) * 10^s) >> (n - 54)
+            bits = mantissa.shiftRight(discardedSize).longValue();
             tempBits = bits;
             // #bits = 54, to check if the discarded fraction produces a carry
             if ((((bits & 1) == 1) && (lowestSetBit < discardedSize))
@@ -2707,8 +2710,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 bits += 2;
             }
         } else {// (n <= 54)
-            // mantisa = (abs(u) * 10^s) << (54 - n)
-            bits = mantisa.longValue() << -discardedSize;
+            // mantissa = (abs(u) * 10^s) << (54 - n)
+            bits = mantissa.longValue() << -discardedSize;
             tempBits = bits;
             // #bits = 54, to check if the discarded fraction produces a carry:
             if ((bits & 3) == 3) {
@@ -2717,7 +2720,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         // Testing bit 54 to check if the carry creates a new binary digit
         if ((bits & 0x40000000000000L) == 0) {
-            // To drop the last bit of mantisa (first discarded)
+            // To drop the last bit of mantissa (first discarded)
             bits >>= 1;
             // exponent = 2^(s-n+53+bias)
             exponent += discardedSize;
@@ -2746,7 +2749,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             exponent = 0;
             bits >>= 1;
         }
-        // Construct the 64 double bits: [sign(1), exponent(11), mantisa(52)]
+        // Construct the 64 double bits: [sign(1), exponent(11), mantissa(52)]
         bits = (sign & 0x8000000000000000L) | ((long)exponent << 52)
                 | (bits & 0xFFFFFFFFFFFFFL);
         return Double.longBitsToDouble(bits);
@@ -2785,7 +2788,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     private void inplaceRound(MathContext mc) {
         int mcPrecision = mc.getPrecision();
         // BEGIN android-changed
-        if (aproxPrecision() < mcPrecision || mcPrecision == 0) {
+        if (approxPrecision() < mcPrecision || mcPrecision == 0) {
             return;
         }
         // END android-changed
@@ -2880,7 +2883,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            can be 0 or 1, it's only used in the case
      *            {@code HALF_EVEN}
      * @param fraction
-     *            the mantisa to be analyzed
+     *            the mantissa to be analyzed
      * @param roundingMode
      *            the type of rounding
      * @return the carry propagated after rounding
@@ -2957,7 +2960,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *
      * @return an approximation of {@code precision()} value
      */
-    private int aproxPrecision() {
+    private int approxPrecision() {
         // BEGIN android-changed
         return precision > 0
                 ? precision
@@ -3011,7 +3014,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
 
     /**
-     * Assignes all transient fields upon deserialization of a
+     * Assigns all transient fields upon deserialization of a
      * {@code BigDecimal} instance (bitLength and smallValue). The transient
      * field precision is assigned lazily.
      */
