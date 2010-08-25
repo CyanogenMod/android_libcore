@@ -16,14 +16,7 @@
 
 #define LOG_TAG "StrictMath"
 
-// We include this header file first, because it's unhygienic when it comes to checking whether
-// things are already #defined. It's also missing the 'extern "C"', and leaves a bunch of stuff.
-extern "C" {
 #include "../../external/fdlibm/fdlibm.h"
-}
-// fdlibm.h #defines __P. glibc uses #undef itself to supply its own definition, but bionic
-// assumes no-one's been polluting the namespace.
-#undef __P
 
 #include "jni.h"
 #include "JNIHelp.h"
