@@ -98,7 +98,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setByte(offset + position++, value);
+        getBaseAddress().pokeByte(offset + position++, value);
         return this;
     }
 
@@ -107,7 +107,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setByte(offset + index, value);
+        getBaseAddress().pokeByte(offset + index, value);
         return this;
     }
 
@@ -255,7 +255,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setDouble(offset + position, value, order);
+        getBaseAddress().pokeDouble(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -265,7 +265,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + 8 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setDouble(offset + index, value, order);
+        getBaseAddress().pokeDouble(offset + index, value, order);
         return this;
     }
 
@@ -275,7 +275,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setFloat(offset + position, value, order);
+        getBaseAddress().pokeFloat(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -285,7 +285,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + 4 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setFloat(offset + index, value, order);
+        getBaseAddress().pokeFloat(offset + index, value, order);
         return this;
     }
 
@@ -295,7 +295,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setInt(offset + position, value, order);
+        getBaseAddress().pokeInt(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -305,7 +305,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + 4 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setInt(offset + index, value, order);
+        getBaseAddress().pokeInt(offset + index, value, order);
         return this;
     }
 
@@ -315,7 +315,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setLong(offset + position, value, order);
+        getBaseAddress().pokeLong(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -325,7 +325,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + 8 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setLong(offset + index, value, order);
+        getBaseAddress().pokeLong(offset + index, value, order);
         return this;
     }
 
@@ -335,7 +335,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setShort(offset + position, value, order);
+        getBaseAddress().pokeShort(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -345,7 +345,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + 2 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setShort(offset + index, value, order);
+        getBaseAddress().pokeShort(offset + index, value, order);
         return this;
     }
 

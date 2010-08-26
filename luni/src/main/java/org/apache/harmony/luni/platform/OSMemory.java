@@ -98,8 +98,6 @@ final class OSMemory {
     public static native void memmove(int destAddress, int srcAddress, long length);
 
     public static native byte peekByte(int address);
-    public static native float peekFloat(int address, boolean swap);
-    public static native double peekDouble(int address, boolean swap);
     public static native int peekInt(int address, boolean swap);
     public static native long peekLong(int address, boolean swap);
     public static native short peekShort(int address, boolean swap);
@@ -107,8 +105,6 @@ final class OSMemory {
     public static native void peekByteArray(int address, byte[] bytes, int offset, int length);
 
     public static native void pokeByte(int address, byte value);
-    public static native void pokeDouble(int address, double value, boolean swap);
-    public static native void pokeFloat(int address, float value, boolean swap);
     public static native void pokeInt(int address, int value, boolean swap);
     public static native void pokeLong(int address, long value, boolean swap);
     public static native void pokeShort(int address, short value, boolean swap);
