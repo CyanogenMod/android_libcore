@@ -42,7 +42,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.channels.Channel;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Collection;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -628,6 +629,41 @@ public final class System {
      */
     private static native void setFieldImpl(String fieldName, String signature, Object stream);
 
+
+    /**
+     * The unmodifiable environment variables map. The System.getenv() specifies
+     * that this map must throw when queried with non-String keys values.
+     */
+    static class SystemEnvironment extends AbstractMap<String, String> {
+        private final Map<String, String> map;
+
+        public SystemEnvironment(Map<String, String> map) {
+            this.map = Collections.unmodifiableMap(map);
+        }
+
+        @Override public Set<Entry<String, String>> entrySet() {
+            return map.entrySet();
+        }
+
+        @Override public String get(Object key) {
+            return map.get(toNonNullString(key));
+        }
+
+        @Override public boolean containsKey(Object key) {
+            return map.containsKey(toNonNullString(key));
+        }
+
+        @Override public boolean containsValue(Object value) {
+            return map.containsValue(toNonNullString(value));
+        }
+
+        private String toNonNullString(Object o) {
+            if (o == null) {
+                throw new NullPointerException();
+            }
+            return (String) o;
+        }
+    }
 }
 
 /**
@@ -641,84 +677,4 @@ class SystemProperties extends Properties {
     native void preInit();
 
     native void postInit();
-}
-
-/**
- * Internal class holding the System environment variables. The Java spec
- * mandates that this map be read-only, so we wrap our real map into this one
- * and make sure no one touches the contents. We also check for null parameters
- * and do some (seemingly unnecessary) type casts to fulfill the contract layed
- * out in the spec.
- */
-class SystemEnvironment implements Map {
-
-    private Map<String, String> map;
-
-    public SystemEnvironment(Map<String, String> map) {
-        this.map = map;
-    }
-
-    public void clear() {
-        throw new UnsupportedOperationException("Can't modify environment");
-    }
-
-    @SuppressWarnings("cast")
-    public boolean containsKey(Object key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
-
-        return map.containsKey((String)key);
-    }
-
-    @SuppressWarnings("cast")
-    public boolean containsValue(Object value) {
-        if (value == null) {
-            throw new NullPointerException();
-        }
-
-        return map.containsValue((String)value);
-    }
-
-    public Set entrySet() {
-        return map.entrySet();
-    }
-
-    @SuppressWarnings("cast")
-    public String get(Object key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
-
-        return map.get((String)key);
-    }
-
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
-
-    public Set<String> keySet() {
-        return map.keySet();
-    }
-
-    public String put(Object key, Object value) {
-        throw new UnsupportedOperationException("Can't modify environment");
-    }
-
-    public void putAll(Map map) {
-        throw new UnsupportedOperationException("Can't modify environment");
-    }
-
-    public String remove(Object key) {
-        throw new UnsupportedOperationException("Can't modify environment");
-    }
-
-    public int size() {
-        return map.size();
-    }
-
-    public Collection values() {
-        return map.values();
-    }
-
 }
