@@ -84,7 +84,6 @@ public class AllTests {
         suite.addTestSuite(NumberTest.class);
         suite.addTestSuite(ObjectTest.class);
         suite.addTestSuite(OutOfMemoryErrorTest.class);
-        suite.addTestSuite(ProcessBuilderTest.class);
         suite.addTestSuite(RuntimeExceptionTest.class);
         suite.addTestSuite(RuntimePermissionTest.class);
         suite.addTestSuite(RuntimeTest.class);
@@ -94,17 +93,13 @@ public class AllTests {
         suite.addTestSuite(StackOverflowErrorTest.class);
         suite.addTestSuite(StackTraceElementTest.class);
         suite.addTestSuite(StrictMathTest.class);
-        suite.addTestSuite(String2Test.class);
         suite.addTestSuite(StringBuffer2Test.class);
         suite.addTestSuite(StringBufferTest.class);
         suite.addTestSuite(StringBuilderTest.class);
         suite.addTestSuite(StringIndexOutOfBoundsExceptionTest.class);
-        suite.addTestSuite(StringTest.class);
         suite.addTestSuite(SystemTest.class);
         suite.addTestSuite(ThreadDeathTest.class);
-        suite.addTestSuite(ThreadGroupTest.class);
         suite.addTestSuite(ThreadLocalTest.class);
-        suite.addTestSuite(ThreadTest.class);
         suite.addTestSuite(ThreadStateTest.class);
         suite.addTestSuite(ThrowableTest.class);
         suite.addTestSuite(TypeNotPresentExceptionTest.class);
