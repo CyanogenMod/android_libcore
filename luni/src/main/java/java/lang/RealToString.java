@@ -19,7 +19,7 @@ package java.lang;
 
 import libcore.math.MathUtils;
 
-public final class RealToString {
+final class RealToString {
     private int setCount; // number of times u and k have been gotten
 
     private int getCount; // number of times u and k have been set
