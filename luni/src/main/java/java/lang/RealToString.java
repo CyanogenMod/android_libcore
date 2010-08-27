@@ -15,11 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.util;
+package java.lang;
 
+import libcore.math.MathUtils;
 
-public final class NumberConverter {
-
+public final class RealToString {
     private int setCount; // number of times u and k have been gotten
 
     private int getCount; // number of times u and k have been set
@@ -28,58 +28,31 @@ public final class NumberConverter {
 
     private int firstK;
 
-    private final static double invLogOfTenBaseTwo = Math.log(2.0)
-            / Math.log(10.0);
+    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
-    private final static long[] TEN_TO_THE = new long[20];
-
-    static {
-        TEN_TO_THE[0] = 1L;
-        for (int i = 1; i < TEN_TO_THE.length; ++i) {
-            long previous = TEN_TO_THE[i - 1];
-            TEN_TO_THE[i] = (previous << 1) + (previous << 3);
-        }
-    }
-
-    private static NumberConverter getConverter() {
-        return new NumberConverter();
-    }
-
-    public static String convert(double input) {
-        return getConverter().convertD(input);
-    }
-
-    public static String convert(float input) {
-        return getConverter().convertF(input);
-    }
-
-    public String convertD(double inputNumber) {
-        int p = 1023 + 52; // the power offset (precision)
-        long signMask = 0x8000000000000000L; // the mask to get the sign of
-        // the number
-        long eMask = 0x7FF0000000000000L; // the mask to get the power bits
-        long fMask = 0x000FFFFFFFFFFFFFL; // the mask to get the significand
-        // bits
-
+    public String doubleToString(double inputNumber) {
         long inputNumberBits = Double.doubleToLongBits(inputNumber);
-        // the value of the sign... 0 is positive, ~0 is negative
-        String signString = (inputNumberBits & signMask) == 0 ? "" : "-";
-        // the value of the 'power bits' of the inputNumber
-        int e = (int) ((inputNumberBits & eMask) >> 52);
-        // the value of the 'significand bits' of the inputNumber
-        long f = inputNumberBits & fMask;
+        boolean positive = (inputNumberBits & Double.SIGN_MASK) == 0;
+        int e = (int) ((inputNumberBits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS);
+        long f = inputNumberBits & Double.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
-        int pow = 0, numBits = 52;
 
-        if (e == 2047)
-            return mantissaIsZero ? signString + "Infinity" : "NaN";
+        if (e == 2047) {
+            if (!mantissaIsZero) {
+                return "NaN";
+            }
+            return positive ? "Infinity" : "-Infinity";
+        }
+        int p = Double.EXPONENT_BIAS + Double.MANTISSA_BITS; // the power offset (precision)
+        int pow = 0, numBits = Double.MANTISSA_BITS;
         if (e == 0) {
-            if (mantissaIsZero)
-                return signString + "0.0";
-            if (f == 1)
-                // special case to increase precision even though 2 *
-                // Double.MIN_VALUE is 1.0e-323
-                return signString + "4.9E-324";
+            if (mantissaIsZero) {
+                return positive ? "0.0" : "-0.0";
+            }
+            if (f == 1) {
+                // special case to increase precision even though 2 * Double.MIN_VALUE is 1.0e-323
+                return positive ? "4.9E-324" : "-4.9E-324";
+            }
             pow = 1 - p; // a denormalized number
             long ff = f;
             while ((ff & 0x0010000000000000L) == 0) {
@@ -93,39 +66,39 @@ public final class NumberConverter {
             pow = e - p;
         }
 
-        if (-59 < pow && pow < 6 || (pow == -59 && !mantissaIsZero))
+        if (-59 < pow && pow < 6 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
-        else
-            bigIntDigitGeneratorInstImpl(f, pow, e == 0, numBits);
-
+        } else {
+            bigIntDigitGenerator(f, pow, e == 0, numBits);
+        }
         if (inputNumber >= 1e7D || inputNumber <= -1e7D
-                || (inputNumber > -1e-3D && inputNumber < 1e-3D))
-            return signString + freeFormatExponential();
-
-        return signString + freeFormat();
+                || (inputNumber > -1e-3D && inputNumber < 1e-3D)) {
+            return freeFormatExponential(positive);
+        }
+        return freeFormat(positive);
     }
 
-    public String convertF(float inputNumber) {
-        int p = 127 + 23; // the power offset (precision)
-        int signMask = 0x80000000; // the mask to get the sign of the number
-        int eMask = 0x7F800000; // the mask to get the power bits
-        int fMask = 0x007FFFFF; // the mask to get the significand bits
-
+    public String floatToString(float inputNumber) {
         int inputNumberBits = Float.floatToIntBits(inputNumber);
-        // the value of the sign... 0 is positive, ~0 is negative
-        String signString = (inputNumberBits & signMask) == 0 ? "" : "-";
+        boolean positive = (inputNumberBits & Float.SIGN_MASK) == 0;
         // the value of the 'power bits' of the inputNumber
-        int e = (inputNumberBits & eMask) >> 23;
+        int e = (inputNumberBits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS;
         // the value of the 'significand bits' of the inputNumber
-        int f = inputNumberBits & fMask;
+        int f = inputNumberBits & Float.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
-        int pow = 0, numBits = 23;
 
-        if (e == 255)
-            return mantissaIsZero ? signString + "Infinity" : "NaN";
+        if (e == 255) {
+            if (!mantissaIsZero) {
+                return "NaN";
+            }
+            return positive ? "Infinity" : "-Infinity";
+        }
+        int p = Float.EXPONENT_BIAS + Float.MANTISSA_BITS; // the power offset (precision)
+        int pow = 0, numBits = Float.MANTISSA_BITS;
         if (e == 0) {
-            if (mantissaIsZero)
-                return signString + "0.0";
+            if (mantissaIsZero) {
+                return positive ? "0.0" : "-0.0";
+            }
             pow = 1 - p; // a denormalized number
             if (f < 8) { // want more precision with smallest values
                 f = f << 2;
@@ -143,75 +116,80 @@ public final class NumberConverter {
             pow = e - p;
         }
 
-        if (-59 < pow && pow < 35 || (pow == -59 && !mantissaIsZero))
+        if (-59 < pow && pow < 35 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
-        else
-            bigIntDigitGeneratorInstImpl(f, pow, e == 0, numBits);
+        } else {
+            bigIntDigitGenerator(f, pow, e == 0, numBits);
+        }
         if (inputNumber >= 1e7f || inputNumber <= -1e7f
-                || (inputNumber > -1e-3f && inputNumber < 1e-3f))
-            return signString + freeFormatExponential();
-
-        return signString + freeFormat();
+                || (inputNumber > -1e-3f && inputNumber < 1e-3f)) {
+            return freeFormatExponential(positive);
+        }
+        return freeFormat(positive);
     }
 
-    private String freeFormatExponential() {
+    private String freeFormatExponential(boolean positive) {
         // corresponds to process "Free-Format Exponential"
-        char[] formattedDecimal = new char[25];
-        formattedDecimal[0] = (char) ('0' + uArray[getCount++]);
-        formattedDecimal[1] = '.';
-        // the position the next character is to be inserted into
-        // formattedDecimal
-        int charPos = 2;
+        char[] formattedDecimal = new char[26];
+        int charPos = 0;
+        if (!positive) {
+            formattedDecimal[charPos++] = '-';
+        }
+        formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
+        formattedDecimal[charPos++] = '.';
 
         int k = firstK;
         int expt = k;
         while (true) {
             k--;
-            if (getCount >= setCount)
+            if (getCount >= setCount) {
                 break;
-
+            }
             formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
         }
 
-        if (k == expt - 1)
+        if (k == expt - 1) {
             formattedDecimal[charPos++] = '0';
+        }
         formattedDecimal[charPos++] = 'E';
-        return new String(formattedDecimal, 0, charPos)
-                + Integer.toString(expt);
+        return new String(formattedDecimal, 0, charPos) + Integer.toString(expt);
     }
 
-    private String freeFormat() {
+    private String freeFormat(boolean positive) {
         // corresponds to process "Free-Format"
-        char[] formattedDecimal = new char[25];
+        char[] formattedDecimal = new char[26];
         // the position the next character is to be inserted into
         // formattedDecimal
         int charPos = 0;
+        if (!positive) {
+            formattedDecimal[charPos++] = '-';
+        }
         int k = firstK;
         if (k < 0) {
-            formattedDecimal[0] = '0';
-            formattedDecimal[1] = '.';
-            charPos += 2;
-            for (int i = k + 1; i < 0; i++)
+            formattedDecimal[charPos++] = '0';
+            formattedDecimal[charPos++] = '.';
+            for (int i = k + 1; i < 0; ++i) {
                 formattedDecimal[charPos++] = '0';
+            }
         }
 
         int U = uArray[getCount++];
         do {
-            if (U != -1)
+            if (U != -1) {
                 formattedDecimal[charPos++] = (char) ('0' + U);
-            else if (k >= -1)
+            } else if (k >= -1) {
                 formattedDecimal[charPos++] = '0';
-
-            if (k == 0)
+            }
+            if (k == 0) {
                 formattedDecimal[charPos++] = '.';
-
+            }
             k--;
             U = getCount < setCount ? uArray[getCount++] : -1;
         } while (U != -1 || k >= -1);
         return new String(formattedDecimal, 0, charPos);
     }
 
-    private native void bigIntDigitGeneratorInstImpl(long f, int e, boolean isDenormalized, int p);
+    private native void bigIntDigitGenerator(long f, int e, boolean isDenormalized, int p);
 
     private void longDigitGenerator(long f, int e, boolean isDenormalized,
             boolean mantissaIsZero, int p) {
@@ -239,9 +217,9 @@ public final class NumberConverter {
         int k = (int) Math.ceil((e + p - 1) * invLogOfTenBaseTwo - 1e-10);
 
         if (k > 0) {
-            S = S * TEN_TO_THE[k];
+            S = S * MathUtils.LONG_POWERS_OF_TEN[k];
         } else if (k < 0) {
-            long scale = TEN_TO_THE[-k];
+            long scale = MathUtils.LONG_POWERS_OF_TEN[-k];
             R = R * scale;
             M = M == 1 ? scale : M * scale;
         }
@@ -276,20 +254,21 @@ public final class NumberConverter {
             low = R < M; // was M_minus
             high = R + M > S; // was M_plus
 
-            if (low || high)
+            if (low || high) {
                 break;
-
+            }
             R = R * 10;
             M = M * 10;
             uArray[setCount++] = U;
         }
-        if (low && !high)
+        if (low && !high) {
             uArray[setCount++] = U;
-        else if (high && !low)
+        } else if (high && !low) {
             uArray[setCount++] = U + 1;
-        else if ((R << 1) < S)
+        } else if ((R << 1) < S) {
             uArray[setCount++] = U;
-        else
+        } else {
             uArray[setCount++] = U + 1;
+        }
     }
 }
