@@ -60,19 +60,13 @@
  *           1.2341234124312331E107
  *
  */
-void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject inst, jlong f, jint e,
+void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject obj, jlong f, jint e,
         jboolean isDenormalized, jint p) {
   int RLength, SLength, TempLength, mplus_Length, mminus_Length;
   int high, low, i;
   jint k, firstK, U;
-  jint getCount, setCount;
 
-  jclass clazz;
-  jfieldID fid;
-  jintArray uArrayObject;
-
-  uint64_t R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE],
-    Temp[STemp_SIZE];
+  uint64_t R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE], Temp[STemp_SIZE];
 
   memset (R     , 0, RM_SIZE    * sizeof (uint64_t));
   memset (S     , 0, STemp_SIZE * sizeof (uint64_t));
@@ -173,15 +167,14 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject inst, jlong f, jint 
         --mminus_Length;
     }
 
-  clazz = env->GetObjectClass(inst);
-  fid = env->GetFieldID(clazz, "uArray", "[I");
-  uArrayObject = reinterpret_cast<jintArray>(env->GetObjectField(inst, fid));
-  ScopedIntArrayRW uArray(env, uArrayObject);
-  if (uArray.get() == NULL) {
+  static jfieldID digitsFid = env->GetFieldID(JniConstants::realToStringClass, "digits", "[I");
+  jintArray javaDigits = reinterpret_cast<jintArray>(env->GetObjectField(obj, digitsFid));
+  ScopedIntArrayRW digits(env, javaDigits);
+  if (digits.get() == NULL) {
     return;
   }
 
-  getCount = setCount = 0;
+  jint digitCount = 0;
   do
     {
       U = 0;
@@ -219,28 +212,25 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject inst, jlong f, jint 
         --mplus_Length;
       while (mminus_Length > 1 && mminus[mminus_Length - 1] == 0)
         --mminus_Length;
-      uArray[setCount++] = U;
+      digits[digitCount++] = U;
     }
   while (1);
 
   simpleShiftLeftHighPrecision (R, ++RLength, 1);
   if (low && !high)
-    uArray[setCount++] = U;
+    digits[digitCount++] = U;
   else if (high && !low)
-    uArray[setCount++] = U + 1;
+    digits[digitCount++] = U + 1;
   else if (compareHighPrecision (R, RLength, S, SLength) < 0)
-    uArray[setCount++] = U;
+    digits[digitCount++] = U;
   else
-    uArray[setCount++] = U + 1;
+    digits[digitCount++] = U + 1;
 
-  fid = env->GetFieldID(clazz, "setCount", "I");
-  env->SetIntField(inst, fid, setCount);
+  static jfieldID digitCountFid = env->GetFieldID(JniConstants::realToStringClass, "digitCount", "I");
+  env->SetIntField(obj, digitCountFid, digitCount);
 
-  fid = env->GetFieldID(clazz, "getCount", "I");
-  env->SetIntField(inst, fid, getCount);
-
-  fid = env->GetFieldID(clazz, "firstK", "I");
-  env->SetIntField(inst, fid, firstK);
+  static jfieldID firstKFid = env->GetFieldID(JniConstants::realToStringClass, "firstK", "I");
+  env->SetIntField(obj, firstKFid, firstK);
 }
 
 static JNINativeMethod gMethods[] = {
