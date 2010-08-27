@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -47,7 +48,7 @@ public class PathClassLoader extends ClassLoader {
     private File[] mFiles;
     private ZipFile[] mZips;
     private DexFile[] mDexs;
-    private String[] mLibPaths;
+    private List<String> libraryPathElements;
 
     /**
      * Creates a {@code PathClassLoader} that operates on a given list of files
@@ -142,32 +143,31 @@ public class PathClassLoader extends ClassLoader {
         }
 
         /*
-         * Prep for native library loading.
+         * Native libraries may exist in both the system and application library
+         * paths, so we use this search order for these paths:
+         *   1. This class loader's library path for application libraries
+         *   2. The VM's library path from the system property for system libraries
+         * This order was reversed prior to Gingerbread; see http://b/2933456
          */
-        String pathList = System.getProperty("java.library.path", ".");
-        String pathSep = System.getProperty("path.separator", ":");
-        String fileSep = System.getProperty("file.separator", "/");
-
+        libraryPathElements = new ArrayList<String>();
         if (libPath != null) {
-            if (pathList.length() > 0) {
-                pathList += pathSep + libPath;
-            }
-            else {
-                pathList = libPath;
+            for (String pathElement : libPath.split(File.pathSeparator)) {
+                libraryPathElements.add(cleanupPathElement(pathElement));
             }
         }
-
-        mLibPaths = pathList.split(pathSep);
-        length = mLibPaths.length;
-
-        // Add a '/' to the end so we don't have to do the property lookup
-        // and concatenation later.
-        for (int i = 0; i < length; i++) {
-            if (!mLibPaths[i].endsWith(fileSep))
-                mLibPaths[i] += fileSep;
-            if (false)
-                System.out.println("Native lib path:  " + mLibPaths[i]);
+        String systemLibraryPath = System.getProperty("java.library.path", ".");
+        if (!systemLibraryPath.isEmpty()) {
+            for (String pathElement : systemLibraryPath.split(File.pathSeparator)) {
+                libraryPathElements.add(cleanupPathElement(pathElement));
+            }
         }
+    }
+
+    /**
+     * Returns a path element that includes a trailing file separator.
+     */
+    private String cleanupPathElement(String path) {
+        return path.endsWith(File.separator) ? path : (path + File.separator);
     }
 
     /**
@@ -407,8 +407,9 @@ public class PathClassLoader extends ClassLoader {
     }
 
     /**
-     * Finds a native library. This method is called after the parent
-     * ClassLoader has failed to find a native library of the same name.
+     * Finds a native library. This class loader first searches its own library
+     * path (as specified in the constructor) and then the system library path.
+     * In Android 2.2 and earlier, the search order was reversed.
      *
      * @param libname
      *            The name of the library to find
@@ -419,12 +420,13 @@ public class PathClassLoader extends ClassLoader {
         ensureInit();
 
         String fileName = System.mapLibraryName(libname);
-        for (int i = 0; i < mLibPaths.length; i++) {
-            String pathName = mLibPaths[i] + fileName;
+        for (String pathElement : libraryPathElements) {
+            String pathName = pathElement + fileName;
             File test = new File(pathName);
 
-            if (test.exists())
+            if (test.exists()) {
                 return pathName;
+            }
         }
 
         return null;
