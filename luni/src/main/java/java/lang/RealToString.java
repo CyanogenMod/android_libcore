@@ -20,18 +20,35 @@ package java.lang;
 import libcore.math.MathUtils;
 
 final class RealToString {
-    private int setCount; // number of times u and k have been gotten
-
-    private int getCount; // number of times u and k have been set
-
-    private int[] uArray = new int[64];
+    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
     private int firstK;
 
-    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
+    /**
+     * An array of decimal digits, filled by longDigitGenerator or bigIntDigitGenerator.
+     */
+    private final int[] digits = new int[64];
+
+    /**
+     * Number of valid entries in 'digits'.
+     */
+    private int digitCount;
+
+    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
+        @Override protected RealToString initialValue() {
+            return new RealToString();
+        }
+    };
+
+    private RealToString() {
+    }
+
+    public static RealToString getInstance() {
+        return INSTANCE.get();
+    }
 
     public String doubleToString(double inputNumber) {
-        long inputNumberBits = Double.doubleToLongBits(inputNumber);
+        long inputNumberBits = Double.doubleToRawLongBits(inputNumber);
         boolean positive = (inputNumberBits & Double.SIGN_MASK) == 0;
         int e = (int) ((inputNumberBits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS);
         long f = inputNumberBits & Double.MANTISSA_MASK;
@@ -66,6 +83,7 @@ final class RealToString {
             pow = e - p;
         }
 
+        firstK = digitCount = 0;
         if (-59 < pow && pow < 6 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         } else {
@@ -79,11 +97,9 @@ final class RealToString {
     }
 
     public String floatToString(float inputNumber) {
-        int inputNumberBits = Float.floatToIntBits(inputNumber);
+        int inputNumberBits = Float.floatToRawIntBits(inputNumber);
         boolean positive = (inputNumberBits & Float.SIGN_MASK) == 0;
-        // the value of the 'power bits' of the inputNumber
         int e = (inputNumberBits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS;
-        // the value of the 'significand bits' of the inputNumber
         int f = inputNumberBits & Float.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
 
@@ -116,6 +132,7 @@ final class RealToString {
             pow = e - p;
         }
 
+        firstK = digitCount = 0;
         if (-59 < pow && pow < 35 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         } else {
@@ -129,64 +146,60 @@ final class RealToString {
     }
 
     private String freeFormatExponential(boolean positive) {
-        // corresponds to process "Free-Format Exponential"
-        char[] formattedDecimal = new char[26];
-        int charPos = 0;
+        int digitIndex = 0;
+        StringBuilder sb = new StringBuilder(26);
         if (!positive) {
-            formattedDecimal[charPos++] = '-';
+            sb.append('-');
         }
-        formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
-        formattedDecimal[charPos++] = '.';
+        sb.append((char) ('0' + digits[digitIndex++]));
+        sb.append('.');
 
         int k = firstK;
-        int expt = k;
+        int exponent = k;
         while (true) {
             k--;
-            if (getCount >= setCount) {
+            if (digitIndex >= digitCount) {
                 break;
             }
-            formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
+            sb.append((char) ('0' + digits[digitIndex++]));
         }
 
-        if (k == expt - 1) {
-            formattedDecimal[charPos++] = '0';
+        if (k == exponent - 1) {
+            sb.append('0');
         }
-        formattedDecimal[charPos++] = 'E';
-        return new String(formattedDecimal, 0, charPos) + Integer.toString(expt);
+        sb.append('E');
+        sb.append(exponent);
+        return sb.toString();
     }
 
     private String freeFormat(boolean positive) {
-        // corresponds to process "Free-Format"
-        char[] formattedDecimal = new char[26];
-        // the position the next character is to be inserted into
-        // formattedDecimal
-        int charPos = 0;
+        int digitIndex = 0;
+        StringBuilder sb = new StringBuilder(26);
         if (!positive) {
-            formattedDecimal[charPos++] = '-';
+            sb.append('-');
         }
         int k = firstK;
         if (k < 0) {
-            formattedDecimal[charPos++] = '0';
-            formattedDecimal[charPos++] = '.';
+            sb.append('0');
+            sb.append('.');
             for (int i = k + 1; i < 0; ++i) {
-                formattedDecimal[charPos++] = '0';
+                sb.append('0');
             }
         }
-
-        int U = uArray[getCount++];
+        int U = digits[digitIndex++];
         do {
             if (U != -1) {
-                formattedDecimal[charPos++] = (char) ('0' + U);
+                sb.append((char) ('0' + U));
             } else if (k >= -1) {
-                formattedDecimal[charPos++] = '0';
+                sb.append('0');
             }
             if (k == 0) {
-                formattedDecimal[charPos++] = '.';
+                sb.append('.');
             }
             k--;
-            U = getCount < setCount ? uArray[getCount++] : -1;
+            U = digitIndex < digitCount ? digits[digitIndex++] : -1;
         } while (U != -1 || k >= -1);
-        return new String(formattedDecimal, 0, charPos);
+        return sb.toString();
     }
 
     private native void bigIntDigitGenerator(long f, int e, boolean isDenormalized, int p);
@@ -232,24 +245,11 @@ final class RealToString {
             M = M * 10;
         }
 
-        getCount = setCount = 0; // reset indices
         boolean low, high;
         int U;
-        long[] Si = new long[] { S, S << 1, S << 2, S << 3 };
         while (true) {
-            // set U to be floor (R / S) and R to be the remainder
-            // using a kind of "binary search" to find the answer.
-            // It's a lot quicker than actually dividing since we know
-            // the answer will be between 0 and 10
-            U = 0;
-            long remainder;
-            for (int i = 3; i >= 0; i--) {
-                remainder = R - Si[i];
-                if (remainder >= 0) {
-                    R = remainder;
-                    U += 1 << i;
-                }
-            }
+            U = (int) (R / S);
+            R = R - U*S; // Faster than "R = R % S" on nexus one, which only has hardware MUL.
 
             low = R < M; // was M_minus
             high = R + M > S; // was M_plus
@@ -259,16 +259,16 @@ final class RealToString {
             }
             R = R * 10;
             M = M * 10;
-            uArray[setCount++] = U;
+            digits[digitCount++] = U;
         }
         if (low && !high) {
-            uArray[setCount++] = U;
+            digits[digitCount++] = U;
         } else if (high && !low) {
-            uArray[setCount++] = U + 1;
+            digits[digitCount++] = U + 1;
         } else if ((R << 1) < S) {
-            uArray[setCount++] = U;
+            digits[digitCount++] = U;
         } else {
-            uArray[setCount++] = U + 1;
+            digits[digitCount++] = U + 1;
         }
     }
 }
