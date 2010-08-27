@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-#define LOG_TAG "NumberConvert"
+#define LOG_TAG "RealToString"
 
 #include <string.h>
 #include <math.h>
@@ -60,7 +60,7 @@
  *           1.2341234124312331E107
  *
  */
-void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlong f, jint e,
+void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject inst, jlong f, jint e,
         jboolean isDenormalized, jint p) {
   int RLength, SLength, TempLength, mplus_Length, mminus_Length;
   int high, low, i;
@@ -244,9 +244,8 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NumberConverter, bigIntDigitGeneratorInstImpl, "(JIZI)V"),
+    NATIVE_METHOD(RealToString, bigIntDigitGenerator, "(JIZI)V"),
 };
-int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",
-                gMethods, NELEM(gMethods));
+int register_java_lang_RealToString(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "java/lang/RealToString", gMethods, NELEM(gMethods));
 }

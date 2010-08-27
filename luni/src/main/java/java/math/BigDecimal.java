@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import libcore.math.MathUtils;
 
 /**
  * This class represents immutable integer numbers of arbitrary length. Large
@@ -144,32 +145,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     private static final BigInteger TEN_POW[];
 
-    /**
-     * An array with powers of ten that fit in the type <code>long</code>
-     * (<code>10^0,10^1,...,10^18</code>).
-     */
-    private static final long[] LONG_TEN_POW = new long[]
-    {   1L,
-        10L,
-        100L,
-        1000L,
-        10000L,
-        100000L,
-        1000000L,
-        10000000L,
-        100000000L,
-        1000000000L,
-        10000000000L,
-        100000000000L,
-        1000000000000L,
-        10000000000000L,
-        100000000000000L,
-        1000000000000000L,
-        10000000000000000L,
-        100000000000000000L,
-        1000000000000000000L, };
-
-
     private static final long[] LONG_FIVE_POW = new long[]
     {   1L,
         5L,
@@ -201,7 +176,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         7450580596923828125L, };
 
     private static final int[] LONG_FIVE_POW_BIT_LENGTH = new int[LONG_FIVE_POW.length];
-    private static final int[] LONG_TEN_POW_BIT_LENGTH = new int[LONG_TEN_POW.length];
+    private static final int[] LONG_POWERS_OF_TEN_BIT_LENGTH = new int[MathUtils.LONG_POWERS_OF_TEN.length];
 
     private static final int BI_SCALED_BY_ZERO_LENGTH = 11;
 
@@ -236,8 +211,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         for(int j=0; j<LONG_FIVE_POW_BIT_LENGTH.length; j++) {
             LONG_FIVE_POW_BIT_LENGTH[j] = bitLength(LONG_FIVE_POW[j]);
         }
-        for(int j=0; j<LONG_TEN_POW_BIT_LENGTH.length; j++) {
-            LONG_TEN_POW_BIT_LENGTH[j] = bitLength(LONG_TEN_POW[j]);
+        for(int j=0; j<LONG_POWERS_OF_TEN_BIT_LENGTH.length; j++) {
+            LONG_POWERS_OF_TEN_BIT_LENGTH[j] = bitLength(MathUtils.LONG_POWERS_OF_TEN[j]);
         }
 
         // Taking the references of useful powers.
@@ -847,9 +822,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
 
     private static BigDecimal addAndMult10(BigDecimal thisValue,BigDecimal augend, int diffScale) {
         // BEGIN android-changed
-        if(diffScale < LONG_TEN_POW.length &&
-                Math.max(thisValue.bitLength,augend.bitLength+LONG_TEN_POW_BIT_LENGTH[diffScale])+1<64) {
-            return valueOf(thisValue.smallValue+augend.smallValue*LONG_TEN_POW[diffScale],thisValue.scale);
+        if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                Math.max(thisValue.bitLength,augend.bitLength+LONG_POWERS_OF_TEN_BIT_LENGTH[diffScale])+1<64) {
+            return valueOf(thisValue.smallValue+augend.smallValue*MathUtils.LONG_POWERS_OF_TEN[diffScale],thisValue.scale);
         } else {
             BigInt bi = Multiplication.multiplyByTenPow(augend.getUnscaledValue(),diffScale).getBigInt();
             bi.add(thisValue.getUnscaledValue().getBigInt());
@@ -945,17 +920,17 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             return new BigDecimal(this.getUnscaledValue().subtract(subtrahend.getUnscaledValue()), this.scale);
         } else if (diffScale > 0) {
             // case s1 > s2 : [ u1 - u2 * 10 ^ (s1 - s2) , s1 ]
-            if(diffScale < LONG_TEN_POW.length &&
-                    Math.max(this.bitLength,subtrahend.bitLength+LONG_TEN_POW_BIT_LENGTH[diffScale])+1<64) {
-                return valueOf(this.smallValue-subtrahend.smallValue*LONG_TEN_POW[diffScale],this.scale);
+            if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                    Math.max(this.bitLength,subtrahend.bitLength+LONG_POWERS_OF_TEN_BIT_LENGTH[diffScale])+1<64) {
+                return valueOf(this.smallValue-subtrahend.smallValue*MathUtils.LONG_POWERS_OF_TEN[diffScale],this.scale);
             }
             return new BigDecimal(this.getUnscaledValue().subtract(
                     Multiplication.multiplyByTenPow(subtrahend.getUnscaledValue(),diffScale)), this.scale);
         } else {// case s2 > s1 : [ u1 * 10 ^ (s2 - s1) - u2 , s2 ]
             diffScale = -diffScale;
-            if(diffScale < LONG_TEN_POW.length &&
-                    Math.max(this.bitLength+LONG_TEN_POW_BIT_LENGTH[diffScale],subtrahend.bitLength)+1<64) {
-                return valueOf(this.smallValue*LONG_TEN_POW[diffScale]-subtrahend.smallValue,subtrahend.scale);
+            if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                    Math.max(this.bitLength+LONG_POWERS_OF_TEN_BIT_LENGTH[diffScale],subtrahend.bitLength)+1<64) {
+                return valueOf(this.smallValue*MathUtils.LONG_POWERS_OF_TEN[diffScale]-subtrahend.smallValue,subtrahend.scale);
             }
             return new BigDecimal(Multiplication.multiplyByTenPow(this.getUnscaledValue(),diffScale)
             .subtract(subtrahend.getUnscaledValue()), subtrahend.scale);
@@ -1120,17 +1095,17 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                         scale,
                         roundingMode );
             } else if(diffScale > 0) {
-                if(diffScale < LONG_TEN_POW.length &&
-                        divisor.bitLength + LONG_TEN_POW_BIT_LENGTH[(int)diffScale] < 64) {
+                if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                        divisor.bitLength + LONG_POWERS_OF_TEN_BIT_LENGTH[(int)diffScale] < 64) {
                     return dividePrimitiveLongs(this.smallValue,
-                            divisor.smallValue*LONG_TEN_POW[(int)diffScale],
+                            divisor.smallValue*MathUtils.LONG_POWERS_OF_TEN[(int)diffScale],
                             scale,
                             roundingMode);
                 }
             } else { // diffScale < 0
-                if(-diffScale < LONG_TEN_POW.length &&
-                        this.bitLength + LONG_TEN_POW_BIT_LENGTH[(int)-diffScale] < 64) {
-                    return dividePrimitiveLongs(this.smallValue*LONG_TEN_POW[(int)-diffScale],
+                if(-diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                        this.bitLength + LONG_POWERS_OF_TEN_BIT_LENGTH[(int)-diffScale] < 64) {
+                    return dividePrimitiveLongs(this.smallValue*MathUtils.LONG_POWERS_OF_TEN[(int)-diffScale],
                             divisor.smallValue,
                             scale,
                             roundingMode);
@@ -1902,7 +1877,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (value == Long.MIN_VALUE) {
             return 19; // special case required because abs(MIN_VALUE) == MIN_VALUE
         } else {
-            int index = Arrays.binarySearch(LONG_TEN_POW, Math.abs(value));
+            int index = Arrays.binarySearch(MathUtils.LONG_POWERS_OF_TEN, Math.abs(value));
             return (index < 0) ? (-index - 1) : (index + 1);
         }
     }
@@ -1976,16 +1951,16 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         if(diffScale > 0) {
         // return  [u * 10^(s2 - s), newScale]
-            if(diffScale < LONG_TEN_POW.length &&
-                    (this.bitLength + LONG_TEN_POW_BIT_LENGTH[(int)diffScale]) < 64 ) {
-                return valueOf(this.smallValue*LONG_TEN_POW[(int)diffScale],newScale);
+            if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                    (this.bitLength + LONG_POWERS_OF_TEN_BIT_LENGTH[(int)diffScale]) < 64 ) {
+                return valueOf(this.smallValue*MathUtils.LONG_POWERS_OF_TEN[(int)diffScale],newScale);
             }
             return new BigDecimal(Multiplication.multiplyByTenPow(getUnscaledValue(),(int)diffScale), newScale);
         }
         // diffScale < 0
         // return  [u,s] / [1,newScale]  with the appropriate scale and rounding
-        if(this.bitLength < 64 && -diffScale < LONG_TEN_POW.length) {
-            return dividePrimitiveLongs(this.smallValue, LONG_TEN_POW[(int)-diffScale], newScale,roundingMode);
+        if(this.bitLength < 64 && -diffScale < MathUtils.LONG_POWERS_OF_TEN.length) {
+            return dividePrimitiveLongs(this.smallValue, MathUtils.LONG_POWERS_OF_TEN[(int)-diffScale], newScale,roundingMode);
         }
         return divideBigIntegers(this.getUnscaledValue(),Multiplication.powerOf10(-diffScale),newScale,roundingMode);
     }
@@ -2070,9 +2045,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             }
             return new BigDecimal(getUnscaledValue(), toIntScale(newScale));
         }
-        if(-newScale < LONG_TEN_POW.length &&
-                bitLength + LONG_TEN_POW_BIT_LENGTH[(int)-newScale] < 64 ) {
-            return valueOf(smallValue*LONG_TEN_POW[(int)-newScale],0);
+        if(-newScale < MathUtils.LONG_POWERS_OF_TEN.length &&
+                bitLength + LONG_POWERS_OF_TEN_BIT_LENGTH[(int)-newScale] < 64 ) {
+            return valueOf(smallValue*MathUtils.LONG_POWERS_OF_TEN[(int)-newScale],0);
         }
         return new BigDecimal(Multiplication.multiplyByTenPow(getUnscaledValue(),(int)-newScale), 0);
     }
@@ -2846,7 +2821,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @see #round(MathContext)
      */
     private void smallRound(MathContext mc, int discardedPrecision) {
-        long sizeOfFraction = LONG_TEN_POW[discardedPrecision];
+        long sizeOfFraction = MathUtils.LONG_POWERS_OF_TEN[discardedPrecision];
         long newScale = (long)scale - discardedPrecision;
         long unscaledVal = smallValue;
         // Getting the integer part and the discarded fraction

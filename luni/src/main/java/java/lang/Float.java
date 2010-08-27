@@ -24,6 +24,15 @@ package java.lang;
  * @since 1.0
  */
 public final class Float extends Number implements Comparable<Float> {
+    static final int EXPONENT_BIAS = 127;
+
+    static final int EXPONENT_BITS = 9;
+    static final int MANTISSA_BITS = 23;
+    static final int NON_MANTISSA_BITS = 9;
+
+    static final int SIGN_MASK     = 0x80000000;
+    static final int EXPONENT_MASK = 0x7f800000;
+    static final int MANTISSA_MASK = 0x007fffff;
 
     private static final long serialVersionUID = -2671257302660747028L;
 
@@ -334,7 +343,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @return a printable representation of {@code f}.
      */
     public static String toString(float f) {
-        return org.apache.harmony.luni.util.NumberConverter.convert(f);
+        return new RealToString().floatToString(f);
     }
 
     /**

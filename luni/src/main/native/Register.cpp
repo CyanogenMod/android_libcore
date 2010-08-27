@@ -37,6 +37,7 @@ extern int register_java_lang_Double(JNIEnv* env);
 extern int register_java_lang_Float(JNIEnv* env);
 extern int register_java_lang_Math(JNIEnv* env);
 extern int register_java_lang_ProcessManager(JNIEnv* env);
+extern int register_java_lang_RealToString(JNIEnv* env);
 extern int register_java_lang_StrictMath(JNIEnv* env);
 extern int register_java_lang_System(JNIEnv* env);
 extern int register_java_math_NativeBN(JNIEnv* env);
@@ -59,7 +60,6 @@ extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
-extern int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
 extern int register_org_apache_harmony_text_NativeBidi(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
@@ -88,6 +88,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_lang_Float(env) != -1 &&
             register_java_lang_Math(env) != -1 &&
             register_java_lang_ProcessManager(env) != -1 &&
+            register_java_lang_RealToString(env) != -1 &&
             register_java_lang_StrictMath(env) != -1 &&
             register_java_lang_System(env) != -1 &&
             register_java_math_NativeBN(env) != -1 &&
@@ -109,7 +110,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_luni_platform_OSFileSystem(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSMemory(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
-            register_org_apache_harmony_luni_util_NumberConvert(env) != -1 &&
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
             register_org_apache_harmony_text_NativeBidi(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
