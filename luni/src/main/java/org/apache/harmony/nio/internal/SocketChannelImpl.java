@@ -47,7 +47,6 @@ import java.nio.channels.spi.SelectorProvider;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.nio.AddressUtil;
 
@@ -57,9 +56,6 @@ import org.apache.harmony.nio.AddressUtil;
 class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     private static final int EOF = -1;
-
-    // The singleton to do the native network operation.
-    static final INetworkSystem networkSystem = Platform.getNetworkSystem();
 
     // Status un-init, not initialized.
     static final int SOCKET_STATUS_UNINIT = EOF;
@@ -118,7 +114,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         fd = new FileDescriptor();
         status = SOCKET_STATUS_UNCONNECTED;
         if (connect) {
-            networkSystem.socket(fd, true);
+            Platform.NETWORK.socket(fd, true);
         }
     }
 
@@ -194,10 +190,10 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         try {
             if (isBlocking()) {
                 begin();
-                networkSystem.connect(fd, normalAddr, port, 0);
+                Platform.NETWORK.connect(fd, normalAddr, port, 0);
                 finished = true; // Or we'd have thrown an exception.
             } else {
-                finished = networkSystem.connectNonBlocking(fd, normalAddr, port);
+                finished = Platform.NETWORK.connectNonBlocking(fd, normalAddr, port);
                 // set back to nonblocking to work around with a bug in portlib
                 if (!isBlocking()) {
                     IoUtils.setBlocking(fd, false);
@@ -238,8 +234,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     }
 
     private void initLocalAddressAndPort() {
-        localAddress = networkSystem.getSocketLocalAddress(fd);
-        localPort = networkSystem.getSocketLocalPort(fd);
+        localAddress = Platform.NETWORK.getSocketLocalAddress(fd);
+        localPort = Platform.NETWORK.getSocketLocalPort(fd);
         if (socket != null) {
             socket.socketImpl().initLocalPort(localPort);
         }
@@ -265,7 +261,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             begin();
             final int WAIT_FOREVER = -1;
             final int POLL = 0;
-            finished = networkSystem.isConnected(fd, isBlocking() ? WAIT_FOREVER : POLL);
+            finished = Platform.NETWORK.isConnected(fd, isBlocking() ? WAIT_FOREVER : POLL);
             isBound = finished;
             initLocalAddressAndPort();
         } catch (ConnectException e) {
@@ -373,13 +369,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                     // BEGIN android-changed
                     // changed address from long to int
                     int address = AddressUtil.getDirectBufferAddress(target);
-                    readCount = networkSystem.readDirect(fd, address + offset, length);
+                    readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
                     // END android-changed
                 } else {
                     // target is assured to have array.
                     byte[] array = target.array();
                     offset += target.arrayOffset();
-                    readCount = networkSystem.read(fd, array, offset, length);
+                    readCount = Platform.NETWORK.read(fd, array, offset, length);
                 }
                 return readCount;
             } finally {
@@ -451,14 +447,14 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                 }
                 if (source.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(source);
-                    writeCount = networkSystem.writeDirect(fd, address, pos, length);
+                    writeCount = Platform.NETWORK.writeDirect(fd, address, pos, length);
                 } else if (source.hasArray()) {
                     pos += source.arrayOffset();
-                    writeCount = networkSystem.write(fd, source.array(), pos, length);
+                    writeCount = Platform.NETWORK.write(fd, source.array(), pos, length);
                 } else {
                     byte[] array = new byte[length];
                     source.get(array);
-                    writeCount = networkSystem.write(fd, array, 0, length);
+                    writeCount = Platform.NETWORK.write(fd, array, 0, length);
                 }
                 source.position(pos + writeCount);
             } finally {
@@ -536,7 +532,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             if (null != socket && !socket.isClosed()) {
                 socket.close();
             } else {
-                networkSystem.close(fd);
+                Platform.NETWORK.close(fd);
             }
         }
     }

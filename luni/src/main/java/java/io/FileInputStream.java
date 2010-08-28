@@ -19,8 +19,8 @@ package java.io;
 
 import java.nio.channels.FileChannel;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
+import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**
@@ -45,8 +45,6 @@ public class FileInputStream extends InputStream implements Closeable {
     private FileChannel channel;
 
     boolean innerFD;
-
-    private IFileSystem fileSystem = Platform.getFileSystem();
 
     private static class RepositioningLock {
     }
@@ -77,7 +75,7 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         fd = new FileDescriptor();
         fd.readOnly = true;
-        fd.descriptor = fileSystem.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
         innerFD = true;
         // BEGIN android-removed
         // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
@@ -135,7 +133,7 @@ public class FileInputStream extends InputStream implements Closeable {
     @Override
     public int available() throws IOException {
         openCheck();
-        return fileSystem.ioctlAvailable(fd);
+        return Platform.FILE_SYSTEM.ioctlAvailable(fd);
     }
 
     /**
@@ -280,7 +278,7 @@ public class FileInputStream extends InputStream implements Closeable {
         synchronized (repositioningLock) {
             // BEGIN android-changed
             // If you only support Linux, there's nothing special about stdin.
-            return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
+            return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, count);
             // END android-changed
         }
     }
@@ -315,7 +313,7 @@ public class FileInputStream extends InputStream implements Closeable {
         synchronized (repositioningLock) {
             // Our seek returns the new offset, but we know it will throw an
             // exception if it couldn't perform exactly the seek we asked for.
-            fileSystem.seek(fd.descriptor, count, IFileSystem.SEEK_CUR);
+            Platform.FILE_SYSTEM.seek(fd.descriptor, count, IFileSystem.SEEK_CUR);
             return count;
         }
     }

@@ -31,8 +31,6 @@ import org.apache.harmony.luni.platform.Platform;
  */
 public final class URI implements Comparable<URI>, Serializable {
 
-    private final static INetworkSystem NETWORK_SYSTEM = Platform.getNetworkSystem();
-
     private static final long serialVersionUID = -6052424284110960213l;
 
     static final String UNRESERVED = "_-!.~\'()*";

@@ -1120,7 +1120,7 @@ public class Socket {
     }
 
     private void cacheLocalAddress() {
-        this.localAddress = Platform.getNetworkSystem().getSocketLocalAddress(impl.fd);
+        this.localAddress = Platform.NETWORK.getSocketLocalAddress(impl.fd);
     }
 
     /**

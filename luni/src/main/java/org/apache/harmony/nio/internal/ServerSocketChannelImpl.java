@@ -83,8 +83,7 @@ public final class ServerSocketChannelImpl
                     boolean isBlocking = isBlocking();
                     if (!isBlocking) {
                         int[] tryResult = new int[1];
-                        boolean success = Platform.getNetworkSystem().select(
-                                new FileDescriptor[] { fd },
+                        boolean success = Platform.NETWORK.select(new FileDescriptor[] { fd },
                                 new FileDescriptor[0], 1, 0, 0, tryResult);
                         if (!success || 0 == tryResult[0]) {
                             // no pending connections, returns immediately.

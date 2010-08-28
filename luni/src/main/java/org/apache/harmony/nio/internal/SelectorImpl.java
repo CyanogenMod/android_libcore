@@ -217,8 +217,8 @@ final class SelectorImpl extends AbstractSelector {
                         if (isBlock) {
                             begin();
                         }
-                        success = Platform.getNetworkSystem().select(
-                                readableFDs, writableFDs, readableKeysCount, writableKeysCount, timeout, flags);
+                        success = Platform.NETWORK.select(readableFDs, writableFDs,
+                                readableKeysCount, writableKeysCount, timeout, flags);
                     } finally {
                         if (isBlock) {
                             end();
