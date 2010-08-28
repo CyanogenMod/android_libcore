@@ -44,8 +44,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     // initialized).
     private FileChannel channel;
 
-    private IFileSystem fileSystem = Platform.getFileSystem();
-
     private boolean isReadOnly;
 
     // BEGIN android-added
@@ -129,7 +127,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             }
         }
 
-        fd.descriptor = fileSystem.open(file.getAbsolutePath(), options);
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), options);
         // BEGIN android-removed
         // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
         //         options);
@@ -238,7 +236,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long getFilePointer() throws IOException {
         openCheck();
-        return fileSystem.seek(fd.descriptor, 0L, IFileSystem.SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(fd.descriptor, 0L, IFileSystem.SEEK_CUR);
     }
 
     /**
@@ -263,7 +261,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long length() throws IOException {
         openCheck();
-        return fileSystem.length(fd.descriptor);
+        return Platform.FILE_SYSTEM.length(fd.descriptor);
     }
 
     /**
@@ -279,7 +277,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public int read() throws IOException {
         openCheck();
         byte[] bytes = new byte[1];
-        long byteCount = fileSystem.read(fd.descriptor, bytes, 0, 1);
+        long byteCount = Platform.FILE_SYSTEM.read(fd.descriptor, bytes, 0, 1);
         return byteCount == -1 ? -1 : bytes[0] & 0xff;
     }
 
@@ -339,7 +337,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             return 0;
         }
         openCheck();
-        return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
+        return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, count);
     }
 
     /**
@@ -696,7 +694,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IOException("offset < 0");
         }
         openCheck();
-        fileSystem.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
+        Platform.FILE_SYSTEM.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
     }
 
     /**
@@ -718,7 +716,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (newLength < 0) {
             throw new IllegalArgumentException();
         }
-        fileSystem.truncate(fd.descriptor, newLength);
+        Platform.FILE_SYSTEM.truncate(fd.descriptor, newLength);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -803,7 +801,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             return;
         }
         openCheck();
-        fileSystem.write(fd.descriptor, buffer, offset, count);
+        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, count);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -825,7 +823,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         openCheck();
         byte[] bytes = new byte[1];
         bytes[0] = (byte) (oneByte & 0xff);
-        fileSystem.write(fd.descriptor, bytes, 0, 1);
+        Platform.FILE_SYSTEM.write(fd.descriptor, bytes, 0, 1);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {

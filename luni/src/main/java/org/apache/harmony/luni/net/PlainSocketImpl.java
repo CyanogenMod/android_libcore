@@ -33,7 +33,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -48,8 +47,6 @@ public class PlainSocketImpl extends SocketImpl {
     static private int lastConnectedPort;
 
     private static Field fdField;
-
-    protected INetworkSystem netImpl = Platform.getNetworkSystem();
 
     private boolean streaming = true;
 
@@ -89,7 +86,7 @@ public class PlainSocketImpl extends SocketImpl {
         try {
             if (newImpl instanceof PlainSocketImpl) {
                 PlainSocketImpl newPlainSocketImpl = (PlainSocketImpl) newImpl;
-                netImpl.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor());
+                Platform.NETWORK.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor());
             } else {
                 // if newImpl is not an instance of PlainSocketImpl, use
                 // reflection to get/set protected fields.
@@ -97,7 +94,7 @@ public class PlainSocketImpl extends SocketImpl {
                     fdField = getSocketImplField("fd");
                 }
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
-                netImpl.accept(fd, newImpl, newFd);
+                Platform.NETWORK.accept(fd, newImpl, newFd);
             }
         } catch (IllegalAccessException e) {
             // empty
@@ -149,17 +146,17 @@ public class PlainSocketImpl extends SocketImpl {
         if (shutdownInput) {
             return 0;
         }
-        return Platform.getFileSystem().ioctlAvailable(fd);
+        return Platform.FILE_SYSTEM.ioctlAvailable(fd);
     }
 
     @Override
     protected void bind(InetAddress address, int port) throws IOException {
-        netImpl.bind(fd, address, port);
+        Platform.NETWORK.bind(fd, address, port);
         this.address = address;
         if (port != 0) {
             this.localport = port;
         } else {
-            this.localport = netImpl.getSocketLocalPort(fd);
+            this.localport = Platform.NETWORK.getSocketLocalPort(fd);
         }
     }
 
@@ -167,7 +164,7 @@ public class PlainSocketImpl extends SocketImpl {
     protected void close() throws IOException {
         synchronized (fd) {
             if (fd.valid()) {
-                netImpl.close(fd);
+                Platform.NETWORK.close(fd);
                 fd = new FileDescriptor();
             }
         }
@@ -201,7 +198,7 @@ public class PlainSocketImpl extends SocketImpl {
             if (streaming && usingSocks()) {
                 socksConnect(anAddr, aPort, 0);
             } else {
-                netImpl.connect(fd, normalAddr, aPort, timeout);
+                Platform.NETWORK.connect(fd, normalAddr, aPort, timeout);
             }
         } catch (ConnectException e) {
             throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
@@ -213,7 +210,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
-        netImpl.socket(fd, streaming);
+        Platform.NETWORK.socket(fd, streaming);
     }
 
     @Override
@@ -229,7 +226,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     public Object getOption(int optID) throws SocketException {
-        return netImpl.getSocketOption(fd, optID);
+        return Platform.NETWORK.getSocketOption(fd, optID);
     }
 
     @Override
@@ -245,12 +242,12 @@ public class PlainSocketImpl extends SocketImpl {
             // server during the bind.
             return;
         }
-        netImpl.listen(fd, backlog);
+        Platform.NETWORK.listen(fd, backlog);
     }
 
     @Override
     public void setOption(int optID, Object val) throws SocketException {
-        netImpl.setSocketOption(fd, optID, val);
+        Platform.NETWORK.setSocketOption(fd, optID, val);
     }
 
     /**
@@ -287,7 +284,7 @@ public class PlainSocketImpl extends SocketImpl {
     private void socksConnect(InetAddress applicationServerAddress,
             int applicationServerPort, int timeout) throws IOException {
         try {
-            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
+            Platform.NETWORK.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
         } catch (Exception e) {
             throw new SocketException("SOCKS connection failed: " + e);
         }
@@ -330,7 +327,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void shutdownInput() throws IOException {
         shutdownInput = true;
-        netImpl.shutdownInput(fd);
+        Platform.NETWORK.shutdownInput(fd);
     }
 
     /**
@@ -338,7 +335,7 @@ public class PlainSocketImpl extends SocketImpl {
      */
     @Override
     protected void shutdownOutput() throws IOException {
-        netImpl.shutdownOutput(fd);
+        Platform.NETWORK.shutdownOutput(fd);
     }
 
     /**
@@ -346,7 +343,7 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void socksBind() throws IOException {
         try {
-            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), 0);
+            Platform.NETWORK.connect(fd, socksGetServerAddress(), socksGetServerPort(), 0);
         } catch (Exception e) {
             throw new IOException("Unable to connect to SOCKS server: " + e);
         }
@@ -441,7 +438,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void sendUrgentData(int value) throws IOException {
-        netImpl.sendUrgentData(fd, (byte) value);
+        Platform.NETWORK.sendUrgentData(fd, (byte) value);
     }
 
     FileDescriptor getFD() {
@@ -452,7 +449,7 @@ public class PlainSocketImpl extends SocketImpl {
         if (shutdownInput) {
             return -1;
         }
-        int read = netImpl.read(fd, buffer, offset, count);
+        int read = Platform.NETWORK.read(fd, buffer, offset, count);
         // Return of zero bytes for a blocking socket means a timeout occurred
         if (read == 0) {
             throw new SocketTimeoutException();
@@ -466,9 +463,9 @@ public class PlainSocketImpl extends SocketImpl {
 
     int write(byte[] buffer, int offset, int count) throws IOException {
         if (streaming) {
-            return netImpl.write(fd, buffer, offset, count);
+            return Platform.NETWORK.write(fd, buffer, offset, count);
         } else {
-            return netImpl.send(fd, buffer, offset, count, port, address);
+            return Platform.NETWORK.send(fd, buffer, offset, count, port, address);
         }
     }
 }

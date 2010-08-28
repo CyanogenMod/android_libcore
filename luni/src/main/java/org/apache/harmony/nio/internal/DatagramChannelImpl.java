@@ -49,10 +49,6 @@ import org.apache.harmony.nio.AddressUtil;
  * The default implementation class of java.nio.channels.DatagramChannel.
  */
 class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandler {
-
-    // The singleton to do the native network operation.
-    private static final INetworkSystem networkSystem = Platform.getNetworkSystem();
-
     private static final byte[] stubArray = new byte[0];
 
     // The fd to interact with native code
@@ -85,7 +81,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
         fd = new FileDescriptor();
-        networkSystem.socket(fd, false);
+        Platform.NETWORK.socket(fd, false);
     }
 
     /*
@@ -118,7 +114,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      * @see DatagramSocket
      */
     InetAddress getLocalAddress() {
-        return networkSystem.getSocketLocalAddress(fd);
+        return Platform.NETWORK.getSocketLocalAddress(fd);
     }
 
     /**
@@ -157,7 +153,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         try {
             begin();
-            networkSystem.connect(fd,
+            Platform.NETWORK.connect(fd,
                     inetSocketAddress.getAddress(), inetSocketAddress.getPort(), 0);
         } catch (ConnectException e) {
             // ConnectException means connect fail, not exception
@@ -182,7 +178,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         }
         connected = false;
         connectAddress = null;
-        networkSystem.disconnectDatagram(fd);
+        Platform.NETWORK.disconnectDatagram(fd);
         if (null != socket) {
             socket.disconnect();
         }
@@ -234,7 +230,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     target.remaining());
         }
         do {
-            received = networkSystem.recv(fd, receivePacket,
+            received = Platform.NETWORK.recv(fd, receivePacket,
                     receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
                     false, isConnected());
 
@@ -273,7 +269,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         int received = 0;
         do {
             int address = AddressUtil.getDirectBufferAddress(target);
-            received = networkSystem.recvDirect(fd, receivePacket, address,
+            received = Platform.NETWORK.recvDirect(fd, receivePacket, address,
                     target.position(), target.remaining(), false, isConnected());
 
             // security check
@@ -343,7 +339,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             if (source.isDirect()) {
                 synchronized (writeLock) {
                     int data_address = AddressUtil.getDirectBufferAddress(source);
-                    sendCount = networkSystem.sendDirect(fd, data_address, start, length,
+                    sendCount = Platform.NETWORK.sendDirect(fd, data_address, start, length,
                             isa.getPort(), isa.getAddress());
                 }
             } else {
@@ -356,7 +352,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     start = 0;
                 }
                 synchronized (writeLock) {
-                    sendCount = networkSystem.send(fd, array, start, length,
+                    sendCount = Platform.NETWORK.send(fd, array, start, length,
                             isa.getPort(), isa.getAddress());
                 }
             }
@@ -437,13 +433,13 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                 int length = readBuffer.remaining();
                 if (readBuffer.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(readBuffer);
-                    readCount = networkSystem.recvDirect(fd, null, address, start, length,
+                    readCount = Platform.NETWORK.recvDirect(fd, null, address, start, length,
                             false, isConnected());
                 } else {
                     // the target is assured to have array.
                     byte[] target = readBuffer.array();
                     start += readBuffer.arrayOffset();
-                    readCount = networkSystem.recv(fd, null, target, start, length, false,
+                    readCount = Platform.NETWORK.recv(fd, null, target, start, length, false,
                             isConnected());
                 }
                 return readCount;
@@ -539,11 +535,11 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
                 if (buf.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(buf);
-                    result = networkSystem.sendDirect(fd, address, start, length, 0, null);
+                    result = Platform.NETWORK.sendDirect(fd, address, start, length, 0, null);
                 } else {
                     // buf is assured to have array.
                     start += buf.arrayOffset();
-                    result = networkSystem.send(fd, buf.array(), start, length, 0, null);
+                    result = Platform.NETWORK.send(fd, buf.array(), start, length, 0, null);
                 }
                 return result;
             } finally {
@@ -561,7 +557,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         if (null != socket && !socket.isClosed()) {
             socket.close();
         } else {
-            networkSystem.close(fd);
+            Platform.NETWORK.close(fd);
         }
     }
 

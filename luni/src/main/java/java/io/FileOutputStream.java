@@ -47,8 +47,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
     // initialized).
     private FileChannel channel;
 
-    private IFileSystem fileSystem = Platform.getFileSystem();
-
     /**
      * Constructs a new FileOutputStream on the File {@code file}. If the file
      * exists, it is overwritten.
@@ -91,7 +89,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             security.checkWrite(file.getPath());
         }
         fd = new FileDescriptor();
-        fd.descriptor = fileSystem.open(file.getAbsolutePath(),
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(),
                 append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY);
         innerFD = true;
         channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
@@ -290,7 +288,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
 
         openCheck();
-        fileSystem.write(fd.descriptor, buffer, offset, count);
+        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, count);
     }
 
     /**
@@ -308,7 +306,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         openCheck();
         byte[] byteArray = new byte[1];
         byteArray[0] = (byte) oneByte;
-        fileSystem.write(fd.descriptor, byteArray, 0, 1);
+        Platform.FILE_SYSTEM.write(fd.descriptor, byteArray, 0, 1);
     }
 
     private synchronized void openCheck() throws IOException {

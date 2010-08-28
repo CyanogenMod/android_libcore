@@ -50,19 +50,7 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  * This class is non-API, but implements the API of the FileChannel interface.
  */
 public abstract class FileChannelImpl extends FileChannel {
-
-    // Reference to the portable file system code.
-    private static final IFileSystem fileSystem = Platform.getFileSystem();
-
-    private static final int ALLOC_GRANULARITY;
-
-    static {
-        try {
-            ALLOC_GRANULARITY = fileSystem.getAllocGranularity();
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-    }
+    private static final int ALLOC_GRANULARITY = Platform.FILE_SYSTEM.getAllocGranularity();
 
     // Handle to the open file
     private final int handle;
@@ -117,7 +105,7 @@ public abstract class FileChannelImpl extends FileChannel {
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
         lockManager.addLock(pendingLock);
 
-        if (fileSystem.lock(handle, position, size, lockType, wait)) {
+        if (Platform.FILE_SYSTEM.lock(handle, position, size, lockType, wait)) {
             return pendingLock;
         }
 
@@ -167,13 +155,13 @@ public abstract class FileChannelImpl extends FileChannel {
      */
     void release(FileLock lock) throws IOException {
         openCheck();
-        fileSystem.unlock(handle, lock.position(), lock.size());
+        Platform.FILE_SYSTEM.unlock(handle, lock.position(), lock.size());
         lockManager.removeLock(lock);
     }
 
     @Override public void force(boolean metadata) throws IOException {
         openCheck();
-        fileSystem.fsync(handle, metadata);
+        Platform.FILE_SYSTEM.fsync(handle, metadata);
     }
 
     public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;
@@ -181,7 +169,7 @@ public abstract class FileChannelImpl extends FileChannel {
     protected final MappedByteBuffer mapImpl(MapMode mapMode, long position, long size)
             throws IOException {
         if (position + size > size()) {
-            fileSystem.truncate(handle, position + size);
+            Platform.FILE_SYSTEM.truncate(handle, position + size);
         }
         long alignment = position - position % ALLOC_GRANULARITY;
         int offset = (int) (position - alignment);
@@ -195,7 +183,7 @@ public abstract class FileChannelImpl extends FileChannel {
      */
     public long position() throws IOException {
         openCheck();
-        return fileSystem.seek(handle, 0L, IFileSystem.SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(handle, 0L, IFileSystem.SEEK_CUR);
     }
 
     /*
@@ -208,7 +196,7 @@ public abstract class FileChannelImpl extends FileChannel {
         }
 
         synchronized (repositioningLock) {
-            fileSystem.seek(handle, newPosition, IFileSystem.SEEK_SET);
+            Platform.FILE_SYSTEM.seek(handle, newPosition, IFileSystem.SEEK_SET);
         }
         return this;
     }
@@ -252,7 +240,7 @@ public abstract class FileChannelImpl extends FileChannel {
                     /*
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
-                    bytesRead = (int) fileSystem.readDirect(handle, address,
+                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(handle, address,
                             buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -264,7 +252,7 @@ public abstract class FileChannelImpl extends FileChannel {
                     /*
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
-                    bytesRead = (int) fileSystem.read(handle, buffer.array(),
+                    bytesRead = (int) Platform.FILE_SYSTEM.read(handle, buffer.array(),
                             buffer.arrayOffset() + buffer.position(), buffer
                                     .remaining());
                     completed = true;
@@ -310,7 +298,7 @@ public abstract class FileChannelImpl extends FileChannel {
             try {
                 begin();
                 synchronized (repositioningLock) {
-                    bytesRead = fileSystem.readv(handle, handles, offsets,
+                    bytesRead = Platform.FILE_SYSTEM.readv(handle, handles, offsets,
                             lengths, length);
 
                 }
@@ -357,7 +345,7 @@ public abstract class FileChannelImpl extends FileChannel {
      */
     public long size() throws IOException {
         openCheck();
-        return fileSystem.length(handle);
+        return Platform.FILE_SYSTEM.length(handle);
     }
 
     public long transferFrom(ReadableByteChannel src, long position, long count)
@@ -441,7 +429,7 @@ public abstract class FileChannelImpl extends FileChannel {
         boolean completed = false;
         try {
             begin();
-            long ret = fileSystem.transfer(l, fd, position, count);
+            long ret = Platform.FILE_SYSTEM.transfer(l, fd, position, count);
             completed = true;
             return ret;
         } finally {
@@ -457,7 +445,7 @@ public abstract class FileChannelImpl extends FileChannel {
         if (size < size()) {
             synchronized (repositioningLock) {
                 long position = position();
-                fileSystem.truncate(handle, size);
+                Platform.FILE_SYSTEM.truncate(handle, size);
                 /*
                  * FIXME: currently the port library always modifies the
                  * position to given size. not sure it is a bug or intended
@@ -514,7 +502,7 @@ public abstract class FileChannelImpl extends FileChannel {
                 int address = directBuffer.getEffectiveAddress().toInt();
                 try {
                     begin();
-                    bytesWritten = (int) fileSystem.writeDirect(handle,
+                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(handle,
                             address, buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -523,7 +511,7 @@ public abstract class FileChannelImpl extends FileChannel {
             } else {
                 try {
                     begin();
-                    bytesWritten = (int) fileSystem.write(handle, buffer
+                    bytesWritten = (int) Platform.FILE_SYSTEM.write(handle, buffer
                             .array(), buffer.arrayOffset() + buffer.position(),
                             buffer.remaining());
                     completed = true;
@@ -577,7 +565,7 @@ public abstract class FileChannelImpl extends FileChannel {
         synchronized (repositioningLock) {
             try {
                 begin();
-                bytesWritten = fileSystem.writev(handle, handles, offsets,
+                bytesWritten = Platform.FILE_SYSTEM.writev(handle, handles, offsets,
                         lengths, length);
                 completed = true;
             } finally {

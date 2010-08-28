@@ -87,7 +87,7 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      * @return the local address to which the socket is bound.
      */
     InetAddress getLocalAddress() {
-        return Platform.getNetworkSystem().getSocketLocalAddress(fd);
+        return Platform.NETWORK.getSocketLocalAddress(fd);
     }
 
     /**
