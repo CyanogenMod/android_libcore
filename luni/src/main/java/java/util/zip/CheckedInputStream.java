@@ -35,6 +35,9 @@ public class CheckedInputStream extends java.io.FilterInputStream {
      * {@code is}. The checksum will be calculated using the algorithm
      * implemented by {@code csum}.
      *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code CheckedInputStream}. All operations on such a stream will fail.
+     *
      * @param is
      *            the input stream to calculate checksum from.
      * @param csum
