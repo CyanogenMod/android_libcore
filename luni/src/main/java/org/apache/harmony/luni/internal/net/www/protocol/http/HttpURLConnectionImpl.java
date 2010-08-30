@@ -324,18 +324,25 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     protected synchronized void releaseSocket(boolean reuseSocket) {
         // we cannot recycle sockets that have incomplete output.
-        boolean canBeReused = reuseSocket && (requestBodyOut == null || requestBodyOut.closed);
+        if (requestBodyOut != null && !requestBodyOut.closed) {
+            reuseSocket = false;
+        }
+
+        // if the headers specify that the connection shouldn't be reused, don't reuse it
+        if (hasConnectionCloseHeader()) {
+            reuseSocket = false;
+        }
 
         /*
          * Don't return the socket to the connection pool if this is an
          * intermediate response; we're going to use it again right away.
          */
-        if (intermediateResponse && canBeReused) {
+        if (intermediateResponse && reuseSocket) {
             return;
         }
 
         if (connection != null) {
-            if (canBeReused) {
+            if (reuseSocket) {
                 HttpConnectionPool.INSTANCE.recycle(connection);
             } else {
                 connection.closeSocketAndStreams();
@@ -797,6 +804,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
+    private boolean hasConnectionCloseHeader() {
+        return (responseHeader != null
+                && "close".equalsIgnoreCase(responseHeader.get("Connection")))
+                || (requestHeader != null
+                && "close".equalsIgnoreCase(requestHeader.get("Connection")));
+    }
+
     private String getOriginAddress(URL url) {
         int port = url.getPort();
         String result = url.getHost();
@@ -948,6 +962,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
             if (requestBodyOut != null && !(requestBodyOut instanceof RetryableOutputStream)) {
                 throw new HttpRetryException("Cannot retry streamed HTTP body", responseCode);
+            }
+
+            if (retry == Retry.SAME_CONNECTION && hasConnectionCloseHeader()) {
+                retry = Retry.NEW_CONNECTION;
             }
 
             discardIntermediateResponse();
