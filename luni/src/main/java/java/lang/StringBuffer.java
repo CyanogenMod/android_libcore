@@ -291,7 +291,7 @@ public final class StringBuffer extends AbstractStringBuilder implements
         if (s == null) {
             appendNull();
         } else {
-            append0(s.toString());
+            append0(s, 0, s.length());
         }
         return this;
     }
