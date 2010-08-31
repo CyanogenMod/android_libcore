@@ -38,8 +38,11 @@ public class FilterInputStream extends InputStream {
      * Constructs a new {@code FilterInputStream} with the specified input
      * stream as source.
      *
-     * @param in
-     *            the non-null InputStream to filter reads on.
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code FilterInputStream}, that fails on every method that is not
+     * overridden. Subclasses should check for null in their constructors.
+     *
+     * @param in the input stream to filter reads on.
      */
     protected FilterInputStream(InputStream in) {
         super();

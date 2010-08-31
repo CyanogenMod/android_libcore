@@ -42,6 +42,10 @@ public class PushbackInputStream extends FilterInputStream {
      * stream as source. The size of the pushback buffer is set to the default
      * value of 1 byte.
      *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code PushbackInputStream}. All read operations on such a stream will
+     * fail.
+     *
      * @param in
      *            the source input stream.
      */
@@ -54,6 +58,10 @@ public class PushbackInputStream extends FilterInputStream {
     /**
      * Constructs a new {@code PushbackInputStream} with {@code in} as source
      * input stream. The size of the pushback buffer is set to {@code size}.
+     *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code PushbackInputStream}. All read operations on such a stream will
+     * fail.
      *
      * @param in
      *            the source input stream.
