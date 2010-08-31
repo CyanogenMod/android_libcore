@@ -41,6 +41,9 @@ public class LineNumberInputStream extends FilterInputStream {
      * Constructs a new {@code LineNumberInputStream} on the {@link InputStream}
      * {@code in}. Line numbers are counted for all data read from this stream.
      *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code LineNumberInputStream}. All operations on such a stream will fail.
+     *
      * @param in
      *            The non-null input stream to count line numbers.
      */
