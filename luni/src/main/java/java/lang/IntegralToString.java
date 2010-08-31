@@ -16,7 +16,7 @@
 
 package java.lang;
 
-public class IntegralToString {
+final class IntegralToString {
     /**
      * These tables are used to special-case toString computation for
      * small values.  This serves three purposes: it reduces memory usage;
