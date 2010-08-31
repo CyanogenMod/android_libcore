@@ -38,6 +38,9 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      * stream is not in a human readable format and was most likely created by a
      * DataOutputStream.
      *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code DataInputStream}. All operations on such a stream will fail.
+     *
      * @param in
      *            the source InputStream the filter reads from.
      * @see DataOutputStream
