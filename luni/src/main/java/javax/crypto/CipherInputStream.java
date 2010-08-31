@@ -45,6 +45,10 @@ public class CipherInputStream extends FilterInputStream {
      * Creates a new {@code CipherInputStream} instance for an {@code
      * InputStream} and a cipher.
      *
+     * <p><strong>Warning:</strong> passing a null source creates an invalid
+     * {@code CipherInputStream}. All read operations on such a stream will
+     * fail.
+     *
      * @param is
      *            the input stream to read data from.
      * @param c

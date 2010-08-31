@@ -64,6 +64,10 @@ public class BufferedInputStream extends FilterInputStream {
      * Constructs a new {@code BufferedInputStream}, providing {@code in} with a buffer
      * of 8192 bytes.
      *
+     * <p><strong>Warning:</strong> passing a null source creates a closed
+     * {@code BufferedInputStream}. All read operations on such a stream will
+     * fail with an IOException.
+     *
      * @param in the {@code InputStream} the buffer reads from.
      */
     public BufferedInputStream(InputStream in) {
@@ -73,6 +77,10 @@ public class BufferedInputStream extends FilterInputStream {
     /**
      * Constructs a new {@code BufferedInputStream}, providing {@code in} with {@code size} bytes
      * of buffer.
+     *
+     * <p><strong>Warning:</strong> passing a null source creates a closed
+     * {@code BufferedInputStream}. All read operations on such a stream will
+     * fail with an IOException.
      *
      * @param in the {@code InputStream} the buffer reads from.
      * @param size the size of buffer in bytes.
