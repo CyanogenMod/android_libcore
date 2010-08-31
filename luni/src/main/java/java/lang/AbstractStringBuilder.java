@@ -91,17 +91,17 @@ abstract class AbstractStringBuilder {
     }
 
     private void enlargeBuffer(int min) {
-        int newSize = ((value.length >> 1) + value.length) + 2;
-        char[] newData = new char[min > newSize ? min : newSize];
+        int newCount = ((value.length >> 1) + value.length) + 2;
+        char[] newData = new char[min > newCount ? min : newCount];
         System.arraycopy(value, 0, newData, 0, count);
         value = newData;
         shared = false;
     }
 
     final void appendNull() {
-        int newSize = count + 4;
-        if (newSize > value.length) {
-            enlargeBuffer(newSize);
+        int newCount = count + 4;
+        if (newCount > value.length) {
+            enlargeBuffer(newCount);
         }
         value[count++] = 'n';
         value[count++] = 'u';
@@ -109,13 +109,13 @@ abstract class AbstractStringBuilder {
         value[count++] = 'l';
     }
 
-    final void append0(char chars[]) {
-        int newSize = count + chars.length;
-        if (newSize > value.length) {
-            enlargeBuffer(newSize);
+    final void append0(char[] chars) {
+        int newCount = count + chars.length;
+        if (newCount > value.length) {
+            enlargeBuffer(newCount);
         }
         System.arraycopy(chars, 0, value, count, chars.length);
-        count = newSize;
+        count = newCount;
     }
 
     final void append0(char[] chars, int offset, int length) {
@@ -127,12 +127,12 @@ abstract class AbstractStringBuilder {
             throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
-        int newSize = count + length;
-        if (newSize > value.length) {
-            enlargeBuffer(newSize);
+        int newCount = count + length;
+        if (newCount > value.length) {
+            enlargeBuffer(newCount);
         }
         System.arraycopy(chars, offset, value, count, length);
-        count = newSize;
+        count = newCount;
     }
 
     final void append0(char ch) {
@@ -147,15 +147,13 @@ abstract class AbstractStringBuilder {
             appendNull();
             return;
         }
-        int adding = string.length();
-        int newSize = count + adding;
-        if (newSize > value.length) {
-            enlargeBuffer(newSize);
+        int length = string.length();
+        int newCount = count + length;
+        if (newCount > value.length) {
+            enlargeBuffer(newCount);
         }
-        // BEGIN android-changed
-        string._getChars(0, adding, value, count);
-        // END android-changed
-        count = newSize;
+        string._getChars(0, length, value, count);
+        count = newCount;
     }
 
     final void append0(CharSequence s, int start, int end) {
@@ -166,11 +164,10 @@ abstract class AbstractStringBuilder {
             throw new IndexOutOfBoundsException();
         }
 
-        // BEGIN android-changed
-        int adding = end - start;
-        int newSize = count + adding;
-        if (newSize > value.length) {
-            enlargeBuffer(newSize);
+        int length = end - start;
+        int newCount = count + length;
+        if (newCount > value.length) {
+            enlargeBuffer(newCount);
         } else if (shared) {
             value = value.clone();
             shared = false;
@@ -180,7 +177,7 @@ abstract class AbstractStringBuilder {
             ((String) s)._getChars(start, end, value, count);
         } else if (s instanceof AbstractStringBuilder) {
             AbstractStringBuilder other = (AbstractStringBuilder) s;
-            System.arraycopy(other.value, start, value, count, adding);
+            System.arraycopy(other.value, start, value, count, length);
         } else {
             int j = count; // Destination index.
             for (int i = start; i < end; i++) {
@@ -188,8 +185,7 @@ abstract class AbstractStringBuilder {
             }
         }
 
-        this.count = newSize;
-        // END android-changed
+        this.count = newCount;
     }
 
     /**
@@ -375,8 +371,7 @@ abstract class AbstractStringBuilder {
         if (s == null) {
             s = "null";
         }
-        if (index < 0 || index > count || start < 0 || end < 0 || start > end
-                || end > s.length()) {
+        if (index < 0 || index > count || start < 0 || end < 0 || start > end || end > s.length()) {
             throw new IndexOutOfBoundsException();
         }
         insert0(index, s.subSequence(start, end).toString());
@@ -392,20 +387,20 @@ abstract class AbstractStringBuilder {
     }
 
     private void move(int size, int index) {
-        int newSize;
+        int newCount;
         if (value.length - count >= size) {
             if (!shared) {
                 System.arraycopy(value, index, value, index + size, count
                         - index); // index == count case is no-op
                 return;
             }
-            newSize = value.length;
+            newCount = value.length;
         } else {
             int a = count + size, b = (value.length << 1) + 2;
-            newSize = a > b ? a : b;
+            newCount = a > b ? a : b;
         }
 
-        char[] newData = new char[newSize];
+        char[] newData = new char[newCount];
         System.arraycopy(value, 0, newData, 0, index);
         // index == count case is no-op
         System.arraycopy(value, index, newData, index + size, count - index);
