@@ -509,7 +509,7 @@ public final class Float extends Number implements Comparable<Float> {
             hexString.append(hexSignificand);
             hexString.append('p');
             // remove exponent's 'bias' and convert to a string
-            hexString.append(Integer.toString(exponent - 127));
+            hexString.append(exponent - 127);
         }
         return hexString.toString();
     }

@@ -61,56 +61,6 @@ public final class Integer extends Number implements Comparable<Integer> {
     public static final int SIZE = 32;
 
     /**
-     * These tables are used to special-case toString computation for
-     * small values.  This serves three purposes: it reduces memory usage;
-     * it increases performance for small values; and it decreases the
-     * number of comparisons required to do the length computation.
-     * Elements of this table are lazily initialized on first use.
-     * No locking is necessary, i.e., we use the non-volatile, racy
-     * single-check idiom.
-     */
-    private static final String[] SMALL_NONNEGATIVE_VALUES = new String[100];
-    private static final String[] SMALL_NEGATIVE_VALUES = new String[100];
-
-    /** TENS[i] contains the tens digit of the number i, 0 <= i <= 99. */
-    static final char[] TENS = {
-        '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
-        '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
-        '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
-        '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
-        '4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
-        '5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
-        '6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
-        '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
-        '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
-        '9', '9', '9', '9', '9', '9', '9', '9', '9', '9'
-    };
-
-    /** Ones [i] contains the tens digit of the number i, 0 <= i <= 99. */
-    static final char[] ONES = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    };
-
-    /**
-     * The digits for all supported radices.
-     */
-    static final char[] DIGITS = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-        'u', 'v', 'w', 'x', 'y', 'z'
-    };
-
-    /**
      * Table for Seal's algorithm for Number of Trailing Zeros. Hacker's Delight
      * online, Figure 5-18 (http://www.hackersdelight.org/revisions.pdf)
      * The entries whose value is -1 are never referenced.
@@ -471,15 +421,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the binary string representation of {@code i}.
      */
     public static String toBinaryString(int i) {
-        int bufLen = 32;  // Max number of binary digits in an int
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = (char) ((i & 1) + '0');
-        }  while ((i >>>= 1) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.intToBinaryString(i);
     }
 
     /**
@@ -492,15 +434,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the hexadecimal string representation of {@code i}.
      */
     public static String toHexString(int i) {
-        int bufLen = 8;  // Max number of hex digits in an int
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = DIGITS[i & 0xF];
-        } while ((i >>>= 4) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.intToHexString(i);
     }
 
     /**
@@ -512,15 +446,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the octal string representation of {@code i}.
      */
     public static String toOctalString(int i) {
-        int bufLen = 11;  // Max number of octal digits in an int
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = (char) ((i & 7) + '0');
-        } while ((i >>>= 3) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.intToOctalString(i);
     }
 
     @Override
@@ -538,75 +464,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the decimal string representation of {@code i}.
      */
     public static String toString(int i) {
-        boolean negative = false;
-        if (i < 0) {
-            negative = true;
-            i = -i;
-            if (i < 100) {
-                if (i < 0) // If -n is still negative, n is Integer.MIN_VALUE
-                    return "-2147483648";
-                String result = SMALL_NEGATIVE_VALUES[i];
-                if (result == null) {
-                    SMALL_NEGATIVE_VALUES[i] = result =
-                            i < 10 ? stringOf('-', ONES[i])
-                                    : stringOf('-', TENS[i], ONES[i]);
-                }
-                return result;
-            }
-        } else {
-            if (i < 100) {
-                String result = SMALL_NONNEGATIVE_VALUES[i];
-                if (result == null) {
-                    SMALL_NONNEGATIVE_VALUES[i] = result =
-                        i < 10 ? stringOf(ONES[i]) : stringOf(TENS[i], ONES[i]);
-                }
-                return result;
-            }
-        }
-
-        int bufLen = 11; // Max number of chars in result
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        // Calculate digits two-at-a-time till remaining digits fit in 16 bits
-        while (i >= (1 << 16)) {
-            // Compute q = n/100 and r = n % 100 as per "Hacker's Delight" 10-8
-            int q = (int) ((0x51EB851FL * i) >>> 37);
-            // BEGIN android-changed
-            int r = i - ((q << 6) + (q << 5) + (q << 2));  // int r = n - 100*q;
-            // END android-changed
-
-            buf[--cursor] = ONES[r];
-            buf[--cursor] = TENS[r];
-            i = q;
-        }
-
-        // Calculate remaining digits one-at-a-time for performance
-        while (i != 0) {
-            // Compute q = n/10 and r = n % 10 as per "Hacker's Delight" 10-8
-            int q = (0xCCCD * i) >>> 19;
-            // BEGIN android-changed
-            int r = i - ((q << 3) + (q << 1));  // int r = n - 10 * q;
-            // END android-changed
-
-            buf[--cursor] = (char) (r + '0');
-            i = q;
-        }
-
-        if (negative)
-            buf[--cursor] = '-';
-
-        return new String(cursor, bufLen - cursor, buf);
-    }
-
-    /**
-     * Returns a string composed of the specified characters. Note that the
-     * autoboxing does *not* result in an extra copy of the char array: we are
-     * using a package-private string constructor that uses incorporates the
-     * "autoboxing array" into the new string.
-     */
-    private static String stringOf(char... args) {
-        return new String(0, args.length, args);
+        return IntegralToString.intToString(i);
     }
 
     /**
@@ -629,41 +487,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the string representation of {@code i}.
      */
     public static String toString(int i, int radix) {
-        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-            radix = 10;
-        }
-        if (radix == 10) {
-            return toString(i);
-        }
-
-        /*
-         * If i is positive, negate it. This is the opposite of what one might
-         * expect. It is necessary because the range of the negative values is
-         * strictly larger than that of the positive values: there is no
-         * positive value corresponding to Integer.MIN_VALUE.
-         */
-        boolean negative = false;
-        if (i < 0) {
-            negative = true;
-        } else {
-            i = -i;
-        }
-
-        int bufLen = radix < 8 ? 33 : 12;  // Max chars in result (conservative)
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            int q = i / radix;
-            buf[--cursor] = DIGITS[radix * q - i];
-            i = q;
-        } while (i != 0);
-
-        if (negative) {
-            buf[--cursor] = '-';
-        }
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.intToString(i, radix);
     }
 
     /**
