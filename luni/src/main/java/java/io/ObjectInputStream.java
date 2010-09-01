@@ -70,7 +70,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     private int nestedLevels;
 
     // All objects are assigned an ID (integer handle)
-    private int currentHandle;
+    private int nextHandle;
 
     // Where we read from
     private DataInputStream input;
@@ -388,7 +388,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         final Class<?> thisClass = ObjectInputStream.class;
         SecurityManager sm = System.getSecurityManager();
         if (sm != null && implementationClass != thisClass) {
-            boolean mustCheck = (AccessController
+            boolean mustCheck = AccessController
                     .doPrivileged(new PrivilegedAction<Boolean>() {
                         public Boolean run() {
                             try {
@@ -399,7 +399,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
-                            } catch (NoSuchMethodException e) {
+                            } catch (NoSuchMethodException ignored) {
                             }
                             try {
                                 Method method = implementationClass
@@ -409,11 +409,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
-                            } catch (NoSuchMethodException e) {
+                            } catch (NoSuchMethodException ignored) {
                             }
                             return Boolean.FALSE;
                         }
-                    })).booleanValue();
+                    });
             if (mustCheck) {
                 sm
                         .checkPermission(ObjectStreamConstants.SUBCLASS_IMPLEMENTATION_PERMISSION);
@@ -540,7 +540,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             throws SecurityException {
         if (enable) {
             // The Stream has to be trusted for this feature to be enabled.
-            // trusted means the stream's classloader has to be null
+            // trusted means the stream's class loader has to be null
             SecurityManager currentManager = System.getSecurityManager();
             if (currentManager != null) {
                 currentManager.checkPermission(SUBSTITUTION_PERMISSION);
@@ -605,7 +605,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      * @return the next handle to represent the next cyclic reference
      */
     private Integer nextHandle() {
-        return Integer.valueOf(this.currentHandle++);
+        return nextHandle++;
     }
 
     /**
@@ -1156,21 +1156,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             element.defaulted = false;
             Class<?> type = element.field.getType();
             if (type == Integer.TYPE) {
-                element.fieldValue = Integer.valueOf(input.readInt());
+                element.fieldValue = input.readInt();
             } else if (type == Byte.TYPE) {
-                element.fieldValue = Byte.valueOf(input.readByte());
+                element.fieldValue = input.readByte();
             } else if (type == Character.TYPE) {
-                element.fieldValue = Character.valueOf(input.readChar());
+                element.fieldValue = input.readChar();
             } else if (type == Short.TYPE) {
-                element.fieldValue = Short.valueOf(input.readShort());
+                element.fieldValue = input.readShort();
             } else if (type == Boolean.TYPE) {
-                element.fieldValue = Boolean.valueOf(input.readBoolean());
+                element.fieldValue = input.readBoolean();
             } else if (type == Long.TYPE) {
-                element.fieldValue = Long.valueOf(input.readLong());
+                element.fieldValue = input.readLong();
             } else if (type == Float.TYPE) {
-                element.fieldValue = Float.valueOf(input.readFloat());
+                element.fieldValue = input.readFloat();
             } else if (type == Double.TYPE) {
-                element.fieldValue = Double.valueOf(input.readDouble());
+                element.fieldValue = input.readDouble();
             } else {
                 // Either array or Object
                 try {
@@ -1271,7 +1271,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                                     fieldDesc.getTypeCode());
                     }
                     // END android-changed
-                } catch (NoSuchFieldError err) {
+                } catch (NoSuchFieldError ignored) {
                 }
             } else {
                 // Object type (array included).
@@ -1416,10 +1416,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             nextStreamClass = nextStreamClass.getSuperclass();
         }
         if (object == null) {
-            Iterator<ObjectStreamClass> streamIt = streamClassList.iterator();
-            while (streamIt.hasNext()) {
-                ObjectStreamClass streamClass = streamIt.next();
-                readObjectForClass(null, streamClass);
+            for (ObjectStreamClass objectStreamClass : streamClassList) {
+                readObjectForClass(null, objectStreamClass);
             }
         } else {
             ArrayList<Class<?>> classList = new ArrayList<Class<?>>(32);
@@ -1432,12 +1430,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 nextClass = testClass;
             }
             int lastIndex = 0;
-            for (int i = 0; i < classList.size(); i++) {
-                Class<?> superclass = classList.get(i);
-                int index = findStreamSuperclass(superclass, streamClassList,
-                        lastIndex);
+            for (Class<?> superclass : classList) {
+                int index = findStreamSuperclass(superclass, streamClassList, lastIndex);
                 if (index == -1) {
-                    readObjectNoData(object, superclass, ObjectStreamClass.lookupStreamClass(superclass));
+                    readObjectNoData(object, superclass,
+                            ObjectStreamClass.lookupStreamClass(superclass));
                 } else {
                     for (int j = lastIndex; j <= index; j++) {
                         readObjectForClass(object, streamClassList.get(j));
@@ -1479,7 +1476,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         if (classDesc.hasMethodReadObjectNoData()){
             final Method readMethod = classDesc.getMethodReadObjectNoData();
             try {
-                readMethod.invoke(object, new Object[0]);
+                readMethod.invoke(object);
             } catch (InvocationTargetException e) {
                 Throwable ex = e.getTargetException();
                 if (ex instanceof RuntimeException) {
@@ -1517,7 +1514,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 AccessController.doPrivileged(new PriviAction<Object>(
                         readMethod));
                 try {
-                    readMethod.invoke(object, new Object[] { this });
+                    readMethod.invoke(object, this);
                 } catch (InvocationTargetException e) {
                     Throwable ex = e.getTargetException();
                     if (ex instanceof ClassNotFoundException) {
@@ -1608,7 +1605,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         ObjectStreamClass classDesc = readClassDesc();
 
         if (classDesc == null) {
-            missingClassDescriptor();
+            throw missingClassDescriptor();
         }
 
         Integer newHandle = nextHandle();
@@ -1701,7 +1698,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     private Class<?> readNewClass(boolean unshared) throws ClassNotFoundException, IOException {
         ObjectStreamClass classDesc = readClassDesc();
         if (classDesc == null) {
-            missingClassDescriptor();
+            throw missingClassDescriptor();
         }
         Class<?> localClass = classDesc.forClass();
         if (localClass != null) {
@@ -1981,8 +1978,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
 
             // Has to have an empty constructor
             if (constructor == null) {
-                throw new InvalidClassException(constructorClass.getName(),
-                        "IllegalAccessException");
+                String className = constructorClass != null ? constructorClass.getName() : null;
+                throw new InvalidClassException(className, "IllegalAccessException");
             }
 
             int constructorModifiers = constructor.getModifiers();
@@ -2124,7 +2121,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 Method methodReadResolve = classDesc.getMethodReadResolve();
                 try {
                     result = methodReadResolve.invoke(result, (Object[]) null);
-                } catch (IllegalAccessException iae) {
+                } catch (IllegalAccessException ignored) {
                 } catch (InvocationTargetException ite) {
                     Throwable target = ite.getTargetException();
                     if (target instanceof ObjectStreamException) {
@@ -2318,7 +2315,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     // END android-added
 
     /**
-     * Method to be overriden by subclasses to read the next object from the
+     * Method to be overridden by subclasses to read the next object from the
      * source stream.
      *
      * @return the object read from the source stream.
@@ -2517,7 +2514,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      */
     private void resetSeenObjects() {
         objectsRead = new HashMap<Integer, Object>();
-        currentHandle = baseWireHandle;
+        nextHandle = baseWireHandle;
         primitiveData = emptyStream;
     }
 
