@@ -44,12 +44,4 @@ public class BidiRun {
     public int getStart() {
         return start;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return o == null || o.getClass() != BidiRun.class ? false
-                : this.start == ((BidiRun) o).start
-                        && this.limit == ((BidiRun) o).limit
-                        && this.level == ((BidiRun) o).level;
-    }
 }
