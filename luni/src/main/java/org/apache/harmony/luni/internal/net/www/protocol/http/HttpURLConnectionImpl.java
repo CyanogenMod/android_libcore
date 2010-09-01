@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.zip.GZIPInputStream;
 import libcore.base.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
@@ -126,6 +127,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private boolean hasTriedCache;
 
     private boolean sentRequestHeaders;
+
+    /**
+     * True if this client added an "Accept-Encoding: gzip" header and is
+     * therefore responsible for also decompressing the transfer stream.
+     */
+    private boolean transparentGzip = false;
 
     boolean sendChunked;
 
@@ -510,21 +517,29 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     private InputStream initContentStream() throws IOException {
+        InputStream transferStream = getTransferStream();
+        if (transparentGzip && "gzip".equalsIgnoreCase(responseHeader.get("Content-Encoding"))) {
+            responseBodyIn = new GZIPInputStream(transferStream);
+        } else {
+            responseBodyIn = transferStream;
+        }
+        return responseBodyIn;
+    }
+
+    private InputStream getTransferStream() throws IOException {
         if (!hasResponseBody()) {
-            return responseBodyIn = new FixedLengthInputStream(socketIn, cacheRequest, this, 0);
+            return new FixedLengthInputStream(socketIn, cacheRequest, this, 0);
         }
 
-        String encoding = responseHeader.get("Transfer-Encoding");
-        if (encoding != null && encoding.toLowerCase().equals("chunked")) {
-            return responseBodyIn = new ChunkedInputStream(socketIn, cacheRequest, this);
+        if ("chunked".equalsIgnoreCase(responseHeader.get("Transfer-Encoding"))) {
+            return new ChunkedInputStream(socketIn, cacheRequest, this);
         }
 
-        String sLength = responseHeader.get("Content-Length");
-        if (sLength != null) {
+        String contentLength = responseHeader.get("Content-Length");
+        if (contentLength != null) {
             try {
-                int length = Integer.parseInt(sLength);
-                return responseBodyIn = new FixedLengthInputStream(
-                        socketIn, cacheRequest, this, length);
+                int length = Integer.parseInt(contentLength);
+                return new FixedLengthInputStream(socketIn, cacheRequest, this, length);
             } catch (NumberFormatException ignored) {
             }
         }
@@ -534,7 +549,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
          * just returning "socketIn" directly here), so that we can control
          * its use after the reference escapes.
          */
-        return responseBodyIn = new UnknownLengthHttpInputStream(socketIn, cacheRequest, this);
+        return new UnknownLengthHttpInputStream(socketIn, cacheRequest, this);
     }
 
     @Override
@@ -789,6 +804,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         if (requestBodyOut != null) {
             requestHeader.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+        }
+
+        if (requestHeader.get("Accept-Encoding") == null) {
+            transparentGzip = true;
+            requestHeader.set("Accept-Encoding", "gzip");
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
