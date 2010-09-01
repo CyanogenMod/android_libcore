@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
@@ -54,9 +53,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
-import libcore.javax.net.ssl.TestSSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import libcore.javax.net.ssl.TestSSLContext;
 import tests.http.DefaultResponseCache;
 import tests.http.MockResponse;
 import tests.http.MockWebServer;
@@ -765,6 +764,24 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
+    /**
+     * This test checks whether connections are gzipped by default. This
+     * behavior in not required by the API, so a failure of this test does not
+     * imply a bug in the implementation.
+     */
+    public void testGzipEncodingEnabledByDefault() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse()
+                .setBody(gzip("ABCABCABC".getBytes("UTF-8")))
+                .addHeader("Content-Encoding: gzip"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        assertEquals("ABCABCABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "Accept-Encoding: gzip");
+    }
+
     public void testClientConfiguredGzipContentEncoding() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody(gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8")))
@@ -786,6 +803,20 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     public void testGzipAndConnectionReuseWithChunkedEncoding() throws Exception {
         testClientConfiguredGzipContentEncodingAndConnectionReuse(TransferKind.CHUNKED);
+    }
+
+    public void testClientConfiguredCustomContentEncoding() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("ABCDE")
+                .addHeader("Content-Encoding: custom"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Accept-Encoding", "custom");
+        assertEquals("ABCDE", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "Accept-Encoding: custom");
     }
 
     /**
