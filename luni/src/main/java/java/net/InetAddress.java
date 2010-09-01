@@ -305,7 +305,7 @@ public class InetAddress implements Serializable {
     static boolean preferIPv6Addresses() {
         String propertyName = "java.net.preferIPv6Addresses";
         String propertyValue = AccessController.doPrivileged(new PriviAction<String>(propertyName));
-        return Boolean.getBoolean(propertyValue);
+        return Boolean.parseBoolean(propertyValue);
     }
 
     /**
