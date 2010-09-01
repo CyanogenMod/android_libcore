@@ -543,7 +543,7 @@ public final class NumericShaper implements Serializable {
          *      NumericShaper.ARABIC | NumericShaper.TAMIL,
          *      NumericShaper.EASTERN_ARABIC));
          */
-        StringBuffer sb = new StringBuffer(super.toString());
+        StringBuilder sb = new StringBuilder(super.toString());
 
         sb.append("[contextual:");
         sb.append(fContextual);

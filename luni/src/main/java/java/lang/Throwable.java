@@ -331,8 +331,7 @@ public class Throwable implements java.io.Serializable {
         if (msg == null) {
             return name;
         }
-        return new StringBuffer(name.length() + 2 + msg.length()).append(name).append(": ")
-                .append(msg).toString();
+        return name + ": " + msg;
     }
 
     /**

@@ -285,14 +285,7 @@ public final class MathContext implements Serializable {
      */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(45);
-
-        sb.append(chPrecision);
-        sb.append(precision);
-        sb.append(' ');
-        sb.append(chRoundingMode);
-        sb.append(roundingMode);
-        return sb.toString();
+        return "precision=" + precision + " roundingMode=" + roundingMode;
     }
 
     /**
