@@ -137,7 +137,7 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * @see String#valueOf(int)
      */
     public StringBuilder append(int i) {
-        append0(Integer.toString(i));
+        IntegralToString.appendInt(this, i);
         return this;
     }
 
@@ -152,7 +152,7 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * @see String#valueOf(long)
      */
     public StringBuilder append(long l) {
-        append0(Long.toString(l));
+        IntegralToString.appendLong(this, l);
         return this;
     }
 

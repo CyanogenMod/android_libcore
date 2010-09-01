@@ -163,7 +163,8 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @see String#valueOf(int)
      */
     public StringBuffer append(int i) {
-        return append(Integer.toString(i));
+        IntegralToString.appendInt(this, i);
+        return this;
     }
 
     /**
@@ -176,7 +177,8 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @see String#valueOf(long)
      */
     public StringBuffer append(long l) {
-        return append(Long.toString(l));
+        IntegralToString.appendLong(this, l);
+        return this;
     }
 
     /**
