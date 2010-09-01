@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,331 +16,530 @@
 
 package dalvik.system;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
- * A sampling profiler.
+ * A sampling profiler. It currently is implemented without any
+ * virtual machine support, relying solely on {@code
+ * Thread.getStackTrace} to collect samples. As such, the overhead is
+ * higher than a native approach and it does not provide insight into
+ * where time is spent within native code, but it can still provide
+ * useful insight into where a program is spending time.
+ *
+ * <h3>Usage Example</h3>
+ *
+ * The following example shows how to use the {@code
+ * SamplingProfiler}. It samples the current thread's stack to a depth
+ * of 12 stack frame elements over two different measurement periods
+ * at a rate of 10 samples a second. In then prints the results in
+ * hprof format to the standard output.
+ *
+ * <pre> {@code
+ * ThreadSet threadSet = SamplingProfiler.newArrayThreadSet(Thread.currentThread());
+ * SamplingProfiler profiler = new SamplingProfiler(12, threadSet);
+ * profiler.start(10);
+ * // period of measurement
+ * profiler.stop();
+ * // period of non-measurement
+ * profiler.start(10);
+ * // another period of measurement
+ * profiler.stop();
+ * profiler.shutdown();
+ * profiler.writeHprofData(System.out);
+ * }</pre>
  *
  * @hide
  */
-public class SamplingProfiler {
+public final class SamplingProfiler {
 
-    private static final Logger logger = Logger.getLogger(
-            SamplingProfiler.class.getName());
-
-    static final boolean DEBUG = false;
-
-    enum State {
-        /** The sampling thread hasn't started or is waiting to resume. */
-        PAUSED,
-        /** The sampling thread is collecting samples. */
-        RUNNING,
-        /** The sampling thread is shutting down. */
-        SHUTTING_DOWN
-    }
-
-    /** Pointer to native state. */
-    int pointer = 0;
-
-    /** The thread that collects samples. */
-    Thread samplingThread;
-
-    /** Time between samples. */
-    volatile int delay; // ms
-
-    /** Number of samples taken (~samples per second * number of threads). */
-    int totalThreadsSampled = 0;
-
-    /** Total time spent collecting samples. */
-    long totalSampleTime = 0;
-
-    /** The state of the profiler. */
-    volatile State state = State.PAUSED;
-
-    private SamplingProfiler() {}
-
-    /**
-     * Returns true if the profiler is running.
+    /*
+     *  Real hprof output examples don't start the thread and trace
+     *  identifiers at one but seem to start at these arbitrary
+     *  constants. It certainly seems useful to have relatively unique
+     *  identifers when manual searching hprof output.
      */
-    public boolean isRunning() {
-        return state == State.RUNNING;
-    }
+    private int nextThreadId = 200001;
+    private int nextTraceId = 300001;
+    private int nextObjectId = 1;
 
     /**
-     * Starts collecting samples.
+     * Map of currently active threads to their identifiers. When
+     * threads disappear they are removed and only referenced by their
+     * identifiers to prevent retaining garbage threads.
+     */
+    private final Map<Thread, Integer> threadIds = new HashMap<Thread, Integer>();
+
+    /**
+     * List of thread creation and death events.
+     */
+    private final List<ThreadEvent> threadHistory = new ArrayList<ThreadEvent>();
+
+    /**
+     * Map of stack traces to a mutable sample count.
+     */
+    private final Map<Trace, int[]> traces = new HashMap<Trace, int[]>();
+
+    /**
+     * Timer that is used for the lifetime of the profiler
+     */
+    private final Timer timer = new Timer(getClass().getName(), true);
+
+    /**
+     * A sampler is created every time profiling starts and cleared
+     * everytime profiling stops because once a {@code TimerTask} is
+     * canceled it cannot be reused.
+     */
+    private TimerTask sampler;
+
+    /**
+     * The maximum number of {@code StackTraceElements} to retain in
+     * each stack.
+     */
+    private final int depth;
+
+    /**
+     * The {@code ThreadSet} that identifies which threads to sample.
+     */
+    private final ThreadSet threadSet;
+
+    /**
+     * Create a sampling profiler that collects stacks with the
+     * specified depth from the threads specified by the specified
+     * thread collector.
      *
-     * @param samplesPerSecond number of times to sample each thread per second
-     * @throws IllegalStateException if the profiler is
-     *  {@linkplain #shutDown()} shutting down}
+     * @param depth The maximum stack depth to retain for each sample
+     * similar to the hprof option of the same name. Any stack deeper
+     * than this will be truncated to this depth. A good starting
+     * value is 4 although it is not uncommon to need to raise this to
+     * get enough context to understand program behavior. While
+     * programs with extensive recursion may require a high value for
+     * depth, simply passing in a value for Integer.MAX_VALUE is not
+     * advised because of the significant memory need to retain such
+     * stacks and runtime overhead to compare stacks.
      */
-    public synchronized void start(int samplesPerSecond) {
+    public SamplingProfiler(int depth, ThreadSet threadSet) {
+        this.depth = depth;
+        this.threadSet = threadSet;
+    }
+
+    /**
+     * A ThreadSet specifies the set of threads to sample.
+     */
+    public static interface ThreadSet {
+        /**
+         * Returns an array containing the threads to be sampled. The
+         * array may be longer than the number of threads to be
+         * sampled, in which case the extra elements must be null.
+         */
+        public Thread[] threads();
+    }
+
+    /**
+     * Returns a ThreadSet for a fixed set of threads that will not
+     * vary at runtime. This has less overhead than a dynamically
+     * calculated set, such as {@link newThreadGroupTheadSet}, which has
+     * to enumerate the threads each time profiler wants to collect
+     * samples.
+     */
+    public static ThreadSet newArrayThreadSet(Thread... threads) {
+        return new ArrayThreadSet(threads);
+    }
+
+    /**
+     * An ArrayThreadSet samples a fixed set of threads that does not
+     * vary over the life of the profiler.
+     */
+    private static class ArrayThreadSet implements ThreadSet {
+        private final Thread[] threads;
+        public ArrayThreadSet(Thread... threads) {
+            if (threads == null) {
+                throw new NullPointerException("threads == null");
+            }
+            this.threads = threads;
+        }
+        public Thread[] threads() {
+            return threads;
+        }
+    }
+
+    /**
+     * Returns a ThreadSet that is dynamically computed based on the
+     * threads found in the specified ThreadGroup and that
+     * ThreadGroup's children.
+     */
+    public static ThreadSet newThreadGroupTheadSet(ThreadGroup threadGroup) {
+        return new ThreadGroupThreadSet(threadGroup);
+    }
+
+    /**
+     * An ThreadGroupThreadSet sample the threads from the specified
+     * ThreadGroup and the ThreadGroup's children
+     */
+    private static class ThreadGroupThreadSet implements ThreadSet {
+        private final ThreadGroup threadGroup;
+        private Thread[] threads;
+        private int lastThread;
+
+        public ThreadGroupThreadSet(ThreadGroup threadGroup) {
+            if (threadGroup == null) {
+                throw new NullPointerException("threadGroup == null");
+            }
+            this.threadGroup = threadGroup;
+            resize();
+        }
+
+        private void resize() {
+            int count = threadGroup.activeCount();
+            // we can only tell if we had enough room for all active
+            // threads if we actually are larger than the the number of
+            // active threads. making it larger also leaves us room to
+            // tolerate additional threads without resizing.
+            threads = new Thread[count*2];
+            lastThread = 0;
+        }
+
+        public Thread[] threads() {
+            int threadCount;
+            while (true) {
+                threadCount = threadGroup.enumerate(threads);
+                if (threadCount == threads.length) {
+                    resize();
+                } else {
+                    break;
+                }
+            }
+            if (threadCount < lastThread) {
+                // avoid retaining pointers to threads that have ended
+                Arrays.fill(threads, threadCount, lastThread, null);
+            }
+            lastThread = threadCount;
+            return threads;
+        }
+    }
+
+    /**
+     * Starts profiler sampling at the specified rate.
+     *
+     * @param samplesPerSecond The number of samples to take a second
+     */
+    public void start(int samplesPerSecond) {
         if (samplesPerSecond < 1) {
             throw new IllegalArgumentException("samplesPerSecond < 1");
         }
-        ensureNotShuttingDown();
-        delay = 1000 / samplesPerSecond;
-        if (!isRunning()) {
-            if (DEBUG) logger.info("Starting profiler...");
-            state = State.RUNNING;
-            if (samplingThread == null) {
-                // TODO: Priority?
-                samplingThread = new Thread(new Sampler(), "SamplingProfiler");
-                samplingThread.setDaemon(true);
-                samplingThread.start();
-            } else {
-                notifyAll();
-            }
+        if (sampler != null) {
+            throw new IllegalStateException("profiling already started");
         }
+        sampler = new Sampler();
+        timer.scheduleAtFixedRate(sampler, 0, 1000/samplesPerSecond);
     }
 
     /**
-     * Pauses sample collection.
+     * Stops profiler sampling. It can be restarted with {@link
+     * #start(int)} to continue sampling.
      */
-    public synchronized void pause() {
-        if (isRunning()) {
-            if (DEBUG) logger.info("Pausing profiler...");
-            state = State.PAUSED;
+    public void stop() {
+        if (sampler == null) {
+            return;
         }
+        sampler.cancel();
+        sampler = null;
     }
 
     /**
-     * Captures collected samples and clears the sample set. Returns null
-     * if no data has been captured.
-     *
-     * <p>Note: The exact format is not documented because it's not set in
-     * stone yet.
-     *
-     * @throws IllegalStateException if the profiler is
-     *  {@linkplain #shutDown()} shutting down}
+     * Shuts down profiling after which it can not be restarted. It is
+     * important to shut down profiling when done to free resources
+     * used by the profiler. Shutting down the profiler also stops the
+     * profiling if that has not already been done.
      */
-    public synchronized byte[] snapshot() {
-        ensureNotShuttingDown();
-        if (pointer == 0 || totalThreadsSampled == 0) {
-            return null;
-        }
-
-        if (DEBUG) {
-            int size = size(pointer);
-            int collisions = collisions(pointer);
-
-            long start = System.nanoTime();
-            byte[] bytes = snapshot(pointer);
-            long elapsed = System.nanoTime() - start;
-
-            /*
-             * We shifted the times by 10 bits in the sampling thread to avoid
-             * overflow. Undo the shift and then convert from ns to us.
-             */
-            long averageSampleTime = ((totalSampleTime / totalThreadsSampled)
-                    << 10) / 1000;
-            logger.info("Grabbed snapshot in " + (elapsed / 1000) + "us."
-                    + " Samples collected: " + totalThreadsSampled
-                    + ", Average sample time (per thread): "
-                            + averageSampleTime + "us"
-                    + ", Set size: " + size
-                    + ", Collisions: " + collisions);
-            totalThreadsSampled = 0;
-            totalSampleTime = 0;
-
-            return bytes;
-        } else {
-            totalThreadsSampled = 0;
-            return snapshot(pointer);
-        }
+    public void shutdown() {
+        stop();
+        timer.cancel();
     }
 
     /**
-     * Identifies the "event thread". For a user-facing application, this
-     * might be the UI thread. For a background process, this might be the
-     * thread that processes incoming requests.
+     * The Sampler does the real work of the profiler.
      *
-     * @throws IllegalStateException if the profiler is
-     *  {@linkplain #shutDown()} shutting down}
-     */
-    public synchronized void setEventThread(Thread eventThread) {
-        ensureNotShuttingDown();
-        if (pointer == 0) {
-            pointer = allocate();
-        }
-        setEventThread(pointer, eventThread);
-    }
-
-    private void ensureNotShuttingDown() {
-        if (state == State.SHUTTING_DOWN) {
-            throw new IllegalStateException("Profiler is shutting down.");
-        }
-    }
-
-    /**
-     * Shuts down the profiler thread and frees native memory. The profiler
-     * will recreate the thread the next time {@link #start(int)} is called.
+     * At every sample time, it asks the thread set for the set
+     * of threads to sample. It maintains a history of thread creation
+     * and death events based on changes observed to the threads
+     * returned by the {@code ThreadSet}.
      *
-     * @throws IllegalStateException if the profiler is already shutting down
-     *  or if it hasn't started yet
-     *
+     * For each thread to be sampled, a stack is collected and used to
+     * update the set of collected samples. Stacks are truncated to a
+     * maximum depth. There is no way to tell if a stack has been truncated.
      */
-    public void shutDown() {
-        Thread toStop;
-        synchronized (this) {
-            ensureNotShuttingDown();
+    private class Sampler extends TimerTask {
 
-            toStop = samplingThread;
-            if (toStop == null) {
-                throw new IllegalStateException(
-                        "The profiler was never started.");
-            }
+        private Thread timerThread;
+        private Thread[] currentThreads = new Thread[0];
+        private final Trace mutableTrace = new Trace();
 
-            state = State.SHUTTING_DOWN;
-            samplingThread = null;
-            notifyAll();
-        }
-
-        // Release lock to 'this' so background thread can grab it and stop.
-        // Interrupt the thread in case it's sleeping.
-        toStop.interrupt();
-        while (true) {
-            try {
-                toStop.join();
-                break;
-            } catch (InterruptedException e) { /* ignore */ }
-        }
-
-        synchronized (this) {
-            if (pointer != 0) {
-                free(pointer);
-                pointer = 0;
-            }
-
-            totalThreadsSampled = 0;
-            totalSampleTime = 0;
-            state = State.PAUSED;
-        }
-    }
-
-    /** Collects some data. Returns number of threads sampled. */
-    private static native int sample(int pointer);
-
-    /** Allocates native state. */
-    private static native int allocate();
-
-    /** Frees native state. */
-    private static native void free(int pointer);
-
-    /** Gets the number of methods in the sample set. */
-    private static native int size(int pointer);
-
-    /** Gets the number of collisions in the sample set. */
-    private static native int collisions(int pointer);
-
-    /** Captures data. */
-    private static native byte[] snapshot(int pointer);
-
-    /** Identifies the "event thread". */
-    private static native void setEventThread(int pointer, Thread thread);
-
-    /**
-     * Background thread that collects samples.
-     */
-    class Sampler implements Runnable {
         public void run() {
-            boolean firstSample = true;
-            while (true) {
-                synchronized (SamplingProfiler.this) {
-                    if (!isRunning()) {
-                        if (DEBUG) logger.info("Paused profiler.");
-                        while (!isRunning()) {
-                            if (state == State.SHUTTING_DOWN) {
-                                // Stop thread.
-                                return;
-                            }
+            if (timerThread == null) {
+                timerThread = Thread.currentThread();
+            }
 
-                            try {
-                                SamplingProfiler.this.wait();
-                            } catch (InterruptedException e) { /* ignore */ }
-                        }
-                        firstSample = true;
-                    }
+            // process thread creation and death first so that we
+            // assign thread ids to any new threads before allocating
+            // new stacks for them
+            Thread[] newThreads = threadSet.threads();
+            if (!Arrays.equals(currentThreads, newThreads)) {
+                updateThreadHistory(currentThreads, newThreads);
+                currentThreads = newThreads;
+            }
 
-                    if (pointer == 0) {
-                        pointer = allocate();
-                    }
-
-                    if (firstSample) {
-                        if (DEBUG) logger.info("Started profiler.");
-                        firstSample = false;
-                    }
-
-                    if (DEBUG) {
-                        long start = System.nanoTime();
-                        int threadsSampled = sample(pointer);
-                        long elapsed = System.nanoTime() - start;
-
-                        totalThreadsSampled += threadsSampled;
-                        totalSampleTime += elapsed >> 10; // avoids overflow.
-                    } else {
-                        totalThreadsSampled += sample(pointer);
-                    }
+            for (Thread thread : currentThreads) {
+                if (thread == null) {
+                    break;
+                }
+                if (thread == timerThread) {
+                    continue;
                 }
 
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) { /* ignore */ }
+                // TODO replace with a VMStack.getThreadStackTrace
+                // variant to avoid allocating unneeded elements
+                StackTraceElement[] stack = thread.getStackTrace();
+                if (stack.length > depth) {
+                    stack = Arrays.copyOfRange(stack, 0, depth);
+                }
+
+                mutableTrace.threadId = threadIds.get(thread);
+                mutableTrace.stack = stack;
+
+                int[] count = traces.get(mutableTrace);
+                if (count == null) {
+                    Trace trace = new Trace(nextTraceId++, mutableTrace);
+                    count = new int[1];
+                    traces.put(trace, count);
+                }
+                count[0]++;
+            }
+        }
+
+        private void updateThreadHistory(Thread[] oldThreads, Thread[] newThreads) {
+            // thread start/stop shouldn't happen too often and
+            // these aren't too big, so hopefully this approach
+            // won't be too slow...
+            Set<Thread> n = new HashSet<Thread>(Arrays.asList(newThreads));
+            Set<Thread> o = new HashSet<Thread>(Arrays.asList(oldThreads));
+
+            // added = new-old
+            Set<Thread> added = new HashSet<Thread>(n);
+            added.removeAll(o);
+
+            // removed = old-new
+            Set<Thread> removed = new HashSet<Thread>(o);
+            removed.removeAll(n);
+
+            for (Thread thread : added) {
+                if (thread == null) {
+                    continue;
+                }
+                if (thread == timerThread) {
+                    continue;
+                }
+                int threadId = nextThreadId++;
+                threadIds.put(thread, threadId);
+                ThreadEvent event = ThreadEvent.start(nextObjectId++,threadId, thread);
+                threadHistory.add(event);
+            }
+            for (Thread thread : removed) {
+                if (thread == null) {
+                    continue;
+                }
+                if (thread == timerThread) {
+                    continue;
+                }
+                int threadId = threadIds.remove(thread);
+                ThreadEvent event = ThreadEvent.stop(threadId);
+                threadHistory.add(event);
             }
         }
     }
 
+    private enum ThreadEventType { START, STOP };
+
     /**
-     * Dumps a snapshot to the log. Useful for debugging.
+     * ThreadEvent represents thread creation and death events for
+     * reporting. It provides a record of the thread and thread group
+     * names for tying samples back to their source thread.
      */
-    public static void logSnapshot(byte[] snapshot) {
-        DataInputStream in = new DataInputStream(
-                new ByteArrayInputStream(snapshot));
+    private static class ThreadEvent {
+
+        private final ThreadEventType type;
+        private final int objectId;
+        private final int threadId;
+        private final String threadName;
+        private final String groupName;
+
+        private static ThreadEvent start(int objectId, int threadId, Thread thread) {
+            return new ThreadEvent(ThreadEventType.START, objectId, threadId, thread);
+        }
+
+        private static ThreadEvent stop(int threadId) {
+            return new ThreadEvent(ThreadEventType.STOP, threadId);
+        }
+
+        private ThreadEvent(ThreadEventType type, int objectId, int threadId, Thread thread) {
+            this.type = ThreadEventType.START;
+            this.objectId = objectId;
+            this.threadId = threadId;
+            this.threadName = thread.getName();
+            this.groupName = thread.getThreadGroup().getName();
+        }
+
+        private ThreadEvent(ThreadEventType type, int threadId) {
+            this.type = ThreadEventType.STOP;
+            this.objectId = -1;
+            this.threadId = threadId;
+            this.threadName = null;
+            this.groupName = null;
+        }
+
+        @Override
+        public String toString() {
+            switch (type) {
+                case START:
+                    return String.format(
+                            "THREAD START (obj=%d, id = %d, name=\"%s\", group=\"%s\")",
+                            objectId, threadId, threadName, groupName);
+                case STOP:
+                    return String.format("THREAD END (id = %d)", threadId);
+            }
+            throw new IllegalStateException(type.toString());
+        }
+    }
+
+    /**
+     * A Trace represents a unique stack trace for a specific thread.
+     */
+    private static class Trace {
+
+        private final int traceId;
+        private int threadId;
+        private StackTraceElement[] stack;
+
+        private Trace() {
+            this.traceId = -1;
+        }
+
+        private Trace(int traceId, Trace mutableTrace) {
+            this.traceId = traceId;
+            this.threadId = mutableTrace.threadId;
+            this.stack = mutableTrace.stack;
+        }
+
+        protected int getThreadId() {
+            return threadId;
+        }
+
+        protected StackTraceElement[] getStack() {
+            return stack;
+        }
+
+        @Override
+        public final int hashCode() {
+            int result = 17;
+            result = 31 * result + getThreadId();
+            result = 31 * result + Arrays.hashCode(getStack());
+            return result;
+        }
+
+        @Override
+        public final boolean equals(Object o) {
+            Trace s = (Trace) o;
+            return getThreadId() == s.getThreadId() && Arrays.equals(getStack(), s.getStack());
+        }
+    }
+
+    /**
+     * Prints the profiler's collected data in hprof format to the
+     * specified {@code File}. See the {@link #writeHprofData(PrintStream)
+     * PrintStream} variant for more information.
+     */
+    public void writeHprofData(File file) throws IOException {
+        PrintStream out = null;
         try {
-            int version = in.readUnsignedShort();
-            int classCount = in.readUnsignedShort();
-            StringBuilder sb = new StringBuilder();
-            sb.append("version=").append(version).append(' ')
-                    .append("classes=").append(classCount).append('\n');
-            logger.info(sb.toString());
-            for (int i = 0; i < classCount; i++) {
-                sb = new StringBuilder();
-                sb.append("class ").append(in.readUTF()).append('\n');
-                int methodCount = in.readUnsignedShort();
-                for (int m = 0; m < methodCount; m++) {
-                    sb.append("  ").append(in.readUTF()).append(":\n");
-                    sb.append("    event:\n");
-                    appendCounts(in, sb);
-                    sb.append("    other:\n");
-                    appendCounts(in, sb);
-                }
-                logger.info(sb.toString());
+            out = new PrintStream(new BufferedOutputStream(new FileOutputStream(file)));
+            writeHprofData(out);
+        } finally {
+            if (out != null) {
+                out.close();
             }
-        } catch (IOException e) {
-            logger.warning(e.toString());
         }
     }
 
-    private static void appendCounts(DataInputStream in, StringBuilder sb)
-            throws IOException {
-        sb.append("      running:\n");
-        sb.append("        caller: ").append(in.readShort()).append('\n');
-        sb.append("        leaf: ").append(in.readShort()).append('\n');
-        sb.append("      suspended:\n");
-        sb.append("        caller: ").append(in.readShort()).append('\n');
-        sb.append("        leaf: ").append(in.readShort()).append('\n');
+    private static final class SampleComparator implements Comparator<Entry<Trace, int[]>> {
+        private static final SampleComparator INSTANCE = new SampleComparator();
+        public int compare(Entry<Trace, int[]> e1, Entry<Trace, int[]> e2) {
+            return e2.getValue()[0] - e1.getValue()[0];
+        }
     }
 
-    /** This will be allocated when the user calls getInstance(). */
-    private static final SamplingProfiler instance = new SamplingProfiler();
-
     /**
-     * Gets the profiler. The profiler is not running by default. Start it
-     * with {@link #start(int)}.
+     * Prints the profiler's collected data in hprof format to the
+     * specified {@code PrintStream}. The profiler needs to be
+     * stopped, but not necessarily shut down, in order to produce a
+     * report.
      */
-    public static synchronized SamplingProfiler getInstance() {
-        return instance;
+    public void writeHprofData(PrintStream out) {
+        if (sampler != null) {
+            throw new IllegalStateException("cannot print hprof data while sampling");
+        }
+
+        for (ThreadEvent e : threadHistory) {
+            out.println(e);
+        }
+
+        List<Entry<Trace, int[]>> samples = new ArrayList<Entry<Trace, int[]>>(traces.entrySet());
+        Collections.sort(samples, SampleComparator.INSTANCE);
+        int total = 0;
+        for (Entry<Trace, int[]> sample : samples) {
+            Trace trace = sample.getKey();
+            int count = sample.getValue()[0];
+            total += count;
+            out.printf("TRACE %d: (thread=%d)\n", trace.traceId, trace.threadId);
+            for (StackTraceElement e : trace.stack) {
+                out.printf("\t%s\n", e);
+            }
+        }
+        Date now = new Date();
+        // "CPU SAMPLES BEGIN (total = 826) Wed Jul 21 12:03:46 2010"
+        out.printf("CPU SAMPLES BEGIN (total = %d) %ta %tb %td %tT %tY\n",
+                   total, now, now, now, now, now);
+        out.printf("rank   self  accum   count trace method\n");
+        int rank = 0;
+        double accum = 0;
+        for (Entry<Trace, int[]> sample : samples) {
+            rank++;
+            Trace trace = sample.getKey();
+            int count = sample.getValue()[0];
+            double self = (double)count/(double)total;
+            accum += self;
+
+            // "   1 65.62% 65.62%     542 300302 java.lang.Long.parseLong"
+            out.printf("% 4d% 6.2f%%% 6.2f%% % 7d % 5d %s.%s\n",
+                       rank, self*100, accum*100, count, trace.traceId,
+                       trace.stack[0].getClassName(),
+                       trace.stack[0].getMethodName());
+        }
+        out.printf("CPU SAMPLES END\n");
     }
 }

@@ -120,7 +120,17 @@ include $(BUILD_JAVA_LIBRARY)
 # large, to the point that dx(1) can't cope (and the build is
 # ridiculously slow).
 #
-# TODO: DalvikRunner will make this nonsense obsolete.
+# TODO: vogar will make this nonsense obsolete.
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-dalvik
+include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dom)
@@ -156,6 +166,7 @@ LOCAL_JAVA_LIBRARIES := \
         core-junit \
         core-junitrunner \
         core-tests-support \
+        core-tests-dalvik \
         core-tests-dom \
         core-tests-json \
         core-tests-xml \
