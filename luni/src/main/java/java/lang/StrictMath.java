@@ -1023,7 +1023,11 @@ public final class StrictMath {
         // (Tested on a Nexus One.)
         long magnitudeBits = Double.doubleToRawLongBits(magnitude);
         long signBits = Double.doubleToRawLongBits((sign != sign) ? 1.0 : sign);
+<<<<<<< HEAD
         magnitudeBits = (magnitudeBits & ~Double.SIGN_MASK) | (signBits & Double.SIGN_MASK);
+=======
+        magnitudeBits = (magnitudeBits & ~DOUBLE_SIGN_MASK) | (signBits & DOUBLE_SIGN_MASK);
+>>>>>>> bbdd4787
         return Double.longBitsToDouble(magnitudeBits);
     }
 
@@ -1040,7 +1044,11 @@ public final class StrictMath {
         // (Tested on a Nexus One.)
         int magnitudeBits = Float.floatToRawIntBits(magnitude);
         int signBits = Float.floatToRawIntBits((sign != sign) ? 1.0f : sign);
+<<<<<<< HEAD
         magnitudeBits = (magnitudeBits & ~Float.SIGN_MASK) | (signBits & Float.SIGN_MASK);
+=======
+        magnitudeBits = (magnitudeBits & ~FLOAT_SIGN_MASK) | (signBits & FLOAT_SIGN_MASK);
+>>>>>>> bbdd4787
         return Float.intBitsToFloat(magnitudeBits);
     }
 
