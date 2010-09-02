@@ -750,3 +750,15 @@ pattern .*java.net.UnknownHostException:.*jcltest.apache.org.*
 test javax.net.ssl.DefaultSSLSocketFactoryTest
 result EXEC_FAILED
 pattern .*java.lang.IllegalAccessError: tried to access class javax.net.ssl.DefaultSSLSocketFactory from class javax.net.ssl.DefaultSSLSocketFactoryTest.*
+
+# These tests expect to be called with commandline arguments
+test java.io.FileOutputStream.FileOpenNeg
+result EXEC_FAILED
+pattern .*java.lang.ArrayIndexOutOfBoundsException.*
+
+test java.io.FileOutputStream.FileOpenPos
+result EXEC_FAILED
+pattern .*java.lang.ArrayIndexOutOfBoundsException.*
+
+
+
