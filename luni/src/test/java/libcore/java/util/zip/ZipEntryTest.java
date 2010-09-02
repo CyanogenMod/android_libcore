@@ -21,13 +21,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipEntryTest extends junit.framework.TestCase {
-    // http://code.google.com/p/android/issues/detail?id=4690
+
+    /**
+     * http://code.google.com/p/android/issues/detail?id=4690
+     */
     public void test_utf8FileNames() throws Exception {
         // Create a zip file containing non-ASCII filenames.
         File f = File.createTempFile("your", "mum");
@@ -57,5 +61,19 @@ public class ZipEntryTest extends junit.framework.TestCase {
         }
         assertEquals(filenames.size(), entryCount);
         in.close();
+    }
+
+    /**
+     * http://b/2099615
+     */
+    public void testClone() {
+        byte[] extra = { 5, 7, 9 };
+        JarEntry jarEntry = new JarEntry("foo");
+        jarEntry.setExtra(extra);
+        assertSame("Expected no defensive copy of extra", extra, jarEntry.getExtra());
+
+        ZipEntry clone = (ZipEntry) jarEntry.clone();
+        assertEquals(JarEntry.class, clone.getClass());
+        assertNotSame(extra, clone.getExtra());
     }
 }
