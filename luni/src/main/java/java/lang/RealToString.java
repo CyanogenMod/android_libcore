@@ -47,29 +47,51 @@ final class RealToString {
         return INSTANCE.get();
     }
 
-    public String doubleToString(double inputNumber) {
+    private static String resultOrSideEffect(AbstractStringBuilder sb, String s) {
+        if (sb != null) {
+            sb.append0(s);
+            return null;
+        }
+        return s;
+    }
+
+    public String doubleToString(double d) {
+        return convertDouble(null, d);
+    }
+
+    public void appendDouble(AbstractStringBuilder sb, double d) {
+        convertDouble(sb, d);
+    }
+
+    private String convertDouble(AbstractStringBuilder sb, double inputNumber) {
         long inputNumberBits = Double.doubleToRawLongBits(inputNumber);
         boolean positive = (inputNumberBits & Double.SIGN_MASK) == 0;
         int e = (int) ((inputNumberBits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS);
         long f = inputNumberBits & Double.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
 
+        String quickResult = null;
         if (e == 2047) {
-            if (!mantissaIsZero) {
-                return "NaN";
+            if (mantissaIsZero) {
+                quickResult = positive ? "Infinity" : "-Infinity";
+            } else {
+                quickResult = "NaN";
             }
-            return positive ? "Infinity" : "-Infinity";
+        } else if (e == 0) {
+            if (mantissaIsZero) {
+                quickResult = positive ? "0.0" : "-0.0";
+            } else if (f == 1) {
+                // special case to increase precision even though 2 * Double.MIN_VALUE is 1.0e-323
+                quickResult = positive ? "4.9E-324" : "-4.9E-324";
+            }
         }
+        if (quickResult != null) {
+            return resultOrSideEffect(sb, quickResult);
+        }
+
         int p = Double.EXPONENT_BIAS + Double.MANTISSA_BITS; // the power offset (precision)
         int pow = 0, numBits = Double.MANTISSA_BITS;
         if (e == 0) {
-            if (mantissaIsZero) {
-                return positive ? "0.0" : "-0.0";
-            }
-            if (f == 1) {
-                // special case to increase precision even though 2 * Double.MIN_VALUE is 1.0e-323
-                return positive ? "4.9E-324" : "-4.9E-324";
-            }
             pow = 1 - p; // a denormalized number
             long ff = f;
             while ((ff & 0x0010000000000000L) == 0) {
@@ -89,32 +111,48 @@ final class RealToString {
         } else {
             bigIntDigitGenerator(f, pow, e == 0, numBits);
         }
+        AbstractStringBuilder dst = (sb != null) ? sb : new StringBuilder(26);
         if (inputNumber >= 1e7D || inputNumber <= -1e7D
                 || (inputNumber > -1e-3D && inputNumber < 1e-3D)) {
-            return freeFormatExponential(positive);
+            freeFormatExponential(dst, positive);
+        } else {
+            freeFormat(dst, positive);
         }
-        return freeFormat(positive);
+        return (sb != null) ? null : dst.toString();
     }
 
-    public String floatToString(float inputNumber) {
+    public String floatToString(float f) {
+        return convertFloat(null, f);
+    }
+
+    public void appendFloat(AbstractStringBuilder sb, float f) {
+        convertFloat(sb, f);
+    }
+
+    public String convertFloat(AbstractStringBuilder sb, float inputNumber) {
         int inputNumberBits = Float.floatToRawIntBits(inputNumber);
         boolean positive = (inputNumberBits & Float.SIGN_MASK) == 0;
         int e = (inputNumberBits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS;
         int f = inputNumberBits & Float.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
 
+        String quickResult = null;
         if (e == 255) {
-            if (!mantissaIsZero) {
-                return "NaN";
+            if (mantissaIsZero) {
+                quickResult = positive ? "Infinity" : "-Infinity";
+            } else {
+                quickResult = "NaN";
             }
-            return positive ? "Infinity" : "-Infinity";
+        } else if (e == 0 && mantissaIsZero) {
+            quickResult = positive ? "0.0" : "-0.0";
         }
+        if (quickResult != null) {
+            return resultOrSideEffect(sb, quickResult);
+        }
+
         int p = Float.EXPONENT_BIAS + Float.MANTISSA_BITS; // the power offset (precision)
         int pow = 0, numBits = Float.MANTISSA_BITS;
         if (e == 0) {
-            if (mantissaIsZero) {
-                return positive ? "0.0" : "-0.0";
-            }
             pow = 1 - p; // a denormalized number
             if (f < 8) { // want more precision with smallest values
                 f = f << 2;
@@ -138,21 +176,23 @@ final class RealToString {
         } else {
             bigIntDigitGenerator(f, pow, e == 0, numBits);
         }
+        AbstractStringBuilder dst = (sb != null) ? sb : new StringBuilder(26);
         if (inputNumber >= 1e7f || inputNumber <= -1e7f
                 || (inputNumber > -1e-3f && inputNumber < 1e-3f)) {
-            return freeFormatExponential(positive);
+            freeFormatExponential(dst, positive);
+        } else {
+            freeFormat(dst, positive);
         }
-        return freeFormat(positive);
+        return (sb != null) ? null : dst.toString();
     }
 
-    private String freeFormatExponential(boolean positive) {
+    private void freeFormatExponential(AbstractStringBuilder sb, boolean positive) {
         int digitIndex = 0;
-        StringBuilder sb = new StringBuilder(26);
         if (!positive) {
-            sb.append('-');
+            sb.append0('-');
         }
-        sb.append((char) ('0' + digits[digitIndex++]));
-        sb.append('.');
+        sb.append0((char) ('0' + digits[digitIndex++]));
+        sb.append0('.');
 
         int k = firstK;
         int exponent = k;
@@ -161,45 +201,42 @@ final class RealToString {
             if (digitIndex >= digitCount) {
                 break;
             }
-            sb.append((char) ('0' + digits[digitIndex++]));
+            sb.append0((char) ('0' + digits[digitIndex++]));
         }
 
         if (k == exponent - 1) {
-            sb.append('0');
+            sb.append0('0');
         }
-        sb.append('E');
-        sb.append(exponent);
-        return sb.toString();
+        sb.append0('E');
+        IntegralToString.appendInt(sb, exponent);
     }
 
-    private String freeFormat(boolean positive) {
+    private void freeFormat(AbstractStringBuilder sb, boolean positive) {
         int digitIndex = 0;
-        StringBuilder sb = new StringBuilder(26);
         if (!positive) {
-            sb.append('-');
+            sb.append0('-');
         }
         int k = firstK;
         if (k < 0) {
-            sb.append('0');
-            sb.append('.');
+            sb.append0('0');
+            sb.append0('.');
             for (int i = k + 1; i < 0; ++i) {
-                sb.append('0');
+                sb.append0('0');
             }
         }
         int U = digits[digitIndex++];
         do {
             if (U != -1) {
-                sb.append((char) ('0' + U));
+                sb.append0((char) ('0' + U));
             } else if (k >= -1) {
-                sb.append('0');
+                sb.append0('0');
             }
             if (k == 0) {
-                sb.append('.');
+                sb.append0('.');
             }
             k--;
             U = digitIndex < digitCount ? digits[digitIndex++] : -1;
         } while (U != -1 || k >= -1);
-        return sb.toString();
     }
 
     private native void bigIntDigitGenerator(long f, int e, boolean isDenormalized, int p);
