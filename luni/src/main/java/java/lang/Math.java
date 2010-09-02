@@ -24,30 +24,6 @@ import java.util.Random;
  * functions, hyperbolic functions, exponential, logarithms, etc.
  */
 public final class Math {
-    private static final int FLOAT_EXPONENT_BIAS = 127;
-
-    private static final int FLOAT_EXPONENT_MASK = 0x7F800000;
-
-    private static final int DOUBLE_NON_MANTISSA_BITS = 12;
-
-    private static final int DOUBLE_MANTISSA_BITS = 52;
-
-    private static final int FLOAT_NON_MANTISSA_BITS = 9;
-
-    private static final int FLOAT_MANTISSA_BITS = 23;
-
-    private static final int DOUBLE_EXPONENT_BIAS = 1023;
-
-    private static final long DOUBLE_EXPONENT_MASK = 0x7ff0000000000000L;
-
-    private static final int FLOAT_MANTISSA_MASK = 0x007fffff;
-
-    private static final int FLOAT_SIGN_MASK = 0x80000000;
-
-    private static final long DOUBLE_MANTISSA_MASK = 0x000fffffffffffffL;
-
-    private static final long DOUBLE_SIGN_MASK = 0x8000000000000000L;
-
     /**
      * The double value closest to e, the base of the natural logarithm.
      */
@@ -1106,7 +1082,7 @@ public final class Math {
     public static double copySign(double magnitude, double sign) {
         long magnitudeBits = Double.doubleToRawLongBits(magnitude);
         long signBits = Double.doubleToRawLongBits(sign);
-        magnitudeBits = (magnitudeBits & ~DOUBLE_SIGN_MASK) | (signBits & DOUBLE_SIGN_MASK);
+        magnitudeBits = (magnitudeBits & ~Double.SIGN_MASK) | (signBits & Double.SIGN_MASK);
         return Double.longBitsToDouble(magnitudeBits);
     }
 
@@ -1119,7 +1095,7 @@ public final class Math {
     public static float copySign(float magnitude, float sign) {
         int magnitudeBits = Float.floatToRawIntBits(magnitude);
         int signBits = Float.floatToRawIntBits(sign);
-        magnitudeBits = (magnitudeBits & ~FLOAT_SIGN_MASK) | (signBits & FLOAT_SIGN_MASK);
+        magnitudeBits = (magnitudeBits & ~Float.SIGN_MASK) | (signBits & Float.SIGN_MASK);
         return Float.intBitsToFloat(magnitudeBits);
     }
 
@@ -1129,8 +1105,8 @@ public final class Math {
      */
     public static int getExponent(float f) {
         int bits = Float.floatToRawIntBits(f);
-        bits = (bits & FLOAT_EXPONENT_MASK) >> FLOAT_MANTISSA_BITS;
-        return bits - FLOAT_EXPONENT_BIAS;
+        bits = (bits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS;
+        return bits - Float.EXPONENT_BIAS;
     }
 
     /**
@@ -1139,8 +1115,8 @@ public final class Math {
      */
     public static int getExponent(double d) {
         long bits = Double.doubleToRawLongBits(d);
-        bits = (bits & DOUBLE_EXPONENT_MASK) >> DOUBLE_MANTISSA_BITS;
-        return (int) bits - DOUBLE_EXPONENT_BIAS;
+        bits = (bits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS;
+        return (int) bits - Double.EXPONENT_BIAS;
     }
 
     /**
@@ -1249,15 +1225,14 @@ public final class Math {
         // change double to long for calculation
         long bits = Double.doubleToLongBits(d);
         // the sign of the results must be the same of given d
-        long sign = bits & DOUBLE_SIGN_MASK;
+        long sign = bits & Double.SIGN_MASK;
         // calculates the factor of the result
-        long factor = ((bits & DOUBLE_EXPONENT_MASK) >> DOUBLE_MANTISSA_BITS)
-                - DOUBLE_EXPONENT_BIAS + scaleFactor;
+        long factor = ((bits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS)
+                - Double.EXPONENT_BIAS + scaleFactor;
 
         // calculates the factor of sub-normal values
-        int subNormalFactor = Long.numberOfLeadingZeros(bits
-                & ~DOUBLE_SIGN_MASK)
-                - DOUBLE_NON_MANTISSA_BITS;
+        int subNormalFactor = Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK)
+                - Double.NON_MANTISSA_BITS;
         if (subNormalFactor < 0) {
             // not sub-normal values
             subNormalFactor = 0;
@@ -1270,26 +1245,25 @@ public final class Math {
 
         long result;
         // if result is a sub-normal
-        if (factor <= -DOUBLE_EXPONENT_BIAS) {
+        if (factor <= -Double.EXPONENT_BIAS) {
             // the number of digits that shifts
-            long digits = factor + DOUBLE_EXPONENT_BIAS + subNormalFactor;
+            long digits = factor + Double.EXPONENT_BIAS + subNormalFactor;
             if (Math.abs(d) < Double.MIN_NORMAL) {
                 // origin d is already sub-normal
-                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK, digits);
+                result = shiftLongBits(bits & Double.MANTISSA_MASK, digits);
             } else {
                 // origin d is not sub-normal, change mantissa to sub-normal
-                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK
-                        | 0x0010000000000000L, digits - 1);
+                result = shiftLongBits(bits & Double.MANTISSA_MASK | 0x0010000000000000L, digits - 1);
             }
         } else {
             if (Math.abs(d) >= Double.MIN_NORMAL) {
                 // common situation
-                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
-                        | (bits & DOUBLE_MANTISSA_MASK);
+                result = ((factor + Double.EXPONENT_BIAS) << Double.MANTISSA_BITS)
+                        | (bits & Double.MANTISSA_MASK);
             } else {
                 // origin d is sub-normal, change mantissa to normal style
-                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
-                        | ((bits << (subNormalFactor + 1)) & DOUBLE_MANTISSA_MASK);
+                result = ((factor + Double.EXPONENT_BIAS) << Double.MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & Double.MANTISSA_MASK);
             }
         }
         return Double.longBitsToDouble(result | sign);
@@ -1304,13 +1278,12 @@ public final class Math {
             return d;
         }
         int bits = Float.floatToIntBits(d);
-        int sign = bits & FLOAT_SIGN_MASK;
-        int factor = ((bits & FLOAT_EXPONENT_MASK) >> FLOAT_MANTISSA_BITS)
-                - FLOAT_EXPONENT_BIAS + scaleFactor;
+        int sign = bits & Float.SIGN_MASK;
+        int factor = ((bits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS)
+                - Float.EXPONENT_BIAS + scaleFactor;
         // calcutes the factor of sub-normal values
-        int subNormalFactor = Integer.numberOfLeadingZeros(bits
-                & ~FLOAT_SIGN_MASK)
-                - FLOAT_NON_MANTISSA_BITS;
+        int subNormalFactor = Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK)
+                - Float.NON_MANTISSA_BITS;
         if (subNormalFactor < 0) {
             // not sub-normal values
             subNormalFactor = 0;
@@ -1323,26 +1296,25 @@ public final class Math {
 
         int result;
         // if result is a sub-normal
-        if (factor <= -FLOAT_EXPONENT_BIAS) {
+        if (factor <= -Float.EXPONENT_BIAS) {
             // the number of digits that shifts
-            int digits = factor + FLOAT_EXPONENT_BIAS + subNormalFactor;
+            int digits = factor + Float.EXPONENT_BIAS + subNormalFactor;
             if (Math.abs(d) < Float.MIN_NORMAL) {
                 // origin d is already sub-normal
-                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK, digits);
+                result = shiftIntBits(bits & Float.MANTISSA_MASK, digits);
             } else {
                 // origin d is not sub-normal, change mantissa to sub-normal
-                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK | 0x00800000,
-                        digits - 1);
+                result = shiftIntBits(bits & Float.MANTISSA_MASK | 0x00800000, digits - 1);
             }
         } else {
             if (Math.abs(d) >= Float.MIN_NORMAL) {
                 // common situation
-                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
-                        | (bits & FLOAT_MANTISSA_MASK);
+                result = ((factor + Float.EXPONENT_BIAS) << Float.MANTISSA_BITS)
+                        | (bits & Float.MANTISSA_MASK);
             } else {
                 // origin d is sub-normal, change mantissa to normal style
-                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
-                        | ((bits << (subNormalFactor + 1)) & FLOAT_MANTISSA_MASK);
+                result = ((factor + Float.EXPONENT_BIAS) << Float.MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & Float.MANTISSA_MASK);
             }
         }
         return Float.intBitsToFloat(result | sign);
@@ -1356,7 +1328,7 @@ public final class Math {
         }
         // change it to positive
         int absdigits = -digits;
-        if (!(Integer.numberOfLeadingZeros(bits & ~FLOAT_SIGN_MASK) <= (32 - absdigits))) {
+        if (!(Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK) <= (32 - absdigits))) {
             return 0;
         }
         int ret = bits >> absdigits;
@@ -1382,7 +1354,7 @@ public final class Math {
         }
         // change it to positive
         long absdigits = -digits;
-        if (!(Long.numberOfLeadingZeros(bits & ~DOUBLE_SIGN_MASK) <= (64 - absdigits))) {
+        if (!(Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK) <= (64 - absdigits))) {
             return 0;
         }
         long ret = bits >> absdigits;

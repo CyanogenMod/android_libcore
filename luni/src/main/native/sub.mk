@@ -33,6 +33,7 @@ LOCAL_SRC_FILES := \
 	java_lang_Float.cpp \
 	java_lang_Math.cpp \
 	java_lang_ProcessManager.cpp \
+	java_lang_RealToString.cpp \
 	java_lang_StrictMath.cpp \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
@@ -50,7 +51,6 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_util_FloatingPointParser.cpp \
-	org_apache_harmony_luni_util_NumberConvert.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	valueOf.cpp
 

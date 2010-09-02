@@ -24,6 +24,15 @@ package java.lang;
  * @since 1.0
  */
 public final class Double extends Number implements Comparable<Double> {
+    static final int EXPONENT_BIAS = 1023;
+
+    static final int EXPONENT_BITS = 12;
+    static final int MANTISSA_BITS = 52;
+    static final int NON_MANTISSA_BITS = 12;
+
+    static final long SIGN_MASK     = 0x8000000000000000L;
+    static final long EXPONENT_MASK = 0x7ff0000000000000L;
+    static final long MANTISSA_MASK = 0x000fffffffffffffL;
 
     private static final long serialVersionUID = -9172774392245257468L;
 
@@ -330,7 +339,7 @@ public final class Double extends Number implements Comparable<Double> {
      * @return a printable representation of {@code d}.
      */
     public static String toString(double d) {
-        return org.apache.harmony.luni.util.NumberConverter.convert(d);
+        return new RealToString().doubleToString(d);
     }
 
     /**
