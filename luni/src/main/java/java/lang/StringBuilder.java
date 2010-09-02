@@ -146,13 +146,13 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * The {@code long} value is converted to a string according to the rule
      * defined by {@link String#valueOf(long)}.
      *
-     * @param lng
+     * @param l
      *            the {@code long} value.
      * @return this builder.
      * @see String#valueOf(long)
      */
-    public StringBuilder append(long lng) {
-        append0(Long.toString(lng));
+    public StringBuilder append(long l) {
+        append0(Long.toString(l));
         return this;
     }
 
@@ -241,13 +241,13 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * The {@code char[]} is converted to a string according to the rule
      * defined by {@link String#valueOf(char[])}.
      *
-     * @param ch
+     * @param chars
      *            the {@code char[]} to append..
      * @return this builder.
      * @see String#valueOf(char[])
      */
-    public StringBuilder append(char[] ch) {
-        append0(ch);
+    public StringBuilder append(char[] chars) {
+        append0(chars);
         return this;
     }
 
@@ -286,7 +286,7 @@ public final class StringBuilder extends AbstractStringBuilder implements
         if (csq == null) {
             appendNull();
         } else {
-            append0(csq.toString());
+            append0(csq, 0, csq.length());
         }
         return this;
     }
