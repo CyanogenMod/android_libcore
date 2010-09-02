@@ -26,7 +26,7 @@ public class CharArrayReader extends Reader {
     /**
      * The buffer for characters.
      */
-    protected char buf[];
+    protected char[] buf;
 
     /**
      * The current buffer position.

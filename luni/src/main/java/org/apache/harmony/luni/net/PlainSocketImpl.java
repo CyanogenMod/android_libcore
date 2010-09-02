@@ -382,7 +382,7 @@ public class PlainSocketImpl extends SocketImpl {
         localport = reply.getPort();
     }
 
-    private static void intToBytes(int value, byte bytes[], int start) {
+    private static void intToBytes(int value, byte[] bytes, int start) {
         /*
          * Shift the int so the current byte is right-most Use a byte mask of
          * 255 to single out the last byte.

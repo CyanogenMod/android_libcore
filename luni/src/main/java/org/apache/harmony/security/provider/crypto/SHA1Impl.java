@@ -71,7 +71,7 @@ public class SHA1Impl implements SHA1_Data {
      *        arrW - integer array; arrW.length >= (BYTES_OFFSET+6); <BR>
      *               only first (BYTES_OFFSET+6) words are used
      */
-    static void computeHash(int arrW[]) {
+    static void computeHash(int[] arrW) {
 
         int  a = arrW[HASH_OFFSET   ];
         int  b = arrW[HASH_OFFSET +1];
@@ -166,7 +166,7 @@ public class SHA1Impl implements SHA1_Data {
      *        to        - a number of the last byte in the input array to use,
      *                that is, for first byte "to"==0, for last byte "to"==input.length-1
      */
-    static void updateHash(int intArray[], byte byteInput[], int fromByte, int toByte) {
+    static void updateHash(int[] intArray, byte[] byteInput, int fromByte, int toByte) {
 
         // As intArray contains a packed bytes
         // the buffer's index is in the intArray[BYTES_OFFSET] element

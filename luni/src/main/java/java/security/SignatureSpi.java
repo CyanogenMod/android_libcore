@@ -180,9 +180,8 @@ public abstract class SignatureSpi {
      *             if {@code offset} or {@code len} are not valid in respect to
      *             {@code outbuf}.
      */
-    protected int engineSign(byte[] outbuf, int offset, int len)
-            throws SignatureException {
-        byte tmp[] = engineSign();
+    protected int engineSign(byte[] outbuf, int offset, int len) throws SignatureException {
+        byte[] tmp = engineSign();
         if (tmp == null) {
             return 0;
         }
@@ -244,7 +243,7 @@ public abstract class SignatureSpi {
      */
     protected boolean engineVerify(byte[] sigBytes, int offset, int length)
             throws SignatureException {
-        byte tmp[] = new byte[length];
+        byte[] tmp = new byte[length];
         System.arraycopy(sigBytes, offset, tmp, 0, length);
         return engineVerify(tmp);
     }

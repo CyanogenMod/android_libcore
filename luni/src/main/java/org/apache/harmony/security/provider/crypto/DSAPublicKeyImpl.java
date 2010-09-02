@@ -106,7 +106,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
 
         SubjectPublicKeyInfo subjectPublicKeyInfo = null;
 
-        byte encoding[] = keySpec.getEncoded();
+        byte[] encoding = keySpec.getEncoded();
 
         String alg, algName;
 

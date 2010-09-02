@@ -104,7 +104,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
 
         String alg, algName;
 
-        byte encoding[] = keySpec.getEncoded();
+        byte[] encoding = keySpec.getEncoded();
 
         PrivateKeyInfo privateKeyInfo = null;
 
