@@ -257,12 +257,9 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      *             if this buffer address is known to have been freed
      *             previously.
      */
-    public final PlatformAddress getEffectiveAddress() {
-        // BEGIN android-changed
-        PlatformAddress addr = getBaseAddress().offsetBytes(offset);
-        effectiveDirectAddress = addr.toInt();
-        return addr;
-        // END android-changed
+    public final int getEffectiveAddress() {
+        effectiveDirectAddress =  getBaseAddress().toInt() + offset;
+        return effectiveDirectAddress;
     }
 
     /**

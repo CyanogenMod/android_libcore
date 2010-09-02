@@ -50,43 +50,36 @@ final class CharToByteBufferAdapter extends CharBuffer implements DirectBuffer {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getByteCapacity();
         }
-        assert false : byteBuffer;
-        return -1;
+        throw new AssertionError("not a direct buffer");
     }
 
-    public PlatformAddress getEffectiveAddress() {
+    public int getEffectiveAddress() {
         if (byteBuffer instanceof DirectBuffer) {
-            // BEGIN android-changed
-            PlatformAddress addr = ((DirectBuffer)byteBuffer).getEffectiveAddress();
-            effectiveDirectAddress = addr.toInt();
-            return addr;
-            // END android-changed
+            effectiveDirectAddress = ((DirectBuffer) byteBuffer).getEffectiveAddress();
+            return effectiveDirectAddress;
         }
-        assert false : byteBuffer;
-        return null;
+        throw new AssertionError("not a direct buffer");
     }
 
     public PlatformAddress getBaseAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getBaseAddress();
         }
-        assert false : byteBuffer;
-        return null;
+        throw new AssertionError("not a direct buffer");
     }
 
     public boolean isAddressValid() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).isAddressValid();
         }
-        assert false : byteBuffer;
-        return false;
+        throw new AssertionError("not a direct buffer");
     }
 
     public void addressValidityCheck() {
         if (byteBuffer instanceof DirectBuffer) {
             ((DirectBuffer) byteBuffer).addressValidityCheck();
         } else {
-            assert false : byteBuffer;
+            throw new AssertionError("not a direct buffer");
         }
     }
 
@@ -94,14 +87,13 @@ final class CharToByteBufferAdapter extends CharBuffer implements DirectBuffer {
         if (byteBuffer instanceof DirectBuffer) {
             ((DirectBuffer) byteBuffer).free();
         } else {
-            assert false : byteBuffer;
+            throw new AssertionError("not a direct buffer");
         }
     }
 
     @Override
     public CharBuffer asReadOnlyBuffer() {
-        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(byteBuffer
-                .asReadOnlyBuffer());
+        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(byteBuffer.asReadOnlyBuffer());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -125,8 +117,7 @@ final class CharToByteBufferAdapter extends CharBuffer implements DirectBuffer {
 
     @Override
     public CharBuffer duplicate() {
-        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(byteBuffer
-                .duplicate());
+        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(byteBuffer.duplicate());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;

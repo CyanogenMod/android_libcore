@@ -77,8 +77,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped
-                .asReadOnlyBuffer());
+        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped.asReadOnlyBuffer());
         buf.limit = this.limit;
         buf.position = this.position;
         buf.mark = this.mark;
@@ -107,8 +106,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
 
     @Override
     public ByteBuffer duplicate() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped
-                .duplicate());
+        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped.duplicate());
         buf.limit = this.limit;
         buf.position = this.position;
         buf.mark = this.mark;
@@ -163,12 +161,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         return this.wrapped.getDouble(index);
     }
 
-    public PlatformAddress getEffectiveAddress() {
-        // BEGIN android-changed
-        PlatformAddress addr = ((DirectBuffer) this.wrapped).getEffectiveAddress();
-        effectiveDirectAddress = addr.toInt();
-        return addr;
-        // END android-changed
+    public int getEffectiveAddress() {
+        effectiveDirectAddress = ((DirectBuffer) this.wrapped).getEffectiveAddress();
+        return effectiveDirectAddress;
     }
 
     @Override

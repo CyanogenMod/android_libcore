@@ -68,13 +68,8 @@ public class PlatformAddress implements Comparable {
         return PlatformAddressFactory.on(osaddr + offset, size - offset);
     }
 
-    public final void moveTo(PlatformAddress dst, long numBytes) {
-        OSMemory.memmove(dst.osaddr, osaddr, numBytes);
-    }
-
     public final boolean equals(Object other) {
-        return (other instanceof PlatformAddress)
-                && (((PlatformAddress) other).osaddr == osaddr);
+        return (other instanceof PlatformAddress) && (((PlatformAddress) other).osaddr == osaddr);
     }
 
     public final int hashCode() {

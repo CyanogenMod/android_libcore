@@ -23,8 +23,10 @@ import java.nio.channels.FileChannel.MapMode;
 
 /**
  * This class enables direct access to memory.
+ *
+ * @hide - we should move this in with the NIO stuff it supports, and make it package-private again
  */
-final class OSMemory {
+public final class OSMemory {
     private OSMemory() { }
 
     /**

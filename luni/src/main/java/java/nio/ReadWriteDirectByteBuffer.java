@@ -17,6 +17,7 @@
 
 package java.nio;
 
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.PlatformAddress;
 import org.apache.harmony.luni.platform.PlatformAddressFactory;
 
@@ -57,8 +58,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         super(address, capacity, offset);
     }
 
-    ReadWriteDirectByteBuffer(PlatformAddress address, int aCapacity,
-            int anOffset) {
+    ReadWriteDirectByteBuffer(PlatformAddress address, int aCapacity, int anOffset) {
         super(new SafeAddress(address), aCapacity, anOffset);
     }
 
@@ -75,8 +75,8 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer compact() {
-        PlatformAddress effectiveAddress = getEffectiveAddress();
-        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress, remaining());
+        int addr = getEffectiveAddress();
+        OSMemory.memmove(addr, addr + position, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

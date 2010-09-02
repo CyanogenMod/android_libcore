@@ -67,7 +67,7 @@ class DirectByteBuffers {
      *             if this buffer address is known to have been freed
      *             previously.
      */
-    public static PlatformAddress getEffectiveAddress(ByteBuffer directBuffer) {
+    public static int getEffectiveAddress(ByteBuffer directBuffer) {
         return toDirectBuffer(directBuffer).getEffectiveAddress();
     }
 
