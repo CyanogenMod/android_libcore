@@ -314,10 +314,8 @@ public final class Double extends Number implements Comparable<Double> {
      *             if {@code string} is {@code null}, has a length of zero or
      *             can not be parsed as a double value.
      */
-    public static double parseDouble(String string)
-            throws NumberFormatException {
-        return org.apache.harmony.luni.util.FloatingPointParser
-                .parseDouble(string);
+    public static double parseDouble(String string) throws NumberFormatException {
+        return org.apache.harmony.luni.util.FloatingPointParser.parseDouble(string);
     }
 
     @Override
