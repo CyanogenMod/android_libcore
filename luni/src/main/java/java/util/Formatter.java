@@ -1417,9 +1417,19 @@ public final class Formatter implements Closeable, Flushable {
                 }
                 break;
             case 'd':
+                boolean needLocalizedDigits = (localeData.zeroDigit != '0');
+                if (out instanceof StringBuilder && !needLocalizedDigits) {
+                    if (arg instanceof Integer || arg instanceof Short || arg instanceof Byte) {
+                        IntegralToString.appendInt((StringBuilder) out, ((Number) arg).intValue());
+                        return null;
+                    } else if (arg instanceof Long) {
+                        IntegralToString.appendLong((StringBuilder) out, ((Long) arg).longValue());
+                        return null;
+                    }
+                }
                 if (arg instanceof Integer || arg instanceof Long || arg instanceof Short || arg instanceof Byte) {
                     String result = arg.toString();
-                    return (localeData.zeroDigit == '0') ? result : localizeDigits(result);
+                    return needLocalizedDigits ? localizeDigits(result) : result;
                 }
             }
         }
