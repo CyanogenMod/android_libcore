@@ -16,7 +16,39 @@
 
 package java.lang;
 
-final class IntegralToString {
+/**
+ * Converts integral types to strings. This class is public but hidden so that it can also be
+ * used by java.util.Formatter to speed up %d. This class is in java.lang so that it can take
+ * advantage of the package-private String constructor.
+ *
+ * The most important methods are appendInt/appendLong and intToString(int)/longToString(int).
+ * The former are used in the implementation of StringBuilder, StringBuffer, and Formatter, while
+ * the latter are used by Integer.toString and Long.toString.
+ *
+ * The append methods take AbstractStringBuilder rather than Appendable because the latter requires
+ * CharSequences, while we only have raw char[]s. Since much of the savings come from not creating
+ * any garbage, we can't afford temporary CharSequence instances.
+ *
+ * One day the performance advantage of the binary/hex/octal specializations will be small enough
+ * that we can lose the duplication, but until then this class offers the full set.
+ *
+ * @hide
+ */
+public final class IntegralToString {
+    /**
+     * When appending to an AbstractStringBuilder, this thread-local char[] lets us avoid
+     * allocation of a temporary array. (We can't write straight into the AbstractStringBuilder
+     * because it's almost as expensive to work out the exact length of the result as it is to
+     * do the formatting. We could try being conservative and "delete"-ing the unused space
+     * afterwards, but then we'd need to duplicate convertInt and convertLong rather than share
+     * the code.)
+     */
+    private static final ThreadLocal<char[]> BUFFER = new ThreadLocal<char[]>() {
+        @Override protected char[] initialValue() {
+            return new char[20]; // Maximum length of a base-10 long.
+        }
+    };
+
     /**
      * These tables are used to special-case toString computation for
      * small values.  This serves three purposes: it reduces memory usage;
@@ -79,6 +111,9 @@ final class IntegralToString {
     private IntegralToString() {
     }
 
+    /**
+     * Equivalent to Integer.toString(i, radix).
+     */
     public static String intToString(int i, int radix) {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
             radix = 10;
@@ -117,36 +152,61 @@ final class IntegralToString {
         return new String(cursor, bufLen - cursor, buf);
     }
 
+    /**
+     * Equivalent to Integer.toString(i).
+     */
     public static String intToString(int i) {
+        return convertInt(null, i);
+    }
+
+    /**
+     * Equivalent to sb.append(Integer.toString(i)).
+     */
+    public static void appendInt(AbstractStringBuilder sb, int i) {
+        convertInt(sb, i);
+    }
+
+    /**
+     * Returns the string representation of i and leaves sb alone if sb is null.
+     * Returns null and appends the string representation of i to sb if sb is non-null.
+     */
+    private static String convertInt(AbstractStringBuilder sb, int i) {
         boolean negative = false;
+        String quickResult = null;
         if (i < 0) {
             negative = true;
             i = -i;
             if (i < 100) {
                 if (i < 0) {
                     // If -n is still negative, n is Integer.MIN_VALUE
-                    return "-2147483648";
+                    quickResult = "-2147483648";
+                } else {
+                    String result = SMALL_NEGATIVE_VALUES[i];
+                    if (result == null) {
+                        SMALL_NEGATIVE_VALUES[i] = result =
+                                i < 10 ? stringOf('-', ONES[i]) : stringOf('-', TENS[i], ONES[i]);
+                    }
                 }
-                String result = SMALL_NEGATIVE_VALUES[i];
-                if (result == null) {
-                    SMALL_NEGATIVE_VALUES[i] = result =
-                            i < 10 ? stringOf('-', ONES[i]) : stringOf('-', TENS[i], ONES[i]);
-                }
-                return result;
             }
         } else {
             if (i < 100) {
-                String result = SMALL_NONNEGATIVE_VALUES[i];
-                if (result == null) {
-                    SMALL_NONNEGATIVE_VALUES[i] = result =
+                quickResult = SMALL_NONNEGATIVE_VALUES[i];
+                if (quickResult == null) {
+                    SMALL_NONNEGATIVE_VALUES[i] = quickResult =
                             i < 10 ? stringOf(ONES[i]) : stringOf(TENS[i], ONES[i]);
                 }
-                return result;
             }
+        }
+        if (quickResult != null) {
+            if (sb != null) {
+                sb.append0(quickResult);
+                return null;
+            }
+            return quickResult;
         }
 
         int bufLen = 11; // Max number of chars in result
-        char[] buf = new char[bufLen];
+        char[] buf = (sb != null) ? BUFFER.get() : new char[bufLen];
         int cursor = bufLen;
 
         // Calculate digits two-at-a-time till remaining digits fit in 16 bits
@@ -171,9 +231,18 @@ final class IntegralToString {
         if (negative) {
             buf[--cursor] = '-';
         }
-        return new String(cursor, bufLen - cursor, buf);
+
+        if (sb != null) {
+            sb.append0(buf, cursor, bufLen - cursor);
+            return null;
+        } else {
+            return new String(cursor, bufLen - cursor, buf);
+        }
     }
 
+    /**
+     * Equivalent to Long.toString(v, radix).
+     */
     public static String longToString(long v, int radix) {
         int i = (int) v;
         if (i == v) {
@@ -217,10 +286,28 @@ final class IntegralToString {
         return new String(cursor, bufLen - cursor, buf);
     }
 
-    public static String longToString(long n) {
+    /**
+     * Equivalent to Long.toString(l).
+     */
+    public static String longToString(long l) {
+        return convertLong(null, l);
+    }
+
+    /**
+     * Equivalent to sb.append(Long.toString(l)).
+     */
+    public static void appendLong(AbstractStringBuilder sb, long l) {
+        convertLong(sb, l);
+    }
+
+    /**
+     * Returns the string representation of n and leaves sb alone if sb is null.
+     * Returns null and appends the string representation of n to sb if sb is non-null.
+     */
+    private static String convertLong(AbstractStringBuilder sb, long n) {
         int i = (int) n;
         if (i == n) {
-            return intToString(i);
+            return convertInt(sb, i);
         }
 
         boolean negative = (n < 0);
@@ -228,12 +315,17 @@ final class IntegralToString {
             n = -n;
             if (n < 0) {
                 // If -n is still negative, n is Long.MIN_VALUE
-                return "-9223372036854775808";
+                String quickResult = "-9223372036854775808";
+                if (sb != null) {
+                    sb.append0(quickResult);
+                    return null;
+                }
+                return quickResult;
             }
         }
 
         int bufLen = 20; // Maximum number of chars in result
-        char[] buf = new char[bufLen];
+        char[] buf = (sb != null) ? BUFFER.get() : new char[bufLen];
 
         int low = (int) (n % 1000000000); // Extract low-order 9 digits
         int cursor = intIntoCharArray(buf, bufLen, low);
@@ -283,7 +375,12 @@ final class IntegralToString {
         if (negative) {
             buf[--cursor] = '-';
         }
-        return new String(cursor, bufLen - cursor, buf);
+        if (sb != null) {
+            sb.append0(buf, cursor, bufLen - cursor);
+            return null;
+        } else {
+            return new String(cursor, bufLen - cursor, buf);
+        }
     }
 
     /**
