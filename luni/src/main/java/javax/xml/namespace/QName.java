@@ -380,7 +380,7 @@ public class QName implements Serializable {
                 _qNameAsString = localPart;
             }
             else {
-                StringBuffer buffer = new StringBuffer(nsLength + localPart.length() + 2);
+                StringBuilder buffer = new StringBuilder(nsLength + localPart.length() + 2);
                 buffer.append('{');
                 buffer.append(namespaceURI);
                 buffer.append('}');

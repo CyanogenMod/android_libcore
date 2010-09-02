@@ -427,8 +427,7 @@ public final class Subject implements Serializable {
      */
     @Override
     public String toString() {
-
-        StringBuffer buf = new StringBuffer("Subject:\n");
+        StringBuilder buf = new StringBuilder("Subject:\n");
 
         Iterator<?> it = principals.iterator();
         while (it.hasNext()) {

@@ -2292,7 +2292,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         int begin = (getUnscaledValue().signum() < 0) ? 2 : 1;
         int end = intString.length();
         long exponent = -(long)scale + end - begin;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         result.append(intString);
         if ((scale > 0) && (exponent >= -6)) {
@@ -2337,7 +2337,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         int begin = (getUnscaledValue().signum() < 0) ? 2 : 1;
         int end = intString.length();
         long exponent = -(long)scale + end - begin;
-        StringBuffer result = new StringBuffer(intString);
+        StringBuilder result = new StringBuilder(intString);
 
         if ((scale > 0) && (exponent >= -6)) {
             if (exponent >= 0) {
@@ -2406,7 +2406,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         int begin = (signum() < 0) ? 1 : 0;
         int delta = scale;
         // We take space for all digits, plus a possible decimal point, plus 'scale'
-        StringBuffer result = new StringBuffer(intStr.length() + 1 + Math.abs(scale));
+        StringBuilder result = new StringBuilder(intStr.length() + 1 + Math.abs(scale));
 
         if (begin == 1) {
             // If the number is negative, we insert a '-' character at front

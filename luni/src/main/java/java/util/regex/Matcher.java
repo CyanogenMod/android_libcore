@@ -504,17 +504,15 @@ public final class Matcher implements MatchResult {
      *         been escaped.
      */
     public static String quoteReplacement(String s) {
-        StringBuffer buffer = new StringBuffer(s.length());
-
+        StringBuilder result = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '\\' || c == '$') {
-                buffer.append('\\');
+                result.append('\\');
             }
-            buffer.append(c);
+            result.append(c);
         }
-
-        return buffer.toString();
+        return result.toString();
     }
 
     /**

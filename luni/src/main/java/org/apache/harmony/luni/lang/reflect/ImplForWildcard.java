@@ -58,8 +58,7 @@ public final class ImplForWildcard implements WildcardType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("?");
+        StringBuilder sb = new StringBuilder("?");
         if (extendsBound.length() > 0) {
             sb.append(" extends ").append(extendsBound);
         } else if (superBound.length() > 0) {
