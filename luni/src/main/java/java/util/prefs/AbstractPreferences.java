@@ -798,11 +798,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(isUserNode() ? "User" : "System");
-        sb.append(" Preference Node: ");
-        sb.append(absolutePath());
-        return sb.toString();
+        return (isUserNode() ? "User" : "System") + " Preference Node: " + absolutePath();
     }
 
     private void notifyChildAdded(Preferences child) {

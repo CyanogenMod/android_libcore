@@ -206,7 +206,7 @@ public class TransformerException extends Exception {
      */
     public String getMessageAndLocation() {
 
-        StringBuffer sbuffer = new StringBuffer();
+        StringBuilder sbuffer = new StringBuilder();
         String       message = super.getMessage();
 
         if (null != message) {
@@ -246,7 +246,7 @@ public class TransformerException extends Exception {
     public String getLocationAsString() {
 
         if (null != locator) {
-            StringBuffer sbuffer  = new StringBuffer();
+            StringBuilder sbuffer  = new StringBuilder();
             String       systemID = locator.getSystemId();
             int          line     = locator.getLineNumber();
             int          column   = locator.getColumnNumber();

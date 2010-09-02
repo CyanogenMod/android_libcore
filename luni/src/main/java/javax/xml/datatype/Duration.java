@@ -886,8 +886,7 @@ public abstract class   Duration {
      * @return A non-<code>null</code> valid <code>String</code> representation of this <code>Duration</code>.
      */
     public String toString() {
-
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         if (getSign() < 0) {
             buf.append('-');
@@ -947,17 +946,17 @@ public abstract class   Duration {
         }
 
         /* Insert decimal point */
-        StringBuffer buf;
+        StringBuilder buf;
         int insertionPoint = intString.length() - scale;
         if (insertionPoint == 0) { /* Point goes right before intVal */
             return "0." + intString;
         }
         else if (insertionPoint > 0) { /* Point goes inside intVal */
-            buf = new StringBuffer(intString);
+            buf = new StringBuilder(intString);
             buf.insert(insertionPoint, '.');
         }
         else { /* We must insert zeros between point and intVal */
-            buf = new StringBuffer(3 - insertionPoint + intString.length());
+            buf = new StringBuilder(3 - insertionPoint + intString.length());
             buf.append("0.");
             for (int i = 0; i < -insertionPoint; i++) {
                 buf.append('0');
@@ -983,4 +982,3 @@ public abstract class   Duration {
         return cal.getTime().getTime();
     }
 }
-
