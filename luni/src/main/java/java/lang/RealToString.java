@@ -20,6 +20,12 @@ package java.lang;
 import libcore.math.MathUtils;
 
 final class RealToString {
+    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
+        @Override protected RealToString initialValue() {
+            return new RealToString();
+        }
+    };
+
     private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
     private int firstK;
@@ -33,12 +39,6 @@ final class RealToString {
      * Number of valid entries in 'digits'.
      */
     private int digitCount;
-
-    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
-        @Override protected RealToString initialValue() {
-            return new RealToString();
-        }
-    };
 
     private RealToString() {
     }
