@@ -502,6 +502,11 @@ public class DecimalFormat extends NumberFormat {
     private transient DecimalFormatSymbols symbols;
 
     private transient NativeDecimalFormat dform;
+    private final Object finalizerGuardian = new Object() {
+        @Override protected void finalize() throws Throwable {
+            dform.close();
+        }
+    };
 
     private transient RoundingMode roundingMode = RoundingMode.HALF_EVEN;
 
@@ -650,8 +655,18 @@ public class DecimalFormat extends NumberFormat {
         return dform.formatToCharacterIterator(object);
     }
 
+    private void checkBufferAndFieldPosition(StringBuffer buffer, FieldPosition position) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
+        }
+        if (position == null) {
+            throw new NullPointerException("position == null");
+        }
+    }
+
     @Override
     public StringBuffer format(double value, StringBuffer buffer, FieldPosition position) {
+        checkBufferAndFieldPosition(buffer, position);
         // All float/double/Float/Double formatting ends up here...
         if (roundingMode == RoundingMode.UNNECESSARY) {
             // ICU4C doesn't support this rounding mode, so we have to fake it.
@@ -667,27 +682,32 @@ public class DecimalFormat extends NumberFormat {
                 setRoundingMode(RoundingMode.UNNECESSARY);
             }
         }
-        return dform.format(value, buffer, position);
+        buffer.append(dform.formatDouble(value, position));
+        return buffer;
     }
 
     @Override
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition position) {
-        return dform.format(value, buffer, position);
+        checkBufferAndFieldPosition(buffer, position);
+        buffer.append(dform.formatLong(value, position));
+        return buffer;
     }
 
     @Override
-    public final StringBuffer format(Object number, StringBuffer toAppendTo, FieldPosition pos) {
+    public final StringBuffer format(Object number, StringBuffer buffer, FieldPosition position) {
+        checkBufferAndFieldPosition(buffer, position);
         if (number instanceof BigInteger) {
             BigInteger bigInteger = (BigInteger) number;
-            if (bigInteger.bitLength() < 64) {
-                return dform.format(bigInteger.longValue(), toAppendTo, pos);
-            } else {
-                return dform.formatBigInteger(bigInteger, toAppendTo, pos);
-            }
+            String s = (bigInteger.bitLength() < 64)
+                    ? dform.formatLong(bigInteger.longValue(), position)
+                    : dform.formatBigInteger(bigInteger, position);
+            buffer.append(s);
+            return buffer;
         } else if (number instanceof BigDecimal) {
-            return dform.formatBigDecimal((BigDecimal) number, toAppendTo, pos);
+            buffer.append(dform.formatBigDecimal((BigDecimal) number, position));
+            return buffer;
         }
-        return super.format(number, toAppendTo, pos);
+        return super.format(number, buffer, position);
     }
 
     /**
