@@ -318,13 +318,16 @@ public class ZipEntry implements ZipConstants, Cloneable {
     }
 
     /**
-     * Returns a shallow copy of this entry.
-     *
-     * @return a copy of this entry.
+     * Returns a deep copy of this zip entry.
      */
-    @Override
-    public Object clone() {
-        return new ZipEntry(this);
+    @Override public Object clone() {
+        try {
+            ZipEntry result = (ZipEntry) super.clone();
+            result.extra = extra != null ? extra.clone() : null;
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
