@@ -70,15 +70,6 @@ public final class Long extends Number implements Comparable<Long> {
     public static final int SIZE = 64;
 
     /**
-     * Table for MOD / DIV 10 computation described in Section 10-21
-     * of Hank Warren's "Hacker's Delight" online addendum.
-     * http://www.hackersdelight.org/divcMore.pdf
-     */
-    private static final char[] MOD_10_TABLE = {
-        0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 0
-    };
-
-    /**
      * Constructs a new {@code Long} with the specified primitive long value.
      *
      * @param value
@@ -336,8 +327,7 @@ public final class Long extends Number implements Comparable<Long> {
      *             {@code radix > Character.MAX_RADIX}, or if {@code string}
      *             can not be parsed as a long value.
      */
-    public static long parseLong(String string, int radix)
-            throws NumberFormatException {
+    public static long parseLong(String string, int radix) throws NumberFormatException {
         if (string == null || radix < Character.MIN_RADIX
                 || radix > Character.MAX_RADIX) {
             throw new NumberFormatException();
@@ -354,8 +344,7 @@ public final class Long extends Number implements Comparable<Long> {
         return parse(string, i, radix, negative);
     }
 
-    private static long parse(String string, int offset, int radix,
-            boolean negative) {
+    private static long parse(String string, int offset, int radix, boolean negative) {
         long max = Long.MIN_VALUE / radix;
         long result = 0, length = string.length();
         while (offset < length) {
@@ -392,24 +381,11 @@ public final class Long extends Number implements Comparable<Long> {
      *
      * @param v
      *            the long value to convert.
-     * @return the binary string representation of {@code l}.
+     * @return the binary string representation of {@code v}.
      */
     public static String toBinaryString(long v) {
-        int i = (int) v;
-        if (v >= 0 && i == v) {
-            return Integer.toBinaryString(i);
-        }
-
-        int bufLen = 64;  // Max number of binary digits in a long
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = (char) ((v & 1) + '0');
-        }  while ((v >>>= 1) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
-     }
+        return IntegralToString.longToBinaryString(v);
+    }
 
     /**
      * Converts the specified long value into its hexadecimal string
@@ -421,20 +397,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @return the hexadecimal string representation of {@code l}.
      */
     public static String toHexString(long v) {
-        int i = (int) v;
-        if (v >= 0 && i == v) {
-            return Integer.toHexString(i);
-        }
-
-        int bufLen = 16;  // Max number of hex digits in a long
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = Integer.DIGITS[((int) v) & 0xF];
-        } while ((v >>>= 4) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.longToHexString(v);
     }
 
     /**
@@ -446,19 +409,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @return the octal string representation of {@code l}.
      */
     public static String toOctalString(long v) {
-        int i = (int) v;
-        if (v >= 0 && i == v) {
-            return Integer.toOctalString(i);
-        }
-        int bufLen = 22;  // Max number of octal digits in a long
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            buf[--cursor] = (char) (((int)v & 7) + '0');
-        } while ((v >>>= 3) != 0);
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.longToOctalString(v);
     }
 
     @Override
@@ -476,110 +427,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @return the decimal string representation of {@code l}.
      */
     public static String toString(long n) {
-        int i = (int) n;
-        if (i == n)
-            return Integer.toString(i);
-
-        boolean negative = (n < 0);
-        if (negative) {
-            n = -n;
-            if (n < 0)  // If -n is still negative, n is Long.MIN_VALUE
-                return "-9223372036854775808";
-        }
-
-        int bufLen = 20; // Maximum number of chars in result
-        char[] buf = new char[bufLen];
-
-        int low = (int) (n % 1000000000); // Extract low-order 9 digits
-        int cursor = intIntoCharArray(buf, bufLen, low);
-
-        // Zero-pad Low order part to 9 digits
-        while (cursor != (bufLen - 9))
-            buf[--cursor] = '0';
-
-        /*
-         * The remaining digits are (n - low) / 1,000,000,000.  This
-         * "exact division" is done as per the online addendum to Hank Warren's
-         * "Hacker's Delight" 10-20, http://www.hackersdelight.org/divcMore.pdf
-         */
-        n = ((n - low) >>> 9) * 0x8E47CE423A2E9C6DL;
-
-        /*
-         * If the remaining digits fit in an int, emit them using a
-         * single call to intIntoCharArray. Otherwise, strip off the
-         * low-order digit, put it in buf, and then call intIntoCharArray
-         * on the remaining digits (which now fit in an int).
-         */
-        if ((n & (-1L << 32)) == 0) {
-            cursor = intIntoCharArray(buf, cursor, (int) n);
-        } else {
-            /*
-             * Set midDigit to n % 10
-             */
-            int lo32 = (int) n;
-            int hi32 = (int) (n >>> 32);
-
-            // midDigit = ((unsigned) low32) % 10, per "Hacker's Delight" 10-21
-            int midDigit = MOD_10_TABLE[
-                (0x19999999 * lo32 + (lo32 >>> 1) + (lo32 >>> 3)) >>> 28];
-
-            // Adjust midDigit for hi32. (assert hi32 == 1 || hi32 == 2)
-            midDigit -= hi32 << 2;  // 1L << 32 == -4 MOD 10
-            if (midDigit < 0)
-                midDigit += 10;
-
-            buf[--cursor] = (char) (midDigit + '0');
-
-            // Exact division as per Warren 10-20
-            int rest = ((int) ((n - midDigit) >>> 1)) * 0xCCCCCCCD;
-            cursor = intIntoCharArray(buf, cursor, rest);
-        }
-
-        if (negative)
-            buf[--cursor] = '-';
-
-        return new String(cursor, bufLen - cursor, buf);
-    }
-
-    /**
-     * Inserts the unsigned decimal integer represented by n into the specified
-     * character array starting at position cursor.  Returns the index after
-     * the last character inserted (i.e., the value to pass in as cursor the
-     * next time this method is called). Note that n is interpreted as a large
-     * positive integer (not a negative integer) if its sign bit is set.
-     */
-    static int intIntoCharArray(char[] buf, int cursor, int n) {
-        // Calculate digits two-at-a-time till remaining digits fit in 16 bits
-        while ((n & 0xffff0000) != 0) {
-            /*
-             * Compute q = n/100 and r = n % 100 as per "Hacker's Delight" 10-8.
-             * This computation is sligthly different from the corresponding
-             * computation in Integer.toString: the shifts before and after
-             * multiply can't be combined, as that would yield the wrong result
-             * if n's sign bit were set.
-             */
-            int q = (int) ((0x51EB851FL * (n >>> 2)) >>> 35);
-            // BEGIN android-changed
-            int r = n - ((q << 6) + (q << 5) + (q << 2));  // int r = n - 100*q;
-            // END android-changed
-
-            buf[--cursor] = Integer.ONES[r];
-            buf[--cursor] = Integer.TENS[r];
-            n = q;
-        }
-
-        // Calculate remaining digits one-at-a-time for performance
-        while (n != 0) {
-            // Compute q = n / 10 and r = n % 10 as per "Hacker's Delight" 10-8
-            int q = (0xCCCD * n) >>> 19;
-            // BEGIN android-changed
-            int r = n - ((q << 3) + (q << 1));  // int r = n - 10 * q;
-            // END android-changed
-
-            buf[--cursor] = (char) (r + '0');
-            n = q;
-        }
-        return cursor;
+        return IntegralToString.longToString(n);
     }
 
     /**
@@ -602,46 +450,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @return the string representation of {@code v}.
      */
     public static String toString(long v, int radix) {
-        int i = (int) v;
-        if (i == v) {
-            return Integer.toString(i, radix);
-        }
-
-        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-            radix = 10;
-        }
-        if (radix == 10) {
-            return toString(v);
-        }
-
-        /*
-         * If v is positive, negate it. This is the opposite of what one might
-         * expect. It is necessary because the range of the negative values is
-         * strictly larger than that of the positive values: there is no
-         * positive value corresponding to Integer.MIN_VALUE.
-         */
-        boolean negative = false;
-        if (v < 0) {
-            negative = true;
-        } else {
-            v = -v;
-        }
-
-        int bufLen = radix < 8 ? 65 : 23;  // Max chars in result (conservative)
-        char[] buf = new char[bufLen];
-        int cursor = bufLen;
-
-        do {
-            long q = v / radix;
-            buf[--cursor] = Integer.DIGITS[(int) (radix * q - v)];
-            v = q;
-        } while (v != 0);
-
-        if (negative) {
-            buf[--cursor] = '-';
-        }
-
-        return new String(cursor, bufLen - cursor, buf);
+        return IntegralToString.longToString(v, radix);
     }
 
     /**
@@ -677,8 +486,7 @@ public final class Long extends Number implements Comparable<Long> {
      *             can not be parsed as a long value.
      * @see #parseLong(String, int)
      */
-    public static Long valueOf(String string, int radix)
-            throws NumberFormatException {
+    public static Long valueOf(String string, int radix) throws NumberFormatException {
         return valueOf(parseLong(string, radix));
     }
 
