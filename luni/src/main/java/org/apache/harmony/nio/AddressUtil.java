@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-/*
- * Android Notice
- * In this class the address length was changed from long to int.
- * This is due to performance optimizations for the device.
- */
-
 package org.apache.harmony.nio;
 
 import java.nio.Buffer;
 import org.apache.harmony.nio.internal.DirectBuffer;
 
 public class AddressUtil {
-
     /**
      * Gets the start address of a direct buffer.
      * <p>
@@ -42,10 +35,11 @@ public class AddressUtil {
      * @return the address of the buffer given, or zero if the buffer is not a
      *         direct Buffer.
      */
-    public static int getDirectBufferAddress(Buffer buf) {
-        if (!(buf instanceof DirectBuffer)) {
+    public static int getDirectBufferAddress(Buffer buffer) {
+        if (!(buffer instanceof DirectBuffer)) {
             return 0;
         }
-        return ((DirectBuffer) buf).getEffectiveAddress().toInt();
+        DirectBuffer directBuffer = (DirectBuffer) buffer;
+        return directBuffer.getEffectiveAddress();
     }
 }

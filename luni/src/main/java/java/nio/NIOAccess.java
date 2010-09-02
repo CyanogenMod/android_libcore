@@ -37,11 +37,11 @@ class NIOAccess {
      */
     static long getBasePointer(Buffer b) {
         if (b instanceof DirectBuffer) {
-            PlatformAddress address = ((DirectBuffer) b).getEffectiveAddress();
-            if (address == null) {
+            int address = ((DirectBuffer) b).getEffectiveAddress();
+            if (address == 0) {
                 return 0L;
             }
-            return address.toInt() + (b.position() << b._elementSizeShift);
+            return address + (b.position() << b._elementSizeShift);
         }
         return 0L;
     }

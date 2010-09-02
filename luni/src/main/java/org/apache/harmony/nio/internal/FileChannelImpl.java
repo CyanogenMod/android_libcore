@@ -234,7 +234,7 @@ public abstract class FileChannelImpl extends FileChannel {
         synchronized (repositioningLock) {
             if (buffer.isDirect()) {
                 DirectBuffer directBuffer = (DirectBuffer) buffer;
-                int address = directBuffer.getEffectiveAddress().toInt();
+                int address = directBuffer.getEffectiveAddress();
                 try {
                     begin();
                     /*
@@ -289,7 +289,7 @@ public abstract class FileChannelImpl extends FileChannel {
             } else {
                 offsets[i] = buffer.position();
             }
-            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress().toInt();
+            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress();
             lengths[i] = buffer.remaining();
         }
         long bytesRead = 0;
@@ -499,7 +499,7 @@ public abstract class FileChannelImpl extends FileChannel {
         synchronized (repositioningLock) {
             if (buffer.isDirect()) {
                 DirectBuffer directBuffer = (DirectBuffer) buffer;
-                int address = directBuffer.getEffectiveAddress().toInt();
+                int address = directBuffer.getEffectiveAddress();
                 try {
                     begin();
                     bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(handle,
@@ -555,7 +555,7 @@ public abstract class FileChannelImpl extends FileChannel {
                 offsets[i] = buffer.position();
                 allocatedBufs[i] = null;
             }
-            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress().toInt();
+            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress();
             lengths[i] = buffer.remaining();
         }
         // END android-changed
