@@ -244,7 +244,7 @@ public class AttributeTypeAndValue {
     private final ObjectIdentifier oid;
 
     //Attribute value
-    private AttributeValue value;
+    private final AttributeValue value;
 
     // for decoder only
     private AttributeTypeAndValue(int[] oid, AttributeValue value)
