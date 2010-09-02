@@ -182,7 +182,7 @@ public class InputStreamReader extends Reader {
             if (!isOpen()) {
                 throw new IOException("InputStreamReader is closed");
             }
-            char buf[] = new char[1];
+            char[] buf = new char[1];
             return read(buf, 0, 1) != -1 ? buf[0] : -1;
         }
     }

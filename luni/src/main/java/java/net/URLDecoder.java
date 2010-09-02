@@ -77,7 +77,7 @@ public class URLDecoder {
         if (s.indexOf('%') == -1) {
             if (s.indexOf('+') == -1)
                 return s;
-            char str[] = s.toCharArray();
+            char[] str = s.toCharArray();
             for (int i = 0; i < str.length; i++) {
                 if (str[i] == '+')
                     str[i] = ' ';
@@ -101,8 +101,8 @@ public class URLDecoder {
 
     private static String decode(String s, Charset charset) {
 
-        char str_buf[] = new char[s.length()];
-        byte buf[] = new byte[s.length() / 3];
+        char[] str_buf = new char[s.length()];
+        byte[] buf = new byte[s.length() / 3];
         int buf_len = 0;
 
         for (int i = 0; i < s.length();) {

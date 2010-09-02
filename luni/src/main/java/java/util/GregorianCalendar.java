@@ -221,7 +221,7 @@ public class GregorianCalendar extends Calendar {
 
     private boolean isCached;
 
-    private int cachedFields[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] cachedFields = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     private long nextMidnightMillis = 0L;
 

@@ -52,7 +52,7 @@ public class ByteArrayInputStream extends InputStream {
      * @param buf
      *            the byte array to stream over.
      */
-    public ByteArrayInputStream(byte buf[]) {
+    public ByteArrayInputStream(byte[] buf) {
         this.mark = 0;
         this.buf = buf;
         this.count = buf.length;

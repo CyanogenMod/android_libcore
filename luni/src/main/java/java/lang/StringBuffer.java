@@ -274,7 +274,7 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @throws NullPointerException
      *            if {@code chars} is {@code null}.
      */
-    public synchronized StringBuffer append(char chars[], int start, int length) {
+    public synchronized StringBuffer append(char[] chars, int start, int length) {
         append0(chars, start, length);
         return this;
     }
@@ -597,7 +597,7 @@ public final class StringBuffer extends AbstractStringBuilder implements
      *             length > chars.length}, {@code index < 0} or {@code index >
      *             length()}
      */
-    public synchronized StringBuffer insert(int index, char chars[], int start,
+    public synchronized StringBuffer insert(int index, char[] chars, int start,
             int length) {
         insert0(index, chars, start, length);
         return this;

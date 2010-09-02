@@ -134,7 +134,7 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      */
     public void write(int oneChar) throws IOException {
         synchronized (lock) {
-            char oneCharArray[] = new char[1];
+            char[] oneCharArray = new char[1];
             oneCharArray[0] = (char) oneChar;
             write(oneCharArray);
         }
@@ -172,7 +172,7 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
         if (count < 0) { // other cases tested by getChars()
             throw new StringIndexOutOfBoundsException();
         }
-        char buf[] = new char[count];
+        char[] buf = new char[count];
         str.getChars(offset, offset + count, buf, 0);
 
         synchronized (lock) {

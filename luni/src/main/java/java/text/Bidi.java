@@ -94,7 +94,7 @@ public final class Bidi {
         int begin = paragraph.getBeginIndex();
         int end = paragraph.getEndIndex();
         int length = end - begin;
-        char text[] = new char[length + 1]; // One more char for AttributedCharacterIterator.DONE
+        char[] text = new char[length + 1]; // One more char for AttributedCharacterIterator.DONE
 
         if (length != 0) {
             text[0] = paragraph.first();
@@ -114,7 +114,7 @@ public final class Bidi {
         }
 
         // Retrieve the text and gather BIDI_EMBEDDINGS
-        byte embeddings[] = null;
+        byte[] embeddings = null;
         for (int textLimit = 1, i = 1; i < length; textLimit = paragraph
                 .getRunLimit(TextAttribute.BIDI_EMBEDDING)
                 - begin + 1) {

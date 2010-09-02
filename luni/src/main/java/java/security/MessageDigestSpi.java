@@ -130,7 +130,7 @@ public abstract class MessageDigestSpi {
             engineReset();
             throw new DigestException("offset + len > buf.length");
         }
-        byte tmp[] = engineDigest();
+        byte[] tmp = engineDigest();
         if (len < tmp.length) {
             throw new DigestException("The value of len parameter is less than the actual digest length");
         }

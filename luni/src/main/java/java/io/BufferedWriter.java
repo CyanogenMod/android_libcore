@@ -41,7 +41,7 @@ public class BufferedWriter extends Writer {
 
     private Writer out;
 
-    private char buf[];
+    private char[] buf;
 
     private int pos;
 

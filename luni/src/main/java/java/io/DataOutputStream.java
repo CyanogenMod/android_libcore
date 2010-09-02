@@ -31,7 +31,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      * The number of bytes written out so far.
      */
     protected int written;
-    byte buff[];
+    byte[] buff;
 
     /**
      * Constructs a new {@code DataOutputStream} on the {@code OutputStream}
@@ -160,7 +160,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         if (str.length() == 0) {
             return;
         }
-        byte bytes[] = new byte[str.length()];
+        byte[] bytes = new byte[str.length()];
         for (int index = 0; index < str.length(); index++) {
             bytes[index] = (byte) str.charAt(index);
         }
@@ -198,7 +198,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      * @see DataInputStream#readChar()
      */
     public final void writeChars(String str) throws IOException {
-        byte newBytes[] = new byte[str.length() * 2];
+        byte[] newBytes = new byte[str.length() * 2];
         for (int index = 0; index < str.length(); index++) {
             int newIndex = index == 0 ? index : index * 2;
             newBytes[newIndex] = (byte) (str.charAt(index) >> 8);
