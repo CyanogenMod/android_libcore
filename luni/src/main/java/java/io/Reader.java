@@ -122,7 +122,7 @@ public abstract class Reader implements Readable, Closeable {
      */
     public int read() throws IOException {
         synchronized (lock) {
-            char charArray[] = new char[1];
+            char[] charArray = new char[1];
             if (read(charArray, 0, 1) != -1) {
                 return charArray[0];
             }
@@ -230,7 +230,7 @@ public abstract class Reader implements Readable, Closeable {
         synchronized (lock) {
             long skipped = 0;
             int toRead = count < 512 ? (int) count : 512;
-            char charsSkipped[] = new char[toRead];
+            char[] charsSkipped = new char[toRead];
             while (skipped < count) {
                 int read = read(charsSkipped, 0, toRead);
                 if (read == -1) {

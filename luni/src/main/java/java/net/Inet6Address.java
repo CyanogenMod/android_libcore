@@ -50,13 +50,13 @@ public final class Inet6Address extends InetAddress {
      */
     transient NetworkInterface scopedIf;
 
-    Inet6Address(byte address[]) {
+    Inet6Address(byte[] address) {
         family = AF_INET6;
         ipaddress = address;
         scope_id = 0;
     }
 
-    Inet6Address(byte address[], String name) {
+    Inet6Address(byte[] address, String name) {
         family = AF_INET6;
         hostName = name;
         ipaddress = address;
@@ -74,7 +74,7 @@ public final class Inet6Address extends InetAddress {
      * @param scope_id
      *            the scope id for link- or site-local addresses.
      */
-    Inet6Address(byte address[], String name, int scope_id) {
+    Inet6Address(byte[] address, String name, int scope_id) {
         family = AF_INET6;
         hostName = name;
         ipaddress = address;
@@ -194,7 +194,7 @@ public final class Inet6Address extends InetAddress {
      * @param scope_id
      *            the scope id for link- or site-local addresses.
      */
-    Inet6Address(byte address[], int scope_id) {
+    Inet6Address(byte[] address, int scope_id) {
         ipaddress = address;
         this.scope_id = scope_id;
         if (scope_id != 0) {

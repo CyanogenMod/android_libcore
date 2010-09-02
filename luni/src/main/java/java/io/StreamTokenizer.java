@@ -81,7 +81,7 @@ public class StreamTokenizer {
     /**
      * Internal character meanings, 0 implies TOKEN_ORDINARY
      */
-    private byte tokenTypes[] = new byte[256];
+    private byte[] tokenTypes = new byte[256];
 
     private static final byte TOKEN_COMMENT = 1;
 

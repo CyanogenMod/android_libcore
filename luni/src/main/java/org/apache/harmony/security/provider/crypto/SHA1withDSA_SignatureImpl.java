@@ -193,8 +193,10 @@ public class SHA1withDSA_SignatureImpl extends Signature {
         BigInteger digestBI;
 
         // various byte array being used in computing signature
-        byte randomBytes[];
-        byte rBytes[], sBytes[], signature[];
+        byte[] randomBytes;
+        byte[] rBytes;
+        byte[] sBytes;
+        byte[] signature;
 
         int n, n1, n2;
 
@@ -320,8 +322,8 @@ public class SHA1withDSA_SignatureImpl extends Signature {
 
         int n1, n2;
 
-        byte bytes[];
-        byte digest[];
+        byte[] bytes;
+        byte[] digest;
 
         // checking up on signature's ASN1
         try {

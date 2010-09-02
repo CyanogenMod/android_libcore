@@ -40,7 +40,7 @@ class Conversion {
      * 2 ^ 31, bigRadices[8] = 10 ^ 9, etc.
      */
 
-    static final int bigRadices[] = { -2147483648, 1162261467,
+    static final int[] bigRadices = { -2147483648, 1162261467,
             1073741824, 1220703125, 362797056, 1977326743, 1073741824,
             387420489, 1000000000, 214358881, 429981696, 815730721, 1475789056,
             170859375, 268435456, 410338673, 612220032, 893871739, 1280000000,
@@ -54,7 +54,7 @@ class Conversion {
         val.prepareJavaRepresentation();
         int sign = val.sign;
         int numberLength = val.numberLength;
-        int digits[] = val.digits;
+        int[] digits = val.digits;
 
         if (sign == 0) {
             return "0";
@@ -76,11 +76,11 @@ class Conversion {
         int resLengthInChars = (int) (val.abs().bitLength() / bitsForRadixDigit + ((sign < 0) ? 1
                 : 0)) + 1;
 
-        char result[] = new char[resLengthInChars];
+        char[] result = new char[resLengthInChars];
         int currentChar = resLengthInChars;
         int resDigit;
         if (radix != 16) {
-            int temp[] = new int[numberLength];
+            int[] temp = new int[numberLength];
             System.arraycopy(digits, 0, temp, 0, numberLength);
             int tempLen = numberLength;
             int charsPerInt = digitFitInInt[radix];
@@ -138,10 +138,10 @@ class Conversion {
         val.prepareJavaRepresentation();
         int sign = val.sign;
         int numberLength = val.numberLength;
-        int digits[] = val.digits;
+        int[] digits = val.digits;
         int resLengthInChars;
         int currentChar;
-        char result[];
+        char[] result;
 
         if (sign == 0) {
             switch (scale) {
@@ -199,7 +199,7 @@ class Conversion {
                 } while (v != 0);
             }
         } else {
-            int temp[] = new int[numberLength];
+            int[] temp = new int[numberLength];
             int tempLen = numberLength;
             System.arraycopy(digits, 0, temp, 0, tempLen);
             BIG_LOOP: while (true) {
@@ -297,7 +297,7 @@ class Conversion {
     static String toDecimalScaledString(long value, int scale) {
         int resLengthInChars;
         int currentChar;
-        char result[];
+        char[] result;
         boolean negNumber = value < 0;
         if(negNumber) {
             value = -value;

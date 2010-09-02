@@ -873,7 +873,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readFully(byte[],int,int)
      */
     public final void writeBytes(String str) throws IOException {
-        byte bytes[] = new byte[str.length()];
+        byte[] bytes = new byte[str.length()];
         for (int index = 0; index < str.length(); index++) {
             bytes[index] = (byte) (str.charAt(index) & 0xFF);
         }
@@ -910,7 +910,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readChar()
      */
     public final void writeChars(String str) throws IOException {
-        byte newBytes[] = new byte[str.length() * 2];
+        byte[] newBytes = new byte[str.length() * 2];
         for (int index = 0; index < str.length(); index++) {
             int newIndex = index == 0 ? index : index * 2;
             newBytes[newIndex] = (byte) ((str.charAt(index) >> 8) & 0xFF);
@@ -1038,7 +1038,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (utfCount > 65535) {
             throw new UTFDataFormatException("String more than 65535 UTF bytes long");
         }
-        byte utfBytes[] = new byte[utfCount + 2];
+        byte[] utfBytes = new byte[utfCount + 2];
         int utfIndex = 2;
         for (int i = 0; i < length; i++) {
             int charValue = str.charAt(i);

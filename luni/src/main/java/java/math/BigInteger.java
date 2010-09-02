@@ -1108,7 +1108,7 @@ public class BigInteger extends Number
     }
 
 
-    static int multiplyByInt(int res[], int a[], int aSize, int factor) {
+    static int multiplyByInt(int[] res, int[] a, int aSize, int factor) {
         long carry = 0;
 
         for (int i = 0; i < aSize; i++) {
@@ -1119,7 +1119,7 @@ public class BigInteger extends Number
         return (int) carry;
     }
 
-    static int inplaceAdd(int a[], int aSize, int addend) {
+    static int inplaceAdd(int[] a, int aSize, int addend) {
         long carry = addend & 0xFFFFFFFFL;
 
         for (int i = 0; (carry != 0) && (i < aSize); i++) {

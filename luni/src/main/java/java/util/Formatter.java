@@ -34,8 +34,6 @@ import java.math.MathContext;
 import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 /**
  * Formats arguments according to a format string (like {@code printf} in C).
@@ -2268,7 +2266,7 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         if (fractionalLength < precision) {
-            char zeros[] = new char[precision - fractionalLength];
+            char[] zeros = new char[precision - fractionalLength];
             Arrays.fill(zeros, '0'); // %a shouldn't be localized.
             result.insert(indexOfP, zeros);
             return;

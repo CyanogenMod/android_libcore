@@ -31,18 +31,15 @@ import java.util.Arrays;
  */
 
 
-public class SHA1_MessageDigestImpl extends MessageDigestSpi
-                                    implements Cloneable, SHA1_Data {
-
-
-    private  int buffer[];       // buffer has the following structure:
+public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneable, SHA1_Data {
+    private int[] buffer;        // buffer has the following structure:
                                  // -  0-16 - frame for accumulating a message
                                  // - 17-79 - for SHA1Impl methods
                                  // - 80    - unused
                                  // - 81    - to store length of the message
                                  // - 82-86 - frame for current message digest
 
-    private byte oneByte[];      // one byte buffer needed to use in engineUpdate(byte)
+    private byte[] oneByte;      // one byte buffer needed to use in engineUpdate(byte)
                                  // having buffer as private field is just optimization
 
     private int messageLength;   // total length of bytes supplied by user

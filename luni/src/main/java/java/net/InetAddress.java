@@ -922,7 +922,7 @@ public class InetAddress implements Serializable {
         return getByAddressInternal(null, ipAddress, scope_id);
     }
 
-    private static boolean isIPv4MappedAddress(byte ipAddress[]) {
+    private static boolean isIPv4MappedAddress(byte[] ipAddress) {
         // Check if the address matches ::FFFF:d.d.d.d
         // The first 10 bytes are 0. The next to are -1 (FF).
         // The last 4 bytes are varied.
@@ -1023,7 +1023,7 @@ public class InetAddress implements Serializable {
      * array starting with the high order byte at the index start. This method
      * makes no checks on the validity of the parameters.
      */
-    static void intToBytes(int value, byte bytes[], int start) {
+    static void intToBytes(int value, byte[] bytes, int start) {
         // Shift the int so the current byte is right-most
         // Use a byte mask of 255 to single out the last byte.
         bytes[start] = (byte) ((value >> 24) & 255);
@@ -1037,7 +1037,7 @@ public class InetAddress implements Serializable {
      * start as the high-order byte. This method makes no checks on the validity
      * of the parameters.
      */
-    static int bytesToInt(byte bytes[], int start) {
+    static int bytesToInt(byte[] bytes, int start) {
         // First mask the byte with 255, as when a negative
         // signed byte converts to an integer, it has bits
         // on in the first 3 bytes, we are only concerned

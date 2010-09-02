@@ -34,7 +34,7 @@ class Primality {
     private Primality() {}
 
     /** All prime numbers with bit length lesser than 10 bits. */
-    private static final int primes[] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+    private static final int[] primes = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
             31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
             103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
             173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239,
@@ -93,7 +93,7 @@ class Primality {
         int i, j;
 //        int certainty;
         int gapSize = 1024; // for searching of the next probable prime number
-        int modules[] = new int[primes.length];
+        int[] modules = new int[primes.length];
         boolean isDivisible[] = new boolean[gapSize];
         BigInt ni = n.getBigInt();
         // If n < "last prime of table" searches next prime in the table
