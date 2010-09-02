@@ -835,16 +835,15 @@ public final class Field extends AccessibleObject implements Member {
      */
     @Override
     public String toString() {
-        StringBuffer result = new StringBuffer(Modifier.toString(getModifiers()));
-
-        if (result.length() != 0)
+        StringBuilder result = new StringBuilder(Modifier.toString(getModifiers()));
+        if (result.length() != 0) {
             result.append(' ');
+        }
         result.append(type.getName());
         result.append(' ');
         result.append(declaringClass.getName());
         result.append('.');
         result.append(name);
-
         return result.toString();
     }
 

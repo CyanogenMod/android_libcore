@@ -137,8 +137,8 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             throw new SSLException(msg);
         }
 
-        // StringBuffer for building the error message.
-        StringBuffer buf = new StringBuffer();
+        // StringBuilder for building the error message.
+        StringBuilder buf = new StringBuilder();
 
         // We're can be case-insensitive when comparing the host we used to
         // establish the socket to the hostname in the certificate.
@@ -148,7 +148,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             // Don't trim the CN, though!
             String cn = it.next();
             cn = cn.toLowerCase(Locale.ENGLISH);
-            // Store CN in StringBuffer in case we need to report an error.
+            // Store CN in StringBuilder in case we need to report an error.
             buf.append(" <");
             buf.append(cn);
             buf.append('>');

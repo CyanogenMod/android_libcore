@@ -87,9 +87,7 @@ public class URLEncoder {
      * @throws UnsupportedEncodingException
      *             if the specified encoding scheme is invalid.
      */
-    public static String encode(String s, String enc)
-            throws UnsupportedEncodingException {
-
+    public static String encode(String s, String enc) throws UnsupportedEncodingException {
         if (s == null || enc == null) {
             throw new NullPointerException();
         }
@@ -97,7 +95,7 @@ public class URLEncoder {
         "".getBytes(enc);
 
         // Guess a bit bigger for encoded form
-        StringBuffer buf = new StringBuffer(s.length() + 16);
+        StringBuilder buf = new StringBuilder(s.length() + 16);
         int start = -1;
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
@@ -124,7 +122,7 @@ public class URLEncoder {
         return buf.toString();
     }
 
-    private static void convert(String s, StringBuffer buf, String enc)
+    private static void convert(String s, StringBuilder buf, String enc)
             throws UnsupportedEncodingException {
         byte[] bytes = s.getBytes(enc);
         for (int j = 0; j < bytes.length; j++) {

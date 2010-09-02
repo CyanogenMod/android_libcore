@@ -312,10 +312,9 @@ class XMLParser {
     }
 
     private static String htmlEncode(String s) {
-        StringBuffer sb = new StringBuffer();
-        char c;
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
-            c = s.charAt(i);
+            char c = s.charAt(i);
             switch (c) {
             case '<':
                 sb.append("&lt;");
