@@ -40,6 +40,7 @@ jclass JniConstants::longClass;
 jclass JniConstants::methodClass;
 jclass JniConstants::parsePositionClass;
 jclass JniConstants::patternSyntaxExceptionClass;
+jclass JniConstants::realToStringClass;
 jclass JniConstants::socketClass;
 jclass JniConstants::socketImplClass;
 jclass JniConstants::stringClass;
@@ -77,6 +78,7 @@ void JniConstants::init(JNIEnv* env) {
     multicastGroupRequestClass = findClass(env, "java/net/MulticastGroupRequest");
     parsePositionClass = findClass(env, "java/text/ParsePosition");
     patternSyntaxExceptionClass = findClass(env, "java/util/regex/PatternSyntaxException");
+    realToStringClass = findClass(env, "java/lang/RealToString");
     socketClass = findClass(env, "java/net/Socket");
     socketImplClass = findClass(env, "java/net/SocketImpl");
     stringClass = findClass(env, "java/lang/String");
