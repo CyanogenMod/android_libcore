@@ -366,11 +366,13 @@ public class ExemptionMechanism {
         return len;
     }
 
-    /**
-     * Frees the references to the key used to initialize this instance.
-     */
-    @Override
-    protected void finalize() {
-        initKey = null;
+    @Override protected void finalize() {
+        try {
+            super.finalize();
+        } catch (Throwable e) {
+            // for consistency with the RI, we must override Object.finalize() to
+            // remove the throws clause.
+            throw new AssertionError(e);
+        }
     }
 }
