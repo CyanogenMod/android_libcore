@@ -17,6 +17,7 @@
 
 package java.io;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -32,7 +33,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
 import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.ThreadLocalCache;
 
 /**
  * Represents a descriptor for identifying a class during serialization and
@@ -974,8 +974,7 @@ public class ObjectStreamClass implements Serializable {
      * @return the corresponding descriptor
      */
     static ObjectStreamClass lookupStreamClass(Class<?> cl) {
-
-        WeakHashMap<Class<?>,ObjectStreamClass> tlc = OSCThreadLocalCache.oscWeakHashMap.get();
+        WeakHashMap<Class<?>,ObjectStreamClass> tlc = getCache();
 
         ObjectStreamClass cachedValue = tlc.get(cl);
         if (cachedValue == null) {
@@ -984,6 +983,26 @@ public class ObjectStreamClass implements Serializable {
         }
         return cachedValue;
 
+    }
+
+    /**
+     * A ThreadLocal cache for lookupStreamClass, with the possibility of discarding the thread
+     * local storage content when the heap is exhausted.
+     */
+    private static SoftReference<ThreadLocal<WeakHashMap<Class<?>, ObjectStreamClass>>> storage =
+            new SoftReference<ThreadLocal<WeakHashMap<Class<?>, ObjectStreamClass>>>(null);
+
+    private static WeakHashMap<Class<?>, ObjectStreamClass> getCache() {
+        ThreadLocal<WeakHashMap<Class<?>, ObjectStreamClass>> tls = storage.get();
+        if (tls == null) {
+            tls = new ThreadLocal<WeakHashMap<Class<?>, ObjectStreamClass>>() {
+                public WeakHashMap<Class<?>, ObjectStreamClass> initialValue() {
+                    return new WeakHashMap<Class<?>, ObjectStreamClass>();
+                }
+            };
+            storage = new SoftReference<ThreadLocal<WeakHashMap<Class<?>, ObjectStreamClass>>>(tls);
+        }
+        return tls.get();
     }
 
     /**
@@ -1192,19 +1211,6 @@ public class ObjectStreamClass implements Serializable {
      */
     @Override
     public String toString() {
-        return getName() + ": static final long serialVersionUID ="
-                + getSerialVersionUID() + "L;";
+        return getName() + ": static final long serialVersionUID =" + getSerialVersionUID() + "L;";
     }
-
-    static class OSCThreadLocalCache extends ThreadLocalCache {
-
-        // thread-local cache for ObjectStreamClass.lookup
-        public static ThreadLocalCache<WeakHashMap<Class<?>,ObjectStreamClass>> oscWeakHashMap = new ThreadLocalCache<WeakHashMap<Class<?>,ObjectStreamClass>>() {
-            protected WeakHashMap<Class<?>,ObjectStreamClass> initialValue() {
-                return new WeakHashMap<Class<?>,ObjectStreamClass>();
-            }
-        };
-
-    }
-
 }
