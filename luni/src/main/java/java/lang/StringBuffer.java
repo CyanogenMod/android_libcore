@@ -137,7 +137,8 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @see String#valueOf(double)
      */
     public StringBuffer append(double d) {
-        return append(Double.toString(d));
+        RealToString.getInstance().appendDouble(this, d);
+        return this;
     }
 
     /**
@@ -150,7 +151,8 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @see String#valueOf(float)
      */
     public StringBuffer append(float f) {
-        return append(Float.toString(f));
+        RealToString.getInstance().appendFloat(this, f);
+        return this;
     }
 
     /**
@@ -251,7 +253,7 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * @throws NullPointerException
      *            if {@code chars} is {@code null}.
      */
-    public synchronized StringBuffer append(char chars[]) {
+    public synchronized StringBuffer append(char[] chars) {
         append0(chars);
         return this;
     }

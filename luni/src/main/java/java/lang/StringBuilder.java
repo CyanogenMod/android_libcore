@@ -167,7 +167,7 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * @see String#valueOf(float)
      */
     public StringBuilder append(float f) {
-        append0(Float.toString(f));
+        RealToString.getInstance().appendFloat(this, f);
         return this;
     }
 
@@ -182,7 +182,7 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * @see String#valueOf(double)
      */
     public StringBuilder append(double d) {
-        append0(Double.toString(d));
+        RealToString.getInstance().appendDouble(this, d);
         return this;
     }
 
