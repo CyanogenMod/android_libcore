@@ -52,7 +52,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     private static final byte[] stubArray = new byte[0];
 
     // The fd to interact with native code
-    private FileDescriptor fd;
+    private final FileDescriptor fd;
 
     // Our internal DatagramSocket.
     private DatagramSocket socket = null;
@@ -552,9 +552,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      * Do really closing action here.
      */
     @Override
-    synchronized protected void implCloseSelectableChannel() throws IOException {
+    protected synchronized void implCloseSelectableChannel() throws IOException {
         connected = false;
-        if (null != socket && !socket.isClosed()) {
+        if (socket != null && !socket.isClosed()) {
             socket.close();
         } else {
             Platform.NETWORK.close(fd);

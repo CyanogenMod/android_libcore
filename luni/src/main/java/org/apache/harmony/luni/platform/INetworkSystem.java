@@ -140,6 +140,10 @@ public interface INetworkSystem {
     public void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 
+    /**
+     * It is an error to close the same file descriptor from multiple threads
+     * concurrently.
+     */
     public void close(FileDescriptor fd) throws IOException;
 
     // TODO: change the single caller so that recv/recvDirect

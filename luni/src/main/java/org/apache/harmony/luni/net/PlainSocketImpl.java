@@ -162,10 +162,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected synchronized void close() throws IOException {
-        if (fd.valid()) {
-            Platform.NETWORK.close(fd);
-            fd = new FileDescriptor();
-        }
+        Platform.NETWORK.close(fd);
     }
 
     @Override

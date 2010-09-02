@@ -81,13 +81,10 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override
-    public void close() {
-        if (fd.valid()) {
-            try {
-                Platform.NETWORK.close(fd);
-            } catch (IOException ignored) {
-            }
-            fd = new FileDescriptor();
+    public synchronized void close() {
+        try {
+            Platform.NETWORK.close(fd);
+        } catch (IOException ignored) {
         }
     }
 
@@ -213,8 +210,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         try {
             Platform.NETWORK.disconnectDatagram(fd);
         } catch (Exception ignored) {
-            // there is currently no way to return an error so just eat any
-            // exception
         }
         connectedPort = -1;
         connectedAddress = null;
