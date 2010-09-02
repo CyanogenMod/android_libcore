@@ -42,17 +42,9 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private static final int SO_BROADCAST = 32;
 
-    static final int TCP_NODELAY = 4;
-
     final static int IP_MULTICAST_TTL = 17;
 
-    private byte[] ipaddress = { 0, 0, 0, 0 };
-
     private volatile boolean isNativeConnected;
-
-    private boolean streaming = true;
-
-    private boolean shutdownInput;
 
     /**
      * used to keep address to which the socket was connected to at the native
@@ -83,22 +75,19 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         }
 
         try {
-            // Ignore failures
             setOption(SO_BROADCAST, Boolean.TRUE);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
     @Override
     public void close() {
-        synchronized (fd) {
-            if (fd.valid()) {
-                try {
-                    Platform.NETWORK.close(fd);
-                } catch (IOException e) {
-                }
-                fd = new FileDescriptor();
+        if (fd.valid()) {
+            try {
+                Platform.NETWORK.close(fd);
+            } catch (IOException ignored) {
             }
+            fd = new FileDescriptor();
         }
     }
 
@@ -108,7 +97,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         close();
     }
 
@@ -118,7 +108,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public int getTimeToLive() throws IOException {
-        return ((Integer) getOption(IP_MULTICAST_TTL)).intValue();
+        return (Integer) getOption(IP_MULTICAST_TTL);
     }
 
     @Override
@@ -222,7 +212,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void disconnect() {
         try {
             Platform.NETWORK.disconnectDatagram(fd);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // there is currently no way to return an error so just eat any
             // exception
         }
