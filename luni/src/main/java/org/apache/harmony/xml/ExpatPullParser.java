@@ -878,7 +878,7 @@ public class ExpatPullParser implements XmlPullParser {
                 namespaceStackBuilder.pop(depth);
             }
 
-            public void characters(char ch[], int start, int length) {
+            public void characters(char[] ch, int start, int length) {
                 // Ignore empty strings.
                 if (length == 0) {
                     return;
@@ -898,7 +898,7 @@ public class ExpatPullParser implements XmlPullParser {
             public void startDocument() throws SAXException {}
             public void endDocument() throws SAXException {}
             public void endPrefixMapping(String prefix) throws SAXException {}
-            public void ignorableWhitespace(char ch[], int start, int length)
+            public void ignorableWhitespace(char[] ch, int start, int length)
                     throws SAXException {}
             public void processingInstruction(String target, String data)
                     throws SAXException {}

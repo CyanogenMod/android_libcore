@@ -35,8 +35,7 @@ import java.security.SecureRandomSpi;
  * The class implements the Serializable interface.
  */
 
-public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
-        Serializable, SHA1_Data {
+public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serializable, SHA1_Data {
 
     private static final long serialVersionUID = 283736797212159675L;
 
@@ -107,7 +106,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     // - 80    - unused
     // - 81    - # of seed bytes in current seed frame
     // - 82-86 - 5 words, current seed hash
-    private transient int seed[];
+    private transient int[] seed;
 
     // total length of seed bytes, including all processed
     private transient long seedLength;
@@ -117,10 +116,10 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     // -  5-20 - extra 16 words frame;
     //           is used if final padding exceeds 512-bit length
     // - 21-36 - 16 word frame to store a copy of remaining bytes
-    private transient int copies[];
+    private transient int[] copies;
 
     // ready "next" bytes; needed because words are returned
-    private transient byte nextBytes[];
+    private transient byte[] nextBytes;
 
     // index of used bytes in "nextBytes" array
     private transient int nextBIndex;

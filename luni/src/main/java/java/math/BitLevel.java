@@ -100,7 +100,7 @@ class BitLevel {
      * @param numberOfBits the number of the lowest bits to check
      * @return false if all bits are 0s, true otherwise
      */
-    static boolean nonZeroDroppedBits(int numberOfBits, int digits[]) {
+    static boolean nonZeroDroppedBits(int numberOfBits, int[] digits) {
         int intCount = numberOfBits >> 5;
         int bitCount = numberOfBits & 31;
         int i;
@@ -111,7 +111,7 @@ class BitLevel {
         return ((i != intCount) || (digits[i] << (32 - bitCount) != 0));
     }
 
-    static void shiftLeftOneBit(int result[], int source[], int srcLen) {
+    static void shiftLeftOneBit(int[] result, int[] source, int srcLen) {
         int carry = 0;
         for(int i = 0; i < srcLen; i++) {
             int val = source[i];
@@ -127,7 +127,7 @@ class BitLevel {
         source.prepareJavaRepresentation();
         int srcLen = source.numberLength;
         int resLen = srcLen + 1;
-        int resDigits[] = new int[resLen];
+        int[] resDigits = new int[resLen];
         shiftLeftOneBit(resDigits, source.digits, srcLen);
         return new BigInteger(source.sign, resLen, resDigits);
     }
@@ -142,7 +142,7 @@ class BitLevel {
         }
         int i;
         int resLength = source.numberLength - intCount;
-        int resDigits[] = new int[resLength + 1];
+        int[] resDigits = new int[resLength + 1];
 
         shiftRight(resDigits, resLength, source.digits, intCount, count);
         if (source.sign < 0) {
@@ -182,8 +182,7 @@ class BitLevel {
      *            the number of bits to be shifted
      * @return dropped bit's are all zero (i.e. remaider is zero)
      */
-    static boolean shiftRight(int result[], int resultLen, int source[],
-            int intCount, int count) {
+    static boolean shiftRight(int[] result, int resultLen, int[] source, int intCount, int count) {
         int i;
         boolean allZero = true;
         for (i = 0; i < intCount; i++)
@@ -217,7 +216,7 @@ class BitLevel {
         int intCount = n >> 5;
         int bitN = n & 31;
         int resLength = Math.max(intCount + 1, val.numberLength) + 1;
-        int resDigits[] = new int[resLength];
+        int[] resDigits = new int[resLength];
         int i;
 
         int bitNumber = 1 << bitN;

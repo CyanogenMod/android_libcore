@@ -37,7 +37,7 @@ class Multiplication {
      * An array with powers of ten that fit in the type {@code int}.
      * ({@code 10^0,10^1,...,10^9})
      */
-    static final int tenPows[] = {
+    static final int[] tenPows = {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
     };
 
@@ -45,7 +45,7 @@ class Multiplication {
      * An array with powers of five that fit in the type {@code int}.
      * ({@code 5^0,5^1,...,5^13})
      */
-    static final int fivePows[] = {
+    static final int[] fivePows = {
         1, 5, 25, 125, 625, 3125, 15625, 78125, 390625,
         1953125, 9765625, 48828125, 244140625, 1220703125
     };

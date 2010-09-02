@@ -34,7 +34,7 @@ final class BufferFactory {
      *            The byte array
      * @return A new byte buffer based on the specified byte array.
      */
-    public static ByteBuffer newByteBuffer(byte array[]) {
+    public static ByteBuffer newByteBuffer(byte[] array) {
         return new ReadWriteHeapByteBuffer(array);
     }
 
@@ -56,7 +56,7 @@ final class BufferFactory {
      *            The char array
      * @return A new char buffer based on the specified char array.
      */
-    public static CharBuffer newCharBuffer(char array[]) {
+    public static CharBuffer newCharBuffer(char[] array) {
         return new ReadWriteCharArrayBuffer(array);
     }
 
@@ -100,7 +100,7 @@ final class BufferFactory {
      *            The double array
      * @return A new double buffer based on the specified double array.
      */
-    public static DoubleBuffer newDoubleBuffer(double array[]) {
+    public static DoubleBuffer newDoubleBuffer(double[] array) {
         return new ReadWriteDoubleArrayBuffer(array);
     }
 
@@ -122,7 +122,7 @@ final class BufferFactory {
      *            The float array
      * @return A new float buffer based on the specified float array.
      */
-    public static FloatBuffer newFloatBuffer(float array[]) {
+    public static FloatBuffer newFloatBuffer(float[] array) {
         return new ReadWriteFloatArrayBuffer(array);
     }
 
@@ -155,7 +155,7 @@ final class BufferFactory {
      *            The int array
      * @return A new int buffer based on the specified int array.
      */
-    public static IntBuffer newIntBuffer(int array[]) {
+    public static IntBuffer newIntBuffer(int[] array) {
         return new ReadWriteIntArrayBuffer(array);
     }
 
@@ -177,7 +177,7 @@ final class BufferFactory {
      *            The long array
      * @return A new long buffer based on the specified long array.
      */
-    public static LongBuffer newLongBuffer(long array[]) {
+    public static LongBuffer newLongBuffer(long[] array) {
         return new ReadWriteLongArrayBuffer(array);
     }
 
@@ -199,7 +199,7 @@ final class BufferFactory {
      *            The short array
      * @return A new short buffer based on the specified short array.
      */
-    public static ShortBuffer newShortBuffer(short array[]) {
+    public static ShortBuffer newShortBuffer(short[] array) {
         return new ReadWriteShortArrayBuffer(array);
     }
 

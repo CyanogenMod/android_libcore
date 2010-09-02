@@ -67,18 +67,11 @@ public class InputStreamHelper {
      * underlying buffer.
      */
     static class ExposedByteArrayInputStream extends ByteArrayInputStream {
-
-        /**
-         * @see java.io.ByteArrayInputStream(byte[])
-         */
-        public ExposedByteArrayInputStream(byte buf[]) {
+        public ExposedByteArrayInputStream(byte[] buf) {
             super(buf);
         }
 
-        /**
-         * @see java.io.ByteArrayInputStream(byte[], int, int)
-         */
-        public ExposedByteArrayInputStream(byte buf[], int offset, int length) {
+        public ExposedByteArrayInputStream(byte[] buf, int offset, int length) {
             super(buf, offset, length);
         }
 
