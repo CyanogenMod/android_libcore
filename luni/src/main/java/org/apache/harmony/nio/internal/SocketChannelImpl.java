@@ -73,7 +73,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     static final int SOCKET_STATUS_CLOSED = 3;
 
     // The descriptor to interact with native code.
-    FileDescriptor fd;
+    final FileDescriptor fd;
 
     // Our internal Socket.
     private SocketAdapter socket = null;
@@ -526,10 +526,10 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      * Do really closing action here.
      */
     @Override
-    synchronized protected void implCloseSelectableChannel() throws IOException {
-        if (SOCKET_STATUS_CLOSED != status) {
+    protected synchronized void implCloseSelectableChannel() throws IOException {
+        if (status != SOCKET_STATUS_CLOSED) {
             status = SOCKET_STATUS_CLOSED;
-            if (null != socket && !socket.isClosed()) {
+            if (socket != null && !socket.isClosed()) {
                 socket.close();
             } else {
                 Platform.NETWORK.close(fd);
