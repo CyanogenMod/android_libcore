@@ -20,78 +20,39 @@ package java.lang;
 import libcore.math.MathUtils;
 
 final class RealToString {
-    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
+    private int setCount; // number of times u and k have been gotten
+
+    private int getCount; // number of times u and k have been set
+
+    private int[] uArray = new int[64];
 
     private int firstK;
 
-    /**
-     * An array of decimal digits, filled by longDigitGenerator or bigIntDigitGenerator.
-     */
-    private final int[] digits = new int[64];
+    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
-    /**
-     * Number of valid entries in 'digits'.
-     */
-    private int digitCount;
-
-    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
-        @Override protected RealToString initialValue() {
-            return new RealToString();
-        }
-    };
-
-    private RealToString() {
-    }
-
-    public static RealToString getInstance() {
-        return INSTANCE.get();
-    }
-
-    private static String resultOrSideEffect(AbstractStringBuilder sb, String s) {
-        if (sb != null) {
-            sb.append0(s);
-            return null;
-        }
-        return s;
-    }
-
-    public String doubleToString(double d) {
-        return convertDouble(null, d);
-    }
-
-    public void appendDouble(AbstractStringBuilder sb, double d) {
-        convertDouble(sb, d);
-    }
-
-    private String convertDouble(AbstractStringBuilder sb, double inputNumber) {
-        long inputNumberBits = Double.doubleToRawLongBits(inputNumber);
+    public String doubleToString(double inputNumber) {
+        long inputNumberBits = Double.doubleToLongBits(inputNumber);
         boolean positive = (inputNumberBits & Double.SIGN_MASK) == 0;
         int e = (int) ((inputNumberBits & Double.EXPONENT_MASK) >> Double.MANTISSA_BITS);
         long f = inputNumberBits & Double.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
 
-        String quickResult = null;
         if (e == 2047) {
-            if (mantissaIsZero) {
-                quickResult = positive ? "Infinity" : "-Infinity";
-            } else {
-                quickResult = "NaN";
+            if (!mantissaIsZero) {
+                return "NaN";
             }
-        } else if (e == 0) {
-            if (mantissaIsZero) {
-                quickResult = positive ? "0.0" : "-0.0";
-            } else if (f == 1) {
-                // special case to increase precision even though 2 * Double.MIN_VALUE is 1.0e-323
-                quickResult = positive ? "4.9E-324" : "-4.9E-324";
-            }
+            return positive ? "Infinity" : "-Infinity";
         }
-        if (quickResult != null) {
-            return resultOrSideEffect(sb, quickResult);
-        }
-
         int p = Double.EXPONENT_BIAS + Double.MANTISSA_BITS; // the power offset (precision)
         int pow = 0, numBits = Double.MANTISSA_BITS;
         if (e == 0) {
+            if (mantissaIsZero) {
+                return positive ? "0.0" : "-0.0";
+            }
+            if (f == 1) {
+                // special case to increase precision even though 2 * Double.MIN_VALUE is 1.0e-323
+                return positive ? "4.9E-324" : "-4.9E-324";
+            }
             pow = 1 - p; // a denormalized number
             long ff = f;
             while ((ff & 0x0010000000000000L) == 0) {
@@ -105,54 +66,39 @@ final class RealToString {
             pow = e - p;
         }
 
-        firstK = digitCount = 0;
         if (-59 < pow && pow < 6 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         } else {
             bigIntDigitGenerator(f, pow, e == 0, numBits);
         }
-        AbstractStringBuilder dst = (sb != null) ? sb : new StringBuilder(26);
         if (inputNumber >= 1e7D || inputNumber <= -1e7D
                 || (inputNumber > -1e-3D && inputNumber < 1e-3D)) {
-            freeFormatExponential(dst, positive);
-        } else {
-            freeFormat(dst, positive);
+            return freeFormatExponential(positive);
         }
-        return (sb != null) ? null : dst.toString();
+        return freeFormat(positive);
     }
 
-    public String floatToString(float f) {
-        return convertFloat(null, f);
-    }
-
-    public void appendFloat(AbstractStringBuilder sb, float f) {
-        convertFloat(sb, f);
-    }
-
-    public String convertFloat(AbstractStringBuilder sb, float inputNumber) {
-        int inputNumberBits = Float.floatToRawIntBits(inputNumber);
+    public String floatToString(float inputNumber) {
+        int inputNumberBits = Float.floatToIntBits(inputNumber);
         boolean positive = (inputNumberBits & Float.SIGN_MASK) == 0;
+        // the value of the 'power bits' of the inputNumber
         int e = (inputNumberBits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS;
+        // the value of the 'significand bits' of the inputNumber
         int f = inputNumberBits & Float.MANTISSA_MASK;
         boolean mantissaIsZero = f == 0;
 
-        String quickResult = null;
         if (e == 255) {
-            if (mantissaIsZero) {
-                quickResult = positive ? "Infinity" : "-Infinity";
-            } else {
-                quickResult = "NaN";
+            if (!mantissaIsZero) {
+                return "NaN";
             }
-        } else if (e == 0 && mantissaIsZero) {
-            quickResult = positive ? "0.0" : "-0.0";
+            return positive ? "Infinity" : "-Infinity";
         }
-        if (quickResult != null) {
-            return resultOrSideEffect(sb, quickResult);
-        }
-
         int p = Float.EXPONENT_BIAS + Float.MANTISSA_BITS; // the power offset (precision)
         int pow = 0, numBits = Float.MANTISSA_BITS;
         if (e == 0) {
+            if (mantissaIsZero) {
+                return positive ? "0.0" : "-0.0";
+            }
             pow = 1 - p; // a denormalized number
             if (f < 8) { // want more precision with smallest values
                 f = f << 2;
@@ -170,73 +116,77 @@ final class RealToString {
             pow = e - p;
         }
 
-        firstK = digitCount = 0;
         if (-59 < pow && pow < 35 || (pow == -59 && !mantissaIsZero)) {
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         } else {
             bigIntDigitGenerator(f, pow, e == 0, numBits);
         }
-        AbstractStringBuilder dst = (sb != null) ? sb : new StringBuilder(26);
         if (inputNumber >= 1e7f || inputNumber <= -1e7f
                 || (inputNumber > -1e-3f && inputNumber < 1e-3f)) {
-            freeFormatExponential(dst, positive);
-        } else {
-            freeFormat(dst, positive);
+            return freeFormatExponential(positive);
         }
-        return (sb != null) ? null : dst.toString();
+        return freeFormat(positive);
     }
 
-    private void freeFormatExponential(AbstractStringBuilder sb, boolean positive) {
-        int digitIndex = 0;
+    private String freeFormatExponential(boolean positive) {
+        // corresponds to process "Free-Format Exponential"
+        char[] formattedDecimal = new char[26];
+        int charPos = 0;
         if (!positive) {
-            sb.append0('-');
+            formattedDecimal[charPos++] = '-';
         }
-        sb.append0((char) ('0' + digits[digitIndex++]));
-        sb.append0('.');
+        formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
+        formattedDecimal[charPos++] = '.';
 
         int k = firstK;
-        int exponent = k;
+        int expt = k;
         while (true) {
             k--;
-            if (digitIndex >= digitCount) {
+            if (getCount >= setCount) {
                 break;
             }
-            sb.append0((char) ('0' + digits[digitIndex++]));
+            formattedDecimal[charPos++] = (char) ('0' + uArray[getCount++]);
         }
 
-        if (k == exponent - 1) {
-            sb.append0('0');
+        if (k == expt - 1) {
+            formattedDecimal[charPos++] = '0';
         }
-        sb.append0('E');
-        IntegralToString.appendInt(sb, exponent);
+        formattedDecimal[charPos++] = 'E';
+        return new String(formattedDecimal, 0, charPos) + Integer.toString(expt);
     }
 
-    private void freeFormat(AbstractStringBuilder sb, boolean positive) {
-        int digitIndex = 0;
+    private String freeFormat(boolean positive) {
+        // corresponds to process "Free-Format"
+        char[] formattedDecimal = new char[26];
+        // the position the next character is to be inserted into
+        // formattedDecimal
+        int charPos = 0;
         if (!positive) {
-            sb.append0('-');
+            formattedDecimal[charPos++] = '-';
         }
         int k = firstK;
         if (k < 0) {
-            sb.append0('0');
-            sb.append0('.');
+            formattedDecimal[charPos++] = '0';
+            formattedDecimal[charPos++] = '.';
             for (int i = k + 1; i < 0; ++i) {
-                sb.append0('0');
+                formattedDecimal[charPos++] = '0';
             }
         }
-        int U = digits[digitIndex++];
+
+        int U = uArray[getCount++];
         do {
             if (U != -1) {
-                sb.append0((char) ('0' + U));
+                formattedDecimal[charPos++] = (char) ('0' + U);
             } else if (k >= -1) {
-                sb.append0('0');
+                formattedDecimal[charPos++] = '0';
             }
             if (k == 0) {
-                sb.append0('.');
+                formattedDecimal[charPos++] = '.';
             }
             k--;
-            U = digitIndex < digitCount ? digits[digitIndex++] : -1;
+            U = getCount < setCount ? uArray[getCount++] : -1;
         } while (U != -1 || k >= -1);
+        return new String(formattedDecimal, 0, charPos);
     }
 
     private native void bigIntDigitGenerator(long f, int e, boolean isDenormalized, int p);
@@ -282,11 +232,24 @@ final class RealToString {
             M = M * 10;
         }
 
+        getCount = setCount = 0; // reset indices
         boolean low, high;
         int U;
+        long[] Si = new long[] { S, S << 1, S << 2, S << 3 };
         while (true) {
-            U = (int) (R / S);
-            R = R - U*S; // Faster than "R = R % S" on nexus one, which only has hardware MUL.
+            // set U to be floor (R / S) and R to be the remainder
+            // using a kind of "binary search" to find the answer.
+            // It's a lot quicker than actually dividing since we know
+            // the answer will be between 0 and 10
+            U = 0;
+            long remainder;
+            for (int i = 3; i >= 0; i--) {
+                remainder = R - Si[i];
+                if (remainder >= 0) {
+                    R = remainder;
+                    U += 1 << i;
+                }
+            }
 
             low = R < M; // was M_minus
             high = R + M > S; // was M_plus
@@ -296,16 +259,16 @@ final class RealToString {
             }
             R = R * 10;
             M = M * 10;
-            digits[digitCount++] = U;
+            uArray[setCount++] = U;
         }
         if (low && !high) {
-            digits[digitCount++] = U;
+            uArray[setCount++] = U;
         } else if (high && !low) {
-            digits[digitCount++] = U + 1;
+            uArray[setCount++] = U + 1;
         } else if ((R << 1) < S) {
-            digits[digitCount++] = U;
+            uArray[setCount++] = U;
         } else {
-            digits[digitCount++] = U + 1;
+            uArray[setCount++] = U + 1;
         }
     }
 }
