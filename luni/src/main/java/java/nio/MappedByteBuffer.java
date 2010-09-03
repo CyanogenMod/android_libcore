@@ -58,7 +58,6 @@ public abstract class MappedByteBuffer extends ByteBuffer {
         } else {
             wrapped = new ReadWriteDirectByteBuffer(addr, capacity, offset);
         }
-        addr.autoFree();
     }
 
     /**

@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// added some missing updates on position and limit
-// END android-note
-
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
@@ -29,25 +25,12 @@ import org.apache.harmony.nio.internal.DirectBuffer;
  * @hide
  */
 public final class MappedByteBufferAdapter extends MappedByteBuffer implements DirectBuffer {
-
-    private static final int CHAR_SIZE = 2;
-
-    private static final int SHORT_SIZE = 2;
-
-    private static final int INTEGER_SIZE = 4;
-
-    private static final int LONG_SIZE = 8;
-
-    private static final int FLOAT_SIZE = 4;
-
-    private static final int DOUBLE_SIZE = 8;
-
     public MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
     }
 
-    public MappedByteBufferAdapter(PlatformAddress addr, int capa, int offset, MapMode mode) {
-        super(addr, capa, offset, mode);
+    public MappedByteBufferAdapter(PlatformAddress addr, int capacity, int offset, MapMode mode) {
+        super(addr, capacity, offset, mode);
     }
 
     @Override
@@ -134,7 +117,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         char result = this.wrapped.getChar();
-        this.position += CHAR_SIZE;
+        this.position += SIZEOF_CHAR;
         return result;
     }
 
@@ -150,7 +133,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         double result = this.wrapped.getDouble();
-        this.position += DOUBLE_SIZE;
+        this.position += SIZEOF_DOUBLE;
         return result;
     }
 
@@ -171,7 +154,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         float result = this.wrapped.getFloat();
-        this.position += FLOAT_SIZE;
+        this.position += SIZEOF_FLOAT;
         return result;
     }
 
@@ -187,7 +170,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         int result = this.wrapped.getInt();
-        this.position += INTEGER_SIZE;
+        this.position += SIZEOF_INT;
         return result;
     }
 
@@ -203,7 +186,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         long result = this.wrapped.getLong();
-        this.position += LONG_SIZE;
+        this.position += SIZEOF_LONG;
         return result;
     }
 
@@ -219,7 +202,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         short result = this.wrapped.getShort();
-        this.position += SHORT_SIZE;
+        this.position += SIZEOF_SHORT;
         return result;
     }
 
@@ -277,7 +260,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putChar(value);
-        this.position += CHAR_SIZE;
+        this.position += SIZEOF_CHAR;
         return this;
     }
 
@@ -294,7 +277,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putDouble(value);
-        this.position += DOUBLE_SIZE;
+        this.position += SIZEOF_DOUBLE;
         return this;
     }
 
@@ -311,7 +294,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putFloat(value);
-        this.position += FLOAT_SIZE;
+        this.position += SIZEOF_FLOAT;
         return this;
     }
 
@@ -336,7 +319,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putInt(value);
-        this.position += INTEGER_SIZE;
+        this.position += SIZEOF_INT;
         return this;
     }
 
@@ -353,7 +336,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putLong(value);
-        this.position += LONG_SIZE;
+        this.position += SIZEOF_LONG;
         return this;
     }
 
@@ -370,7 +353,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         this.wrapped.putShort(value);
-        this.position += SHORT_SIZE;
+        this.position += SIZEOF_SHORT;
         return this;
     }
 
@@ -401,14 +384,6 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
 
     public PlatformAddress getBaseAddress() {
         return this.wrapped.getBaseAddress();
-    }
-
-    public boolean isAddressValid() {
-        return this.wrapped.isAddressValid();
-    }
-
-    public void addressValidityCheck() {
-        this.wrapped.addressValidityCheck();
     }
 
     public void free() {

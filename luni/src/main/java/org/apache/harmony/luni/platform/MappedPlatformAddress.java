@@ -25,10 +25,8 @@ public class MappedPlatformAddress extends PlatformAddress {
             // You can't mmap(2) a zero-length region.
             return new MappedPlatformAddress(0, 0);
         }
-        int addr = OSMemory.mmap(fd, start, size, mode);
-        PlatformAddress newMemory = new MappedPlatformAddress(addr, size);
-        PlatformAddress.MEMORY_SPY.alloc(newMemory);
-        return newMemory;
+        int address = OSMemory.mmap(fd, start, size, mode);
+        return new MappedPlatformAddress(address, size);
     }
 
     private MappedPlatformAddress(int address, long size) {
@@ -47,9 +45,14 @@ public class MappedPlatformAddress extends PlatformAddress {
         OSMemory.msync(osaddr, size);
     }
 
-    public final void free() {
-        if (PlatformAddress.MEMORY_SPY.free(this)){
+    @Override public void free() {
+        if (osaddr != 0) {
             OSMemory.munmap(osaddr, size);
+            osaddr = 0;
         }
+    }
+
+    @Override protected void finalize() throws Throwable {
+        free();
     }
 }

@@ -35,57 +35,24 @@ import org.apache.harmony.nio.internal.DirectBuffer;
  */
 abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
-    // This class will help us track whether the address is valid or not.
-    static final class SafeAddress {
-        protected volatile boolean isValid = true;
-
-        protected final PlatformAddress address;
-
-        protected SafeAddress(PlatformAddress address) {
-            super();
-            this.address = address;
-        }
-    }
-
-    // This is a wrapped reference to the base address of the buffer memory.
-    protected final SafeAddress safeAddress;
+    // This is a reference to the base address of the buffer memory.
+    protected final PlatformAddress address;
 
     // This is the offset from the base address at which this buffer logically
     // starts.
     protected final int offset;
 
-    /*
-     * Constructs a new direct byte buffer of the given capacity on newly
-     * allocated OS memory. The memory will have been zeroed. When the instance
-     * is discarded the OS memory will be freed if it has not already been done
-     * so by an explicit call to #free(). Callers are encouraged to explicitly
-     * free the memory where possible.
-     */
-    DirectByteBuffer(int capacity) {
-        this(new SafeAddress(malloc(capacity)), capacity, 0);
-        safeAddress.address.autoFree();
-    }
-
-    private static PlatformAddress malloc(int byteCount) {
-        int addr = OSMemory.malloc(byteCount);
-        PlatformAddress newMemory = new PlatformAddress(addr, byteCount);
-        PlatformAddress.MEMORY_SPY.alloc(newMemory);
-        return newMemory;
-    }
-
-    DirectByteBuffer(SafeAddress address, int capacity, int offset) {
+    protected DirectByteBuffer(PlatformAddress address, int capacity, int offset) {
         super(capacity);
 
         // BEGIN android-added
-        PlatformAddress baseAddress = address.address;
-        long baseSize = baseAddress.getSize();
-
+        long baseSize = address.getSize();
         if ((baseSize >= 0) && ((offset + capacity) > baseSize)) {
             throw new IllegalArgumentException("slice out of range");
         }
         // END android-added
 
-        this.safeAddress = address;
+        this.address = address;
         this.offset = offset;
     }
 
@@ -128,7 +95,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final double getDouble() {
-        int newPosition = position + 8;
+        int newPosition = position + SIZEOF_DOUBLE;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -139,7 +106,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final double getDouble(int index) {
-        if (index < 0 || (long) index + 8 > limit) {
+        if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
         return getBaseAddress().peekDouble(offset + index, order);
@@ -147,7 +114,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final float getFloat() {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_FLOAT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -158,7 +125,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final float getFloat(int index) {
-        if (index < 0 || (long) index + 4 > limit) {
+        if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return getBaseAddress().peekFloat(offset + index, order);
@@ -166,7 +133,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final int getInt() {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_INT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -177,7 +144,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final int getInt(int index) {
-        if (index < 0 || (long) index + 4 > limit) {
+        if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return getBaseAddress().peekInt(offset + index, order);
@@ -185,7 +152,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final long getLong() {
-        int newPosition = position + 8;
+        int newPosition = position + SIZEOF_LONG;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -196,7 +163,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final long getLong(int index) {
-        if (index < 0 || (long) index + 8 > limit) {
+        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         return getBaseAddress().peekLong(offset + index, order);
@@ -204,7 +171,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final short getShort() {
-        int newPosition = position + 2;
+        int newPosition = position + SIZEOF_SHORT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -215,7 +182,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     @Override
     public final short getShort(int index) {
-        if (index < 0 || (long) index + 2 > limit) {
+        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return getBaseAddress().peekShort(offset + index, order);
@@ -226,26 +193,11 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         return true;
     }
 
-    public final boolean isAddressValid() {
-        return safeAddress.isValid;
-    }
-
-    public final void addressValidityCheck() {
-        if (!isAddressValid()) {
-            throw new IllegalStateException("Cannot use a direct byte buffer after it has been explicitly freed");
-        }
-    }
-
-    private void markAddressInvalid() {
-        safeAddress.isValid = false;
-    }
-
     /*
      * Returns the base address of the buffer (i.e. before offset).
      */
     public final PlatformAddress getBaseAddress() {
-        addressValidityCheck();
-        return safeAddress.address;
+        return address;
     }
 
     /**
@@ -269,22 +221,8 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         return effectiveDirectAddress;
     }
 
-    /**
-     * Explicitly free the memory used by this direct byte buffer. If the memory
-     * has already been freed then this is a no-op. Once the memory has been
-     * freed then operations requiring access to the memory will throw an
-     * <code>IllegalStateException</code>.
-     * <p>
-     * Note this is is possible that the memory is freed by code that reaches
-     * into the address and explicitly frees it 'beneath' us -- this is bad
-     * form.
-     * </p>
-     */
     public final void free() {
-        if (isAddressValid()) {
-            markAddressInvalid();
-            safeAddress.address.free();
-        }
+        address.free();
     }
 
     @Override

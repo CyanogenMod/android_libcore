@@ -46,7 +46,7 @@ public abstract class ShortBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newShortBuffer(capacity);
+        return new ReadWriteShortArrayBuffer(capacity);
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class ShortBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        ShortBuffer buf = BufferFactory.newShortBuffer(array);
+        ShortBuffer buf = new ReadWriteShortArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

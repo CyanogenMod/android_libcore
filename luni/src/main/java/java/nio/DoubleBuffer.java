@@ -47,7 +47,7 @@ public abstract class DoubleBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newDoubleBuffer(capacity);
+        return new ReadWriteDoubleArrayBuffer(capacity);
     }
 
     /**
@@ -88,7 +88,7 @@ public abstract class DoubleBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        DoubleBuffer buf = BufferFactory.newDoubleBuffer(array);
+        DoubleBuffer buf = new ReadWriteDoubleArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

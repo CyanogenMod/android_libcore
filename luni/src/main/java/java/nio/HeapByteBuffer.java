@@ -112,7 +112,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt() {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_INT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -123,7 +123,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt(int index) {
-        if (index < 0 || index + 4 > limit) {
+        if (index < 0 || index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return loadInt(index);
@@ -131,7 +131,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong() {
-        int newPosition = position + 8;
+        int newPosition = position + SIZEOF_LONG;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -142,7 +142,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong(int index) {
-        if (index < 0 || index + 8 > limit) {
+        if (index < 0 || index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         return loadLong(index);
@@ -150,7 +150,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort() {
-        int newPosition = position + 2;
+        int newPosition = position + SIZEOF_SHORT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -161,7 +161,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort(int index) {
-        if (index < 0 || index + 2 > limit) {
+        if (index < 0 || index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return loadShort(index);
@@ -176,12 +176,12 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         int baseOffset = offset + index;
         int bytes = 0;
         if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < SIZEOF_INT; ++i) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
             }
         } else {
-            for (int i = 3; i >= 0; i--) {
+            for (int i = SIZEOF_INT - 1; i >= 0; --i) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
             }
@@ -193,12 +193,12 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         int baseOffset = offset + index;
         long bytes = 0;
         if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < SIZEOF_LONG; ++i) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
             }
         } else {
-            for (int i = 7; i >= 0; i--) {
+            for (int i = SIZEOF_LONG - 1; i >= 0; --i) {
                 bytes = bytes << 8;
                 bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
             }

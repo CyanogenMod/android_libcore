@@ -46,7 +46,7 @@ public abstract class LongBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newLongBuffer(capacity);
+        return new ReadWriteLongArrayBuffer(capacity);
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class LongBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        LongBuffer buf = BufferFactory.newLongBuffer(array);
+        LongBuffer buf = new ReadWriteLongArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

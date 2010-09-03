@@ -50,7 +50,7 @@ public abstract class CharBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newCharBuffer(capacity);
+        return new ReadWriteCharArrayBuffer(capacity);
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class CharBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        CharBuffer buf = BufferFactory.newCharBuffer(array);
+        CharBuffer buf = new ReadWriteCharArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 
@@ -109,7 +109,7 @@ public abstract class CharBuffer extends Buffer implements
      * @return the created char buffer.
      */
     public static CharBuffer wrap(CharSequence chseq) {
-        return BufferFactory.newCharBuffer(chseq);
+        return new CharSequenceAdapter(chseq);
     }
 
     /**
@@ -139,7 +139,7 @@ public abstract class CharBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        CharBuffer result = BufferFactory.newCharBuffer(chseq);
+        CharBuffer result = new CharSequenceAdapter(chseq);
         result.position = start;
         result.limit = end;
         return result;

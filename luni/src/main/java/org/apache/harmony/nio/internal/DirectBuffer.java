@@ -19,15 +19,11 @@ import org.apache.harmony.luni.platform.PlatformAddress;
 
 public interface DirectBuffer {
 
-    int getEffectiveAddress();
+    public int getEffectiveAddress();
 
-    PlatformAddress getBaseAddress();
+    public PlatformAddress getBaseAddress();
 
-    boolean isAddressValid();
+    public void free();
 
-    void addressValidityCheck();
-
-    void free();
-
-    int getByteCapacity();
+    public int getByteCapacity();
 }

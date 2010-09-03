@@ -44,7 +44,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newIntBuffer(capacity);
+        return new ReadWriteIntArrayBuffer(capacity);
     }
 
     /**
@@ -87,7 +87,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
             throw new IndexOutOfBoundsException();
         }
 
-        IntBuffer buf = BufferFactory.newIntBuffer(array);
+        IntBuffer buf = new ReadWriteIntArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

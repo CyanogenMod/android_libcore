@@ -46,7 +46,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newByteBuffer(capacity);
+        return new ReadWriteHeapByteBuffer(capacity);
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newDirectByteBuffer(capacity);
+        return new ReadWriteDirectByteBuffer(capacity);
     }
 
     /**
@@ -76,7 +76,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @return the created byte buffer.
      */
     public static ByteBuffer wrap(byte[] array) {
-        return BufferFactory.newByteBuffer(array);
+        return new ReadWriteHeapByteBuffer(array);
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
             throw new IndexOutOfBoundsException();
         }
 
-        ByteBuffer buf = BufferFactory.newByteBuffer(array);
+        ByteBuffer buf = new ReadWriteHeapByteBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

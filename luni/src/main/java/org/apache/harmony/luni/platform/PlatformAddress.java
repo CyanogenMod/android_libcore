@@ -20,11 +20,8 @@ package org.apache.harmony.luni.platform;
 import java.nio.ByteOrder;
 
 public class PlatformAddress {
-    public static final RuntimeMemorySpy MEMORY_SPY = new RuntimeMemorySpy();
-
     // TODO: should be long on 64-bit devices; int for performance.
-    protected final int osaddr;
-
+    protected int osaddr;
     protected final long size;
 
     public PlatformAddress(int address, long size) {
@@ -32,31 +29,7 @@ public class PlatformAddress {
         this.size = size;
     }
 
-    /**
-     * Sending auto free to an address means that, when this subsystem has
-     * allocated the memory, it will automatically be freed when this object is
-     * collected by the garbage collector if the memory has not already been
-     * freed explicitly.
-     *
-     */
-    public final void autoFree() {
-        MEMORY_SPY.autoFree(this);
-    }
-
-    public final boolean equals(Object other) {
-        return (other instanceof PlatformAddress) && (((PlatformAddress) other).osaddr == osaddr);
-    }
-
-    public final int hashCode() {
-        return (int) osaddr;
-    }
-
     public void free() {
-        // Memory spys can veto the basic free if they determine the memory was
-        // not allocated.
-        if (MEMORY_SPY.free(this)) {
-            OSMemory.free(osaddr);
-        }
     }
 
     public final void pokeByte(int offset, byte value) {

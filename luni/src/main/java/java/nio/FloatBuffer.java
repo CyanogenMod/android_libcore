@@ -46,7 +46,7 @@ public abstract class FloatBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        return BufferFactory.newFloatBuffer(capacity);
+        return new ReadWriteFloatArrayBuffer(capacity);
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class FloatBuffer extends Buffer implements
             throw new IndexOutOfBoundsException();
         }
 
-        FloatBuffer buf = BufferFactory.newFloatBuffer(array);
+        FloatBuffer buf = new ReadWriteFloatArrayBuffer(array);
         buf.position = start;
         buf.limit = start + len;
 

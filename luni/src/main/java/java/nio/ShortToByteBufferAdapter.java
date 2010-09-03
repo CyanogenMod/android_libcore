@@ -67,20 +67,6 @@ final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer
         throw new AssertionError("not a direct buffer");
     }
 
-    public boolean isAddressValid() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).isAddressValid();
-        }
-        throw new AssertionError("not a direct buffer");
-    }
-
-    public void addressValidityCheck() {
-        if (byteBuffer instanceof DirectBuffer) {
-            ((DirectBuffer) byteBuffer).addressValidityCheck();
-        }
-        throw new AssertionError("not a direct buffer");
-    }
-
     public void free() {
         if (byteBuffer instanceof DirectBuffer) {
             ((DirectBuffer) byteBuffer).free();
