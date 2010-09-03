@@ -178,17 +178,6 @@ public abstract class SocketImpl implements SocketOptions {
     }
 
     /**
-     * Gets the value of the given socket option.
-     *
-     * @param optID
-     *            the socket option to retrieve.
-     * @return the option value.
-     * @throws SocketException
-     *             if an error occurs while accessing the option.
-     */
-    public abstract Object getOption(int optID) throws SocketException;
-
-    /**
      * Gets the output stream of this socket.
      *
      * @return the output stream of this socket.
@@ -219,19 +208,6 @@ public abstract class SocketImpl implements SocketOptions {
      *             if an error occurs while listening.
      */
     protected abstract void listen(int backlog) throws IOException;
-
-    /**
-     * Sets the value for the specified socket option.
-     *
-     * @param optID
-     *            the socket option to be set.
-     * @param val
-     *            the option value.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     */
-    public abstract void setOption(int optID, Object val)
-            throws SocketException;
 
     /**
      * Returns a string containing a concise, human-readable description of the
