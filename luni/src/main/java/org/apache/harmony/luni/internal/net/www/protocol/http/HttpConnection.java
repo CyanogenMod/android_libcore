@@ -148,6 +148,10 @@ public final class HttpConnection {
         return inputStream;
     }
 
+    private Socket getSocket() {
+        return sslSocket != null ? sslSocket : socket;
+    }
+
     public Address getAddress() {
         return address;
     }
@@ -198,17 +202,19 @@ public final class HttpConnection {
             return true;
         }
 
-        if (inputStream.available() > 0) {
+        InputStream in = getInputStream();
+        if (in.available() > 0) {
             return false;
         }
 
+        Socket socket = getSocket();
         int soTimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(1);
-            inputStream.mark(1);
-            int byteRead = inputStream.read();
+            in.mark(1);
+            int byteRead = in.read();
             if (byteRead != -1) {
-                inputStream.reset();
+                in.reset();
                 return false;
             }
             return true; // the socket is reporting all data read; it's stale

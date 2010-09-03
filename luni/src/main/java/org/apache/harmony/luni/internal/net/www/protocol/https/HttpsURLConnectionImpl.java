@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
+import org.apache.harmony.luni.internal.net.www.protocol.http.HttpConnection;
 import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
 
 /**
@@ -373,7 +374,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super.connect();
 
             // make SSL Tunnel
-            if (usingProxy()) {
+            if (requiresTunnel()) {
                 String originalMethod = method;
                 method = CONNECT;
                 intermediateResponse = true;
@@ -390,6 +391,13 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                                                    getHostnameVerifier(),
                                                    tlsTolerant);
             setUpTransportIO(connection);
+        }
+
+        @Override protected void setUpTransportIO(HttpConnection connection) throws IOException {
+            if (!requiresTunnel() && sslSocket == null) {
+                return; // don't initialize streams that won't be used
+            }
+            super.setUpTransportIO(connection);
         }
 
         @Override protected boolean requiresTunnel() {
