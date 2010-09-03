@@ -18,7 +18,6 @@
 package java.nio;
 
 import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.luni.platform.MallocedPlatformAddress;
 import org.apache.harmony.luni.platform.PlatformAddress;
 
 /**
@@ -44,12 +43,12 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     // Used by ByteBuffer.allocateDirect.
     ReadWriteDirectByteBuffer(int capacity) {
-        super(MallocedPlatformAddress.malloc(capacity), capacity, 0);
+        super(PlatformAddress.malloc(capacity), capacity, 0);
     }
 
     // Used by the JNI NewDirectByteBuffer function.
-    ReadWriteDirectByteBuffer(int addr, int capacity) {
-        super(new PlatformAddress(addr, capacity), capacity, 0);
+    ReadWriteDirectByteBuffer(int address, int capacity) {
+        super(PlatformAddress.wrapFromJni(address, capacity), capacity, 0);
     }
 
     ReadWriteDirectByteBuffer(PlatformAddress address, int capacity, int offset) {

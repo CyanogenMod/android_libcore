@@ -17,7 +17,7 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
-import org.apache.harmony.luni.platform.MappedPlatformAddress;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.PlatformAddress;
 import org.apache.harmony.nio.internal.DirectBuffer;
 
@@ -69,7 +69,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      *         otherwise.
      */
     public final boolean isLoaded() {
-        return ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapIsLoaded();
+        PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
+        return OSMemory.isLoaded(address.toInt(), address.getSize());
     }
 
     /**
@@ -79,7 +80,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapLoad();
+        PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
+        OSMemory.load(address.toInt(), address.getSize());
         return this;
     }
 
@@ -93,7 +95,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).msync();
+            PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
+            OSMemory.msync(address.toInt(), address.getSize());
         }
         return this;
     }

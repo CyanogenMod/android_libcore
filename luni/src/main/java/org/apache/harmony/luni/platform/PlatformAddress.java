@@ -17,14 +17,83 @@
 
 package org.apache.harmony.luni.platform;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel.MapMode;
 
 public class PlatformAddress {
+    /**
+     * Handles calling munmap(2) on a memory-mapped region.
+     */
+    private static class MemoryMappedBlock extends PlatformAddress {
+        private MemoryMappedBlock(int address, long byteCount) {
+            super(address, byteCount);
+        }
+
+        @Override public void free() {
+            if (osaddr != 0) {
+                OSMemory.munmap(osaddr, size);
+                osaddr = 0;
+            }
+        }
+
+        @Override protected void finalize() throws Throwable {
+            free();
+        }
+    }
+
+    /**
+     * Handles calling free(3) on a native heap block.
+     */
+    private static class NativeHeapBlock extends PlatformAddress {
+        private NativeHeapBlock(int address, long byteCount) {
+            super(address, byteCount);
+        }
+
+        @Override public void free() {
+            if (osaddr != 0) {
+                OSMemory.free(osaddr);
+                osaddr = 0;
+            }
+        }
+
+        @Override protected void finalize() throws Throwable {
+            free();
+        }
+    }
+
+    /**
+     * Represents a block of memory we don't own. (We don't take ownership of memory corresponding
+     * to direct buffers created by the JNI NewDirectByteBuffer function.)
+     */
+    private static class UnmanagedBlock extends PlatformAddress {
+        private UnmanagedBlock(int address, long byteCount) {
+            super(address, byteCount);
+        }
+    }
+
     // TODO: should be long on 64-bit devices; int for performance.
     protected int osaddr;
     protected final long size;
 
-    public PlatformAddress(int address, long size) {
+    public static PlatformAddress mmap(int fd, long start, long size, MapMode mode) throws IOException {
+        if (size == 0) {
+            // You can't mmap(2) a zero-length region.
+            return new PlatformAddress(0, 0);
+        }
+        int address = OSMemory.mmap(fd, start, size, mode);
+        return new MemoryMappedBlock(address, size);
+    }
+
+    public static PlatformAddress malloc(int byteCount) {
+        return new NativeHeapBlock(OSMemory.malloc(byteCount), byteCount);
+    }
+
+    public static PlatformAddress wrapFromJni(int address, long byteCount) {
+        return new UnmanagedBlock(address, byteCount);
+    }
+
+    private PlatformAddress(int address, long size) {
         this.osaddr = address;
         this.size = size;
     }

@@ -17,7 +17,6 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.PlatformAddress;
 import org.apache.harmony.nio.internal.DirectBuffer;
 
