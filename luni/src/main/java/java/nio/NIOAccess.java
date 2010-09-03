@@ -41,7 +41,7 @@ class NIOAccess {
             if (address == 0) {
                 return 0L;
             }
-            return address + (b.position() << b._elementSizeShift);
+            return address + (b.position << b._elementSizeShift);
         }
         return 0L;
     }
