@@ -492,7 +492,7 @@ public final class SocketPermission extends Permission implements Serializable {
         return false;
     }
 
-    public static boolean isValidIP6Address(String ipAddress) {
+    private static boolean isValidIP6Address(String ipAddress) {
         int length = ipAddress.length();
         boolean doubleColon = false;
         int numberOfColons = 0;
