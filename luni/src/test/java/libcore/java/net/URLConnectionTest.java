@@ -382,16 +382,36 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.enqueue(new MockResponse().setBody("another response via HTTPS"));
         server.play();
 
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertContent("this response comes via HTTPS", connection);
+
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertContent("another response via HTTPS", connection);
+
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testConnectViaHttpsReusingConnectionsDiffeerentFactories()
+            throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("this response comes via HTTPS"));
+        server.enqueue(new MockResponse().setBody("another response via HTTPS"));
+        server.play();
+
         // install a custom SSL socket factory so the server can be authorized
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertContent("this response comes via HTTPS", connection);
 
-        // without an SSL socket factory, the connection should fail
         connection = (HttpsURLConnection) server.getUrl("/").openConnection();
         try {
             readAscii(connection.getInputStream(), Integer.MAX_VALUE);
-            fail();
+            fail("without an SSL socket factory, the connection should fail");
         } catch (SSLException expected) {
         }
     }
