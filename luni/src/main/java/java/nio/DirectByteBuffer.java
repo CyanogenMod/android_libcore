@@ -17,8 +17,8 @@
 
 package java.nio;
 
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.luni.platform.PlatformAddressFactory;
 import org.apache.harmony.nio.internal.DirectBuffer;
 
 /**
@@ -62,8 +62,15 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      * free the memory where possible.
      */
     DirectByteBuffer(int capacity) {
-        this(new SafeAddress(PlatformAddressFactory.alloc(capacity, (byte) 0)), capacity, 0);
+        this(new SafeAddress(malloc(capacity)), capacity, 0);
         safeAddress.address.autoFree();
+    }
+
+    private static PlatformAddress malloc(int byteCount) {
+        int addr = OSMemory.malloc(byteCount);
+        PlatformAddress newMemory = new PlatformAddress(addr, byteCount);
+        PlatformAddress.MEMORY_SPY.alloc(newMemory);
+        return newMemory;
     }
 
     DirectByteBuffer(SafeAddress address, int capacity, int offset) {

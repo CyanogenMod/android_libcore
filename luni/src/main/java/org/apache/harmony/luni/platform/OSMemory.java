@@ -30,18 +30,10 @@ public final class OSMemory {
     private OSMemory() { }
 
     /**
-     * Allocates and returns a pointer to space for a memory block of
-     * <code>length</code> bytes. The space is uninitialized and may be larger
-     * than the number of bytes requested; however, the guaranteed usable memory
-     * block is exactly <code>length</code> bytes int.
-     *
-     * @param length
-     *            number of bytes requested.
-     * @return the address of the start of the memory block.
-     * @throws OutOfMemoryError
-     *             if the request cannot be satisfied.
+     * Returns the address of byteCount bytes of memory. Unlike the corresponding C library
+     * function, the memory returned has been zero-initialized.
      */
-    public static native int malloc(int length) throws OutOfMemoryError;
+    public static native int malloc(int byteCount) throws OutOfMemoryError;
 
     /**
      * Deallocates space for a memory block that was previously allocated by a
@@ -57,24 +49,6 @@ public final class OSMemory {
      *            the address of the memory block to deallocate.
      */
     public static native void free(int address);
-
-    /**
-     * Places <code>value</code> into first <code>length</code> bytes of the
-     * memory block starting at <code>address</code>.
-     * <p>
-     * The behavior is unspecified if
-     * <code>(address ... address + length)</code> is not wholly within the
-     * range that was previously allocated using <code>malloc()</code>.
-     * </p>
-     *
-     * @param address
-     *            the address of the first memory location.
-     * @param value
-     *            the byte value to set at each location.
-     * @param length
-     *            the number of byte-length locations to set.
-     */
-    public static native void memset(int address, byte value, long length);
 
     /**
      * Copies <code>length</code> bytes from <code>srcAddress</code> to

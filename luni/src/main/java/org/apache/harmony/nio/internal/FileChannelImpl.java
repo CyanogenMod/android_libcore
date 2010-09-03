@@ -38,9 +38,9 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import org.apache.harmony.luni.platform.IFileSystem;
+import org.apache.harmony.luni.platform.MappedPlatformAddress;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.luni.platform.PlatformAddressFactory;
 
 /*
  * The file channel impl class is the bridge between the logical channels
@@ -166,15 +166,13 @@ public abstract class FileChannelImpl extends FileChannel {
 
     public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;
 
-    protected final MappedByteBuffer mapImpl(MapMode mapMode, long position, long size)
-            throws IOException {
+    protected final MappedByteBuffer mapImpl(MapMode mapMode, long position, long size) throws IOException {
         if (position + size > size()) {
             Platform.FILE_SYSTEM.truncate(handle, position + size);
         }
         long alignment = position - position % ALLOC_GRANULARITY;
         int offset = (int) (position - alignment);
-        PlatformAddress address = PlatformAddressFactory.allocMap(handle,
-                alignment, size + offset, mapMode);
+        PlatformAddress address = MappedPlatformAddress.mmap(handle, alignment, size + offset, mapMode);
         return new MappedByteBufferAdapter(address, (int) size, offset, mapMode);
     }
 

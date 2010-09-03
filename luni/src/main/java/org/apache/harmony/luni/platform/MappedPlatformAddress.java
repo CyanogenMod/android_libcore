@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-// BEGIN android-note
-// address length was changed from long to int for performance reasons.
-// END android-note
-
 package org.apache.harmony.luni.platform;
 
+import java.io.IOException;
+import java.nio.channels.FileChannel.MapMode;
+
 public class MappedPlatformAddress extends PlatformAddress {
-    MappedPlatformAddress(int address, long size) {
+    public static PlatformAddress mmap(int fd, long start, long size, MapMode mode) throws IOException {
+        if (size == 0) {
+            // You can't mmap(2) a zero-length region.
+            return new MappedPlatformAddress(0, 0);
+        }
+        int addr = OSMemory.mmap(fd, start, size, mode);
+        PlatformAddress newMemory = new MappedPlatformAddress(addr, size);
+        PlatformAddress.MEMORY_SPY.alloc(newMemory);
+        return newMemory;
+    }
+
+    private MappedPlatformAddress(int address, long size) {
         super(address, size);
     }
 
@@ -38,16 +48,8 @@ public class MappedPlatformAddress extends PlatformAddress {
     }
 
     public final void free() {
-        if (memorySpy.free(this)){
+        if (PlatformAddress.MEMORY_SPY.free(this)){
             OSMemory.munmap(osaddr, size);
         }
-    }
-
-    public PlatformAddress duplicate() {
-        return PlatformAddressFactory.mapOn(osaddr, size);
-    }
-
-    public final PlatformAddress offsetBytes(int offset) {
-        return PlatformAddressFactory.mapOn(osaddr + offset, size - offset);
     }
 }

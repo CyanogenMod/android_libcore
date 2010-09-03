@@ -22,17 +22,16 @@ import java.lang.ref.ReferenceQueue;
 import java.util.HashMap;
 import java.util.Map;
 
-final class RuntimeMemorySpy {
+public final class RuntimeMemorySpy {
 
     final class AddressWrapper {
         final PlatformAddress shadow;
-
         final PhantomReference<PlatformAddress> wrAddress;
 
         volatile boolean autoFree = false;
 
         AddressWrapper(PlatformAddress address) {
-            this.shadow = address.duplicate();
+            this.shadow = address;
             this.wrAddress = new PhantomReference<PlatformAddress>(address, notifyQueue);
         }
     }
