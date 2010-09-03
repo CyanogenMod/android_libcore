@@ -65,8 +65,9 @@ static jint OSMemory_malloc(JNIEnv* env, jclass, jint size) {
         return 0;
     }
 
-    LOGV("OSMemory alloc %d\n", size);
-    void* block = malloc(size + sizeof(jlong));
+    // Our only caller wants zero-initialized memory.
+    // calloc(3) may be faster than malloc(3) followed by memset(3).
+    void* block = calloc(size + sizeof(jlong), 1);
     if (block == NULL) {
         jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
         return 0;
@@ -84,13 +85,8 @@ static jint OSMemory_malloc(JNIEnv* env, jclass, jint size) {
 static void OSMemory_free(JNIEnv* env, jclass, jint address) {
     jlong* p = reinterpret_cast<jlong*>(static_cast<uintptr_t>(address));
     jlong size = *--p;
-    LOGV("OSMemory free %ld\n", size);
     env->CallVoidMethod(gIDCache.runtimeInstance, gIDCache.method_trackExternalFree, size);
     free(reinterpret_cast<void*>(p));
-}
-
-static void OSMemory_memset(JNIEnv*, jclass, jint dstAddress, jbyte value, jlong length) {
-    memset(cast<void*>(dstAddress), value, length);
 }
 
 static void OSMemory_memmove(JNIEnv*, jclass, jint dstAddress, jint srcAddress, jlong length) {
@@ -354,7 +350,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, load, "(IJ)V"),
     NATIVE_METHOD(OSMemory, malloc, "(I)I"),
     NATIVE_METHOD(OSMemory, memmove, "(IIJ)V"),
-    NATIVE_METHOD(OSMemory, memset, "(IBJ)V"),
     NATIVE_METHOD(OSMemory, mmapImpl, "(IJJI)I"),
     NATIVE_METHOD(OSMemory, msync, "(IJ)V"),
     NATIVE_METHOD(OSMemory, munmap, "(IJ)V"),

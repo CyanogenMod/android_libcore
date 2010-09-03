@@ -15,37 +15,20 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// address length was changed from long to int for performance reasons.
-// END android-note
-
 package org.apache.harmony.luni.platform;
 
 import java.nio.ByteOrder;
 
-/**
- * The platform address class is an unsafe virtualization of an OS memory block.
- */
-public class PlatformAddress implements Comparable {
-    /**
-     * This final field defines the sentinel for an unknown address value.
-     */
-    static final int UNKNOWN = -1;
+public class PlatformAddress {
+    public static final RuntimeMemorySpy MEMORY_SPY = new RuntimeMemorySpy();
 
-    /**
-     * NULL is the canonical address with address value zero.
-     */
-    public static final PlatformAddress NULL = new PlatformAddress(0, 0);
+    // TODO: should be long on 64-bit devices; int for performance.
+    protected final int osaddr;
 
-    public static final RuntimeMemorySpy memorySpy = new RuntimeMemorySpy();
+    protected final long size;
 
-    final int osaddr;
-
-    final long size;
-
-    PlatformAddress(int address, long size) {
-        super();
-        osaddr = address;
+    public PlatformAddress(int address, long size) {
+        this.osaddr = address;
         this.size = size;
     }
 
@@ -57,15 +40,7 @@ public class PlatformAddress implements Comparable {
      *
      */
     public final void autoFree() {
-        memorySpy.autoFree(this);
-    }
-
-    public PlatformAddress duplicate() {
-        return PlatformAddressFactory.on(osaddr, size);
-    }
-
-    public PlatformAddress offsetBytes(int offset) {
-        return PlatformAddressFactory.on(osaddr + offset, size - offset);
+        MEMORY_SPY.autoFree(this);
     }
 
     public final boolean equals(Object other) {
@@ -79,7 +54,7 @@ public class PlatformAddress implements Comparable {
     public void free() {
         // Memory spys can veto the basic free if they determine the memory was
         // not allocated.
-        if (memorySpy.free(this)) {
+        if (MEMORY_SPY.free(this)) {
             OSMemory.free(osaddr);
         }
     }
@@ -165,20 +140,5 @@ public class PlatformAddress implements Comparable {
 
     public final long getSize() {
         return size;
-    }
-
-    public final int compareTo(Object other) {
-        if (other == null) {
-            throw new NullPointerException(); // per spec.
-        }
-        if (other instanceof PlatformAddress) {
-            int otherPA = ((PlatformAddress) other).osaddr;
-            if (osaddr == otherPA) {
-                return 0;
-            }
-            return osaddr < otherPA ? -1 : 1;
-        }
-
-        throw new ClassCastException(); // per spec.
     }
 }

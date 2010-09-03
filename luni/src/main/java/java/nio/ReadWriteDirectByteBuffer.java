@@ -19,7 +19,6 @@ package java.nio;
 
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.luni.platform.PlatformAddressFactory;
 
 /**
  * DirectByteBuffer, ReadWriteDirectByteBuffer and ReadOnlyDirectByteBuffer
@@ -48,11 +47,10 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         super(capacity);
     }
 
-    // BEGIN android-added
-    ReadWriteDirectByteBuffer(int pointer, int capacity) {
-        this(PlatformAddressFactory.on(pointer, capacity),capacity,0);
+    // Used by the JNI NewDirectByteBuffer function.
+    ReadWriteDirectByteBuffer(int addr, int capacity) {
+        this(new PlatformAddress(addr, capacity), capacity, 0);
     }
-    // END android-added
 
     ReadWriteDirectByteBuffer(SafeAddress address, int capacity, int offset) {
         super(address, capacity, offset);
@@ -61,12 +59,6 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     ReadWriteDirectByteBuffer(PlatformAddress address, int aCapacity, int anOffset) {
         super(new SafeAddress(address), aCapacity, anOffset);
     }
-
-    // BEGIN android-added
-    int getAddress() {
-        return this.safeAddress.address.toInt();
-    }
-    // END android-added
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
