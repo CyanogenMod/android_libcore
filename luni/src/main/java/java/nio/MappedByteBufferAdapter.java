@@ -361,8 +361,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
     public ByteBuffer slice() {
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
-        MappedByteBufferAdapter result = new MappedByteBufferAdapter(
-                this.wrapped.slice());
+        MappedByteBufferAdapter result = new MappedByteBufferAdapter(this.wrapped.slice());
         this.wrapped.clear();
         return result;
     }
@@ -386,11 +385,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         return this.wrapped.getBaseAddress();
     }
 
-    public void free() {
+    public final void free() {
         this.wrapped.free();
-    }
-
-    public int getByteCapacity() {
-        return wrapped.getByteCapacity();
     }
 }

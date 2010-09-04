@@ -45,13 +45,6 @@ final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer
         this.byteBuffer.clear();
     }
 
-    public int getByteCapacity() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).getByteCapacity();
-        }
-        throw new AssertionError("not a direct buffer");
-    }
-
     public int getEffectiveAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             effectiveDirectAddress = ((DirectBuffer) byteBuffer).getEffectiveAddress();
@@ -63,13 +56,6 @@ final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer
     public PlatformAddress getBaseAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getBaseAddress();
-        }
-        throw new AssertionError("not a direct buffer");
-    }
-
-    public void free() {
-        if (byteBuffer instanceof DirectBuffer) {
-            ((DirectBuffer) byteBuffer).free();
         }
         throw new AssertionError("not a direct buffer");
     }
