@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.NioUtils;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -43,7 +44,6 @@ import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.nio.AddressUtil;
 
 /*
  * The default implementation class of java.nio.channels.DatagramChannel.
@@ -268,7 +268,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         int oldposition = target.position();
         int received = 0;
         do {
-            int address = AddressUtil.getDirectBufferAddress(target);
+            int address = NioUtils.getDirectBufferAddress(target);
             received = Platform.NETWORK.recvDirect(fd, receivePacket, address,
                     target.position(), target.remaining(), false, isConnected());
 
@@ -338,7 +338,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             int start = oldposition;
             if (source.isDirect()) {
                 synchronized (writeLock) {
-                    int data_address = AddressUtil.getDirectBufferAddress(source);
+                    int data_address = NioUtils.getDirectBufferAddress(source);
                     sendCount = Platform.NETWORK.sendDirect(fd, data_address, start, length,
                             isa.getPort(), isa.getAddress());
                 }
@@ -432,7 +432,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                 int start = readBuffer.position();
                 int length = readBuffer.remaining();
                 if (readBuffer.isDirect()) {
-                    int address = AddressUtil.getDirectBufferAddress(readBuffer);
+                    int address = NioUtils.getDirectBufferAddress(readBuffer);
                     readCount = Platform.NETWORK.recvDirect(fd, null, address, start, length,
                             false, isConnected());
                 } else {
@@ -534,7 +534,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                 int start = buf.position();
 
                 if (buf.isDirect()) {
-                    int address = AddressUtil.getDirectBufferAddress(buf);
+                    int address = NioUtils.getDirectBufferAddress(buf);
                     result = Platform.NETWORK.sendDirect(fd, address, start, length, 0, null);
                 } else {
                     // buf is assured to have array.

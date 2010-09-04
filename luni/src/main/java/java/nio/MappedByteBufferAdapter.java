@@ -18,14 +18,12 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.nio.internal.DirectBuffer;
 
 /**
- * @hide
+ * @hide - only used by FileChannelImpl; add API to NioUtils?
  */
 public final class MappedByteBufferAdapter extends MappedByteBuffer implements DirectBuffer {
-    public MappedByteBufferAdapter(ByteBuffer buffer) {
+    private MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
     }
 

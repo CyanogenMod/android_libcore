@@ -16,8 +16,6 @@
 
 package java.nio;
 
-import org.apache.harmony.nio.internal.DirectBuffer;
-
 /**
  * This class is used via JNI by code in frameworks/base/.
  */

@@ -18,7 +18,6 @@
 package java.nio;
 
 import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.luni.platform.PlatformAddress;
 
 /**
  * DirectByteBuffer, ReadWriteDirectByteBuffer and ReadOnlyDirectByteBuffer

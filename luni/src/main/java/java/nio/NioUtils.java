@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.nio;
+package java.nio;
 
-import java.nio.Buffer;
-import org.apache.harmony.nio.internal.DirectBuffer;
-
-public class AddressUtil {
+/**
+ * @hide internal use only
+ */
+public final class NioUtils {
     /**
      * Gets the start address of a direct buffer.
      * <p>
@@ -41,5 +41,18 @@ public class AddressUtil {
         }
         DirectBuffer directBuffer = (DirectBuffer) buffer;
         return directBuffer.getEffectiveAddress();
+    }
+
+    public static void freeDirectBuffer(ByteBuffer buffer) {
+        if (buffer == null) {
+            return;
+        }
+        if (buffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) buffer).free();
+        } else if (buffer instanceof MappedByteBuffer) {
+            ((MappedByteBufferAdapter) buffer).free();
+        } else {
+            throw new AssertionError();
+        }
     }
 }

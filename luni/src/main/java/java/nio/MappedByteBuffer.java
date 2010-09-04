@@ -18,8 +18,6 @@ package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
 import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.nio.internal.DirectBuffer;
 
 /**
  * {@code MappedByteBuffer} is a special kind of direct byte buffer which maps a

@@ -17,13 +17,7 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.nio.internal.DirectBuffer;
-
-/**
- * @hide - only because half our nio implementation is in the wrong package
- */
-public abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
+abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     // This is a reference to the base address of the buffer memory.
     protected final PlatformAddress address;

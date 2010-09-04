@@ -34,6 +34,7 @@ import java.net.SocketException;
 import java.net.SocketUtils;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.NioUtils;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -48,7 +49,6 @@ import libcore.io.IoUtils;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.nio.AddressUtil;
 
 /*
  * The default implementation class of java.nio.channels.SocketChannel.
@@ -368,7 +368,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                 if (target.isDirect()) {
                     // BEGIN android-changed
                     // changed address from long to int
-                    int address = AddressUtil.getDirectBufferAddress(target);
+                    int address = NioUtils.getDirectBufferAddress(target);
                     readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
                     // END android-changed
                 } else {
@@ -446,7 +446,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                     begin();
                 }
                 if (source.isDirect()) {
-                    int address = AddressUtil.getDirectBufferAddress(source);
+                    int address = NioUtils.getDirectBufferAddress(source);
                     writeCount = Platform.NETWORK.writeDirect(fd, address, pos, length);
                 } else if (source.hasArray()) {
                     pos += source.arrayOffset();

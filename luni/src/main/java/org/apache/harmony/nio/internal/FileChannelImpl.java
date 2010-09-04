@@ -29,9 +29,11 @@ import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.DirectByteBuffer;
+import java.nio.NioUtils;
 import java.nio.MappedByteBuffer;
 import java.nio.MappedByteBufferAdapter;
+import java.nio.NioUtils;
+import java.nio.PlatformAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -40,7 +42,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.platform.PlatformAddress;
 
 /*
  * The file channel impl class is the bridge between the logical channels
@@ -231,13 +232,12 @@ public abstract class FileChannelImpl extends FileChannel {
         int bytesRead = 0;
         synchronized (repositioningLock) {
             if (buffer.isDirect()) {
-                DirectBuffer directBuffer = (DirectBuffer) buffer;
-                int address = directBuffer.getEffectiveAddress();
                 try {
                     begin();
                     /*
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
+                    int address = NioUtils.getDirectBufferAddress(buffer);
                     bytesRead = (int) Platform.FILE_SYSTEM.readDirect(handle, address,
                             buffer.position(), buffer.remaining());
                     completed = true;
@@ -287,7 +287,7 @@ public abstract class FileChannelImpl extends FileChannel {
             } else {
                 offsets[i] = buffer.position();
             }
-            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress();
+            handles[i] = NioUtils.getDirectBufferAddress(buffer);
             lengths[i] = buffer.remaining();
         }
         long bytesRead = 0;
@@ -376,20 +376,7 @@ public abstract class FileChannelImpl extends FileChannel {
             }
             return write(buffer, position);
         } finally {
-            freeDirectBuffer(buffer);
-        }
-    }
-
-    private void freeDirectBuffer(ByteBuffer buffer) {
-        if (buffer == null) {
-            return;
-        }
-        if (buffer instanceof DirectByteBuffer) {
-            ((DirectByteBuffer) buffer).free();
-        } else if (buffer instanceof MappedByteBuffer) {
-            ((MappedByteBufferAdapter) buffer).free();
-        } else {
-            throw new AssertionError();
+            NioUtils.freeDirectBuffer(buffer);
         }
     }
 
@@ -421,7 +408,7 @@ public abstract class FileChannelImpl extends FileChannel {
             buffer = map(MapMode.READ_ONLY, position, count);
             return target.write(buffer);
         } finally {
-            freeDirectBuffer(buffer);
+            NioUtils.freeDirectBuffer(buffer);
         }
     }
 
@@ -499,10 +486,9 @@ public abstract class FileChannelImpl extends FileChannel {
         boolean completed = false;
         synchronized (repositioningLock) {
             if (buffer.isDirect()) {
-                DirectBuffer directBuffer = (DirectBuffer) buffer;
-                int address = directBuffer.getEffectiveAddress();
                 try {
                     begin();
+                    int address = NioUtils.getDirectBufferAddress(buffer);
                     bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(handle,
                             address, buffer.position(), buffer.remaining());
                     completed = true;
@@ -556,7 +542,7 @@ public abstract class FileChannelImpl extends FileChannel {
                 offsets[i] = buffer.position();
                 allocatedBufs[i] = null;
             }
-            handles[i] = ((DirectBuffer) buffer).getEffectiveAddress();
+            handles[i] = NioUtils.getDirectBufferAddress(buffer);
             lengths[i] = buffer.remaining();
         }
         // END android-changed
@@ -572,7 +558,7 @@ public abstract class FileChannelImpl extends FileChannel {
             } finally {
                 end(completed);
                 for (ByteBuffer buffer : allocatedBufs) {
-                    freeDirectBuffer(buffer);
+                    NioUtils.freeDirectBuffer(buffer);
                 }
             }
         }
