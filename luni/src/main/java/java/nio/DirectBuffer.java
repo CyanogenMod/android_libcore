@@ -15,6 +15,9 @@
  */
 package java.nio;
 
+/**
+ * @hide
+ */
 public interface DirectBuffer {
     /**
      * TODO: this is bogus. we should just set the effectiveAddress field in constructors, and
