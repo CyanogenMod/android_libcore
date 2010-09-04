@@ -80,7 +80,8 @@ public class FileURLConnection extends URLConnection {
             // use -1 for the contentLength
         } else {
             is = new BufferedInputStream(new FileInputStream(f));
-            length = is.available();
+            long lengthAsLong = f.length();
+            length = lengthAsLong <= Integer.MAX_VALUE ? (int) lengthAsLong : Integer.MAX_VALUE;
         }
         connected = true;
     }
