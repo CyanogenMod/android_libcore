@@ -867,30 +867,20 @@ public class RuntimeTest extends junit.framework.TestCase {
         method = "getLocalizedInputStream",
         args = {java.io.InputStream.class}
     )
-    public void test_getLocalizedInputStream() {
+    public void test_getLocalizedInputStream() throws Exception {
         String simpleString = "Heart \u2f3c";
-        byte[] expected = {72, 0, 101, 0, 97, 0, 114, 0, 116, 0, 32, 0, 60, 47};
+        byte[] expected = simpleString.getBytes("UTF-8");
         byte[] returned = new byte[expected.length];
 
-        System.setProperty("file.encoding", "UTF-16LE");
+        ByteArrayInputStream bais = new ByteArrayInputStream(
+                simpleString.getBytes("UTF-8"));
 
-        try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    simpleString.getBytes("UTF-8"));
+        InputStream lcIn =
+                Runtime.getRuntime().getLocalizedInputStream(bais);
+        lcIn.read(returned);
 
-            InputStream lcIn =
-                    Runtime.getRuntime().getLocalizedInputStream(bais);
-            try {
-                lcIn.read(returned);
-            } catch(IOException ioe) {
-                fail("IOException was thrown.");
-            }
-
-            assertTrue("wrong result for String: " + simpleString,
-                    Arrays.equals(expected, returned));
-        } catch (UnsupportedEncodingException e) {
-            fail("UnsupportedEncodingException was thrown.");
-        }
+        assertTrue("wrong result for String: " + simpleString,
+                Arrays.equals(expected, returned));
     }
 
     @SuppressWarnings("deprecation")
@@ -900,35 +890,23 @@ public class RuntimeTest extends junit.framework.TestCase {
         method = "getLocalizedOutputStream",
         args = {java.io.OutputStream.class}
     )
-    public void test_getLocalizedOutputStream() {
+    public void test_getLocalizedOutputStream() throws IOException {
         String simpleString = "Heart \u2f3c";
-        byte[] expected = {72, 0, 101, 0, 97, 0, 114, 0, 116, 0, 32, 0, 60, 47};
-        byte[] returned;
+        byte[] expected = simpleString.getBytes("UTF-8");
 
-        String oldEncoding = System.getProperty("file.encoding");
-        System.setProperty("file.encoding", "UTF-16LE");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStream lcOut =
+                Runtime.getRuntime().getLocalizedOutputStream(out);
+        lcOut.write(simpleString.getBytes("UTF-8"));
+        lcOut.flush();
+        lcOut.close();
 
-            OutputStream lcOut =
-                    Runtime.getRuntime().getLocalizedOutputStream(out);
-            try {
-                lcOut.write(simpleString.getBytes("UTF-8"));
-                lcOut.flush();
-                lcOut.close();
-            } catch(IOException ioe) {
-                fail("IOException was thrown.");
-            }
+        byte[] returned = out.toByteArray();
 
-            returned = out.toByteArray();
-
-            assertTrue("wrong result for String: " + returned.toString() +
-                    " expected string: " + expected.toString(),
-                    Arrays.equals(expected, returned));
-        } finally {
-            System.setProperty("file.encoding", oldEncoding);
-        }
+        assertTrue("wrong result for String: " + returned.toString() +
+                " expected string: " + expected.toString(),
+                Arrays.equals(expected, returned));
     }
 
 
