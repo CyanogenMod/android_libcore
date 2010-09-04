@@ -45,13 +45,6 @@ final class FloatToByteBufferAdapter extends FloatBuffer implements DirectBuffer
         this.byteBuffer.clear();
     }
 
-    public int getByteCapacity() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).getByteCapacity();
-        }
-        throw new AssertionError("not a direct buffer");
-    }
-
     public int getEffectiveAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             effectiveDirectAddress = ((DirectBuffer) byteBuffer).getEffectiveAddress();
@@ -65,14 +58,6 @@ final class FloatToByteBufferAdapter extends FloatBuffer implements DirectBuffer
             return ((DirectBuffer) byteBuffer).getBaseAddress();
         }
         throw new AssertionError("not a direct buffer");
-    }
-
-    public void free() {
-        if (byteBuffer instanceof DirectBuffer) {
-            ((DirectBuffer) byteBuffer).free();
-        } else {
-            throw new AssertionError("not a direct buffer");
-        }
     }
 
     @Override

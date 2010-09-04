@@ -18,12 +18,11 @@ package org.apache.harmony.nio.internal;
 import org.apache.harmony.luni.platform.PlatformAddress;
 
 public interface DirectBuffer {
-
+    /**
+     * TODO: this is bogus. we should just set the effectiveAddress field in constructors, and
+     * have all callers just use the field (which they're checking first already, for efficiency).
+     */
     public int getEffectiveAddress();
 
     public PlatformAddress getBaseAddress();
-
-    public void free();
-
-    public int getByteCapacity();
 }

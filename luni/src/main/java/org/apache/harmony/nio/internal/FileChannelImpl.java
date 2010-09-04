@@ -29,6 +29,7 @@ import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.DirectByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.MappedByteBufferAdapter;
 import java.nio.channels.ClosedChannelException;
@@ -375,12 +376,20 @@ public abstract class FileChannelImpl extends FileChannel {
             }
             return write(buffer, position);
         } finally {
-            // unmap the buffer
-            if (buffer != null) {
-                // all children of FileChannelImpl currently returns
-                // an instance of DirectBuffer from map() method
-                ((DirectBuffer) buffer).free();
-            }
+            freeDirectBuffer(buffer);
+        }
+    }
+
+    private void freeDirectBuffer(ByteBuffer buffer) {
+        if (buffer == null) {
+            return;
+        }
+        if (buffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) buffer).free();
+        } else if (buffer instanceof MappedByteBuffer) {
+            ((MappedByteBufferAdapter) buffer).free();
+        } else {
+            throw new AssertionError();
         }
     }
 
@@ -412,12 +421,7 @@ public abstract class FileChannelImpl extends FileChannel {
             buffer = map(MapMode.READ_ONLY, position, count);
             return target.write(buffer);
         } finally {
-            // unmap the buffer
-            if (buffer != null) {
-                // all children of FileChannelImpl currently returns
-                // an instance of DirectBuffer from map() method
-                ((DirectBuffer) buffer).free();
-            }
+            freeDirectBuffer(buffer);
         }
     }
 
@@ -537,7 +541,7 @@ public abstract class FileChannelImpl extends FileChannel {
         int[] lengths = new int[length];
         // BEGIN android-changed
         // list of allocated direct ByteBuffers to prevent them from being GC-ed
-        DirectBuffer[] allocatedBufs = new DirectBuffer[length];
+        ByteBuffer[] allocatedBufs = new ByteBuffer[length];
 
         for (int i = 0; i < length; i++) {
             ByteBuffer buffer = buffers[i + offset];
@@ -546,7 +550,7 @@ public abstract class FileChannelImpl extends FileChannel {
                 directBuffer.put(buffer);
                 directBuffer.flip();
                 buffer = directBuffer;
-                allocatedBufs[i] = (DirectBuffer) directBuffer;
+                allocatedBufs[i] = directBuffer;
                 offsets[i] = 0;
             } else {
                 offsets[i] = buffer.position();
@@ -567,14 +571,9 @@ public abstract class FileChannelImpl extends FileChannel {
                 completed = true;
             } finally {
                 end(completed);
-                // BEGIN android-added
-                // free temporary direct buffers
-                for (int i = 0; i < length; ++i) {
-                    if (allocatedBufs[i] != null) {
-                        allocatedBufs[i].free();
-                    }
+                for (ByteBuffer buffer : allocatedBufs) {
+                    freeDirectBuffer(buffer);
                 }
-                // END android-added
             }
         }
 
