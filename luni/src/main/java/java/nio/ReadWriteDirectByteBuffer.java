@@ -61,7 +61,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer compact() {
-        int addr = getEffectiveAddress();
+        int addr = effectiveDirectAddress;
         OSMemory.memmove(addr, addr + position, remaining());
         position = limit - position;
         limit = capacity;

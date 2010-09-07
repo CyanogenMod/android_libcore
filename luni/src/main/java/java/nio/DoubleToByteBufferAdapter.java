@@ -41,14 +41,9 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer implements DirectBuff
         super((byteBuffer.capacity() >> 3));
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-    }
-
-    public int getEffectiveAddress() {
         if (byteBuffer instanceof DirectBuffer) {
-            effectiveDirectAddress = ((DirectBuffer) byteBuffer).getEffectiveAddress();
-            return effectiveDirectAddress;
+            effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
         }
-        throw new AssertionError("not a direct buffer");
     }
 
     public PlatformAddress getBaseAddress() {

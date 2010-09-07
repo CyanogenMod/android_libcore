@@ -19,7 +19,7 @@ package java.nio;
 /**
  * This class is used via JNI by code in frameworks/base/.
  */
-class NIOAccess {
+final class NIOAccess {
 
     /**
      * Returns the underlying native pointer to the data of the given
@@ -33,14 +33,11 @@ class NIOAccess {
      * position, or 0 if there is none
      */
     static long getBasePointer(Buffer b) {
-        if (b instanceof DirectBuffer) {
-            int address = ((DirectBuffer) b).getEffectiveAddress();
-            if (address == 0) {
-                return 0L;
-            }
-            return address + (b.position << b._elementSizeShift);
+        int address = b.effectiveDirectAddress;
+        if (address == 0) {
+            return 0L;
         }
-        return 0L;
+        return address + (b.position << b._elementSizeShift);
     }
 
     /**

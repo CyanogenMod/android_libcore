@@ -36,11 +36,7 @@ public final class NioUtils {
      *         direct Buffer.
      */
     public static int getDirectBufferAddress(Buffer buffer) {
-        if (!(buffer instanceof DirectBuffer)) {
-            return 0;
-        }
-        DirectBuffer directBuffer = (DirectBuffer) buffer;
-        return directBuffer.getEffectiveAddress();
+        return buffer.effectiveDirectAddress;
     }
 
     public static void freeDirectBuffer(ByteBuffer buffer) {

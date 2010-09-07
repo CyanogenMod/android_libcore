@@ -82,7 +82,6 @@ public abstract class Buffer {
      */
     int position = 0;
 
-    // BEGIN android-added
     /**
      * The log base 2 of the element size of this buffer.  Each typed subclass
      * (ByteBuffer, CharBuffer, etc.) is responsible for initializing this
@@ -92,15 +91,10 @@ public abstract class Buffer {
     int _elementSizeShift;
 
     /**
-     * For direct buffers, the effective address of the data.  This is set
-     * on first use.  If the field is zero, this is either not a direct
-     * buffer or the field has not been initialized, and you need to issue
-     * the getEffectiveAddress() call and use the result of that.
-     *
-     * This is an optimization used by the GetDirectBufferAddress JNI call.
+     * For direct buffers, the effective address of the data; zero otherwise.
+     * This is set in the constructor.
      */
     int effectiveDirectAddress = 0;
-    // END android-added
 
     /**
      * Construct a buffer with the specified capacity.
