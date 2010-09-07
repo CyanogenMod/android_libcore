@@ -25,10 +25,12 @@ import java.nio.channels.FileChannel.MapMode;
 public final class MappedByteBufferAdapter extends MappedByteBuffer implements DirectBuffer {
     private MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
+        effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
     }
 
     public MappedByteBufferAdapter(PlatformAddress addr, int capacity, int offset, MapMode mode) {
         super(addr, capacity, offset, mode);
+        effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
     }
 
     @Override
@@ -140,11 +142,6 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         this.wrapped.limit(this.limit);
         this.wrapped.position(this.position);
         return this.wrapped.getDouble(index);
-    }
-
-    public int getEffectiveAddress() {
-        effectiveDirectAddress = ((DirectBuffer) this.wrapped).getEffectiveAddress();
-        return effectiveDirectAddress;
     }
 
     @Override

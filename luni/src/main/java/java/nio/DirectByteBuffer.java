@@ -36,6 +36,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
         this.address = address;
         this.offset = offset;
+        this.effectiveDirectAddress =  this.address.toInt() + offset;
     }
 
     /*
@@ -180,11 +181,6 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      */
     public final PlatformAddress getBaseAddress() {
         return address;
-    }
-
-    public final int getEffectiveAddress() {
-        effectiveDirectAddress =  this.address.toInt() + offset;
-        return effectiveDirectAddress;
     }
 
     public final void free() {
