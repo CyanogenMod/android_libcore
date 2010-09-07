@@ -16,6 +16,7 @@
 
 package libcore.java.text;
 
+import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -71,7 +72,9 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     private String formatDate(Locale l, String fmt) {
-        return new SimpleDateFormat(fmt, l).format(new Date(0));
+        DateFormat dateFormat = new SimpleDateFormat(fmt, l);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(new Date(0));
     }
 
     private Calendar parseDate(Locale l, String fmt, String value) {
