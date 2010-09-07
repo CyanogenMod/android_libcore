@@ -1370,6 +1370,8 @@ static void OSNetworkSystem_shutdownOutput(JNIEnv* env, jobject, jobject fd) {
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
+        // Socket.close doesn't throw if you try to close an already-closed socket.
+        env->ExceptionClear();
         return;
     }
 
