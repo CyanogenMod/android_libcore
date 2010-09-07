@@ -15,10 +15,7 @@
  */
 package java.nio;
 
-/**
- * @hide
- */
-public interface DirectBuffer {
+interface DirectBuffer {
     /**
      * TODO: this is bogus. we should just set the effectiveAddress field in constructors, and
      * have all callers just use the field (which they're checking first already, for efficiency).
