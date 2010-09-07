@@ -31,6 +31,14 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public class SocketTest extends junit.framework.TestCase {
+    // See http://b/2980559.
+    public void test_close() throws Exception {
+        Socket s = new Socket();
+        s.close();
+        // Closing a closed socket does nothing.
+        s.close();
+    }
+
     /**
      * Our getLocalAddress and getLocalPort currently use getsockname(3).
      * This means they give incorrect results on closed sockets (as well

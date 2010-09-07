@@ -383,6 +383,9 @@ public final class BlockGuard {
         }
 
         public void close(FileDescriptor aFD) throws IOException {
+            // We exclude sockets without SO_LINGER so that apps can close their network connections
+            // in methods like onDestroy, which will run on the UI thread, without jumping through
+            // extra hoops.
             if (isLingerSocket(aFD)) {
                 BlockGuard.getThreadPolicy().onNetwork();
             }
@@ -394,13 +397,20 @@ public final class BlockGuard {
         }
 
         private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
-            Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);
-            if (lingerValue instanceof Boolean) {
-                return (Boolean) lingerValue;
-            } else if (lingerValue instanceof Integer) {
-                return ((Integer) lingerValue) != 0;
+            try {
+                Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);
+                if (lingerValue instanceof Boolean) {
+                    return (Boolean) lingerValue;
+                } else if (lingerValue instanceof Integer) {
+                    return ((Integer) lingerValue) != 0;
+                }
+                throw new AssertionError(lingerValue.getClass().getName());
+            } catch (Exception ignored) {
+                // We're called via Socket.close (which doesn't ask for us to be called), so we
+                // must not throw here, because Socket.close must not throw if asked to close an
+                // already-closed socket.
+                return false;
             }
-            throw new AssertionError(lingerValue.getClass().getName());
         }
     }
 }
