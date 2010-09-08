@@ -18,25 +18,12 @@
 package org.apache.harmony.luni.tests.internal.net.www.protocol.https;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import junit.framework.TestCase;
-import tests.util.TestEnvironment;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,6 +49,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+import junit.framework.TestCase;
+import tests.util.TestEnvironment;
 
 /**
  * Implementation independent test for HttpsURLConnection.
@@ -852,8 +850,10 @@ public class HttpsURLConnectionTest extends TestCase {
         if (store != null) {
             String ksFileName = "org/apache/harmony/luni/tests/key_store."
                     + KeyStore.getDefaultType().toLowerCase();
-            InputStream in = getClass().getClassLoader()
-                    .getResourceAsStream(ksFileName);
+            InputStream in = getClass().getClassLoader().getResourceAsStream(ksFileName);
+            if (in == null) {
+                throw new IllegalStateException("Couldn't find resource: " + ksFileName);
+            }
             FileOutputStream out = new FileOutputStream(store);
             BufferedInputStream bufIn = new BufferedInputStream(in, 8192);
             while (bufIn.available() > 0) {
@@ -1008,16 +1008,28 @@ public class HttpsURLConnectionTest extends TestCase {
         ClientConnectionWork client = new ClientConnectionWork(clientConnection);
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        try {
-            Future<Void> serverFuture = executorService.submit(server);
-            Future<Void> clientFuture = executorService.submit(client);
+        Future<Void> serverFuture = executorService.submit(server);
+        Future<Void> clientFuture = executorService.submit(client);
 
+        Throwable failure = null;
+        try {
             serverFuture.get(30, TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
+            failure = e.getCause();
+        }
+        try {
             clientFuture.get(30, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
-            throw e.getCause();
-        } finally {
-            executorService.shutdown();
+            if (failure != null) {
+                failure.printStackTrace(); // print it before we overwrite it
+            }
+            failure = e.getCause();
+        }
+
+        executorService.shutdown();
+
+        if (failure != null) {
+            throw failure;
         }
 
         return server.peerSocket;
@@ -1350,14 +1362,13 @@ public class HttpsURLConnectionTest extends TestCase {
             // read the content of HTTP(s) response
             InputStream is = connection.getInputStream();
             log("Input Stream obtained");
-            byte[] buff = new byte[2048];
-            int num = 0;
-            int byt = 0;
-            while ((num < buff.length) && (is.available() > 0)
-                    && ((byt = is.read()) != -1)) {
-                buff[num++] = (byte) byt;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int count;
+            while ((count = is.read(buffer)) != -1) {
+                out.write(buffer, 0, count);
             }
-            String message = new String(buff, 0, num);
+            String message = new String(out.toByteArray());
             log("Got content:\n" + message);
             log("------------------");
             log("Response code: " + connection.getResponseCode());
