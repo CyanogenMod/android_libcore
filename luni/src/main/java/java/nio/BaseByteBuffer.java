@@ -26,6 +26,10 @@ abstract class BaseByteBuffer extends ByteBuffer {
         super(capacity);
     }
 
+    protected BaseByteBuffer(int capacity, MemoryBlock block) {
+        super(capacity, block);
+    }
+
     @Override
     public final CharBuffer asCharBuffer() {
         return CharToByteBufferAdapter.wrap(this);

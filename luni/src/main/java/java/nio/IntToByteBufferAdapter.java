@@ -29,7 +29,7 @@ package java.nio;
  * </p>
  *
  */
-final class IntToByteBufferAdapter extends IntBuffer implements DirectBuffer {
+final class IntToByteBufferAdapter extends IntBuffer {
 
     static IntBuffer wrap(ByteBuffer byteBuffer) {
         return new IntToByteBufferAdapter(byteBuffer.slice());
@@ -41,16 +41,7 @@ final class IntToByteBufferAdapter extends IntBuffer implements DirectBuffer {
         super((byteBuffer.capacity() >> 2));
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        if (byteBuffer instanceof DirectBuffer) {
-            effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
-        }
-    }
-
-    public MemoryBlock getBaseAddress() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).getBaseAddress();
-        }
-        throw new AssertionError("not a direct buffer");
+        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override

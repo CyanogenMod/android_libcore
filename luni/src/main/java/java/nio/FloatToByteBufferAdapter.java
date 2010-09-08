@@ -28,7 +28,7 @@ package java.nio;
  * </ul>
  * </p>
  */
-final class FloatToByteBufferAdapter extends FloatBuffer implements DirectBuffer {
+final class FloatToByteBufferAdapter extends FloatBuffer {
 
     static FloatBuffer wrap(ByteBuffer byteBuffer) {
         return new FloatToByteBufferAdapter(byteBuffer.slice());
@@ -40,16 +40,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer implements DirectBuffer
         super((byteBuffer.capacity() >> 2));
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        if (byteBuffer instanceof DirectBuffer) {
-            effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
-        }
-    }
-
-    public MemoryBlock getBaseAddress() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).getBaseAddress();
-        }
-        throw new AssertionError("not a direct buffer");
+        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override

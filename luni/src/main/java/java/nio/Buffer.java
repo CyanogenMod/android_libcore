@@ -56,7 +56,7 @@ public abstract class Buffer {
     /**
      * <code>UNSET_MARK</code> means the mark has not been set.
      */
-    final static int UNSET_MARK = -1;
+    static final int UNSET_MARK = -1;
 
     /**
      * The capacity of this buffer, which never changes.
@@ -88,26 +88,30 @@ public abstract class Buffer {
      * value.  The value is used by JNI code in frameworks/base/ to avoid the
      * need for costly 'instanceof' tests.
      */
-    int _elementSizeShift;
+    final int _elementSizeShift;
 
     /**
      * For direct buffers, the effective address of the data; zero otherwise.
      * This is set in the constructor.
+     * TODO: make this final at the cost of loads of extra constructors? [how many?]
      */
-    int effectiveDirectAddress = 0;
+    int effectiveDirectAddress;
 
     /**
-     * Construct a buffer with the specified capacity.
-     *
-     * @param capacity
-     *            The capacity of this buffer
+     * For direct buffers, the underlying MemoryBlock; null otherwise.
      */
+    final MemoryBlock block;
+
     Buffer(int capacity) {
-        super();
+        this(capacity, null);
+    }
+
+    Buffer(int capacity, MemoryBlock block) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         this.capacity = this.limit = capacity;
+        this.block = block;
     }
 
     /**

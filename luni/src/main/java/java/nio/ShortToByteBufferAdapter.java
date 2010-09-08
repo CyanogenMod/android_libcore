@@ -28,7 +28,7 @@ package java.nio;
  * </ul>
  * </p>
  */
-final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer {
+final class ShortToByteBufferAdapter extends ShortBuffer {
 
     static ShortBuffer wrap(ByteBuffer byteBuffer) {
         return new ShortToByteBufferAdapter(byteBuffer.slice());
@@ -40,16 +40,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer
         super((byteBuffer.capacity() >> 1));
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        if (byteBuffer instanceof DirectBuffer) {
-            effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
-        }
-    }
-
-    public MemoryBlock getBaseAddress() {
-        if (byteBuffer instanceof DirectBuffer) {
-            return ((DirectBuffer) byteBuffer).getBaseAddress();
-        }
-        throw new AssertionError("not a direct buffer");
+        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override

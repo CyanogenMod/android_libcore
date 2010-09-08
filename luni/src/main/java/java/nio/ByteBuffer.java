@@ -126,6 +126,11 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         _elementSizeShift = 0;
     }
 
+    ByteBuffer(int capacity, MemoryBlock block) {
+        super(capacity, block);
+        _elementSizeShift = 0;
+    }
+
     /**
      * Returns the byte array which this buffer is based on, if there is one.
      *

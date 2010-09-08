@@ -17,22 +17,19 @@
 
 package java.nio;
 
-abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
-    protected final MemoryBlock block;
-
-    // This is the offset into 'block' at which this buffer logically starts.
-    // TODO: rewrite this to use an OffsetMemoryBlock?
+abstract class DirectByteBuffer extends BaseByteBuffer {
+    // This is the offset into {@code Buffer.block} at which this buffer logically starts.
+    // TODO: rewrite this so we set 'block' to an OffsetMemoryBlock?
     protected final int offset;
 
     protected DirectByteBuffer(MemoryBlock block, int capacity, int offset) {
-        super(capacity);
+        super(capacity, block);
 
         long baseSize = block.getSize();
         if (baseSize >= 0 && (capacity + offset) > baseSize) {
             throw new IllegalArgumentException("capacity + offset > baseSize");
         }
 
-        this.block = block;
         this.offset = offset;
         this.effectiveDirectAddress = block.toInt() + offset;
     }
@@ -172,10 +169,6 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
     @Override
     public final boolean isDirect() {
         return true;
-    }
-
-    public final MemoryBlock getBaseAddress() {
-        return block;
     }
 
     public final void free() {
