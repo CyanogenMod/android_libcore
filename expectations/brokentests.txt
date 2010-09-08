@@ -15,6 +15,18 @@ result COMPILE_FAILED
 pattern .*\.java:\d+: cannot find symbol.*
 
 
+# These tests assert the exact bytes of the compressed form. Since we use a
+# different zlib configuration, we get a different (but valid) compressed form.
+test org.apache.harmony.archive.tests.java.util.zip.DeflaterInputStreamTest#testAvailable
+result EXEC_FAILED
+test org.apache.harmony.archive.tests.java.util.zip.DeflaterInputStreamTest#testRead
+result EXEC_FAILED
+test org.apache.harmony.archive.tests.java.util.zip.DeflaterInputStreamTest#testReadByteArrayIntInt
+result EXEC_FAILED
+test org.apache.harmony.archive.tests.java.util.zip.DeflaterTest#test_deflate_beforeSetInput
+result EXEC_FAILED
+
+
 # The RI avoids blocking calls when '\r' is the last character. We don't
 # bother since that adds complexity to every other read call, and '\r' as the
 # last character will be diminishingly rare anyway.
