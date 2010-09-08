@@ -48,13 +48,13 @@ public abstract class MappedByteBuffer extends ByteBuffer {
         this.mapMode = null;
     }
 
-    MappedByteBuffer(PlatformAddress addr, int capacity, int offset, MapMode mapMode) {
+    MappedByteBuffer(MemoryBlock block, int capacity, int offset, MapMode mapMode) {
         super(capacity);
         this.mapMode = mapMode;
         if (mapMode == MapMode.READ_ONLY) {
-            wrapped = new ReadOnlyDirectByteBuffer(addr, capacity, offset);
+            wrapped = new ReadOnlyDirectByteBuffer(block, capacity, offset);
         } else {
-            wrapped = new ReadWriteDirectByteBuffer(addr, capacity, offset);
+            wrapped = new ReadWriteDirectByteBuffer(block, capacity, offset);
         }
     }
 
@@ -67,8 +67,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      *         otherwise.
      */
     public final boolean isLoaded() {
-        PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
-        return OSMemory.isLoaded(address.toInt(), address.getSize());
+        MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
+        return OSMemory.isLoaded(block.toInt(), block.getSize());
     }
 
     /**
@@ -78,8 +78,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
-        OSMemory.load(address.toInt(), address.getSize());
+        MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
+        OSMemory.load(block.toInt(), block.getSize());
         return this;
     }
 
@@ -93,8 +93,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            PlatformAddress address = ((DirectBuffer) wrapped).getBaseAddress();
-            OSMemory.msync(address.toInt(), address.getSize());
+            MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
+            OSMemory.msync(block.toInt(), block.getSize());
         }
         return this;
     }

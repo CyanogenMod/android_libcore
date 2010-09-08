@@ -28,8 +28,8 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
     }
 
-    public MappedByteBufferAdapter(PlatformAddress addr, int capacity, int offset, MapMode mode) {
-        super(addr, capacity, offset, mode);
+    public MappedByteBufferAdapter(MemoryBlock block, int capacity, int offset, MapMode mode) {
+        super(block, capacity, offset, mode);
         effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
     }
 
@@ -376,7 +376,7 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
         return this.wrapped.protectedHasArray();
     }
 
-    public PlatformAddress getBaseAddress() {
+    public MemoryBlock getBaseAddress() {
         return this.wrapped.getBaseAddress();
     }
 

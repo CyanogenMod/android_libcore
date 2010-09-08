@@ -16,5 +16,5 @@
 package java.nio;
 
 interface DirectBuffer {
-    public PlatformAddress getBaseAddress();
+    public MemoryBlock getBaseAddress();
 }

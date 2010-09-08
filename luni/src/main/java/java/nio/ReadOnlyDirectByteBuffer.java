@@ -30,7 +30,7 @@ package java.nio;
  */
 final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
     static ReadOnlyDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
-        ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(other.address, other.capacity(), other.offset);
+        ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(other.block, other.capacity(), other.offset);
         buf.limit = other.limit();
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -38,8 +38,8 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
         return buf;
     }
 
-    protected ReadOnlyDirectByteBuffer(PlatformAddress address, int capacity, int offset) {
-        super(address, capacity, offset);
+    protected ReadOnlyDirectByteBuffer(MemoryBlock block, int capacity, int offset) {
+        super(block, capacity, offset);
     }
 
     @Override
@@ -134,7 +134,7 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer slice() {
-        ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(address, remaining(), offset + position);
+        ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(block, remaining(), offset + position);
         buf.order = order;
         return buf;
     }

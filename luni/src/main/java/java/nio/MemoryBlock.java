@@ -24,11 +24,11 @@ import org.apache.harmony.luni.platform.OSMemory;
 /**
  * @hide
  */
-public class PlatformAddress {
+public class MemoryBlock {
     /**
      * Handles calling munmap(2) on a memory-mapped region.
      */
-    private static class MemoryMappedBlock extends PlatformAddress {
+    private static class MemoryMappedBlock extends MemoryBlock {
         private MemoryMappedBlock(int address, long byteCount) {
             super(address, byteCount);
         }
@@ -48,7 +48,7 @@ public class PlatformAddress {
     /**
      * Handles calling free(3) on a native heap block.
      */
-    private static class NativeHeapBlock extends PlatformAddress {
+    private static class NativeHeapBlock extends MemoryBlock {
         private NativeHeapBlock(int address, long byteCount) {
             super(address, byteCount);
         }
@@ -69,7 +69,7 @@ public class PlatformAddress {
      * Represents a block of memory we don't own. (We don't take ownership of memory corresponding
      * to direct buffers created by the JNI NewDirectByteBuffer function.)
      */
-    private static class UnmanagedBlock extends PlatformAddress {
+    private static class UnmanagedBlock extends MemoryBlock {
         private UnmanagedBlock(int address, long byteCount) {
             super(address, byteCount);
         }
@@ -79,24 +79,24 @@ public class PlatformAddress {
     protected int address;
     protected final long size;
 
-    public static PlatformAddress mmap(int fd, long start, long size, MapMode mode) throws IOException {
+    public static MemoryBlock mmap(int fd, long start, long size, MapMode mode) throws IOException {
         if (size == 0) {
             // You can't mmap(2) a zero-length region.
-            return new PlatformAddress(0, 0);
+            return new MemoryBlock(0, 0);
         }
         int address = OSMemory.mmap(fd, start, size, mode);
         return new MemoryMappedBlock(address, size);
     }
 
-    public static PlatformAddress malloc(int byteCount) {
+    public static MemoryBlock malloc(int byteCount) {
         return new NativeHeapBlock(OSMemory.malloc(byteCount), byteCount);
     }
 
-    public static PlatformAddress wrapFromJni(int address, long byteCount) {
+    public static MemoryBlock wrapFromJni(int address, long byteCount) {
         return new UnmanagedBlock(address, byteCount);
     }
 
-    private PlatformAddress(int address, long size) {
+    private MemoryBlock(int address, long size) {
         this.address = address;
         this.size = size;
     }
@@ -180,7 +180,7 @@ public class PlatformAddress {
     }
 
     public final String toString() {
-        return "PlatformAddress[" + address + "]";
+        return getClass().getName() + "[" + address + "]";
     }
 
     public final long getSize() {

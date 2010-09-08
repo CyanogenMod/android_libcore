@@ -33,7 +33,7 @@ import java.nio.NioUtils;
 import java.nio.MappedByteBuffer;
 import java.nio.MappedByteBufferAdapter;
 import java.nio.NioUtils;
-import java.nio.PlatformAddress;
+import java.nio.MemoryBlock;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -173,8 +173,8 @@ public abstract class FileChannelImpl extends FileChannel {
         }
         long alignment = position - position % ALLOC_GRANULARITY;
         int offset = (int) (position - alignment);
-        PlatformAddress address = PlatformAddress.mmap(handle, alignment, size + offset, mapMode);
-        return new MappedByteBufferAdapter(address, (int) size, offset, mapMode);
+        MemoryBlock block = MemoryBlock.mmap(handle, alignment, size + offset, mapMode);
+        return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
     /*

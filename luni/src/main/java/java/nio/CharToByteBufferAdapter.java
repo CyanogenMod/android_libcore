@@ -46,7 +46,7 @@ final class CharToByteBufferAdapter extends CharBuffer implements DirectBuffer {
         }
     }
 
-    public PlatformAddress getBaseAddress() {
+    public MemoryBlock getBaseAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getBaseAddress();
         }
