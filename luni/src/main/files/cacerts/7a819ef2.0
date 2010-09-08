@@ -90,6 +90,7 @@ Certificate:
         b9:bc:54:22:c0:01:50:69:43:9e:f4:b2:ef:6d:f8:ec:da:f1:
         e3:b1:ef:df:91:8f:54:2a:0b:25:c1:26:19:c4:52:10:05:65:
         d5:82:10:ea:c2:31:cd:2e
+SHA1 Fingerprint=CA:3A:FB:CF:12:40:36:4B:44:B2:16:20:88:80:48:39:19:93:7C:F7
 -----BEGIN CERTIFICATE-----
 MIIFtzCCA5+gAwIBAgICBQkwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCQk0x
 GTAXBgNVBAoTEFF1b1ZhZGlzIExpbWl0ZWQxGzAZBgNVBAMTElF1b1ZhZGlzIFJv
