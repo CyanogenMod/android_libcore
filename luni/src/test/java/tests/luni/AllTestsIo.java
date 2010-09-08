@@ -30,12 +30,10 @@ public class AllTestsIo
         TestRunner.main(new String[] { AllTestsIo.class.getName() });
     }
 
-    public static final Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite("Tests for java.io");
 
         suite.addTest(tests.api.java.io.AllTests.suite());
-
-        suite.addTest(org.apache.harmony.luni.tests.java.io.AllTests.suite());
 
         return suite;
     }
