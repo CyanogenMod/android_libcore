@@ -19,6 +19,15 @@ package libcore.java.math;
 import java.math.BigInteger;
 
 public class BigIntegerTest extends junit.framework.TestCase {
+    // http://b/2981072 - off-by-one error in BigInteger.valueOf
+    public void test_valueOf() {
+        // I assume here that we'll never cache more than 1024 values.
+        // (At the moment, we cache -1 to 10.)
+        for (int i = -1024; i <= 1024; ++i) {
+            assertEquals(i, BigInteger.valueOf(i).intValue());
+        }
+    }
+
     // http://code.google.com/p/android/issues/detail?id=7036
     public void test_invalidBigIntegerStringConversions() {
         // Check we don't disallow related reasonable strings...
