@@ -76,6 +76,7 @@ Certificate:
         f7:a2:d4:67:c0:b1:26:ad:13:ba:d9:84:01:c1:ab:e1:8e:6d:
         70:16:3b:77:ac:91:9a:bb:1a:1f:da:58:a7:e4:4f:c1:61:ae:
         bc:a2:fe:4b
+SHA1 Fingerprint=4A:8A:2A:0E:27:6F:F3:3B:5D:D8:8A:36:21:46:01:0F:2A:8B:6A:EE
 -----BEGIN CERTIFICATE-----
 MIIGCjCCBPKgAwIBAgIQESoAbTflEG/WynzD77rMGDANBgkqhkiG9w0BAQUFADCB
 yjELMAkGA1UEBhMCVVMxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQL
