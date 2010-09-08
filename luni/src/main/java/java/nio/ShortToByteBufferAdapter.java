@@ -45,7 +45,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer implements DirectBuffer
         }
     }
 
-    public PlatformAddress getBaseAddress() {
+    public MemoryBlock getBaseAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getBaseAddress();
         }

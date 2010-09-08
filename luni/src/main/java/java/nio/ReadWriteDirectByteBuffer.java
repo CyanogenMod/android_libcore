@@ -32,7 +32,7 @@ import org.apache.harmony.luni.platform.OSMemory;
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     static ReadWriteDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(other.address, other.capacity(), other.offset);
+        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(other.block, other.capacity(), other.offset);
         buf.limit = other.limit();
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -42,16 +42,16 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     // Used by ByteBuffer.allocateDirect.
     ReadWriteDirectByteBuffer(int capacity) {
-        super(PlatformAddress.malloc(capacity), capacity, 0);
+        super(MemoryBlock.malloc(capacity), capacity, 0);
     }
 
     // Used by the JNI NewDirectByteBuffer function.
     ReadWriteDirectByteBuffer(int address, int capacity) {
-        super(PlatformAddress.wrapFromJni(address, capacity), capacity, 0);
+        super(MemoryBlock.wrapFromJni(address, capacity), capacity, 0);
     }
 
-    ReadWriteDirectByteBuffer(PlatformAddress address, int capacity, int offset) {
-        super(address, capacity, offset);
+    ReadWriteDirectByteBuffer(MemoryBlock block, int capacity, int offset) {
+        super(block, capacity, offset);
     }
 
     @Override
@@ -84,7 +84,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeByte(offset + position++, value);
+        this.block.pokeByte(offset + position++, value);
         return this;
     }
 
@@ -93,7 +93,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeByte(offset + index, value);
+        this.block.pokeByte(offset + index, value);
         return this;
     }
 
@@ -113,7 +113,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (len > remaining()) {
             throw new BufferOverflowException();
         }
-        this.address.pokeByteArray(offset + position, src, off, len);
+        this.block.pokeByteArray(offset + position, src, off, len);
         position += len;
         return this;
     }
@@ -153,7 +153,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.address.pokeShortArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeShortArray(offset + position, src, off, len, order.needsSwap);
         position += byteCount;
         return this;
     }
@@ -193,7 +193,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.address.pokeIntArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeIntArray(offset + position, src, off, len, order.needsSwap);
         position += byteCount;
         return this;
     }
@@ -233,7 +233,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.address.pokeFloatArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeFloatArray(offset + position, src, off, len, order.needsSwap);
         position += byteCount;
         return this;
     }
@@ -244,7 +244,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeDouble(offset + position, value, order);
+        this.block.pokeDouble(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -254,7 +254,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeDouble(offset + index, value, order);
+        this.block.pokeDouble(offset + index, value, order);
         return this;
     }
 
@@ -264,7 +264,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeFloat(offset + position, value, order);
+        this.block.pokeFloat(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -274,7 +274,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeFloat(offset + index, value, order);
+        this.block.pokeFloat(offset + index, value, order);
         return this;
     }
 
@@ -284,7 +284,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeInt(offset + position, value, order);
+        this.block.pokeInt(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -294,7 +294,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeInt(offset + index, value, order);
+        this.block.pokeInt(offset + index, value, order);
         return this;
     }
 
@@ -304,7 +304,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeLong(offset + position, value, order);
+        this.block.pokeLong(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -314,7 +314,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeLong(offset + index, value, order);
+        this.block.pokeLong(offset + index, value, order);
         return this;
     }
 
@@ -324,7 +324,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.address.pokeShort(offset + position, value, order);
+        this.block.pokeShort(offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -334,13 +334,13 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.address.pokeShort(offset + index, value, order);
+        this.block.pokeShort(offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer slice() {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(address, remaining(), offset + position);
+        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(block, remaining(), offset + position);
         buf.order = order;
         return buf;
     }

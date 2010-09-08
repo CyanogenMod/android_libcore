@@ -46,7 +46,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer implements DirectBuff
         }
     }
 
-    public PlatformAddress getBaseAddress() {
+    public MemoryBlock getBaseAddress() {
         if (byteBuffer instanceof DirectBuffer) {
             return ((DirectBuffer) byteBuffer).getBaseAddress();
         }
