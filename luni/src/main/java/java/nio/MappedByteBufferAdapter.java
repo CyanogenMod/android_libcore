@@ -22,7 +22,7 @@ import java.nio.channels.FileChannel.MapMode;
 /**
  * @hide - only used by FileChannelImpl; add API to NioUtils?
  */
-public final class MappedByteBufferAdapter extends MappedByteBuffer implements DirectBuffer {
+public final class MappedByteBufferAdapter extends MappedByteBuffer {
     private MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
         effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
@@ -374,10 +374,6 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer implements D
     @Override
     boolean protectedHasArray() {
         return this.wrapped.protectedHasArray();
-    }
-
-    public MemoryBlock getBaseAddress() {
-        return this.wrapped.getBaseAddress();
     }
 
     public final void free() {

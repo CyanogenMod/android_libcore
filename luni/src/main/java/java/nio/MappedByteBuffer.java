@@ -40,7 +40,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     private final MapMode mapMode;
 
     MappedByteBuffer(ByteBuffer directBuffer) {
-        super(directBuffer.capacity);
+        super(directBuffer.capacity, directBuffer.block);
         if (!directBuffer.isDirect()) {
             throw new IllegalArgumentException();
         }
@@ -49,7 +49,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     }
 
     MappedByteBuffer(MemoryBlock block, int capacity, int offset, MapMode mapMode) {
-        super(capacity);
+        super(capacity, block);
         this.mapMode = mapMode;
         if (mapMode == MapMode.READ_ONLY) {
             wrapped = new ReadOnlyDirectByteBuffer(block, capacity, offset);
@@ -67,7 +67,6 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      *         otherwise.
      */
     public final boolean isLoaded() {
-        MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
         return OSMemory.isLoaded(block.toInt(), block.getSize());
     }
 
@@ -78,7 +77,6 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
         OSMemory.load(block.toInt(), block.getSize());
         return this;
     }
@@ -93,7 +91,6 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            MemoryBlock block = ((DirectBuffer) wrapped).getBaseAddress();
             OSMemory.msync(block.toInt(), block.getSize());
         }
         return this;
