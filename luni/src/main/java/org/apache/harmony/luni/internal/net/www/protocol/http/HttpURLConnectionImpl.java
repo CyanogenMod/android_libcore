@@ -680,11 +680,28 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * See RFC 2616 section 4.3.
      */
     private boolean hasResponseBody() {
-        return method != HEAD
+        if (method != HEAD
                 && method != CONNECT
                 && (responseCode < HTTP_CONTINUE || responseCode >= 200)
                 && responseCode != HTTP_NO_CONTENT
-                && responseCode != HTTP_NOT_MODIFIED;
+                && responseCode != HTTP_NOT_MODIFIED) {
+            return true;
+        }
+
+        /*
+         * If the Content-Length or Transfer-Encoding headers disagree with the
+         * response code, the response is malformed. For best compatibility, we
+         * honor the headers.
+         */
+        String contentLength = responseHeader.get("Content-Length");
+        if (contentLength != null && Integer.parseInt(contentLength) > 0) {
+            return true;
+        }
+        if ("chunked".equalsIgnoreCase(responseHeader.get("Transfer-Encoding"))) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
