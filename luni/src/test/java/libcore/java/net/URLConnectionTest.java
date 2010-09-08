@@ -1250,6 +1250,17 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 0, server.takeRequest().getSequenceNumber());
     }
 
+    public void testResponseCodeDisagreesWithHeaders() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_NO_CONTENT)
+                .setBody("This body is not allowed!"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        assertEquals("This body is not allowed!",
+                readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+    }
+
     /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
