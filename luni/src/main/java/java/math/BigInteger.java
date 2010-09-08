@@ -339,7 +339,7 @@ public class BigInteger extends Number
                 return new BigInteger(-1, -value);
             }
             return MINUS_ONE;
-        } else if (value <= SMALL_VALUES.length) {
+        } else if (value < SMALL_VALUES.length) {
             return SMALL_VALUES[(int) value];
         } else {// (value > 10)
             return new BigInteger(1, value);
