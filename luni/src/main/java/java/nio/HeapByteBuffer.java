@@ -44,7 +44,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     }
 
     HeapByteBuffer(byte[] backingArray, int capacity, int offset) {
-        super(capacity);
+        super(capacity, null);
         this.backingArray = backingArray;
         this.offset = offset;
 

@@ -145,15 +145,8 @@ public abstract class CharBuffer extends Buffer implements
         return result;
     }
 
-    /**
-     * Constructs a {@code CharBuffer} with given capacity.
-     *
-     * @param capacity
-     *            the capacity of the buffer.
-     */
     CharBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 1;
+        super(1, capacity, null);
     }
 
     public final char[] array() {

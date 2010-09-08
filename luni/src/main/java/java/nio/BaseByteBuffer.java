@@ -22,10 +22,6 @@ package java.nio;
  */
 abstract class BaseByteBuffer extends ByteBuffer {
 
-    protected BaseByteBuffer(int capacity) {
-        super(capacity);
-    }
-
     protected BaseByteBuffer(int capacity, MemoryBlock block) {
         super(capacity, block);
     }

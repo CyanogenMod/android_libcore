@@ -115,20 +115,8 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     ByteOrder order = ByteOrder.BIG_ENDIAN;
 
-    /**
-     * Constructs a {@code ByteBuffer} with given capacity.
-     *
-     * @param capacity
-     *            the capacity of the buffer.
-     */
-    ByteBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 0;
-    }
-
     ByteBuffer(int capacity, MemoryBlock block) {
-        super(capacity, block);
-        _elementSizeShift = 0;
+        super(0, capacity, block);
     }
 
     /**

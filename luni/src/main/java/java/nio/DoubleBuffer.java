@@ -95,15 +95,8 @@ public abstract class DoubleBuffer extends Buffer implements
         return buf;
     }
 
-    /**
-     * Constructs a {@code DoubleBuffer} with given capacity.
-     *
-     * @param capacity
-     *            the capacity of the buffer.
-     */
     DoubleBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 3;
+        super(3, capacity, null);
     }
 
     public final double[] array() {

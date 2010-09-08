@@ -94,15 +94,8 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
         return buf;
     }
 
-    /**
-     * Constructs a {@code IntBuffer} with given capacity.
-     *
-     * @param capacity
-     *            the capacity of the buffer.
-     */
     IntBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 2;
+        super(2, capacity, null);
     }
 
     public final int[] array() {

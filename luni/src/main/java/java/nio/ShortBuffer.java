@@ -96,15 +96,8 @@ public abstract class ShortBuffer extends Buffer implements
         return buf;
     }
 
-    /**
-     * Constructs a {@code ShortBuffer} with given capacity.
-     *
-     * @param capacity
-     *            The capacity of the buffer
-     */
     ShortBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 1;
+        super(1, capacity, null);
     }
 
     public final short[] array() {

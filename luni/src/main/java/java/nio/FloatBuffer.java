@@ -98,14 +98,8 @@ public abstract class FloatBuffer extends Buffer implements
         return buf;
     }
 
-    /**
-     * Constructs a {@code FloatBuffer} with given capacity.
-     *
-     * @param capacity  The capacity of the buffer
-     */
     FloatBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 2;
+        super(2, capacity, null);
     }
 
     public final float[] array() {

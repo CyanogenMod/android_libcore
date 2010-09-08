@@ -102,11 +102,8 @@ public abstract class Buffer {
      */
     final MemoryBlock block;
 
-    Buffer(int capacity) {
-        this(capacity, null);
-    }
-
-    Buffer(int capacity, MemoryBlock block) {
+    Buffer(int elementSizeShift, int capacity, MemoryBlock block) {
+        this._elementSizeShift = elementSizeShift;
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }

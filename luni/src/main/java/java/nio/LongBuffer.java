@@ -96,15 +96,8 @@ public abstract class LongBuffer extends Buffer implements
         return buf;
     }
 
-    /**
-     * Constructs a {@code LongBuffer} with given capacity.
-     *
-     * @param capacity
-     *            The capacity of the buffer
-     */
     LongBuffer(int capacity) {
-        super(capacity);
-        _elementSizeShift = 3;
+        super(3, capacity, null);
     }
 
     public final long[] array() {
