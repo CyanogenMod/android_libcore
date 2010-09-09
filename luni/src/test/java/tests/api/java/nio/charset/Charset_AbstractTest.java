@@ -34,7 +34,7 @@ import java.util.Arrays;
 /**
  * Super class for concrete charset test suites.
  */
-public class Charset_AbstractTest extends TestCase {
+public abstract class Charset_AbstractTest extends TestCase {
 
     static String charsetName;
     static private Charset charset;
