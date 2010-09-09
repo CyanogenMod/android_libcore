@@ -29,7 +29,7 @@ import java.util.Arrays;
 /**
  * Super class for concrete charset test suites.
  */
-public class Charset_SingleByteAbstractTest extends Charset_AbstractTest {
+public abstract class Charset_SingleByteAbstractTest extends Charset_AbstractTest {
 
     static byte[] allBytes;
     static char[] allChars;
@@ -71,6 +71,7 @@ public class Charset_SingleByteAbstractTest extends Charset_AbstractTest {
         ByteBuffer inputBB = ByteBuffer.wrap(input);
         CharBuffer outputCB;
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
+        decoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
         outputCB = decoder.decode(inputBB);
         outputCB.rewind();
         assertEqualChars2("Decoded charactes must match!",
@@ -203,13 +204,6 @@ public class Charset_SingleByteAbstractTest extends Charset_AbstractTest {
             }
         }
         assertTrue(msg, match);
-    }
-
-    public static void main(String[] args) {
-//        charset = Charset.defaultCharset();
-//        decoder = charset.newDecoder();
-//        System.out.println(charset.name());
-        dumpDecoded();
     }
 
 }
