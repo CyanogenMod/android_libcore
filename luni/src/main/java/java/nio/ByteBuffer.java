@@ -652,15 +652,18 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @see ByteOrder
      */
     public final ByteBuffer order(ByteOrder byteOrder) {
-        return orderImpl(byteOrder);
+        orderImpl(byteOrder);
+        return this;
     }
 
-    ByteBuffer orderImpl(ByteOrder byteOrder) {
+    /**
+     * Subverts the fact that order(ByteOrder) is final, for the benefit of MappedByteBufferAdapter.
+     */
+    void orderImpl(ByteOrder byteOrder) {
         if (byteOrder == null) {
             byteOrder = ByteOrder.LITTLE_ENDIAN;
         }
         order = byteOrder;
-        return this;
     }
 
     /**
@@ -1024,22 +1027,4 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract ByteBuffer slice();
-
-    /**
-     * Returns a string representing the state of this byte buffer.
-     *
-     * @return a string representing the state of this byte buffer.
-     */
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getName());
-        buf.append(", status: capacity=");
-        buf.append(capacity());
-        buf.append(" position=");
-        buf.append(position());
-        buf.append(" limit=");
-        buf.append(limit());
-        return buf.toString();
-    }
 }

@@ -481,22 +481,4 @@ public abstract class ShortBuffer extends Buffer implements
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract ShortBuffer slice();
-
-    /**
-     * Returns a string representing the state of this short buffer.
-     *
-     * @return a string representing the state of this short buffer.
-     */
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getName());
-        buf.append(", status: capacity=");
-        buf.append(capacity());
-        buf.append(" position=");
-        buf.append(position());
-        buf.append(" limit=");
-        buf.append(limit());
-        return buf.toString();
-    }
 }
