@@ -94,6 +94,19 @@ final class IntToByteBufferAdapter extends IntBuffer {
     }
 
     @Override
+    public IntBuffer get(int[] dst, int dstOffset, int intCount) {
+        if (byteBuffer instanceof DirectByteBuffer) {
+            byteBuffer.limit(limit << 2);
+            byteBuffer.position(position << 2);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
+            this.position += intCount;
+            return this;
+        } else {
+            return super.get(dst, dstOffset, intCount);
+        }
+    }
+
+    @Override
     public boolean isDirect() {
         return byteBuffer.isDirect();
     }
@@ -141,7 +154,6 @@ final class IntToByteBufferAdapter extends IntBuffer {
         return this;
     }
 
-    // BEGIN android-added
     @Override
     public IntBuffer put(int[] i, int off, int len) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
@@ -154,7 +166,6 @@ final class IntToByteBufferAdapter extends IntBuffer {
             return super.put(i, off, len);
         }
     }
-    // END android-added
 
     @Override
     public IntBuffer slice() {

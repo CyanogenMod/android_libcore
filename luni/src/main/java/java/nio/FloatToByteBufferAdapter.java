@@ -140,7 +140,6 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         return this;
     }
 
-    // BEGIN android-added
     @Override
     public FloatBuffer put(float[] c, int off, int len) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
@@ -153,8 +152,6 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
             return super.put(c, off, len);
         }
     }
-    // END android-added
-
 
     @Override
     public FloatBuffer slice() {

@@ -97,13 +97,6 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         return this;
     }
 
-    /*
-     * Override ByteBuffer.put(byte[], int, int) to improve performance.
-     *
-     * (non-Javadoc)
-     *
-     * @see java.nio.ByteBuffer#put(byte[], int, int)
-     */
     @Override
     public ByteBuffer put(byte[] src, int off, int len) {
         int length = src.length;
@@ -118,69 +111,57 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         return this;
     }
 
-    /**
-     * Writes <code>short</code>s in the given short array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>short</code>s written.
-     *
-     * @param src
-     *            The source short array
-     * @param off
-     *            The offset of short array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>short</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
-    ByteBuffer put(short[] src, int off, int len) {
+    ByteBuffer put(char[] src, int off, int len) {
         int length = src.length;
         if (off < 0 || len < 0 || (long)off + (long)len > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_SHORT;
+        int byteCount = len * SIZEOF_CHAR;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeShortArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeCharArray(offset + position, src, off, len, order.needsSwap);
         position += byteCount;
         return this;
     }
 
-    /**
-     * Writes <code>int</code>s in the given int array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>int</code>s written.
-     *
-     * @param src
-     *            The source int array
-     * @param off
-     *            The offset of int array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>int</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
+    ByteBuffer put(double[] src, int off, int len) {
+        int length = src.length;
+        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        int byteCount = len * SIZEOF_DOUBLE;
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        this.block.pokeDoubleArray(offset + position, src, off, len, order.needsSwap);
+        position += byteCount;
+        return this;
+    }
+
+    ByteBuffer put(float[] src, int off, int len) {
+        int length = src.length;
+        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        int byteCount = len * SIZEOF_FLOAT;
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        this.block.pokeFloatArray(offset + position, src, off, len, order.needsSwap);
+        position += byteCount;
+        return this;
+    }
+
     ByteBuffer put(int[] src, int off, int len) {
         int length = src.length;
         if (off < 0 || len < 0 || (long)off + (long)len > length) {
@@ -198,42 +179,36 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         return this;
     }
 
-    /**
-     * Writes <code>float</code>s in the given float array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>float</code>s written.
-     *
-     * @param src
-     *            The source float array
-     * @param off
-     *            The offset of float array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>float</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
-    ByteBuffer put(float[] src, int off, int len) {
+    ByteBuffer put(long[] src, int off, int len) {
         int length = src.length;
         if (off < 0 || len < 0 || (long)off + (long)len > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_FLOAT;
+        int byteCount = len * SIZEOF_LONG;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeFloatArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeLongArray(offset + position, src, off, len, order.needsSwap);
+        position += byteCount;
+        return this;
+    }
+
+    ByteBuffer put(short[] src, int off, int len) {
+        int length = src.length;
+        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        int byteCount = len * SIZEOF_SHORT;
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        this.block.pokeShortArray(offset + position, src, off, len, order.needsSwap);
         position += byteCount;
         return this;
     }

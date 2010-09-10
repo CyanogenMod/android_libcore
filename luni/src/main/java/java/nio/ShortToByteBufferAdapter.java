@@ -140,7 +140,6 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         return this;
     }
 
-    // BEGIN android-added
     @Override
     public ShortBuffer put(short[] s, int off, int len) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
@@ -153,7 +152,6 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
             return super.put(s, off, len);
         }
     }
-    // END android-added
 
     @Override
     public ShortBuffer slice() {

@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 #include "java_lang_Float.h"
 #include "java_lang_Double.h"
@@ -54,6 +55,55 @@ static struct {
 
 template <typename T> static T cast(jint address) {
     return reinterpret_cast<T>(static_cast<uintptr_t>(address));
+}
+
+static void swapShorts(jshort* shorts, int count) {
+    jbyte* src = reinterpret_cast<jbyte*>(shorts);
+    jbyte* dst = src;
+    for (int i = 0; i < count; ++i) {
+        jbyte b0 = *src++;
+        jbyte b1 = *src++;
+        *dst++ = b1;
+        *dst++ = b0;
+    }
+}
+
+static void swapInts(jint* ints, int count) {
+    jbyte* src = reinterpret_cast<jbyte*>(ints);
+    jbyte* dst = src;
+    for (int i = 0; i < count; ++i) {
+        jbyte b0 = *src++;
+        jbyte b1 = *src++;
+        jbyte b2 = *src++;
+        jbyte b3 = *src++;
+        *dst++ = b3;
+        *dst++ = b2;
+        *dst++ = b1;
+        *dst++ = b0;
+    }
+}
+
+static void swapLongs(jlong* longs, int count) {
+    jbyte* src = reinterpret_cast<jbyte*>(longs);
+    jbyte* dst = src;
+    for (int i = 0; i < count; ++i) {
+        jbyte b0 = *src++;
+        jbyte b1 = *src++;
+        jbyte b2 = *src++;
+        jbyte b3 = *src++;
+        jbyte b4 = *src++;
+        jbyte b5 = *src++;
+        jbyte b6 = *src++;
+        jbyte b7 = *src++;
+        *dst++ = b7;
+        *dst++ = b6;
+        *dst++ = b5;
+        *dst++ = b4;
+        *dst++ = b3;
+        *dst++ = b2;
+        *dst++ = b1;
+        *dst++ = b0;
+    }
 }
 
 static jint OSMemory_malloc(JNIEnv* env, jclass, jint size) {
@@ -98,8 +148,16 @@ static jbyte OSMemory_peekByte(JNIEnv*, jclass, jint srcAddress) {
 }
 
 static void OSMemory_peekByteArray(JNIEnv* env, jclass, jint srcAddress,
-        jbyteArray dst, jint offset, jint length) {
-    env->SetByteArrayRegion(dst, offset, length, cast<const jbyte*>(srcAddress));
+        jbyteArray dst, jint dstOffset, jint byteCount) {
+    env->SetByteArrayRegion(dst, dstOffset, byteCount, cast<const jbyte*>(srcAddress));
+}
+
+static void OSMemory_peekIntArray(JNIEnv* env, jclass, jint srcAddress, jintArray dst, jint dstOffset, jint intCount, jboolean swap) {
+    env->SetIntArrayRegion(dst, dstOffset, intCount, cast<const jint*>(srcAddress));
+    if (swap) {
+        ScopedIntArrayRW ints(env, dst);
+        swapInts(ints.get(), intCount);
+    }
 }
 
 static void OSMemory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
@@ -109,32 +167,6 @@ static void OSMemory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
 static void OSMemory_pokeByteArray(JNIEnv* env, jclass,
         jint dstAddress, jbyteArray src, jint offset, jint length) {
     env->GetByteArrayRegion(src, offset, length, cast<jbyte*>(dstAddress));
-}
-
-static void swapShorts(jshort* shorts, int count) {
-    jbyte* src = reinterpret_cast<jbyte*>(shorts);
-    jbyte* dst = src;
-    for (int i = 0; i < count; ++i) {
-        jbyte b0 = *src++;
-        jbyte b1 = *src++;
-        *dst++ = b1;
-        *dst++ = b0;
-    }
-}
-
-static void swapInts(jint* ints, int count) {
-    jbyte* src = reinterpret_cast<jbyte*>(ints);
-    jbyte* dst = src;
-    for (int i = 0; i < count; ++i) {
-        jbyte b0 = *src++;
-        jbyte b1 = *src++;
-        jbyte b2 = *src++;
-        jbyte b3 = *src++;
-        *dst++ = b3;
-        *dst++ = b2;
-        *dst++ = b1;
-        *dst++ = b0;
-    }
 }
 
 static void OSMemory_pokeFloatArray(JNIEnv* env, jclass, jint dstAddress,
@@ -154,6 +186,36 @@ static void OSMemory_pokeIntArray(JNIEnv* env, jclass,
         swapInts(dst, length);
     }
 }
+
+static void OSMemory_pokeCharArray(JNIEnv* env, jclass,
+        jint dstAddress, jcharArray src, jint offset, jint length, jboolean swap) {
+    jchar* dst = cast<jchar*>(dstAddress);
+    env->GetCharArrayRegion(src, offset, length, dst);
+    if (swap) {
+        jshort* dst = cast<jshort*>(dstAddress);
+        swapShorts(dst, length);
+    }
+}
+
+static void OSMemory_pokeDoubleArray(JNIEnv* env, jclass,
+        jint dstAddress, jdoubleArray src, jint offset, jint length, jboolean swap) {
+    jdouble* dst = cast<jdouble*>(dstAddress);
+    env->GetDoubleArrayRegion(src, offset, length, dst);
+    if (swap) {
+        jlong* dst = cast<jlong*>(dstAddress);
+        swapLongs(dst, length);
+    }
+}
+
+static void OSMemory_pokeLongArray(JNIEnv* env, jclass,
+        jint dstAddress, jlongArray src, jint offset, jint length, jboolean swap) {
+    jlong* dst = cast<jlong*>(dstAddress);
+    env->GetLongArrayRegion(src, offset, length, dst);
+    if (swap) {
+        swapLongs(dst, length);
+    }
+}
+
 
 static void OSMemory_pokeShortArray(JNIEnv* env, jclass,
        jint dstAddress, jshortArray src, jint offset, jint length, jboolean swap) {
@@ -356,14 +418,18 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, peekByte, "(I)B"),
     NATIVE_METHOD(OSMemory, peekByteArray, "(I[BII)V"),
     NATIVE_METHOD(OSMemory, peekInt, "(IZ)I"),
+    NATIVE_METHOD(OSMemory, peekIntArray, "(I[IIIZ)V"),
     NATIVE_METHOD(OSMemory, peekLong, "(IZ)J"),
     NATIVE_METHOD(OSMemory, peekShort, "(IZ)S"),
     NATIVE_METHOD(OSMemory, pokeByte, "(IB)V"),
     NATIVE_METHOD(OSMemory, pokeByteArray, "(I[BII)V"),
+    NATIVE_METHOD(OSMemory, pokeCharArray, "(I[CIIZ)V"),
+    NATIVE_METHOD(OSMemory, pokeDoubleArray, "(I[DIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeFloatArray, "(I[FIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeInt, "(IIZ)V"),
     NATIVE_METHOD(OSMemory, pokeIntArray, "(I[IIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeLong, "(IJZ)V"),
+    NATIVE_METHOD(OSMemory, pokeLongArray, "(I[JIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeShort, "(ISZ)V"),
     NATIVE_METHOD(OSMemory, pokeShortArray, "(I[SIIZ)V"),
 };

@@ -78,20 +78,21 @@ public final class OSMemory {
     public static native long peekLong(int address, boolean swap);
     public static native short peekShort(int address, boolean swap);
 
-    public static native void peekByteArray(int address, byte[] bytes, int offset, int length);
+    public static native void peekByteArray(int address, byte[] dst, int dstOffset, int byteCount);
+    public static native void peekIntArray(int address, int[] dst, int dstOffset, int intCount, boolean swap);
 
     public static native void pokeByte(int address, byte value);
     public static native void pokeInt(int address, int value, boolean swap);
     public static native void pokeLong(int address, long value, boolean swap);
     public static native void pokeShort(int address, short value, boolean swap);
 
-    public static native void pokeByteArray(int address, byte[] src, int offset, int length);
-    public static native void pokeFloatArray(int address, float[] src, int offset, int length,
-            boolean swap);
-    public static native void pokeIntArray(int address, int[] src, int offset, int length,
-            boolean swap);
-    public static native void pokeShortArray(int address, short[] src, int offset, int length,
-            boolean swap);
+    public static native void pokeByteArray(int address, byte[] src, int offset, int count);
+    public static native void pokeCharArray(int address, char[] src, int offset, int count, boolean swap);
+    public static native void pokeDoubleArray(int address, double[] src, int offset, int count, boolean swap);
+    public static native void pokeFloatArray(int address, float[] src, int offset, int count, boolean swap);
+    public static native void pokeIntArray(int address, int[] src, int offset, int count, boolean swap);
+    public static native void pokeLongArray(int address, long[] src, int offset, int count, boolean swap);
+    public static native void pokeShortArray(int address, short[] src, int offset, int count, boolean swap);
 
     private static native int mmapImpl(int fd, long offset, long size, int mapMode);
 
