@@ -35,29 +35,29 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
     }
 
     @Override
-    public final ByteBuffer get(byte[] dst, int off, int len) {
+    public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
         int length = dst.length;
-        if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (len > remaining()) {
-            throw new BufferUnderflowException();
-        }
-        this.block.peekByteArray(offset + position, dst, off, len);
-        position += len;
-        return this;
-    }
-
-    final ByteBuffer get(int[] dst, int off, int intCount) {
-        int length = dst.length;
-        int byteCount = SIZEOF_INT * intCount;
-        if ((off < 0) || (intCount < 0) || (long) off + (long) intCount > length) {
+        if (dstOffset < 0 || byteCount < 0 || (long) dstOffset + (long) byteCount > length) {
             throw new IndexOutOfBoundsException();
         }
         if (byteCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        this.block.peekIntArray(offset + position, dst, off, intCount, order.needsSwap);
+        this.block.peekByteArray(offset + position, dst, dstOffset, byteCount);
+        position += byteCount;
+        return this;
+    }
+
+    final ByteBuffer get(int[] dst, int dstOffset, int intCount) {
+        int length = dst.length;
+        int byteCount = SIZEOF_INT * intCount;
+        if (dstOffset < 0 || intCount < 0 || (long) dstOffset + (long) intCount > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (byteCount > remaining()) {
+            throw new BufferUnderflowException();
+        }
+        this.block.peekIntArray(offset + position, dst, dstOffset, intCount, order.needsSwap);
         position += byteCount;
         return this;
     }

@@ -112,23 +112,22 @@ final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
     }
 
     @Override
-    public FloatBuffer put(float[] src, int off, int len) {
+    public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (floatCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, floatCount);
+        position += floatCount;
         return this;
     }
 
     @Override
     public FloatBuffer slice() {
-        return new ReadWriteFloatArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteFloatArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

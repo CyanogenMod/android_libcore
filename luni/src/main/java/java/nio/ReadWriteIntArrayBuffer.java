@@ -110,23 +110,22 @@ final class ReadWriteIntArrayBuffer extends IntArrayBuffer {
     }
 
     @Override
-    public IntBuffer put(int[] src, int off, int len) {
+    public IntBuffer put(int[] src, int srcOffset, int intCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || intCount < 0 || (long) srcOffset + (long) intCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (intCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, intCount);
+        position += intCount;
         return this;
     }
 
     @Override
     public IntBuffer slice() {
-        return new ReadWriteIntArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteIntArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

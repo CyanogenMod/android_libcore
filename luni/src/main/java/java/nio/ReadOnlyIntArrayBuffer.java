@@ -95,7 +95,7 @@ final class ReadOnlyIntArrayBuffer extends IntArrayBuffer {
     }
 
     @Override
-    public final IntBuffer put(int[] src, int off, int len) {
+    public final IntBuffer put(int[] src, int srcOffset, int intCount) {
         throw new ReadOnlyBufferException();
     }
 

@@ -112,16 +112,16 @@ final class ReadWriteShortArrayBuffer extends ShortArrayBuffer {
     }
 
     @Override
-    public ShortBuffer put(short[] src, int off, int len) {
+    public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (shortCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, shortCount);
+        position += shortCount;
         return this;
     }
 

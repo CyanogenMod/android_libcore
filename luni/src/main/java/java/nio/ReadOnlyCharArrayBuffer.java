@@ -90,7 +90,7 @@ final class ReadOnlyCharArrayBuffer extends CharArrayBuffer {
     }
 
     @Override
-    public final CharBuffer put(char[] src, int off, int len) {
+    public final CharBuffer put(char[] src, int srcOffset, int charCount) {
         throw new ReadOnlyBufferException();
     }
 

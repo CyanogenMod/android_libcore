@@ -110,23 +110,22 @@ final class ReadWriteLongArrayBuffer extends LongArrayBuffer {
     }
 
     @Override
-    public LongBuffer put(long[] src, int off, int len) {
+    public LongBuffer put(long[] src, int srcOffset, int longCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || longCount < 0 || (long) srcOffset + (long) longCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (longCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, longCount);
+        position += longCount;
         return this;
     }
 
     @Override
     public LongBuffer slice() {
-        return new ReadWriteLongArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteLongArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

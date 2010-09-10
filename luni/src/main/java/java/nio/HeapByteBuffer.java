@@ -53,24 +53,17 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         }
     }
 
-    /*
-     * Override ByteBuffer.get(byte[], int, int) to improve performance.
-     *
-     * (non-Javadoc)
-     *
-     * @see java.nio.ByteBuffer#get(byte[], int, int)
-     */
     @Override
-    public final ByteBuffer get(byte[] dst, int off, int len) {
+    public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (dstOffset < 0 || byteCount < 0 || (long) dstOffset + (long) byteCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (byteCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dst, off, len);
-        position += len;
+        System.arraycopy(backingArray, offset + position, dst, dstOffset, byteCount);
+        position += byteCount;
         return this;
     }
 

@@ -73,7 +73,7 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
     }
 
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
         throw new ReadOnlyBufferException();
     }
 

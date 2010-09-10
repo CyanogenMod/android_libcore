@@ -92,7 +92,7 @@ final class ReadOnlyDoubleArrayBuffer extends DoubleArrayBuffer {
     }
 
     @Override
-    public final DoubleBuffer put(double[] src, int off, int len) {
+    public final DoubleBuffer put(double[] src, int srcOffset, int byteCount) {
         throw new ReadOnlyBufferException();
     }
 

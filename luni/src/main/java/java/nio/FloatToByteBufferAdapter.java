@@ -141,15 +141,15 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
     }
 
     @Override
-    public FloatBuffer put(float[] c, int off, int len) {
+    public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
             byteBuffer.limit(limit << 2);
             byteBuffer.position(position << 2);
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(c, off, len);
-            this.position += len;
+            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, floatCount);
+            this.position += floatCount;
             return this;
         } else {
-            return super.put(c, off, len);
+            return super.put(src, srcOffset, floatCount);
         }
     }
 

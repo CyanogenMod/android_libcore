@@ -95,7 +95,7 @@ final class ReadOnlyShortArrayBuffer extends ShortArrayBuffer {
     }
 
     @Override
-    public final ShortBuffer put(short[] src, int off, int len) {
+    public final ShortBuffer put(short[] src, int srcOffset, int shortCount) {
         throw new ReadOnlyBufferException();
     }
 

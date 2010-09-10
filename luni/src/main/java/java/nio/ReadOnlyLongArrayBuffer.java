@@ -95,7 +95,7 @@ final class ReadOnlyLongArrayBuffer extends LongArrayBuffer {
     }
 
     @Override
-    public final LongBuffer put(long[] src, int off, int len) {
+    public final LongBuffer put(long[] src, int srcOffset, int longCount) {
         throw new ReadOnlyBufferException();
     }
 

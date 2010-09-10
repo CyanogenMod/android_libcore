@@ -219,10 +219,10 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
     }
 
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
         wrapped.position(this.position);
-        wrapped.put(src, off, len);
-        this.position += len;
+        wrapped.put(src, srcOffset, byteCount);
+        this.position += byteCount;
         return this;
     }
 

@@ -48,8 +48,7 @@ final class ReadWriteDoubleArrayBuffer extends DoubleArrayBuffer {
         super(capacity);
     }
 
-    ReadWriteDoubleArrayBuffer(int capacity, double[] backingArray,
-            int arrayOffset) {
+    ReadWriteDoubleArrayBuffer(int capacity, double[] backingArray, int arrayOffset) {
         super(capacity, backingArray, arrayOffset);
     }
 
@@ -60,8 +59,7 @@ final class ReadWriteDoubleArrayBuffer extends DoubleArrayBuffer {
 
     @Override
     public DoubleBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
@@ -112,23 +110,22 @@ final class ReadWriteDoubleArrayBuffer extends DoubleArrayBuffer {
     }
 
     @Override
-    public DoubleBuffer put(double[] src, int off, int len) {
+    public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (doubleCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, doubleCount);
+        position += doubleCount;
         return this;
     }
 
     @Override
     public DoubleBuffer slice() {
-        return new ReadWriteDoubleArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteDoubleArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

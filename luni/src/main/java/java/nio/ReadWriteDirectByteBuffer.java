@@ -98,117 +98,117 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     }
 
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || byteCount < 0 || (long) srcOffset + (long) byteCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
-            throw new BufferOverflowException();
-        }
-        this.block.pokeByteArray(offset + position, src, off, len);
-        position += len;
-        return this;
-    }
-
-    ByteBuffer put(char[] src, int off, int len) {
-        int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        int byteCount = len * SIZEOF_CHAR;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
-        this.block.pokeCharArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeByteArray(offset + position, src, srcOffset, byteCount);
         position += byteCount;
         return this;
     }
 
-    ByteBuffer put(double[] src, int off, int len) {
+    ByteBuffer put(char[] src, int srcOffset, int charCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long)charCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_DOUBLE;
+        int byteCount = charCount * SIZEOF_CHAR;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeDoubleArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
         position += byteCount;
         return this;
     }
 
-    ByteBuffer put(float[] src, int off, int len) {
+    ByteBuffer put(double[] src, int srcOffset, int doubleCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+        if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_FLOAT;
+        int byteCount = doubleCount * SIZEOF_DOUBLE;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeFloatArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
         position += byteCount;
         return this;
     }
 
-    ByteBuffer put(int[] src, int off, int len) {
+    ByteBuffer put(float[] src, int srcOffset, int floatCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+        if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_INT;
+        int byteCount = floatCount * SIZEOF_FLOAT;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeIntArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
         position += byteCount;
         return this;
     }
 
-    ByteBuffer put(long[] src, int off, int len) {
+    ByteBuffer put(int[] src, int srcOffset, int intCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+        if (srcOffset < 0 || intCount < 0 || (long) srcOffset + (long) intCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_LONG;
+        int byteCount = intCount * SIZEOF_INT;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeLongArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
         position += byteCount;
         return this;
     }
 
-    ByteBuffer put(short[] src, int off, int len) {
+    ByteBuffer put(long[] src, int srcOffset, int longCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+        if (srcOffset < 0 || longCount < 0 || (long) srcOffset + (long) longCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        int byteCount = len * SIZEOF_SHORT;
+        int byteCount = longCount * SIZEOF_LONG;
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.block.pokeShortArray(offset + position, src, off, len, order.needsSwap);
+        this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
+        position += byteCount;
+        return this;
+    }
+
+    ByteBuffer put(short[] src, int srcOffset, int shortCount) {
+        int length = src.length;
+        if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        int byteCount = shortCount * SIZEOF_SHORT;
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
         position += byteCount;
         return this;
     }

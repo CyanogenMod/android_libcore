@@ -116,18 +116,18 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
      * @see java.nio.ByteBuffer#put(byte[], int, int)
      */
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
-        if (off < 0 || len < 0 || (long) off + (long) len > src.length) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
+        if (srcOffset < 0 || byteCount < 0 || (long) srcOffset + (long) byteCount > src.length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, byteCount);
+        position += byteCount;
         return this;
     }
 

@@ -142,15 +142,15 @@ final class LongToByteBufferAdapter extends LongBuffer {
     }
 
     @Override
-    public LongBuffer put(long[] src, int off, int len) {
+    public LongBuffer put(long[] src, int srcOffset, int longCount) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
             byteBuffer.limit(limit << 3);
             byteBuffer.position(position << 3);
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, off, len);
-            this.position += len;
+            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, longCount);
+            this.position += longCount;
             return this;
         } else {
-            return super.put(src, off, len);
+            return super.put(src, srcOffset, longCount);
         }
     }
 

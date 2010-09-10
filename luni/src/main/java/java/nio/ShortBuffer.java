@@ -67,31 +67,31 @@ public abstract class ShortBuffer extends Buffer implements
      * Creates a new short buffer by wrapping the given short array.
      * <p>
      * The new buffer's position will be {@code start}, limit will be
-     * {@code start + len}, capacity will be the length of the array.
+     * {@code start + shortCount}, capacity will be the length of the array.
      *
      * @param array
      *            the short array which the new buffer will be based on.
      * @param start
      *            the start index, must not be negative and not greater than
      *            {@code array.length}.
-     * @param len
+     * @param shortCount
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created short buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code start} or {@code len} is invalid.
+     *                if either {@code start} or {@code shortCount} is invalid.
      */
-    public static ShortBuffer wrap(short[] array, int start, int len) {
+    public static ShortBuffer wrap(short[] array, int start, int shortCount) {
         if (array == null) {
             throw new NullPointerException();
         }
-        if (start < 0 || len < 0 || (long) start + (long) len > array.length) {
+        if (start < 0 || shortCount < 0 || (long) start + (long) shortCount > array.length) {
             throw new IndexOutOfBoundsException();
         }
 
         ShortBuffer buf = new ReadWriteShortArrayBuffer(array);
         buf.position = start;
-        buf.limit = start + len;
+        buf.limit = start + shortCount;
 
         return buf;
     }
@@ -249,27 +249,27 @@ public abstract class ShortBuffer extends Buffer implements
      *
      * @param dst
      *            the target short array.
-     * @param off
+     * @param dstOffset
      *            the offset of the short array, must not be negative and not
      *            greater than {@code dst.length}.
-     * @param len
+     * @param shortCount
      *            the number of shorts to read, must be no less than zero and
-     *            not greater than {@code dst.length - off}.
+     *            not greater than {@code dst.length - dstOffset}.
      * @return this buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code dstOffset} or {@code shortCount} is invalid.
      * @exception BufferUnderflowException
-     *                if {@code len} is greater than {@code remaining()}.
+     *                if {@code shortCount} is greater than {@code remaining()}.
      */
-    public ShortBuffer get(short[] dst, int off, int len) {
+    public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (dstOffset < 0 || shortCount < 0 || (long) dstOffset + (long) shortCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (shortCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = dstOffset; i < dstOffset + shortCount; ++i) {
             dst[i] = get();
         }
         return this;
@@ -391,30 +391,29 @@ public abstract class ShortBuffer extends Buffer implements
      *
      * @param src
      *            the source short array.
-     * @param off
+     * @param srcOffset
      *            the offset of short array, must not be negative and not
      *            greater than {@code src.length}.
-     * @param len
+     * @param shortCount
      *            the number of shorts to write, must be no less than zero and
-     *            not greater than {@code src.length - off}.
+     *            not greater than {@code src.length - srcOffset}.
      * @return this buffer.
      * @exception BufferOverflowException
-     *                if {@code remaining()} is less than {@code len}.
+     *                if {@code remaining()} is less than {@code shortCount}.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code srcOffset} or {@code shortCount} is invalid.
      * @exception ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
-    public ShortBuffer put(short[] src, int off, int len) {
+    public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
             throw new IndexOutOfBoundsException();
         }
-
-        if (len > remaining()) {
+        if (shortCount > remaining()) {
             throw new BufferOverflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = srcOffset; i < srcOffset + shortCount; ++i) {
             put(src[i]);
         }
         return this;

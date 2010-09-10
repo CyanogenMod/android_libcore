@@ -66,16 +66,16 @@ abstract class ShortArrayBuffer extends ShortBuffer {
     }
 
     @Override
-    public final ShortBuffer get(short[] dst, int off, int len) {
+    public final ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (dstOffset < 0 || shortCount < 0 || (long) dstOffset + (long) shortCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (shortCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dst, off, len);
-        position += len;
+        System.arraycopy(backingArray, offset + position, dst, dstOffset, shortCount);
+        position += shortCount;
         return this;
     }
 

@@ -95,14 +95,13 @@ final class ReadOnlyFloatArrayBuffer extends FloatArrayBuffer {
     }
 
     @Override
-    public final FloatBuffer put(float[] src, int off, int len) {
+    public final FloatBuffer put(float[] src, int srcOffset, int byteCount) {
         throw new ReadOnlyBufferException();
     }
 
     @Override
     public FloatBuffer slice() {
-        return new ReadOnlyFloatArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadOnlyFloatArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

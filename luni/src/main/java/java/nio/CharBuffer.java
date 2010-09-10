@@ -71,30 +71,28 @@ public abstract class CharBuffer extends Buffer implements
      * Creates a new char buffer by wrapping the given char array.
      * <p>
      * The new buffer's position will be {@code start}, limit will be
-     * {@code start + len}, capacity will be the length of the array.
+     * {@code start + charCount}, capacity will be the length of the array.
      *
      * @param array
      *            the char array which the new buffer will be based on.
      * @param start
      *            the start index, must not be negative and not greater than
      *            {@code array.length}.
-     * @param len
+     * @param charCount
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created char buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code start} or {@code len} is invalid.
+     *                if either {@code start} or {@code charCount} is invalid.
      */
-    public static CharBuffer wrap(char[] array, int start, int len) {
+    public static CharBuffer wrap(char[] array, int start, int charCount) {
         int length = array.length;
-        if ((start < 0) || (len < 0) || (long) start + (long) len > length) {
+        if (start < 0 || charCount < 0 || (long) start + (long) charCount > length) {
             throw new IndexOutOfBoundsException();
         }
-
         CharBuffer buf = new ReadWriteCharArrayBuffer(array);
         buf.position = start;
-        buf.limit = start + len;
-
+        buf.limit = start + charCount;
         return buf;
     }
 
@@ -317,28 +315,27 @@ public abstract class CharBuffer extends Buffer implements
      *
      * @param dst
      *            the target char array.
-     * @param off
+     * @param dstOffset
      *            the offset of the char array, must not be negative and not
      *            greater than {@code dst.length}.
-     * @param len
+     * @param charCount
      *            The number of chars to read, must be no less than zero and no
-     *            greater than {@code dst.length - off}.
+     *            greater than {@code dst.length - dstOffset}.
      * @return this buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code dstOffset} or {@code charCount} is invalid.
      * @exception BufferUnderflowException
-     *                if {@code len} is greater than {@code remaining()}.
+     *                if {@code charCount} is greater than {@code remaining()}.
      */
-    public CharBuffer get(char[] dst, int off, int len) {
+    public CharBuffer get(char[] dst, int dstOffset, int charCount) {
         int length = dst.length;
-        if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
+        if (dstOffset < 0 || charCount < 0 || (long) dstOffset + (long) charCount > length) {
             throw new IndexOutOfBoundsException();
         }
-
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = dstOffset; i < dstOffset + charCount; ++i) {
             dst[i] = get();
         }
         return this;
@@ -469,30 +466,30 @@ public abstract class CharBuffer extends Buffer implements
      *
      * @param src
      *            the source char array.
-     * @param off
+     * @param srcOffset
      *            the offset of char array, must not be negative and not greater
      *            than {@code src.length}.
-     * @param len
+     * @param charCount
      *            the number of chars to write, must be no less than zero and no
-     *            greater than {@code src.length - off}.
+     *            greater than {@code src.length - srcOffset}.
      * @return this buffer.
      * @exception BufferOverflowException
-     *                if {@code remaining()} is less than {@code len}.
+     *                if {@code remaining()} is less than {@code charCount}.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code srcOffset} or {@code charCount} is invalid.
      * @exception ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
-    public CharBuffer put(char[] src, int off, int len) {
+    public CharBuffer put(char[] src, int srcOffset, int charCount) {
         int length = src.length;
-        if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
+        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > length) {
             throw new IndexOutOfBoundsException();
         }
 
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferOverflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = srcOffset; i < srcOffset + charCount; ++i) {
             put(src[i]);
         }
         return this;

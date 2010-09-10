@@ -68,29 +68,29 @@ public abstract class DoubleBuffer extends Buffer implements
      * Creates a new double buffer by wrapping the given double array.
      * <p>
      * The new buffer's position will be {@code start}, limit will be
-     * {@code start + len}, capacity will be the length of the array.
+     * {@code start + doubleCount}, capacity will be the length of the array.
      *
      * @param array
      *            the double array which the new buffer will be based on.
      * @param start
      *            the start index, must not be negative and not greater than
      *            {@code array.length}.
-     * @param len
+     * @param doubleCount
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created double buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code start} or {@code len} is invalid.
+     *                if either {@code start} or {@code doubleCount} is invalid.
      */
-    public static DoubleBuffer wrap(double[] array, int start, int len) {
+    public static DoubleBuffer wrap(double[] array, int start, int doubleCount) {
         int length = array.length;
-        if (start < 0 || len < 0 || (long) start + (long) len > length) {
+        if (start < 0 || doubleCount < 0 || (long) start + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
         }
 
         DoubleBuffer buf = new ReadWriteDoubleArrayBuffer(array);
         buf.position = start;
-        buf.limit = start + len;
+        buf.limit = start + doubleCount;
 
         return buf;
     }
@@ -257,28 +257,28 @@ public abstract class DoubleBuffer extends Buffer implements
      *
      * @param dst
      *            the target double array.
-     * @param off
+     * @param dstOffset
      *            the offset of the double array, must not be negative and not
      *            greater than {@code dst.length}.
-     * @param len
+     * @param doubleCount
      *            the number of doubles to read, must be no less than zero and
-     *            not greater than {@code dst.length - off}.
+     *            not greater than {@code dst.length - dstOffset}.
      * @return this buffer.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code dstOffset} or {@code doubleCount} is invalid.
      * @exception BufferUnderflowException
-     *                if {@code len} is greater than {@code remaining()}.
+     *                if {@code doubleCount} is greater than {@code remaining()}.
      */
-    public DoubleBuffer get(double[] dst, int off, int len) {
+    public DoubleBuffer get(double[] dst, int dstOffset, int doubleCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (dstOffset < 0 || doubleCount < 0 || (long) dstOffset + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
         }
 
-        if (len > remaining()) {
+        if (doubleCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = dstOffset; i < dstOffset + doubleCount; ++i) {
             dst[i] = get();
         }
         return this;
@@ -402,30 +402,29 @@ public abstract class DoubleBuffer extends Buffer implements
      *
      * @param src
      *            the source double array.
-     * @param off
+     * @param srcOffset
      *            the offset of double array, must not be negative and not
      *            greater than {@code src.length}.
-     * @param len
+     * @param doubleCount
      *            the number of doubles to write, must be no less than zero and
-     *            not greater than {@code src.length - off}.
+     *            not greater than {@code src.length - srcOffset}.
      * @return this buffer.
      * @exception BufferOverflowException
-     *                if {@code remaining()} is less than {@code len}.
+     *                if {@code remaining()} is less than {@code doubleCount}.
      * @exception IndexOutOfBoundsException
-     *                if either {@code off} or {@code len} is invalid.
+     *                if either {@code srcOffset} or {@code doubleCount} is invalid.
      * @exception ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
-    public DoubleBuffer put(double[] src, int off, int len) {
+    public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
         }
-
-        if (len > remaining()) {
+        if (doubleCount > remaining()) {
             throw new BufferOverflowException();
         }
-        for (int i = off; i < off + len; i++) {
+        for (int i = srcOffset; i < srcOffset + doubleCount; ++i) {
             put(src[i]);
         }
         return this;

@@ -66,16 +66,16 @@ abstract class LongArrayBuffer extends LongBuffer {
     }
 
     @Override
-    public final LongBuffer get(long[] dst, int off, int len) {
+    public final LongBuffer get(long[] dst, int dstOffset, int longCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) len + (long) off > length) {
+        if (dstOffset < 0 || longCount < 0 || (long) longCount + (long) dstOffset > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (longCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dst, off, len);
-        position += len;
+        System.arraycopy(backingArray, offset + position, dst, dstOffset, longCount);
+        position += longCount;
         return this;
     }
 
