@@ -480,22 +480,4 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract IntBuffer slice();
-
-    /**
-     * Returns a string represents of the state of this int buffer.
-     *
-     * @return a string represents of the state of this int buffer.
-     */
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getName());
-        buf.append(", status: capacity=");
-        buf.append(capacity());
-        buf.append(" position=");
-        buf.append(position());
-        buf.append(" limit=");
-        buf.append(limit());
-        return buf.toString();
-    }
 }

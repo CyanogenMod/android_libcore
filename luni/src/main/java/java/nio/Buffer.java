@@ -249,6 +249,14 @@ public abstract class Buffer {
      *                if <code>newLimit</code> is invalid.
      */
     public final Buffer limit(int newLimit) {
+        limitImpl(newLimit);
+        return this;
+    }
+
+    /**
+     * Subverts the fact that limit(int) is final, for the benefit of MappedByteBufferAdapter.
+     */
+    void limitImpl(int newLimit) {
         if (newLimit < 0 || newLimit > capacity) {
             throw new IllegalArgumentException();
         }
@@ -260,7 +268,6 @@ public abstract class Buffer {
         if ((mark != UNSET_MARK) && (mark > newLimit)) {
             mark = UNSET_MARK;
         }
-        return this;
     }
 
     /**
@@ -297,6 +304,11 @@ public abstract class Buffer {
      *                if <code>newPosition</code> is invalid.
      */
     public final Buffer position(int newPosition) {
+        positionImpl(newPosition);
+        return this;
+    }
+
+    void positionImpl(int newPosition) {
         if (newPosition < 0 || newPosition > limit) {
             throw new IllegalArgumentException();
         }
@@ -305,7 +317,6 @@ public abstract class Buffer {
         if ((mark != UNSET_MARK) && (mark > position)) {
             mark = UNSET_MARK;
         }
-        return this;
     }
 
     /**
@@ -345,5 +356,17 @@ public abstract class Buffer {
         position = 0;
         mark = UNSET_MARK;
         return this;
+    }
+
+    @Override public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append(getClass().getName());
+        buf.append(", status: capacity=");
+        buf.append(capacity);
+        buf.append(" position=");
+        buf.append(position);
+        buf.append(" limit=");
+        buf.append(limit);
+        return buf.toString();
     }
 }

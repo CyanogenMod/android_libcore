@@ -31,7 +31,7 @@ package java.nio;
 final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
     static ReadOnlyDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
         ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(other.block, other.capacity(), other.offset);
-        buf.limit = other.limit();
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         buf.order(other.order());

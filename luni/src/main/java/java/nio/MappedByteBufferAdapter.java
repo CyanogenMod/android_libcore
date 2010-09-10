@@ -25,187 +25,174 @@ import java.nio.channels.FileChannel.MapMode;
 public final class MappedByteBufferAdapter extends MappedByteBuffer {
     private MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
-        effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
+        effectiveDirectAddress = wrapped.effectiveDirectAddress;
     }
 
     public MappedByteBufferAdapter(MemoryBlock block, int capacity, int offset, MapMode mode) {
         super(block, capacity, offset, mode);
-        effectiveDirectAddress = this.wrapped.effectiveDirectAddress;
+        effectiveDirectAddress = wrapped.effectiveDirectAddress;
+    }
+
+    @Override void limitImpl(int newLimit) {
+        super.limitImpl(newLimit);
+        wrapped.limit(newLimit);
+    }
+
+    @Override void positionImpl(int newPosition) {
+        super.positionImpl(newPosition);
+        wrapped.position(newPosition);
     }
 
     @Override
     public CharBuffer asCharBuffer() {
-        return this.wrapped.asCharBuffer();
+        return wrapped.asCharBuffer();
     }
 
     @Override
     public DoubleBuffer asDoubleBuffer() {
-        return this.wrapped.asDoubleBuffer();
+        return wrapped.asDoubleBuffer();
     }
 
     @Override
     public FloatBuffer asFloatBuffer() {
-        return this.wrapped.asFloatBuffer();
+        return wrapped.asFloatBuffer();
     }
 
     @Override
     public IntBuffer asIntBuffer() {
-        return this.wrapped.asIntBuffer();
+        return wrapped.asIntBuffer();
     }
 
     @Override
     public LongBuffer asLongBuffer() {
-        return this.wrapped.asLongBuffer();
+        return wrapped.asLongBuffer();
     }
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped.asReadOnlyBuffer());
-        buf.limit = this.limit;
-        buf.position = this.position;
+        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(wrapped.asReadOnlyBuffer());
+        buf.limit = wrapped.limit;
+        buf.position = wrapped.position;
         buf.mark = this.mark;
         return buf;
     }
 
     @Override
     public ShortBuffer asShortBuffer() {
-        return this.wrapped.asShortBuffer();
+        return wrapped.asShortBuffer();
     }
 
     @Override
     public ByteBuffer compact() {
-        if (this.wrapped.isReadOnly()) {
+        if (wrapped.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.compact();
-        this.wrapped.clear();
-        this.position = this.limit - this.position;
-        this.limit = this.capacity;
+        wrapped.compact();
+        wrapped.clear();
+        position(wrapped.limit - wrapped.position);
+        limit(this.capacity);
         this.mark = UNSET_MARK;
         return this;
     }
 
     @Override
     public ByteBuffer duplicate() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(this.wrapped.duplicate());
-        buf.limit = this.limit;
-        buf.position = this.position;
+        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(wrapped.duplicate());
+        buf.limit = wrapped.limit;
+        buf.position = wrapped.position;
         buf.mark = this.mark;
         return buf;
     }
 
     @Override
     public byte get() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        byte result = this.wrapped.get();
-        this.position++;
+        byte result = wrapped.get();
+        ++position;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public byte get(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.get(index);
+        return wrapped.get(index);
     }
 
     @Override
     public char getChar() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        char result = this.wrapped.getChar();
-        this.position += SIZEOF_CHAR;
+        char result = wrapped.getChar();
+        position += SIZEOF_CHAR;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public char getChar(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getChar(index);
+        return wrapped.getChar(index);
     }
 
     @Override
     public double getDouble() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        double result = this.wrapped.getDouble();
-        this.position += SIZEOF_DOUBLE;
+        double result = wrapped.getDouble();
+        position += SIZEOF_DOUBLE;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public double getDouble(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getDouble(index);
+        return wrapped.getDouble(index);
     }
 
     @Override
     public float getFloat() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        float result = this.wrapped.getFloat();
-        this.position += SIZEOF_FLOAT;
+        float result = wrapped.getFloat();
+        position += SIZEOF_FLOAT;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public float getFloat(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getFloat(index);
+        return wrapped.getFloat(index);
     }
 
     @Override
     public int getInt() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        int result = this.wrapped.getInt();
-        this.position += SIZEOF_INT;
+        int result = wrapped.getInt();
+        position += SIZEOF_INT;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public int getInt(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getInt(index);
+        return wrapped.getInt(index);
     }
 
     @Override
     public long getLong() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        long result = this.wrapped.getLong();
-        this.position += SIZEOF_LONG;
+        long result = wrapped.getLong();
+        position += SIZEOF_LONG;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public long getLong(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getLong(index);
+        return wrapped.getLong(index);
     }
 
     @Override
     public short getShort() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        short result = this.wrapped.getShort();
-        this.position += SIZEOF_SHORT;
+        short result = wrapped.getShort();
+        position += SIZEOF_SHORT;
+        wrapped.position(position);
         return result;
     }
 
     @Override
     public short getShort(int index) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        return this.wrapped.getShort(index);
+        return wrapped.getShort(index);
     }
 
     @Override
@@ -215,168 +202,151 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public boolean isReadOnly() {
-        return this.wrapped.isReadOnly();
+        return wrapped.isReadOnly();
     }
 
-    @Override
-    ByteBuffer orderImpl(ByteOrder byteOrder) {
+    @Override void orderImpl(ByteOrder byteOrder) {
         super.orderImpl(byteOrder);
-        return this.wrapped.order(byteOrder);
+        wrapped.order(byteOrder);
     }
 
     @Override
     public ByteBuffer put(byte b) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.put(b);
+        wrapped.position(this.position);
+        wrapped.put(b);
         this.position++;
         return this;
     }
 
     @Override
     public ByteBuffer put(byte[] src, int off, int len) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.put(src, off, len);
+        wrapped.position(this.position);
+        wrapped.put(src, off, len);
         this.position += len;
         return this;
     }
 
     @Override
     public ByteBuffer put(int index, byte b) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.put(index, b);
+        wrapped.position(this.position);
+        wrapped.put(index, b);
         return this;
     }
 
     @Override
     public ByteBuffer putChar(char value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putChar(value);
+        wrapped.position(this.position);
+        wrapped.putChar(value);
         this.position += SIZEOF_CHAR;
         return this;
     }
 
     @Override
     public ByteBuffer putChar(int index, char value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putChar(index, value);
+        wrapped.position(this.position);
+        wrapped.putChar(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putDouble(double value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putDouble(value);
+        wrapped.position(this.position);
+        wrapped.putDouble(value);
         this.position += SIZEOF_DOUBLE;
         return this;
     }
 
     @Override
     public ByteBuffer putDouble(int index, double value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putDouble(index, value);
+        wrapped.position(this.position);
+        wrapped.putDouble(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putFloat(float value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putFloat(value);
+        wrapped.position(this.position);
+        wrapped.putFloat(value);
         this.position += SIZEOF_FLOAT;
         return this;
     }
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putFloat(index, value);
+        wrapped.position(this.position);
+        wrapped.putFloat(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putInt(index, value);
+        wrapped.position(this.position);
+        wrapped.putInt(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putInt(int value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putInt(value);
+        wrapped.position(this.position);
+        wrapped.putInt(value);
         this.position += SIZEOF_INT;
         return this;
     }
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putLong(index, value);
+        wrapped.position(this.position);
+        wrapped.putLong(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(long value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putLong(value);
+        wrapped.position(this.position);
+        wrapped.putLong(value);
         this.position += SIZEOF_LONG;
         return this;
     }
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putShort(index, value);
+        wrapped.position(this.position);
+        wrapped.putShort(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putShort(short value) {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        this.wrapped.putShort(value);
+        wrapped.position(this.position);
+        wrapped.putShort(value);
         this.position += SIZEOF_SHORT;
         return this;
     }
 
     @Override
     public ByteBuffer slice() {
-        this.wrapped.limit(this.limit);
-        this.wrapped.position(this.position);
-        MappedByteBufferAdapter result = new MappedByteBufferAdapter(this.wrapped.slice());
-        this.wrapped.clear();
+        wrapped.position(this.position);
+        MappedByteBufferAdapter result = new MappedByteBufferAdapter(wrapped.slice());
+        wrapped.clear();
         return result;
     }
 
     @Override
     byte[] protectedArray() {
-        return this.wrapped.protectedArray();
+        return wrapped.protectedArray();
     }
 
     @Override
     int protectedArrayOffset() {
-        return this.wrapped.protectedArrayOffset();
+        return wrapped.protectedArrayOffset();
     }
 
     @Override
     boolean protectedHasArray() {
-        return this.wrapped.protectedHasArray();
+        return wrapped.protectedHasArray();
     }
 
     public final void free() {
-        this.wrapped.free();
+        wrapped.free();
     }
 }
