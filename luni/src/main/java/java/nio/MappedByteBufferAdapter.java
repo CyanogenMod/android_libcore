@@ -20,6 +20,20 @@ package java.nio;
 import java.nio.channels.FileChannel.MapMode;
 
 /**
+ * Rather than duplicate all the code from ReadOnlyDirectByteBuffer and
+ * ReadWriteDirectByteBuffer (and their superclasses), we delegate to one or the other.
+ * The tricky part is that we need to keep our fields in sync with our delegate's fields.
+ * There are lots of methods that access the fields directly.
+ *
+ * The main consequence of our implementation is that we need to explicitly call
+ * wrapped.position(int) before any operation on our delegate that makes use of the
+ * implicit position. This means that, even more than usual, the implicit iteration
+ * operations are more expensive than the indexed operations.
+ *
+ * But we save a ton of code, for classes that no-one really uses because the API's broken
+ * by design (disallowing munmap(2) calls). Internally, we can use libcore.io.MemoryMappedFile
+ * as a high-performance and more usable replacement for MappedByteBuffer.
+ *
  * @hide - only used by FileChannelImpl; add API to NioUtils?
  */
 public final class MappedByteBufferAdapter extends MappedByteBuffer {
@@ -70,11 +84,11 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(wrapped.asReadOnlyBuffer());
-        buf.limit = wrapped.limit;
-        buf.position = wrapped.position;
-        buf.mark = this.mark;
-        return buf;
+        MappedByteBufferAdapter result = new MappedByteBufferAdapter(wrapped.asReadOnlyBuffer());
+        result.limit(limit);
+        result.position(position);
+        result.mark = mark;
+        return result;
     }
 
     @Override
@@ -88,27 +102,26 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
             throw new ReadOnlyBufferException();
         }
         wrapped.compact();
-        wrapped.clear();
-        position(wrapped.limit - wrapped.position);
-        limit(this.capacity);
+        limit(capacity);
+        position(wrapped.position());
         this.mark = UNSET_MARK;
         return this;
     }
 
     @Override
     public ByteBuffer duplicate() {
-        MappedByteBufferAdapter buf = new MappedByteBufferAdapter(wrapped.duplicate());
-        buf.limit = wrapped.limit;
-        buf.position = wrapped.position;
-        buf.mark = this.mark;
-        return buf;
+        MappedByteBufferAdapter result = new MappedByteBufferAdapter(wrapped.duplicate());
+        result.limit(limit);
+        result.position(position);
+        result.mark = mark;
+        return result;
     }
 
     @Override
     public byte get() {
+        wrapped.position(position);
         byte result = wrapped.get();
         ++position;
-        wrapped.position(position);
         return result;
     }
 
@@ -119,9 +132,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public char getChar() {
+        wrapped.position(position);
         char result = wrapped.getChar();
         position += SIZEOF_CHAR;
-        wrapped.position(position);
         return result;
     }
 
@@ -132,9 +145,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public double getDouble() {
+        wrapped.position(position);
         double result = wrapped.getDouble();
         position += SIZEOF_DOUBLE;
-        wrapped.position(position);
         return result;
     }
 
@@ -145,9 +158,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public float getFloat() {
+        wrapped.position(position);
         float result = wrapped.getFloat();
         position += SIZEOF_FLOAT;
-        wrapped.position(position);
         return result;
     }
 
@@ -158,9 +171,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public int getInt() {
+        wrapped.position(position);
         int result = wrapped.getInt();
         position += SIZEOF_INT;
-        wrapped.position(position);
         return result;
     }
 
@@ -171,9 +184,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public long getLong() {
+        wrapped.position(position);
         long result = wrapped.getLong();
         position += SIZEOF_LONG;
-        wrapped.position(position);
         return result;
     }
 
@@ -184,9 +197,9 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public short getShort() {
+        wrapped.position(position);
         short result = wrapped.getShort();
         position += SIZEOF_SHORT;
-        wrapped.position(position);
         return result;
     }
 
