@@ -152,11 +152,51 @@ static void OSMemory_peekByteArray(JNIEnv* env, jclass, jint srcAddress,
     env->SetByteArrayRegion(dst, dstOffset, byteCount, cast<const jbyte*>(srcAddress));
 }
 
+static void OSMemory_peekCharArray(JNIEnv* env, jclass, jint srcAddress, jcharArray dst, jint dstOffset, jint charCount, jboolean swap) {
+    env->SetCharArrayRegion(dst, dstOffset, charCount, cast<const jchar*>(srcAddress));
+    if (swap) {
+        ScopedCharArrayRW chars(env, dst);
+        swapShorts(reinterpret_cast<jshort*>(chars.get()), charCount);
+    }
+}
+
+static void OSMemory_peekDoubleArray(JNIEnv* env, jclass, jint srcAddress, jdoubleArray dst, jint dstOffset, jint doubleCount, jboolean swap) {
+    env->SetDoubleArrayRegion(dst, dstOffset, doubleCount, cast<const jdouble*>(srcAddress));
+    if (swap) {
+        ScopedDoubleArrayRW doubles(env, dst);
+        swapLongs(reinterpret_cast<jlong*>(doubles.get()), doubleCount);
+    }
+}
+
+static void OSMemory_peekFloatArray(JNIEnv* env, jclass, jint srcAddress, jfloatArray dst, jint dstOffset, jint floatCount, jboolean swap) {
+    env->SetFloatArrayRegion(dst, dstOffset, floatCount, cast<const jfloat*>(srcAddress));
+    if (swap) {
+        ScopedFloatArrayRW floats(env, dst);
+        swapInts(reinterpret_cast<jint*>(floats.get()), floatCount);
+    }
+}
+
 static void OSMemory_peekIntArray(JNIEnv* env, jclass, jint srcAddress, jintArray dst, jint dstOffset, jint intCount, jboolean swap) {
     env->SetIntArrayRegion(dst, dstOffset, intCount, cast<const jint*>(srcAddress));
     if (swap) {
         ScopedIntArrayRW ints(env, dst);
         swapInts(ints.get(), intCount);
+    }
+}
+
+static void OSMemory_peekLongArray(JNIEnv* env, jclass, jint srcAddress, jlongArray dst, jint dstOffset, jint longCount, jboolean swap) {
+    env->SetLongArrayRegion(dst, dstOffset, longCount, cast<const jlong*>(srcAddress));
+    if (swap) {
+        ScopedLongArrayRW longs(env, dst);
+        swapLongs(longs.get(), longCount);
+    }
+}
+
+static void OSMemory_peekShortArray(JNIEnv* env, jclass, jint srcAddress, jshortArray dst, jint dstOffset, jint shortCount, jboolean swap) {
+    env->SetShortArrayRegion(dst, dstOffset, shortCount, cast<const jshort*>(srcAddress));
+    if (swap) {
+        ScopedShortArrayRW shorts(env, dst);
+        swapShorts(shorts.get(), shortCount);
     }
 }
 
@@ -417,10 +457,15 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, munmap, "(IJ)V"),
     NATIVE_METHOD(OSMemory, peekByte, "(I)B"),
     NATIVE_METHOD(OSMemory, peekByteArray, "(I[BII)V"),
+    NATIVE_METHOD(OSMemory, peekCharArray, "(I[CIIZ)V"),
+    NATIVE_METHOD(OSMemory, peekDoubleArray, "(I[DIIZ)V"),
+    NATIVE_METHOD(OSMemory, peekFloatArray, "(I[FIIZ)V"),
     NATIVE_METHOD(OSMemory, peekInt, "(IZ)I"),
     NATIVE_METHOD(OSMemory, peekIntArray, "(I[IIIZ)V"),
     NATIVE_METHOD(OSMemory, peekLong, "(IZ)J"),
+    NATIVE_METHOD(OSMemory, peekLongArray, "(I[JIIZ)V"),
     NATIVE_METHOD(OSMemory, peekShort, "(IZ)S"),
+    NATIVE_METHOD(OSMemory, peekShortArray, "(I[SIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeByte, "(IB)V"),
     NATIVE_METHOD(OSMemory, pokeByteArray, "(I[BII)V"),
     NATIVE_METHOD(OSMemory, pokeCharArray, "(I[CIIZ)V"),

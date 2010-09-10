@@ -111,7 +111,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         return this;
     }
 
-    ByteBuffer put(char[] src, int srcOffset, int charCount) {
+    final void put(char[] src, int srcOffset, int charCount) {
         int length = src.length;
         if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long)charCount > length) {
             throw new IndexOutOfBoundsException();
@@ -125,10 +125,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
-    ByteBuffer put(double[] src, int srcOffset, int doubleCount) {
+    final void put(double[] src, int srcOffset, int doubleCount) {
         int length = src.length;
         if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
             throw new IndexOutOfBoundsException();
@@ -142,10 +141,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
-    ByteBuffer put(float[] src, int srcOffset, int floatCount) {
+    final void put(float[] src, int srcOffset, int floatCount) {
         int length = src.length;
         if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
             throw new IndexOutOfBoundsException();
@@ -159,10 +157,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
-    ByteBuffer put(int[] src, int srcOffset, int intCount) {
+    final void put(int[] src, int srcOffset, int intCount) {
         int length = src.length;
         if (srcOffset < 0 || intCount < 0 || (long) srcOffset + (long) intCount > length) {
             throw new IndexOutOfBoundsException();
@@ -176,10 +173,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
-    ByteBuffer put(long[] src, int srcOffset, int longCount) {
+    final void put(long[] src, int srcOffset, int longCount) {
         int length = src.length;
         if (srcOffset < 0 || longCount < 0 || (long) srcOffset + (long) longCount > length) {
             throw new IndexOutOfBoundsException();
@@ -193,10 +189,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
-    ByteBuffer put(short[] src, int srcOffset, int shortCount) {
+    final void put(short[] src, int srcOffset, int shortCount) {
         int length = src.length;
         if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
             throw new IndexOutOfBoundsException();
@@ -210,7 +205,6 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
         position += byteCount;
-        return this;
     }
 
     @Override

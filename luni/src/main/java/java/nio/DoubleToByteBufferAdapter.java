@@ -38,7 +38,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     private final ByteBuffer byteBuffer;
 
     DoubleToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super((byteBuffer.capacity() >> 3));
+        super(byteBuffer.capacity() / SIZEOF_DOUBLE);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
@@ -58,8 +58,8 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit << 3);
-        byteBuffer.position(position << 3);
+        byteBuffer.limit(limit * SIZEOF_DOUBLE);
+        byteBuffer.position(position * SIZEOF_DOUBLE);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -82,7 +82,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getDouble(position++ << 3);
+        return byteBuffer.getDouble(position++ * SIZEOF_DOUBLE);
     }
 
     @Override
@@ -90,7 +90,20 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        return byteBuffer.getDouble(index << 3);
+        return byteBuffer.getDouble(index * SIZEOF_DOUBLE);
+    }
+
+    @Override
+    public DoubleBuffer get(double[] dst, int dstOffset, int doubleCount) {
+        if (byteBuffer instanceof DirectByteBuffer) {
+            byteBuffer.limit(limit * SIZEOF_DOUBLE);
+            byteBuffer.position(position * SIZEOF_DOUBLE);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, doubleCount);
+            this.position += doubleCount;
+            return this;
+        } else {
+            return super.get(dst, dstOffset, doubleCount);
+        }
     }
 
     @Override
@@ -128,7 +141,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putDouble(position++ << 3, c);
+        byteBuffer.putDouble(position++ * SIZEOF_DOUBLE, c);
         return this;
     }
 
@@ -137,15 +150,15 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        byteBuffer.putDouble(index << 3, c);
+        byteBuffer.putDouble(index * SIZEOF_DOUBLE, c);
         return this;
     }
 
     @Override
     public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            byteBuffer.limit(limit << 3);
-            byteBuffer.position(position << 3);
+            byteBuffer.limit(limit * SIZEOF_DOUBLE);
+            byteBuffer.position(position * SIZEOF_DOUBLE);
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, doubleCount);
             this.position += doubleCount;
             return this;
@@ -156,8 +169,8 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public DoubleBuffer slice() {
-        byteBuffer.limit(limit << 3);
-        byteBuffer.position(position << 3);
+        byteBuffer.limit(limit * SIZEOF_DOUBLE);
+        byteBuffer.position(position * SIZEOF_DOUBLE);
         DoubleBuffer result = new DoubleToByteBufferAdapter(byteBuffer.slice());
         byteBuffer.clear();
         return result;

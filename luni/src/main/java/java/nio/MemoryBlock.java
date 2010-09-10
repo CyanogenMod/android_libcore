@@ -144,8 +144,28 @@ public class MemoryBlock {
         OSMemory.peekByteArray(address + offset, dst, dstOffset, byteCount);
     }
 
+    public final void peekCharArray(int offset, char[] dst, int dstOffset, int charCount, boolean swap) {
+        OSMemory.peekCharArray(address + offset, dst, dstOffset, charCount, swap);
+    }
+
+    public final void peekDoubleArray(int offset, double[] dst, int dstOffset, int doubleCount, boolean swap) {
+        OSMemory.peekDoubleArray(address + offset, dst, dstOffset, doubleCount, swap);
+    }
+
+    public final void peekFloatArray(int offset, float[] dst, int dstOffset, int floatCount, boolean swap) {
+        OSMemory.peekFloatArray(address + offset, dst, dstOffset, floatCount, swap);
+    }
+
     public final void peekIntArray(int offset, int[] dst, int dstOffset, int intCount, boolean swap) {
         OSMemory.peekIntArray(address + offset, dst, dstOffset, intCount, swap);
+    }
+
+    public final void peekLongArray(int offset, long[] dst, int dstOffset, int longCount, boolean swap) {
+        OSMemory.peekLongArray(address + offset, dst, dstOffset, longCount, swap);
+    }
+
+    public final void peekShortArray(int offset, short[] dst, int dstOffset, int shortCount, boolean swap) {
+        OSMemory.peekShortArray(address + offset, dst, dstOffset, shortCount, swap);
     }
 
     public final void pokeShort(int offset, short value, ByteOrder order) {

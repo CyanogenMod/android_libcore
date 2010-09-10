@@ -37,7 +37,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
     private final ByteBuffer byteBuffer;
 
     FloatToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super((byteBuffer.capacity() >> 2));
+        super(byteBuffer.capacity() / SIZEOF_FLOAT);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
@@ -57,8 +57,8 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit << 2);
-        byteBuffer.position(position << 2);
+        byteBuffer.limit(limit * SIZEOF_FLOAT);
+        byteBuffer.position(position * SIZEOF_FLOAT);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -81,7 +81,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getFloat(position++ << 2);
+        return byteBuffer.getFloat(position++ * SIZEOF_FLOAT);
     }
 
     @Override
@@ -89,7 +89,20 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        return byteBuffer.getFloat(index << 2);
+        return byteBuffer.getFloat(index * SIZEOF_FLOAT);
+    }
+
+    @Override
+    public FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
+        if (byteBuffer instanceof DirectByteBuffer) {
+            byteBuffer.limit(limit * SIZEOF_FLOAT);
+            byteBuffer.position(position * SIZEOF_FLOAT);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, floatCount);
+            this.position += floatCount;
+            return this;
+        } else {
+            return super.get(dst, dstOffset, floatCount);
+        }
     }
 
     @Override
@@ -127,7 +140,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putFloat(position++ << 2, c);
+        byteBuffer.putFloat(position++ * SIZEOF_FLOAT, c);
         return this;
     }
 
@@ -136,15 +149,15 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        byteBuffer.putFloat(index << 2, c);
+        byteBuffer.putFloat(index * SIZEOF_FLOAT, c);
         return this;
     }
 
     @Override
     public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            byteBuffer.limit(limit << 2);
-            byteBuffer.position(position << 2);
+            byteBuffer.limit(limit * SIZEOF_FLOAT);
+            byteBuffer.position(position * SIZEOF_FLOAT);
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, floatCount);
             this.position += floatCount;
             return this;
@@ -155,8 +168,8 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public FloatBuffer slice() {
-        byteBuffer.limit(limit << 2);
-        byteBuffer.position(position << 2);
+        byteBuffer.limit(limit * SIZEOF_FLOAT);
+        byteBuffer.position(position * SIZEOF_FLOAT);
         FloatBuffer result = new FloatToByteBufferAdapter(byteBuffer.slice());
         byteBuffer.clear();
         return result;

@@ -79,7 +79,12 @@ public final class OSMemory {
     public static native short peekShort(int address, boolean swap);
 
     public static native void peekByteArray(int address, byte[] dst, int dstOffset, int byteCount);
+    public static native void peekCharArray(int address, char[] dst, int dstOffset, int charCount, boolean swap);
+    public static native void peekDoubleArray(int address, double[] dst, int dstOffset, int doubleCount, boolean swap);
+    public static native void peekFloatArray(int address, float[] dst, int dstOffset, int floatCount, boolean swap);
     public static native void peekIntArray(int address, int[] dst, int dstOffset, int intCount, boolean swap);
+    public static native void peekLongArray(int address, long[] dst, int dstOffset, int longCount, boolean swap);
+    public static native void peekShortArray(int address, short[] dst, int dstOffset, int shortCount, boolean swap);
 
     public static native void pokeByte(int address, byte value);
     public static native void pokeInt(int address, int value, boolean swap);
