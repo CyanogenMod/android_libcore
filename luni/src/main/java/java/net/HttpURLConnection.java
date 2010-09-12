@@ -18,16 +18,186 @@
 package java.net;
 
 import java.io.IOException;
+import java.io.InputStream;
 import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
 
 /**
- * This abstract subclass of {@code URLConnection} defines methods for managing
- * HTTP connection according to the description given by RFC 2068.
+ * An {@link URLConnection} for HTTP (<a
+ * href="http://tools.ietf.org/html/rfc2616">RFC 2616</a>) used to send and
+ * receive data over the web. Data may be of any type and length. This class may
+ * be used to send and receive streaming data whose length is not known in
+ * advance.
  *
- * @see ContentHandler
- * @see URL
- * @see URLConnection
- * @see URLStreamHandler
+ * <p>Uses of this class follow a pattern:
+ * <ol>
+ *   <li>Obtain a new {@code HttpURLConnection} by calling {@link
+ *       URL#openConnection() URL.openConnection()} and casting the result to
+ *       {@code HttpURLConnection}.
+ *   <li>Prepare the request. The primary property of a request is its URI.
+ *       Request headers may also include metadata such as credentials, preferred
+ *       content types, and session cookies.
+ *   <li>Optionally upload a request body. Instances must be configured with
+ *       {@link #setDoOutput(boolean) setDoOutput(true)} if they include a
+ *       request body. Transmit data by writing to the stream returned by {@link
+ *       #getOutputStream()}.
+ *   <li>Read the response. Response headers typically include metadata such as
+ *       the response body's content type and length, modified dates and session
+ *       cookies. The response body may be read from the stream returned by {@link
+ *       #getInputStream()}. If the response has no body, that method returns an
+ *       empty stream.
+ *   <li>Disconnect. Once the response body has been read, the {@code
+ *       HttpURLConnection} should be closed by calling {@link #disconnect()}.
+ *       Disconnecting frees all resources held by a connection.
+ * </ol>
+ *
+ * <p>For example, to retrieve the webpage at {@code http://www.android.com/}:
+ * <pre>   {@code
+ *   URL url = new URL("http://www.android.com/");
+ *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+ *   try {
+ *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+ *     readStream(in);
+ *   } finally {
+ *     urlConnection.disconnect();
+ *   }
+ * }</pre>
+ *
+ * <h3>Secure Communication with HTTPS</h3>
+ * Calling {@link URL#openConnection()} on a URL with the "https" scheme will
+ * return an {@link javax.net.ssl.HttpsURLConnection HttpsURLConnection}.
+ *
+ * <h3>Response Handling</h3>
+ * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
+ * follow redirects from one origin server to another, but not from HTTPS to
+ * HTTP or vice versa.
+ *
+ * <p>If a successful response cannot be retrieved, {@link #getInputStream()}
+ * will throw an {@link IOException}. Response headers can be read using {@link
+ * #getHeaderFields()} even if the response was a failure.
+ *
+ * <h3>Posting Content</h3>
+ * To upload data to a web server, configure the connection for output using
+ * {@link #setDoOutput(boolean) setDoOutput(true)}.
+ *
+ * <p>For best performance, you should call either {@link
+ * #setFixedLengthStreamingMode(int)} when the body length is known in advance,
+ * or {@link #setChunkedStreamingMode(int)} when it is not. Otherwise {@code
+ * HttpURLConnection} will be forced to buffer the complete request body in
+ * memory before it is transmitted, wasting (and possibly exhausting) heap and
+ * increasing latency.
+ *
+ * <p>For example, to upload an image to api.flickr.com: {@code   <pre>
+ *   URL url = new URL("http://api.flickr.com/services/upload/");
+ *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+ *   try {
+ *     urlConnection.setDoOutput(true);
+ *     urlConnection.setChunkedStreamingMode(1024);
+ *
+ *     OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+ *     writeStream(out);
+ *
+ *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+ *     readStream(in);
+ *   } finally {
+ *     urlConnection.disconnect();
+ *   }
+ * }</pre>
+ *
+ * <h3>HTTP Authentication</h3>
+ * {@code HttpURLConnection} supports <a
+ * href="http://www.ietf.org/rfc/rfc2617">HTTP basic authentication</a>. Use
+ * {@link Authenticator} to set the VM-wide authentication handler:
+ * <pre>   {@code
+ *   Authenticator.setDefault(new Authenticator() {
+ *     protected PasswordAuthentication getPasswordAuthentication() {
+ *       return new PasswordAuthentication(username, password.toCharArray());
+ *     }
+ *   });
+ * }</pre>
+ * Unless paired with HTTPS, this is <strong>not</strong> a secure mechanism for
+ * user authentication. In particular, the username, password, request and
+ * response are all transmitted over the network without encryption.
+ *
+ * <h3>Sessions with Cookies</h3>
+ * To establish and maintain a potentially long-lived session between client
+ * and server, {@code HttpURLConnection} includes an extensible cookie manager.
+ * Enable VM-wide cookie management using {@link CookieHandler} and {@link
+ * CookieManager}: <pre>   {@code
+ *   CookieManager cookieManager = new CookieManager();
+ *   CookieHandler.setDefault(cookieManager);
+ * }</pre>
+ * By default, {@code CookieManager} accepts cookies from the <a
+ * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html">origin
+ * server</a> only. Two other policies are included: {@link
+ * CookiePolicy#ACCEPT_ALL} and {@link CookiePolicy#ACCEPT_NONE}. Implement
+ * {@link CookiePolicy} to define a custom policy.
+ *
+ * <p>The default {@code CookieManager} keeps all accepted cookies in memory. It
+ * will forget these cookies when the VM exits. Implement {@link CookieStore} to
+ * define a custom cookie store.
+ *
+ * <p>In addition to the cookies set by HTTP responses, you may set cookies
+ * programmatically. To be included in HTTP request headers, cookies must have
+ * the domain and path properties set. To improve compatibility with most web
+ * servers, also set the cookie version to 0: <pre>   {@code
+ *   HttpCookie cookie = new HttpCookie("lang", "fr");
+ *   cookie.setDomain("twitter.com");
+ *   cookie.setPath("/");
+ *   cookie.setVersion(0);
+ *   cookieManager.getCookieStore().add(new URI("http://twitter.com/"), cookie);
+ * }
+ *
+ * <h3>Network Support</h3>
+ * By default, this class will connect directly to the <a
+ * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html">origin
+ * server</a>. It can also connect via an {@link Proxy.Type#HTTP HTTP} or {@link
+ * Proxy.Type#SOCKS SOCKS} proxy. To use a proxy, use {@link
+ * URL#openConnection(Proxy) URL.openConnection(Proxy)} when creating the
+ * connection.
+ *
+ * <p>This class includes transparent support for IPv6. For hosts with both IPv4
+ * and IPv6 addresses, it will attempt to connect to each of a host's addresses
+ * until a connection is established.
+ *
+ * <h3>Performance</h3>
+ * The input and output streams returned by this class are <strong>not
+ * buffered</strong>. Most callers should wrap the returned streams with {@link
+ * java.io.BufferedInputStream BufferedInputStream} or {@link
+ * java.io.BufferedOutputStream BufferedOutputStream}. Callers that do only bulk
+ * reads or writes may omit buffering.
+ *
+ * <p>To reduce latency, this class may reuse the same underlying {@code Socket}
+ * for multiple request/response pairs. As a result, HTTP connections may be
+ * held open longer than necessary. Calls to {@link #disconnect()} return the
+ * socket to a pool of connected sockets. This behavior can be disabled by
+ * setting the "http.keepAlive" system property to "false" before issuing any
+ * HTTP requests. The "http.maxConnections" property may be used to control how
+ * many idle connections to each server will be held.
+ *
+ * <p>By default, this implementation of {@code HttpURLConnection} requests that
+ * servers use gzip compression. Since {@link #getContentLength()} returns the
+ * number of bytes transmitted, you cannot use that method to predict how many
+ * bytes can be read from {@link #getInputStream()}. Instead, read that stream
+ * until it is exhausted: when {@link InputStream#read} returns -1. Gzip
+ * compression can be disabled by setting the acceptable encodings in the
+ * request header: <pre>   {@code
+ *   urlConnection.setRequestProperty("Accept-Encoding", "identity");
+ * }
+ *
+ * <p>{@code HttpURLConnection} supports a VM-wide HTTP response cache.
+ * Implement {@link ResponseCache} and use {@link ResponseCache#setDefault} to
+ * install a custom cache. Implementing this API is onerous: correct
+ * implementations should follow all caching rules defined by <a
+ * href="http://tools.ietf.org/html/rfc2616#section-13">Section 13 of RFC
+ * 2616</a>.
+ *
+ * <h3>Timeouts</h3>
+ * <p>{@code HttpURLConnection} supports two timeouts: a {@link
+ * #setConnectTimeout connect timeout} and a {@link #setReadTimeout read
+ * timeout}. By default, operations never time out.
+ *
+ * <p>Each instance of {@code HttpURLConnection} may be used for one
+ * request/response pair. Instances of this class are not thread safe.
  */
 public abstract class HttpURLConnection extends URLConnection {
 
@@ -291,7 +461,7 @@ public abstract class HttpURLConnection extends URLConnection {
      *
      * @return the error input stream returned by the server.
      */
-    public java.io.InputStream getErrorStream() {
+    public InputStream getErrorStream() {
         return null;
     }
 
