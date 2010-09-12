@@ -87,8 +87,7 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * memory before it is transmitted, wasting (and possibly exhausting) heap and
  * increasing latency.
  *
- * <p>For example, to upload an image to {@code api.flickr.com}: {@code   <pre>
- *   URL url = new URL("http://api.flickr.com/services/upload/");
+ * <p>For example, to perform an upload: {@code   <pre>
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
  *   try {
  *     urlConnection.setDoOutput(true);
@@ -184,6 +183,12 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *   cookie.setVersion(0);
  *   cookieManager.getCookieStore().add(new URI("http://twitter.com/"), cookie);
  * }</pre>
+ *
+ * <h3>HTTP Methods</h3>
+ * <p>{@code HttpURLConnection} uses the {@code GET} method by default. It will
+ * use {@code POST} if {@link #setDoOutput setDoOutput(true)} has been called.
+ * Other HTTP methods ({@code OPTIONS}, {@code HEAD}, {@code PUT}, {@code
+ * DELETE} and {@code TRACE}) can be used with {@link #setRequestMethod}.
  *
  * <h3>Proxies</h3>
  * By default, this class will connect directly to the <a
