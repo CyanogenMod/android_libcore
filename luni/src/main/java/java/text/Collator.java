@@ -249,6 +249,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Returns an array of locales for which custom {@code Collator} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableCollatorLocales();

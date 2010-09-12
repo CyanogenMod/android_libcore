@@ -21,7 +21,7 @@ import java.util.Locale;
 
 /**
  * The base class for all the locale related service provider interfaces (SPIs).
- * <p>Note that Android does not currently support user-supplied locale service providers.
+ * <p>Note that Android does not support user-supplied locale service providers.
  * @since 1.6
  * @hide
  */

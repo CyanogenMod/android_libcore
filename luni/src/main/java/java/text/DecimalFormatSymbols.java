@@ -135,6 +135,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Returns an array of locales for which custom {@code DecimalFormatSymbols} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      * @since 1.6
      */
     public static Locale[] getAvailableLocales() {

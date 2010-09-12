@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * This abstract class should be extended by service providers that provide
  * localized time zone names.
- * <p>Note that Android does not currently support user-supplied locale service providers.
+ * <p>Note that Android does not support user-supplied locale service providers.
  * @since 1.6
  * @hide
  */
@@ -36,7 +36,7 @@ public abstract class TimeZoneNameProvider extends LocaleServiceProvider {
 
     /**
      * Returns the localized name for the given time zone in the given locale.
-     * 
+     *
      * @param id the time zone id
      * @param daylight true to return the name for daylight saving time.
      * @param style TimeZone.LONG or TimeZone.SHORT

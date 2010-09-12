@@ -401,6 +401,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns an array of locales for which custom {@code DateFormat} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableDateFormatLocales();
