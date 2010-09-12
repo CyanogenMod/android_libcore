@@ -68,12 +68,13 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *
  * <h3>Response Handling</h3>
  * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
- * follow redirects from one origin server to another, but not from HTTPS to
- * HTTP or vice versa.
+ * follow redirects from one origin server to another. This implementation
+ * doesn't follow redirects from HTTPS to HTTP or vice versa.
  *
- * <p>If a successful response cannot be retrieved, {@link #getInputStream()}
- * will throw an {@link IOException}. Response headers can be read using {@link
- * #getHeaderFields()} even if the response was a failure.
+ * <p>If the HTTP response indicates that an error occurred, {@link
+ * #getInputStream()} will throw an {@link IOException}. Use {@link
+ * #getErrorStream()} to read the error response. The headers can be read in
+ * the normal way using {@link #getHeaderFields()},
  *
  * <h3>Posting Content</h3>
  * To upload data to a web server, configure the connection for output using
@@ -86,12 +87,12 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * memory before it is transmitted, wasting (and possibly exhausting) heap and
  * increasing latency.
  *
- * <p>For example, to upload an image to api.flickr.com: {@code   <pre>
+ * <p>For example, to upload an image to {@code api.flickr.com}: {@code   <pre>
  *   URL url = new URL("http://api.flickr.com/services/upload/");
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
  *   try {
  *     urlConnection.setDoOutput(true);
- *     urlConnection.setChunkedStreamingMode(1024);
+ *     urlConnection.setChunkedStreamingMode(0);
  *
  *     OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
  *     writeStream(out);
@@ -101,6 +102,36 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *   } finally {
  *     urlConnection.disconnect();
  *   }
+ * }</pre>
+ *
+ * <h3>Performance</h3>
+ * The input and output streams returned by this class are <strong>not
+ * buffered</strong>. Most callers should wrap the returned streams with {@link
+ * java.io.BufferedInputStream BufferedInputStream} or {@link
+ * java.io.BufferedOutputStream BufferedOutputStream}. Callers that do only bulk
+ * reads or writes may omit buffering.
+ *
+ * <p>When transferring large amounts of data to or from a server, use streams
+ * to limit how much data is in memory at once. Unless you need the entire
+ * body to be in memory at once, process it as a stream (rather than storing
+ * the complete body as a single byte array or string).
+ *
+ * <p>To reduce latency, this class may reuse the same underlying {@code Socket}
+ * for multiple request/response pairs. As a result, HTTP connections may be
+ * held open longer than necessary. Calls to {@link #disconnect()} return the
+ * socket to a pool of connected sockets. This behavior can be disabled by
+ * setting the "http.keepAlive" system property to "false" before issuing any
+ * HTTP requests. The "http.maxConnections" property may be used to control how
+ * many idle connections to each server will be held.
+ *
+ * <p>By default, this implementation of {@code HttpURLConnection} requests that
+ * servers use gzip compression. Since {@link #getContentLength()} returns the
+ * number of bytes transmitted, you cannot use that method to predict how many
+ * bytes can be read from {@link #getInputStream()}. Instead, read that stream
+ * until it is exhausted: when {@link InputStream#read} returns -1. Gzip
+ * compression can be disabled by setting the acceptable encodings in the
+ * request header: <pre>   {@code
+ *   urlConnection.setRequestProperty("Accept-Encoding", "identity");
  * }</pre>
  *
  * <h3>HTTP Authentication</h3>
@@ -138,16 +169,23 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *
  * <p>In addition to the cookies set by HTTP responses, you may set cookies
  * programmatically. To be included in HTTP request headers, cookies must have
- * the domain and path properties set. To improve compatibility with most web
- * servers, also set the cookie version to 0: <pre>   {@code
+ * the domain and path properties set.
+ *
+ * <p>By default, new instances of {@code HttpCookie} work only with servers
+ * that support <a href="http://www.ietf.org/rfc/rfc2965.txt">RFC 2965</a>
+ * cookies. Many web servers support only the older specification, <a
+ * href="http://www.ietf.org/rfc/rfc2109.txt">RFC 2109</a>. For compatibility
+ * with the most web servers, set the cookie version to 0.
+ *
+ * <p>For example, to receive {@code www.twitter.com} in French: <pre>   {@code
  *   HttpCookie cookie = new HttpCookie("lang", "fr");
  *   cookie.setDomain("twitter.com");
  *   cookie.setPath("/");
  *   cookie.setVersion(0);
  *   cookieManager.getCookieStore().add(new URI("http://twitter.com/"), cookie);
- * }
+ * }</pre>
  *
- * <h3>Network Support</h3>
+ * <h3>Proxies</h3>
  * By default, this class will connect directly to the <a
  * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html">origin
  * server</a>. It can also connect via an {@link Proxy.Type#HTTP HTTP} or {@link
@@ -155,46 +193,18 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * URL#openConnection(Proxy) URL.openConnection(Proxy)} when creating the
  * connection.
  *
+ * <h3>IPv6 Support</h3>
  * <p>This class includes transparent support for IPv6. For hosts with both IPv4
  * and IPv6 addresses, it will attempt to connect to each of a host's addresses
  * until a connection is established.
  *
- * <h3>Performance</h3>
- * The input and output streams returned by this class are <strong>not
- * buffered</strong>. Most callers should wrap the returned streams with {@link
- * java.io.BufferedInputStream BufferedInputStream} or {@link
- * java.io.BufferedOutputStream BufferedOutputStream}. Callers that do only bulk
- * reads or writes may omit buffering.
- *
- * <p>To reduce latency, this class may reuse the same underlying {@code Socket}
- * for multiple request/response pairs. As a result, HTTP connections may be
- * held open longer than necessary. Calls to {@link #disconnect()} return the
- * socket to a pool of connected sockets. This behavior can be disabled by
- * setting the "http.keepAlive" system property to "false" before issuing any
- * HTTP requests. The "http.maxConnections" property may be used to control how
- * many idle connections to each server will be held.
- *
- * <p>By default, this implementation of {@code HttpURLConnection} requests that
- * servers use gzip compression. Since {@link #getContentLength()} returns the
- * number of bytes transmitted, you cannot use that method to predict how many
- * bytes can be read from {@link #getInputStream()}. Instead, read that stream
- * until it is exhausted: when {@link InputStream#read} returns -1. Gzip
- * compression can be disabled by setting the acceptable encodings in the
- * request header: <pre>   {@code
- *   urlConnection.setRequestProperty("Accept-Encoding", "identity");
- * }
- *
+ * <h3>Response Caching</h3>
  * <p>{@code HttpURLConnection} supports a VM-wide HTTP response cache.
  * Implement {@link ResponseCache} and use {@link ResponseCache#setDefault} to
  * install a custom cache. Implementing this API is onerous: correct
  * implementations should follow all caching rules defined by <a
  * href="http://tools.ietf.org/html/rfc2616#section-13">Section 13 of RFC
  * 2616</a>.
- *
- * <h3>Timeouts</h3>
- * <p>{@code HttpURLConnection} supports two timeouts: a {@link
- * #setConnectTimeout connect timeout} and a {@link #setReadTimeout read
- * timeout}. By default, operations never time out.
  *
  * <p>Each instance of {@code HttpURLConnection} may be used for one
  * request/response pair. Instances of this class are not thread safe.
@@ -678,14 +688,21 @@ public abstract class HttpURLConnection extends URLConnection {
     }
 
     /**
-     * If the length of a HTTP request body is NOT known ahead, enable chunked
-     * transfer encoding to enable streaming with buffering. Notice that not all
-     * http servers support this mode. Sets after connection will cause an
-     * exception.
+     * Stream a request body whose length is not known in advance. Old HTTP/1.0
+     * only servers may not support this mode.
+     *
+     * <p>When HTTP chunked encoding is used, the stream is divided into
+     * chunks, each prefixed with a header containing the chunk's size. Setting
+     * a large chunk length requires a large internal buffer, potentially
+     * wasting memory. Setting a small chunk length increases the number of
+     * bytes that must be transmitted because of the header on every chunk.
+     * Most caller should use {@code 0} to get the system default.
      *
      * @see #setFixedLengthStreamingMode
-     * @throws IllegalStateException
-     *             if already connected or another mode already set.
+     * @param chunkLength the length to use, or {@code 0} for the default chunk
+     *     length.
+     * @throws IllegalStateException if already connected or another mode
+     *     already set.
      */
     public void setChunkedStreamingMode(int chunkLength) {
         if (super.connected) {

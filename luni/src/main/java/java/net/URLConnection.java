@@ -31,10 +31,52 @@ import java.util.StringTokenizer;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
- * Concrete implementations of the abstract {@code URLConnection} class provide
- * a communication link to a URL for exchanging data with a specific protocol
- * type. A {@code URLConnection} can only be set up after the instantiation but
- * before connecting to the remote resource.
+ * A connection to a URL for reading or writing. For HTTP connections, see
+ * {@link HttpURLConnection} for documentation of HTTP-specific features.
+ *
+ * <p>For example, to retrieve {@code
+ * ftp://mirror.csclub.uwaterloo.ca/index.html}: <pre>   {@code
+ *   URL url = new URL("ftp://mirror.csclub.uwaterloo.ca/index.html");
+ *   URLConnection urlConnection = url.openConnection();
+ *   InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+ *   try {
+ *     readStream(in);
+ *   } finally {
+ *     in.close();
+ *   }
+ * }</pre>
+ *
+ * <p>{@code URLConnection} must be configured before it has connected to the
+ * remote resource.
+ *
+ * <h3>Timeouts</h3>
+ * {@code URLConnection} supports two timeouts: a {@link #setConnectTimeout
+ * connect timeout} and a {@link #setReadTimeout read timeout}. By default,
+ * operations never time out.
+ *
+ * <h3>Built-in Protocols</h3>
+ * <ul>
+ *   <li><strong>File</strong><br>
+ *      Resources from the local file system can be loaded using {@code file:}
+ *      URIs. File connections can only be used for input.
+ *   <li><strong>FTP</strong><br>
+ *      File Transfer Protocol (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC
+ *      959</a>) is supported, but with no public subclass. FTP connections can
+ *      be used for input or output but not both.
+ *      <p>By default, FTP connections will be made using {@code anonymous} as
+ *      the username and the empty string as the password. Specify alternate
+ *      usernames and passwords in the URL: {@code
+ *      ftp://username:password@host/path}.
+ *   <li><strong>HTTP and HTTPS</strong><br>
+ *      Refer to the {@link HttpURLConnection} and {@link
+ *      javax.net.ssl.HttpsURLConnection HttpsURLConnection} subclasses.
+ *   <li><strong>Jar</strong><br>
+ *      Refer to the {@link JarURLConnection} subclass.
+ * </ul>
+ *
+ * <h3>Registering Additional Protocols</h3>
+ * Use {@link URL#setURLStreamHandlerFactory} to register handlers for other
+ * protocol types.
  */
 public abstract class URLConnection {
 
