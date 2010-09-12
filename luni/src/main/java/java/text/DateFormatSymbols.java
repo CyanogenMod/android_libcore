@@ -150,6 +150,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Returns an array of locales for which custom {@code DateFormatSymbols} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      * @since 1.6
      */
     public static Locale[] getAvailableLocales() {

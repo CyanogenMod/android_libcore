@@ -40,20 +40,39 @@ import org.apache.harmony.luni.util.Util;
  *
  * <p>Note that Java uses several deprecated two-letter codes. The Hebrew ("he") language
  * code is rewritten as "iw", Indonesian ("id") as "in", and Yiddish ("yi") as "ji". This
- * is true even if you construct your own {@code Locale} object, not just of instances returned by
- * the various lookup methods.
+ * rewriting happens even if you construct your own {@code Locale} object, not just for
+ * instances returned by the various lookup methods.
  *
- * <p>Just because you can create a {@code Locale} doesn't mean that it makes much sense.
- * Imagine "de_US" for German as spoken in the US, for example. It is also a mistake to
- * assume that all devices have the same locales available. A device sold in the US will
- * almost certainly support en_US and sp_US (English and Spanish, as spoken in the US),
- * but not necessarily en_GB or sp_SP (English as spoken in Great Britain or Spanish as
- * spoken in Spain), for example. The opposite may well be true for a device sold in Europe.
- * (This limitation even affects those locales pre-defined as constants in this class.)
+ * <a name="available_locales"><h3>Available locales</h3></a>
+ * <p>This class' constructors do no error checking. You can create a {@code Locale} for languages
+ * and countries that don't exist, and you can create instances for combinations that don't
+ * exist (such as "de_US" for "German as spoken in the US").
+ *
+ * <p>Note that locale data is not necessarily available for any of the locales pre-defined as
+ * constants in this class except for en_US, which is the only locale Java guarantees is always
+ * available.
+ *
+ * <p>It is also a mistake to assume that all devices have the same locales available.
+ * A device sold in the US will almost certainly support en_US and es_US, but not necessarily
+ * any locales with the same language but different countries (such as en_GB or es_ES),
+ * nor any locales for other languages (such as de_DE). The opposite may well be true for a device
+ * sold in Europe.
  *
  * <p>You can use {@code getDefault} to get an appropriate locale for the <i>user</i> of
  * the device you're running on, or {@code getAvailableLocales} to get a list of all the locales
  * available on the device you're running on.
+ *
+ * <a name="locale_data"><h3>Locale data</h3></a>
+ * <p>Note that locale data comes solely from ICU. User-supplied locale service providers (using
+ * the {@code java.text.spi} or {@code java.util.spi} mechanisms) are not supported.
+ *
+ * <p>Here are the versions of ICU (and the corresponding CLDR and Unicode versions) used in
+ * various Android releases:
+ * <table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+ * <tr><td>cupcake/donut/eclair</td> <td>ICU 3.8</td> <td><a href="http://www.unicode.org/press/pr-cldr1.5.html">CLDR 1.5</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.0.0/">Unicode 5.0</a></td></tr>
+ * <tr><td>froyo</td>                <td>ICU 4.2</td> <td><a href="http://www.unicode.org/press/pr-cldr1.7.html">CLDR 1.7</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.1.0/">Unicode 5.1</a></td></tr>
+ * <tr><td>gingerbread</td>          <td>ICU 4.4</td> <td><a href="http://www.unicode.org/press/pr-cldr1.8.html">CLDR 1.8</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</a></td></tr>
+ * </table>
  *
  * <a name="default_locale"><h3>Be wary of the default locale</h3></a>
  * <p>Note that there are many convenience methods that automatically use the default locale, but
@@ -70,8 +89,6 @@ import org.apache.harmony.luni.util.Util;
  * locale is guaranteed to be available on all devices, and the combination of no surprising
  * behavior and frequent use (especially for computer-computer communication) means that it tends
  * to be the most efficient choice too.
- *
- * @see ResourceBundle
  */
 public final class Locale implements Cloneable, Serializable {
 
