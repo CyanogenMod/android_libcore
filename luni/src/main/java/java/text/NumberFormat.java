@@ -311,6 +311,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns an array of locales for which custom {@code NumberFormat} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableNumberFormatLocales();

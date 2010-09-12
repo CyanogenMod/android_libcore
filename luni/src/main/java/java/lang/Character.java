@@ -24,9 +24,12 @@ import java.io.Serializable;
  * number of utility methods for working with characters.
  *
  * <p>Character data is kept up to date as Unicode evolves.
- * This implementation is currently based on Unicode 5.2. The Unicode
- * specification, character tables and other information are available at <a
- * href="http://www.unicode.org/">http://www.unicode.org/</a>.
+ * See the <a href="../util/Locale.html#locale_data">Locale data</a> section of
+ * the {@code Locale} documentation for details of the Unicode versions implemented by current
+ * and historical Android releases.
+ *
+ * <p>The Unicode specification, character tables, and other information are available at
+ * <a href="http://www.unicode.org/">http://www.unicode.org/</a>.
  *
  * <p>Unicode characters are referred to as <i>code points</i>. The range of valid
  * code points is U+0000 to U+10FFFF. The <i>Basic Multilingual Plane (BMP)</i>

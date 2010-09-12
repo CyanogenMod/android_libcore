@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * This abstract class should be extended by service providers that provide
  * localized currency symbols (currency names) from currency codes.
- * <p>Note that Android does not currently support user-supplied locale service providers.
+ * <p>Note that Android does not support user-supplied locale service providers.
  * @since 1.6
  * @hide
  */
@@ -36,7 +36,7 @@ public abstract class CurrencyNameProvider extends LocaleServiceProvider {
 
     /**
      * Returns the localized currency symbol for the given currency code.
-     * 
+     *
      * @param code an ISO 4217 currency code
      * @param locale a locale
      * @return the symbol or null if there is no available symbol in the locale
