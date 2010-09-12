@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * This abstract class should be extended by service providers that provide
  * localized locale names.
- * <p>Note that Android does not currently support user-supplied locale service providers.
+ * <p>Note that Android does not support user-supplied locale service providers.
  * @since 1.6
  * @hide
  */
@@ -36,7 +36,7 @@ public abstract class LocaleNameProvider extends LocaleServiceProvider {
 
     /**
      * Returns the localized name for the given ISO 639 language code.
-     * 
+     *
      * @param languageCode an ISO 639 language code
      * @param locale a locale
      * @return the name or null if unavailable
@@ -49,7 +49,7 @@ public abstract class LocaleNameProvider extends LocaleServiceProvider {
 
     /**
      * Returns the localized name for the given ISO 3166 country code.
-     * 
+     *
      * @param countryCode an ISO 3166 language code
      * @param locale a locale
      * @return the name or null if unavailable
@@ -62,7 +62,7 @@ public abstract class LocaleNameProvider extends LocaleServiceProvider {
 
     /**
      * Returns the localized name for the given variant code.
-     * 
+     *
      * @param variantCode a variant code
      * @param locale a locale
      * @return the name or null if unavailable

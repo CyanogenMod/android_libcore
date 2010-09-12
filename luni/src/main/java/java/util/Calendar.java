@@ -955,6 +955,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     /**
      * Returns an array of locales for which custom {@code Calendar} instances
      * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
      */
     public static synchronized Locale[] getAvailableLocales() {
         return ICU.getAvailableCalendarLocales();
