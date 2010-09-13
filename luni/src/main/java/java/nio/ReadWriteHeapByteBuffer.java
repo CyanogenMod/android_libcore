@@ -132,6 +132,26 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
     }
 
     @Override
+    public ByteBuffer putChar(int index, char value) {
+        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+            throw new IndexOutOfBoundsException();
+        }
+        storeShort(index, (short) value);
+        return this;
+    }
+
+    @Override
+    public ByteBuffer putChar(char value) {
+        int newPosition = position + SIZEOF_CHAR;
+        if (newPosition > limit) {
+            throw new BufferOverflowException();
+        }
+        storeShort(position, (short) value);
+        position = newPosition;
+        return this;
+    }
+
+    @Override
     public ByteBuffer putDouble(double value) {
         return putLong(Double.doubleToRawLongBits(value));
     }
@@ -143,12 +163,12 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putFloat(float value) {
-        return putInt(Float.floatToIntBits(value));
+        return putInt(Float.floatToRawIntBits(value));
     }
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        return putInt(index, Float.floatToIntBits(value));
+        return putInt(index, Float.floatToRawIntBits(value));
     }
 
     @Override
@@ -157,7 +177,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeInt(position, value);
         position = newPosition;
         return this;
     }
@@ -167,7 +187,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeInt(index, value);
         return this;
     }
 
@@ -176,7 +196,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeLong(index, value);
         return this;
     }
 
@@ -186,7 +206,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeLong(position, value);
         position = newPosition;
         return this;
     }
@@ -196,7 +216,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeShort(index, value);
         return this;
     }
 
@@ -206,15 +226,68 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeShort(position, value);
         position = newPosition;
         return this;
     }
 
+    private final void storeInt(int index, int value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            backingArray[baseOffset++] = (byte) ((value >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >>  0) & 0xff);
+        } else {
+            backingArray[baseOffset++] = (byte) ((value >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 24) & 0xff);
+        }
+    }
+
+    private final void storeLong(int index, long value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            int i = (int) (value >> 32);
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            i = (int) value;
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((i >>  0) & 0xff);
+        } else {
+            int i = (int) value;
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            i = (int) (value >> 32);
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((i >> 24) & 0xff);
+        }
+    }
+
+    private final void storeShort(int index, short value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            backingArray[baseOffset++] = (byte) ((value >> 8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 0) & 0xff);
+        } else {
+            backingArray[baseOffset++] = (byte) ((value >> 0) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 8) & 0xff);
+        }
+    }
+
     @Override
     public ByteBuffer slice() {
-        ReadWriteHeapByteBuffer slice = new ReadWriteHeapByteBuffer(
-                backingArray, remaining(), offset + position);
+        ReadWriteHeapByteBuffer slice = new ReadWriteHeapByteBuffer(backingArray, remaining(),
+                offset + position);
         slice.order = order;
         return slice;
     }

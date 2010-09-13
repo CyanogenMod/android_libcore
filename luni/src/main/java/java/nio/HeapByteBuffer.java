@@ -84,6 +84,25 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     }
 
     @Override
+    public final char getChar() {
+        int newPosition = position + SIZEOF_CHAR;
+        if (newPosition > limit) {
+            throw new BufferUnderflowException();
+        }
+        char result = (char) loadShort(position);
+        position = newPosition;
+        return result;
+    }
+
+    @Override
+    public final char getChar(int index) {
+        if (index < 0 || index + SIZEOF_CHAR > limit) {
+            throw new IndexOutOfBoundsException();
+        }
+        return (char) loadShort(index);
+    }
+
+    @Override
     public final double getDouble() {
         return Double.longBitsToDouble(getLong());
     }
@@ -165,91 +184,54 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         return false;
     }
 
-    protected final int loadInt(int index) {
-        int baseOffset = offset + index;
-        int bytes = 0;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 0; i < SIZEOF_INT; ++i) {
-                bytes = bytes << 8;
-                bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
-            }
-        } else {
-            for (int i = SIZEOF_INT - 1; i >= 0; --i) {
-                bytes = bytes << 8;
-                bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
-            }
-        }
-        return bytes;
-    }
-
-    protected final long loadLong(int index) {
-        int baseOffset = offset + index;
-        long bytes = 0;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 0; i < SIZEOF_LONG; ++i) {
-                bytes = bytes << 8;
-                bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
-            }
-        } else {
-            for (int i = SIZEOF_LONG - 1; i >= 0; --i) {
-                bytes = bytes << 8;
-                bytes = bytes | (backingArray[baseOffset + i] & 0xFF);
-            }
-        }
-        return bytes;
-    }
-
-    protected final short loadShort(int index) {
-        int baseOffset = offset + index;
-        short bytes = 0;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            bytes = (short) (backingArray[baseOffset] << 8);
-            bytes |= (backingArray[baseOffset + 1] & 0xFF);
-        } else {
-            bytes = (short) (backingArray[baseOffset + 1] << 8);
-            bytes |= (backingArray[baseOffset] & 0xFF);
-        }
-        return bytes;
-    }
-
-    protected final void store(int index, int value) {
+    private final int loadInt(int index) {
         int baseOffset = offset + index;
         if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 3; i >= 0; i--) {
-                backingArray[baseOffset + i] = (byte) (value & 0xFF);
-                value = value >> 8;
-            }
+            return (((backingArray[baseOffset++] & 0xff) << 24) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset  ] & 0xff) <<  0));
         } else {
-            for (int i = 0; i <= 3; i++) {
-                backingArray[baseOffset + i] = (byte) (value & 0xFF);
-                value = value >> 8;
-            }
+            return (((backingArray[baseOffset++] & 0xff) <<  0) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset  ] & 0xff) << 24));
         }
     }
 
-    protected final void store(int index, long value) {
+    private final long loadLong(int index) {
         int baseOffset = offset + index;
         if (order == ByteOrder.BIG_ENDIAN) {
-            for (int i = 7; i >= 0; i--) {
-                backingArray[baseOffset + i] = (byte) (value & 0xFF);
-                value = value >> 8;
-            }
+            int h = ((backingArray[baseOffset++] & 0xff) << 24) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset++] & 0xff) <<  0);
+            int l = ((backingArray[baseOffset++] & 0xff) << 24) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset  ] & 0xff) <<  0);
+            return (((long) h) << 32) | l;
         } else {
-            for (int i = 0; i <= 7; i++) {
-                backingArray[baseOffset + i] = (byte) (value & 0xFF);
-                value = value >> 8;
-            }
+            int l = ((backingArray[baseOffset++] & 0xff) <<  0) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset++] & 0xff) << 24);
+            int h = ((backingArray[baseOffset++] & 0xff) <<  0) |
+                    ((backingArray[baseOffset++] & 0xff) <<  8) |
+                    ((backingArray[baseOffset++] & 0xff) << 16) |
+                    ((backingArray[baseOffset  ] & 0xff) << 24);
+            return (((long) h) << 32) | l;
         }
     }
 
-    protected final void store(int index, short value) {
+    private final short loadShort(int index) {
         int baseOffset = offset + index;
         if (order == ByteOrder.BIG_ENDIAN) {
-            backingArray[baseOffset] = (byte) ((value >> 8) & 0xFF);
-            backingArray[baseOffset + 1] = (byte) (value & 0xFF);
+            return (short)
+                    ((backingArray[baseOffset] << 8) | (backingArray[baseOffset + 1] & 0xff));
         } else {
-            backingArray[baseOffset + 1] = (byte) ((value >> 8) & 0xFF);
-            backingArray[baseOffset] = (byte) (value & 0xFF);
+            return (short)
+                    ((backingArray[baseOffset + 1] << 8) | (backingArray[baseOffset] & 0xff));
         }
     }
 }

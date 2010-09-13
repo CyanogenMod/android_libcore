@@ -192,22 +192,6 @@ public class MemoryBlock {
         return OSMemory.peekLong(address + offset, order.needsSwap);
     }
 
-    public final void pokeFloat(int offset, float value, ByteOrder order) {
-        OSMemory.pokeInt(address + offset, Float.floatToRawIntBits(value), order.needsSwap);
-    }
-
-    public final float peekFloat(int offset, ByteOrder order) {
-        return Float.intBitsToFloat(OSMemory.peekInt(address + offset, order.needsSwap));
-    }
-
-    public final void pokeDouble(int offset, double value, ByteOrder order) {
-        OSMemory.pokeLong(address + offset, Double.doubleToRawLongBits(value), order.needsSwap);
-    }
-
-    public final double peekDouble(int offset, ByteOrder order) {
-        return Double.longBitsToDouble(OSMemory.peekLong(address + offset, order.needsSwap));
-    }
-
     public final int toInt() {
         return address;
     }
