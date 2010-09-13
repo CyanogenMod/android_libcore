@@ -43,7 +43,6 @@ public class AllTests
         suite.addTest(tests.luni.AllTestsNet.suite());
         suite.addTest(tests.luni.AllTestsUtil.suite());
         suite.addTest(tests.math.AllTests.suite());
-        suite.addTest(tests.nio.AllTests.suite());
         suite.addTest(tests.nio_char.AllTests.suite());
         suite.addTest(tests.prefs.AllTests.suite());
         suite.addTest(tests.regex.AllTests.suite());
