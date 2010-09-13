@@ -274,12 +274,9 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * use daylight savings. These are rarely useful, because they don't correspond to time
      * zones actually in use.
      *
-     * <p>For compatibility with JDK 1.1.x, some other three-letter time zone IDs (such
-     * as "PST", "CTT", "AST") are also supported. However, <strong>their use is
-     * deprecated</strong> because the same abbreviation is often used for multiple
-     * time zones (for example, "CST" could be U.S. "Central Standard Time" and
-     * "China Standard Time"), and the Java platform can then only recognize one of
-     * them.
+     * <p>Other than the special cases "UTC" and "GMT" (which are synonymous in this context,
+     * both corresponding to UTC), Android does not support the deprecated three-letter time
+     * zone IDs used in Java 1.1.
      */
     public static synchronized TimeZone getTimeZone(String id) {
         TimeZone zone = ZoneInfoDB.getTimeZone(id);
