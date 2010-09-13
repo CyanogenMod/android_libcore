@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.nio.tests.java.nio;
+package libcore.java.nio;
 
-import dalvik.annotation.TestTargetClass;
-
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import junit.framework.TestCase;
 
-@TestTargetClass(java.nio.ShortBuffer.class)
-public class ReadOnlyWrappedShortBufferTest extends ReadOnlyShortBufferTest {
+public final class OldDirectShortBufferTest extends TestCase {
 
-    protected void setUp() throws Exception {
-        capacity = BUFFER_LENGTH;
-        buf = ShortBuffer.wrap(new short[BUFFER_LENGTH]);
-        loadTestData1(buf);
-        buf = buf.asReadOnlyBuffer();
-        baseBuf = buf;
-    }
+    /**
+     * Regression for http://code.google.com/p/android/issues/detail?id=3279
+     */
+    public void testPutWhenOffsetIsNonZero() {
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(40);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
 
-    protected void tearDown() throws Exception {
-        buf = null;
-        baseBuf = null;
+        short[] source = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        shortBuffer.put(source, 2, 2);
+        shortBuffer.put(source, 4, 2);
+        assertEquals(4, shortBuffer.get(0));
+        assertEquals(5, shortBuffer.get(1));
+        assertEquals(6, shortBuffer.get(2));
+        assertEquals(7, shortBuffer.get(3));
     }
 }

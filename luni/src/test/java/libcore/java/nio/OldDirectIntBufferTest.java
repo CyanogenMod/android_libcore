@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.nio.tests.java.nio;
+package libcore.java.nio;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import junit.framework.TestCase;
 
-@TestTargetClass(java.nio.IntBuffer.class)
-public class HeapIntBufferTest extends IntBufferTest {
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+public final class OldDirectIntBufferTest extends TestCase {
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+    /**
+     * Regression for http://code.google.com/p/android/issues/detail?id=3279
+     */
+    public void testPutWhenOffsetIsNonZero() {
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(40);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        IntBuffer intBuffer = byteBuffer.asIntBuffer();
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "allocate",
-        args = {int.class}
-    )
-    public void testAllocatedIntBuffer_IllegalArg() {
-        try {
-            IntBuffer.allocate(-1);
-            fail("Should throw Exception");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
+        int[] source = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        intBuffer.put(source, 2, 2);
+        intBuffer.put(source, 4, 2);
+        assertEquals(4, intBuffer.get(0));
+        assertEquals(5, intBuffer.get(1));
+        assertEquals(6, intBuffer.get(2));
+        assertEquals(7, intBuffer.get(3));
     }
 }
