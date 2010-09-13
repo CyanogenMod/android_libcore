@@ -131,6 +131,11 @@ public final class MappedByteBufferAdapter extends MappedByteBuffer {
     }
 
     @Override
+    public ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
+        return wrapped.get(dst, dstOffset, byteCount);
+    }
+
+    @Override
     public char getChar() {
         wrapped.position(position);
         char result = wrapped.getChar();
