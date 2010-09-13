@@ -54,6 +54,11 @@ core_src_files := $(call all-main-java-files-under,dalvik dom json luni support 
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
+ifeq ($(EMMA_INSTRUMENT),true)
+    core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
+    core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
+endif
+
 
 #
 # Build for the target (device).
@@ -65,11 +70,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-
-ifeq ($(EMMA_INSTRUMENT),true)
-LOCAL_SRC_FILES += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
-LOCAL_JAVA_RESOURCE_DIRS += ../external/emma/core/res ../external/emma/pregenerated/res
-endif
 
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := -encoding UTF-8
@@ -281,12 +281,14 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 
     LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVACFLAGS := -encoding UTF-8
     LOCAL_DX_FLAGS := --core-library
 
     LOCAL_NO_EMMA_INSTRUMENT := true
     LOCAL_NO_EMMA_COMPILE := true
+    LOCAL_BUILD_HOST_DEX := true
 
-    LOCAL_MODULE := core
+    LOCAL_MODULE := core-hostdex
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
