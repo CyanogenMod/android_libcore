@@ -208,12 +208,32 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     }
 
     @Override
+    public ByteBuffer putChar(char value) {
+        int newPosition = position + SIZEOF_CHAR;
+        if (newPosition > limit) {
+            throw new BufferOverflowException();
+        }
+        this.block.pokeShort(offset + position, (short) value, order);
+        position = newPosition;
+        return this;
+    }
+
+    @Override
+    public ByteBuffer putChar(int index, char value) {
+        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+            throw new IndexOutOfBoundsException();
+        }
+        this.block.pokeShort(offset + index, (short) value, order);
+        return this;
+    }
+
+    @Override
     public ByteBuffer putDouble(double value) {
         int newPosition = position + SIZEOF_DOUBLE;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.block.pokeDouble(offset + position, value, order);
+        this.block.pokeLong(offset + position, Double.doubleToRawLongBits(value), order);
         position = newPosition;
         return this;
     }
@@ -223,7 +243,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.block.pokeDouble(offset + index, value, order);
+        this.block.pokeLong(offset + index, Double.doubleToRawLongBits(value), order);
         return this;
     }
 
@@ -233,7 +253,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        this.block.pokeFloat(offset + position, value, order);
+        this.block.pokeInt(offset + position, Float.floatToRawIntBits(value), order);
         position = newPosition;
         return this;
     }
@@ -243,7 +263,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        this.block.pokeFloat(offset + index, value, order);
+        this.block.pokeInt(offset + index, Float.floatToRawIntBits(value), order);
         return this;
     }
 

@@ -106,12 +106,31 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
     }
 
     @Override
+    public final char getChar() {
+        int newPosition = position + SIZEOF_CHAR;
+        if (newPosition > limit) {
+            throw new BufferUnderflowException();
+        }
+        char result = (char) this.block.peekShort(offset + position, order);
+        position = newPosition;
+        return result;
+    }
+
+    @Override
+    public final char getChar(int index) {
+        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+            throw new IndexOutOfBoundsException();
+        }
+        return (char) this.block.peekShort(offset + index, order);
+    }
+
+    @Override
     public final double getDouble() {
         int newPosition = position + SIZEOF_DOUBLE;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        double result = this.block.peekDouble(offset + position, order);
+        double result = Double.longBitsToDouble(this.block.peekLong(offset + position, order));
         position = newPosition;
         return result;
     }
@@ -121,7 +140,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return this.block.peekDouble(offset + index, order);
+        return Double.longBitsToDouble(this.block.peekLong(offset + index, order));
     }
 
     @Override
@@ -130,7 +149,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        float result = this.block.peekFloat(offset + position, order);
+        float result = Float.intBitsToFloat(this.block.peekInt(offset + position, order));
         position = newPosition;
         return result;
     }
@@ -140,7 +159,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return this.block.peekFloat(offset + index, order);
+        return Float.intBitsToFloat(this.block.peekInt(offset + index, order));
     }
 
     @Override
