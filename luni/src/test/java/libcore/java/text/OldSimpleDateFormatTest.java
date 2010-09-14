@@ -438,15 +438,15 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00",
                 "+1400, +1400", winterDate);
 
-        test.verifyFormatTimezone("PST", "PDT, Pacific Daylight Time",
+        test.verifyFormatTimezone("America/Los_Angeles", "PDT, Pacific Daylight Time",
                 "-0700, -0700", summerDate);
-        test.verifyFormatTimezone("PST", "PST, Pacific Standard Time",
+        test.verifyFormatTimezone("America/Los_Angeles", "PST, Pacific Standard Time",
                 "-0800, -0800", winterDate);
 
         // this fails on the RI!
-        test.verifyFormatTimezone("EDT", "EDT, Eastern Daylight Time",
+        test.verifyFormatTimezone("America/Detroit", "EDT, Eastern Daylight Time",
                 "-0400, -0400", summerDate);
-        test.verifyFormatTimezone("EST", "EST, Eastern Standard Time",
+        test.verifyFormatTimezone("America/Detroit", "EST, Eastern Standard Time",
                 "-0500, -0500", winterDate);
     }
 
