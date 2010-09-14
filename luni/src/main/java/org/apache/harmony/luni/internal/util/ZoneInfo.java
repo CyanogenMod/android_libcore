@@ -38,17 +38,6 @@ final class ZoneInfo extends TimeZone {
         0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335,
     };
 
-    private static String nullName(byte[] bytes, int begin) {
-        if (begin < 0) {
-            return null;
-        }
-        int end = begin;
-        while (end < bytes.length && bytes[end] != 0) {
-            ++end;
-        }
-        return new String(bytes, begin, end - begin, Charsets.US_ASCII);
-    }
-
     private int mRawOffset;
 
     private final int[] mTransitions;
@@ -56,50 +45,24 @@ final class ZoneInfo extends TimeZone {
     private final byte[] mTypes;
     private final byte[] mIsDsts;
     private final boolean mUseDst;
-    private final String mDaylightName;
-    private final String mStandardName;
 
-    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtoff, byte[] isdst,
-            byte[] abbreviationIndexes, byte[] abbreviationList) {
+    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtoff, byte[] isdst) {
         mTransitions = transitions;
         mTypes = type;
         mGmtOffs = gmtoff;
         mIsDsts = isdst;
         setID(name);
 
-        // Find the latest GMT and non-GMT offsets for their abbreviations
-
-        int lastdst;
-        for (lastdst = mTransitions.length - 1; lastdst >= 0; lastdst--) {
-            if (mIsDsts[mTypes[lastdst] & 0xFF] != 0) {
-                break;
-            }
-        }
-
+        // Use the latest non-daylight offset (if any) as the raw offset.
         int laststd;
         for (laststd = mTransitions.length - 1; laststd >= 0; laststd--) {
             if (mIsDsts[mTypes[laststd] & 0xFF] == 0) {
                 break;
             }
         }
-
-        if (lastdst >= 0) {
-            mDaylightName = nullName(abbreviationList, abbreviationIndexes[mTypes[lastdst] & 0xFF]);
-        } else {
-            mDaylightName = null;
-        }
-        if (laststd >= 0) {
-            mStandardName = nullName(abbreviationList, abbreviationIndexes[mTypes[laststd] & 0xFF]);
-        } else {
-            mStandardName = null;
-        }
-
-        // Use the latest non-DST offset if any as the raw offset
-
         if (laststd < 0) {
             laststd = 0;
         }
-
         if (laststd >= mTypes.length) {
             mRawOffset = mGmtOffs[0];
         } else {
@@ -231,20 +194,17 @@ final class ZoneInfo extends TimeZone {
             return false;
         }
         ZoneInfo other = (ZoneInfo) obj;
-        return Objects.equal(mDaylightName, other.mDaylightName)
-                && Objects.equal(mStandardName, other.mStandardName)
-                && hasSameRules(other);
+        return getID().equals(other.getID()) && hasSameRules(other);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((mDaylightName == null) ? 0 : mDaylightName.hashCode());
+        result = prime * result + getID().hashCode();
         result = prime * result + Arrays.hashCode(mGmtOffs);
         result = prime * result + Arrays.hashCode(mIsDsts);
         result = prime * result + mRawOffset;
-        result = prime * result + ((mStandardName == null) ? 0 : mStandardName.hashCode());
         result = prime * result + Arrays.hashCode(mTransitions);
         result = prime * result + Arrays.hashCode(mTypes);
         result = prime * result + (mUseDst ? 1231 : 1237);
@@ -253,7 +213,7 @@ final class ZoneInfo extends TimeZone {
 
     @Override
     public String toString() {
-        return getClass().getName() +
-                "[\"" + mStandardName + "\",mRawOffset=" + mRawOffset + ",mUseDst=" + mUseDst + "]";
+        return getClass().getName() + "[" + getID() + ",mRawOffset=" + mRawOffset +
+                ",mUseDst=" + mUseDst + "]";
     }
 }
