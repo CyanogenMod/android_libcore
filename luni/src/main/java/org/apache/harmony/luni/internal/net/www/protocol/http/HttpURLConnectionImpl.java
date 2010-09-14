@@ -202,10 +202,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * Establishes a socket connection to the remote origin server or proxy.
      */
     @Override public void connect() throws IOException {
-        if (connection != null) {
+        if (connected) {
             return;
         }
-
         connected = true;
 
         if (getFromCache()) {
