@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStore.Builder;
@@ -1834,7 +1835,9 @@ public class KeyStoreTest extends TestCase {
             return;
         }
         KeyStore ks = KeyStore.getInstance("BKS");
-        ks.load(new FileInputStream("/etc/security/cacerts.bks"), null);
+        InputStream in = new FileInputStream(System.getProperty(
+                "javax.net.ssl.trustStore", "/etc/security/cacerts.bks"));
+        ks.load(in, null);
         for (String alias : Collections.list(ks.aliases())) {
             assert(ks.isCertificateEntry(alias));
             Certificate c = ks.getCertificate(alias);

@@ -134,7 +134,6 @@ public final class TestEnvironment {
         p.put("java.vm.vendor", "The Android Project");
         p.put("java.vm.vendor.url", "http://www.android.com/");
         p.put("java.vm.version", "1.2.0");
-        p.put("javax.net.ssl.trustStore", "/etc/security/cacerts.bks");
         p.put("line.separator", "\n");
         p.put("path.separator", ":");
         p.put("user.language", "en");
