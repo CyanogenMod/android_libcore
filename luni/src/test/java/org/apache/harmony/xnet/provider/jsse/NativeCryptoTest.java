@@ -16,6 +16,7 @@
 
 package org.apache.harmony.xnet.provider.jsse;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -441,7 +442,10 @@ public class NativeCryptoTest extends TestCase {
                 NativeCrypto.SSL_SESSION_free(session);
             }
             if (ssl != NULL) {
-                NativeCrypto.SSL_shutdown(ssl);
+                try {
+                    NativeCrypto.SSL_shutdown(ssl);
+                } catch (IOException e) {
+                }
                 NativeCrypto.SSL_free(ssl);
             }
             if (context != NULL) {
@@ -612,7 +616,14 @@ public class NativeCryptoTest extends TestCase {
     public void test_SSL_do_handshake_normal() throws Exception {
         // normal client and server case
         final ServerSocket listener = new ServerSocket(0);
-        Hooks cHooks = new Hooks();
+        Hooks cHooks = new Hooks() {
+            @Override
+            public int beforeHandshake(int context) throws SSLException {
+                int s = super.beforeHandshake(context);
+                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+                return s;
+            }
+        };
         Hooks sHooks = new ServerHooks(SERVER_PRIVATE_KEY, SERVER_CERTIFICATES);
         Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
         Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
@@ -634,6 +645,12 @@ public class NativeCryptoTest extends TestCase {
         final ServerSocket listener = new ServerSocket(0);
 
         Hooks cHooks = new Hooks() {
+            @Override
+            public int beforeHandshake(int context) throws SSLException {
+                int s = super.beforeHandshake(context);
+                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+                return s;
+            }
             @Override
             public void clientCertificateRequested(int s) {
                 super.clientCertificateRequested(s);
@@ -1029,6 +1046,31 @@ public class NativeCryptoTest extends TestCase {
         server.get();
     }
 
+    public void test_SSL_get_peer_cert_chain() throws Exception {
+        try {
+            NativeCrypto.SSL_get_peer_cert_chain(NULL);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        final ServerSocket listener = new ServerSocket(0);
+
+        Hooks cHooks = new Hooks() {
+            @Override
+            public void afterHandshake(int session, int s, int c, Socket sock)
+                    throws Exception {
+                byte[][] cc = NativeCrypto.SSL_get_peer_cert_chain(s);
+                assertEqualCertificateChains(SERVER_CERTIFICATES, cc);
+                super.afterHandshake(session, s, c, sock);
+            }
+        };
+        Hooks sHooks = new ServerHooks(SERVER_PRIVATE_KEY, SERVER_CERTIFICATES);
+        Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
+        Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
+        client.get();
+        server.get();
+    }
+
     public void test_SSL_read_byte() throws Exception {
         try {
             NativeCrypto.SSL_read_byte(NULL, 0);
@@ -1356,32 +1398,6 @@ public class NativeCryptoTest extends TestCase {
                 byte[] id = NativeCrypto.SSL_SESSION_session_id(session);
                 assertNotNull(id);
                 assertEquals(32, id.length);
-                super.afterHandshake(session, s, c, sock);
-            }
-        };
-        Hooks sHooks = new ServerHooks(SERVER_PRIVATE_KEY, SERVER_CERTIFICATES);
-        Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
-        Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
-        client.get();
-        server.get();
-    }
-
-    public void test_SSL_SESSION_get_peer_cert_chain() throws Exception {
-        try {
-            NativeCrypto.SSL_SESSION_get_peer_cert_chain(NULL, NULL);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        final ServerSocket listener = new ServerSocket(0);
-
-        Hooks cHooks = new Hooks() {
-            @Override
-            public void afterHandshake(int session, int s, int c, Socket sock)
-                    throws Exception {
-                byte[][] cc
-                        = NativeCrypto.SSL_SESSION_get_peer_cert_chain(c, session);
-                assertEqualCertificateChains(SERVER_CERTIFICATES, cc);
                 super.afterHandshake(session, s, c, sock);
             }
         };

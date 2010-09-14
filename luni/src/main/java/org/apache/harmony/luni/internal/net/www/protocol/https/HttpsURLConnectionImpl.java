@@ -137,6 +137,10 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public void connect() throws IOException {
+        if (connected) {
+            return;
+        }
+        connected = true;
         httpsEngine.connect();
     }
 
@@ -347,7 +351,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
 
         @Override public void connect() throws IOException {
-            if (connection != null) {
+            if (connected) {
                 return;
             }
 
@@ -361,6 +365,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 releaseSocket(false);
                 connect(false);
             }
+            connected = true;
         }
 
         /**
