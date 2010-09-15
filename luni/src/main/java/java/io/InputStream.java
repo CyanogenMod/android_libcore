@@ -161,7 +161,7 @@ public abstract class InputStream extends Object implements Closeable {
      * Reads at most {@code length} bytes from this stream and stores them in
      * the byte array {@code b} starting at {@code offset}.
      *
-     * @param b
+     * @param buffer
      *            the byte array in which to store the bytes read.
      * @param offset
      *            the initial position in {@code buffer} to store the bytes read
@@ -177,15 +177,11 @@ public abstract class InputStream extends Object implements Closeable {
      * @throws IOException
      *             if the stream is closed or another IOException occurs.
      */
-    public int read(byte[] b, int offset, int length) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        // Force null check for b first!
-        if (offset > b.length || offset < 0) {
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+        if (offset > buffer.length || offset < 0) {
             throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
-        if (length < 0 || length > b.length - offset) {
+        if (length < 0 || length > buffer.length - offset) {
             throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
         for (int i = 0; i < length; i++) {
@@ -200,7 +196,7 @@ public abstract class InputStream extends Object implements Closeable {
                 }
                 throw e;
             }
-            b[offset + i] = (byte) c;
+            buffer[offset + i] = (byte) c;
         }
         return length;
     }

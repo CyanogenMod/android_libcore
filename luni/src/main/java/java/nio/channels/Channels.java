@@ -19,28 +19,23 @@ package java.nio.channels;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import org.apache.harmony.nio.internal.IOUtil;
 
 /**
  * This class provides several utilities to get I/O streams from channels.
  */
 public final class Channels {
 
-    /*
-     * Not intended to be instantiated.
-     */
-    private Channels() {
-        super();
-    }
+    private Channels() {}
 
     /**
      * Returns an input stream on the given channel. The resulting stream has
@@ -60,7 +55,7 @@ public final class Channels {
      * @return an InputStream that takes bytes from the given byte channel.
      */
     public static InputStream newInputStream(ReadableByteChannel channel) {
-        return new ReadableByteChannelInputStream(channel);
+        return new ChannelInputStream(channel);
     }
 
     /**
@@ -80,7 +75,7 @@ public final class Channels {
      * @return an OutputStream that puts bytes onto the given byte channel.
      */
     public static OutputStream newOutputStream(WritableByteChannel channel) {
-        return new WritableByteChannelOutputStream(channel);
+        return new ChannelOutputStream(channel);
     }
 
     /**
@@ -97,7 +92,7 @@ public final class Channels {
      * @return a byte channel that reads bytes from the input stream.
      */
     public static ReadableByteChannel newChannel(InputStream inputStream) {
-        return new ReadableByteChannelImpl(inputStream);
+        return new InputStreamChannel(inputStream);
     }
 
     /**
@@ -115,7 +110,7 @@ public final class Channels {
      * @return a byte channel that writes bytes to the output stream.
      */
     public static WritableByteChannel newChannel(OutputStream outputStream) {
-        return new WritableByteChannelImpl(outputStream);
+        return new OutputStreamChannel(outputStream);
     }
 
     /**
@@ -132,8 +127,8 @@ public final class Channels {
      */
     public static Reader newReader(ReadableByteChannel channel,
             CharsetDecoder decoder, int minBufferCapacity) {
-        return new ByteChannelReader(new ReaderInputStream(channel), decoder,
-                minBufferCapacity);
+        // TODO: honor minBufferCapacity?
+        return new InputStreamReader(new ChannelInputStream(channel), decoder);
     }
 
     /**
@@ -150,6 +145,9 @@ public final class Channels {
      */
     public static Reader newReader(ReadableByteChannel channel,
             String charsetName) {
+        if (charsetName == null) {
+            throw new NullPointerException();
+        }
         return newReader(channel, Charset.forName(charsetName).newDecoder(), -1);
     }
 
@@ -168,8 +166,8 @@ public final class Channels {
      */
     public static Writer newWriter(WritableByteChannel channel,
             CharsetEncoder encoder, int minBufferCapacity) {
-        return new ByteChannelWriter(new WritableByteChannelOutputStream(
-                channel), encoder, minBufferCapacity);
+        // TODO: honor minBufferCapacity?
+        return new OutputStreamWriter(new ChannelOutputStream(channel), encoder);
     }
 
     /**
@@ -187,28 +185,24 @@ public final class Channels {
      */
     public static Writer newWriter(WritableByteChannel channel,
             String charsetName) {
+        if (charsetName == null) {
+            throw new NullPointerException();
+        }
         return newWriter(channel, Charset.forName(charsetName).newEncoder(), -1);
     }
 
-    /*
-     * wrap a byte array to a ByteBuffer
+    /**
+     * An input stream that delegates to a readable channel.
      */
-    static ByteBuffer wrapByteBuffer(byte[] bytes, int offset, int length) {
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        int newLimit = offset + length <= buffer.capacity() ? offset + length
-                : buffer.capacity();
-        buffer.limit(newLimit);
-        buffer.position(offset);
-        return buffer;
-    }
-
     private static class ChannelInputStream extends InputStream {
 
-        protected ReadableByteChannel channel;
+        private final ReadableByteChannel channel;
 
-        public ChannelInputStream(ReadableByteChannel aChannel) {
-            super();
-            channel = aChannel;
+        ChannelInputStream(ReadableByteChannel channel) {
+            if (channel == null) {
+                throw new NullPointerException();
+            }
+            this.channel = channel;
         }
 
         @Override
@@ -223,101 +217,56 @@ public final class Channels {
         }
 
         @Override
+        public synchronized int read(byte[] target, int offset, int length) throws IOException {
+            ByteBuffer buffer = ByteBuffer.wrap(target, offset, length);
+            checkBlocking(channel);
+            return channel.read(buffer);
+        }
+
+        @Override public int available() throws IOException {
+            if (channel instanceof FileChannel) {
+                FileChannel fileChannel = (FileChannel) channel;
+                long result = fileChannel.size() - fileChannel.position();
+                return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) result;
+            } else {
+                return super.available();
+            }
+        }
+
+        @Override
         public synchronized void close() throws IOException {
             channel.close();
         }
     }
 
-    /*
-     * Wrapper class used for newInputStream(ReadableByteChannel channel)
+    /**
+     * An output stream that delegates to a writable channel.
      */
-    private static class ReadableByteChannelInputStream extends ChannelInputStream {
+    private static class ChannelOutputStream extends OutputStream {
 
-        public ReadableByteChannelInputStream(ReadableByteChannel aChannel) {
-            super(aChannel);
-        }
+        private final WritableByteChannel channel;
 
-        @Override
-        public synchronized int read(byte[] target, int offset, int length)
-                throws IOException {
-            // avoid int overflow, check null target
-            if (length + offset > target.length || length < 0 || offset < 0) {
-                throw new ArrayIndexOutOfBoundsException();
+        ChannelOutputStream(WritableByteChannel channel) {
+            if (channel == null) {
+                throw new NullPointerException();
             }
-            if (0 == length) {
-                return 0;
-            }
-            if (channel instanceof SelectableChannel) {
-                if (!((SelectableChannel) channel).isBlocking()) {
-                    throw new IllegalBlockingModeException();
-                }
-            }
-            ByteBuffer buffer = ByteBuffer.wrap(target, offset, length);
-            return channel.read(buffer);
-        }
-    }
-
-    /*
-     * Wrapper class used for newReader(ReadableByteChannel channel,
-     * CharsetDecoder decoder, int minBufferCapacity)
-     */
-    private static class ReaderInputStream extends ChannelInputStream {
-
-        public ReaderInputStream(ReadableByteChannel aChannel) {
-            super(aChannel);
-        }
-
-        @Override
-        public synchronized int read(byte[] target, int offset, int length)
-                throws IOException {
-            // avoid int overflow, check null target
-            if (length + offset > target.length || length < 0 || offset < 0) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            if (0 == length) {
-                return 0;
-            }
-            ByteBuffer buffer = ByteBuffer.wrap(target, offset, length);
-            return channel.read(buffer);
-        }
-    }
-
-    /*
-     * Wrapper class used for newOutputStream(WritableByteChannel channel)
-     */
-    private static class WritableByteChannelOutputStream extends OutputStream {
-
-        private WritableByteChannel channel;
-
-        public WritableByteChannelOutputStream(WritableByteChannel aChannel) {
-            super();
-            channel = aChannel;
+            this.channel = channel;
         }
 
         @Override
         public synchronized void write(int oneByte) throws IOException {
-            byte[] wrappedByte = new byte[1];
-            wrappedByte[0] = (byte) oneByte;
+            byte[] wrappedByte = { (byte) oneByte };
             write(wrappedByte);
         }
 
         @Override
-        public synchronized void write(byte[] source, int offset, int length)
-                throws IOException {
-            // avoid int overflow, check null source
-            if (length + offset > source.length || length < 0 || offset < 0) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            if (0 == length) {
-                return;
-            }
-            if (channel instanceof SelectableChannel) {
-                if (!((SelectableChannel) channel).isBlocking()) {
-                    throw new IllegalBlockingModeException();
-                }
-            }
+        public synchronized void write(byte[] source, int offset, int length) throws IOException {
             ByteBuffer buffer = ByteBuffer.wrap(source, offset, length);
-            channel.write(buffer);
+            checkBlocking(channel);
+            int total = 0;
+            while (total < length) {
+                total += channel.write(buffer);
+            }
         }
 
         @Override
@@ -326,16 +275,24 @@ public final class Channels {
         }
     }
 
-    /*
-     * Wrapper class used for newChannel(InputStream inputStream)
-     */
-    private static class ReadableByteChannelImpl extends
-            AbstractInterruptibleChannel implements ReadableByteChannel {
-        private InputStream inputStream;
+    static void checkBlocking(Channel channel) {
+        if (channel instanceof SelectableChannel && !((SelectableChannel) channel).isBlocking()) {
+            throw new IllegalBlockingModeException();
+        }
+    }
 
-        ReadableByteChannelImpl(InputStream aInputStream) {
-            super();
-            inputStream = aInputStream;
+    /**
+     * A readable channel that delegates to an input stream.
+     */
+    private static class InputStreamChannel extends AbstractInterruptibleChannel
+            implements ReadableByteChannel {
+        private final InputStream inputStream;
+
+        InputStreamChannel(InputStream inputStream) {
+            if (inputStream == null) {
+                throw new NullPointerException();
+            }
+            this.inputStream = inputStream;
         }
 
         public synchronized int read(ByteBuffer target) throws IOException {
@@ -363,16 +320,18 @@ public final class Channels {
         }
     }
 
-    /*
-     * Wrapper class used for newChannel(OutputStream outputStream)
+    /**
+     * A writable channel that delegates to an output stream.
      */
-    private static class WritableByteChannelImpl extends
-            AbstractInterruptibleChannel implements WritableByteChannel {
-        private OutputStream outputStream;
+    private static class OutputStreamChannel extends AbstractInterruptibleChannel
+            implements WritableByteChannel {
+        private final OutputStream outputStream;
 
-        WritableByteChannelImpl(OutputStream aOutputStream) {
-            super();
-            outputStream = aOutputStream;
+        OutputStreamChannel(OutputStream outputStream) {
+            if (outputStream == null) {
+                throw new NullPointerException();
+            }
+            this.outputStream = outputStream;
         }
 
         public synchronized int write(ByteBuffer source) throws IOException {
@@ -397,135 +356,6 @@ public final class Channels {
         @Override
         protected void implCloseChannel() throws IOException {
             outputStream.close();
-        }
-    }
-
-    /*
-     * Wrapper class used for newReader(ReadableByteChannel channel,
-     * CharsetDecoder decoder, int minBufferCapacity)
-     */
-    private static class ByteChannelReader extends Reader {
-
-        private InputStream inputStream;
-
-        private static final int BUFFER_SIZE = 8192;
-
-        CharsetDecoder decoder;
-
-        ByteBuffer bytes;
-
-        CharBuffer chars;
-
-        public ByteChannelReader(InputStream aInputStream,
-                CharsetDecoder aDecoder, int minBufferCapacity) {
-            super(aInputStream);
-            aDecoder.reset();
-            inputStream = aInputStream;
-            int bufferSize = Math.max(minBufferCapacity, BUFFER_SIZE);
-            bytes = ByteBuffer.allocate(bufferSize);
-            chars = CharBuffer.allocate(bufferSize);
-            decoder = aDecoder;
-            chars.limit(0);
-        }
-
-        @Override
-        public void close() throws IOException {
-            synchronized (lock) {
-                decoder = null;
-                if (inputStream != null) {
-                    inputStream.close();
-                    inputStream = null;
-                }
-            }
-        }
-
-        @Override
-        public boolean ready() {
-            synchronized (lock) {
-                if (null == inputStream) {
-                    return false;
-                }
-                try {
-                    return chars.limit() > chars.position()
-                            || inputStream.available() > 0;
-                } catch (IOException e) {
-                    return false;
-                }
-            }
-        }
-
-        @Override
-        public int read() throws IOException {
-            return IOUtil.readInputStreamReader(inputStream, bytes, chars,
-                    decoder, lock);
-        }
-
-        @Override
-        public int read(char[] buf, int offset, int length) throws IOException {
-            return IOUtil.readInputStreamReader(buf, offset, length,
-                    inputStream, bytes, chars, decoder, lock);
-        }
-    }
-
-    /*
-     * Wrapper class used for newWriter(WritableByteChannel channel,
-     * CharsetEncoder encoder, int minBufferCapacity)
-     */
-    private static class ByteChannelWriter extends Writer {
-
-        private static final int BUFFER_SIZE = 8192;
-
-        private OutputStream outputStream;
-
-        private CharsetEncoder encoder;
-
-        private ByteBuffer byteBuf;
-
-        public ByteChannelWriter(OutputStream aOutputStream,
-                CharsetEncoder aEncoder, int minBufferCap) {
-            super(aOutputStream);
-            aEncoder.charset();
-            outputStream = aOutputStream;
-            byteBuf = ByteBuffer.allocate(Math.max(minBufferCap, BUFFER_SIZE));
-            encoder = aEncoder;
-        }
-
-        @Override
-        public void close() throws IOException {
-            synchronized (lock) {
-                if (encoder != null) {
-                    flush();
-                    outputStream.flush();
-                    outputStream.close();
-                    encoder = null;
-                    byteBuf = null;
-                }
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {
-            IOUtil
-                    .flushOutputStreamWriter(outputStream, byteBuf, encoder,
-                            lock);
-        }
-
-        @Override
-        public void write(char[] buf, int offset, int count) throws IOException {
-            IOUtil.writeOutputStreamWriter(buf, offset, count, outputStream,
-                    byteBuf, encoder, lock);
-        }
-
-        @Override
-        public void write(int oneChar) throws IOException {
-            IOUtil.writeOutputStreamWriter(oneChar, outputStream, byteBuf,
-                    encoder, lock);
-        }
-
-        @Override
-        public void write(String str, int offset, int count) throws IOException {
-            IOUtil.writeOutputStreamWriter(str, offset, count, outputStream,
-                    byteBuf, encoder, lock);
         }
     }
 }
