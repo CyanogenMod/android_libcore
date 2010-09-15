@@ -289,6 +289,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_BUILD_HOST_DEX := true
 
     LOCAL_MODULE := core-hostdex
+    LOCAL_MODULE_TAGS := optional
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
