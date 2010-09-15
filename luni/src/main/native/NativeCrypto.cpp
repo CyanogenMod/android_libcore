@@ -2167,7 +2167,7 @@ static void NativeCrypto_SSL_set_verify(JNIEnv* env,
         jclass, jint ssl_address, jint mode)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_verify", ssl);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_verify mode=%x", ssl, mode);
     if (ssl == NULL) {
       return;
     }
@@ -2505,6 +2505,39 @@ static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint s
     return objectArray;
 }
 
+// Fills a byte[][] with the peer certificates in the chain.
+static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, jint ssl_address)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain", ssl);
+    if (ssl == NULL) {
+        return NULL;
+    }
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
+    Unique_sk_X509 chain_copy(NULL);
+    if (ssl->server) {
+        X509* x509 = SSL_get_peer_certificate(ssl);
+        if (x509 == NULL) {
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain => NULL", ssl);
+            return NULL;
+        }
+        chain_copy.reset(sk_X509_dup(chain));
+        if (chain_copy.get() == NULL) {
+            jniThrowOutOfMemoryError(env, "Unable to allocate peer certificate chain");
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain => certificate dup error", ssl);
+            return NULL;
+        }
+        if (!sk_X509_push(chain_copy.get(), x509)) {
+            jniThrowOutOfMemoryError(env, "Unable to push server's peer certificate");
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain => certificate push error", ssl);
+            return NULL;
+        }
+        chain = chain_copy.get();
+    }
+    jobjectArray objectArray = getCertificateBytes(env, chain);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain => %p", ssl, objectArray);
+    return objectArray;
+}
 
 /**
  * Helper function which does the actual reading. The Java layer guarantees that
@@ -3017,40 +3050,6 @@ static jbyteArray NativeCrypto_SSL_SESSION_session_id(JNIEnv* env, jclass,
 }
 
 /**
- * Our implementation of what might be considered
- * SSL_SESSION_get_peer_cert_chain
- *
- */
-// TODO move to jsse.patch
-static STACK_OF(X509)* SSL_SESSION_get_peer_cert_chain(SSL_CTX* ssl_ctx, SSL_SESSION* ssl_session) {
-    Unique_SSL ssl(SSL_new(ssl_ctx));
-    if (ssl.get() == NULL) {
-        return NULL;
-    }
-    SSL_set_session(ssl.get(), ssl_session);
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl.get());
-    return chain;
-}
-
-// Fills a byte[][] with the peer certificates in the chain.
-static jobjectArray NativeCrypto_SSL_SESSION_get_peer_cert_chain(JNIEnv* env,
-        jclass, jint ssl_ctx_address, jint ssl_session_address)
-{
-    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
-    SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, ssl_ctx != NULL);
-    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_peer_cert_chain ssl_ctx=%p",
-              ssl_session, ssl_ctx);
-    if (ssl_ctx == NULL || ssl_session == NULL) {
-        return NULL;
-    }
-    STACK_OF(X509)* chain = SSL_SESSION_get_peer_cert_chain(ssl_ctx, ssl_session);
-    jobjectArray objectArray = getCertificateBytes(env, chain);
-    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_peer_cert_chain => %p",
-              ssl_session, objectArray);
-    return objectArray;
-}
-
-/**
  * Gets and returns in a long integer the creation's time of the
  * actual SSL session.
  */
@@ -3255,6 +3254,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$SSLHandshakeCallbacks;IZ)I"),
     NATIVE_METHOD(NativeCrypto, SSL_renegotiate, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_read_byte, "(II)I"),
     NATIVE_METHOD(NativeCrypto, SSL_read, "(I[BIII)I"),
     NATIVE_METHOD(NativeCrypto, SSL_write_byte, "(II)V"),
@@ -3263,7 +3263,6 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_session_id, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_peer_cert_chain, "(II)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(I)J"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_version, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_cipher, "(I)Ljava/lang/String;"),

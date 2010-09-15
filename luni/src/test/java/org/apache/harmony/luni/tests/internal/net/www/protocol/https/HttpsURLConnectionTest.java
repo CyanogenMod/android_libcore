@@ -1110,7 +1110,7 @@ public class HttpsURLConnectionTest extends TestCase {
          * The print stream used for debug log.
          * If it is null debug info will not be printed.
          */
-        private PrintStream out = new PrintStream(System.out);
+        private PrintStream out = System.out;
 
         /**
          * Prints log message.
@@ -1180,6 +1180,9 @@ public class HttpsURLConnectionTest extends TestCase {
          * Closes the connection.
          */
         public void closeSocket(Socket socket) {
+            if (socket == null) {
+                return;
+            }
             try {
                 socket.getInputStream().close();
             } catch (IOException e) {}
