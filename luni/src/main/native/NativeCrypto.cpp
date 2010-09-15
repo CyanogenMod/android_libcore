@@ -688,6 +688,11 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
                                           jbyteArray buffer, jint offset, jint length) {
     // LOGI("NativeCrypto_EVP_DigestUpdate %x, %x, %d, %d", ctx, buffer, offset, length);
 
+    if (offset < 0 || length < 0) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return;
+    }
+
     if (ctx == NULL || buffer == NULL) {
         jniThrowNullPointerException(env, NULL);
         return;
