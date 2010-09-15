@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.nio.ByteBuffer;
 import java.security.DigestException;
 import java.security.MessageDigest;
@@ -33,21 +28,14 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.MyMessageDigest1;
 
-@TestTargetClass(MessageDigest.class)
 /**
  * Tests for <code>MessageDigest</code> constructor and methods
  */
 public class MessageDigest1Test extends TestCase {
 
     /**
-     * @tests java.security.MessageDigest#reset()
+     * java.security.MessageDigest#reset()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "reset",
-        args = {}
-    )
     public void test_reset() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         md.reset();
@@ -55,14 +43,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#update(byte)
+     * java.security.MessageDigest#update(byte)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte.class}
-    )
     public void test_updateLB() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         md.update((byte) 1);
@@ -70,14 +52,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#update(byte[], int, int)
+     * java.security.MessageDigest#update(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_updateLB$LILI() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         final byte[] bytes = { 1, 2, 3, 4, 5 };
@@ -120,14 +96,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#update(byte[])
+     * java.security.MessageDigest#update(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class}
-    )
     public void test_updateLB$() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         byte[] b = { 1, 2, 3, 4, 5 };
@@ -136,14 +106,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#update(ByteBuffer)
+     * java.security.MessageDigest#update(ByteBuffer)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {java.nio.ByteBuffer.class}
-    )
     public void test_updateLjava_nio_ByteBuffer() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         byte[] b = { 1, 2, 3, 4, 5 };
@@ -157,14 +121,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#digest()
+     * java.security.MessageDigest#digest()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {}
-    )
     public void test_digest() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         assertEquals("incorrect result", 0, md.digest().length);
@@ -172,14 +130,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#digest(byte[])
+     * java.security.MessageDigest#digest(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {byte[].class}
-    )
     public void test_digestLB$() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         byte[] b = { 1, 2, 3, 4, 5 };
@@ -188,14 +140,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#digest(byte[], int, int)
+     * java.security.MessageDigest#digest(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_digestLB$LILI() throws Exception {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         byte[] b = { 1, 2, 3, 4, 5 };
@@ -248,14 +194,8 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#isEqual(byte[],byte[])
+     * java.security.MessageDigest#isEqual(byte[],byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEqual",
-        args = {byte[].class, byte[].class}
-    )
     public void test_isEqualLB$LB$() {
         byte[] b1 = { 1, 2, 3, 4 };
         byte[] b2 = { 1, 2, 3, 4, 5 };
@@ -268,42 +208,24 @@ public class MessageDigest1Test extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigest#getAlgorithm()
+     * java.security.MessageDigest#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         assertEquals("ABC", md.getAlgorithm());
     }
 
     /**
-     * @tests java.security.MessageDigest#getProvider()
+     * java.security.MessageDigest#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         assertNull(md.getProvider());
     }
 
     /**
-     * @tests java.security.MessageDigest#getDigestLength()
+     * java.security.MessageDigest#getDigestLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDigestLength",
-        args = {}
-    )
     public void test_getDigestLength() {
         MyMessageDigest1 md = new MyMessageDigest1("ABC");
         assertEquals(0, md.getDigestLength());
@@ -312,12 +234,6 @@ public class MessageDigest1Test extends TestCase {
     /**
      * Tests SHA MessageDigest provider
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testSHAProvider() {
         MessageDigest md = null;
         try {
@@ -325,7 +241,6 @@ public class MessageDigest1Test extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-
         byte[] bytes = new byte[] { 1, 1, 1, 1, 1 };
 
         // Regression for HARMONY-1120
@@ -336,8 +251,11 @@ public class MessageDigest1Test extends TestCase {
             fail("No expected IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
         }
-        // No exception for len < 0
-        md.update(bytes, 1, -1);
+        try {
+            md.update(bytes, 1, -1);
+            fail("No expected IndexOutOfBoundsException");
+        } catch (IndexOutOfBoundsException e) {
+        }
 
         //Regression for Harmony-1148
         try {
