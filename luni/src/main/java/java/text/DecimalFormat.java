@@ -698,10 +698,10 @@ public class DecimalFormat extends NumberFormat {
         checkBufferAndFieldPosition(buffer, position);
         if (number instanceof BigInteger) {
             BigInteger bigInteger = (BigInteger) number;
-            String s = (bigInteger.bitLength() < 64)
+            char[] chars = (bigInteger.bitLength() < 64)
                     ? dform.formatLong(bigInteger.longValue(), position)
                     : dform.formatBigInteger(bigInteger, position);
-            buffer.append(s);
+            buffer.append(chars);
             return buffer;
         } else if (number instanceof BigDecimal) {
             buffer.append(dform.formatBigDecimal((BigDecimal) number, position));
