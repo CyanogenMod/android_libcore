@@ -17,12 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import tests.support.Support_TestProvider;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,14 +51,13 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import tests.support.Support_TestProvider;
 
-@TestTargetClass(KeyStore.class)
 public class KeyStore2Test extends junit.framework.TestCase {
     static PrivateKey privateKey;
     static {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator
-                    .getInstance("DSA");
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
 
             SecureRandom secureRandom = new SecureRandom();
             keyPairGenerator.initialize(1024, secureRandom);
@@ -99,8 +92,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             + "1777XQ9UEZyrKJvF5ntleeO0ayBqLGVKCWzWZX9YsXCpv47FNLZbupE=\n"
             + "-----END CERTIFICATE-----\n";
 
-    ByteArrayInputStream certArray = new ByteArrayInputStream(certificate
-            .getBytes());
+    ByteArrayInputStream certArray = new ByteArrayInputStream(certificate.getBytes());
 
     String certificate2 = "-----BEGIN CERTIFICATE-----\n"
             + "MIICZzCCAdCgAwIBAgIBGzANBgkqhkiG9w0BAQUFADBhMQswCQYDVQQGEwJVUzEY\n"
@@ -118,8 +110,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             + "VGQRYYlt+myhl2vy6yPzEVCjiKwMEb1Spu0irCf+lFW2hsdjvmSQMtZvOw==\n"
             + "-----END CERTIFICATE-----\n";
 
-    ByteArrayInputStream certArray2 = new ByteArrayInputStream(certificate2
-            .getBytes());
+    ByteArrayInputStream certArray2 = new ByteArrayInputStream(certificate2.getBytes());
 
     String certificate3 = "-----BEGIN CERTIFICATE-----\n"
             + "MIIDXDCCAsWgAwIBAgIBSjANBgkqhkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzEY\n"
@@ -142,8 +133,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             + "kjykuB+WB6qTCIslAO/eUmgzfzIENvnH8O+fH7QTr2PdkFkiPIqBJYHvw7F3XDqy\n"
             + "-----END CERTIFICATE-----\n";
 
-    ByteArrayInputStream certArray3 = new ByteArrayInputStream(certificate3
-            .getBytes());
+    ByteArrayInputStream certArray3 = new ByteArrayInputStream(certificate3.getBytes());
 
     private byte[] creatCertificate() throws Exception {
         ByteArrayOutputStream out = null;
@@ -171,14 +161,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#aliases()
+     * java.security.KeyStore#aliases()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "aliases",
-        args = {}
-    )
     public void test_aliases() throws Exception {
         // Test for method java.util.Enumeration
         // java.security.KeyStore.aliases()
@@ -217,20 +201,15 @@ public class KeyStore2Test extends junit.framework.TestCase {
             alia.add(aliase.nextElement());
             i++;
         }
-        assertTrue("the alias names were returned wrong", i == 3
-                && alia.contains("alias1") && alia.contains("alias2")
-                && alia.contains("alias3"));
+        assertEquals("the wrong aliases were returned", i, 3);
+        assertTrue("the wrong aliases were returned", alia.contains("alias1"));
+        assertTrue("the wrong aliases were returned", alia.contains("alias2"));
+        assertTrue("the wrong aliases were returned", alia.contains("alias3"));
     }
 
     /**
-     * @tests java.security.KeyStore#containsAlias(java.lang.String)
+     * java.security.KeyStore#containsAlias(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsAlias",
-        args = {java.lang.String.class}
-    )
     public void test_containsAliasLjava_lang_String() throws Exception {
         // Test for method boolean
         // java.security.KeyStore.containsAlias(java.lang.String)
@@ -268,14 +247,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#getCertificate(java.lang.String)
+     * java.security.KeyStore#getCertificate(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificate",
-        args = {java.lang.String.class}
-    )
     public void test_getCertificateLjava_lang_String() throws Exception {
         // Test for method java.security.cert.Certificate
         // java.security.KeyStore.getCertificate(java.lang.String)
@@ -298,31 +271,24 @@ public class KeyStore2Test extends junit.framework.TestCase {
         PublicKey pub = cert[0].getPublicKey();
         keyTest.setCertificateEntry("alias1", cert[0]);
 
-        java.security.cert.Certificate certRes = keyTest
-                .getCertificate("alias1");
-        assertTrue("the public key of the certificate from getCertificate() "
-                + "did not equal the original certificate", certRes
-                .getPublicKey() == pub);
+        Certificate certRes = keyTest.getCertificate("alias1");
+        assertEquals("the public key of the certificate from getCertificate() "
+                     + "did not equal the original certificate",
+                     pub, certRes.getPublicKey());
 
         // alias 2
         keyTest.setCertificateEntry("alias2", cert[0]);
 
         // testing for a certificate chain
-        java.security.cert.Certificate cert2 = keyTest.getCertificate("alias2");
-        assertTrue("the certificate for alias2 is supposed to exist",
-                cert2.equals(cert[0]));
+        Certificate cert2 = keyTest.getCertificate("alias2");
+        assertEquals("the certificate for alias2 is supposed to exist",
+                     cert2, cert[0]);
 
     }
 
     /**
-     * @tests java.security.KeyStore#getCertificateAlias(java.security.cert.Certificate)
+     * java.security.KeyStore#getCertificateAlias(java.security.cert.Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "KeyStoreException checking missed",
-        method = "getCertificateAlias",
-        args = {java.security.cert.Certificate.class}
-    )
     public void test_getCertificateAliasLjava_security_cert_Certificate()
             throws Exception {
         // Test for method java.lang.String
@@ -337,35 +303,27 @@ public class KeyStore2Test extends junit.framework.TestCase {
         // certificate entry
         keyTest.setCertificateEntry("alias1", cert[1]);
         String alias = keyTest.getCertificateAlias(cert[1]);
-        assertTrue("certificate entry - the alias returned for this "
-                + "certificate was wrong", alias.equals("alias1"));
+        assertEquals("certificate entry - the alias returned for this certificate was wrong",
+                     "alias1", alias);
 
         // key entry
 
         keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
         alias = keyTest.getCertificateAlias(cert[0]);
-        assertTrue("key entry - the alias returned for this "
-                + "certificate was wrong", alias.equals("alias2"));
+        assertEquals("key entry - the alias returned for this certificate was wrong",
+                     "alias2", alias);
 
         // testing case with a nonexistent certificate
-        X509Certificate cert2 = (X509Certificate) cf
-                .generateCertificate(certArray3);
+        X509Certificate cert2 = (X509Certificate) cf.generateCertificate(certArray3);
         String aliasNull = keyTest.getCertificateAlias(cert2);
-        assertNull("the alias returned for the nonexist certificate "
-                + "was NOT null", aliasNull);
+        assertNull("the alias returned for the nonexist certificate was NOT null", aliasNull);
     }
 
     /**
-     * @tests java.security.KeyStore#getCertificateChain(java.lang.String)
+     * java.security.KeyStore#getCertificateChain(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificateChain",
-        args = {java.lang.String.class}
-    )
     public void test_getCertificateChainLjava_lang_String() throws Exception {
-        // Test for method java.security.cert.Certificate []
+        // Test for method java.security.cert.Certificate[]
         // java.security.KeyStore.getCertificateChain(java.lang.String)
         // creatCertificate();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -389,18 +347,16 @@ public class KeyStore2Test extends junit.framework.TestCase {
         // alias 2
         keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
 
-        java.security.cert.Certificate[] certRes = keyTest
-                .getCertificateChain("alias2");
-        assertTrue("there are more than two certificate returned "
-                + "from getCertificateChain", certRes.length == 2);
-        assertTrue("the certificates returned from getCertificateChain "
-                + "is not correct", cert[0].getPublicKey() == certRes[0]
-                .getPublicKey()
-                && cert[1].getPublicKey() == certRes[1].getPublicKey());
-        java.security.cert.Certificate[] certResNull = keyTest
-                .getCertificateChain("alias1");
-        assertNull("the certificate chain returned from "
-                + "getCertificateChain is NOT null", certResNull);
+        Certificate[] certRes = keyTest.getCertificateChain("alias2");
+        assertEquals("there are more than two certificate returned from getCertificateChain",
+                     2, certRes.length);
+        assertEquals("the first certificate returned from getCertificateChain is not correct",
+                     cert[0].getPublicKey(), certRes[0].getPublicKey());
+        assertEquals("the second certificate returned from getCertificateChain is not correct",
+                     cert[1].getPublicKey(), certRes[1].getPublicKey());
+        Certificate[] certResNull = keyTest.getCertificateChain("alias1");
+        assertNull("the certificate chain returned from getCertificateChain is NOT null",
+                   certResNull);
 
         try {
             keyTest.getCertificateChain(null);
@@ -412,36 +368,23 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#getInstance(java.lang.String)
+     * java.security.KeyStore#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "KeyStoreException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() throws Exception {
         // Test for method java.security.KeyStore
         // java.security.KeyStore.getInstance(java.lang.String)
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        assertTrue("the method getInstance did not obtain "
-                + "the correct type", keyTest.getType().equals(
-                KeyStore.getDefaultType()));
+        assertEquals("the method getInstance did not obtain the correct type",
+                     KeyStore.getDefaultType(), keyTest.getType());
     }
 
     /**
-     * @tests java.security.KeyStore#getKey(java.lang.String, char[])
+     * java.security.KeyStore#getKey(java.lang.String, char[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "KeyStoreException, NoSuchAlgorithmException checking missed",
-        method = "getKey",
-        args = {java.lang.String.class, char[].class}
-    )
     public void test_getKeyLjava_lang_String$C() throws Exception {
 
         // Test for method java.security.Key
-        // java.security.KeyStore.getKey(java.lang.String, char [])
+        // java.security.KeyStore.getKey(java.lang.String, char[])
         // creatCertificate();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate cert[] = new X509Certificate[2];
@@ -454,12 +397,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
         PrivateKey returnedKey = (PrivateKey) keyTest.getKey("alias2", pssWord);
         byte[] retB = returnedKey.getEncoded();
         byte[] priB = privateKey.getEncoded();
-        boolean equality = Arrays.equals(retB, priB);
-        equality &= returnedKey.getAlgorithm()
-                .equals(privateKey.getAlgorithm());
-        equality &= returnedKey.getFormat().equals(privateKey.getFormat());
-        assertTrue("the private key returned from getKey for a "
-                + "key entry did not equal the original key", equality);
+        assertTrue(Arrays.equals(retB, priB));
+        assertEquals(privateKey.getAlgorithm(), returnedKey.getAlgorithm());
+        assertEquals(privateKey.getFormat(), returnedKey.getFormat());
 
         try {
             keyTest.getKey("alias2", "wrong".toCharArray());
@@ -469,21 +409,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         }
 
         keyTest.setCertificateEntry("alias1", cert[1]);
-        assertNull("the private key returned from getKey for "
-                + "a certificate entry is not null", keyTest.getKey("alias1",
-                pssWord));
+        assertNull("the private key returned from getKey for a certificate entry is not null",
+                   keyTest.getKey("alias1", pssWord));
     }
 
 
     /**
-     * @tests java.security.KeyStore#isCertificateEntry(java.lang.String)
+     * java.security.KeyStore#isCertificateEntry(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isCertificateEntry",
-        args = {java.lang.String.class}
-    )
     public void test_isCertificateEntryLjava_lang_String() throws Exception {
         // Test for method boolean
         // java.security.KeyStore.isCertificateEntry(java.lang.String)
@@ -508,21 +441,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
 
         assertTrue("isCertificateEntry method returns false for a certificate",
-                keyTest.isCertificateEntry("alias1"));
-        assertFalse(
-                "isCertificateEntry method returns true for noncertificate",
-                keyTest.isCertificateEntry("alias2"));
+                   keyTest.isCertificateEntry("alias1"));
+        assertFalse("isCertificateEntry method returns true for noncertificate",
+                    keyTest.isCertificateEntry("alias2"));
     }
 
     /**
-     * @tests java.security.KeyStore#isKeyEntry(java.lang.String)
+     * java.security.KeyStore#isKeyEntry(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isKeyEntry",
-        args = {java.lang.String.class}
-    )
     public void test_isKeyEntryLjava_lang_String() throws Exception {
         // Test for method boolean
         // java.security.KeyStore.isKeyEntry(java.lang.String)
@@ -546,57 +472,41 @@ public class KeyStore2Test extends junit.framework.TestCase {
         // alias 2
         keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
 
-        assertTrue("isKeyEntry method returns false for a certificate", keyTest
-                .isKeyEntry("alias2"));
+        assertTrue("isKeyEntry method returns false for a certificate",
+                   keyTest.isKeyEntry("alias2"));
         assertFalse("isKeyEntry method returns true for noncertificate",
-                keyTest.isKeyEntry("alias1"));
+                    keyTest.isKeyEntry("alias1"));
     }
 
     /**
-     * @tests java.security.KeyStore#load(java.io.InputStream, char[])
+     * java.security.KeyStore#load(java.io.InputStream, char[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IOException, NoSuchAlgorithmException, CertificateException checking missed",
-        method = "load",
-        args = {java.io.InputStream.class, char[].class}
-    )
     public void test_loadLjava_io_InputStream$C() throws Exception {
         // Test for method void java.security.KeyStore.load(java.io.InputStream,
-        // char [])
+        // char[])
         byte[] keyStore = creatCertificate();
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
         InputStream in = new ByteArrayInputStream(keyStore);
         keyTest.load(in, pssWord);
         in.close();
-        assertTrue("alias1 is not a certificate", keyTest
-                .isCertificateEntry("alias1"));
+        assertTrue("alias1 is not a certificate", keyTest.isCertificateEntry("alias1"));
         assertTrue("alias2 is not a keyEntry", keyTest.isKeyEntry("alias2"));
-        assertTrue("alias3 is not a certificate", keyTest
-                .isCertificateEntry("alias3"));
+        assertTrue("alias3 is not a certificate", keyTest.isCertificateEntry("alias3"));
 
         // test with null password
         keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
         in = new ByteArrayInputStream(keyStore);
         keyTest.load(in, null);
         in.close();
-        assertTrue("alias1 is not a certificate", keyTest
-                .isCertificateEntry("alias1"));
+        assertTrue("alias1 is not a certificate", keyTest.isCertificateEntry("alias1"));
         assertTrue("alias2 is not a keyEntry", keyTest.isKeyEntry("alias2"));
-        assertTrue("alias3 is not a certificate", keyTest
-                .isCertificateEntry("alias3"));
+        assertTrue("alias3 is not a certificate", keyTest.isCertificateEntry("alias3"));
 
     }
 
     /**
-     * @tests java.security.KeyStore#load(KeyStore.LoadStoreParameter param)
+     * java.security.KeyStore#load(KeyStore.LoadStoreParameter param)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalArgumentException, IOException, NoSuchAlgorithmException, CertificateException and non null parameter checking missed",
-        method = "load",
-        args = {java.security.KeyStore.LoadStoreParameter.class}
-    )
     public void test_loadLjava_security_KeyStoreLoadStoreParameter() {
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -609,23 +519,16 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
     }
     /**
-     * @tests java.security.KeyStore#setCertificateEntry(java.lang.String,
+     * java.security.KeyStore#setCertificateEntry(java.lang.String,
      *        java.security.cert.Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setCertificateEntry",
-        args = {java.lang.String.class, java.security.cert.Certificate.class}
-    )
     public void test_setCertificateEntryLjava_lang_StringLjava_security_cert_Certificate()
             throws Exception {
         // Test for method void
         // java.security.KeyStore.setCertificateEntry(java.lang.String,
         // java.security.cert.Certificate)
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) cf
-                .generateCertificate(certArray);
+        X509Certificate cert = (X509Certificate) cf.generateCertificate(certArray);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
 
         try {
@@ -639,34 +542,26 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         PublicKey pub = cert.getPublicKey();
         keyTest.setCertificateEntry("alias1", cert);
-        assertTrue(
-                "the entry specified by the alias alias1 is not a certificate",
-                keyTest.isCertificateEntry("alias1"));
-        java.security.cert.Certificate resultCert = keyTest
-                .getCertificate("alias1");
-        assertTrue(
-                "the public key of the certificate from getCertificate() did not equal the original certificate",
-                resultCert.getPublicKey() == pub);
+        assertTrue("the entry specified by the alias alias1 is not a certificate",
+                   keyTest.isCertificateEntry("alias1"));
+        Certificate resultCert = keyTest.getCertificate("alias1");
+        assertEquals("the public key of the certificate from getCertificate() "
+                     + "did not equal the original certificate",
+                     pub, resultCert.getPublicKey());
 
 
     }
 
     /**
-     * @tests java.security.KeyStore#setKeyEntry(java.lang.String,
+     * java.security.KeyStore#setKeyEntry(java.lang.String,
      *        java.security.Key, char[], java.security.cert.Certificate[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setKeyEntry",
-        args = {java.lang.String.class, java.security.Key.class, char[].class, java.security.cert.Certificate[].class}
-    )
     public void test_setKeyEntryLjava_lang_StringLjava_security_Key$C$Ljava_security_cert_Certificate()
             throws Exception {
 
         // Test for method void
         // java.security.KeyStore.setKeyEntry(java.lang.String,
-        // java.security.Key, char [], java.security.cert.Certificate [])
+        // java.security.Key, char[], java.security.cert.Certificate[])
 
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate cert[] = new X509Certificate[2];
@@ -685,7 +580,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         keyTest.setKeyEntry("alias3", privateKey, pssWord, cert);
         assertTrue("the entry specified by the alias alias3 is not a keyEntry",
-                keyTest.isKeyEntry("alias3"));
+                   keyTest.isKeyEntry("alias3"));
 
         try {
             keyTest.setKeyEntry("alias4", privateKey, pssWord, new Certificate[] {});
@@ -697,14 +592,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#size()
+     * java.security.KeyStore#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() throws Exception {
         // Test for method int java.security.KeyStore.size()
 
@@ -734,21 +623,11 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertEquals("the size of the keyStore is not 3", 3, keyTest.size());
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "deleteEntry",
-            args = {java.lang.String.class}
-    )
-    @AndroidOnly("Spec says: throws KeyStoreException ... if the entry can not be deleted. RI goes against its own spec.")
     public void test_deleteEmptyEntry() {
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
             keyTest.load(null, null);
             keyTest.deleteEntry("");
-            fail("Should throw KeyStoreException");
-        } catch (KeyStoreException e) {
-            // expected
         } catch (Exception e) {
             fail("Unexpected Exception " + e);
         }
@@ -757,23 +636,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
             keyTest.load(null, null);
             keyTest.deleteEntry("entry");
-            fail("Should throw KeyStoreException");
-        } catch (KeyStoreException e) {
-            // expected
         } catch (Exception e) {
             fail("Unexpected Exception " + e);
         }
     }
 
     /**
-     * @tests java.security.KeyStore#deleteEntry(String)
+     * java.security.KeyStore#deleteEntry(String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "deleteEntry",
-        args = {java.lang.String.class}
-    )
     public void test_deleteEntry() {
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -816,14 +686,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#getCreationDate(String)
+     * java.security.KeyStore#getCreationDate(String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCreationDate",
-        args = {java.lang.String.class}
-    )
     public void test_getCreationDate() throws Exception {
         String type = "DSA";
 
@@ -906,15 +770,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#getEntry(String,
+     * java.security.KeyStore#getEntry(String,
      *        KeyStore.ProtectionParameter)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException, UnrecoverableEntryException checking missed",
-        method = "getEntry",
-        args = {java.lang.String.class, java.security.KeyStore.ProtectionParameter.class}
-    )
     public void test_getEntry() {
         String type = "DSA";
         KeyStore keyTest = null;
@@ -1051,8 +909,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             }
             KeyStore.PrivateKeyEntry pkeActual1 = null;
             try {
-                pkeActual1 = (KeyStore.PrivateKeyEntry) keyTest
-                        .getEntry("alias1", pp);
+                pkeActual1 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias1", pp);
             } catch (NoSuchAlgorithmException e) {
                 fail("unexpected exception: " + e);
             } catch (UnrecoverableEntryException e) {
@@ -1062,8 +919,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             }
             KeyStore.PrivateKeyEntry pkeActual2 = null;
             try {
-                pkeActual2 = (KeyStore.PrivateKeyEntry) keyTest
-                        .getEntry("alias2", pp);
+                pkeActual2 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2", pp);
             } catch (NoSuchAlgorithmException e) {
                 fail("unexpected exception: " + e);
             } catch (UnrecoverableEntryException e) {
@@ -1074,11 +930,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
             assertTrue(Arrays.equals(chain, pkeActual1.getCertificateChain()));
             assertEquals(privateKey, pkeActual1.getPrivateKey());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual1
-                    .getCertificate());
+            assertEquals(new MyCertificate(type, testEncoding), pkeActual1.getCertificate());
             try {
-                assertTrue(keyTest.entryInstanceOf("alias1",
-                        KeyStore.PrivateKeyEntry.class));
+                assertTrue(keyTest.entryInstanceOf("alias1", KeyStore.PrivateKeyEntry.class));
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
@@ -1090,11 +944,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
             assertEquals(privateKey1.getParams().getP(), entryPrivateKey.getParams().getP());
             assertEquals(privateKey1.getParams().getQ(), entryPrivateKey.getParams().getQ());
 
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual2
-                    .getCertificate());
+            assertEquals(new MyCertificate(type, testEncoding), pkeActual2.getCertificate());
             try {
-                assertTrue(keyTest.entryInstanceOf("alias2",
-                        KeyStore.PrivateKeyEntry.class));
+                assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
@@ -1104,15 +956,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#setEntry(String, KeyStore.Entry,
+     * java.security.KeyStore#setEntry(String, KeyStore.Entry,
      *        KeyStore.ProtectionParameter)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setEntry",
-        args = {java.lang.String.class, java.security.KeyStore.Entry.class, java.security.KeyStore.ProtectionParameter.class}
-    )
     public void test_setEntry() {
         String type = "DSA";
         KeyStore keyTest = null;
@@ -1131,10 +977,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
                                     new BigInteger("4")));
 
             pp = new KeyStore.PasswordProtection(pssWord);
-            KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(
-                    privateKey, chain);
-            KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(
-                    privateKey1, chain);
+            KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(privateKey, chain);
+            KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(privateKey1, chain);
 
             try {
                 keyTest.setEntry("alias", pke, null);
@@ -1145,19 +989,16 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
             keyTest.setEntry("alias", pke, pp);
 
-            KeyStore.PrivateKeyEntry pkeActual = (KeyStore.PrivateKeyEntry) keyTest
-                    .getEntry("alias", pp);
+            KeyStore.PrivateKeyEntry pkeActual = (KeyStore.PrivateKeyEntry)
+                    keyTest.getEntry("alias",pp);
 
             assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
             assertEquals(privateKey, pkeActual.getPrivateKey());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual
-                    .getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias",
-                    KeyStore.PrivateKeyEntry.class));
+            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+            assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
 
             keyTest.setEntry("alias", pke1, pp);
-            pkeActual = (KeyStore.PrivateKeyEntry) keyTest
-                    .getEntry("alias", pp);
+            pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias", pp);
 
             assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
             DSAPrivateKey actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
@@ -1165,14 +1006,11 @@ public class KeyStore2Test extends junit.framework.TestCase {
             assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
             assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
             assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual
-                    .getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias",
-                    KeyStore.PrivateKeyEntry.class));
+            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+            assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
 
             keyTest.setEntry("alias2", pke1, pp);
-            pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2",
-                    pp);
+            pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2", pp);
 
             assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
             actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
@@ -1180,10 +1018,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
             assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
             assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
             assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual
-                    .getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias2",
-                    KeyStore.PrivateKeyEntry.class));
+            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+            assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
 
         } catch (Exception e) {
             fail("Unexpected Exception " + e);
@@ -1202,15 +1038,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /*
-     * @tests java.security.KeyStore.entryInstanceOf(String, Class<? extends
+     * java.security.KeyStore.entryInstanceOf(String, Class<? extends
      * Entry>)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "entryInstanceOf",
-        args = {java.lang.String.class, java.lang.Class.class}
-    )
     public void test_entryInstanceOf() throws Exception {
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -1230,15 +1060,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
                 new MyCertificate("DSA", testEncoding) };
 
         keyStore.setKeyEntry(alias, privateKey, "pwd".toCharArray(), chain);
-
-        assertTrue(keyStore.entryInstanceOf(alias,
-                KeyStore.PrivateKeyEntry.class));
-
-        assertFalse(keyStore.entryInstanceOf(alias,
-                KeyStore.SecretKeyEntry.class));
-
-        assertFalse(keyStore.entryInstanceOf(alias,
-                KeyStore.TrustedCertificateEntry.class));
+        assertTrue(keyStore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class));
+        assertFalse(keyStore.entryInstanceOf(alias, KeyStore.SecretKeyEntry.class));
+        assertFalse(keyStore.entryInstanceOf(alias, KeyStore.TrustedCertificateEntry.class));
 
         try {
             keyStore.entryInstanceOf(null, KeyStore.SecretKeyEntry.class);
@@ -1256,14 +1080,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#store(KeyStore.LoadStoreParameter)
+     * java.security.KeyStore#store(KeyStore.LoadStoreParameter)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalArgumentException, KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException checking missed",
-        method = "store",
-        args = {java.security.KeyStore.LoadStoreParameter.class}
-    )
     public void test_store_java_securityKeyStore_LoadStoreParameter()
             throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -1277,14 +1095,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore#store(OutputStream, char[])
+     * java.security.KeyStore#store(OutputStream, char[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IOException, NoSuchAlgorithmException, CertificateException checking missed",
-        method = "store",
-        args = {java.io.OutputStream.class, char[].class}
-    )
     public void test_store_java_io_OutputStream_char() throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
@@ -1323,7 +1135,6 @@ public class KeyStore2Test extends junit.framework.TestCase {
         Security.removeProvider(support_TestProvider.getName());
     }
 
-    @SuppressWarnings("unused")
     class MyCertificate extends Certificate {
 
         // MyCertificate encoding
