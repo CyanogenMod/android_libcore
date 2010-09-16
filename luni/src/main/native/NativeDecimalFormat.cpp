@@ -196,7 +196,7 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jint addr,
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator* fpi, jobject fpIter) {
+static jcharArray formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator* fpi, jobject fpIter) {
     static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
@@ -213,11 +213,15 @@ static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPosition
         env->CallVoidMethod(fpIter, gFPI_setData, data);
     }
 
-    return env->NewString(str.getBuffer(), str.length());
+    jcharArray result = env->NewCharArray(str.length());
+    if (result != NULL) {
+        env->SetCharArrayRegion(result, 0, str.length(), str.getBuffer());
+    }
+    return result;
 }
 
 template <typename T>
-static jstring format(JNIEnv* env, jint addr, jobject fpIter, T val) {
+static jcharArray format(JNIEnv* env, jint addr, jobject fpIter, T val) {
     UErrorCode status = U_ZERO_ERROR;
     UnicodeString str;
     DecimalFormat* fmt = toDecimalFormat(addr);
@@ -227,17 +231,15 @@ static jstring format(JNIEnv* env, jint addr, jobject fpIter, T val) {
     return formatResult(env, str, pfpi, fpIter);
 }
 
-static jstring NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jint addr, jlong value, jobject fpIter) {
-    int64_t longValue = value;
-    return format(env, addr, fpIter, (jlong) longValue);
+static jcharArray NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jint addr, jlong value, jobject fpIter) {
+    return format(env, addr, fpIter, value);
 }
 
-static jstring NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jint addr, jdouble value, jobject fpIter) {
-    double doubleValue = value;
-    return format(env, addr, fpIter, (jdouble) doubleValue);
+static jcharArray NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jint addr, jdouble value, jobject fpIter) {
+    return format(env, addr, fpIter, value);
 }
 
-static jstring NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jobject fpIter) {
+static jcharArray NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jobject fpIter) {
     ScopedUtfChars chars(env, value);
     if (chars.c_str() == NULL) {
         return NULL;
@@ -332,9 +334,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeDecimalFormat, applyPatternImpl, "(IZLjava/lang/String;)V"),
     NATIVE_METHOD(NativeDecimalFormat, cloneImpl, "(I)I"),
     NATIVE_METHOD(NativeDecimalFormat, close, "(I)V"),
-    NATIVE_METHOD(NativeDecimalFormat, formatDouble, "(IDLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeDecimalFormat, formatLong, "(IJLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeDecimalFormat, formatDigitList, "(ILjava/lang/String;Lcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeDecimalFormat, formatDouble, "(IDLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)[C"),
+    NATIVE_METHOD(NativeDecimalFormat, formatLong, "(IJLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)[C"),
+    NATIVE_METHOD(NativeDecimalFormat, formatDigitList, "(ILjava/lang/String;Lcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)[C"),
     NATIVE_METHOD(NativeDecimalFormat, getAttribute, "(II)I"),
     NATIVE_METHOD(NativeDecimalFormat, getTextAttribute, "(II)Ljava/lang/String;"),
     NATIVE_METHOD(NativeDecimalFormat, open, "(Ljava/lang/String;Ljava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)I"),

@@ -228,36 +228,36 @@ public final class NativeDecimalFormat {
                 localeData.percent, localeData.perMill, localeData.zeroDigit);
     }
 
-    public String formatBigDecimal(BigDecimal value, FieldPosition field) {
+    public char[] formatBigDecimal(BigDecimal value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        String result = formatDigitList(this.addr, value.toString(), fpi);
+        char[] result = formatDigitList(this.addr, value.toString(), fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
         return result;
     }
 
-    public String formatBigInteger(BigInteger value, FieldPosition field) {
+    public char[] formatBigInteger(BigInteger value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        String result = formatDigitList(this.addr, value.toString(10), fpi);
+        char[] result = formatDigitList(this.addr, value.toString(10), fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
         return result;
     }
 
-    public String formatLong(long value, FieldPosition field) {
+    public char[] formatLong(long value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        String result = formatLong(this.addr, value, fpi);
+        char[] result = formatLong(this.addr, value, fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
         return result;
     }
 
-    public String formatDouble(double value, FieldPosition field) {
+    public char[] formatDouble(double value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        String result = formatDouble(this.addr, value, fpi);
+        char[] result = formatDouble(this.addr, value, fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
@@ -282,22 +282,16 @@ public final class NativeDecimalFormat {
             throw new IllegalArgumentException();
         }
         Number number = (Number) object;
-        String text = null;
-
         FieldPositionIterator fpIter = new FieldPositionIterator();
-
-        if (number instanceof BigInteger) {
-            BigInteger valBigInteger = (BigInteger) number;
-            text = formatDigitList(this.addr, valBigInteger.toString(10), fpIter);
-        } else if (number instanceof BigDecimal) {
-            BigDecimal valBigDecimal = (BigDecimal) number;
-            text = formatDigitList(this.addr, valBigDecimal.toString(), fpIter);
+        String text;
+        if (number instanceof BigInteger || number instanceof BigDecimal) {
+            text = new String(formatDigitList(this.addr, number.toString(), fpIter));
         } else if (number instanceof Double || number instanceof Float) {
             double dv = number.doubleValue();
-            text = formatDouble(this.addr, dv, fpIter);
+            text = new String(formatDouble(this.addr, dv, fpIter));
         } else {
             long lv = number.longValue();
-            text = formatLong(this.addr, lv, fpIter);
+            text = new String(formatLong(this.addr, lv, fpIter));
         }
 
         AttributedString as = new AttributedString(text);
@@ -624,9 +618,9 @@ public final class NativeDecimalFormat {
     private static native void applyPatternImpl(int addr, boolean localized, String pattern);
     private static native int cloneImpl(int addr);
     private static native void close(int addr);
-    private static native String formatLong(int addr, long value, FieldPositionIterator iter);
-    private static native String formatDouble(int addr, double value, FieldPositionIterator iter);
-    private static native String formatDigitList(int addr, String value, FieldPositionIterator iter);
+    private static native char[] formatLong(int addr, long value, FieldPositionIterator iter);
+    private static native char[] formatDouble(int addr, double value, FieldPositionIterator iter);
+    private static native char[] formatDigitList(int addr, String value, FieldPositionIterator iter);
     private static native int getAttribute(int addr, int symbol);
     private static native String getTextAttribute(int addr, int symbol);
     private static native int open(String pattern, String currencySymbol,

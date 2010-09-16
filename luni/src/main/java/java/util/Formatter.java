@@ -2145,13 +2145,18 @@ public final class Formatter implements Closeable, Flushable {
         pattern.append("E+00");
 
         NativeDecimalFormat nf = getDecimalFormat(pattern.toString());
-        String formattedString;
+        char[] chars;
         if (arg instanceof BigDecimal) {
-            formattedString = nf.formatBigDecimal((BigDecimal) arg, null);
+            chars = nf.formatBigDecimal((BigDecimal) arg, null);
         } else {
-            formattedString = nf.formatDouble(((Number) arg).doubleValue(), null);
+            chars = nf.formatDouble(((Number) arg).doubleValue(), null);
         }
-        result.append(formattedString.replace('E', 'e'));
+        for (int i = 0; i < chars.length; ++i) {
+            if (chars[i] == 'E') {
+                chars[i] = 'e';
+            }
+        }
+        result.append(chars);
         // The # flag requires that we always output a decimal separator.
         if (formatToken.flagSharp && formatToken.getPrecision() == 0) {
             int indexOfE = result.indexOf("e");
