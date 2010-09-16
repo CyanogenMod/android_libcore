@@ -220,6 +220,14 @@ public final class NativeDecimalFormat {
                 dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
     }
 
+    public void setDecimalFormatSymbols(final LocaleData localeData) {
+        setDecimalFormatSymbols(this.addr, localeData.currencySymbol, localeData.decimalSeparator,
+                localeData.digit, localeData.groupingSeparator, localeData.infinity,
+                localeData.internationalCurrencySymbol, localeData.minusSign,
+                localeData.monetarySeparator, localeData.NaN, localeData.patternSeparator,
+                localeData.percent, localeData.perMill, localeData.zeroDigit);
+    }
+
     public String formatBigDecimal(BigDecimal value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
         String result = formatDigitList(this.addr, value.toString(), fpi);
