@@ -127,7 +127,10 @@ public final class Channels {
      */
     public static Reader newReader(ReadableByteChannel channel,
             CharsetDecoder decoder, int minBufferCapacity) {
-        // TODO: honor minBufferCapacity?
+        /*
+         * This method doesn't honor minBufferCapacity. Ignoring that parameter
+         * saves us from having to add a hidden constructor to InputStreamReader.
+         */
         return new InputStreamReader(new ChannelInputStream(channel), decoder);
     }
 
@@ -166,7 +169,10 @@ public final class Channels {
      */
     public static Writer newWriter(WritableByteChannel channel,
             CharsetEncoder encoder, int minBufferCapacity) {
-        // TODO: honor minBufferCapacity?
+        /*
+         * This method doesn't honor minBufferCapacity. Ignoring that parameter
+         * saves us from having to add a hidden constructor to OutputStreamWriter.
+         */
         return new OutputStreamWriter(new ChannelOutputStream(channel), encoder);
     }
 
