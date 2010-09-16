@@ -555,7 +555,46 @@ public final class Formatter implements Closeable, Flushable {
     private FormatToken formatToken;
     private IOException lastIOException;
     private LocaleData localeData;
-    private NativeDecimalFormat cachedNativeDecimalFormat;
+
+    private static class CachedDecimalFormat {
+        public NativeDecimalFormat decimalFormat;
+        public LocaleData currentLocaleData;
+        public String currentPattern;
+
+        public CachedDecimalFormat() {
+        }
+
+        public NativeDecimalFormat update(LocaleData localeData, String pattern) {
+            if (decimalFormat == null) {
+                currentPattern = pattern;
+                currentLocaleData = localeData;
+                decimalFormat = new NativeDecimalFormat(currentPattern, currentLocaleData);
+            }
+            if (!pattern.equals(currentPattern)) {
+                decimalFormat.applyPattern(pattern);
+                currentPattern = pattern;
+            }
+            if (localeData != currentLocaleData) {
+                decimalFormat.setDecimalFormatSymbols(localeData);
+                currentLocaleData = localeData;
+            }
+            return decimalFormat;
+        }
+    }
+
+    private static final ThreadLocal<CachedDecimalFormat> cachedDecimalFormat = new ThreadLocal<CachedDecimalFormat>() {
+        @Override protected CachedDecimalFormat initialValue() {
+            return new CachedDecimalFormat();
+        }
+    };
+
+    /**
+     * Creates a native peer if we don't already have one, or reconfigures an existing one.
+     * This means we get to reuse the peer in cases like "x=%.2f y=%.2f".
+     */
+    private NativeDecimalFormat getDecimalFormat(String pattern) {
+        return cachedDecimalFormat.get().update(localeData, pattern);
+    }
 
     /**
      * Constructs a {@code Formatter}.
@@ -1023,7 +1062,6 @@ public final class Formatter implements Closeable, Flushable {
             doFormat(format, args);
         } finally {
             this.locale = originalLocale;
-            clearCachedNativeDecimalFormat();
         }
         return this;
     }
@@ -2215,30 +2253,6 @@ public final class Formatter implements Closeable, Flushable {
         // The # flag requires that we always output a decimal separator.
         if (formatToken.flagSharp && precision == 0) {
             result.append(localeData.decimalSeparator);
-        }
-    }
-
-    /**
-     * Creates a native peer if we don't already have one, or reconfigures an existing one.
-     * This means we get to reuse the peer in cases like "x=%.2f y=%.2f".
-     */
-    private NativeDecimalFormat getDecimalFormat(String pattern) {
-        if (cachedNativeDecimalFormat == null) {
-            cachedNativeDecimalFormat = new NativeDecimalFormat(pattern, localeData);
-        } else {
-            cachedNativeDecimalFormat.applyPattern(pattern);
-        }
-        return cachedNativeDecimalFormat;
-    }
-
-    /**
-     * If we allocated a native peer, we need to delete it. We don't use finalizers because that
-     * just makes extra work for the garbage collector.
-     */
-    private void clearCachedNativeDecimalFormat() {
-        if (cachedNativeDecimalFormat != null) {
-            cachedNativeDecimalFormat.close();
-            cachedNativeDecimalFormat = null;
         }
     }
 
