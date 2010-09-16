@@ -2134,23 +2134,26 @@ public final class Formatter implements Closeable, Flushable {
     }
 
     private void transform_e(StringBuilder result) {
-        StringBuilder pattern = new StringBuilder();
-        pattern.append('0');
-        if (formatToken.getPrecision() > 0) {
-            pattern.append('.');
-            char[] zeros = new char[formatToken.getPrecision()];
-            Arrays.fill(zeros, '0'); // This is a *pattern* character, so no localization.
-            pattern.append(zeros);
+        // All zeros in this method are *pattern* characters, so no localization.
+        final int precision = formatToken.getPrecision();
+        String pattern = "0E+00";
+        if (precision > 0) {
+            StringBuilder sb = new StringBuilder("0.");
+            char[] zeros = new char[precision];
+            Arrays.fill(zeros, '0');
+            sb.append(zeros);
+            sb.append("E+00");
+            pattern = sb.toString();
         }
-        pattern.append("E+00");
 
-        NativeDecimalFormat nf = getDecimalFormat(pattern.toString());
+        NativeDecimalFormat nf = getDecimalFormat(pattern);
         char[] chars;
         if (arg instanceof BigDecimal) {
             chars = nf.formatBigDecimal((BigDecimal) arg, null);
         } else {
             chars = nf.formatDouble(((Number) arg).doubleValue(), null);
         }
+        // Unlike %f, %e uses 'e' (regardless of what the DecimalFormatSymbols would have us use).
         for (int i = 0; i < chars.length; ++i) {
             if (chars[i] == 'E') {
                 chars[i] = 'e';
@@ -2158,7 +2161,7 @@ public final class Formatter implements Closeable, Flushable {
         }
         result.append(chars);
         // The # flag requires that we always output a decimal separator.
-        if (formatToken.flagSharp && formatToken.getPrecision() == 0) {
+        if (formatToken.flagSharp && precision == 0) {
             int indexOfE = result.indexOf("e");
             result.insert(indexOfE, localeData.decimalSeparator);
         }
