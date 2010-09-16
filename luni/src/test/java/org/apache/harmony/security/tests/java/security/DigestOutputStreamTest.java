@@ -22,28 +22,18 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
 import junit.framework.TestCase;
-
 import org.apache.harmony.security.tests.support.MDGoldenData;
 import org.apache.harmony.security.tests.support.MyMessageDigest1;
-
 import tests.support.Support_OutputStream;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(DigestOutputStream.class)
 /**
  * Tests for fields and methods of class <code>DigestInputStream</code>
  *
@@ -80,15 +70,9 @@ public class DigestOutputStreamTest extends TestCase {
     //
 
     /**
-     * @tests java.security.DigestOutputStream#DigestOutputStream(java.io.OutputStream,
+     * java.security.DigestOutputStream#DigestOutputStream(java.io.OutputStream,
      *        java.security.MessageDigest)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DigestOutputStream",
-        args = {java.io.OutputStream.class, java.security.MessageDigest.class}
-    )
     public void test_CtorLjava_io_OutputStreamLjava_security_MessageDigest() {
 
         // non-null parameters
@@ -114,14 +98,8 @@ public class DigestOutputStreamTest extends TestCase {
     }
 
     /**
-     * @tests java.security.DigestOutputStream#getMessageDigest()
+     * java.security.DigestOutputStream#getMessageDigest()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMessageDigest",
-        args = {}
-    )
     public void test_getMessageDigest() {
 
         MessageDigest digest = new MyMessageDigest1();
@@ -133,19 +111,12 @@ public class DigestOutputStreamTest extends TestCase {
 
         // null parameter
         dos = new DigestOutputStream(out, null);
-        assertNull("getMessageDigest should have returned null", dos
-                .getMessageDigest());
+        assertNull("getMessageDigest should have returned null", dos.getMessageDigest());
     }
 
     /**
-     * @tests java.security.DigestOutputStream#setMessageDigest(MessageDigest)
+     * java.security.DigestOutputStream#setMessageDigest(MessageDigest)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMessageDigest",
-        args = {java.security.MessageDigest.class}
-    )
     public void test_setMessageDigestLjava_security_MessageDigest() {
 
         MessageDigest digest = new MyMessageDigest1();
@@ -159,8 +130,7 @@ public class DigestOutputStreamTest extends TestCase {
 
         // null parameter
         dos.setMessageDigest(null);
-        assertNull("getMessageDigest should have returned null", dos
-                .getMessageDigest());
+        assertNull("getMessageDigest should have returned null", dos.getMessageDigest());
     }
 
 
@@ -170,12 +140,6 @@ public class DigestOutputStreamTest extends TestCase {
      * Assertion: writes the byte to the output stream<br>
      * Assertion: updates associated digest<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {int.class}
-    )
     public final void testWriteint01()
         throws IOException {
         for (int k=0; k<algorithmName.length; k++) {
@@ -187,11 +151,10 @@ public class DigestOutputStreamTest extends TestCase {
                     dos.write(myMessage[i]);
                 }
                 // check that bytes have been written correctly
-                assertTrue("write", Arrays.equals(MDGoldenData.getMessage(),
-                        bos.toByteArray()));
+                assertTrue("write", Arrays.equals(MDGoldenData.getMessage(), bos.toByteArray()));
                 // check that associated digest has been updated properly
                 assertTrue("update", Arrays.equals(dos.getMessageDigest().digest(),
-                        MDGoldenData.getDigest(algorithmName[k])));
+                                                   MDGoldenData.getDigest(algorithmName[k])));
                 return;
             } catch (NoSuchAlgorithmException e) {
                 // allowed failure
@@ -209,12 +172,6 @@ public class DigestOutputStreamTest extends TestCase {
      * if <code>true</code> passed as a parameter or off if <code>false</code>
      * passed
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {int.class}
-    )
     public final void testWriteint02()
         throws IOException {
         for (int k=0; k<algorithmName.length; k++) {
@@ -231,11 +188,10 @@ public class DigestOutputStreamTest extends TestCase {
                 }
 
                 // check that bytes have been written correctly
-                assertTrue("write", Arrays.equals(MDGoldenData.getMessage(),
-                        bos.toByteArray()));
+                assertTrue("write", Arrays.equals(MDGoldenData.getMessage(), bos.toByteArray()));
                 // check that digest value has not been updated by write()
                 assertTrue("update", Arrays.equals(dos.getMessageDigest().digest(),
-                        MDGoldenData.getDigest(algorithmName[k]+"_NU")));
+                                                   MDGoldenData.getDigest(algorithmName[k]+"_NU")));
                 return;
             } catch (NoSuchAlgorithmException e) {
                 // allowed failure
@@ -251,12 +207,6 @@ public class DigestOutputStreamTest extends TestCase {
      * <code>OutputStream</code> not set. <code>write(int)</code> must
      * not work
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IOException isn't tested",
-        method = "write",
-        args = {int.class}
-    )
     public final void testWriteint03() throws IOException {
         for (int k=0; k<algorithmName.length; k++) {
             try {
@@ -286,12 +236,6 @@ public class DigestOutputStreamTest extends TestCase {
      * <code>write(int)</code> must not work when digest
      * functionality is on
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IOException isn't tested",
-        method = "write",
-        args = {int.class}
-    )
     public final void testWriteint04() throws IOException {
         OutputStream os = new ByteArrayOutputStream(MY_MESSAGE_LEN);
         DigestOutputStream dos = new DigestOutputStream(os, null);
@@ -316,12 +260,6 @@ public class DigestOutputStreamTest extends TestCase {
      * <code>write(int)</code> must work when digest
      * functionality is off
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {int.class}
-    )
     public final void testWriteint05() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
         DigestOutputStream dos = new DigestOutputStream(bos, null);
@@ -332,8 +270,7 @@ public class DigestOutputStreamTest extends TestCase {
             dos.write(myMessage[i]);
         }
         // check that bytes have been written correctly
-        assertTrue(Arrays.equals(MDGoldenData.getMessage(),
-                bos.toByteArray()));
+        assertTrue(Arrays.equals(MDGoldenData.getMessage(), bos.toByteArray()));
     }
 
     /**
@@ -343,11 +280,6 @@ public class DigestOutputStreamTest extends TestCase {
      *
      * Assertion: updates associated digest<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public final void test_write$BII_1() throws IOException {
         for (int k=0; k<algorithmName.length; k++) {
             try {
@@ -362,7 +294,7 @@ public class DigestOutputStreamTest extends TestCase {
                 assertTrue("write", Arrays.equals(myMessage, bos.toByteArray()));
                 // check that associated digest has been updated properly
                 assertTrue("update", Arrays.equals(dos.getMessageDigest().digest(),
-                        MDGoldenData.getDigest(algorithmName[k])));
+                                                   MDGoldenData.getDigest(algorithmName[k])));
                 return;
             } catch (NoSuchAlgorithmException e) {
                 // allowed failure
@@ -378,11 +310,6 @@ public class DigestOutputStreamTest extends TestCase {
      *
      * Assertion: updates associated digest<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public final void test_write$BII_2() throws IOException {
         // check precondition
         assertEquals(0, MY_MESSAGE_LEN % CHUNK_SIZE);
@@ -418,11 +345,6 @@ public class DigestOutputStreamTest extends TestCase {
      *
      * Assertion: updates associated digest<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public final void test_write$BII_3()
         throws NoSuchAlgorithmException,
                IOException {
@@ -464,11 +386,6 @@ public class DigestOutputStreamTest extends TestCase {
      * Assertion: does not update associated digest if digest
      * functionality is off<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public final void test_write$BII_4()
         throws NoSuchAlgorithmException,
                IOException {
@@ -503,14 +420,8 @@ public class DigestOutputStreamTest extends TestCase {
     }
 
     /**
-     * @tests java.security.DigestOutputStream#write(byte[], int, int)
+     * java.security.DigestOutputStream#write(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Illegal argument checks.",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_write$BII_6() throws Exception {
 
         // Regression form HARMONY-1091.
@@ -545,14 +456,8 @@ public class DigestOutputStreamTest extends TestCase {
     }
 
     /**
-     * @tests java.io.DigestOutputStream#write(byte[], int, int)
+     * java.io.DigestOutputStream#write(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IOException check.",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_write$BII_7()
         throws IOException, NoSuchAlgorithmException {
         Support_OutputStream sos = new Support_OutputStream(MY_MESSAGE_LEN);
@@ -575,12 +480,6 @@ public class DigestOutputStreamTest extends TestCase {
      * Test for <code>on()</code> method<br>
      * Assertion: turns digest functionality on or off
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "on",
-        args = {boolean.class}
-    )
     public final void testOn() throws IOException {
         for (int k=0; k<algorithmName.length; k++) {
             try {
@@ -605,9 +504,8 @@ public class DigestOutputStreamTest extends TestCase {
 
                 // check that digest value has been
                 // updated by the last write(int) call
-                assertFalse(
-                        Arrays.equals(digest,MDGoldenData.getDigest(algorithmName[k])) ||
-                        Arrays.equals(digest,MDGoldenData.getDigest(algorithmName[k]+"_NU")));
+                assertFalse(Arrays.equals(digest,MDGoldenData.getDigest(algorithmName[k])));
+                assertFalse(Arrays.equals(digest,MDGoldenData.getDigest(algorithmName[k]+"_NU")));
                 return;
             } catch (NoSuchAlgorithmException e) {
                 // allowed failure
@@ -620,12 +518,6 @@ public class DigestOutputStreamTest extends TestCase {
      * Test for <code>toString()</code> method<br>
      * Assertion: returns <code>String</code> representation of this object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public final void testToString() throws NoSuchAlgorithmException {
         for (int k=0; k<algorithmName.length; k++) {
             try {
@@ -643,19 +535,12 @@ public class DigestOutputStreamTest extends TestCase {
     }
 
     /**
-     * @tests java.security.DigestOutputStream#on(boolean)
+     * java.security.DigestOutputStream#on(boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "on",
-        args = {boolean.class}
-    )
     public void test_onZ() throws Exception {
         // Test for method void java.security.DigestOutputStream.on(boolean)
         DigestOutputStream dos = new DigestOutputStream(
-                new ByteArrayOutputStream(), MessageDigest
-                        .getInstance("SHA"));
+                new ByteArrayOutputStream(), MessageDigest.getInstance("SHA"));
         dos.on(false);
         byte digestArray[] = { 23, 43, 44 };
         dos.write(digestArray, 1, 1);
@@ -663,7 +548,7 @@ public class DigestOutputStreamTest extends TestCase {
         byte expected[] = { -38, 57, -93, -18, 94, 107, 75, 13, 50, 85,
                 -65, -17, -107, 96, 24, -112, -81, -40, 7, 9 };
         assertTrue("Digest did not return expected result.",
-                java.util.Arrays.equals(digestResult, expected));
+                   Arrays.equals(digestResult, expected));
         // now turn on processing and re-run
         dos.on(true);
         dos.write(digestArray, 1, 1);
@@ -672,17 +557,12 @@ public class DigestOutputStreamTest extends TestCase {
                 107, -118, 50, 51, 7, -18, 59, -78, -30, -37, -100 };
 
         assertTrue("Digest did not return expected result.",
-                java.util.Arrays.equals(digestResult, expected1));
+                   Arrays.equals(digestResult, expected1));
     }
 
     /**
-     * @tests java.security.DigestOutputStream#write(byte[], int, int)
+     * java.security.DigestOutputStream#write(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_write$BII_5() throws Exception {
         // Test for method void java.security.DigestOutputStream.write(byte [],
         // int, int)
@@ -695,18 +575,12 @@ public class DigestOutputStreamTest extends TestCase {
                     -118, 50, 51, 7, -18, 59, -78, -30, -37, -100 };
 
             assertTrue("Digest did not return expected result.",
-                    java.util.Arrays.equals(digestResult, expected));
+                       Arrays.equals(digestResult, expected));
     }
 
     /**
-     * @tests java.security.DigestOutputStream#write(int)
+     * java.security.DigestOutputStream#write(int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {int.class}
-    )
     public void test_writeI() throws Exception {
         // Test for method void java.security.DigestOutputStream.write(int)
             DigestOutputStream dos = new DigestOutputStream(
@@ -717,7 +591,7 @@ public class DigestOutputStreamTest extends TestCase {
                     -118, 50, 51, 7, -18, 59, -78, -30, -37, -100 };
 
             assertTrue("Digest did not return expected result.",
-                    java.util.Arrays.equals(digestResult, expected));
+                       Arrays.equals(digestResult, expected));
     }
 
 
