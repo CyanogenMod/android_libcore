@@ -394,7 +394,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, server.takeRequest().getSequenceNumber());
     }
 
-    public void testConnectViaHttpsReusingConnectionsDiffeerentFactories()
+    public void testConnectViaHttpsReusingConnectionsDifferentFactories()
             throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
@@ -797,6 +797,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         URLConnection connection = server.getUrl("/").openConnection();
         assertEquals("ABCABCABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertNull(connection.getContentEncoding());
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
