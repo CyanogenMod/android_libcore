@@ -94,15 +94,15 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
+        byteBuffer.limit(limit * SIZEOF_SHORT);
+        byteBuffer.position(position * SIZEOF_SHORT);
         if (byteBuffer instanceof DirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_SHORT);
-            byteBuffer.position(position * SIZEOF_SHORT);
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, shortCount);
-            this.position += shortCount;
-            return this;
         } else {
-            return super.get(dst, dstOffset, shortCount);
+            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, shortCount);
         }
+        this.position += shortCount;
+        return this;
     }
 
     @Override

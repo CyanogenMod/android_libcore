@@ -95,15 +95,15 @@ final class LongToByteBufferAdapter extends LongBuffer {
 
     @Override
     public LongBuffer get(long[] dst, int dstOffset, int longCount) {
+        byteBuffer.limit(limit * SIZEOF_LONG);
+        byteBuffer.position(position * SIZEOF_LONG);
         if (byteBuffer instanceof DirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_LONG);
-            byteBuffer.position(position * SIZEOF_LONG);
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, longCount);
-            this.position += longCount;
-            return this;
         } else {
-            return super.get(dst, dstOffset, longCount);
+            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, longCount);
         }
+        this.position += longCount;
+        return this;
     }
 
     @Override

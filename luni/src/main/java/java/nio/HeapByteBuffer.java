@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import org.apache.harmony.luni.platform.OSMemory;
+
 /**
  * HeapByteBuffer, ReadWriteHeapByteBuffer and ReadOnlyHeapByteBuffer compose
  * the implementation of array based byte buffers.
@@ -55,16 +57,46 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || byteCount < 0 || (long) dstOffset + (long) byteCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (byteCount > remaining()) {
-            throw new BufferUnderflowException();
-        }
+        checkBounds(1, dst.length, dstOffset, byteCount);
         System.arraycopy(backingArray, offset + position, dst, dstOffset, byteCount);
         position += byteCount;
         return this;
+    }
+
+    final void get(char[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_CHAR, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void get(double[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_DOUBLE, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_DOUBLE, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void get(float[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_FLOAT, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_FLOAT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void get(int[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_INT, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_INT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void get(long[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_LONG, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_LONG, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void get(short[] dst, int dstOffset, int charCount) {
+        int byteCount = checkBounds(SIZEOF_SHORT, dst.length, dstOffset, charCount);
+        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_SHORT, order.needsSwap);
+        position += byteCount;
     }
 
     @Override

@@ -34,17 +34,6 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         this.effectiveDirectAddress = block.toInt() + offset;
     }
 
-    private int checkBounds(int bytesPerElement, int length, int offset, int count) {
-        int byteCount = bytesPerElement * count;
-        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (byteCount > remaining()) {
-            throw new BufferUnderflowException();
-        }
-        return byteCount;
-    }
-
     @Override
     public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
         checkBounds(1, dst.length, dstOffset, byteCount);

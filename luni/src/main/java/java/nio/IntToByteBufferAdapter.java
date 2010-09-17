@@ -95,15 +95,15 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public IntBuffer get(int[] dst, int dstOffset, int intCount) {
+        byteBuffer.limit(limit * SIZEOF_INT);
+        byteBuffer.position(position * SIZEOF_INT);
         if (byteBuffer instanceof DirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_INT);
-            byteBuffer.position(position * SIZEOF_INT);
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
-            this.position += intCount;
-            return this;
         } else {
-            return super.get(dst, dstOffset, intCount);
+            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
         }
+        this.position += intCount;
+        return this;
     }
 
     @Override

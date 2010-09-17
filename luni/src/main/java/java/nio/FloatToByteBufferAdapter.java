@@ -94,15 +94,15 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
+        byteBuffer.limit(limit * SIZEOF_FLOAT);
+        byteBuffer.position(position * SIZEOF_FLOAT);
         if (byteBuffer instanceof DirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_FLOAT);
-            byteBuffer.position(position * SIZEOF_FLOAT);
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, floatCount);
-            this.position += floatCount;
-            return this;
         } else {
-            return super.get(dst, dstOffset, floatCount);
+            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, floatCount);
         }
+        this.position += floatCount;
+        return this;
     }
 
     @Override

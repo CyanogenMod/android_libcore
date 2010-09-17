@@ -156,6 +156,17 @@ public abstract class Buffer {
         return capacity;
     }
 
+    int checkBounds(int bytesPerElement, int length, int offset, int count) {
+        int byteCount = bytesPerElement * count;
+        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (byteCount > remaining()) {
+            throw new BufferUnderflowException();
+        }
+        return byteCount;
+    }
+
     /**
      * Clears this buffer.
      * <p>

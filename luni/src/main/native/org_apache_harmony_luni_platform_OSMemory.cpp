@@ -388,6 +388,37 @@ static void OSMemory_msync(JNIEnv*, jclass, jint address, jlong size) {
     msync(cast<void*>(address), size, MS_SYNC);
 }
 
+static void OSMemory_unsafeArrayCopy(JNIEnv* env, jclass, jobject dst, jint dstOffset,
+        jint byteCount, jbyteArray src, jint srcOffset, jint sizeofElement, jboolean swap) {
+    ScopedByteArrayRO srcBytes(env, src);
+    if (srcBytes.get() == NULL) {
+        return;
+    }
+    jarray dstArray = reinterpret_cast<jarray>(dst);
+    jbyte* dstBytes = reinterpret_cast<jbyte*>(env->GetPrimitiveArrayCritical(dstArray, NULL));
+    if (dstBytes == NULL) {
+        return;
+    }
+    if (swap) {
+        if (sizeofElement == 2) {
+            jshort* dstShorts = reinterpret_cast<jshort*>(dstBytes + dstOffset);
+            const jshort* srcShorts = reinterpret_cast<const jshort*>(srcBytes.get()) + srcOffset;
+            swapShorts(dstShorts, srcShorts, byteCount / 2);
+        } else if (sizeofElement == 4) {
+            jint* dstInts = reinterpret_cast<jint*>(dstBytes + dstOffset);
+            const jint* srcInts = reinterpret_cast<const jint*>(srcBytes.get()) + srcOffset;
+            swapInts(dstInts, srcInts, byteCount / 4);
+        } else if (sizeofElement == 8) {
+            jlong* dstLongs = reinterpret_cast<jlong*>(dstBytes + dstOffset);
+            const jlong* srcLongs = reinterpret_cast<const jlong*>(srcBytes.get()) + srcOffset;
+            swapLongs(dstLongs, srcLongs, byteCount / 8);
+        }
+    } else {
+        memmove(dstBytes + dstOffset, srcBytes.get() + srcOffset*sizeofElement, byteCount);
+    }
+    env->ReleasePrimitiveArrayCritical(dstArray, dstBytes, 0);
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, free, "(I)V"),
     NATIVE_METHOD(OSMemory, isLoaded, "(IJ)Z"),
@@ -419,6 +450,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, pokeLongArray, "(I[JIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeShort, "(ISZ)V"),
     NATIVE_METHOD(OSMemory, pokeShortArray, "(I[SIIZ)V"),
+    NATIVE_METHOD(OSMemory, unsafeArrayCopy, "(Ljava/lang/Object;II[BIIZ)V"),
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
     jmethodID method_getRuntime = env->GetStaticMethodID(JniConstants::vmRuntimeClass,

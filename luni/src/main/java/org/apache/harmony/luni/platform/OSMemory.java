@@ -30,6 +30,13 @@ public final class OSMemory {
     private OSMemory() { }
 
     /**
+     * Used to optimize nio heap buffer bulk operations. 'dst' must be a primitive array.
+     * 'dstOffset' is measured in units of 'sizeofElements' bytes.
+     */
+    public static native void unsafeArrayCopy(Object dst, int dstOffset, int byteCount,
+            byte[] src, int srcOffset, int sizeofElements, boolean swap);
+
+    /**
      * Returns the address of byteCount bytes of memory. Unlike the corresponding C library
      * function, the memory returned has been zero-initialized.
      */
