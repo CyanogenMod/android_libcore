@@ -126,7 +126,7 @@ public final class BlockGuard {
     /**
      * Get the current thread's policy.
      *
-     * @returns the current thread's policy.  Never returns null.
+     * @return the current thread's policy.  Never returns null.
      *     Will return the LAX_POLICY instance if nothing else is set.
      */
     public static Policy getThreadPolicy() {
