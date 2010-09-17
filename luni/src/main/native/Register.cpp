@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "libcore" // We'll be next to "dalvikvm" in the log; make the distinction clear.
+
 #include "JniConstants.h"
 #include "ScopedLocalFrame.h"
+
+#include <stdlib.h>
 
 namespace android {
     extern int register_dalvik_system_TouchDex(JNIEnv* env);
@@ -118,5 +122,9 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
             register_org_apache_harmony_xml_ExpatParser(env) != -1;
 
-    return result ? 0 : -1;
+    if (!result) {
+        LOGE("Failed to initialize the core libraries; aborting...");
+        abort();
+    }
+    return 0;
 }
