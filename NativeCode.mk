@@ -97,6 +97,7 @@ LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
+LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 include $(BUILD_STATIC_LIBRARY)
 
@@ -120,6 +121,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_C_INCLUDES := $(core_c_includes)
     LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
+    LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore-host
     LOCAL_ADDITIONAL_DEPENDENCIES += $(HOST_OUT)/etc/security/cacerts.bks
     include $(BUILD_HOST_STATIC_LIBRARY)

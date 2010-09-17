@@ -77,7 +77,7 @@ LOCAL_DX_FLAGS := --core-library
 
 LOCAL_NO_EMMA_INSTRUMENT := true
 LOCAL_NO_EMMA_COMPILE := true
-
+LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core
 
 include $(BUILD_JAVA_LIBRARY)
@@ -90,6 +90,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core
+LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-junit
 include $(BUILD_JAVA_LIBRARY)
 
@@ -110,6 +111,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core
+LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := sqlite-jdbc
 include $(BUILD_JAVA_LIBRARY)
 
@@ -288,8 +290,8 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_NO_EMMA_COMPILE := true
     LOCAL_BUILD_HOST_DEX := true
 
-    LOCAL_MODULE := core-hostdex
     LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := core-hostdex
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
