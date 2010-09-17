@@ -727,7 +727,7 @@ static jint NativeCrypto_EVP_MD_CTX_block_size(JNIEnv* env, jclass, EVP_MD_CTX* 
  */
 static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
                                           jbyteArray buffer, jint offset, jint length) {
-    JNI_TRACE("NativeCrypto_EVP_DigestUpdate(%p, %p, %d, %d", ctx, buffer, offset, length);
+    JNI_TRACE("NativeCrypto_EVP_DigestUpdate(%p, %p, %d, %d)", ctx, buffer, offset, length);
 
     if (offset < 0 || length < 0) {
         jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
