@@ -628,6 +628,17 @@ public abstract class HttpURLConnection extends URLConnection {
     public abstract boolean usingProxy();
 
     /**
+     * Returns the encoding used to transmit the response body over the network.
+     * This is null or "identity" if the content was not encoded, or "gzip" if
+     * the body was gzip compressed. Most callers will be more interested in the
+     * {@link #getContentType() content type}, which may also include the
+     * content's character encoding.
+     */
+    @Override public String getContentEncoding() {
+        return super.getContentEncoding(); // overridden for Javadoc only
+    }
+
+    /**
      * Returns whether this connection follows redirects.
      *
      * @return {@code true} if this connection follows redirects, false
