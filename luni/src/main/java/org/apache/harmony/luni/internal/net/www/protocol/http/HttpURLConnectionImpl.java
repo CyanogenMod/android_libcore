@@ -518,6 +518,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private InputStream initContentStream() throws IOException {
         InputStream transferStream = getTransferStream();
         if (transparentGzip && "gzip".equalsIgnoreCase(responseHeader.get("Content-Encoding"))) {
+            /*
+             * If the response was transparently gzipped, remove the gzip header
+             * so clients don't double decompress. http://b/3009828
+             */
+            responseHeader.removeAll("Content-Encoding");
             responseBodyIn = new GZIPInputStream(transferStream);
         } else {
             responseBodyIn = transferStream;
