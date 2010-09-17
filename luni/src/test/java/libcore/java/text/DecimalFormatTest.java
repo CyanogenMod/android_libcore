@@ -20,10 +20,21 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 public class DecimalFormatTest extends junit.framework.TestCase {
+    public void test_exponentSeparator() throws Exception {
+        DecimalFormat df = new DecimalFormat("0E0");
+        assertEquals("1E4", df.format(12345.));
+
+        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
+        dfs.setExponentSeparator("-useless-api-");
+        df.setDecimalFormatSymbols(dfs);
+        assertEquals("1-useless-api-4", df.format(12345.));
+    }
+
     public void test_setMaximumFractionDigitsAffectsRoundingMode() throws Exception {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
         df.setMaximumFractionDigits(0);
