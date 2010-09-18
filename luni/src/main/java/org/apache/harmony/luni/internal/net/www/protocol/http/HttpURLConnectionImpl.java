@@ -771,13 +771,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * value.
      */
     private void writeRequestHeaders(OutputStream out) throws IOException {
-        prepareRequestHeaders();
+        Header header = prepareRequestHeaders();
 
         StringBuilder result = new StringBuilder(256);
-        result.append(requestHeader.getStatusLine()).append("\r\n");
-        for (int i = 0; i < requestHeader.length(); i++) {
-            String key = requestHeader.getKey(i);
-            String value = requestHeader.get(i);
+        result.append(header.getStatusLine()).append("\r\n");
+        for (int i = 0; i < header.length(); i++) {
+            String key = header.getKey(i);
+            String value = header.get(i);
             if (key != null) {
                 result.append(key).append(": ").append(value).append("\r\n");
             }
@@ -794,16 +794,45 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <p>This client doesn't specify a default {@code Accept} header because it
      * doesn't know what content types the application is interested in.
      */
-    private void prepareRequestHeaders() throws IOException {
-        String protocol = (httpVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
-        requestHeader.setStatusLine(method + " " + requestString() + " " + protocol);
+    private Header prepareRequestHeaders() throws IOException {
+        /*
+         * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2),
+         * send only the minimum set of headers. This avoids sending potentially
+         * sensitive data like HTTP cookies to the proxy unencrypted.
+         */
+        if (method == CONNECT) {
+            Header proxyHeader = new Header();
+            proxyHeader.setStatusLine(getStatusLine());
+
+            // always set Host and User-Agent
+            String host = requestHeader.get("Host");
+            if (host == null) {
+                host = getOriginAddress(url);
+            }
+            proxyHeader.set("Host", host);
+
+            String userAgent = requestHeader.get("User-Agent");
+            if (userAgent == null) {
+                userAgent = getDefaultUserAgent();
+            }
+            proxyHeader.set("User-Agent", userAgent);
+
+            // copy over the Proxy-Authorization header if it exists
+            String proxyAuthorization = requestHeader.get("Proxy-Authorization");
+            if (proxyAuthorization != null) {
+                proxyHeader.set("Proxy-Authorization", proxyAuthorization);
+            }
+
+            // Always set the Proxy-Connection to Keep-Alive for the benefit of
+            // HTTP/1.0 proxies like Squid.
+            proxyHeader.set("Proxy-Connection", "Keep-Alive");
+            return proxyHeader;
+        }
+
+        requestHeader.setStatusLine(getStatusLine());
 
         if (requestHeader.get("User-Agent") == null) {
-            String agent = getSystemProperty("http.agent");
-            if (agent == null) {
-                agent = "Java" + getSystemProperty("java.version");
-            }
-            requestHeader.add("User-Agent", agent);
+            requestHeader.add("User-Agent", getDefaultUserAgent());
         }
 
         if (requestHeader.get("Host") == null) {
@@ -843,6 +872,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 }
             }
         }
+
+        return requestHeader;
+    }
+
+    private String getStatusLine() {
+        String protocol = (httpVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
+        return method + " " + requestString() + " " + protocol;
+    }
+
+    private String getDefaultUserAgent() {
+        String agent = getSystemProperty("http.agent");
+        return agent != null ? agent : ("Java" + getSystemProperty("java.version"));
     }
 
     private boolean hasConnectionCloseHeader() {

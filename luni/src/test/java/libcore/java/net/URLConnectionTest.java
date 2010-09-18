@@ -69,6 +69,12 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     };
 
+    private final HostnameVerifier ALWAYS_TRUST_VERIFIER = new HostnameVerifier() {
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    };
+
     private MockWebServer server = new MockWebServer();
 
     @Override protected void tearDown() throws Exception {
@@ -485,11 +491,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
                 server.toProxyAddress());
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setHostnameVerifier(new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
+        connection.setHostnameVerifier(ALWAYS_TRUST_VERIFIER);
 
         assertContent("this response comes via a secure proxy", connection);
 
@@ -501,6 +503,54 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordedRequest get = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
         assertContains(get.getHeaders(), "Host: android.com");
+    }
+
+    /**
+     * Test which headers are sent unencrypted to the HTTP proxy.
+     */
+    public void testProxyConnectIncludesProxyHeadersOnly()
+            throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+        server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
+        server.enqueue(new MockResponse().setBody("encrypted response from the origin server"));
+        server.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
+                server.toProxyAddress());
+        connection.addRequestProperty("Private", "Secret");
+        connection.addRequestProperty("Proxy-Authorization", "bar");
+        connection.addRequestProperty("User-Agent", "baz");
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setHostnameVerifier(ALWAYS_TRUST_VERIFIER);
+        assertContent("encrypted response from the origin server", connection);
+
+        RecordedRequest connect = server.takeRequest();
+        assertContainsNoneMatching(connect.getHeaders(), "Private.*");
+        assertContains(connect.getHeaders(), "Proxy-Authorization: bar");
+        assertContains(connect.getHeaders(), "User-Agent: baz");
+        assertContains(connect.getHeaders(), "Host: android.com");
+        assertContains(connect.getHeaders(), "Proxy-Connection: Keep-Alive");
+
+        RecordedRequest get = server.takeRequest();
+        assertContains(get.getHeaders(), "Private: Secret");
+    }
+
+    public void testDisconnectedConnection() throws IOException {
+        server.enqueue(new MockResponse().setBody("ABCDEFGHIJKLMNOPQR"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        InputStream in = connection.getInputStream();
+        assertEquals('A', (char) in.read());
+        connection.disconnect();
+        try {
+            in.read();
+            fail("Expected a connection closed exception");
+        } catch (IOException expected) {
+        }
     }
 
     public void testResponseCachingAndInputStreamSkipWithFixedLength() throws IOException {
