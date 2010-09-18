@@ -198,14 +198,27 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         this.proxy = proxy;
     }
 
-    /**
-     * Establishes a socket connection to the remote origin server or proxy.
-     */
     @Override public void connect() throws IOException {
         if (connected) {
             return;
         }
+        makeConnection();
+    }
+
+    /**
+     * Internal method to open a connection to the server. Unlike connect(),
+     * this method may be called multiple times for a single response. This may
+     * be necessary when following redirects.
+     *
+     * <p>Request parameters may not be changed after this method has been
+     * called.
+     */
+    public void makeConnection() throws IOException {
         connected = true;
+
+        if (connection != null) {
+            return;
+        }
 
         if (getFromCache()) {
             return;
@@ -1002,7 +1015,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         redirectionCount = 0;
         while (true) {
-            connect();
+            makeConnection();
 
             // if we can get a response from the cache, we're done
             if (cacheResponse != null) {
