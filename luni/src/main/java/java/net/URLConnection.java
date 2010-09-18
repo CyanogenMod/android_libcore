@@ -47,7 +47,8 @@ import org.apache.harmony.luni.util.PriviAction;
  * }</pre>
  *
  * <p>{@code URLConnection} must be configured before it has connected to the
- * remote resource.
+ * remote resource. Instances of {@code URLConnection} are not reusable: you
+ * must use a different instance for each connection to a resource.
  *
  * <h3>Timeouts</h3>
  * {@code URLConnection} supports two timeouts: a {@link #setConnectTimeout
@@ -160,8 +161,8 @@ public abstract class URLConnection {
     }
 
     /**
-     * Establishes the connection to the earlier configured resource. The
-     * connection can only be set up before this method has been called.
+     * Opens a connection to the resource. This method will <strong>not</strong>
+     * reconnect to a resource after the initial connection has been closed.
      *
      * @throws IOException
      *             if an error occurs while connecting to the resource.
