@@ -156,15 +156,15 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
+        byteBuffer.limit(limit * SIZEOF_DOUBLE);
+        byteBuffer.position(position * SIZEOF_DOUBLE);
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_DOUBLE);
-            byteBuffer.position(position * SIZEOF_DOUBLE);
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, doubleCount);
-            this.position += doubleCount;
-            return this;
         } else {
-            return super.put(src, srcOffset, doubleCount);
+            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, doubleCount);
         }
+        this.position += doubleCount;
+        return this;
     }
 
     @Override
