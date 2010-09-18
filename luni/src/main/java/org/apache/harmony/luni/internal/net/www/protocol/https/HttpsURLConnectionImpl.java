@@ -137,9 +137,6 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public void connect() throws IOException {
-        if (connected) {
-            return;
-        }
         connected = true;
         httpsEngine.connect();
     }
@@ -350,8 +347,14 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super(url, port, proxy);
         }
 
-        @Override public void connect() throws IOException {
-            if (connected) {
+        @Override public void makeConnection() throws IOException {
+            /*
+             * Short-circuit a reentrant call. The first step in doing SSL with
+             * an HTTP proxy requires calling retrieveResponse() which calls
+             * back into makeConnection(). We can return immediately because the
+             * unencrypted connection is already valid.
+             */
+            if (method == CONNECT) {
                 return;
             }
 
@@ -360,12 +363,11 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             // not unheard of that it will) fallback to a more
             // barebones connections
             try {
-                connect(true);
+                makeSslConnection(true);
             } catch (IOException e) {
                 releaseSocket(false);
-                connect(false);
+                makeSslConnection(false);
             }
-            connected = true;
         }
 
         /**
@@ -375,8 +377,8 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
          * TLS extensions and SSL deflate compression. If false, use
          * an SSL3 only fallback mode without compression.
          */
-        private void connect(boolean tlsTolerant) throws IOException {
-            super.connect();
+        private void makeSslConnection(boolean tlsTolerant) throws IOException {
+            super.makeConnection();
 
             // make SSL Tunnel
             if (requiresTunnel()) {
