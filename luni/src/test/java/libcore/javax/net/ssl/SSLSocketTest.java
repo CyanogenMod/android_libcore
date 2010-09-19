@@ -18,6 +18,7 @@ package libcore.javax.net.ssl;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -769,6 +770,50 @@ public class SSLSocketTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+    }
+
+    public void test_SSLSocket_setSoTimeout_basic() throws Exception {
+        ServerSocket listening = new ServerSocket(0);
+
+        Socket underlying = new Socket(listening.getInetAddress(), listening.getLocalPort());
+        assertEquals(0, underlying.getSoTimeout());
+
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        Socket wrapping = sf.createSocket(underlying, null, -1, false);
+        assertEquals(0, wrapping.getSoTimeout());
+
+        // setting wrapper sets underlying and ...
+        wrapping.setSoTimeout(10);
+        assertEquals(10, wrapping.getSoTimeout());
+        assertEquals(10, underlying.getSoTimeout());
+
+        // ... getting wrapper inspects underlying
+        underlying.setSoTimeout(0);
+        assertEquals(0, wrapping.getSoTimeout());
+        assertEquals(0, underlying.getSoTimeout());
+    }
+
+    public void test_SSLSocket_setSoTimeout_wrapper() throws Exception {
+        ServerSocket listening = new ServerSocket(0);
+
+        // setSoTimeout applies to read, not connect, so connect first
+        Socket underlying = new Socket(listening.getInetAddress(), listening.getLocalPort());
+        Socket server = listening.accept();
+
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        Socket clientWrapping = sf.createSocket(underlying, null, -1, false);
+
+        underlying.setSoTimeout(1);
+        try {
+            clientWrapping.getInputStream().read();
+            fail();
+        } catch (SocketTimeoutException expected) {
+        }
+
+        clientWrapping.close();
+        server.close();
+        underlying.close();
+        listening.close();
     }
 
     public void test_TestSSLSocketPair_create() {
