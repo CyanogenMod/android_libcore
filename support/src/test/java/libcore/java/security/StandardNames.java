@@ -458,7 +458,7 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
         addNeither("TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
         addNeither("TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
         addNeither("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
@@ -472,9 +472,9 @@ public final class StandardNames extends Assert {
         addNeither("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
         addNeither("TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
         addNeither("TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
@@ -497,7 +497,7 @@ public final class StandardNames extends Assert {
         addNeither("TLS_ECDHE_RSA_WITH_NULL_SHA");
         addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
         addNeither("TLS_ECDH_anon_WITH_RC4_128_SHA");
