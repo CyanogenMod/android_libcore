@@ -156,15 +156,15 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public IntBuffer put(int[] src, int srcOffset, int intCount) {
+        byteBuffer.limit(limit * SIZEOF_INT);
+        byteBuffer.position(position * SIZEOF_INT);
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_INT);
-            byteBuffer.position(position * SIZEOF_INT);
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, intCount);
-            this.position += intCount;
-            return this;
         } else {
-            return super.put(src, srcOffset, intCount);
+            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, intCount);
         }
+        this.position += intCount;
+        return this;
     }
 
     @Override

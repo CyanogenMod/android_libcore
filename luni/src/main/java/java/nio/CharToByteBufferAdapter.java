@@ -156,15 +156,15 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public CharBuffer put(char[] src, int srcOffset, int charCount) {
+        byteBuffer.limit(limit * SIZEOF_CHAR);
+        byteBuffer.position(position * SIZEOF_CHAR);
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            byteBuffer.limit(limit * SIZEOF_CHAR);
-            byteBuffer.position(position * SIZEOF_CHAR);
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, charCount);
-            this.position += charCount;
-            return this;
         } else {
-            return super.put(src, srcOffset, charCount);
+            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, charCount);
         }
+        this.position += charCount;
+        return this;
     }
 
     @Override

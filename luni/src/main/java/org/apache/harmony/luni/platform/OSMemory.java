@@ -30,11 +30,18 @@ public final class OSMemory {
     private OSMemory() { }
 
     /**
-     * Used to optimize nio heap buffer bulk operations. 'dst' must be a primitive array.
+     * Used to optimize nio heap buffer bulk get operations. 'dst' must be a primitive array.
      * 'dstOffset' is measured in units of 'sizeofElements' bytes.
      */
-    public static native void unsafeArrayCopy(Object dst, int dstOffset, int byteCount,
+    public static native void unsafeBulkGet(Object dst, int dstOffset, int byteCount,
             byte[] src, int srcOffset, int sizeofElements, boolean swap);
+
+    /**
+     * Used to optimize nio heap buffer bulk put operations. 'src' must be a primitive array.
+     * 'srcOffset' is measured in units of 'sizeofElements' bytes.
+     */
+    public static native void unsafeBulkPut(byte[] dst, int dstOffset, int byteCount,
+            Object src, int srcOffset, int sizeofElements, boolean swap);
 
     /**
      * Returns the address of byteCount bytes of memory. Unlike the corresponding C library

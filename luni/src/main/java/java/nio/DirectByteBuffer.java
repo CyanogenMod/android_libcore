@@ -36,44 +36,44 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-        checkBounds(1, dst.length, dstOffset, byteCount);
+        checkGetBounds(1, dst.length, dstOffset, byteCount);
         this.block.peekByteArray(offset + position, dst, dstOffset, byteCount);
         position += byteCount;
         return this;
     }
 
     final void get(char[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
+        int byteCount = checkGetBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
         this.block.peekCharArray(offset + position, dst, dstOffset, charCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(double[] dst, int dstOffset, int doubleCount) {
-        int byteCount = checkBounds(SIZEOF_DOUBLE, dst.length, dstOffset, doubleCount);
+        int byteCount = checkGetBounds(SIZEOF_DOUBLE, dst.length, dstOffset, doubleCount);
         this.block.peekDoubleArray(offset + position, dst, dstOffset, doubleCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(float[] dst, int dstOffset, int floatCount) {
-        int byteCount = checkBounds(SIZEOF_FLOAT, dst.length, dstOffset, floatCount);
+        int byteCount = checkGetBounds(SIZEOF_FLOAT, dst.length, dstOffset, floatCount);
         this.block.peekFloatArray(offset + position, dst, dstOffset, floatCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(int[] dst, int dstOffset, int intCount) {
-        int byteCount = checkBounds(SIZEOF_INT, dst.length, dstOffset, intCount);
+        int byteCount = checkGetBounds(SIZEOF_INT, dst.length, dstOffset, intCount);
         this.block.peekIntArray(offset + position, dst, dstOffset, intCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(long[] dst, int dstOffset, int longCount) {
-        int byteCount = checkBounds(SIZEOF_LONG, dst.length, dstOffset, longCount);
+        int byteCount = checkGetBounds(SIZEOF_LONG, dst.length, dstOffset, longCount);
         this.block.peekLongArray(offset + position, dst, dstOffset, longCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(short[] dst, int dstOffset, int shortCount) {
-        int byteCount = checkBounds(SIZEOF_SHORT, dst.length, dstOffset, shortCount);
+        int byteCount = checkGetBounds(SIZEOF_SHORT, dst.length, dstOffset, shortCount);
         this.block.peekShortArray(offset + position, dst, dstOffset, shortCount, order.needsSwap);
         position += byteCount;
     }

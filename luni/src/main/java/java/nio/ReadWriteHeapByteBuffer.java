@@ -16,6 +16,8 @@
 
 package java.nio;
 
+import org.apache.harmony.luni.platform.OSMemory;
+
 /**
  * HeapByteBuffer, ReadWriteHeapByteBuffer and ReadOnlyHeapByteBuffer compose
  * the implementation of array based byte buffers.
@@ -108,27 +110,48 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         return this;
     }
 
-    /*
-     * Override ByteBuffer.put(byte[], int, int) to improve performance.
-     *
-     * (non-Javadoc)
-     *
-     * @see java.nio.ByteBuffer#put(byte[], int, int)
-     */
     @Override
     public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
-        if (srcOffset < 0 || byteCount < 0 || (long) srcOffset + (long) byteCount > src.length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (byteCount > remaining()) {
-            throw new BufferOverflowException();
-        }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
+        checkPutBounds(1, src.length, srcOffset, byteCount);
         System.arraycopy(src, srcOffset, backingArray, offset + position, byteCount);
         position += byteCount;
         return this;
+    }
+
+    final void put(char[] src, int srcOffset, int charCount) {
+        int byteCount = checkPutBounds(SIZEOF_CHAR, src.length, srcOffset, charCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_CHAR, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(double[] src, int srcOffset, int doubleCount) {
+        int byteCount = checkPutBounds(SIZEOF_DOUBLE, src.length, srcOffset, doubleCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_DOUBLE, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(float[] src, int srcOffset, int floatCount) {
+        int byteCount = checkPutBounds(SIZEOF_FLOAT, src.length, srcOffset, floatCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_FLOAT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(int[] src, int srcOffset, int intCount) {
+        int byteCount = checkPutBounds(SIZEOF_INT, src.length, srcOffset, intCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_INT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(long[] src, int srcOffset, int longCount) {
+        int byteCount = checkPutBounds(SIZEOF_LONG, src.length, srcOffset, longCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_LONG, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(short[] src, int srcOffset, int shortCount) {
+        int byteCount = checkPutBounds(SIZEOF_SHORT, src.length, srcOffset, shortCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_SHORT, order.needsSwap);
+        position += byteCount;
     }
 
     @Override

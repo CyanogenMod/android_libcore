@@ -57,45 +57,45 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-        checkBounds(1, dst.length, dstOffset, byteCount);
+        checkGetBounds(1, dst.length, dstOffset, byteCount);
         System.arraycopy(backingArray, offset + position, dst, dstOffset, byteCount);
         position += byteCount;
         return this;
     }
 
     final void get(char[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_CHAR, order.needsSwap);
+        int byteCount = checkGetBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_CHAR, order.needsSwap);
         position += byteCount;
     }
 
-    final void get(double[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_DOUBLE, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_DOUBLE, order.needsSwap);
+    final void get(double[] dst, int dstOffset, int doubleCount) {
+        int byteCount = checkGetBounds(SIZEOF_DOUBLE, dst.length, dstOffset, doubleCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_DOUBLE, order.needsSwap);
         position += byteCount;
     }
 
-    final void get(float[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_FLOAT, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_FLOAT, order.needsSwap);
+    final void get(float[] dst, int dstOffset, int floatCount) {
+        int byteCount = checkGetBounds(SIZEOF_FLOAT, dst.length, dstOffset, floatCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_FLOAT, order.needsSwap);
         position += byteCount;
     }
 
-    final void get(int[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_INT, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_INT, order.needsSwap);
+    final void get(int[] dst, int dstOffset, int intCount) {
+        int byteCount = checkGetBounds(SIZEOF_INT, dst.length, dstOffset, intCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_INT, order.needsSwap);
         position += byteCount;
     }
 
-    final void get(long[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_LONG, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_LONG, order.needsSwap);
+    final void get(long[] dst, int dstOffset, int longCount) {
+        int byteCount = checkGetBounds(SIZEOF_LONG, dst.length, dstOffset, longCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_LONG, order.needsSwap);
         position += byteCount;
     }
 
-    final void get(short[] dst, int dstOffset, int charCount) {
-        int byteCount = checkBounds(SIZEOF_SHORT, dst.length, dstOffset, charCount);
-        OSMemory.unsafeArrayCopy(dst, dstOffset, byteCount, backingArray, offset, SIZEOF_SHORT, order.needsSwap);
+    final void get(short[] dst, int dstOffset, int shortCount) {
+        int byteCount = checkGetBounds(SIZEOF_SHORT, dst.length, dstOffset, shortCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_SHORT, order.needsSwap);
         position += byteCount;
     }
 

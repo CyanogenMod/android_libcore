@@ -156,13 +156,27 @@ public abstract class Buffer {
         return capacity;
     }
 
-    int checkBounds(int bytesPerElement, int length, int offset, int count) {
+    int checkGetBounds(int bytesPerElement, int length, int offset, int count) {
         int byteCount = bytesPerElement * count;
         if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
             throw new IndexOutOfBoundsException();
         }
         if (byteCount > remaining()) {
             throw new BufferUnderflowException();
+        }
+        return byteCount;
+    }
+
+    int checkPutBounds(int bytesPerElement, int length, int offset, int count) {
+        int byteCount = bytesPerElement * count;
+        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
         }
         return byteCount;
     }

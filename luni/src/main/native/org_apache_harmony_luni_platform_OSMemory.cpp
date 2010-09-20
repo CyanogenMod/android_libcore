@@ -388,35 +388,60 @@ static void OSMemory_msync(JNIEnv*, jclass, jint address, jlong size) {
     msync(cast<void*>(address), size, MS_SYNC);
 }
 
-static void OSMemory_unsafeArrayCopy(JNIEnv* env, jclass, jobject dst, jint dstOffset,
-        jint byteCount, jbyteArray src, jint srcOffset, jint sizeofElement, jboolean swap) {
-    ScopedByteArrayRO srcBytes(env, src);
+static void unsafeBulkCopy(jbyte* dst, const jbyte* src, jint byteCount,
+        jint sizeofElement, jboolean swap) {
+    if (!swap) {
+        memcpy(dst, src, byteCount);
+        return;
+    }
+
+    if (sizeofElement == 2) {
+        jshort* dstShorts = reinterpret_cast<jshort*>(dst);
+        const jshort* srcShorts = reinterpret_cast<const jshort*>(src);
+        swapShorts(dstShorts, srcShorts, byteCount / 2);
+    } else if (sizeofElement == 4) {
+        jint* dstInts = reinterpret_cast<jint*>(dst);
+        const jint* srcInts = reinterpret_cast<const jint*>(src);
+        swapInts(dstInts, srcInts, byteCount / 4);
+    } else if (sizeofElement == 8) {
+        jlong* dstLongs = reinterpret_cast<jlong*>(dst);
+        const jlong* srcLongs = reinterpret_cast<const jlong*>(src);
+        swapLongs(dstLongs, srcLongs, byteCount / 8);
+    }
+}
+
+static void OSMemory_unsafeBulkGet(JNIEnv* env, jclass, jobject dstObject, jint dstOffset,
+        jint byteCount, jbyteArray srcArray, jint srcOffset, jint sizeofElement, jboolean swap) {
+    ScopedByteArrayRO srcBytes(env, srcArray);
     if (srcBytes.get() == NULL) {
         return;
     }
-    jarray dstArray = reinterpret_cast<jarray>(dst);
+    jarray dstArray = reinterpret_cast<jarray>(dstObject);
     jbyte* dstBytes = reinterpret_cast<jbyte*>(env->GetPrimitiveArrayCritical(dstArray, NULL));
     if (dstBytes == NULL) {
         return;
     }
-    if (swap) {
-        if (sizeofElement == 2) {
-            jshort* dstShorts = reinterpret_cast<jshort*>(dstBytes + dstOffset);
-            const jshort* srcShorts = reinterpret_cast<const jshort*>(srcBytes.get()) + srcOffset;
-            swapShorts(dstShorts, srcShorts, byteCount / 2);
-        } else if (sizeofElement == 4) {
-            jint* dstInts = reinterpret_cast<jint*>(dstBytes + dstOffset);
-            const jint* srcInts = reinterpret_cast<const jint*>(srcBytes.get()) + srcOffset;
-            swapInts(dstInts, srcInts, byteCount / 4);
-        } else if (sizeofElement == 8) {
-            jlong* dstLongs = reinterpret_cast<jlong*>(dstBytes + dstOffset);
-            const jlong* srcLongs = reinterpret_cast<const jlong*>(srcBytes.get()) + srcOffset;
-            swapLongs(dstLongs, srcLongs, byteCount / 8);
-        }
-    } else {
-        memmove(dstBytes + dstOffset, srcBytes.get() + srcOffset*sizeofElement, byteCount);
-    }
+    jbyte* dst = dstBytes + dstOffset*sizeofElement;
+    const jbyte* src = srcBytes.get() + srcOffset;
+    unsafeBulkCopy(dst, src, byteCount, sizeofElement, swap);
     env->ReleasePrimitiveArrayCritical(dstArray, dstBytes, 0);
+}
+
+static void OSMemory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint dstOffset,
+        jint byteCount, jobject srcObject, jint srcOffset, jint sizeofElement, jboolean swap) {
+    ScopedByteArrayRW dstBytes(env, dstArray);
+    if (dstBytes.get() == NULL) {
+        return;
+    }
+    jarray srcArray = reinterpret_cast<jarray>(srcObject);
+    jbyte* srcBytes = reinterpret_cast<jbyte*>(env->GetPrimitiveArrayCritical(srcArray, NULL));
+    if (srcBytes == NULL) {
+        return;
+    }
+    jbyte* dst = dstBytes.get() + dstOffset;
+    const jbyte* src = srcBytes + srcOffset*sizeofElement;
+    unsafeBulkCopy(dst, src, byteCount, sizeofElement, swap);
+    env->ReleasePrimitiveArrayCritical(srcArray, srcBytes, 0);
 }
 
 static JNINativeMethod gMethods[] = {
@@ -450,7 +475,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, pokeLongArray, "(I[JIIZ)V"),
     NATIVE_METHOD(OSMemory, pokeShort, "(ISZ)V"),
     NATIVE_METHOD(OSMemory, pokeShortArray, "(I[SIIZ)V"),
-    NATIVE_METHOD(OSMemory, unsafeArrayCopy, "(Ljava/lang/Object;II[BIIZ)V"),
+    NATIVE_METHOD(OSMemory, unsafeBulkGet, "(Ljava/lang/Object;II[BIIZ)V"),
+    NATIVE_METHOD(OSMemory, unsafeBulkPut, "([BIILjava/lang/Object;IIZ)V"),
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
     jmethodID method_getRuntime = env->GetStaticMethodID(JniConstants::vmRuntimeClass,
