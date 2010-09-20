@@ -41,18 +41,6 @@ final class NIOAccess {
     }
 
     /**
-     * Returns the number of bytes remaining in the given Buffer. That is,
-     * this scales <code>remaining()</code> by the byte-size of elements
-     * of this Buffer.
-     *
-     * @param Buffer b the Buffer to be queried
-     * @return the number of remaining bytes
-     */
-    static int getRemainingBytes(Buffer b) {
-        return (b.limit - b.position) << b._elementSizeShift;
-    }
-
-    /**
      * Returns the underlying Java array containing the data of the
      * given Buffer, or null if the Buffer is not backed by a Java array.
      *
