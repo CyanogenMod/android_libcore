@@ -258,10 +258,7 @@ public final class Unsafe {
     /**
      * Lazy set an int field.
      */
-    public void putOrderedInt(Object obj, long offset, int newValue) {
-        // TODO: this should be an intrinsic that executes a store fence followed by a write
-        putIntVolatile(obj, offset, newValue);
-    }
+    public native void putOrderedInt(Object obj, long offset, int newValue);
 
     /**
      * Gets a <code>long</code> field from the given object.
@@ -284,10 +281,7 @@ public final class Unsafe {
     /**
      * Lazy set a long field.
      */
-    public void putOrderedLong(Object obj, long offset, long newValue) {
-        // TODO: this should be an intrinsic that executes a store fence followed by a write
-        putLongVolatile(obj, offset, newValue);
-    }
+    public native void putOrderedLong(Object obj, long offset, long newValue);
 
     /**
      * Gets an <code>Object</code> field from the given object.
@@ -310,10 +304,8 @@ public final class Unsafe {
     /**
      * Lazy set an object field.
      */
-    public void putOrderedObject(Object obj, long offset, Object newValue) {
-        // TODO: this should be an intrinsic that executes a store fence followed by a write
-        putObjectVolatile(obj, offset, newValue);
-    }
+    public native void putOrderedObject(Object obj, long offset,
+            Object newValue);
 
     /**
      * Parks the calling thread for the specified amount of time,
