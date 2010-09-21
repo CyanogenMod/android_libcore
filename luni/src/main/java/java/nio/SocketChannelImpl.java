@@ -87,11 +87,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     // Whether the socket is bound.
     volatile boolean isBound = false;
 
-    private static class ReadLock {}
-    private final Object readLock = new ReadLock();
+    private final Object readLock = new Object();
 
-    private static class WriteLock {}
-    private final Object writeLock = new WriteLock();
+    private final Object writeLock = new Object();
 
     /*
      * Constructor for creating a connected socket channel.

@@ -52,12 +52,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     private ThreadGroup[] childrenGroups = new ThreadGroup[3];
 
     // Locked when using the childrenGroups field
-    private class ChildrenGroupsLock {}
-    private Object childrenGroupsLock = new ChildrenGroupsLock();
+    private Object childrenGroupsLock = new Object();
 
     // Locked when using the childrenThreads field
-    private class ChildrenThreadsLock {}
-    private Object childrenThreadsLock = new ChildrenThreadsLock();
+    private Object childrenThreadsLock = new Object();
 
     // Whether this ThreadGroup is a daemon ThreadGroup or not
     private boolean isDaemon;

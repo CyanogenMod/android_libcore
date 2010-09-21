@@ -63,11 +63,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     // whether the socket is bound
     boolean isBound = false;
 
-    private static class ReadLock {}
-    private final Object readLock = new ReadLock();
-
-    private static class WriteLock {}
-    private final Object writeLock = new WriteLock();
+    private final Object readLock = new Object();
+    private final Object writeLock = new Object();
 
     /*
      * Constructor

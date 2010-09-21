@@ -70,8 +70,7 @@ final class SelectorImpl extends AbstractSelector {
     /**
      * Used to synchronize when a key's interest ops change.
      */
-    private static class KeysLock {}
-    final Object keysLock = new KeysLock();
+    final Object keysLock = new Object();
 
     private final Set<SelectionKeyImpl> mutableKeys = new HashSet<SelectionKeyImpl>();
 

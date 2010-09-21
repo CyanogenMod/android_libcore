@@ -42,10 +42,7 @@ public class Socket {
 
     private InetAddress localAddress = Inet4Address.ANY;
 
-    private static class ConnectLock {
-    }
-
-    private final Object connectLock = new ConnectLock();
+    private final Object connectLock = new Object();
 
     /**
      * Creates a new unconnected socket. When a SocketImplFactory is defined it

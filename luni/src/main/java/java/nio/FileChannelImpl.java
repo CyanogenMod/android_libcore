@@ -57,8 +57,7 @@ abstract class FileChannelImpl extends FileChannel {
     // The set of acquired and pending locks.
     private final SortedSet<FileLock> locks = new TreeSet<FileLock>(LOCK_COMPARATOR);
 
-    private static class RepositioningLock {}
-    private final Object repositioningLock = new RepositioningLock();
+    private final Object repositioningLock = new Object();
 
     private final Object stream;
 

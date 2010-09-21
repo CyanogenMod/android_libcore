@@ -45,8 +45,7 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
 
     private boolean isBound = false;
 
-    private static class AcceptLock {}
-    private final Object acceptLock = new AcceptLock();
+    private final Object acceptLock = new Object();
 
     public ServerSocketChannelImpl(SelectorProvider sp) throws IOException {
         super(sp);

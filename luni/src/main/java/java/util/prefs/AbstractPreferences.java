@@ -91,9 +91,6 @@ public abstract class AbstractPreferences extends Preferences {
      * Instance fields (private)
      * -----------------------------------------------------------
      */
-    /** Marker class for 'lock' field. */
-    private static class Lock {}
-
     /**
      * The object used to lock this node.
      */
@@ -156,7 +153,7 @@ public abstract class AbstractPreferences extends Preferences {
         cachedNode = new HashMap<String, AbstractPreferences>();
         nodeName = name;
         parentPref = parent;
-        lock = new Lock();
+        lock = new Object();
         userNode = root.userNode;
     }
 
