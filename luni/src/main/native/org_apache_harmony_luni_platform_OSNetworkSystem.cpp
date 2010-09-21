@@ -21,6 +21,7 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "LocalArray.h"
+#include "NetFd.h"
 #include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
@@ -91,56 +92,6 @@ static struct CachedFields {
     jfieldID dpack_port;
     jfieldID dpack_length;
 } gCachedFields;
-
-/**
- * Wraps access to the int inside a java.io.FileDescriptor, taking care of throwing exceptions.
- */
-class NetFd {
-public:
-    NetFd(JNIEnv* env, jobject fileDescriptor)
-        : mEnv(env), mFileDescriptor(fileDescriptor), mFd(-1)
-    {
-    }
-
-    bool isClosed() {
-        mFd = jniGetFDFromFileDescriptor(mEnv, mFileDescriptor);
-        bool closed = (mFd == -1);
-        if (closed) {
-            jniThrowException(mEnv, "java/net/SocketException", "Socket closed");
-        }
-        return closed;
-    }
-
-    int get() const {
-        return mFd;
-    }
-
-private:
-    JNIEnv* mEnv;
-    jobject mFileDescriptor;
-    int mFd;
-
-    // Disallow copy and assignment.
-    NetFd(const NetFd&);
-    void operator=(const NetFd&);
-};
-
-/**
- * Used to retry syscalls that can return EINTR. This differs from TEMP_FAILURE_RETRY in that
- * it also considers the case where the reason for failure is that another thread called
- * Socket.close.
- */
-#define NET_FAILURE_RETRY(fd, exp) ({               \
-    typeof (exp) _rc;                               \
-    do {                                            \
-        _rc = (exp);                                \
-        if (_rc == -1) {                            \
-            if (fd.isClosed() || errno != EINTR) {  \
-                break;                              \
-            }                                       \
-        }                                           \
-    } while (_rc == -1);                            \
-    _rc; })
 
 /**
  * Returns the port number in a sockaddr_storage structure.
