@@ -816,6 +816,62 @@ public class SSLSocketTest extends TestCase {
         listening.close();
     }
 
+    public void test_SSLSocket_interrupt() throws Exception {
+        ServerSocket listening = new ServerSocket(0);
+
+        for (int i = 0; i < 3; i++) {
+            Socket underlying = new Socket(listening.getInetAddress(), listening.getLocalPort());
+            Socket server = listening.accept();
+
+            SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            Socket clientWrapping = sf.createSocket(underlying, null, -1, true);
+
+            switch (i) {
+                case 0:
+                    test_SSLSocket_interrupt_case(underlying, underlying);
+                    break;
+                case 1:
+                    test_SSLSocket_interrupt_case(underlying, clientWrapping);
+                    break;
+                case 2:
+                    test_SSLSocket_interrupt_case(clientWrapping, underlying);
+                    break;
+                case 3:
+                    test_SSLSocket_interrupt_case(clientWrapping, clientWrapping);
+                    break;
+                default:
+                    fail();
+            }
+
+            server.close();
+            underlying.close();
+        }
+        listening.close();
+    }
+
+    private void test_SSLSocket_interrupt_case(Socket toRead, final Socket toClose)
+            throws Exception {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1 * 1000);
+                    toClose.close();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
+        try {
+            toRead.setSoTimeout(5 * 1000);
+            toRead.getInputStream().read();
+            fail();
+        } catch (SocketTimeoutException e) {
+            throw e;
+        } catch (SocketException expected) {
+        }
+    }
+
     public void test_TestSSLSocketPair_create() {
         TestSSLSocketPair test = TestSSLSocketPair.create();
         assertNotNull(test.c);
