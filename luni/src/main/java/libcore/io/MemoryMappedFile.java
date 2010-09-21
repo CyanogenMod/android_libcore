@@ -90,4 +90,11 @@ public final class MemoryMappedFile implements Closeable {
     public BufferIterator littleEndianIterator() {
         return new BufferIterator(address, size, ByteOrder.LITTLE_ENDIAN.needsSwap);
     }
+
+    /**
+     * Returns the size in bytes of the memory-mapped region.
+     */
+    public int size() {
+        return size;
+    }
 }
