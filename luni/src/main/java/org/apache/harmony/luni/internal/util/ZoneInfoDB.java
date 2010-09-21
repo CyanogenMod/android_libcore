@@ -83,16 +83,11 @@ public final class ZoneInfoDB {
      * present or is unreadable, we assume a version of "2007h".
      */
     private static String readVersion() {
-        RandomAccessFile versionFile = null;
         try {
-            versionFile = new RandomAccessFile(ZONE_DIRECTORY_NAME + "zoneinfo.version", "r");
-            byte[] buf = new byte[(int) versionFile.length()];
-            versionFile.readFully(buf);
-            return new String(buf, 0, buf.length, Charsets.ISO_8859_1).trim();
+            byte[] bytes = IoUtils.readFileAsByteArray(ZONE_DIRECTORY_NAME + "zoneinfo.version");
+            return new String(bytes, 0, bytes.length, Charsets.ISO_8859_1).trim();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
-        } finally {
-            IoUtils.closeQuietly(versionFile);
         }
     }
 
@@ -107,58 +102,65 @@ public final class ZoneInfoDB {
      * All this code assumes strings are US-ASCII.
      */
     private static void readIndex() {
-        RandomAccessFile indexFile = null;
+        RandomAccessFile file = null;
+        MemoryMappedFile mappedFile = null;
         try {
-            indexFile = new RandomAccessFile(INDEX_FILE_NAME, "r");
-
-            // The database reserves 40 bytes for each id.
-            final int SIZEOF_TZNAME = 40;
-            // The database uses 32-bit (4 byte) integers.
-            final int SIZEOF_TZINT = 4;
-
-            byte[] idBytes = new byte[SIZEOF_TZNAME];
-
-            int numEntries = (int) (indexFile.length() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT));
-
-            char[] idChars = new char[numEntries * SIZEOF_TZNAME];
-            int[] idEnd = new int[numEntries];
-            int idOffset = 0;
-
-            byteOffsets = new int[numEntries];
-            rawUtcOffsets = new int[numEntries];
-
-            for (int i = 0; i < numEntries; i++) {
-                indexFile.readFully(idBytes);
-                byteOffsets[i] = indexFile.readInt();
-                int length = indexFile.readInt();
-                if (length < 44) {
-                    throw new AssertionError("length in index file < sizeof(tzhead)");
-                }
-                rawUtcOffsets[i] = indexFile.readInt();
-
-                // Don't include null chars in the String
-                int len = idBytes.length;
-                for (int j = 0; j < len; j++) {
-                    if (idBytes[j] == 0) {
-                        break;
-                    }
-                    idChars[idOffset++] = (char) (idBytes[j] & 0xFF);
-                }
-
-                idEnd[i] = idOffset;
-            }
-
-            // We create one string containing all the ids, and then break that into substrings.
-            // This way, all ids share a single char[] on the heap.
-            String allIds = new String(idChars, 0, idOffset);
-            ids = new String[numEntries];
-            for (int i = 0; i < numEntries; i++) {
-                ids[i] = allIds.substring(i == 0 ? 0 : idEnd[i - 1], idEnd[i]);
-            }
+            file = new RandomAccessFile(INDEX_FILE_NAME, "r");
+            mappedFile = MemoryMappedFile.mmap(file.getFD(), MapMode.READ_ONLY, 0, file.length());
+            readIndex(mappedFile);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
-            IoUtils.closeQuietly(indexFile);
+            IoUtils.closeQuietly(mappedFile);
+            IoUtils.closeQuietly(file);
+        }
+    }
+
+    private static void readIndex(MemoryMappedFile mappedFile) throws IOException {
+        BufferIterator it = mappedFile.bigEndianIterator();
+
+        // The database reserves 40 bytes for each id.
+        final int SIZEOF_TZNAME = 40;
+        // The database uses 32-bit (4 byte) integers.
+        final int SIZEOF_TZINT = 4;
+
+        byte[] idBytes = new byte[SIZEOF_TZNAME];
+        int numEntries = (int) (mappedFile.size() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT));
+
+        char[] idChars = new char[numEntries * SIZEOF_TZNAME];
+        int[] idEnd = new int[numEntries];
+        int idOffset = 0;
+
+        byteOffsets = new int[numEntries];
+        rawUtcOffsets = new int[numEntries];
+
+        for (int i = 0; i < numEntries; i++) {
+            it.readByteArray(idBytes, 0, idBytes.length);
+            byteOffsets[i] = it.readInt();
+            int length = it.readInt();
+            if (length < 44) {
+                throw new AssertionError("length in index file < sizeof(tzhead)");
+            }
+            rawUtcOffsets[i] = it.readInt();
+
+            // Don't include null chars in the String
+            int len = idBytes.length;
+            for (int j = 0; j < len; j++) {
+                if (idBytes[j] == 0) {
+                    break;
+                }
+                idChars[idOffset++] = (char) (idBytes[j] & 0xFF);
+            }
+
+            idEnd[i] = idOffset;
+        }
+
+        // We create one string containing all the ids, and then break that into substrings.
+        // This way, all ids share a single char[] on the heap.
+        String allIds = new String(idChars, 0, idOffset);
+        ids = new String[numEntries];
+        for (int i = 0; i < numEntries; i++) {
+            ids[i] = allIds.substring(i == 0 ? 0 : idEnd[i - 1], idEnd[i]);
         }
     }
 

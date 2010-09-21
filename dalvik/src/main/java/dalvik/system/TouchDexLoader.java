@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import libcore.io.IoUtils;
 
 /**
  * Cloned out of PathClassLoader for TouchDex.  This could be made
@@ -235,30 +236,13 @@ class TouchDexLoader extends ClassLoader {
      * Returns null if the class wasn't found.
      */
     private byte[] loadFromDirectory(String path) {
-        RandomAccessFile raf;
-        byte[] fileData;
-
-        //System.out.println("Trying to load from " + path);
         try {
-            raf = new RandomAccessFile(path, "r");
-        }
-        catch (FileNotFoundException fnfe) {
-            //System.out.println("  Not found: " + path);
-            return null;
-        }
-
-        try {
-            fileData = new byte[(int) raf.length()];
-            raf.read(fileData);
-            raf.close();
-        }
-        catch (IOException ioe) {
+            return IoUtils.readFileAsByteArray(path);
+        } catch (IOException ex) {
             System.err.println("Error reading from " + path);
             // swallow it, return null instead
-            fileData = null;
+            return null;
         }
-
-        return fileData;
     }
 
     /*
@@ -335,4 +319,3 @@ class TouchDexLoader extends ClassLoader {
     private DexFile[] mDexs;
     private String[] mLibPaths;
 }
-
