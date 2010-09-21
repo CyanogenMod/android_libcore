@@ -17,12 +17,12 @@
 
 package java.io;
 
+import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.nio.FileChannelFactory;
 
 /**
  * Allows reading from and writing to a file in a random-access manner. This is
@@ -46,9 +46,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     private boolean isReadOnly;
 
-    // BEGIN android-added
-    private int options;
-    // END android-added
+    private int mode;
 
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
@@ -97,7 +95,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public RandomAccessFile(File file, String mode) throws FileNotFoundException {
-        options = 0;
+        int options = 0;
         fd = new FileDescriptor();
 
         if (mode.equals("r")) {
@@ -118,6 +116,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         } else {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
+        this.mode = options;
 
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -127,11 +126,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             }
         }
 
-        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), options);
-        // BEGIN android-removed
-        // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-        //         options);
-        // END android-removed
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), this.mode);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -202,12 +197,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @return this file's file channel instance.
      */
     public final synchronized FileChannel getChannel() {
-        // BEGIN android-added
         if(channel == null) {
-            channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-                    options);
+            channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
         }
-        // END android-added
         return channel;
     }
 

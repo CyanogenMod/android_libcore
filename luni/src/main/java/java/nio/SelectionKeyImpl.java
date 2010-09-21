@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectableChannel;
@@ -36,10 +36,6 @@ final class SelectionKeyImpl extends AbstractSelectionKey {
     private int readyOps;
 
     private SelectorImpl selector;
-
-    // BEGIN android-removed
-    // private int index;
-    // END android-removed
 
     public SelectionKeyImpl(AbstractSelectableChannel channel, int operations,
             Object attachment, SelectorImpl selector) {
@@ -76,9 +72,6 @@ final class SelectionKeyImpl extends AbstractSelectionKey {
         }
         synchronized (selector.keysLock) {
             interestOps = operations;
-            // BEGIN android-removed
-            // selector.modKey(this);
-            // END android-removed
         }
         return this;
     }
@@ -101,16 +94,6 @@ final class SelectionKeyImpl extends AbstractSelectionKey {
         this.readyOps = readyOps;
     }
 
-    // BEGIN android-removed
-    // int getIndex() {
-    //     return index;
-    // }
-
-    // void setIndex(int index) {
-    //     this.index = index;
-    // }
-    // END android-removed
-
     private void checkValid() {
         if (!isValid()) {
             throw new CancelledKeyException();
@@ -122,7 +105,6 @@ final class SelectionKeyImpl extends AbstractSelectionKey {
      * does not need connecting, this always return true.
      */
     boolean isConnected() {
-        return !(channel instanceof SocketChannel)
-                || ((SocketChannel) channel).isConnected();
+        return !(channel instanceof SocketChannel) || ((SocketChannel) channel).isConnected();
     }
 }

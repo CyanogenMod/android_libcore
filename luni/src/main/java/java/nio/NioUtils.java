@@ -16,10 +16,16 @@
 
 package java.nio;
 
+import java.nio.channels.FileChannel;
+import org.apache.harmony.luni.platform.IFileSystem;
+
 /**
  * @hide internal use only
  */
 public final class NioUtils {
+    private NioUtils() {
+    }
+
     /**
      * Gets the start address of a direct buffer.
      * <p>
@@ -49,6 +55,33 @@ public final class NioUtils {
             ((MappedByteBufferAdapter) buffer).free();
         } else {
             throw new AssertionError();
+        }
+    }
+
+    /**
+     * Returns the int file descriptor from within the given FileChannel 'fc'.
+     */
+    public static int getFd(FileChannel fc) {
+        return ((FileChannelImpl) fc).getHandle();
+    }
+
+    /**
+     * Helps bridge between io and nio.
+     */
+    public static FileChannel newFileChannel(Object stream, int fd, int mode) {
+        switch (mode) {
+        case IFileSystem.O_RDONLY:
+            return new ReadOnlyFileChannel(stream, fd);
+        case IFileSystem.O_WRONLY:
+            return new WriteOnlyFileChannel(stream, fd);
+        case IFileSystem.O_RDWR:
+            return new ReadWriteFileChannel(stream, fd);
+        case IFileSystem.O_RDWRSYNC:
+            return new ReadWriteFileChannel(stream, fd);
+        case IFileSystem.O_APPEND:
+            return new WriteOnlyFileChannel(stream, fd, true);
+        default:
+            throw new RuntimeException("Unknown mode: " + mode);
         }
     }
 }

@@ -18,6 +18,7 @@
 package java.nio.channels.spi;
 
 import java.io.IOException;
+import java.nio.SelectorProviderImpl;
 import java.nio.channels.Channel;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.Pipe;
@@ -26,7 +27,6 @@ import java.nio.channels.SocketChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ServiceLoader;
-import org.apache.harmony.nio.internal.SelectorProviderImpl;
 
 /**
  * {@code SelectorProvider} is an abstract base class that declares methods for
@@ -39,6 +39,7 @@ import org.apache.harmony.nio.internal.SelectorProviderImpl;
  * the system default provider is returned.
  */
 public abstract class SelectorProvider {
+
     private static SelectorProvider provider = null;
 
     /**

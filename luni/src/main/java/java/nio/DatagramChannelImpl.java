@@ -15,11 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.nio.internal;
-
-// BEGIN android-note
-// In this class the address length was changed from long to int.
-// END android-note
+package java.nio;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -32,8 +28,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
-import java.nio.NioUtils;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;

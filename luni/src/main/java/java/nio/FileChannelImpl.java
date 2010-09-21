@@ -15,31 +15,21 @@
  *  limitations under the License.
  */
 
-/*
- * Android Notice
- * In this class the address length was changed from long to int.
- * This is due to performance optimizations for the device.
- *
- * Also this class was copied from a newer version of harmony.
- */
-
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.NioUtils;
-import java.nio.MappedByteBuffer;
-import java.nio.MappedByteBufferAdapter;
-import java.nio.NioUtils;
-import java.nio.MemoryBlock;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Comparator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -50,32 +40,38 @@ import org.apache.harmony.luni.platform.Platform;
  *
  * This class is non-API, but implements the API of the FileChannel interface.
  */
-public abstract class FileChannelImpl extends FileChannel {
+abstract class FileChannelImpl extends FileChannel {
     private static final int ALLOC_GRANULARITY = Platform.FILE_SYSTEM.getAllocGranularity();
+
+    private static final Comparator<FileLock> LOCK_COMPARATOR = new Comparator<FileLock>() {
+        public int compare(FileLock lock1, FileLock lock2) {
+            long position1 = lock1.position();
+            long position2 = lock2.position();
+            return position1 > position2 ? 1 : (position1 < position2 ? -1 : 0);
+        }
+    };
 
     // Handle to the open file
     private final int handle;
 
-    // The object that will track all outstanding locks on this channel.
-    private final LockManager lockManager = new LockManager();
+    // The set of acquired and pending locks.
+    private final SortedSet<FileLock> locks = new TreeSet<FileLock>(LOCK_COMPARATOR);
 
     private static class RepositioningLock {}
     private final Object repositioningLock = new RepositioningLock();
 
     private final Object stream;
 
-    /*
+    /**
      * Create a new file channel implementation class that wraps the given file
      * handle and operates in the specified mode.
-     *
      */
     public FileChannelImpl(Object stream, int handle) {
-        super();
         this.handle = handle;
         this.stream = stream;
     }
 
-    /*
+    /**
      * Helper method to throw an exception if the channel is already closed.
      * Note that we don't bother to synchronize on this test since the file may
      * be closed by operations beyond our control anyways.
@@ -86,11 +82,6 @@ public abstract class FileChannelImpl extends FileChannel {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.nio.channels.spi.AbstractInterruptibleChannel#implCloseChannel()
-     */
     protected void implCloseChannel() throws IOException {
         if (stream instanceof Closeable) {
             ((Closeable) stream).close();
@@ -104,25 +95,40 @@ public abstract class FileChannelImpl extends FileChannel {
         }
         int lockType = shared ? IFileSystem.SHARED_LOCK_TYPE : IFileSystem.EXCLUSIVE_LOCK_TYPE;
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
-        lockManager.addLock(pendingLock);
+        addLock(pendingLock);
 
         if (Platform.FILE_SYSTEM.lock(handle, position, size, lockType, wait)) {
             return pendingLock;
         }
 
         // Lock acquisition failed
-        lockManager.removeLock(pendingLock);
+        removeLock(pendingLock);
         return null;
     }
 
-    /*
-     * Acquire a lock on the receiver, blocks if the lock cannot be obtained
-     * immediately.
-     *
-     * @see java.nio.channels.FileChannel#lock(long, long, boolean)
-     */
-    public final FileLock lock(long position, long size, boolean shared)
-            throws IOException {
+    private static final class FileLockImpl extends FileLock {
+        private boolean isReleased = false;
+
+        public FileLockImpl(FileChannel channel, long position, long size, boolean shared) {
+            super(channel, position, size, shared);
+        }
+
+        @Override public boolean isValid() {
+            return !isReleased && channel().isOpen();
+        }
+
+        @Override public void release() throws IOException {
+            if (!channel().isOpen()) {
+                throw new ClosedChannelException();
+            }
+            if (!isReleased) {
+                ((FileChannelImpl) channel()).release(this);
+                isReleased = true;
+            }
+        }
+    }
+
+    public final FileLock lock(long position, long size, boolean shared) throws IOException {
         openCheck();
         FileLock resultLock = null;
         {
@@ -138,26 +144,19 @@ public abstract class FileChannelImpl extends FileChannel {
         return resultLock;
     }
 
-    /*
-     * Attempts to acquire the given lock, but does not block. If the lock
-     * cannot be acquired the method returns null.
-     *
-     * @see java.nio.channels.FileChannel#tryLock(long, long, boolean)
-     */
-    public final FileLock tryLock(long position, long size, boolean shared)
-            throws IOException {
+    public final FileLock tryLock(long position, long size, boolean shared) throws IOException {
         openCheck();
         return basicLock(position, size, shared, false);
     }
 
-    /*
+    /**
      * Non-API method to release a given lock on a file channel. Assumes that
      * the lock will mark itself invalid after successful unlocking.
      */
     void release(FileLock lock) throws IOException {
         openCheck();
         Platform.FILE_SYSTEM.unlock(handle, lock.position(), lock.size());
-        lockManager.removeLock(lock);
+        removeLock(lock);
     }
 
     @Override public void force(boolean metadata) throws IOException {
@@ -177,7 +176,7 @@ public abstract class FileChannelImpl extends FileChannel {
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
-    /*
+    /**
      * Returns the current file position.
      */
     public long position() throws IOException {
@@ -185,7 +184,7 @@ public abstract class FileChannelImpl extends FileChannel {
         return Platform.FILE_SYSTEM.seek(handle, 0L, IFileSystem.SEEK_CUR);
     }
 
-    /*
+    /**
      * Sets the file pointer.
      */
     public FileChannel position(long newPosition) throws IOException {
@@ -338,7 +337,7 @@ public abstract class FileChannelImpl extends FileChannel {
         return bytesRead;
     }
 
-    /*
+    /**
      * Returns the current file size, as an integer number of bytes.
      */
     public long size() throws IOException {
@@ -445,12 +444,6 @@ public abstract class FileChannelImpl extends FileChannel {
         }
         return this;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.nio.channels.WritableByteChannel#write(java.nio.ByteBuffer)
-     */
 
     public int write(ByteBuffer buffer, long position) throws IOException {
         if (null == buffer) {
@@ -602,5 +595,33 @@ public abstract class FileChannelImpl extends FileChannel {
 
     public int getHandle() {
         return handle;
+    }
+
+    /**
+     * Add a new pending lock to the manager. Throws an exception if the lock
+     * would overlap an existing lock. Once the lock is acquired it remains in
+     * this set as an acquired lock.
+     */
+    private synchronized void addLock(FileLock lock) throws OverlappingFileLockException {
+        long lockEnd = lock.position() + lock.size();
+        for (FileLock existingLock : locks) {
+            if (existingLock.position() > lockEnd) {
+                // This, and all remaining locks, start beyond our end (so
+                // cannot overlap).
+                break;
+            }
+            if (existingLock.overlaps(lock.position(), lock.size())) {
+                throw new OverlappingFileLockException();
+            }
+        }
+        locks.add(lock);
+    }
+
+    /**
+     * Removes an acquired lock from the lock manager. If the lock did not exist
+     * in the lock manager the operation is a no-op.
+     */
+    private synchronized void removeLock(FileLock lock) {
+        locks.remove(lock);
     }
 }

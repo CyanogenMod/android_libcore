@@ -20,9 +20,9 @@ import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.nio.internal.FileChannelImpl;
 
 /**
  * A memory-mapped file. Use {@link #mmap} to map a file, {@link #close} to unmap a file,
@@ -41,7 +41,7 @@ public final class MemoryMappedFile implements Closeable {
     }
 
     public static MemoryMappedFile mmap(FileChannel fc, FileChannel.MapMode mapMode, long start, long size) throws IOException {
-        return mmap(((FileChannelImpl) fc).getHandle(), mapMode, start, size);
+        return mmap(NioUtils.getFd(fc), mapMode, start, size);
     }
 
     public static MemoryMappedFile mmap(FileDescriptor fd, FileChannel.MapMode mapMode, long start, long size) throws IOException {
@@ -81,14 +81,14 @@ public final class MemoryMappedFile implements Closeable {
      * Returns a new iterator that treats the mapped data as big-endian.
      */
     public BufferIterator bigEndianIterator() {
-        return new BufferIterator(address, size, ByteOrder.BIG_ENDIAN.needsSwap);
+        return new BufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Returns a new iterator that treats the mapped data as little-endian.
      */
     public BufferIterator littleEndianIterator() {
-        return new BufferIterator(address, size, ByteOrder.LITTLE_ENDIAN.needsSwap);
+        return new BufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN);
     }
 
     /**

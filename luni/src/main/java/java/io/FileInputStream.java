@@ -17,11 +17,11 @@
 
 package java.io;
 
+import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.nio.FileChannelFactory;
 
 /**
  * A specialized {@link InputStream} that reads from a file in the file system.
@@ -77,10 +77,6 @@ public class FileInputStream extends InputStream implements Closeable {
         fd.readOnly = true;
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
         innerFD = true;
-        // BEGIN android-removed
-        // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-        //         IFileSystem.O_RDONLY);
-        // END android-removed
     }
 
     /**
@@ -107,10 +103,6 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         this.fd = fd;
         innerFD = false;
-        // BEGIN android-removed
-        // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-        //         IFileSystem.O_RDONLY);
-        // END android-removed
     }
 
     /**
@@ -180,15 +172,12 @@ public class FileInputStream extends InputStream implements Closeable {
      * @return the file channel for this stream.
      */
     public FileChannel getChannel() {
-        // BEGIN android-changed
         synchronized(this) {
             if (channel == null) {
-                channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-                        IFileSystem.O_RDONLY);
+                channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_RDONLY);
             }
             return channel;
         }
-        // END android-changed
     }
 
     /**
