@@ -24,7 +24,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
 
-public final class ReadOnlyFileChannel extends FileChannelImpl {
+final class ReadOnlyFileChannel extends FileChannelImpl {
     public ReadOnlyFileChannel(Object stream, int handle) {
         super(stream, handle);
     }

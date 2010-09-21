@@ -19,7 +19,7 @@ package java.nio;
 
 import java.io.IOException;
 
-public final class ReadWriteFileChannel extends FileChannelImpl {
+final class ReadWriteFileChannel extends FileChannelImpl {
     public ReadWriteFileChannel(Object stream, int handle) {
         super(stream, handle);
     }

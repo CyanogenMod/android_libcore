@@ -23,7 +23,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.WritableByteChannel;
 
-public final class WriteOnlyFileChannel extends FileChannelImpl {
+final class WriteOnlyFileChannel extends FileChannelImpl {
 
     private boolean append = false;
 

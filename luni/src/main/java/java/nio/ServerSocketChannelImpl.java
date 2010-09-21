@@ -37,8 +37,7 @@ import org.apache.harmony.luni.platform.Platform;
 /**
  * The default ServerSocketChannel.
  */
-public final class ServerSocketChannelImpl
-        extends ServerSocketChannel implements FileDescriptorHandler {
+final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorHandler {
 
     private final FileDescriptor fd = new FileDescriptor();
     private final SocketImpl impl = new PlainServerSocketImpl(fd);
