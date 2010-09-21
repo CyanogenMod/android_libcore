@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
@@ -25,49 +25,26 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
 
-/*
- * Internal implementation of SelectorProvider.
+/**
+ * @hide for java.nio.channels.spi.SelectorProvider only.
  */
-public class SelectorProviderImpl extends SelectorProvider {
-
-    /*
-     * Constructor for this class.
-     */
-    public SelectorProviderImpl() {
-        super();
-    }
-
-    /**
-     * @see java.nio.channels.spi.SelectorProvider#openDatagramChannel()
-     */
+public final class SelectorProviderImpl extends SelectorProvider {
     public DatagramChannel openDatagramChannel() throws IOException {
         return new DatagramChannelImpl(this);
     }
 
-    /**
-     * @see java.nio.channels.spi.SelectorProvider#openPipe()
-     */
     public Pipe openPipe() throws IOException {
         return new PipeImpl();
     }
 
-    /**
-     * @see java.nio.channels.spi.SelectorProvider#openSelector()
-     */
     public AbstractSelector openSelector() throws IOException {
         return new SelectorImpl(this);
     }
 
-    /**
-     * @see java.nio.channels.spi.SelectorProvider#openServerSocketChannel()
-     */
     public ServerSocketChannel openServerSocketChannel() throws IOException {
         return new ServerSocketChannelImpl(this);
     }
 
-    /**
-     * @see java.nio.channels.spi.SelectorProvider#openSocketChannel()
-     */
     public SocketChannel openSocketChannel() throws IOException {
         return new SocketChannelImpl(this);
     }

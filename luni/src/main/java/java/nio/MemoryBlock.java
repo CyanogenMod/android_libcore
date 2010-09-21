@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel.MapMode;
 import org.apache.harmony.luni.platform.OSMemory;
 
-/**
- * @hide
- */
-public class MemoryBlock {
+class MemoryBlock {
     /**
      * Handles calling munmap(2) on a memory-mapped region.
      */

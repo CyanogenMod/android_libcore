@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.FileDescriptor;
 import java.io.IOException;

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.Pipe;
 import java.nio.channels.spi.SelectorProvider;
 import libcore.io.IoUtils;

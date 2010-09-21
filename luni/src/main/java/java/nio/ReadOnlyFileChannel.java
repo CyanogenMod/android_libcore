@@ -15,17 +15,9 @@
  *  limitations under the License.
  */
 
-/*
- * Android Notice
- * In this class the address length was changed from long to int.
- * This is due to performance optimizations for the device.
- */
-
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;

@@ -47,9 +47,8 @@ public final class ByteOrder {
      * This is the only thing that ByteOrder is really used for: to know whether we need to swap
      * bytes to get this order, given bytes in native order. (That is, this is the opposite of
      * the hypothetical "isNativeOrder".)
-     * @hide internal use only
      */
-    public final boolean needsSwap;
+    final boolean needsSwap;
 
     private ByteOrder(String name, boolean needsSwap) {
         this.name = name;

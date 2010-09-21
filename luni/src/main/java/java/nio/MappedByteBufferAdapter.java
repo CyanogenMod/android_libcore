@@ -33,10 +33,8 @@ import java.nio.channels.FileChannel.MapMode;
  * But we save a ton of code, for classes that no-one really uses because the API's broken
  * by design (disallowing munmap(2) calls). Internally, we can use libcore.io.MemoryMappedFile
  * as a high-performance and more usable replacement for MappedByteBuffer.
- *
- * @hide - only used by FileChannelImpl; add API to NioUtils?
  */
-public final class MappedByteBufferAdapter extends MappedByteBuffer {
+final class MappedByteBufferAdapter extends MappedByteBuffer {
     private MappedByteBufferAdapter(ByteBuffer buffer) {
         super(buffer);
         effectiveDirectAddress = wrapped.effectiveDirectAddress;

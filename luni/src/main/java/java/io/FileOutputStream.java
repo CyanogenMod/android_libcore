@@ -17,11 +17,11 @@
 
 package java.io;
 
+import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.nio.FileChannelFactory;
 
 /**
  * A specialized {@link OutputStream} that writes to a file in the file system.
@@ -92,7 +92,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(),
                 append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY);
         innerFD = true;
-        channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
+        channel = NioUtils.newFileChannel(this, fd.descriptor,
                 append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY);
     }
 
@@ -121,8 +121,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
         this.fd = fd;
         innerFD = false;
-        channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-                IFileSystem.O_WRONLY);
+        channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_WRONLY);
     }
 
     /**

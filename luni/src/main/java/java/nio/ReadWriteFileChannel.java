@@ -15,16 +15,9 @@
  *  limitations under the License.
  */
 
-/*
- * Android Notice
- * In this class the address length was changed from long to int.
- * This is due to performance optimizations for the device.
- */
-
-package org.apache.harmony.nio.internal;
+package java.nio;
 
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
 
 public final class ReadWriteFileChannel extends FileChannelImpl {
     public ReadWriteFileChannel(Object stream, int handle) {
