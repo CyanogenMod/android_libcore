@@ -54,7 +54,7 @@ abstract class AbstractHttpInputStream extends InputStream {
     @Override public final int read() throws IOException {
         byte[] buffer = new byte[1];
         int count = read(buffer, 0, 1);
-        return count == -1 ? -1 : buffer[0];
+        return count == -1 ? -1 : buffer[0] & 0xff;
     }
 
     /**
