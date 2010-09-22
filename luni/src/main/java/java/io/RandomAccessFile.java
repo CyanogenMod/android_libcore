@@ -44,8 +44,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     // initialized).
     private FileChannel channel;
 
-    private boolean isReadOnly;
-
     private int mode;
 
     /**
@@ -95,15 +93,13 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public RandomAccessFile(File file, String mode) throws FileNotFoundException {
-        int options = 0;
+        int options;
         fd = new FileDescriptor();
 
         if (mode.equals("r")) {
-            isReadOnly = true;
             fd.readOnly = true;
             options = IFileSystem.O_RDONLY;
         } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
-            isReadOnly = false;
             options = IFileSystem.O_RDWR;
 
             if (mode.equals("rws")) {
@@ -121,7 +117,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkRead(file.getPath());
-            if (!isReadOnly) {
+            if (!mode.equals("r")) {
                 security.checkWrite(file.getPath());
             }
         }
@@ -706,9 +702,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public void setLength(long newLength) throws IOException {
         openCheck();
         if (newLength < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("newLength < 0");
         }
         Platform.FILE_SYSTEM.truncate(fd.descriptor, newLength);
+
+        long filePointer = getFilePointer();
+        if (filePointer > newLength) {
+            seek(newLength);
+        }
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
