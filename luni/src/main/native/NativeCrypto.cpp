@@ -1434,6 +1434,9 @@ static int sslSelect(JNIEnv* env, int type, AppData* appData, int timeout) {
         {
             AsynchronousSocketCloseMonitor monitor(intFd);
             result = select(max + 1, &rfds, &wfds, NULL, ptv);
+            JNI_TRACE("sslSelect %s fd=%d appData=%p timeout=%d => %d",
+                      (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE",
+                      fd.get(), appData, timeout, result);
             if (result == -1) {
                 if (fd.isClosed()) {
                     result = THROWN_SOCKETEXCEPTION;
@@ -1469,8 +1472,6 @@ static int sslSelect(JNIEnv* env, int type, AppData* appData, int timeout) {
     // Unlock
     MUTEX_UNLOCK(appData->mutex);
 
-    JNI_TRACE("sslSelect %s fd=%d appData=%p timeout=%d => %d",
-              (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE", intFd, appData, timeout, result);
     return result;
 }
 
@@ -2423,7 +2424,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     }
 
     int ret = SSL_set_fd(ssl, fd.get());
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake s=%d", ssl, fd);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake s=%d", ssl, fd.get());
 
     if (ret != 1) {
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
