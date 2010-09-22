@@ -1312,6 +1312,17 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
     }
 
+    public void testSingleByteReadIsSigned() throws IOException {
+        server.enqueue(new MockResponse().setBody(new byte[] { -2, -1 }));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        InputStream in = connection.getInputStream();
+        assertEquals(254, in.read());
+        assertEquals(255, in.read());
+        assertEquals(-1, in.read());
+    }
+
     /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
