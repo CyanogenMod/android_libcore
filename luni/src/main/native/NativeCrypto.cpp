@@ -388,11 +388,14 @@ static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
 
     ScopedByteArrayRO sourceBytes(env, source);
     if (sourceBytes.get() == NULL) {
+        JNI_TRACE("arrayToBignum(%p) => NULL", source);
         return NULL;
     }
-    return BN_bin2bn(reinterpret_cast<const unsigned char*>(sourceBytes.get()),
-                     sourceBytes.size(),
-                     NULL);
+    BIGNUM* bn = BN_bin2bn(reinterpret_cast<const unsigned char*>(sourceBytes.get()),
+                           sourceBytes.size(),
+                           NULL);
+    JNI_TRACE("arrayToBignum(%p) => %p", source, bn);
+    return bn;
 }
 
 /**
@@ -478,7 +481,8 @@ static void NativeCrypto_clinit(JNIEnv*, jclass)
 static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
                                                jbyteArray p, jbyteArray q, jbyteArray g,
                                                jbyteArray pub_key, jbyteArray priv_key) {
-    JNI_TRACE("EVP_PKEY_new_DSA()");
+    JNI_TRACE("EVP_PKEY_new_DSA(p=%p, q=%p, g=%p, pub_key=%p, priv_key=%p)",
+              p, q, g, pub_key, priv_key);
 
     Unique_DSA dsa(DSA_new());
     if (dsa.get() == NULL) {
@@ -510,6 +514,8 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
         return NULL;
     }
     dsa.release();
+    JNI_TRACE("EVP_PKEY_new_DSA(p=%p, q=%p, g=%p, pub_key=%p, priv_key=%p) => %p",
+              p, q, g, pub_key, priv_key, pkey.get());
     return pkey.release();
 }
 
@@ -519,7 +525,7 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
 static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
                                                jbyteArray n, jbyteArray e, jbyteArray d,
                                                jbyteArray p, jbyteArray q) {
-    JNI_TRACE("EVP_PKEY_new_RSA(...)");
+    JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p)", n, e, d, p, q);
 
     Unique_RSA rsa(RSA_new());
     if (rsa.get() == NULL) {
@@ -543,8 +549,10 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     }
 
 #ifdef WITH_JNI_TRACE
-    int check = RSA_check_key(rsa.get());
-    JNI_TRACE("EVP_PKEY_new_RSA(...) RSA_check_key returns %d", check);
+    if (p != NULL && q != NULL) {
+        int check = RSA_check_key(rsa.get());
+        JNI_TRACE("EVP_PKEY_new_RSA(...) RSA_check_key returns %d", check);
+    }
 #endif
 
     if (rsa->n == NULL || rsa->e == NULL) {
@@ -562,7 +570,7 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
         return NULL;
     }
     rsa.release();
-    JNI_TRACE("EVP_PKEY_new_RSA(...) => %p", pkey.get());
+    JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p) => %p", n, e, d, p, q, pkey.get());
     return pkey.release();
 }
 
