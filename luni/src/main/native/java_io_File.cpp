@@ -379,7 +379,8 @@ static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
         return JNI_FALSE;
     }
 
-    return (mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) == 0);
+    // On Android, we don't want default permissions to allow global access.
+    return (mkdir(path.c_str(), S_IRWXU) == 0);
 }
 
 static jboolean File_createNewFileImpl(JNIEnv* env, jclass, jstring javaPath) {
@@ -388,8 +389,8 @@ static jboolean File_createNewFileImpl(JNIEnv* env, jclass, jstring javaPath) {
         return JNI_FALSE;
     }
 
-    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
+    // On Android, we don't want default permissions to allow global access.
+    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL, 0600));
     if (fd.get() != -1) {
         // We created a new file. Success!
         return JNI_TRUE;
