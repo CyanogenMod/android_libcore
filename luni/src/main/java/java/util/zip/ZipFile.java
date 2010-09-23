@@ -329,7 +329,7 @@ public class ZipFile implements ZipConstants {
 
         while (true) {
             mRaf.seek(scanOffset);
-            if (ZipEntry.readIntLE(mRaf) == 101010256L) {
+            if (Integer.reverseBytes(mRaf.readInt()) == 101010256L) {
                 break;
             }
 

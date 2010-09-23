@@ -426,21 +426,6 @@ public class ZipEntry implements ZipConstants, Cloneable {
         }
     }
 
-    /*
-     * Read a four-byte int in little-endian order.
-     */
-    static long readIntLE(RandomAccessFile raf) throws IOException {
-        int b0 = raf.read();
-        int b1 = raf.read();
-        int b2 = raf.read();
-        int b3 = raf.read();
-
-        if (b3 < 0) {
-            throw new EOFException("in ZipEntry.readIntLE(RandomAccessFile)");
-        }
-        return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24); // ATTENTION: DOES SIGN EXTENSION: IS THIS WANTED?
-    }
-
     static class LittleEndianReader {
         private byte[] b = new byte[4];
         byte[] hdrBuf = new byte[CENHDR];
