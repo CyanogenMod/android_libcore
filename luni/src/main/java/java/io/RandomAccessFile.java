@@ -369,7 +369,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 16-bit character from the current position in this file. Blocks until
+     * Reads a big-endian 16-bit character from the current position in this file. Blocks until
      * two bytes have been read, the end of the file is reached or an exception is
      * thrown.
      *
@@ -389,7 +389,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 64-bit double from the current position in this file. Blocks
+     * Reads a big-endian 64-bit double from the current position in this file. Blocks
      * until eight bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -405,7 +405,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 32-bit float from the current position in this file. Blocks
+     * Reads a big-endian 32-bit float from the current position in this file. Blocks
      * until four bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -485,7 +485,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 32-bit integer from the current position in this file. Blocks
+     * Reads a big-endian 32-bit integer from the current position in this file. Blocks
      * until four bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -550,7 +550,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 64-bit long from the current position in this file. Blocks until
+     * Reads a big-endian 64-bit long from the current position in this file. Blocks until
      * eight bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -575,7 +575,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 16-bit short from the current position in this file. Blocks until
+     * Reads a big-endian 16-bit short from the current position in this file. Blocks until
      * two bytes have been read, the end of the file is reached or an exception
      * is thrown.
      *
@@ -615,7 +615,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads an unsigned 16-bit short from the current position in this file and
+     * Reads an unsigned big-endian 16-bit short from the current position in this file and
      * returns it as an integer. Blocks until two bytes have been read, the end of
      * the file is reached or an exception is thrown.
      *
@@ -825,7 +825,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a boolean to this file, starting at the current file pointer.
+     * Writes a boolean to this file as a single byte (1 for true, 0 for false), starting at the
+     * current file pointer.
      *
      * @param val
      *            the boolean to write to this file.
@@ -874,7 +875,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 16-bit character to this file, starting at the current file
+     * Writes a big-endian 16-bit character to this file, starting at the current file
      * pointer. Only the two least significant bytes of the integer {@code val}
      * are written, with the high byte first.
      *
@@ -892,9 +893,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes the 16-bit characters from a string to this file, starting at the
-     * current file pointer. Each character is written in the same way as with
-     * {@link #writeChar(int)}, with its high byte first.
+     * Writes big-endian 16-bit characters from {@code str} to this file, starting at the
+     * current file pointer.
      *
      * @param str
      *            the string to write to this file.
@@ -913,9 +913,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 64-bit double to this file, starting at the current file
-     * pointer. The eight bytes returned by
-     * {@link Double#doubleToLongBits(double)} are written to this file.
+     * Writes a big-endian 64-bit double to this file, starting at the current file
+     * pointer. The bytes are those returned by
+     * {@link Double#doubleToLongBits(double)}, meaning a canonical NaN is used.
      *
      * @param val
      *            the double to write to this file.
@@ -928,9 +928,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 32-bit float to this file, starting at the current file pointer.
-     * The four bytes returned by {@link Float#floatToIntBits(float)} are
-     * written to this file.
+     * Writes a big-endian 32-bit float to this file, starting at the current file pointer.
+     * The bytes are those returned by {@link Float#floatToIntBits(float)}, meaning a canonical NaN
+     * is used.
      *
      * @param val
      *            the float to write to this file.
@@ -943,9 +943,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 32-bit integer to this file, starting at the current file
-     * pointer. The four bytes of the integer are written with the highest byte
-     * first.
+     * Writes a big-endian 32-bit integer to this file, starting at the current file
+     * pointer.
      *
      * @param val
      *            the int to write to this file.
@@ -963,9 +962,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 64-bit long to this file, starting at the current file
-     * pointer. The eight bytes of the long are written with the highest byte
-     * first.
+     * Writes a big-endian 64-bit long to this file, starting at the current file
+     * pointer.
      *
      * @param val
      *            the long to write to this file.
@@ -988,9 +986,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 16-bit short to this file, starting at the current file
+     * Writes a big-endian 16-bit short to this file, starting at the current file
      * pointer. Only the two least significant bytes of the integer {@code val}
-     * are written, with the high byte first.
+     * are written.
      *
      * @param val
      *            the short to write to this file.
