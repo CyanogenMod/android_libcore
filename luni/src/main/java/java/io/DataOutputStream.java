@@ -26,12 +26,12 @@ package java.io;
  * @see DataInputStream
  */
 public class DataOutputStream extends FilterOutputStream implements DataOutput {
+    private final byte[] buff = new byte[8];
 
     /**
      * The number of bytes written out so far.
      */
     protected int written;
-    byte[] buff;
 
     /**
      * Constructs a new {@code DataOutputStream} on the {@code OutputStream}
@@ -44,7 +44,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      */
     public DataOutputStream(OutputStream out) {
         super(out);
-        buff = new byte[8];
     }
 
     /**
@@ -278,8 +277,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 8;
     }
 
-    int writeLongToBuffer(long val,
-                          byte[] buffer, int offset) throws IOException {
+    int writeLongToBuffer(long val, byte[] buffer, int offset) throws IOException {
         buffer[offset++] = (byte) (val >> 56);
         buffer[offset++] = (byte) (val >> 48);
         buffer[offset++] = (byte) (val >> 40);
@@ -310,8 +308,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 2;
     }
 
-    int writeShortToBuffer(int val,
-                           byte[] buffer, int offset) throws IOException {
+    int writeShortToBuffer(int val, byte[] buffer, int offset) throws IOException {
         buffer[offset++] = (byte) (val >> 8);
         buffer[offset++] = (byte) val;
         return offset;
@@ -338,10 +335,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         byte[] buffer = new byte[(int)utfCount + 2];
         int offset = 0;
         offset = writeShortToBuffer((int) utfCount, buffer, offset);
-        // BEGIN android-changed
-        // removed unused parameter count
         offset = writeUTFBytesToBuffer(str, buffer, offset);
-        // BEGIN android-changed
         write(buffer, 0, offset);
     }
 
@@ -360,11 +354,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         return utfCount;
     }
 
-    int writeUTFBytesToBuffer(String str,
-            byte[] buffer, int offset) throws IOException {
-        // BEGIN android-note
-        // removed unused parameter count
-        // END android-note
+    int writeUTFBytesToBuffer(String str, byte[] buffer, int offset) throws IOException {
         int length = str.length();
         for (int i = 0; i < length; i++) {
             int charValue = str.charAt(i);
