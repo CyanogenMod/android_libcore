@@ -157,7 +157,7 @@ public class Cache {
     // END android-removed
 
     // BEGIN android-added
-   /**
+    /**
      * Creates the Cache object of size of 9.
      * @param pref_size specifies how many leading/trailing bytes of object's
      * encoded form will be used for hash computation
@@ -208,6 +208,9 @@ public class Cache {
      * otherwise.
      */
     public boolean contains(long prefix_hash) {
+        if (prefix_hash == 0) {
+            return false;
+        }
         int idx = -1*Arrays.binarySearch(hashes_idx, prefix_hash)-1;
         if (idx == cache_size) {
             return false;
@@ -229,6 +232,9 @@ public class Cache {
      */
     public Object get(long hash, byte[] encoding) {
         hash |= getSuffHash(encoding);
+        if (hash == 0) {
+            return null;
+        }
         int idx = -1*Arrays.binarySearch(hashes_idx, hash)-1;
         if (idx == cache_size) {
             return null;
