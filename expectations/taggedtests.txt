@@ -1,101 +1,45 @@
-# This file contains expectations for tests that require support from the test runner to complete successfully
-
-test java.util.EnumSet.EnumSetBash
-tags large
-
-test org.apache.harmony.tests.java.util.regex.MatcherTest#testAllCodePoints
-tags large
-
-# test_SSLSocket_getSupportedCipherSuites_connect takes a long time because it tries connecting every supported cipher suite
-test libcore.javax.net.ssl.SSLSocketTest
-tags large
-
-# test_KeyAgreement takes a long time because Diffie-Hellman key generation is slow
-test org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest
-tags large
-
-# test_getParams takes a long time because Diffie-Hellman key generation is slow
-test org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest
-tags large
-
-# test_getParams takes a long time because Diffie-Hellman key generation is slow
-test org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPublicKeyTest
-tags large
-
-test java.io.PipedInputStream.CloseAndAvailableRC
-tags large
-
-test java.io.PrintStream.OversynchronizedTest
-tags large
-
-test java.io.PrintWriter.OversynchronizedTest
-tags large
-
-test java.lang.String.Split
-tags large
-
-test java.lang.ref.SoftReference.Pin
-tags large
-
-test java.math.BigInteger.BigIntegerTest
-tags large
-
-test java.net.MulticastSocket.Test
-tags large
-
-test java.net.Socket.InheritTimeout
-tags large
-
-test java.net.Socket.reset.Test
-tags large
-
-test java.net.URLConnection.TimeoutTest
-tags large
-
-test java.nio.channels.DatagramChannel.ConnectedSend
-tags large
-
-test java.nio.channels.FileChannel.ExpandingMap
-tags large
-
-test java.nio.channels.FileChannel.Transfers
-tags large
-
-test java.nio.channels.SocketChannel.Open
-tags large
-
-test java.text.Bidi.Bug6665028
-tags large
-
-test java.util.Collections.FindSubList
-tags large
-
-test java.util.Locale.Bug4518797
-tags large
-
-test java.util.ResourceBundle.Control.StressTest
-tags large
-
-test java.util.WeakHashMap.GCDuringIteration
-tags large
-
-test java.util.concurrent.FutureTask.Throw
-tags large
-
-test java.util.concurrent.locks.ReentrantReadWriteLock.MapLoops
-tags large
-
-test java.util.zip.LargeZip
-tags large
-
-test java.util.zip.ZipFile.LargeZipFile
-tags large
-
-test java.util.zip.ZipFile.ManyEntries
-tags large
-
-test sun.nio.cs.FindOneCharEncoderBugs
-tags large
-
-test sun.nio.cs.SurrogateGB18030Test
-tags large
+/*
+ * This file contains expectations for tests that require support from the test runner to complete
+ * successfully.
+ */
+[
+{
+  description: "large tests",
+  result: SUCCESS,
+  names: [
+    "java.util.EnumSet.EnumSetBash",
+    "org.apache.harmony.tests.java.util.regex.MatcherTest#testAllCodePoints",
+    "libcore.javax.net.ssl.SSLSocketTest",
+    "org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest",
+    "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest",
+    "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPublicKeyTest",
+    "java.io.PipedInputStream.CloseAndAvailableRC",
+    "java.io.PrintStream.OversynchronizedTest",
+    "java.io.PrintWriter.OversynchronizedTest",
+    "java.lang.String.Split",
+    "java.lang.ref.SoftReference.Pin",
+    "java.math.BigInteger.BigIntegerTest",
+    "java.net.MulticastSocket.Test",
+    "java.net.Socket.InheritTimeout",
+    "java.net.Socket.reset.Test",
+    "java.net.URLConnection.TimeoutTest",
+    "java.nio.channels.DatagramChannel.ConnectedSend",
+    "java.nio.channels.FileChannel.ExpandingMap",
+    "java.nio.channels.FileChannel.Transfers",
+    "java.nio.channels.SocketChannel.Open",
+    "java.text.Bidi.Bug6665028",
+    "java.util.Collections.FindSubList",
+    "java.util.Locale.Bug4518797",
+    "java.util.ResourceBundle.Control.StressTest",
+    "java.util.WeakHashMap.GCDuringIteration",
+    "java.util.concurrent.FutureTask.Throw",
+    "java.util.concurrent.locks.ReentrantReadWriteLock.MapLoops",
+    "java.util.zip.LargeZip",
+    "java.util.zip.ZipFile.LargeZipFile",
+    "java.util.zip.ZipFile.ManyEntries",
+    "sun.nio.cs.FindOneCharEncoderBugs",
+    "sun.nio.cs.SurrogateGB18030Test"
+  ],
+  "tags": [ "large" ]
+}
+]
