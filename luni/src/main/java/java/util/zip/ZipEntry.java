@@ -347,8 +347,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      *
      * On exit, "in" will be positioned at the start of the next entry.
      */
-    ZipEntry(LittleEndianReader ler, InputStream in) throws IOException {
-
+    ZipEntry(byte[] hdrBuf, InputStream in) throws IOException {
         /*
          * We're seeing performance issues when we call readShortLE and
          * readIntLE, so we're going to read the entire header at once
@@ -360,7 +359,6 @@ public class ZipEntry implements ZipConstants, Cloneable {
          * problems induced by sign extension.
          */
 
-        byte[] hdrBuf = ler.hdrBuf;
         myReadFully(in, hdrBuf);
 
         long sig = (hdrBuf[0] & 0xff) | ((hdrBuf[1] & 0xff) << 8) |
@@ -423,37 +421,6 @@ public class ZipEntry implements ZipConstants, Cloneable {
             }
             off += count;
             len -= count;
-        }
-    }
-
-    static class LittleEndianReader {
-        private byte[] b = new byte[4];
-        byte[] hdrBuf = new byte[CENHDR];
-
-        /*
-         * Read a two-byte short in little-endian order.
-         */
-        int readShortLE(InputStream in) throws IOException {
-            if (in.read(b, 0, 2) == 2) {
-                return (b[0] & 0XFF) | ((b[1] & 0XFF) << 8);
-            } else {
-                throw new EOFException("in ZipEntry.readShortLE(InputStream)");
-            }
-        }
-
-        /*
-         * Read a four-byte int in little-endian order.
-         */
-        long readIntLE(InputStream in) throws IOException {
-            if (in.read(b, 0, 4) == 4) {
-                return (   ((b[0] & 0XFF))
-                         | ((b[1] & 0XFF) << 8)
-                         | ((b[2] & 0XFF) << 16)
-                         | ((b[3] & 0XFF) << 24))
-                       & 0XFFFFFFFFL; // Here for sure NO sign extension is wanted.
-            } else {
-                throw new EOFException("in ZipEntry.readIntLE(InputStream)");
-            }
         }
     }
 }

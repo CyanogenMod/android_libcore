@@ -18,6 +18,7 @@
 package java.util.zip;
 
 import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,10 +81,7 @@ public class ZipFile implements ZipConstants {
 
     private RandomAccessFile mRaf;
 
-    private final ZipEntry.LittleEndianReader ler = new ZipEntry.LittleEndianReader();
-
-    private final LinkedHashMap<String, ZipEntry> mEntries
-            = new LinkedHashMap<String, ZipEntry>();
+    private final LinkedHashMap<String, ZipEntry> mEntries = new LinkedHashMap<String, ZipEntry>();
 
     /**
      * Constructs a new {@code ZipFile} with the specified file.
@@ -242,27 +240,24 @@ public class ZipFile implements ZipConstants {
      * @throws IllegalStateException if this ZIP file has been closed.
      */
     public InputStream getInputStream(ZipEntry entry) throws IOException {
-        /*
-         * Make sure this ZipEntry is in this Zip file.  We run it through
-         * the name lookup.
-         */
+        // Make sure this ZipEntry is in this Zip file.  We run it through the name lookup.
         entry = getEntry(entry.getName());
         if (entry == null) {
             return null;
         }
 
-        /*
-         * Create a ZipInputStream at the right part of the file.
-         */
+        // Create an InputStream at the right part of the file.
         RandomAccessFile raf = mRaf;
         synchronized (raf) {
             // We don't know the entry data's start position. All we have is the
             // position of the entry's local header. At position 28 we find the
             // length of the extra data. In some cases this length differs from
             // the one coming in the central header.
-            RAFStream rafstrm = new RAFStream(raf,
-                    entry.mLocalHeaderRelOffset + 28);
-            int localExtraLenOrWhatever = ler.readShortLE(rafstrm);
+            RAFStream rafstrm = new RAFStream(raf, entry.mLocalHeaderRelOffset + 28);
+            DataInputStream is = new DataInputStream(rafstrm);
+            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort());
+            is.close();
+
             // Skip the name and this "extra" data or whatever it is:
             rafstrm.skip(entry.nameLen + localExtraLenOrWhatever);
             rafstrm.mLength = rafstrm.mOffset + entry.compressedSize;
@@ -327,9 +322,10 @@ public class ZipFile implements ZipConstants {
             stopOffset = 0;
         }
 
+        final int ENDHEADERMAGIC = 0x06054b50;
         while (true) {
             mRaf.seek(scanOffset);
-            if (Integer.reverseBytes(mRaf.readInt()) == 101010256L) {
+            if (Integer.reverseBytes(mRaf.readInt()) == ENDHEADERMAGIC) {
                 break;
             }
 
@@ -348,19 +344,17 @@ public class ZipFile implements ZipConstants {
          * doing a read() system call every time.
          */
         RAFStream rafs = new RAFStream(mRaf, mRaf.getFilePointer());
-        BufferedInputStream bin = new BufferedInputStream(rafs, ENDHDR);
+        DataInputStream is = new DataInputStream(new BufferedInputStream(rafs, ENDHDR));
 
-        int diskNumber = ler.readShortLE(bin);
-        int diskWithCentralDir = ler.readShortLE(bin);
-        int numEntries = ler.readShortLE(bin);
-        int totalNumEntries = ler.readShortLE(bin);
-        /*centralDirSize =*/ ler.readIntLE(bin);
-        long centralDirOffset = ler.readIntLE(bin);
-        /*commentLen =*/ ler.readShortLE(bin);
+        short diskNumber = Short.reverseBytes(is.readShort());
+        short diskWithCentralDir = Short.reverseBytes(is.readShort());
+        short numEntries = Short.reverseBytes(is.readShort());
+        short totalNumEntries = Short.reverseBytes(is.readShort());
+        /*centralDirSize =*/ Integer.reverseBytes(is.readInt());
+        int centralDirOffset = Integer.reverseBytes(is.readInt());
+        /*commentLen =*/ Short.reverseBytes(is.readShort());
 
-        if (numEntries != totalNumEntries ||
-            diskNumber != 0 ||
-            diskWithCentralDir != 0) {
+        if (numEntries != totalNumEntries || diskNumber != 0 || diskWithCentralDir != 0) {
             throw new ZipException("spanned archives not supported");
         }
 
@@ -368,9 +362,10 @@ public class ZipFile implements ZipConstants {
          * Seek to the first CDE and read all entries.
          */
         rafs = new RAFStream(mRaf, centralDirOffset);
-        bin = new BufferedInputStream(rafs, 4096);
-        for (int i = 0; i < numEntries; i++) {
-            ZipEntry newEntry = new ZipEntry(ler, bin);
+        BufferedInputStream bin = new BufferedInputStream(rafs, 4096);
+        byte[] hdrBuf = new byte[CENHDR]; // Reuse the same buffer for each entry.
+        for (int i = 0; i < numEntries; ++i) {
+            ZipEntry newEntry = new ZipEntry(hdrBuf, bin);
             mEntries.put(newEntry.getName(), newEntry);
         }
     }
