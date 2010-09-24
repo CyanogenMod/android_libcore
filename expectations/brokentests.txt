@@ -5,11 +5,11 @@
 {
   description: "We're retiring the security manager. Unfortunately, tests all over the place
                 need to check that they're secure, so they all fail when we refuse to install
-                a security manager. This suppresses all of these failures.
-                http://b/issue?id=2585285",
+                a security manager. This suppresses all of these failures.",
   result: EXEC_FAILED,
   failure: "disable securityManager",
-  pattern: ".*java.lang.SecurityException\\s+at java.lang.System.setSecurityManager.*"
+  pattern: ".*java.lang.SecurityException\\s+at java.lang.System.setSecurityManager.*",
+  bug: 2585285
 },
 {
   description: "ignore compilation errors due to different available APIs",
