@@ -20,7 +20,6 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
@@ -41,7 +40,6 @@ public class CharsetTest extends TestCase {
      * JUnit set-up method
      */
     public void setUp() {
-        TestEnvironment.reset();
 
         // Populate the known charset vars
         Set names = Charset.availableCharsets().keySet();

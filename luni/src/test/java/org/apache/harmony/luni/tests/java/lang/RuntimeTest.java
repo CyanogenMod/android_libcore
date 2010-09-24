@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import tests.support.resource.Support_Resources;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(Runtime.class)
 public class RuntimeTest extends junit.framework.TestCase {
@@ -75,7 +74,6 @@ public class RuntimeTest extends junit.framework.TestCase {
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 

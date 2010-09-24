@@ -56,12 +56,10 @@ import java.util.UnknownFormatConversionException;
 
 import junit.framework.TestCase;
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.BrokenTest;
 import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(Formatter.class)
 public class FormatterTest extends TestCase {
@@ -4747,7 +4745,6 @@ public class FormatterTest extends TestCase {
      * Setup resource files for testing
      */
     protected void setUp() throws IOException {
-        TestEnvironment.reset();
         notExist = File.createTempFile("notexist", null);
         notExist.delete();
 
@@ -4771,7 +4768,6 @@ public class FormatterTest extends TestCase {
      * Delete the resource files if they exist
      */
     protected void tearDown() {
-        TestEnvironment.reset();
         if (notExist.exists()) {
             notExist.delete();
         }

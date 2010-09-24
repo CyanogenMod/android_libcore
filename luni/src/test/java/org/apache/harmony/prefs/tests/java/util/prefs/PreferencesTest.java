@@ -16,13 +16,11 @@
 
 package org.apache.harmony.prefs.tests.java.util.prefs;
 
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -77,7 +75,6 @@ public class PreferencesTest extends TestCase {
                 "<!DOCTYPE preferences SYSTEM \"http://java.sun.com/dtd/preferences.dtd\"><preferences><root type=\"user\"><map></map></root></preferences>"
                         .getBytes("UTF-8"));
         stream = new MockInputStream(in);
-        TestEnvironment.reset();
     }
 
     /*

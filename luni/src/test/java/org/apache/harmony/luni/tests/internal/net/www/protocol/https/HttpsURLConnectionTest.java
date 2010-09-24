@@ -18,14 +18,11 @@
 package org.apache.harmony.luni.tests.internal.net.www.protocol.https;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -840,7 +837,6 @@ public class HttpsURLConnectionTest extends TestCase {
      */
     public void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
 
         if (DO_LOG) {
             System.out.println();
@@ -869,7 +865,6 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     public void tearDown() {
-        TestEnvironment.reset();
         if (store != null) {
             store.delete();
         }

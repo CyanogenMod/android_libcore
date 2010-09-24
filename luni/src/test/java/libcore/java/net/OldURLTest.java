@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(URL.class)
 public class OldURLTest extends TestCase {
@@ -51,11 +50,9 @@ public class OldURLTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 
