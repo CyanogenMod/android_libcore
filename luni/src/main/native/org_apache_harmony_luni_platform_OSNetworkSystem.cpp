@@ -338,6 +338,8 @@ public:
             jniThrowConnectException(mEnv, -result);
         } else if (result == -EACCES) {
             jniThrowSecurityException(mEnv, -result);
+        } else if (result == -ETIMEDOUT) {
+            jniThrowSocketTimeoutException(mEnv, -result);
         } else {
             jniThrowSocketException(mEnv, -result);
         }
