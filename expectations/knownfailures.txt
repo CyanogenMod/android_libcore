@@ -3,6 +3,41 @@
  */
 [
 {
+  description: "UTF-16 and UTF-32 encoders don't write big-endian output on little-endian devices",
+  names: [
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16",
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32",
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16BE",
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16LE",
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32BE",
+    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32LE",
+    "libcore.java.nio.charset.OldCharsetTest#test_x_UTF_16LE_BOM",
+    "libcore.java.nio.charset.OldCharsetTest#test_X_UTF_32BE_BOM",
+    "libcore.java.nio.charset.OldCharsetTest#test_X_UTF_32LE_BOM"
+  ],
+  bug: 2702411
+},
+{
+  description: "Pre-NIO aliases not implemented",
+  name: "libcore.java.nio.charset.OldCharsetTest#test_preNioAliases",
+  bug: 3032697
+},
+{
+  description: "HTTPS proxy broken on host",
+  names: [
+    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testConsequentProxyConnection",
+    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection",
+    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection_doOutput",
+    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection",
+    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection_Not_Found_Response"
+  ],
+  bug: 3032875
+},
+{
+  name: "libcore.java.net.URLConnectionTest#testConnectTimeouts",
+  bug: 3032900
+},
+{
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   name: "tests.api.java.io.FileTest#test_deleteOnExit"
