@@ -21,7 +21,6 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
-import tests.util.TestEnvironment;
 
 import java.io.NotSerializableException;
 import java.util.prefs.AbstractPreferences;
@@ -39,7 +38,6 @@ public class NodeChangeEventTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     protected void tearDown() throws Exception {

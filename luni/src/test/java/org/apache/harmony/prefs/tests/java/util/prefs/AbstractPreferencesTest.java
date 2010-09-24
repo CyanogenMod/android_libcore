@@ -21,7 +21,6 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,7 +50,6 @@ public class AbstractPreferencesTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
 
         root = (AbstractPreferences) Preferences.userRoot();
         parent = (AbstractPreferences) Preferences.userNodeForPackage(this.getClass());

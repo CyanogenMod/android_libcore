@@ -24,18 +24,15 @@ import junit.framework.TestCase;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLReaderFactory;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(XMLReaderFactory.class)
 public class XMLReaderFactoryTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
-        TestEnvironment.reset();
         super.setUp();
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 

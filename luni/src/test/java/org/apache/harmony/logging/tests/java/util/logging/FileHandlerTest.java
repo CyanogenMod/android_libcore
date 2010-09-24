@@ -20,14 +20,12 @@ package org.apache.harmony.logging.tests.java.util.logging;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FilePermission;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.security.Permission;
 import java.util.Properties;
 import java.util.logging.FileHandler;
@@ -44,7 +42,6 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.logging.tests.java.util.logging.HandlerTest.NullOutputStream;
 import org.apache.harmony.logging.tests.java.util.logging.util.EnvironmentHelper;
-import tests.util.TestEnvironment;
 
 /**
  */
@@ -75,7 +72,6 @@ public class FileHandlerTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
         manager.reset();
 
         //initProp
@@ -119,7 +115,6 @@ public class FileHandlerTest extends TestCase {
         }
         reset(TEMPPATH + SEP + "log", "");
         System.setErr(err);
-        TestEnvironment.reset();
         super.tearDown();
     }
 

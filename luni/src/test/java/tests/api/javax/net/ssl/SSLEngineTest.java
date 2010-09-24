@@ -24,22 +24,15 @@ import java.nio.channels.Pipe;
 import java.nio.channels.Pipe.SinkChannel;
 import java.nio.channels.Pipe.SourceChannel;
 import java.security.KeyManagementException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 
 import junit.framework.TestCase;
@@ -49,7 +42,6 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import tests.util.TestEnvironment;
 
 
 /**
@@ -64,7 +56,6 @@ public class SSLEngineTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     /**
