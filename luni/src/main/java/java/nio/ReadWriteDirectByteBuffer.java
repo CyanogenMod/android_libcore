@@ -17,9 +17,7 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.luni.platform.PlatformAddressFactory;
-// END android-added
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * DirectByteBuffer, ReadWriteDirectByteBuffer and ReadOnlyDirectByteBuffer
@@ -33,41 +31,28 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  * </p>
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
-
     static ReadWriteDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(
-                other.safeAddress, other.capacity(), other.offset);
-        buf.limit = other.limit();
+        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(other.block, other.capacity(), other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         buf.order(other.order());
         return buf;
     }
 
+    // Used by ByteBuffer.allocateDirect.
     ReadWriteDirectByteBuffer(int capacity) {
-        super(capacity);
+        super(MemoryBlock.malloc(capacity), capacity, 0);
     }
 
-    // BEGIN android-added
-    ReadWriteDirectByteBuffer(int pointer, int capacity) {
-        this(PlatformAddressFactory.on(pointer, capacity),capacity,0);
-    }
-    // END android-added
-
-    ReadWriteDirectByteBuffer(SafeAddress address, int capacity, int offset) {
-        super(address, capacity, offset);
+    // Used by the JNI NewDirectByteBuffer function.
+    ReadWriteDirectByteBuffer(int address, int capacity) {
+        super(MemoryBlock.wrapFromJni(address, capacity), capacity, 0);
     }
 
-    ReadWriteDirectByteBuffer(PlatformAddress address, int aCapacity,
-            int anOffset) {
-        super(new SafeAddress(address), aCapacity, anOffset);
+    ReadWriteDirectByteBuffer(MemoryBlock block, int capacity, int offset) {
+        super(block, capacity, offset);
     }
-
-    // BEGIN android-added
-    int getAddress() {
-        return this.safeAddress.address.toInt();
-    }
-    // END android-added
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
@@ -76,8 +61,8 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer compact() {
-        PlatformAddress effectiveAddress = getEffectiveAddress();
-        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress, remaining());
+        int addr = effectiveDirectAddress;
+        OSMemory.memmove(addr, addr + position, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
@@ -99,7 +84,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setByte(offset + position++, value);
+        this.block.pokeByte(offset + position++, value);
         return this;
     }
 
@@ -108,257 +93,177 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setByte(offset + index, value);
+        this.block.pokeByte(offset + index, value);
         return this;
     }
-
-    /*
-     * Override ByteBuffer.put(byte[], int, int) to improve performance.
-     *
-     * (non-Javadoc)
-     *
-     * @see java.nio.ByteBuffer#put(byte[], int, int)
-     */
-    @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
-        int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (len > remaining()) {
-            throw new BufferOverflowException();
-        }
-        getBaseAddress().setByteArray(offset + position, src, off, len);
-        position += len;
-        return this;
-    }
-
-    // BEGIN android-added
-    /**
-     * Writes <code>short</code>s in the given short array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>short</code>s written.
-     *
-     * @param src
-     *            The source short array
-     * @param off
-     *            The offset of short array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>short</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
-    ByteBuffer put(short[] src, int off, int len) {
-        int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (len << 1 > remaining()) {
-            throw new BufferOverflowException();
-        }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setShortArray(offset + position, src, off, len, swap);
-        position += len << 1;
-        return this;
-    }
-
-    /**
-     * Writes <code>int</code>s in the given int array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>int</code>s written.
-     *
-     * @param src
-     *            The source int array
-     * @param off
-     *            The offset of int array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>int</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
-    ByteBuffer put(int[] src, int off, int len) {
-        int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (len << 2 > remaining()) {
-            throw new BufferOverflowException();
-        }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setIntArray(offset + position, src, off, len, swap);
-        position += len << 2;
-        return this;
-    }
-
-    /**
-     * Writes <code>float</code>s in the given float array, starting from the
-     * specified offset, to the current position and increase the position by
-     * the number of <code>float</code>s written.
-     *
-     * @param src
-     *            The source float array
-     * @param off
-     *            The offset of float array, must be no less than zero and no
-     *            greater than <code>src.length</code>
-     * @param len
-     *            The number of <code>float</code>s to write, must be no less
-     *            than zero and no greater than <code>src.length - off</code>
-     * @return This buffer
-     * @exception BufferOverflowException
-     *                If <code>remaining()</code> is less than
-     *                <code>len</code>
-     * @exception IndexOutOfBoundsException
-     *                If either <code>off</code> or <code>len</code> is
-     *                invalid
-     * @exception ReadOnlyBufferException
-     *                If no changes may be made to the contents of this buffer
-     */
-    ByteBuffer put(float[] src, int off, int len) {
-        int length = src.length;
-        if (off < 0 || len < 0 || (long)off + (long)len > length) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (len << 2 > remaining()) {
-            throw new BufferOverflowException();
-        }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setFloatArray(offset + position, src, off, len, swap);
-        position += len << 2;
-        return this;
-    }
-    // END android-added
 
     @Override
-    public ByteBuffer putDouble(double value) {
-        int newPosition = position + 8;
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
+        checkPutBounds(1, src.length, srcOffset, byteCount);
+        this.block.pokeByteArray(offset + position, src, srcOffset, byteCount);
+        position += byteCount;
+        return this;
+    }
+
+    final void put(char[] src, int srcOffset, int charCount) {
+        int byteCount = checkPutBounds(SIZEOF_CHAR, src.length, srcOffset, charCount);
+        this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(double[] src, int srcOffset, int doubleCount) {
+        int byteCount = checkPutBounds(SIZEOF_DOUBLE, src.length, srcOffset, doubleCount);
+        this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(float[] src, int srcOffset, int floatCount) {
+        int byteCount = checkPutBounds(SIZEOF_FLOAT, src.length, srcOffset, floatCount);
+        this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(int[] src, int srcOffset, int intCount) {
+        int byteCount = checkPutBounds(SIZEOF_INT, src.length, srcOffset, intCount);
+        this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(long[] src, int srcOffset, int longCount) {
+        int byteCount = checkPutBounds(SIZEOF_LONG, src.length, srcOffset, longCount);
+        this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(short[] src, int srcOffset, int shortCount) {
+        int byteCount = checkPutBounds(SIZEOF_SHORT, src.length, srcOffset, shortCount);
+        this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
+        position += byteCount;
+    }
+
+    @Override
+    public ByteBuffer putChar(char value) {
+        int newPosition = position + SIZEOF_CHAR;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setDouble(offset + position, value, order);
+        this.block.pokeShort(offset + position, (short) value, order);
+        position = newPosition;
+        return this;
+    }
+
+    @Override
+    public ByteBuffer putChar(int index, char value) {
+        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+            throw new IndexOutOfBoundsException();
+        }
+        this.block.pokeShort(offset + index, (short) value, order);
+        return this;
+    }
+
+    @Override
+    public ByteBuffer putDouble(double value) {
+        int newPosition = position + SIZEOF_DOUBLE;
+        if (newPosition > limit) {
+            throw new BufferOverflowException();
+        }
+        this.block.pokeLong(offset + position, Double.doubleToRawLongBits(value), order);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putDouble(int index, double value) {
-        if (index < 0 || (long) index + 8 > limit) {
+        if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setDouble(offset + index, value, order);
+        this.block.pokeLong(offset + index, Double.doubleToRawLongBits(value), order);
         return this;
     }
 
     @Override
     public ByteBuffer putFloat(float value) {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_FLOAT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setFloat(offset + position, value, order);
+        this.block.pokeInt(offset + position, Float.floatToRawIntBits(value), order);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        if (index < 0 || (long) index + 4 > limit) {
+        if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setFloat(offset + index, value, order);
+        this.block.pokeInt(offset + index, Float.floatToRawIntBits(value), order);
         return this;
     }
 
     @Override
     public ByteBuffer putInt(int value) {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_INT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setInt(offset + position, value, order);
+        this.block.pokeInt(offset + position, value, order);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + 4 > limit) {
+        if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setInt(offset + index, value, order);
+        this.block.pokeInt(offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(long value) {
-        int newPosition = position + 8;
+        int newPosition = position + SIZEOF_LONG;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setLong(offset + position, value, order);
+        this.block.pokeLong(offset + position, value, order);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + 8 > limit) {
+        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setLong(offset + index, value, order);
+        this.block.pokeLong(offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer putShort(short value) {
-        int newPosition = position + 2;
+        int newPosition = position + SIZEOF_SHORT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        getBaseAddress().setShort(offset + position, value, order);
+        this.block.pokeShort(offset + position, value, order);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + 2 > limit) {
+        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        getBaseAddress().setShort(offset + index, value, order);
+        this.block.pokeShort(offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer slice() {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(
-                safeAddress, remaining(), offset + position);
+        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(block, remaining(), offset + position);
         buf.order = order;
         return buf;
     }

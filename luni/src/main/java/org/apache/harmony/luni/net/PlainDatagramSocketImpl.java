@@ -28,7 +28,6 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -43,19 +42,9 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private static final int SO_BROADCAST = 32;
 
-    static final int TCP_NODELAY = 4;
-
     final static int IP_MULTICAST_TTL = 17;
 
-    private byte[] ipaddress = { 0, 0, 0, 0 };
-
-    private INetworkSystem netImpl = Platform.getNetworkSystem();
-
     private volatile boolean isNativeConnected;
-
-    private boolean streaming = true;
-
-    private boolean shutdownInput;
 
     /**
      * used to keep address to which the socket was connected to at the native
@@ -78,50 +67,45 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        netImpl.bind(fd, addr, port);
-        if (0 != port) {
+        Platform.NETWORK.bind(fd, addr, port);
+        if (port != 0) {
             localPort = port;
         } else {
-            localPort = netImpl.getSocketLocalPort(fd);
+            localPort = Platform.NETWORK.getSocketLocalPort(fd);
         }
 
         try {
-            // Ignore failures
             setOption(SO_BROADCAST, Boolean.TRUE);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
     @Override
-    public void close() {
-        synchronized (fd) {
-            if (fd.valid()) {
-                try {
-                    netImpl.close(fd);
-                } catch (IOException e) {
-                }
-                fd = new FileDescriptor();
-            }
+    public synchronized void close() {
+        try {
+            Platform.NETWORK.close(fd);
+        } catch (IOException ignored) {
         }
     }
 
     @Override
     public void create() throws SocketException {
-        netImpl.socket(fd, false);
+        Platform.NETWORK.socket(fd, false);
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         close();
     }
 
     public Object getOption(int optID) throws SocketException {
-        return netImpl.getSocketOption(fd, optID);
+        return Platform.NETWORK.getSocketOption(fd, optID);
     }
 
     @Override
     public int getTimeToLive() throws IOException {
-        return ((Integer) getOption(IP_MULTICAST_TTL)).intValue();
+        return (Integer) getOption(IP_MULTICAST_TTL);
     }
 
     @Override
@@ -161,12 +145,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         byte[] bytes = new byte[0];
         DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
         int result = peekData(packet);
-        netImpl.setInetAddress(sender, packet.getAddress().getAddress());
+        Platform.NETWORK.setInetAddress(sender, packet.getAddress().getAddress());
         return result;
     }
 
     private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
-        netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
+        Platform.NETWORK.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
                 isNativeConnected);
         if (isNativeConnected) {
             updatePacketRecvAddress(pack);
@@ -188,11 +172,11 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void send(DatagramPacket packet) throws IOException {
         int port = isNativeConnected ? 0 : packet.getPort();
         InetAddress address = isNativeConnected ? null : packet.getAddress();
-        netImpl.send(fd, packet.getData(), packet.getOffset(), packet.getLength(), port, address);
+        Platform.NETWORK.send(fd, packet.getData(), packet.getOffset(), packet.getLength(), port, address);
     }
 
     public void setOption(int optID, Object val) throws SocketException {
-        netImpl.setSocketOption(fd, optID, val);
+        Platform.NETWORK.setSocketOption(fd, optID, val);
     }
 
     @Override
@@ -207,7 +191,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-        netImpl.connect(fd, inetAddr, port, 0);
+        Platform.NETWORK.connect(fd, inetAddr, port, 0);
 
         // if we get here then we are connected at the native level
         try {
@@ -224,10 +208,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     @Override
     public void disconnect() {
         try {
-            netImpl.disconnectDatagram(fd);
-        } catch (Exception e) {
-            // there is currently no way to return an error so just eat any
-            // exception
+            Platform.NETWORK.disconnectDatagram(fd);
+        } catch (Exception ignored) {
         }
         connectedPort = -1;
         connectedAddress = null;

@@ -308,7 +308,7 @@ public abstract class Charset implements Comparable<Charset> {
      * Equivalent to {@code forName} but only throws {@code UnsupportedEncodingException},
      * which is all pre-nio code claims to throw.
      *
-     * @hide
+     * @hide internal use only
      */
     public static Charset forNameUEE(String charsetName) throws UnsupportedEncodingException {
         try {

@@ -220,7 +220,7 @@ public final class BlockGuard {
             mFileSystem.truncate(fileDescriptor, size);
         }
 
-        public int getAllocGranularity() throws IOException {
+        public int getAllocGranularity() {
             return mFileSystem.getAllocGranularity();
         }
 

@@ -32,9 +32,9 @@ package java.nio;
 final class ReadOnlyHeapByteBuffer extends HeapByteBuffer {
 
     static ReadOnlyHeapByteBuffer copy(HeapByteBuffer other, int markOfOther) {
-        ReadOnlyHeapByteBuffer buf = new ReadOnlyHeapByteBuffer(
-                other.backingArray, other.capacity(), other.offset);
-        buf.limit = other.limit();
+        ReadOnlyHeapByteBuffer buf = new ReadOnlyHeapByteBuffer(other.backingArray,
+                other.capacity(), other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         buf.order(other.order());
@@ -91,7 +91,7 @@ final class ReadOnlyHeapByteBuffer extends HeapByteBuffer {
     }
 
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
         throw new ReadOnlyBufferException();
     }
 

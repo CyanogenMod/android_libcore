@@ -18,36 +18,25 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "java_lang_Double.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
-
-union Double {
-    uint64_t bits;
-    double d;
-};
 
 static const jlong NaN = 0x7ff8000000000000ULL;
 
-static jlong Double_doubleToLongBits(JNIEnv*, jclass, jdouble val) {
-    Double d;
-    d.d = val;
+static jlong Double_doubleToLongBits(JNIEnv*, jclass, jdouble doubleValue) {
     //  For this method all values in the NaN range are normalized to the canonical NaN value.
-    return isnan(d.d) ? NaN : d.bits;
+    return isnan(doubleValue) ? NaN : Double::doubleToRawLongBits(doubleValue);
 }
 
-static jlong Double_doubleToRawLongBits(JNIEnv*, jclass, jdouble val) {
-    Double d;
-    d.d = val;
-    return d.bits;
+static jlong Double_doubleToRawLongBits(JNIEnv*, jclass, jdouble doubleValue) {
+    return Double::doubleToRawLongBits(doubleValue);
 }
 
-static jdouble Double_longBitsToDouble(JNIEnv*, jclass, jlong val) {
-    Double d;
-    d.bits = val;
-    return d.d;
+static jdouble Double_longBitsToDouble(JNIEnv*, jclass, jlong bits) {
+    return Double::longBitsToDouble(bits);
 }
 
 static JNINativeMethod gMethods[] = {

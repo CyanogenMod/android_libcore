@@ -42,11 +42,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      */
     private List<SelectionKey> keyList = new ArrayList<SelectionKey>();
 
-    // Marker class so lock type shows up in profilers
-    static private class BlockingLock {
-    }
-
-    private final Object blockingLock = new BlockingLock();
+    private final Object blockingLock = new Object();
 
     boolean isBlocking = true;
 

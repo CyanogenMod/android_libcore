@@ -16,13 +16,10 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.nio.internal.DirectBuffer;
-
 /**
  * This class is used via JNI by code in frameworks/base/.
  */
-class NIOAccess {
+final class NIOAccess {
 
     /**
      * Returns the underlying native pointer to the data of the given
@@ -36,26 +33,11 @@ class NIOAccess {
      * position, or 0 if there is none
      */
     static long getBasePointer(Buffer b) {
-        if (b instanceof DirectBuffer) {
-            PlatformAddress address = ((DirectBuffer) b).getEffectiveAddress();
-            if (address == null) {
-                return 0L;
-            }
-            return address.toInt() + (b.position() << b._elementSizeShift);
+        int address = b.effectiveDirectAddress;
+        if (address == 0) {
+            return 0L;
         }
-        return 0L;
-    }
-
-    /**
-     * Returns the number of bytes remaining in the given Buffer. That is,
-     * this scales <code>remaining()</code> by the byte-size of elements
-     * of this Buffer.
-     *
-     * @param Buffer b the Buffer to be queried
-     * @return the number of remaining bytes
-     */
-    static int getRemainingBytes(Buffer b) {
-        return (b.limit - b.position) << b._elementSizeShift;
+        return address + (b.position << b._elementSizeShift);
     }
 
     /**

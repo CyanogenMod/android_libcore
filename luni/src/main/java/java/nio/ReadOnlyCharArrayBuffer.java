@@ -32,9 +32,9 @@ package java.nio;
 final class ReadOnlyCharArrayBuffer extends CharArrayBuffer {
 
     static ReadOnlyCharArrayBuffer copy(CharArrayBuffer other, int markOfOther) {
-        ReadOnlyCharArrayBuffer buf = new ReadOnlyCharArrayBuffer(other
-                .capacity(), other.backingArray, other.offset);
-        buf.limit = other.limit();
+        ReadOnlyCharArrayBuffer buf = new ReadOnlyCharArrayBuffer(other.capacity(),
+                other.backingArray, other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         return buf;
@@ -90,7 +90,7 @@ final class ReadOnlyCharArrayBuffer extends CharArrayBuffer {
     }
 
     @Override
-    public final CharBuffer put(char[] src, int off, int len) {
+    public final CharBuffer put(char[] src, int srcOffset, int charCount) {
         throw new ReadOnlyBufferException();
     }
 

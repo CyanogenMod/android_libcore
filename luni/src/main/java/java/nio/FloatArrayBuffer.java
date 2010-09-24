@@ -66,16 +66,16 @@ abstract class FloatArrayBuffer extends FloatBuffer {
     }
 
     @Override
-    public final FloatBuffer get(float[] dst, int off, int len) {
+    public final FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
         int length = dst.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (dstOffset < 0 || floatCount < 0 || (long) dstOffset + (long) floatCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (floatCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dst, off, len);
-        position += len;
+        System.arraycopy(backingArray, offset + position, dst, dstOffset, floatCount);
+        position += floatCount;
         return this;
     }
 

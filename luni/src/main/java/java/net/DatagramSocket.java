@@ -45,10 +45,7 @@ public class DatagramSocket {
 
     private boolean isClosed = false;
 
-    private static class Lock {
-    }
-
-    private Object lock = new Lock();
+    private Object lock = new Object();
 
     /**
      * Constructs a UDP datagram socket which is bound to any available port on

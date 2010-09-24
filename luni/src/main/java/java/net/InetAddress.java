@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -135,8 +134,6 @@ import org.apache.harmony.luni.util.PriviAction;
 public class InetAddress implements Serializable {
     /** Our Java-side DNS cache. */
     private static final AddressCache addressCache = new AddressCache();
-
-    private final static INetworkSystem NETIMPL = Platform.getNetworkSystem();
 
     private static final String ERRMSG_CONNECTION_REFUSED = "Connection refused";
 
@@ -863,12 +860,12 @@ public class InetAddress implements Serializable {
             throws IOException {
         FileDescriptor fd = new FileDescriptor();
         boolean reached = false;
-        NETIMPL.socket(fd, true);
+        Platform.NETWORK.socket(fd, true);
         try {
             if (null != source) {
-                NETIMPL.bind(fd, source, 0);
+                Platform.NETWORK.bind(fd, source, 0);
             }
-            NETIMPL.connect(fd, destination, 7, timeout);
+            Platform.NETWORK.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
@@ -877,7 +874,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        NETIMPL.close(fd);
+        Platform.NETWORK.close(fd);
 
         return reached;
     }

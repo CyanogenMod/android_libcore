@@ -30,7 +30,7 @@ import java.nio.charset.ModifiedUtf8;
  */
 public class DataInputStream extends FilterInputStream implements DataInput {
 
-    byte[] buff;
+    private final byte[] buff = new byte[8];
 
     /**
      * Constructs a new DataInputStream on the InputStream {@code in}. All
@@ -48,7 +48,6 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      */
     public DataInputStream(InputStream in) {
         super(in);
-        buff = new byte[8];
     }
 
     /**
@@ -90,8 +89,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      * @see DataOutput#write(byte[], int, int)
      */
     @Override
-    public final int read(byte[] buffer, int offset, int length)
-            throws IOException {
+    public final int read(byte[] buffer, int offset, int length) throws IOException {
         return in.read(buffer, offset, length);
     }
 

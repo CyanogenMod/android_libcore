@@ -41,12 +41,22 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
     }
 
     // For all the guaranteed built-in charsets, check that we have the right default replacements.
-    public void test_defaultReplacementBytes() throws Exception {
+    public void test_defaultReplacementBytesIso_8859_1() throws Exception {
         assertReplacementBytesForEncoder("ISO-8859-1", new byte[] { (byte) '?' });
+    }
+    public void test_defaultReplacementBytesUs_Ascii() throws Exception {
         assertReplacementBytesForEncoder("US-ASCII", new byte[] { (byte) '?' });
+    }
+    public void test_defaultReplacementBytesUtf_16() throws Exception {
         assertReplacementBytesForEncoder("UTF-16", new byte[] { (byte) 0xff, (byte) 0xfd });
+    }
+    public void test_defaultReplacementBytesUtf_16be() throws Exception {
         assertReplacementBytesForEncoder("UTF-16BE", new byte[] { (byte) 0xff, (byte) 0xfd });
+    }
+    public void test_defaultReplacementBytesUtf_16le() throws Exception {
         assertReplacementBytesForEncoder("UTF-16LE", new byte[] { (byte) 0xfd, (byte) 0xff });
+    }
+    public void test_defaultReplacementBytesUtf_8() throws Exception {
         assertReplacementBytesForEncoder("UTF-8", new byte[] { (byte) '?' });
     }
 }

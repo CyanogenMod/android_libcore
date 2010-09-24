@@ -408,8 +408,24 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
     if (path.c_str() == NULL) {
         return -1;
     }
-    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
-    if (rc == -1) {
+    jint fd = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
+
+    // Posix open(2) fails with EISDIR only if you ask for write permission.
+    // Java disallows reading directories too.
+    if (fd != -1) {
+        struct stat sb;
+        int rc = fstat(fd, &sb);
+        if (rc == -1 || S_ISDIR(sb.st_mode)) {
+            // Use EISDIR if that was the case; fail with the fstat(2) error otherwise.
+            close(fd);
+            fd = -1;
+            if (S_ISDIR(sb.st_mode)) {
+                errno = EISDIR;
+            }
+        }
+    }
+
+    if (fd == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
         const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
@@ -422,7 +438,7 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
         // failure. (This appears to be true of the RI too.)
         jniThrowException(env, "java/io/FileNotFoundException", &message[0]);
     }
-    return rc;
+    return fd;
 }
 
 static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {

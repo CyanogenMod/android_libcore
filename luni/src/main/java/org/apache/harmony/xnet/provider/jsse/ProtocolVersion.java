@@ -112,13 +112,13 @@ public class ProtocolVersion {
     /**
      * SSL 3.0 protocol version
      */
-    public static ProtocolVersion SSLv3 = new ProtocolVersion("SSLv3",
+    public static final ProtocolVersion SSLv3 = new ProtocolVersion("SSLv3",
             new byte[] { 3, 0 });
 
     /**
      * TLS 1.0 protocol version
      */
-    public static ProtocolVersion TLSv1 = new ProtocolVersion("TLSv1",
+    public static final ProtocolVersion TLSv1 = new ProtocolVersion("TLSv1",
             new byte[] { 3, 1 });
 
     static {
@@ -141,18 +141,5 @@ public class ProtocolVersion {
     private ProtocolVersion(String name, byte[] version) {
         this.name = name;
         this.version = version;
-    }
-
-    /**
-     * Compares this ProtocolVersion to the specified object.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof ProtocolVersion
-                && this.version[0] == ((ProtocolVersion) o).version[0]
-                && this.version[1] == ((ProtocolVersion) o).version[1]) {
-            return true;
-        }
-        return false;
     }
 }

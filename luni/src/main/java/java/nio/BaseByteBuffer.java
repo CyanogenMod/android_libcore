@@ -22,8 +22,8 @@ package java.nio;
  */
 abstract class BaseByteBuffer extends ByteBuffer {
 
-    protected BaseByteBuffer(int capacity) {
-        super(capacity);
+    protected BaseByteBuffer(int capacity, MemoryBlock block) {
+        super(capacity, block);
     }
 
     @Override
@@ -57,22 +57,22 @@ abstract class BaseByteBuffer extends ByteBuffer {
     }
 
     @Override
-    public final char getChar() {
+    public char getChar() {
         return (char) getShort();
     }
 
     @Override
-    public final char getChar(int index) {
+    public char getChar(int index) {
         return (char) getShort(index);
     }
 
     @Override
-    public final ByteBuffer putChar(char value) {
+    public ByteBuffer putChar(char value) {
         return putShort((short) value);
     }
 
     @Override
-    public final ByteBuffer putChar(int index, char value) {
+    public ByteBuffer putChar(int index, char value) {
         return putShort(index, (short) value);
     }
 }

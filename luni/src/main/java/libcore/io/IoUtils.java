@@ -19,6 +19,7 @@ package libcore.io;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public final class IoUtils {
     private IoUtils() {
@@ -71,4 +72,19 @@ public final class IoUtils {
      * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
     public static native void setBlocking(FileDescriptor fd, boolean blocking) throws IOException;
+
+    /**
+     * Returns the contents of 'path' as a byte array.
+     */
+    public static byte[] readFileAsByteArray(String path) throws IOException {
+        RandomAccessFile f = null;
+        try {
+            f = new RandomAccessFile(path, "r");
+            byte[] buf = new byte[(int) f.length()];
+            f.readFully(buf);
+            return buf;
+        } finally {
+            IoUtils.closeQuietly(f);
+        }
+    }
 }

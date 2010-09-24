@@ -16,6 +16,8 @@
 
 package java.nio;
 
+import org.apache.harmony.luni.platform.OSMemory;
+
 /**
  * HeapByteBuffer, ReadWriteHeapByteBuffer and ReadOnlyHeapByteBuffer compose
  * the implementation of array based byte buffers.
@@ -30,9 +32,9 @@ package java.nio;
 final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     static ReadWriteHeapByteBuffer copy(HeapByteBuffer other, int markOfOther) {
-        ReadWriteHeapByteBuffer buf = new ReadWriteHeapByteBuffer(
-                other.backingArray, other.capacity(), other.offset);
-        buf.limit = other.limit();
+        ReadWriteHeapByteBuffer buf = new ReadWriteHeapByteBuffer(other.backingArray,
+                other.capacity(), other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         buf.order(other.order());
@@ -58,8 +60,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
@@ -109,26 +110,67 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         return this;
     }
 
-    /*
-     * Override ByteBuffer.put(byte[], int, int) to improve performance.
-     *
-     * (non-Javadoc)
-     *
-     * @see java.nio.ByteBuffer#put(byte[], int, int)
-     */
     @Override
-    public ByteBuffer put(byte[] src, int off, int len) {
-        if (off < 0 || len < 0 || (long) off + (long) len > src.length) {
+    public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
+        checkPutBounds(1, src.length, srcOffset, byteCount);
+        System.arraycopy(src, srcOffset, backingArray, offset + position, byteCount);
+        position += byteCount;
+        return this;
+    }
+
+    final void put(char[] src, int srcOffset, int charCount) {
+        int byteCount = checkPutBounds(SIZEOF_CHAR, src.length, srcOffset, charCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_CHAR, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(double[] src, int srcOffset, int doubleCount) {
+        int byteCount = checkPutBounds(SIZEOF_DOUBLE, src.length, srcOffset, doubleCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_DOUBLE, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(float[] src, int srcOffset, int floatCount) {
+        int byteCount = checkPutBounds(SIZEOF_FLOAT, src.length, srcOffset, floatCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_FLOAT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(int[] src, int srcOffset, int intCount) {
+        int byteCount = checkPutBounds(SIZEOF_INT, src.length, srcOffset, intCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_INT, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(long[] src, int srcOffset, int longCount) {
+        int byteCount = checkPutBounds(SIZEOF_LONG, src.length, srcOffset, longCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_LONG, order.needsSwap);
+        position += byteCount;
+    }
+
+    final void put(short[] src, int srcOffset, int shortCount) {
+        int byteCount = checkPutBounds(SIZEOF_SHORT, src.length, srcOffset, shortCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_SHORT, order.needsSwap);
+        position += byteCount;
+    }
+
+    @Override
+    public ByteBuffer putChar(int index, char value) {
+        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        storeShort(index, (short) value);
+        return this;
+    }
+
+    @Override
+    public ByteBuffer putChar(char value) {
+        int newPosition = position + SIZEOF_CHAR;
+        if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        if (isReadOnly()) {
-            throw new ReadOnlyBufferException();
-        }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        storeShort(position, (short) value);
+        position = newPosition;
         return this;
     }
 
@@ -144,78 +186,131 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putFloat(float value) {
-        return putInt(Float.floatToIntBits(value));
+        return putInt(Float.floatToRawIntBits(value));
     }
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        return putInt(index, Float.floatToIntBits(value));
+        return putInt(index, Float.floatToRawIntBits(value));
     }
 
     @Override
     public ByteBuffer putInt(int value) {
-        int newPosition = position + 4;
+        int newPosition = position + SIZEOF_INT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeInt(position, value);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + 4 > limit) {
+        if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeInt(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + 8 > limit) {
+        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeLong(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(long value) {
-        int newPosition = position + 8;
+        int newPosition = position + SIZEOF_LONG;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeLong(position, value);
         position = newPosition;
         return this;
     }
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + 2 > limit) {
+        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        store(index, value);
+        storeShort(index, value);
         return this;
     }
 
     @Override
     public ByteBuffer putShort(short value) {
-        int newPosition = position + 2;
+        int newPosition = position + SIZEOF_SHORT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        store(position, value);
+        storeShort(position, value);
         position = newPosition;
         return this;
     }
 
+    private final void storeInt(int index, int value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            backingArray[baseOffset++] = (byte) ((value >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >>  0) & 0xff);
+        } else {
+            backingArray[baseOffset++] = (byte) ((value >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 24) & 0xff);
+        }
+    }
+
+    private final void storeLong(int index, long value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            int i = (int) (value >> 32);
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            i = (int) value;
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((i >>  0) & 0xff);
+        } else {
+            int i = (int) value;
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
+            i = (int) (value >> 32);
+            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
+            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((i >> 24) & 0xff);
+        }
+    }
+
+    private final void storeShort(int index, short value) {
+        int baseOffset = offset + index;
+        if (order == ByteOrder.BIG_ENDIAN) {
+            backingArray[baseOffset++] = (byte) ((value >> 8) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 0) & 0xff);
+        } else {
+            backingArray[baseOffset++] = (byte) ((value >> 0) & 0xff);
+            backingArray[baseOffset  ] = (byte) ((value >> 8) & 0xff);
+        }
+    }
+
     @Override
     public ByteBuffer slice() {
-        ReadWriteHeapByteBuffer slice = new ReadWriteHeapByteBuffer(
-                backingArray, remaining(), offset + position);
+        ReadWriteHeapByteBuffer slice = new ReadWriteHeapByteBuffer(backingArray, remaining(),
+                offset + position);
         slice.order = order;
         return slice;
     }

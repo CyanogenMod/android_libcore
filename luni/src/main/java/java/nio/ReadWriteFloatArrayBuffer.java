@@ -31,11 +31,10 @@ package java.nio;
  */
 final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
 
-    static ReadWriteFloatArrayBuffer copy(FloatArrayBuffer other,
-            int markOfOther) {
-        ReadWriteFloatArrayBuffer buf = new ReadWriteFloatArrayBuffer(other
-                .capacity(), other.backingArray, other.offset);
-        buf.limit = other.limit();
+    static ReadWriteFloatArrayBuffer copy(FloatArrayBuffer other, int markOfOther) {
+        ReadWriteFloatArrayBuffer buf = new ReadWriteFloatArrayBuffer(other.capacity(),
+                other.backingArray, other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         return buf;
@@ -113,23 +112,22 @@ final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
     }
 
     @Override
-    public FloatBuffer put(float[] src, int off, int len) {
+    public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) off + (long) len > length) {
+        if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (floatCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, floatCount);
+        position += floatCount;
         return this;
     }
 
     @Override
     public FloatBuffer slice() {
-        return new ReadWriteFloatArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteFloatArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

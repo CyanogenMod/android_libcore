@@ -28,7 +28,6 @@ public class AllTests {
         // $JUnit-BEGIN$
         suite.addTest(org.apache.harmony.nio_char.tests.java.nio.charset.AllTests.suite());
         suite.addTest(org.apache.harmony.nio_char.tests.java.nio.charset.spi.AllTests.suite());
-        suite.addTest(tests.api.java.nio.charset.AllTests.suite());
         // $JUnit-END$
         return suite;
     }

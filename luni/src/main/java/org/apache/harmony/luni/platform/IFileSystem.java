@@ -98,7 +98,7 @@ public interface IFileSystem {
     /**
      * Returns the granularity for virtual memory allocation.
      */
-    public int getAllocGranularity() throws IOException;
+    public int getAllocGranularity();
 
     public int open(String path, int mode) throws FileNotFoundException;
 

@@ -298,13 +298,14 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     @Override
     public int read(byte[] buffer, int start, int length) throws IOException {
         checkClosed();
-        if (inf.finished() || currentEntry == null) {
-            return -1;
-        }
         // avoid int overflow, check null buffer
         if (start > buffer.length || length < 0 || start < 0
                 || buffer.length - start < length) {
             throw new ArrayIndexOutOfBoundsException();
+        }
+
+        if (inf.finished() || currentEntry == null) {
+            return -1;
         }
 
         if (currentEntry.compressionMethod == STORED) {

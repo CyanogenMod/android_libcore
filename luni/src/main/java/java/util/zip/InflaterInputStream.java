@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
- * uncompresses data that was compressed using the <i>DEFLATE</i> algorithm
+ * decompresses data that was compressed using the <i>DEFLATE</i> algorithm
  * (see <a href="http://www.gzip.org/algorithm.txt">specification</a>).
  * Basically it wraps the {@code Inflater} class and takes care of the
  * buffering.
@@ -82,7 +82,7 @@ public class InflaterInputStream extends FilterInputStream {
      * @param is
      *            the {@code InputStream} to read data from.
      * @param inflater
-     *            the specific {@code Inflater} for uncompressing data.
+     *            the specific {@code Inflater} for decompressing data.
      */
     public InflaterInputStream(InputStream is, Inflater inflater) {
         this(is, inflater, BUF_SIZE);
@@ -95,7 +95,7 @@ public class InflaterInputStream extends FilterInputStream {
      * @param is
      *            the {@code InputStream} to read data from.
      * @param inflater
-     *            the specific {@code Inflater} for uncompressing data.
+     *            the specific {@code Inflater} for decompressing data.
      * @param bsize
      *            the size to be used for the internal buffer.
      */

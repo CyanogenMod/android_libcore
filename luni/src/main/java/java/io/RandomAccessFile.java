@@ -17,12 +17,12 @@
 
 package java.io;
 
+import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.nio.FileChannelFactory;
 
 /**
  * Allows reading from and writing to a file in a random-access manner. This is
@@ -44,13 +44,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     // initialized).
     private FileChannel channel;
 
-    private IFileSystem fileSystem = Platform.getFileSystem();
-
-    private boolean isReadOnly;
-
-    // BEGIN android-added
-    private int options;
-    // END android-added
+    private int mode;
 
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
@@ -99,15 +93,13 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public RandomAccessFile(File file, String mode) throws FileNotFoundException {
-        options = 0;
+        int options;
         fd = new FileDescriptor();
 
         if (mode.equals("r")) {
-            isReadOnly = true;
             fd.readOnly = true;
             options = IFileSystem.O_RDONLY;
         } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
-            isReadOnly = false;
             options = IFileSystem.O_RDWR;
 
             if (mode.equals("rws")) {
@@ -120,20 +112,17 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         } else {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
+        this.mode = options;
 
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkRead(file.getPath());
-            if (!isReadOnly) {
+            if (!mode.equals("r")) {
                 security.checkWrite(file.getPath());
             }
         }
 
-        fd.descriptor = fileSystem.open(file.getAbsolutePath(), options);
-        // BEGIN android-removed
-        // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-        //         options);
-        // END android-removed
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), this.mode);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -204,12 +193,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @return this file's file channel instance.
      */
     public final synchronized FileChannel getChannel() {
-        // BEGIN android-added
         if(channel == null) {
-            channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
-                    options);
+            channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
         }
-        // END android-added
         return channel;
     }
 
@@ -238,7 +224,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long getFilePointer() throws IOException {
         openCheck();
-        return fileSystem.seek(fd.descriptor, 0L, IFileSystem.SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(fd.descriptor, 0L, IFileSystem.SEEK_CUR);
     }
 
     /**
@@ -263,7 +249,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long length() throws IOException {
         openCheck();
-        return fileSystem.length(fd.descriptor);
+        return Platform.FILE_SYSTEM.length(fd.descriptor);
     }
 
     /**
@@ -279,7 +265,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public int read() throws IOException {
         openCheck();
         byte[] bytes = new byte[1];
-        long byteCount = fileSystem.read(fd.descriptor, bytes, 0, 1);
+        long byteCount = Platform.FILE_SYSTEM.read(fd.descriptor, bytes, 0, 1);
         return byteCount == -1 ? -1 : bytes[0] & 0xff;
     }
 
@@ -339,7 +325,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             return 0;
         }
         openCheck();
-        return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
+        return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, count);
     }
 
     /**
@@ -383,7 +369,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 16-bit character from the current position in this file. Blocks until
+     * Reads a big-endian 16-bit character from the current position in this file. Blocks until
      * two bytes have been read, the end of the file is reached or an exception is
      * thrown.
      *
@@ -403,7 +389,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 64-bit double from the current position in this file. Blocks
+     * Reads a big-endian 64-bit double from the current position in this file. Blocks
      * until eight bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -419,7 +405,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 32-bit float from the current position in this file. Blocks
+     * Reads a big-endian 32-bit float from the current position in this file. Blocks
      * until four bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -499,7 +485,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 32-bit integer from the current position in this file. Blocks
+     * Reads a big-endian 32-bit integer from the current position in this file. Blocks
      * until four bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -564,7 +550,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 64-bit long from the current position in this file. Blocks until
+     * Reads a big-endian 64-bit long from the current position in this file. Blocks until
      * eight bytes have been read, the end of the file is reached or an
      * exception is thrown.
      *
@@ -589,7 +575,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads a 16-bit short from the current position in this file. Blocks until
+     * Reads a big-endian 16-bit short from the current position in this file. Blocks until
      * two bytes have been read, the end of the file is reached or an exception
      * is thrown.
      *
@@ -629,7 +615,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads an unsigned 16-bit short from the current position in this file and
+     * Reads an unsigned big-endian 16-bit short from the current position in this file and
      * returns it as an integer. Blocks until two bytes have been read, the end of
      * the file is reached or an exception is thrown.
      *
@@ -696,7 +682,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IOException("offset < 0");
         }
         openCheck();
-        fileSystem.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
+        Platform.FILE_SYSTEM.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
     }
 
     /**
@@ -716,9 +702,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public void setLength(long newLength) throws IOException {
         openCheck();
         if (newLength < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("newLength < 0");
         }
-        fileSystem.truncate(fd.descriptor, newLength);
+        Platform.FILE_SYSTEM.truncate(fd.descriptor, newLength);
+
+        long filePointer = getFilePointer();
+        if (filePointer > newLength) {
+            seek(newLength);
+        }
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -803,7 +794,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             return;
         }
         openCheck();
-        fileSystem.write(fd.descriptor, buffer, offset, count);
+        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, count);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -825,7 +816,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         openCheck();
         byte[] bytes = new byte[1];
         bytes[0] = (byte) (oneByte & 0xff);
-        fileSystem.write(fd.descriptor, bytes, 0, 1);
+        Platform.FILE_SYSTEM.write(fd.descriptor, bytes, 0, 1);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -834,7 +825,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a boolean to this file, starting at the current file pointer.
+     * Writes a boolean to this file as a single byte (1 for true, 0 for false), starting at the
+     * current file pointer.
      *
      * @param val
      *            the boolean to write to this file.
@@ -883,7 +875,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 16-bit character to this file, starting at the current file
+     * Writes a big-endian 16-bit character to this file, starting at the current file
      * pointer. Only the two least significant bytes of the integer {@code val}
      * are written, with the high byte first.
      *
@@ -901,9 +893,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes the 16-bit characters from a string to this file, starting at the
-     * current file pointer. Each character is written in the same way as with
-     * {@link #writeChar(int)}, with its high byte first.
+     * Writes big-endian 16-bit characters from {@code str} to this file, starting at the
+     * current file pointer.
      *
      * @param str
      *            the string to write to this file.
@@ -922,9 +913,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 64-bit double to this file, starting at the current file
-     * pointer. The eight bytes returned by
-     * {@link Double#doubleToLongBits(double)} are written to this file.
+     * Writes a big-endian 64-bit double to this file, starting at the current file
+     * pointer. The bytes are those returned by
+     * {@link Double#doubleToLongBits(double)}, meaning a canonical NaN is used.
      *
      * @param val
      *            the double to write to this file.
@@ -937,9 +928,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 32-bit float to this file, starting at the current file pointer.
-     * The four bytes returned by {@link Float#floatToIntBits(float)} are
-     * written to this file.
+     * Writes a big-endian 32-bit float to this file, starting at the current file pointer.
+     * The bytes are those returned by {@link Float#floatToIntBits(float)}, meaning a canonical NaN
+     * is used.
      *
      * @param val
      *            the float to write to this file.
@@ -952,9 +943,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 32-bit integer to this file, starting at the current file
-     * pointer. The four bytes of the integer are written with the highest byte
-     * first.
+     * Writes a big-endian 32-bit integer to this file, starting at the current file
+     * pointer.
      *
      * @param val
      *            the int to write to this file.
@@ -972,9 +962,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 64-bit long to this file, starting at the current file
-     * pointer. The eight bytes of the long are written with the highest byte
-     * first.
+     * Writes a big-endian 64-bit long to this file, starting at the current file
+     * pointer.
      *
      * @param val
      *            the long to write to this file.
@@ -997,9 +986,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes a 16-bit short to this file, starting at the current file
+     * Writes a big-endian 16-bit short to this file, starting at the current file
      * pointer. Only the two least significant bytes of the integer {@code val}
-     * are written, with the high byte first.
+     * are written.
      *
      * @param val
      *            the short to write to this file.

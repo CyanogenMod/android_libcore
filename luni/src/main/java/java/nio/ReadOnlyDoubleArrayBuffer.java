@@ -35,7 +35,7 @@ final class ReadOnlyDoubleArrayBuffer extends DoubleArrayBuffer {
             int markOfOther) {
         ReadOnlyDoubleArrayBuffer buf = new ReadOnlyDoubleArrayBuffer(other
                 .capacity(), other.backingArray, other.offset);
-        buf.limit = other.limit();
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         return buf;
@@ -92,7 +92,7 @@ final class ReadOnlyDoubleArrayBuffer extends DoubleArrayBuffer {
     }
 
     @Override
-    public final DoubleBuffer put(double[] src, int off, int len) {
+    public final DoubleBuffer put(double[] src, int srcOffset, int byteCount) {
         throw new ReadOnlyBufferException();
     }
 

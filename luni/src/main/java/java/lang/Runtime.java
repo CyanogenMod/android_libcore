@@ -541,7 +541,10 @@ public class Runtime {
     @Deprecated
     public InputStream getLocalizedInputStream(InputStream stream) {
         String encoding = System.getProperty("file.encoding", "UTF-8");
-        return encoding.equals("UTF-8") ? stream : new ReaderInputStream(stream, encoding);
+        if (!encoding.equals("UTF-8")) {
+            throw new UnsupportedOperationException("Cannot localize " + encoding);
+        }
+        return stream;
     }
 
     /**
@@ -558,7 +561,10 @@ public class Runtime {
     @Deprecated
     public OutputStream getLocalizedOutputStream(OutputStream stream) {
         String encoding = System.getProperty("file.encoding", "UTF-8");
-        return encoding.equals("UTF-8") ? stream : new WriterOutputStream(stream, encoding);
+        if (!encoding.equals("UTF-8")) {
+            throw new UnsupportedOperationException("Cannot localize " + encoding);
+        }
+        return stream;
     }
 
     /**
@@ -702,124 +708,4 @@ public class Runtime {
      */
     public native long maxMemory();
 
-}
-
-/*
- * Internal helper class for creating a localized InputStream. A reader
- * wrapped in an InputStream.
- */
-class ReaderInputStream extends InputStream {
-
-    private Reader reader;
-
-    private Writer writer;
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream(256);
-
-    private byte[] bytes;
-
-    private int nextByte;
-
-    private int numBytes;
-
-    public ReaderInputStream(InputStream stream, String encoding) {
-        try {
-            reader = new InputStreamReader(stream, Charsets.UTF_8);
-            writer = new OutputStreamWriter(out, encoding);
-        } catch (UnsupportedEncodingException e) {
-            // Should never happen, since UTF-8 and platform encoding must be
-            // supported.
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public int read() throws IOException {
-        if (nextByte >= numBytes) {
-            readBuffer();
-        }
-
-        return (numBytes < 0) ? -1 : bytes[nextByte++];
-    }
-
-    private void readBuffer() throws IOException {
-        char[] chars = new char[128];
-        int read = reader.read(chars);
-        if (read < 0) {
-            numBytes = read;
-            return;
-        }
-
-        writer.write(chars, 0, read);
-        writer.flush();
-        bytes = out.toByteArray();
-        numBytes = bytes.length;
-        nextByte = 0;
-    }
-
-}
-
-/*
- * Internal helper class for creating a localized OutputStream. A writer
- * wrapped in an OutputStream. Bytes are written to characters in big-endian
- * fashion.
- */
-class WriterOutputStream extends OutputStream {
-
-    private Reader reader;
-
-    private Writer writer;
-
-    private PipedOutputStream out;
-
-    private PipedInputStream pipe;
-
-    private int numBytes;
-
-    public WriterOutputStream(OutputStream stream, String encoding) {
-        try {
-            // sink
-            this.writer = new OutputStreamWriter(stream, encoding);
-
-            // transcriber
-            out = new PipedOutputStream();
-            pipe = new PipedInputStream(out);
-            this.reader = new InputStreamReader(pipe, Charsets.UTF_8);
-
-        } catch (UnsupportedEncodingException e) {
-            // Should never happen, since platform encoding must be supported.
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void write(int b) throws IOException {
-        out.write(b);
-        if( ++numBytes > 256) {
-            flush();
-            numBytes = 0;
-        }
-    }
-
-    @Override
-    public void flush() throws IOException {
-        out.flush();
-        char[] chars = new char[128];
-        if (pipe.available() > 0) {
-            int read = reader.read(chars);
-            if (read > 0) {
-                writer.write(chars, 0, read);
-            }
-        }
-        writer.flush();
-    }
-
-    @Override
-    public void close() throws IOException {
-        out.close();
-        flush();
-        writer.close();
-    }
 }

@@ -31,9 +31,9 @@ package java.nio;
 final class ReadWriteCharArrayBuffer extends CharArrayBuffer {
 
     static ReadWriteCharArrayBuffer copy(CharArrayBuffer other, int markOfOther) {
-        ReadWriteCharArrayBuffer buf = new ReadWriteCharArrayBuffer(other
-                .capacity(), other.backingArray, other.offset);
-        buf.limit = other.limit();
+        ReadWriteCharArrayBuffer buf = new ReadWriteCharArrayBuffer(other.capacity(),
+                other.backingArray, other.offset);
+        buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         return buf;
@@ -58,8 +58,7 @@ final class ReadWriteCharArrayBuffer extends CharArrayBuffer {
 
     @Override
     public CharBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
@@ -110,23 +109,22 @@ final class ReadWriteCharArrayBuffer extends CharArrayBuffer {
     }
 
     @Override
-    public CharBuffer put(char[] src, int off, int len) {
+    public CharBuffer put(char[] src, int srcOffset, int charCount) {
         int length = src.length;
-        if (off < 0 || len < 0 || (long) len + (long) off > length) {
+        if (srcOffset < 0 || charCount < 0 || (long) charCount + (long) srcOffset > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferOverflowException();
         }
-        System.arraycopy(src, off, backingArray, offset + position, len);
-        position += len;
+        System.arraycopy(src, srcOffset, backingArray, offset + position, charCount);
+        position += charCount;
         return this;
     }
 
     @Override
     public CharBuffer slice() {
-        return new ReadWriteCharArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteCharArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

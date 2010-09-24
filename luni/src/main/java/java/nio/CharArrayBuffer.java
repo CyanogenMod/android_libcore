@@ -66,16 +66,16 @@ abstract class CharArrayBuffer extends CharBuffer {
     }
 
     @Override
-    public final CharBuffer get(char[] dst, int off, int len) {
+    public final CharBuffer get(char[] dst, int srcOffset, int charCount) {
         int length = dst.length;
-        if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
+        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dst, off, len);
-        position += len;
+        System.arraycopy(backingArray, offset + position, dst, srcOffset, charCount);
+        position += charCount;
         return this;
     }
 

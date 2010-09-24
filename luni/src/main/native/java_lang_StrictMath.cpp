@@ -21,6 +21,7 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "java_lang_Float.h"
 
 static jdouble StrictMath_sin(JNIEnv*, jclass, jdouble a) {
     return ieee_sin(a);
@@ -118,17 +119,14 @@ static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_nextafter(a, b);
 }
 
-extern jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat);
-extern jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint val);
-
 // TODO: we should make Float.floatToRawBits and Float.intBitsToFloat intrinsics, and move
 // this kind of code into Java.
 static jfloat StrictMath_nextafterf(JNIEnv*, jclass, jfloat arg1, jfloat arg2) {
-    jint hx = Float_floatToRawIntBits(NULL, NULL, arg1);
-    jint hy = Float_floatToRawIntBits(NULL, NULL, arg2);
+    jint hx = Float::floatToRawIntBits(arg1);
+    jint hy = Float::floatToRawIntBits(arg2);
 
     if (!(hx & 0x7fffffff)) { /* arg1 == 0 */
-        return Float_intBitsToFloat(NULL, NULL, (hy & 0x80000000) | 0x1);
+        return Float::intBitsToFloat((hy & 0x80000000) | 0x1);
     }
 
     if ((hx > 0) ^ (hx > hy)) { /* |arg1| < |arg2| */
@@ -136,7 +134,7 @@ static jfloat StrictMath_nextafterf(JNIEnv*, jclass, jfloat arg1, jfloat arg2) {
     } else {
         hx -= 1;
     }
-    return Float_intBitsToFloat(NULL, NULL, hx);
+    return Float::intBitsToFloat(hx);
 }
 
 static JNINativeMethod gMethods[] = {

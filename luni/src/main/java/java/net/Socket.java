@@ -42,10 +42,7 @@ public class Socket {
 
     private InetAddress localAddress = Inet4Address.ANY;
 
-    private static class ConnectLock {
-    }
-
-    private final Object connectLock = new ConnectLock();
+    private final Object connectLock = new Object();
 
     /**
      * Creates a new unconnected socket. When a SocketImplFactory is defined it
@@ -1120,7 +1117,7 @@ public class Socket {
     }
 
     private void cacheLocalAddress() {
-        this.localAddress = Platform.getNetworkSystem().getSocketLocalAddress(impl.fd);
+        this.localAddress = Platform.NETWORK.getSocketLocalAddress(impl.fd);
     }
 
     /**

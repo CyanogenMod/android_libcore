@@ -24,13 +24,13 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.harmony.luni.util.InputStreamHelper;
-import org.apache.harmony.luni.util.ThreadLocalCache;
 
 /**
  * The {@code Manifest} class is used to obtain attribute information for a
@@ -317,20 +317,17 @@ public class Manifest implements Cloneable {
      *             If an error occurs writing the {@code Manifest}.
      */
     static void write(Manifest manifest, OutputStream out) throws IOException {
-        CharsetEncoder encoder = ThreadLocalCache.utf8Encoder.get();
-        ByteBuffer buffer = ThreadLocalCache.byteBuffer.get();
+        CharsetEncoder encoder = Charsets.UTF_8.newEncoder();
+        ByteBuffer buffer = ByteBuffer.allocate(LINE_LENGTH_LIMIT);
 
-        String version = manifest.mainAttributes
-                .getValue(Attributes.Name.MANIFEST_VERSION);
+        String version = manifest.mainAttributes.getValue(Attributes.Name.MANIFEST_VERSION);
         if (version != null) {
-            writeEntry(out, Attributes.Name.MANIFEST_VERSION, version, encoder,
-                    buffer);
+            writeEntry(out, Attributes.Name.MANIFEST_VERSION, version, encoder, buffer);
             Iterator<?> entries = manifest.mainAttributes.keySet().iterator();
             while (entries.hasNext()) {
                 Attributes.Name name = (Attributes.Name) entries.next();
                 if (!name.equals(Attributes.Name.MANIFEST_VERSION)) {
-                    writeEntry(out, name, manifest.mainAttributes
-                            .getValue(name), encoder, buffer);
+                    writeEntry(out, name, manifest.mainAttributes.getValue(name), encoder, buffer);
                 }
             }
         }

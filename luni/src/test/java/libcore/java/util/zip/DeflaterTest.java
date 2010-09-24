@@ -72,4 +72,14 @@ public class DeflaterTest extends TestCase {
             assertEquals(expectedValue, decompressed[i]);
         }
     }
+
+    /**
+     * Deflating without calling setInput() is the same as deflating an empty
+     * byte array.
+     */
+    public void testDeflateWithoutSettingInput() throws Exception {
+        deflateInflate(Deflater.FULL_FLUSH);
+        assertTrue(totalDeflated > 0); // the deflated form should be non-empty
+        assertEquals(0, totalInflated);
+    }
 }

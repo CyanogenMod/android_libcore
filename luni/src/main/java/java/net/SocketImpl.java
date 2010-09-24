@@ -21,7 +21,6 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -54,8 +53,6 @@ public abstract class SocketImpl implements SocketOptions {
      * The local port this socket is connected to.
      */
     protected int localport;
-
-    INetworkSystem netImpl = Platform.getNetworkSystem();
 
     boolean streaming = true;
 
@@ -239,9 +236,9 @@ public abstract class SocketImpl implements SocketOptions {
      */
     int write(byte[] buffer, int offset, int count) throws IOException {
         if (streaming) {
-            return this.netImpl.write(fd, buffer, offset, count);
+            return Platform.NETWORK.write(fd, buffer, offset, count);
         } else {
-            return this.netImpl.send(fd, buffer, offset, count, port, address);
+            return Platform.NETWORK.send(fd, buffer, offset, count, port, address);
         }
     }
 

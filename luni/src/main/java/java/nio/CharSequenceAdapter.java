@@ -76,16 +76,16 @@ final class CharSequenceAdapter extends CharBuffer {
     }
 
     @Override
-    public final CharBuffer get(char[] dst, int off, int len) {
+    public final CharBuffer get(char[] dst, int dstOffset, int charCount) {
         int length = dst.length;
-        if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
+        if (dstOffset < 0 || charCount < 0 || (long) dstOffset + (long) charCount > length) {
             throw new IndexOutOfBoundsException();
         }
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
-        int newPosition = position + len;
-        sequence.toString().getChars(position, newPosition, dst, off);
+        int newPosition = position + charCount;
+        sequence.toString().getChars(position, newPosition, dst, dstOffset);
         position = newPosition;
         return this;
     }
@@ -131,12 +131,12 @@ final class CharSequenceAdapter extends CharBuffer {
     }
 
     @Override
-    public final CharBuffer put(char[] src, int off, int len) {
-        if ((off < 0) || (len < 0) || (long) off + (long) len > src.length) {
+    public final CharBuffer put(char[] src, int srcOffset, int charCount) {
+        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > src.length) {
             throw new IndexOutOfBoundsException();
         }
 
-        if (len > remaining()) {
+        if (charCount > remaining()) {
             throw new BufferOverflowException();
         }
 
@@ -145,8 +145,7 @@ final class CharSequenceAdapter extends CharBuffer {
 
     @Override
     public CharBuffer put(String src, int start, int end) {
-        if ((start < 0) || (end < 0)
-                || (long) start + (long) end > src.length()) {
+        if (start < 0 || end < 0 || (long) start + (long) end > src.length()) {
             throw new IndexOutOfBoundsException();
         }
         throw new ReadOnlyBufferException();

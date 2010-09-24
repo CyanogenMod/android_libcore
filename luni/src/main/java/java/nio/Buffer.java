@@ -46,10 +46,17 @@ package java.nio;
  */
 public abstract class Buffer {
 
+    static final int SIZEOF_CHAR = 2;
+    static final int SIZEOF_DOUBLE = 8;
+    static final int SIZEOF_FLOAT = 4;
+    static final int SIZEOF_INT = 4;
+    static final int SIZEOF_LONG = 8;
+    static final int SIZEOF_SHORT = 2;
+
     /**
      * <code>UNSET_MARK</code> means the mark has not been set.
      */
-    final static int UNSET_MARK = -1;
+    static final int UNSET_MARK = -1;
 
     /**
      * The capacity of this buffer, which never changes.
@@ -75,38 +82,33 @@ public abstract class Buffer {
      */
     int position = 0;
 
-    // BEGIN android-added
     /**
      * The log base 2 of the element size of this buffer.  Each typed subclass
      * (ByteBuffer, CharBuffer, etc.) is responsible for initializing this
      * value.  The value is used by JNI code in frameworks/base/ to avoid the
      * need for costly 'instanceof' tests.
      */
-    int _elementSizeShift;
+    final int _elementSizeShift;
 
     /**
-     * For direct buffers, the effective address of the data.  This is set
-     * on first use.  If the field is zero, this is either not a direct
-     * buffer or the field has not been initialized, and you need to issue
-     * the getEffectiveAddress() call and use the result of that.
-     *
-     * This is an optimization used by the GetDirectBufferAddress JNI call.
+     * For direct buffers, the effective address of the data; zero otherwise.
+     * This is set in the constructor.
+     * TODO: make this final at the cost of loads of extra constructors? [how many?]
      */
-    int effectiveDirectAddress = 0;
-    // END android-added
+    int effectiveDirectAddress;
 
     /**
-     * Construct a buffer with the specified capacity.
-     *
-     * @param capacity
-     *            The capacity of this buffer
+     * For direct buffers, the underlying MemoryBlock; null otherwise.
      */
-    Buffer(int capacity) {
-        super();
+    final MemoryBlock block;
+
+    Buffer(int elementSizeShift, int capacity, MemoryBlock block) {
+        this._elementSizeShift = elementSizeShift;
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         this.capacity = this.limit = capacity;
+        this.block = block;
     }
 
     /**
@@ -152,6 +154,31 @@ public abstract class Buffer {
      */
     public final int capacity() {
         return capacity;
+    }
+
+    int checkGetBounds(int bytesPerElement, int length, int offset, int count) {
+        int byteCount = bytesPerElement * count;
+        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (byteCount > remaining()) {
+            throw new BufferUnderflowException();
+        }
+        return byteCount;
+    }
+
+    int checkPutBounds(int bytesPerElement, int length, int offset, int count) {
+        int byteCount = bytesPerElement * count;
+        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (byteCount > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        return byteCount;
     }
 
     /**
@@ -247,6 +274,14 @@ public abstract class Buffer {
      *                if <code>newLimit</code> is invalid.
      */
     public final Buffer limit(int newLimit) {
+        limitImpl(newLimit);
+        return this;
+    }
+
+    /**
+     * Subverts the fact that limit(int) is final, for the benefit of MappedByteBufferAdapter.
+     */
+    void limitImpl(int newLimit) {
         if (newLimit < 0 || newLimit > capacity) {
             throw new IllegalArgumentException();
         }
@@ -258,7 +293,6 @@ public abstract class Buffer {
         if ((mark != UNSET_MARK) && (mark > newLimit)) {
             mark = UNSET_MARK;
         }
-        return this;
     }
 
     /**
@@ -295,6 +329,11 @@ public abstract class Buffer {
      *                if <code>newPosition</code> is invalid.
      */
     public final Buffer position(int newPosition) {
+        positionImpl(newPosition);
+        return this;
+    }
+
+    void positionImpl(int newPosition) {
         if (newPosition < 0 || newPosition > limit) {
             throw new IllegalArgumentException();
         }
@@ -303,7 +342,6 @@ public abstract class Buffer {
         if ((mark != UNSET_MARK) && (mark > position)) {
             mark = UNSET_MARK;
         }
-        return this;
     }
 
     /**
@@ -343,5 +381,17 @@ public abstract class Buffer {
         position = 0;
         mark = UNSET_MARK;
         return this;
+    }
+
+    @Override public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append(getClass().getName());
+        buf.append(", status: capacity=");
+        buf.append(capacity);
+        buf.append(" position=");
+        buf.append(position);
+        buf.append(" limit=");
+        buf.append(limit);
+        return buf.toString();
     }
 }

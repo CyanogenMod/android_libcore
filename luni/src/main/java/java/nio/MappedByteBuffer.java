@@ -17,9 +17,7 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
-import org.apache.harmony.luni.platform.MappedPlatformAddress;
-import org.apache.harmony.luni.platform.PlatformAddress;
-import org.apache.harmony.nio.internal.DirectBuffer;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * {@code MappedByteBuffer} is a special kind of direct byte buffer which maps a
@@ -42,7 +40,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     private final MapMode mapMode;
 
     MappedByteBuffer(ByteBuffer directBuffer) {
-        super(directBuffer.capacity);
+        super(directBuffer.capacity, directBuffer.block);
         if (!directBuffer.isDirect()) {
             throw new IllegalArgumentException();
         }
@@ -50,15 +48,14 @@ public abstract class MappedByteBuffer extends ByteBuffer {
         this.mapMode = null;
     }
 
-    MappedByteBuffer(PlatformAddress addr, int capacity, int offset, MapMode mapMode) {
-        super(capacity);
+    MappedByteBuffer(MemoryBlock block, int capacity, int offset, MapMode mapMode) {
+        super(capacity, block);
         this.mapMode = mapMode;
         if (mapMode == MapMode.READ_ONLY) {
-            wrapped = new ReadOnlyDirectByteBuffer(addr, capacity, offset);
+            wrapped = new ReadOnlyDirectByteBuffer(block, capacity, offset);
         } else {
-            wrapped = new ReadWriteDirectByteBuffer(addr, capacity, offset);
+            wrapped = new ReadWriteDirectByteBuffer(block, capacity, offset);
         }
-        addr.autoFree();
     }
 
     /**
@@ -70,7 +67,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      *         otherwise.
      */
     public final boolean isLoaded() {
-        return ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapIsLoaded();
+        return OSMemory.isLoaded(block.toInt(), block.getSize());
     }
 
     /**
@@ -80,7 +77,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapLoad();
+        OSMemory.load(block.toInt(), block.getSize());
         return this;
     }
 
@@ -94,7 +91,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapFlush();
+            OSMemory.msync(block.toInt(), block.getSize());
         }
         return this;
     }

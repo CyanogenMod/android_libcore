@@ -35,41 +35,13 @@ import dalvik.system.VMStack;
  * @see INetworkSystem
  */
 public class Platform {
-    // Note: for now, we're always wrapping the filesystem with
-    // BlockGuard.  In the future we intend to measure this and, with
-    // the arriving of upcoming method call Dalvik improvements,
-    // remove a lot of the static caching in RandomAccessFile, etc.,
-    // at which point we can make getFileSystem() return an unwrapped
-    // filesystem in some cases so RandomAccessFiles created on
-    // BlockGuard-policy-free threads have no extra overhead.  But for
-    // now they do: ThreadLocal lookups will be done on most VFS
-    // operations, which should be relatively less than the speed of
-    // the flash.
+    // BlockGuard-policy-free threads should have no extra overhead, but for
+    // now they do because ThreadLocal lookups will be done on most operations, which
+    // should be relatively less than the speed of the operation.
     // TODO: measure & fix if needed.
-    private static final IFileSystem FILE_SYSTEM =
+    public static final IFileSystem FILE_SYSTEM =
             new BlockGuard.WrappedFileSystem(OSFileSystem.getOSFileSystem());
 
-    private static final INetworkSystem NETWORK_SYSTEM =
+    public static final INetworkSystem NETWORK =
             new BlockGuard.WrappedNetworkSystem(OSNetworkSystem.getOSNetworkSystem());
-
-    /**
-     * Checks to ensure that whoever is asking for the OS component is running
-     * on the system classpath.
-     */
-    private static final void accessCheck() {
-        if (VMStack.getCallingClassLoader() != null) {
-            throw new SecurityException();
-        }
-    }
-
-    public static IFileSystem getFileSystem() {
-        accessCheck();
-        return FILE_SYSTEM;
-    }
-
-    public static INetworkSystem getNetworkSystem() {
-        accessCheck();
-        // TODO: use BlockGuard here too, like in getFileSystem() above.
-        return NETWORK_SYSTEM;
-    }
 }

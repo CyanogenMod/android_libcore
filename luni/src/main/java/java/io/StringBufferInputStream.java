@@ -98,14 +98,6 @@ public class StringBufferInputStream extends InputStream {
      */
     @Override
     public synchronized int read(byte[] buffer, int offset, int length) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        // According to 22.7.6 should return -1 before checking other
-        // parameters.
-        if (pos >= count) {
-            return -1;
-        }
         if (buffer == null) {
             throw new NullPointerException("buffer == null");
         }
