@@ -16,13 +16,16 @@
 
 package libcore.java.lang;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import static tests.support.Support_Exec.execAndCheckOutput;
 
 public class ProcessBuilderTest extends junit.framework.TestCase {
     private static String shell() {
-        return "Dalvik".equals(System.getProperty("java.vm.name")) ? "/system/bin/sh" : "/bin/sh";
+        String deviceSh = "/system/bin/sh";
+        String desktopSh = "/bin/sh";
+        return new File(deviceSh).exists() ? deviceSh : desktopSh;
     }
 
     public void testRedirectErrorStream(boolean doRedirect,
