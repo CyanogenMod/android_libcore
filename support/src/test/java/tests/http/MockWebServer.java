@@ -22,12 +22,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -84,10 +86,11 @@ public final class MockWebServer {
      *
      * @param path the request path, such as "/".
      */
-    public URL getUrl(String path) throws MalformedURLException {
+    public URL getUrl(String path) throws MalformedURLException, UnknownHostException {
+        String host = InetAddress.getLocalHost().getHostName();
         return sslSocketFactory != null
-                ? new URL("https://localhost:" + getPort() + path)
-                : new URL("http://localhost:" + getPort() + path);
+                ? new URL("https://" + host + ":" + getPort() + path)
+                : new URL("http://" + host + ":" + getPort() + path);
     }
 
     /**
