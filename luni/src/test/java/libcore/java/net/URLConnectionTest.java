@@ -27,6 +27,7 @@ import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ResponseCache;
 import java.net.SocketTimeoutException;
@@ -76,11 +77,18 @@ public class URLConnectionTest extends junit.framework.TestCase {
     };
 
     private MockWebServer server = new MockWebServer();
+    private String hostname;
+
+    @Override protected void setUp() throws Exception {
+        super.setUp();
+        hostname = InetAddress.getLocalHost().getHostName();
+    }
 
     @Override protected void tearDown() throws Exception {
         ResponseCache.setDefault(null);
         Authenticator.setDefault(null);
         server.shutdown();
+        super.tearDown();
     }
 
     public void testRequestHeaders() throws IOException, InterruptedException {
@@ -1154,9 +1162,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 readAscii(server.getUrl("/").openStream(), Integer.MAX_VALUE));
 
         RecordedRequest first = server.takeRequest();
-        assertContains(first.getHeaders(), "Host: localhost:" + server.getPort());
+        assertContains(first.getHeaders(), "Host: " + hostname + ":" + server.getPort());
         RecordedRequest second = server2.takeRequest();
-        assertContains(second.getHeaders(), "Host: localhost:" + server2.getPort());
+        assertContains(second.getHeaders(), "Host: " + hostname + ":" + server2.getPort());
         RecordedRequest third = server.takeRequest();
         assertEquals("Expected connection reuse", 1, third.getSequenceNumber());
 
@@ -1186,9 +1194,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
             assertEquals("DEF", readAscii(url.openStream(), Integer.MAX_VALUE));
             assertEquals("GHI", readAscii(url.openStream(), Integer.MAX_VALUE));
 
-            assertEquals(Arrays.asList("verify localhost"), hostnameVerifier.calls);
+            assertEquals(Arrays.asList("verify " + hostname), hostnameVerifier.calls);
             assertEquals(Arrays.asList("checkServerTrusted ["
-                                       + "CN=localhost 1, "
+                                       + "CN=" + hostname + " 1, "
                                        + "CN=Test Intermediate Certificate Authority 1, "
                                        + "CN=Test Root Certificate Authority 1"
                                        + "] RSA"),
