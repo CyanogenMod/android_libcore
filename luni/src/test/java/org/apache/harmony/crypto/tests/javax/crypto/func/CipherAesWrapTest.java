@@ -16,18 +16,14 @@
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
-
-import tests.util.TestEnvironment;
 
 public class CipherAesWrapTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     // 3 cases checked

@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 public final class PathClassLoaderTest extends TestCase {
 
@@ -55,11 +54,9 @@ public final class PathClassLoaderTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 }
