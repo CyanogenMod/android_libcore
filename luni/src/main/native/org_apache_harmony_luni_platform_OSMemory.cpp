@@ -46,7 +46,7 @@ template <typename T> static T cast(jint address) {
 }
 
 static inline void fastSwap16(jshort& v) {
-#if defined(__arm__)
+#if __ARM_ARCH__ >= 6
     asm("rev16 %[v], %[v]" : [v] "+r" (v));
 #else
     v = bswap_16(v);
@@ -54,7 +54,7 @@ static inline void fastSwap16(jshort& v) {
 }
 
 static inline void fastSwap32(jint& v) {
-#if defined(__arm__)
+#if __ARM_ARCH__ >= 6
     asm("rev %[v], %[v]" : [v] "+r" (v));
 #else
     v = bswap_32(v);
