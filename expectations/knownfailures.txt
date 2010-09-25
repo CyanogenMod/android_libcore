@@ -3,6 +3,28 @@
  */
 [
 {
+  description: "Math failures when running on the host",
+  names: [
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_bitCountJ",
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_highestOneBitJ",
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_reverseBytesJ",
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_reverseJ",
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_rotateLeftJI",
+    "org.apache.harmony.luni.tests.java.lang.LongTest#test_rotateRightJI",
+    "org.apache.harmony.luni.tests.java.lang.MathTest#test_cbrt_D",
+    "org.apache.harmony.luni.tests.java.lang.MathTest#test_powDD",
+    "org.apache.harmony.luni.tests.java.lang.MathTest#test_sinh_D",
+    "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_log1p_D",
+    "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_rintD"
+  ],
+  bug: 2931959
+},
+{
+  description: "Double.parseDouble().toString does wrong rounding",
+  name: "org.apache.harmony.luni.tests.java.lang.DoubleTest#test_parseDoubleLjava_lang_String",
+  bug: 1607938
+},
+{
   description: "We fake support for these by substituting similar (but not identical) charsets",
   names: [
     "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Decode",
