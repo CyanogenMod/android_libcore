@@ -38,6 +38,7 @@ public class OSMemoryTest extends TestCase {
             // Regular copy.
             OSMemory.pokeIntArray(ptr, values, 0, values.length, false);
             assertIntsEqual(values, ptr, false);
+            assertIntsEqual(swappedValues, ptr, true);
         } finally {
             OSMemory.free(ptr);
         }
@@ -46,7 +47,8 @@ public class OSMemoryTest extends TestCase {
         try {
             // Swapped copy.
             OSMemory.pokeIntArray(ptr, values, 0, values.length, true);
-            assertIntsEqual(swappedValues, ptr, true);
+            assertIntsEqual(values, ptr, true);
+            assertIntsEqual(swappedValues, ptr, false);
         } finally {
             OSMemory.free(ptr);
         }
@@ -57,7 +59,8 @@ public class OSMemoryTest extends TestCase {
             for (int i = 0; i < values.length; ++i) {
                 OSMemory.pokeIntArray(ptr + i * scale, values, i, 1, true);
             }
-            assertIntsEqual(swappedValues, ptr, true);
+            assertIntsEqual(values, ptr, true);
+            assertIntsEqual(swappedValues, ptr, false);
         } finally {
             OSMemory.free(ptr);
         }
@@ -81,6 +84,7 @@ public class OSMemoryTest extends TestCase {
             // Regular copy. Memset first so we start from a known state.
             OSMemory.pokeShortArray(ptr, values, 0, values.length, false);
             assertShortsEqual(values, ptr, false);
+            assertShortsEqual(swappedValues, ptr, true);
         } finally {
             OSMemory.free(ptr);
         }
@@ -89,7 +93,8 @@ public class OSMemoryTest extends TestCase {
         try {
             // Swapped copy.
             OSMemory.pokeShortArray(ptr, values, 0, values.length, true);
-            assertShortsEqual(swappedValues, ptr, true);
+            assertShortsEqual(values, ptr, true);
+            assertShortsEqual(swappedValues, ptr, false);
         } finally {
             OSMemory.free(ptr);
         }
@@ -100,7 +105,8 @@ public class OSMemoryTest extends TestCase {
             for (int i = 0; i < values.length; ++i) {
                 OSMemory.pokeShortArray(ptr + i * scale, values, i, 1, true);
             }
-            assertShortsEqual(swappedValues, ptr, true);
+            assertShortsEqual(values, ptr, true);
+            assertShortsEqual(swappedValues, ptr, false);
         } finally {
             OSMemory.free(ptr);
         }
