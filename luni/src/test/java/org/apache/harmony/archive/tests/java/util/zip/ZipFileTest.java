@@ -19,7 +19,6 @@ package org.apache.harmony.archive.tests.java.util.zip;
 
 import tests.support.Support_PlatformFile;
 import tests.support.resource.Support_Resources;
-import tests.util.TestEnvironment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -507,7 +506,6 @@ public class ZipFileTest extends junit.framework.TestCase {
      */
     @Override
     protected void tearDown() {
-        TestEnvironment.reset();
         try {
             if (zfile != null) {
                 // Note zfile is a user-defined zip file used by other tests and

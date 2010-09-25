@@ -19,7 +19,6 @@ package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.BrokenTest;
 import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -39,7 +38,6 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
 import tests.support.Support_Configuration;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(InetAddress.class)
 public class InetAddressTest extends junit.framework.TestCase {
@@ -52,11 +50,9 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 

@@ -20,7 +20,6 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import java.util.prefs.NodeChangeEvent;
 import java.util.prefs.NodeChangeListener;
@@ -40,7 +39,6 @@ public class NodeChangeListenerTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
         l = new NodeChangeListenerImpl();
     }
 

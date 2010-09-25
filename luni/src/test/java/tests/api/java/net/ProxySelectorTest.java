@@ -31,10 +31,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Permission;
 import java.util.List;
-import java.util.Properties;
 
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(ProxySelector.class)
 public class ProxySelectorTest extends TestCase {
@@ -718,14 +716,12 @@ public class ProxySelectorTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     /*
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 }

@@ -40,8 +40,6 @@ import junit.framework.TestCase;
 import org.apache.harmony.logging.tests.java.util.logging.HandlerTest.NullOutputStream;
 import org.apache.harmony.logging.tests.java.util.logging.util.EnvironmentHelper;
 
-import tests.util.TestEnvironment;
-
 /**
  *
  * add/get logger(dot)
@@ -102,7 +100,6 @@ public class LogManagerTest extends TestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
         handler = null;
     }

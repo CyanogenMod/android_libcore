@@ -39,7 +39,6 @@ import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import static tests.support.Support_Exec.javaProcessBuilder;
 import static tests.support.Support_Exec.execAndGetOutput;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(File.class)
 public class FileTest extends junit.framework.TestCase {
@@ -2492,7 +2491,6 @@ public class FileTest extends junit.framework.TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
 
         // Make sure that system properties are set correctly
         String userDir = System.getProperty("java.io.tmpdir");
@@ -2525,7 +2523,6 @@ public class FileTest extends junit.framework.TestCase {
      * method is called after a test is executed.
      */
     protected void tearDown() {
-        TestEnvironment.reset();
 
         if (tempFile.exists() && !tempFile.delete())
             System.out

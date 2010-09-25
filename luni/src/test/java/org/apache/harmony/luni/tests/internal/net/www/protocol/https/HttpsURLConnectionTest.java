@@ -22,6 +22,17 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
+import junit.framework.TestCase;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -838,7 +849,6 @@ public class HttpsURLConnectionTest extends TestCase {
      */
     public void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
 
         if (DO_LOG) {
             System.out.println();
@@ -869,7 +879,6 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     public void tearDown() {
-        TestEnvironment.reset();
         if (store != null) {
             store.delete();
         }
