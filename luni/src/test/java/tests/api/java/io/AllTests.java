@@ -82,7 +82,6 @@ public class AllTests {
         suite.addTestSuite(PrintWriterTest.class);
         suite.addTestSuite(PushbackInputStreamTest.class);
         suite.addTestSuite(PushbackReaderTest.class);
-        suite.addTestSuite(RandomAccessFileTest.class);
         suite.addTestSuite(SequenceInputStreamTest.class);
         suite.addTestSuite(SerializablePermissionTest.class);
         suite.addTestSuite(StreamCorruptedExceptionTest.class);
