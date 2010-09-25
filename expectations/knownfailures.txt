@@ -3,8 +3,30 @@
  */
 [
 {
+  description: "We fake support for these by substituting similar (but not identical) charsets",
+  names: [
+    "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Decode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_CodecDynamic",
+    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_Decode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_Decode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_nameMatch",
+    "libcore.java.nio.charset.OldCharset_MultiByte_GBK#test_Decode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_GBK#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_ISO_2022_JP#test_Decode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_ISO_2022_JP#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_x_windows_950#test_Encode",
+    "libcore.java.nio.charset.OldCharset_MultiByte_x_windows_950#test_nameMatch"
+  ],
+  bug: 2985901
+},
+{
   description: "UTF-16 and UTF-32 encoders don't write big-endian output on little-endian devices",
   names: [
+    "libcore.java.nio.charset.CharsetEncoderTest#test_defaultReplacementBytesUtf_16",
+    "libcore.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode",
     "libcore.java.nio.charset.OldCharsetTest#test_UTF_16",
     "libcore.java.nio.charset.OldCharsetTest#test_UTF_32",
     "libcore.java.nio.charset.OldCharsetTest#test_UTF_16BE",
