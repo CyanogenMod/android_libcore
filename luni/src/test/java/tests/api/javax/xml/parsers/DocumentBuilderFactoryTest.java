@@ -15,7 +15,6 @@
  */
 package tests.api.javax.xml.parsers;
 
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -30,9 +29,6 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import tests.api.javax.xml.parsers.SAXParserFactoryTest.MyHandler;
-import tests.util.TestEnvironment;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +39,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 
 @TestTargetClass(DocumentBuilderFactory.class)
 public class DocumentBuilderFactoryTest extends TestCase {
@@ -58,7 +53,6 @@ public class DocumentBuilderFactoryTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
         dbf = DocumentBuilderFactory.newInstance();
 
         cdataElements = new ArrayList<String>();

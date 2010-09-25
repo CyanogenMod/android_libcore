@@ -16,7 +16,6 @@
 
 package tests.api.javax.xml.parsers;
 
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
@@ -35,7 +34,6 @@ import tests.api.org.xml.sax.support.MethodLogger;
 import tests.api.org.xml.sax.support.MockHandler;
 import tests.api.org.xml.sax.support.MockResolver;
 import tests.support.resource.Support_Resources;
-import tests.util.TestEnvironment;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -128,7 +126,6 @@ public class DocumentBuilderTest extends TestCase {
     DocumentBuilder db;
 
     protected void setUp() throws Exception {
-        TestEnvironment.reset();
 
         dbf = DocumentBuilderFactory.newInstance();
 

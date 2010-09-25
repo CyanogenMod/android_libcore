@@ -39,7 +39,6 @@ import java.util.Properties;
 import junit.framework.TestCase;
 import static tests.support.Support_Exec.javaProcessBuilder;
 import static tests.support.Support_Exec.execAndGetOutput;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(DriverManager.class)
 /**
@@ -78,7 +77,6 @@ public class DriverManagerTest extends TestCase {
     // test methods as needed.
     @Override
     public void setUp() {
-        TestEnvironment.reset();
         numberLoaded = loadDrivers();
     } // end setUp()
 

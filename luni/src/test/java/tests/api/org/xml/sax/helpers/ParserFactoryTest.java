@@ -23,18 +23,12 @@ import dalvik.annotation.TestTargetNew;
 import junit.framework.TestCase;
 
 import org.xml.sax.helpers.ParserFactory;
-import tests.util.TestEnvironment;
-
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Map.Entry;
 
 @SuppressWarnings("deprecation")
 @TestTargetClass(ParserFactory.class)
 public class ParserFactoryTest extends TestCase {
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 

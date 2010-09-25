@@ -20,7 +20,6 @@ package tests.api.java.io;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-import tests.util.TestEnvironment;
 
 import java.io.File;
 import java.io.FilePermission;
@@ -37,7 +36,6 @@ public class FilePermissionTest extends junit.framework.TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
 
         readAllFiles = new FilePermission("<<ALL FILES>>", "read");
         alsoReadAllFiles = new FilePermission("<<ALL FILES>>", "read");

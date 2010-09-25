@@ -41,7 +41,6 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import tests.util.TestEnvironment;
 
 @TestTargetClass(SAXParserFactory.class)
 public class SAXParserFactoryTest extends TestCase {
@@ -67,7 +66,6 @@ public class SAXParserFactoryTest extends TestCase {
     }
 
     public void tearDown() throws Exception {
-        TestEnvironment.reset();
         is1.close();
         super.tearDown();
     }

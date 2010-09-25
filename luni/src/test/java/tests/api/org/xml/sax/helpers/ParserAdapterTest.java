@@ -44,7 +44,6 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import tests.util.TestEnvironment;
 
 @SuppressWarnings("deprecation")
 @TestTargetClass(ParserAdapter.class)
@@ -80,14 +79,12 @@ public class ParserAdapterTest extends TestCase {
 
     @Override
     public void setUp() {
-        TestEnvironment.reset();
         adapter.setContentHandler(handler);
         adapter.setDTDHandler(handler);
         adapter.setErrorHandler(handler);
     }
 
     @Override protected void tearDown() throws Exception {
-        TestEnvironment.reset();
         super.tearDown();
     }
 

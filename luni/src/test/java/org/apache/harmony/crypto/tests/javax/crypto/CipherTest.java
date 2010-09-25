@@ -25,7 +25,6 @@ import dalvik.annotation.TestTargets;
 import org.apache.harmony.crypto.tests.support.MyCipher;
 
 import tests.support.resource.Support_Resources;
-import tests.util.TestEnvironment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -90,7 +89,6 @@ public class CipherTest extends junit.framework.TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     /**

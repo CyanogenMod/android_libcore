@@ -22,7 +22,6 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import junit.framework.TestCase;
-import tests.util.TestEnvironment;
 
 import java.io.FilePermission;
 import java.security.Permission;
@@ -35,7 +34,6 @@ public class FilePreferencesImplTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        TestEnvironment.reset();
     }
 
     @Override
