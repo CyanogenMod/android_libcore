@@ -15,12 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.java.io;
-
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
+package libcore.java.io;
 
 import java.io.EOFException;
 import java.io.File;
@@ -33,8 +28,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.NonWritableChannelException;
 
-@TestTargetClass(RandomAccessFile.class)
-public class RandomAccessFileTest extends junit.framework.TestCase {
+public class OldRandomAccessFileTest extends junit.framework.TestCase {
 
     public String fileName;
 
@@ -55,12 +49,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#RandomAccessFile(java.io.File,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "RandomAccessFile",
-        args = {java.io.File.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_io_FileLjava_lang_String() throws Exception {
         RandomAccessFile raf = null;
         File tmpFile = new File(fileName);
@@ -114,12 +102,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#RandomAccessFile(java.lang.String,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "RandomAccessFile",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_String()
             throws IOException {
         RandomAccessFile raf = null;
@@ -183,12 +165,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#close()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No IOException checking, requires native code that can be forced to throw such an exception.",
-        method = "close",
-        args = {}
-    )
     public void test_close() {
         // Test for method void java.io.RandomAccessFile.close()
         try {
@@ -202,12 +178,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#getChannel()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getChannel",
-        args = {}
-    )
     public void test_getChannel() throws IOException {
 
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -228,12 +198,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#getFD()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No IOException checking since this exception is not thrown.",
-        method = "getFD",
-        args = {}
-    )
     public void test_getFD() throws IOException {
         // Test for method java.io.FileDescriptor
         // java.io.RandomAccessFile.getFD()
@@ -248,12 +212,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#getFilePointer()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFilePointer",
-        args = {}
-    )
     public void test_getFilePointer() throws IOException {
         // Test for method long java.io.RandomAccessFile.getFilePointer()
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -272,12 +230,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#length()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "length",
-        args = {}
-    )
     public void test_length() throws IOException {
         // Test for method long java.io.RandomAccessFile.length()
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -296,20 +248,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#read()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "write",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "read",
-            args = {}
-        )
-    })
     public void test_read_write() throws IOException {
         int i;
         byte[] testBuf = testString.getBytes();
@@ -350,12 +288,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#read(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "read",
-        args = {byte[].class}
-    )
     public void test_read$B() throws IOException {
         FileOutputStream fos = new java.io.FileOutputStream(fileName);
         fos.write(testString.getBytes(), 0, testLength);
@@ -385,12 +317,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#read(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "read",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_read$BII() throws IOException {
         int bytesRead;
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -454,20 +380,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readBoolean()
      * @tests java.io.RandomAccessFile#writeBoolean(boolean)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeBoolean",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readBoolean",
-            args = {}
-        )
-    })
     public void test_read_writeBoolean() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeBoolean(true);
@@ -505,20 +417,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readByte()
      * @tests java.io.RandomAccessFile#writeByte(byte)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeByte",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readByte",
-            args = {}
-        )
-    })
     public void test_read_writeByte() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeByte(Byte.MIN_VALUE);
@@ -565,20 +463,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readChar()
      * @tests java.io.RandomAccessFile#writeChar(char)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeChar",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readChar",
-            args = {}
-        )
-    })
     public void test_read_writeChar() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeChar(Character.MIN_VALUE);
@@ -625,20 +509,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readDouble()
      * @tests java.io.RandomAccessFile#writeDouble(double)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeDouble",
-            args = {double.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readDouble",
-            args = {}
-        )
-    })
     public void test_read_writeDouble() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeDouble(Double.MAX_VALUE);
@@ -676,20 +546,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readFloat()
      * @tests java.io.RandomAccessFile#writeFloat(double)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeFloat",
-            args = {float.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readFloat",
-            args = {}
-        )
-    })
     public void test_read_writeFloat() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeFloat(Float.MAX_VALUE);
@@ -727,20 +583,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readInt()
      * @tests java.io.RandomAccessFile#writeInt(char)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeInt",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readInt",
-            args = {}
-        )
-    })
     public void test_read_writeInt() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeInt(Integer.MIN_VALUE);
@@ -787,20 +629,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readLong()
      * @tests java.io.RandomAccessFile#writeLong(char)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeLong",
-            args = {long.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readLong",
-            args = {}
-        )
-    })
     public void test_read_writeLong() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeLong(Long.MIN_VALUE);
@@ -847,20 +675,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readShort()
      * @tests java.io.RandomAccessFile#writeShort(short)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeShort",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readShort",
-            args = {}
-        )
-    })
     public void test_read_writeShort() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeShort(Short.MIN_VALUE);
@@ -907,20 +721,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#readUTF()
      * @tests java.io.RandomAccessFile#writeShort(char)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeUTF",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readUTF",
-            args = {}
-        )
-    })
     public void test_read_writeUTF() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeUTF(unihw);
@@ -954,20 +754,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#writeBytes(java.lang.String)
      * @tests java.io.RandomAccessFile#readFully(byte[])
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeBytes",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readFully",
-            args = {byte[].class}
-        )
-    })
     public void test_readFully$B_writeBytesLjava_lang_String() throws IOException {
         byte[] buf = new byte[testLength];
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1011,20 +797,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
      * @tests java.io.RandomAccessFile#writeBytes(java.lang.String)
      * @tests java.io.RandomAccessFile#readFully(byte[], int, int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "writeBytes",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Tests against golden file missing.",
-            method = "readFully",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void test_readFully$BII() throws IOException {
         byte[] buf = new byte[testLength];
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1087,12 +859,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#readUnsignedByte()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests against golden file missing.",
-        method = "readUnsignedByte",
-        args = {}
-    )
     public void test_readUnsignedByte() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeByte(-1);
@@ -1120,12 +886,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#readUnsignedShort()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests against golden file missing.",
-        method = "readUnsignedShort",
-        args = {}
-    )
     public void test_readUnsignedShort() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeShort(-1);
@@ -1153,12 +913,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#readLine()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "",
-        method = "readLine",
-        args = {}
-    )
     public void test_readLine() throws IOException {
         // Test for method java.lang.String java.io.RandomAccessFile.readLine()
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1184,12 +938,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#seek(long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "seek",
-        args = {long.class}
-    )
     public void test_seekJ() throws IOException {
         // Test for method void java.io.RandomAccessFile.seek(long)
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1200,15 +948,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        // BEGIN android-added
-        try {
-            // Android uses 32-bit off_t, so anything larger than a signed 32-bit int won't work.
-            raf.seek(((long) Integer.MAX_VALUE) + 1);
-            fail("Test 2: IOException expected.");
-        } catch (IOException e) {
-            // Expected.
-        }
-        // END android-added
 
         raf.write(testString.getBytes(), 0, testLength);
         raf.seek(12);
@@ -1227,12 +966,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#skipBytes(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "skipBytes",
-        args = {int.class}
-    )
     public void test_skipBytesI() throws IOException {
         byte[] buf = new byte[5];
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1265,12 +998,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#skipBytes(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setLength",
-        args = {long.class}
-    )
     public void test_setLengthJ() throws IOException {
         int bytesRead;
         long truncLength = (long) (testLength * 0.75);
@@ -1305,23 +1032,12 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         assertEquals("Test 7: Incorrect file length;",
                 testLength + 2, raf.length());
 
-        // BEGIN android-added
-        // Exception testing.
-        try {
-            // Android uses 32-bit off_t, so anything larger than a signed 32-bit int won't work.
-            raf.setLength(((long) Integer.MAX_VALUE) + 1);
-            fail("Test 8: IOException expected.");
-        } catch (IOException e) {
-            // Expected.
-        }
-        // END android-added
-
         // Exception testing.
         try {
             raf.setLength(-1);
             fail("Test 9: IllegalArgumentException expected.");
-        } catch (IllegalArgumentException e) {
-            // Expected.
+        } catch (IOException expected) {
+        } catch (IllegalArgumentException expected) {
         }
 
         raf.close();
@@ -1336,12 +1052,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#write(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "write",
-        args = {byte[].class}
-    )
     public void test_write$B() throws IOException {
         byte[] rbuf = new byte[4000];
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1384,12 +1094,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#write(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_write$BII() throws Exception {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         byte[] rbuf = new byte[4000];
@@ -1471,12 +1175,6 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     /**
      * @tests java.io.RandomAccessFile#writeChars(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests against golden file missing.",
-        method = "writeChars",
-        args = {java.lang.String.class}
-    )
     public void test_writeCharsLjava_lang_String() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeChars(unihw);
