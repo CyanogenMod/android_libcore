@@ -224,7 +224,7 @@ public final class AccessControlContext {
                 return false;
             }
             // BEGIN android-changed
-            if(combiner != null) {
+            if (combiner != null) {
                 return combiner.equals(that.combiner);
             }
             return that.combiner == null;
