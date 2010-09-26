@@ -1029,7 +1029,6 @@ outer:
         }
     }
 
-    // BEGIN android-added
     /**
      * Version of getChars without bounds checks, for use by other classes
      * within the java.lang package only.  The caller is responsible for
@@ -1039,26 +1038,21 @@ outer:
         // NOTE last character not copied!
         System.arraycopy(value, start + offset, buffer, index, end - start);
     }
-    // END android-added
 
-    @Override
-    public int hashCode() {
-        // BEGIN android-changed
+    @Override public int hashCode() {
         int hash = hashCode;
         if (hash == 0) {
-            int multiplier = 1;
-            int _offset = offset;
-            int _count = count;
-            char[] _value = value;
-            for (int i = _offset + _count - 1; i >= _offset; i--) {
-                hash += _value[i] * multiplier;
-                int shifted = multiplier << 5;
-                multiplier = shifted - multiplier;
+            if (count == 0) {
+                return 0;
+            }
+            final int end = count + offset;
+            final char[] chars = value;
+            for (int i = offset; i < end; ++i) {
+                hash = 31*hash + chars[i];
             }
             hashCode = hash;
         }
         return hash;
-        // END android-changed
     }
 
     /**
