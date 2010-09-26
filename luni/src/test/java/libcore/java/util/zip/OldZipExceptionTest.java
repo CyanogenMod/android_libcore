@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.zip;
+package libcore.java.util.zip;
 
 import junit.framework.TestCase;
 
 import java.util.zip.ZipException;
 
-public class ZipExceptionTest extends TestCase {
+public class OldZipExceptionTest extends TestCase {
 
     public void testZipException() {
         ZipException zz = new ZipException();

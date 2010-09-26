@@ -15,34 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.jar;
+package libcore.java.util.jar;
 
 import java.util.jar.Attributes;
 import junit.framework.TestCase;
 
-public class AttributesNameTest extends TestCase {
+public class OldAttributesNameTest extends TestCase {
 
     /**
      * @tests java.util.jar.Attributes.Name#Name(java.lang.String)
      */
     public void test_AttributesName_Constructor() {
-        // Regression for HARMONY-85
         try {
-            new Attributes.Name(
-                    "01234567890123456789012345678901234567890123456789012345678901234567890");
-            fail("Assert 0: should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-
-        try {
-            new Attributes.Name((String) null);
+            new Attributes.Name(null);
             fail("NullPointerException expected");
         } catch (NullPointerException ee) {
             // expected
         }
-
-        assertNotNull(new Attributes.Name("Attr"));
     }
 
     public void test_equalsLjava_lang_Object() {

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.zip;
+package libcore.java.util.zip;
 
 import junit.framework.TestCase;
 
 import java.util.zip.DataFormatException;
 
-public class DataFormatExceptionTest extends TestCase {
+public class OldDataFormatExceptionTest extends TestCase {
 
     public void testDataFormatException() {
         DataFormatException dfe = new DataFormatException();

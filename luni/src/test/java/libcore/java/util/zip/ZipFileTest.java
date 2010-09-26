@@ -64,7 +64,7 @@ public final class ZipFileTest extends TestCase {
      * Compresses a single random file into a .zip archive.
      */
     private File createZipFile(int uncompressedSize) throws IOException {
-        File result = File.createTempFile("ZipFileTest", "zip");
+        File result = File.createTempFile("OldZipFileTest", "zip");
         result.deleteOnExit();
 
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(result));

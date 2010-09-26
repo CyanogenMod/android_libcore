@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.jar;
+package libcore.java.util.jar;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.CodeSigner;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -30,25 +26,12 @@ import junit.framework.TestCase;
 import tests.support.resource.Support_Resources;
 
 
-public class JarEntryTest extends TestCase {
+public class OldJarEntryTest extends TestCase {
     private ZipEntry zipEntry;
-
     private JarEntry jarEntry;
-
     private JarFile jarFile;
-
     private final String jarName = "hyts_patch.jar";
-
     private final String entryName = "foo/bar/A.class";
-
-    private final String entryName2 = "Blah.txt";
-
-    private final String attJarName = "hyts_att.jar";
-
-    private final String attEntryName = "HasAttributes.txt";
-
-    private final String attEntryName2 = "NoAttributes.txt";
-
     private File resources;
 
     @Override
@@ -103,29 +86,6 @@ public class JarEntryTest extends TestCase {
     public void test_getAttributes() {
         JarFile attrJar = null;
         File file = null;
-        try {
-            Support_Resources.copyFile(resources, null, attJarName);
-            file = new File(resources, attJarName);
-            attrJar = new JarFile(file);
-        } catch (Exception e) {
-            assertTrue(file + " does not exist", file.exists());
-            fail("Exception opening file: " + e.toString());
-        }
-        try {
-            jarEntry = attrJar.getJarEntry(attEntryName);
-            assertNotNull("Should have Manifest attributes", jarEntry
-                    .getAttributes());
-        } catch (Exception e) {
-            fail("Exception during 2nd test: " + e.toString());
-        }
-        try {
-            jarEntry = attrJar.getJarEntry(attEntryName2);
-            assertNull("Shouldn't have any Manifest attributes", jarEntry
-                    .getAttributes());
-            attrJar.close();
-        } catch (Exception e) {
-            fail("Exception during 1st test: " + e.toString());
-        }
 
         Support_Resources.copyFile(resources, null, "Broken_manifest.jar");
         try {
@@ -136,79 +96,6 @@ public class JarEntryTest extends TestCase {
         } catch (IOException e) {
             // expected.
         }
-    }
-
-    /**
-     * @tests java.util.jar.JarEntry#getCertificates()
-     */
-    public void test_getCertificates() throws Exception {
-        zipEntry = jarFile.getEntry(entryName2);
-        jarEntry = new JarEntry(zipEntry);
-        assertNull("Shouldn't have any Certificates", jarEntry
-                .getCertificates());
-
-        // Regression Test for HARMONY-3424
-        String jarFileName = "TestCodeSigners.jar";
-        Support_Resources.copyFile(resources, null, jarFileName);
-        File file = new File(resources, jarFileName);
-        JarFile jarFile = new JarFile(file);
-        JarEntry jarEntry1 = jarFile.getJarEntry("Test.class");
-        JarEntry jarEntry2 = jarFile.getJarEntry("Test.class");
-        InputStream in = jarFile.getInputStream(jarEntry1);
-        byte[] buffer = new byte[1024];
-        // BEGIN android-changed
-        // the certificates are non-null too early and in.available() fails
-        // while (in.available() > 0) {
-        //     assertNull("getCertificates() should be null until the entry is read",
-        //             jarEntry1.getCertificates());
-        //     assertNull(jarEntry2.getCertificates());
-        //     in.read(buffer);
-        // }
-        while (in.read(buffer) >= 0);
-        in.close();
-        // END android-changed
-        assertEquals("the file is fully read", -1, in.read());
-        assertNotNull(jarEntry1.getCertificates());
-        assertNotNull(jarEntry2.getCertificates());
-        in.close();
-    }
-
-    /**
-     * @tests java.util.jar.JarEntry#getCodeSigners()
-     */
-    public void test_getCodeSigners() throws IOException {
-        String jarFileName = "TestCodeSigners.jar";
-        Support_Resources.copyFile(resources, null, jarFileName);
-        File file = new File(resources, jarFileName);
-        JarFile jarFile = new JarFile(file);
-        JarEntry jarEntry = jarFile.getJarEntry("Test.class");
-        InputStream in = jarFile.getInputStream(jarEntry);
-        byte[] buffer = new byte[1024];
-        while (in.available() > 0) {
-            // BEGIN android-changed
-            // the code signers are non-null too early
-            // assertNull("getCodeSigners() should be null until the entry is read",
-            //         jarEntry.getCodeSigners());
-            // END android-changed
-            in.read(buffer);
-        }
-        assertEquals("the file is fully read", -1, in.read());
-        CodeSigner[] codeSigners = jarEntry.getCodeSigners();
-        assertEquals(2, codeSigners.length);
-        List<?> certs_bob = codeSigners[0].getSignerCertPath()
-                .getCertificates();
-        List<?> certs_alice = codeSigners[1].getSignerCertPath()
-                .getCertificates();
-        if (1 == certs_bob.size()) {
-            List<?> temp = certs_bob;
-            certs_bob = certs_alice;
-            certs_alice = temp;
-        }
-        assertEquals(2, certs_bob.size());
-        assertEquals(1, certs_alice.size());
-        assertNull(
-                "getCodeSigners() of a primitive JarEntry should return null",
-                new JarEntry("aaa").getCodeSigners());
     }
 
     public void test_ConstructorLjava_lang_String() {
