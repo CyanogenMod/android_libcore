@@ -826,15 +826,6 @@
   ]
 },
 {
-  description: "These test exception priority.",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigDecimalExceptionOrder",
-    "org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigIntegerExceptionOrder",
-    "org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatDoubleBigDecimalExceptionOrder"
-  ]
-},
-{
   description: "These format specifiers are documented to not take flags, but the RI accepts and ignores them.",
   result: EXEC_FAILED,
   name: "org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_LineSeparator",
