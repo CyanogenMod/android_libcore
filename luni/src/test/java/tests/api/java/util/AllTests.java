@@ -46,7 +46,6 @@ public class AllTests {
         suite.addTestSuite(EnumSetTest.class);
         suite.addTestSuite(EventObjectTest.class);
         suite.addTestSuite(FormattableFlagsTest.class);
-        suite.addTestSuite(FormatterTest.class);
         suite.addTestSuite(GregorianCalendarTest.class);
         suite.addTestSuite(HashMapTest.class);
         suite.addTestSuite(HashSetTest.class);
