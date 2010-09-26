@@ -65,7 +65,6 @@ public class AllTests {
         suite.addTestSuite(PropertyResourceBundleTest.class);
         suite.addTestSuite(RandomTest.class);
         suite.addTestSuite(ResourceBundleTest.class);
-        suite.addTestSuite(ScannerTest.class);
         suite.addTestSuite(SimpleTimeZoneTest.class);
         suite.addTestSuite(StackTest.class);
         suite.addTestSuite(StringTokenizerTest.class);
