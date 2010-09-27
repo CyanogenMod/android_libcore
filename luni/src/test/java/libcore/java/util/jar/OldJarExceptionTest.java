@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.jar;
+package libcore.java.util.jar;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.jar.Manifest;
-import junit.framework.TestCase;
 import java.util.jar.JarException;
+import junit.framework.TestCase;
 
-public class JarExceptionTest extends TestCase {
+public class OldJarExceptionTest extends TestCase {
     /**
      * @tests java.util.jar.JarException#JarException(java.lang.String)
      */

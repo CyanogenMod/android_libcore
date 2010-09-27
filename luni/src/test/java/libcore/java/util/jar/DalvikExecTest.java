@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.jar;
-
-import junit.framework.TestCase;
-import static tests.support.Support_Exec.execAndGetOutput;
-import tests.support.resource.Support_Resources;
+package libcore.java.util.jar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,6 +26,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import junit.framework.TestCase;
+import static tests.support.Support_Exec.execAndGetOutput;
+import tests.support.resource.Support_Resources;
 
 
 public class DalvikExecTest extends TestCase {
@@ -40,6 +39,9 @@ public class DalvikExecTest extends TestCase {
         ProcessBuilder builder = new ProcessBuilder();
 
         String base = System.getenv("OUT");
+        if (base == null) {
+            base = "";
+        }
         builder.command().add(base + "/system/bin/dalvikvm");
 
         builder.command().add("-Djava.io.tmpdir=/tmp/mc");
