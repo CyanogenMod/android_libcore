@@ -281,7 +281,7 @@ public interface SQLOutput {
     public void writeArray(Array theArray) throws SQLException;
 
     /**
-     * Write an SQL {@code DATALINK} value into the output stream.
+     * Write a {@code URL} into the output stream as an SQL DATALINK.
      *
      * @param theURL
      *            the datalink value as a {@code java.net.URL} to write.
@@ -292,15 +292,43 @@ public interface SQLOutput {
     public void writeURL(URL theURL) throws SQLException;
 
     /**
-     * TODO Javadoc
+     * Write a {@code String} into the output stream as an SQL NCHAR, NVARCHAR,
+     * or LONGNVARCHAR.
      *
-     * @return
+     * @param theString
+     *            the {@code String} to write.
+     * @throws SQLException
+     *             if a database error occurs.
      */
-    public void writeNString(String x) throws SQLException;
+    public void writeNString(String theString) throws SQLException;
 
-    public void writeNClob(NClob x) throws SQLException;
+    /**
+     * Write a {@code Clob} into the output stream as an SQL NCLOB.
+     *
+     * @param theNClob
+     *            the {@code java.sql.Clob} object to write.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
+    public void writeNClob(NClob theNClob) throws SQLException;
 
-    public void writeRowId(RowId x) throws SQLException;
+    /**
+     * Write a {@code RowId} into the output stream as an SQL ROWID.
+     *
+     * @param theRowId
+     *            the {@code java.sql.RowId} object to write.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
+    public void writeRowId(RowId theRowId) throws SQLException;
 
-    public void writeSQLXML(SQLXML x) throws SQLException;
+    /**
+     * Write a {@code SQLXML} into the output stream as an SQL XML.
+     *
+     * @param theXml
+     *            the {@code java.sql.SQLXML} object to write.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
+    public void writeSQLXML(SQLXML theXml) throws SQLException;
 }

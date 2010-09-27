@@ -17,10 +17,17 @@
 
 package java.sql;
 
+/**
+ * Maps SQL's ROWID type into Java.
+ * @since 1.6
+ */
 public interface RowId {
 
     boolean equals(Object obj);
 
+    /**
+     * Returns an array of bytes representing the value of the corresponding SQL ROWID.
+     */
     byte[] getBytes();
 
     String toString();
