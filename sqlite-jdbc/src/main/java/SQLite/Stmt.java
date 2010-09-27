@@ -225,9 +225,9 @@ public class Stmt {
      */
 
     public Object column(int col) throws SQLite.Exception {
-        switch (column_type(col)) {
+	switch (column_type(col)) {
 	case Constants.SQLITE_INTEGER:
-	    return Long.valueOf(column_long(col)); // android-changed: performance;
+	    return Long.valueOf(column_long(col)); // android-changed: performance
 	case Constants.SQLITE_FLOAT:
 	    return new Double(column_double(col));
 	case Constants.SQLITE_BLOB:
@@ -269,6 +269,15 @@ public class Stmt {
      */
 
     public native String column_origin_name(int col) throws SQLite.Exception;
+
+    /**
+     * Return statement status information.
+     * @param op which counter to report
+     * @param flg reset flag
+     * @return counter
+     */
+
+    public native int status(int op, boolean flg);
 
     /**
      * Destructor for object.
