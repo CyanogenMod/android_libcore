@@ -395,7 +395,6 @@ public class Database {
      * @param sql the SQL statement to be executed
      * @param args arguments for the SQL statement, '%q' substitution
      * @param tbl TableResult to receive result set
-     * @return result set
      */
 
     public void get_table(String sql, String args[], TableResult tbl)
@@ -593,6 +592,82 @@ public class Database {
     }
 
     private native void _trace(Trace tr);
+
+    /**
+     * Initiate a database backup, SQLite 3.x only.
+     *
+     * @param dest destination database
+     * @param destName schema of destination database to be backed up
+     * @param srcName schema of source database
+     * @return Backup object to perform the backup operation
+     */
+
+    public Backup backup(Database dest, String destName, String srcName)
+	throws SQLite.Exception {
+	synchronized(this) {
+	    Backup b = new Backup();
+	    _backup(b, dest, destName, this, srcName);
+	    return b;
+	}
+    }
+
+    private static native void _backup(Backup b, Database dest,
+				       String destName, Database src,
+				       String srcName)
+	throws SQLite.Exception;
+
+    /**
+     * Set profile function. Only available in SQLite 3.6 and above,
+     * otherwise a no-op.
+     *
+     * @param pr the trace function
+     */
+
+    public void profile(Profile pr) {
+	synchronized(this) {
+	    _profile(pr);
+	}
+    }
+
+    private native void _profile(Profile pr);
+
+    /**
+     * Return information on SQLite runtime status.
+     * Only available in SQLite 3.6 and above,
+     * otherwise a no-op.
+     *
+     * @param op   operation code
+     * @param info output buffer, must be able to hold two
+     *             values (current/highwater)
+     * @param flag reset flag
+     * @return SQLite error code
+     */
+
+    public synchronized static int status(int op, int info[], boolean flag) {
+	return _status(op, info, flag);
+    }
+
+    private native static int _status(int op, int info[], boolean flag);
+
+    /**
+     * Return information on SQLite connection status.
+     * Only available in SQLite 3.6 and above,
+     * otherwise a no-op.
+     *
+     * @param op operation code
+     * @param info output buffer, must be able to hold two
+     *             values (current/highwater)
+     * @param flag reset flag
+     * @return SQLite error code
+     */
+
+    public int db_status(int op, int info[], boolean flag) {
+	synchronized(this) {
+	    return _db_status(op, info, flag);
+	}
+    }
+
+    private native int _db_status(int op, int info[], boolean flag);
 
     /**
      * Compile and return SQLite VM for SQL statement. Only available

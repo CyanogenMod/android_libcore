@@ -58,6 +58,7 @@ typedef struct {
     jobject cb;			/* Callback object */
     jobject ai;			/* Authorizer object */
     jobject tr;			/* Trace object */
+    jobject pr;			/* Profile object */
     jobject ph;			/* ProgressHandler object */
     JNIEnv *env;		/* Java environment for callbacks */
     int row1;			/* true while processing first row */
@@ -71,7 +72,10 @@ typedef struct {
     sqlite3_stmt *stmt;		/* For callback() */
 #endif
 #if HAVE_SQLITE3 && HAVE_SQLITE3_INCRBLOBIO
-  struct hbl *blobs;		/* SQLite3 blob handles */
+    struct hbl *blobs;		/* SQLite3 blob handles */
+#endif
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+  struct hbk *backups;		/* SQLite3 backup handles */
 #endif
 } handle;
 
@@ -116,6 +120,16 @@ typedef struct hbl {
 } hbl;
 #endif
 
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+/* internal handle for sqlite3_backup */
+
+typedef struct hbk {
+    struct hbk *next;		/* next blob handle */
+    sqlite3_backup *bkup;	/* SQLite3 backup handle */
+    handle *h;			/* SQLite database handle (source) */
+} hbk;
+#endif
+
 /* ISO to/from UTF-8 translation */
 
 typedef struct {
@@ -137,6 +151,7 @@ static jfieldID F_SQLite_Stmt_handle = 0;
 static jfieldID F_SQLite_Stmt_error_code = 0;
 static jfieldID F_SQLite_Blob_handle = 0;
 static jfieldID F_SQLite_Blob_size = 0;
+static jfieldID F_SQLite_Backup_handle = 0;
 
 static jmethodID M_java_lang_String_getBytes = 0;
 static jmethodID M_java_lang_String_getBytes2 = 0;
@@ -230,6 +245,17 @@ gethbl(JNIEnv *env, jobject obj)
     jvalue v;
 
     v.j = (*env)->GetLongField(env, obj, F_SQLite_Blob_handle);
+    return (void *) v.l;
+}
+#endif
+
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+static void *
+gethbk(JNIEnv *env, jobject obj)
+{
+    jvalue v;
+
+    v.j = (*env)->GetLongField(env, obj, F_SQLite_Backup_handle);
     return (void *) v.l;
 }
 #endif
@@ -340,6 +366,7 @@ trans2iso(JNIEnv *env, int haveutf, jstring enc, jstring src,
 	dest->result = dest->tofree = malloc(strlen(utf) + 1);
 #else
 	jsize utflen = (*env)->GetStringUTFLength(env, src);
+	jsize uclen = (*env)->GetStringLength(env, src);
 
 	dest->result = dest->tofree = malloc(utflen + 1);
 #endif
@@ -351,7 +378,8 @@ trans2iso(JNIEnv *env, int haveutf, jstring enc, jstring src,
 	strcpy(dest->result, utf);
 	(*env)->ReleaseStringUTFChars(env, src, utf);
 #else
-	(*env)->GetStringUTFRegion(env, src, 0, utflen, dest->result);
+	(*env)->GetStringUTFRegion(env, src, 0, uclen, dest->result);
+	dest->result[utflen] = '\0';
 #endif
 	return dest->result;
     }
@@ -752,6 +780,9 @@ doclose(JNIEnv *env, jobject obj, int final)
 #if HAVE_SQLITE3 && HAVE_SQLITE3_INCRBLOBIO
 	hbl *bl;
 #endif
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+	hbk *bk;
+#endif
 #if HAVE_SQLITE_COMPILE
 	hvm *v;
 
@@ -818,6 +849,17 @@ doclose(JNIEnv *env, jobject obj, int final)
 		sqlite3_blob_close(bl->blob);
 	    }
 	    bl->blob = 0;
+	}
+#endif
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+	while ((bk = h->backups)) {
+	    h->backups = bk->next;
+	    bk->next = 0;
+	    bk->h = 0;
+	    if (bk->bkup) {
+		sqlite3_backup_finish(bk->bkup);
+	    }
+	    bk->bkup = 0;
 	}
 #endif
 	delglobrefp(env, &h->bh);
@@ -1050,7 +1092,7 @@ Java_SQLite_Database__1open4(JNIEnv *env, jobject obj, jstring file, jint mode,
 	    return;
 	}
 	h->sqlite = 0;
-	h->bh = h->cb = h->ai = h->tr = h->ph = 0;
+	h->bh = h->cb = h->ai = h->tr = h->pr = h->ph = 0;
 	/* CHECK THIS */
 #if HAVE_BOTH_SQLITE
 	h->is3 = 0;
@@ -1073,6 +1115,9 @@ Java_SQLite_Database__1open4(JNIEnv *env, jobject obj, jstring file, jint mode,
 #endif
 #if HAVE_SQLITE3 && HAVE_SQLITE3_INCRBLOBIO
 	h->blobs = 0;
+#endif
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+	h->backups = 0;
 #endif
     }
     h->env = 0;
@@ -3550,7 +3595,7 @@ Java_SQLite_Database_stmt_1prepare(JNIEnv *env, jobject obj, jstring sql,
 	return;
     }
     len16 = len16 + sizeof (jchar) - ((char *) tail - (char *) sql16);
-    if (len16 < (jsize) sizeof (jchar)) {
+    if (len16 < sizeof (jchar)) {
 	len16 = sizeof (jchar);
     }
     v = malloc(sizeof (hvm) + len16);
@@ -4279,6 +4324,21 @@ Java_SQLite_Stmt_column_1origin_1name(JNIEnv *env, jobject obj, jint col)
     return 0;
 }
 
+JNIEXPORT jint JNICALL
+Java_SQLite_Stmt_status(JNIEnv *env, jobject obj, jint op, jboolean flg)
+{
+    jint count = 0;
+#if HAVE_SQLITE3 && HAVE_SQLITE3_STMT_STATUS
+    hvm *v = gethstmt(env, obj);
+
+    if (v && v->vm && v->h) {
+	count = sqlite3_stmt_status((sqlite3_stmt *) v->vm, op,
+				    flg == JNI_TRUE);
+    }
+#endif
+    return count;
+}
+
 JNIEXPORT void JNICALL
 Java_SQLite_Stmt_finalize(JNIEnv *env, jobject obj)
 {
@@ -4306,6 +4366,12 @@ Java_SQLite_Database__1open_1blob(JNIEnv *env, jobject obj,
 	throwex(env, "null blob");
 	return;
     }
+#if HAVE_BOTH_SQLITE
+    if (!h->is3) {
+	throwex(env, "not a SQLite 3 database");
+	return;
+    }
+#endif
     if (h && h->sqlite) {
 	trans2iso(env, h->haveutf, h->enc, dbname, &dbn);
 	exc = (*env)->ExceptionOccurred(env);
@@ -4564,6 +4630,313 @@ Java_SQLite_Database__1enable_1shared_1cache(JNIEnv *env, jclass cls,
 #endif
 }
 
+
+JNIEXPORT void JNICALL
+Java_SQLite_Database__1backup(JNIEnv *env, jclass cls, jobject bkupj,
+			      jobject dest, jstring destName,
+			      jobject src, jstring srcName)
+{
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+    handle *hsrc = gethandle(env, src);
+    handle *hdest = gethandle(env, dest);
+    hbk *bk;
+    jthrowable exc;
+    transstr dbns, dbnd;
+    sqlite3_backup *bkup;
+    jvalue vv;
+
+    if (!bkupj) {
+	throwex(env, "null backup");
+	return;
+    }
+    if (!hsrc) {
+	throwex(env, "no source database");
+	return;
+    }
+    if (!hdest) {
+	throwex(env, "no destination database");
+	return;
+    }
+#if HAVE_BOTH_SQLITE
+    if (!hsrc->is3 || !hdest->is3) {
+	throwex(env, "not a SQLite 3 database");
+	return;
+    }
+#endif
+    if (!hsrc->sqlite) {
+	throwex(env, "source database not open");
+	return;
+    }
+    if (!hdest->sqlite) {
+	throwex(env, "destination database not open");
+	return;
+    }
+    trans2iso(env, hdest->haveutf, hdest->enc, destName, &dbnd);
+    exc = (*env)->ExceptionOccurred(env);
+    if (exc) {
+	(*env)->DeleteLocalRef(env, exc);
+	return;
+    }
+    trans2iso(env, hsrc->haveutf, hsrc->enc, srcName, &dbns);
+    exc = (*env)->ExceptionOccurred(env);
+    if (exc) {
+	transfree(&dbnd);
+	(*env)->DeleteLocalRef(env, exc);
+	return;
+    }
+    bkup = sqlite3_backup_init((sqlite3 *) hdest->sqlite, dbnd.result,
+			       (sqlite3 *) hsrc->sqlite, dbns.result);
+    transfree(&dbnd);
+    transfree(&dbns);
+    if (!bkup) {
+	const char *err = sqlite3_errmsg((sqlite3 *) hdest->sqlite);
+
+	seterr(env, src, sqlite3_errcode((sqlite3 *) hdest->sqlite));
+	throwex(env, err ? err : "error in backup init");
+	return;
+    }
+    bk = malloc(sizeof (hbk));
+    if (!bk) {
+	sqlite3_backup_finish(bkup);
+	throwoom(env, "unable to get SQLite backup handle");
+	return;
+    }
+    bk->next = hsrc->backups;
+    hsrc->backups = bk;
+    bk->bkup = bkup;
+    bk->h = hsrc;
+    vv.j = 0;
+    vv.l = (jobject) bk;
+    (*env)->SetLongField(env, bkupj, F_SQLite_Backup_handle, vv.j);
+    return;
+#else
+    throwex(env, "unsupported");
+#endif
+}
+
+JNIEXPORT void JNICALL
+Java_SQLite_Backup__1finalize(JNIEnv *env, jobject obj)
+{
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+    hbk *bk = gethbk(env, obj);
+    int ret = SQLITE_OK;
+    char *err = 0;
+
+    if (bk) {
+	if (bk->h) {
+	    handle *h = bk->h;
+	    hbk *bkc, **bkp;
+
+	    bkp = &h->backups;
+	    bkc = *bkp;
+	    while (bkc) {
+		if (bkc == bk) {
+		    *bkp = bkc->next;
+		    break;
+		}
+		bkp = &bkc->next;
+		bkc = *bkp;
+	    }
+	}
+	if (bk->bkup) {
+	    ret = sqlite3_backup_finish(bk->bkup);
+	    if (ret != SQLITE_OK && bk->h) {
+		err = (char *) sqlite3_errmsg((sqlite3 *) bk->h->sqlite);
+	    }
+	}
+	bk->bkup = 0;
+	free(bk);
+	(*env)->SetLongField(env, obj, F_SQLite_Backup_handle, 0);
+	if (ret != SQLITE_OK) {
+	    throwex(env, err ? err : "unknown error");
+	}
+    }
+#endif
+}
+
+JNIEXPORT jboolean JNICALL
+Java_SQLite_Backup__1step(JNIEnv *env, jobject obj, jint n)
+{
+    jboolean result = JNI_TRUE;
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+    hbk *bk = gethbk(env, obj);
+    int ret;
+
+    if (bk) {
+	if (bk->bkup) {
+	    ret = sqlite3_backup_step(bk->bkup, (int) n);
+	    switch (ret) {
+	    case SQLITE_DONE:
+		break;
+	    case SQLITE_LOCKED:
+	    case SQLITE_BUSY:
+	    case SQLITE_OK:
+		result = JNI_FALSE;
+		break;
+	    default:
+		result = JNI_FALSE;
+		throwex(env, "backup step failed");
+		break;
+	    }
+	}
+    } else {
+	throwex(env, "stale backup object");
+    }
+#else
+    throwex(env, "unsupported");
+#endif
+    return result;
+}
+
+JNIEXPORT jint JNICALL
+Java_SQLite_Backup__1remaining(JNIEnv *env, jobject obj)
+{
+    jint result = 0;
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+    hbk *bk = gethbk(env, obj);
+
+    if (bk) {
+	if (bk->bkup) {
+	    result = sqlite3_backup_remaining(bk->bkup);
+	}
+    }
+#else
+    throwex(env, "unsupported");
+#endif
+    return result;
+}
+
+JNIEXPORT jint JNICALL
+Java_SQLite_Backup__1pagecount(JNIEnv *env, jobject obj)
+{
+    jint result = 0;
+#if HAVE_SQLITE3 && HAVE_SQLITE3_BACKUPAPI
+    hbk *bk = gethbk(env, obj);
+
+    if (bk) {
+	if (bk->bkup) {
+	    result = sqlite3_backup_pagecount(bk->bkup);
+	}
+    }
+#else
+    throwex(env, "unsupported");
+#endif
+    return result;
+}
+
+#if HAVE_SQLITE3_PROFILE
+static void
+doprofile(void *arg, const char *msg, sqlite_uint64 est)
+{
+    handle *h = (handle *) arg;
+    JNIEnv *env = h->env;
+
+    if (env && h->pr && msg) {
+	jthrowable exc;
+	jclass cls = (*env)->GetObjectClass(env, h->pr);
+	jmethodID mid;
+
+	mid = (*env)->GetMethodID(env, cls, "profile",
+				  "(Ljava/lang/String;J)V");
+	if (mid) {
+	    transstr tr;
+#if _MSC_VER && (_MSC_VER < 1300)
+	    jlong ms = est / (3600i64 * 24i64 * 1000i64);
+#else
+	    jlong ms = est / (3600LL * 24LL * 1000LL);
+#endif
+
+	    trans2utf(env, h->haveutf, h->enc, msg, &tr);
+	    exc = (*env)->ExceptionOccurred(env);
+	    if (exc) {
+		(*env)->DeleteLocalRef(env, exc);
+		(*env)->ExceptionClear(env);
+		return;
+	    }
+	    (*env)->CallVoidMethod(env, h->pr, mid, tr.jstr, ms);
+	    (*env)->ExceptionClear(env);
+	    (*env)->DeleteLocalRef(env, tr.jstr);
+	    return;
+	}
+    }
+    return;
+}
+#endif
+
+JNIEXPORT void JNICALL
+Java_SQLite_Database__1profile(JNIEnv *env, jobject obj, jobject tr)
+{
+#if HAVE_SQLITE3_PROFILE
+    handle *h = gethandle(env, obj);
+
+    if (h && h->sqlite) {
+	delglobrefp(env, &h->pr);
+	globrefset(env, tr, &h->pr);
+#if HAVE_BOTH_SQLITE
+	if (h->is3) {
+	    sqlite3_profile((sqlite3 *) h->sqlite, h->pr ? doprofile : 0, h);
+	}
+#else
+#if HAVE_SQLITE3
+	sqlite3_profile((sqlite3 *) h->sqlite, h->pr ? doprofile : 0, h);
+#endif
+#endif
+    }
+#endif
+}
+
+JNIEXPORT jint JNICALL
+Java_SQLite_Database__1status(JNIEnv *env, jclass cls, jint op,
+			      jintArray info, jboolean flag)
+{
+    jint ret = SQLITE_ERROR;
+#if HAVE_SQLITE3_STATUS
+    int data[2] = { 0, 0 };
+    jint jdata[2];
+#if HAVE_SQLITE3
+    ret = sqlite3_status(op, &data[0], &data[2], flag);
+    if (ret == SQLITE_OK) {
+	jdata[0] = data[0];
+	jdata[1] = data[1];
+	(*env)->SetIntArrayRegion(env, info, 0, 2, jdata);
+    }
+#endif
+#endif
+    return ret;
+}
+
+JNIEXPORT jint JNICALL
+Java_SQLite_Database__1db_1status(JNIEnv *env, jobject obj, jint op,
+				  jintArray info, jboolean flag)
+{
+    jint ret = SQLITE_ERROR;
+#if HAVE_SQLITE3_DB_STATUS
+    handle *h = gethandle(env, obj);
+    int data[2] = { 0, 0 };
+    jint jdata[2];
+
+    if (h && h->sqlite) {
+#if HAVE_BOTH_SQLITE
+	if (h->is3) {
+	    ret = sqlite3_db_status((sqlite3 *) h->sqlite, op, &data[0],
+				    &data[1], flag);
+	}
+#else
+#if HAVE_SQLITE3
+	ret = sqlite3_db_status((sqlite3 *) h->sqlite, op, &data[0],
+				&data[2], flag);
+#endif
+#endif
+	if (ret == SQLITE_OK) {
+	    jdata[0] = data[0];
+	    jdata[1] = data[1];
+	    (*env)->SetIntArrayRegion(env, info, 0, 2, jdata);
+	}
+    }
+#endif
+    return ret;
+}
+
 JNIEXPORT void JNICALL
 Java_SQLite_Stmt_internal_1init(JNIEnv *env, jclass cls)
 {
@@ -4589,6 +4962,13 @@ Java_SQLite_Blob_internal_1init(JNIEnv *env, jclass cls)
 	(*env)->GetFieldID(env, cls, "handle", "J");
     F_SQLite_Blob_size =
 	(*env)->GetFieldID(env, cls, "size", "I");
+}
+
+JNIEXPORT void JNICALL
+Java_SQLite_Backup_internal_1init(JNIEnv *env, jclass cls)
+{
+    F_SQLite_Backup_handle =
+	(*env)->GetFieldID(env, cls, "handle", "J");
 }
 
 JNIEXPORT void JNICALL
