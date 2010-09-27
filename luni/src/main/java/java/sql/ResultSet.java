@@ -1945,136 +1945,327 @@ public interface ResultSet extends Wrapper {
     public boolean wasNull() throws SQLException;
 
     /**
-     * TODO
-     *
-     * @param columnIndex
-     * @return
+     * Returns a {@code RowId} corresponding to the SQL ROWID at the 1-based {@code columnIndex}.
      * @throws SQLException
      */
     public RowId getRowId(int columnIndex) throws SQLException;
 
+    /**
+     * Returns a {@code RowId} corresponding to the SQL ROWID at the named column.
+     * @throws SQLException
+     */
     public RowId getRowId(String columnLabel) throws SQLException;
 
-    public void updateRowId(int columnIndex, RowId x) throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateRowId(int columnIndex, RowId value) throws SQLException;
 
-    public void updateRowId(String columnLabel, RowId x) throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateRowId(String columnLabel, RowId value) throws SQLException;
 
+    /**
+     * Returns the holdability of this result set: {@link #HOLD_CURSORS_OVER_COMMIT} or
+     * {@link #CLOSE_CURSORS_AT_COMMIT}.
+     * @throws SQLException
+     */
     public int getHoldability() throws SQLException;
 
+    /**
+     * Returns true if this result set has been closed, false otherwise.
+     * @throws SQLException
+     */
     public boolean isClosed() throws SQLException;
 
-    public void updateNString(int columnIndex, String nString)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNString(int columnIndex, String nString) throws SQLException;
 
-    public void updateNString(String columnLabel, String nString)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNString(String columnLabel, String nString) throws SQLException;
 
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException;
 
-    public void updateNClob(String columnLabel, NClob nClob)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNClob(String columnLabel, NClob nClob) throws SQLException;
 
+    /**
+     * Returns an {@code NClob} corresponding to the value at the 1-based {@code columnIndex}.
+     * @throws SQLException
+     */
     public NClob getNClob(int columnIndex) throws SQLException;
 
+    /**
+     * Returns an {@code NClob} corresponding to the value in the named column.
+     * @throws SQLException
+     */
     public NClob getNClob(String columnLabel) throws SQLException;
 
+    /**
+     * Returns an {@code SQLXML} corresponding to the value at the 1-based {@code columnIndex}.
+     * @throws SQLException
+     */
     public SQLXML getSQLXML(int columnIndex) throws SQLException;
 
+    /**
+     * Returns an {@code SQLXML} corresponding to the value in the named column.
+     * @throws SQLException
+     */
     public SQLXML getSQLXML(String columnLabel) throws SQLException;
 
-    public void updateSQLXML(int columnIndex, SQLXML xmlObject)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException;
 
-    public void updateSQLXML(String columnLabel, SQLXML xmlObject)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException;
 
+    /**
+     * Returns a {@code String} corresponding to the value at the 1-based {@code columnIndex}.
+     * @throws SQLException
+     */
     public String getNString(int columnIndex) throws SQLException;
 
+    /**
+     * Returns a {@code String} corresponding to the value in the named column.
+     * @throws SQLException
+     */
     public String getNString(String columnLabel) throws SQLException;
 
+    /**
+     * Returns a {@code Reader} corresponding to the value at the 1-based {@code columnIndex}.
+     * @throws SQLException
+     */
     public Reader getNCharacterStream(int columnIndex) throws SQLException;
 
+    /**
+     * Returns a {@code Reader} corresponding to the value in the named column.
+     * @throws SQLException
+     */
     public Reader getNCharacterStream(String columnLabel) throws SQLException;
 
-    public void updateNCharacterStream(int columnIndex, Reader x, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException;
 
-    public void updateNCharacterStream(String columnLabel, Reader reader,
-            long length) throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException;
 
-    public void updateAsciiStream(int columnIndex, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException;
 
-    public void updateBinaryStream(int columnIndex, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException;
 
-    public void updateCharacterStream(int columnIndex, Reader x, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException;
 
-    public void updateAsciiStream(String columnLabel, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException;
 
-    public void updateBinaryStream(String columnLabel, InputStream x,
-            long length) throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException;
 
-    public void updateCharacterStream(String columnLabel, Reader reader,
-            long length) throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException;
 
-    public void updateBlob(int columnIndex, InputStream inputStream, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException;
 
-    public void updateBlob(String columnLabel, InputStream inputStream,
-            long length) throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException;
 
-    public void updateClob(int columnIndex, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateClob(int columnIndex, Reader reader, long length) throws SQLException;
 
-    public void updateClob(String columnLabel, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateClob(String columnLabel, Reader reader, long length) throws SQLException;
 
-    public void updateNClob(int columnIndex, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException;
 
-    public void updateNClob(String columnLabel, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException;
 
-    public void updateNCharacterStream(int columnIndex, Reader x)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException;
 
-    public void updateNCharacterStream(String columnLabel, Reader reader)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException;
 
-    public void updateAsciiStream(int columnIndex, InputStream x)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException;
 
-    public void updateBinaryStream(int columnIndex, InputStream x)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException;
 
-    public void updateCharacterStream(int columnIndex, Reader x)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateCharacterStream(int columnIndex, Reader x) throws SQLException;
 
-    public void updateAsciiStream(String columnLabel, InputStream x)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException;
 
-    public void updateBinaryStream(String columnLabel, InputStream x)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException;
 
-    public void updateCharacterStream(String columnLabel, Reader reader)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException;
 
-    public void updateBlob(int columnIndex, InputStream inputStream)
-            throws SQLException;
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException;
 
-    public void updateBlob(String columnLabel, InputStream inputStream)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException;
 
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
     public void updateClob(int columnIndex, Reader reader) throws SQLException;
 
-    public void updateClob(String columnLabel, Reader reader)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateClob(String columnLabel, Reader reader) throws SQLException;
 
+    /**
+     * Updates the value at the 1-based {@code columnIndex}.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
     public void updateNClob(int columnIndex, Reader reader) throws SQLException;
 
-    public void updateNClob(String columnLabel, Reader reader)
-            throws SQLException;
+    /**
+     * Updates the value in the named column.
+     * The underlying database isn't changed until the next row update or insert operation.
+     * @throws SQLException
+     */
+    public void updateNClob(String columnLabel, Reader reader) throws SQLException;
 }

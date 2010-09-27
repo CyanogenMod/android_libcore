@@ -178,11 +178,17 @@ public interface Clob {
     public void truncate(long len) throws SQLException;
 
     /**
-     * TODO Javadoc
+     * Frees any resources held by this clob. After {@code free} is called, calling
+     * method other than {@code free} will throw {@code SQLException} (calling {@code free}
+     * repeatedly will do nothing).
      *
      * @throws SQLException
      */
     public void free() throws SQLException;
 
+    /**
+     * Returns a {@link Reader} that reads {@code length} characters from this clob, starting
+     * at 1-based offset {code pos}.
+     */
     public Reader getCharacterStream(long pos, long length) throws SQLException;
 }

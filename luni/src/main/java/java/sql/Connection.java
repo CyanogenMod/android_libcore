@@ -761,33 +761,81 @@ public interface Connection extends Wrapper {
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException;
 
     /**
-     * TODO Javadoc
-     *
-     * @return
+     * Returns a new empty Clob.
+     * @throws SQLException if this connection is closed, or there's a problem creating a new clob.
      */
     public Clob createClob() throws SQLException;
 
+    /**
+     * Returns a new empty Blob.
+     * @throws SQLException if this connection is closed, or there's a problem creating a new blob.
+     */
     public Blob createBlob() throws SQLException;
 
+    /**
+     * Returns a new empty NClob.
+     * @throws SQLException if this connection is closed, or there's a problem creating a new nclob.
+     */
     public NClob createNClob() throws SQLException;
 
+    /**
+     * Returns a new empty SQLXML.
+     * @throws SQLException if this connection is closed, or there's a problem creating a new XML.
+     */
     public SQLXML createSQLXML() throws SQLException;
 
+    /**
+     * Returns true if this connection is still open and valid, false otherwise.
+     * @param timeout number of seconds to wait for a response before giving up and returning false,
+     * 0 to wait forever
+     * @throws SQLException if {@code timeout < 0}
+     */
     public boolean isValid(int timeout) throws SQLException;
 
-    public void setClientInfo(String name, String value)
-            throws SQLClientInfoException;
+    /**
+     * Sets the client info property {@code name} to {@code value}. A value of null clears the
+     * client info property.
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem setting
+     * the property.
+     */
+    public void setClientInfo(String name, String value) throws SQLClientInfoException;
 
-    public void setClientInfo(Properties properties)
-            throws SQLClientInfoException;
+    /**
+     * Replaces all client info properties with the name/value pairs from {@code properties}.
+     * All existing properties are removed. If an exception is thrown, the resulting state of
+     * this connection's client info properties is undefined.
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem setting
+     * a property.
+     */
+    public void setClientInfo(Properties properties) throws SQLClientInfoException;
 
+    /**
+     * Returns the value corresponding to the given client info property, or null if unset.
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem getting
+     * the property.
+     */
     public String getClientInfo(String name) throws SQLException;
 
+    /**
+     * Returns a {@link Properties} object containing all client info properties.
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem getting
+     * a property.
+     */
     public Properties getClientInfo() throws SQLException;
 
-    public Array createArrayOf(String typeName, Object[] elements)
-            throws SQLException;
+    /**
+     * Returns a new {@link Array} containing the given {@code elements}.
+     * @param typeName the SQL name of the type of the array elements
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem creating
+     * the array.
+     */
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException;
 
-    public Struct createStruct(String typeName, Object[] attributes)
-            throws SQLException;
+    /**
+     * Returns a new {@link Struct} containing the given {@code attributes}.
+     * @param typeName the SQL name of the type of the struct attributes
+     * @throws SQLClientInfoException if this connection is closed, or there's a problem creating
+     * the array.
+     */
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException;
 }

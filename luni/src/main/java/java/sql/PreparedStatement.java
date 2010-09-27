@@ -689,55 +689,228 @@ public interface PreparedStatement extends Statement {
     public void setURL(int parameterIndex, URL theURL) throws SQLException;
 
     /**
-     * TODO Javadoc
+     * Sets the value of a specified parameter to a supplied {@code
+     * java.sql.RowId}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param theRowId
+     *            the {@code RowId} to which the parameter at {@code
+     *            parameterIndex} is set.
+     * @throws SQLException if a database error happens.
      */
-    public void setRowId(int parameterIndex, RowId x) throws SQLException;
+    public void setRowId(int parameterIndex, RowId theRowId) throws SQLException;
 
-    public void setNString(int parameterIndex, String value)
-            throws SQLException;
+    /**
+     * Sets the value of a specified parameter to a supplied string.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param theString
+     *            the {@code String} to which the parameter at {@code
+     *            parameterIndex} is set.
+     * @throws SQLException if a database error happens.
+     */
+    public void setNString(int parameterIndex, String theString) throws SQLException;
 
-    public void setNCharacterStream(int parameterIndex, Reader value,
-            long length) throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setNCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException;
 
+    /**
+     * Sets the value of the specified parameter to {@code value}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param value
+     *            the {@code NClob} to which the parameter at {@code
+     *            parameterIndex} is set.
+     * @throws SQLException if a database error happens.
+     */
     public void setNClob(int parameterIndex, NClob value) throws SQLException;
 
-    public void setClob(int parameterIndex, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException;
 
-    public void setBlob(int parameterIndex, InputStream inputStream, long length)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException;
 
-    public void setNClob(int parameterIndex, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException;
 
-    public void setSQLXML(int parameterIndex, SQLXML xmlObject)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the value of {@code xmlObject}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param xmlObject the {@code SQLXML}
+     * @throws SQLException if a database error happens.
+     */
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException;
 
-    public void setAsciiStream(int parameterIndex, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setAsciiStream(int parameterIndex, InputStream inputStream, long length) throws SQLException;
 
-    public void setBinaryStream(int parameterIndex, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setBinaryStream(int parameterIndex, InputStream inputStream, long length) throws SQLException;
 
-    public void setCharacterStream(int parameterIndex, Reader reader,
-            long length) throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the next {@code length} characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @param length character count
+     * @throws SQLException if a database error happens.
+     */
+    public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException;
 
-    public void setAsciiStream(int parameterIndex, InputStream x)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @throws SQLException if a database error happens.
+     */
+    public void setAsciiStream(int parameterIndex, InputStream inputStream) throws SQLException;
 
-    public void setBinaryStream(int parameterIndex, InputStream x)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @throws SQLException if a database error happens.
+     */
+    public void setBinaryStream(int parameterIndex, InputStream inputStream) throws SQLException;
 
-    public void setCharacterStream(int parameterIndex, Reader reader)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @throws SQLException if a database error happens.
+     */
+    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException;
 
-    public void setNCharacterStream(int parameterIndex, Reader value)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @throws SQLException if a database error happens.
+     */
+    public void setNCharacterStream(int parameterIndex, Reader reader) throws SQLException;
 
+    /**
+     * Sets the value of the specified parameter to the characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @throws SQLException if a database error happens.
+     */
     public void setClob(int parameterIndex, Reader reader) throws SQLException;
 
-    public void setBlob(int parameterIndex, InputStream inputStream)
-            throws SQLException;
+    /**
+     * Sets the value of the specified parameter to the bytes
+     * from {@code inputStream}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param inputStream the {@code InputStream}
+     * @throws SQLException if a database error happens.
+     */
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException;
 
+    /**
+     * Sets the value of the specified parameter to the characters
+     * from {@code reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @param reader the {@code Reader}
+     * @throws SQLException if a database error happens.
+     */
     public void setNClob(int parameterIndex, Reader reader) throws SQLException;
 }
