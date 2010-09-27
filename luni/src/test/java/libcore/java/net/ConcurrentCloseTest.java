@@ -23,6 +23,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,8 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         } catch (AsynchronousCloseException alsoOkay) {
+            // See below.
+        } catch (ClosedChannelException alsoOkay) {
             // For now, I'm assuming that we're happy as long as we get any reasonable exception.
             // It may be that we're supposed to guarantee only one or the other.
         }

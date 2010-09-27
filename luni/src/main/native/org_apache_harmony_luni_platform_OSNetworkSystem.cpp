@@ -297,8 +297,13 @@ public:
 
         int nfds = fd + 1;
         timeval* tp = timeout >= 0 ? &passedTimeout : NULL;
-        int rc = TEMP_FAILURE_RETRY(select(nfds, &readSet, &writeSet, NULL, tp));
+        int rc = select(nfds, &readSet, &writeSet, NULL, tp);
         if (rc == -1) {
+            if (errno == EINTR) {
+                // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
+                // caller to try again.
+                return -EINPROGRESS;
+            }
             return -errno;
         }
 
