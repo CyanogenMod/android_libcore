@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.text.tests.java.text;
-
-import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.TestCase;
+package libcore.java.text;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
+import junit.framework.TestCase;
 
 /**
  * Test for additional features introduced by icu. These tests fail on the RI
@@ -34,8 +27,7 @@ import java.util.Locale;
  * pattern. Api methods where not introduced to allow direct access of these
  * features. This would have changed the api too much.
  */
-@TestTargetClass(DecimalFormat.class)
-public class DecimalFormatTestICU extends TestCase {
+public class OldDecimalFormatTestICU extends TestCase {
 
     DecimalFormat format;
 
@@ -43,21 +35,7 @@ public class DecimalFormatTestICU extends TestCase {
         format = (DecimalFormat) NumberFormat.getNumberInstance();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Regression test.",
-            method = "format",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Regression test.",
-            method = "parse",
-            args = {java.lang.String.class}
-        )
-    })
-    @AndroidOnly("special feature of icu4c")
+    // AndroidOnly: special feature of icu4c
     public void test_sigDigitPatterns() throws Exception {
         DecimalFormat format = (DecimalFormat) NumberFormat
         .getInstance(Locale.US);
@@ -92,21 +70,7 @@ public class DecimalFormatTestICU extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "format",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "parse",
-            args = {java.lang.String.class}
-        )
-    })
-    @AndroidOnly("special feature of icu4c")
+    // AndroidOnly: special feature of icu4c
     public void test_paddingPattern() throws Exception {
         format.applyPattern("*x##,##,#,##0.0#");
         assertEquals("xxxxxxxxx123.0", format.format(123));
@@ -139,21 +103,7 @@ public class DecimalFormatTestICU extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "format",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "parse",
-            args = {java.lang.String.class}
-        )
-    })
-    @AndroidOnly("special feature of icu4c")
+    // AndroidOnly: special feature of icu4c
     public void test_positiveExponentSign() throws Exception {
         format.applyPattern("0.###E+0");
         assertEquals("1E+2", format.format(100));
@@ -182,21 +132,7 @@ public class DecimalFormatTestICU extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies the grouping size.",
-            method = "format",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies the grouping size.",
-            method = "parse",
-            args = {java.lang.String.class}
-        )
-    })
-    @AndroidOnly("special feature of icu4c")
+    // AndroidOnly: special feature of icu4c
     public void test_secondaryGroupingSize() throws Exception {
         format.applyPattern("#,##,###,####");
         assertEquals("123,456,7890", format.format(1234567890));
