@@ -16,7 +16,9 @@
 
 package libcore.java.util;
 
+import java.util.Date;
 import java.util.TimeZone;
+import java.util.SimpleTimeZone;
 
 public class TimeZoneTest extends junit.framework.TestCase {
     // http://code.google.com/p/android/issues/detail?id=877
@@ -29,5 +31,13 @@ public class TimeZoneTest extends junit.framework.TestCase {
     public void test_useDaylightTime_Iceland() {
         TimeZone atlanticReykjavik = TimeZone.getTimeZone("Atlantic/Reykjavik");
         assertFalse("Reykjavik doesn't use DST", atlanticReykjavik.useDaylightTime());
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=11542
+    public void test_clone_SimpleTimeZone() {
+        SimpleTimeZone stz = new SimpleTimeZone(21600000, "Central Standard Time");
+        stz.setStartYear(1000);
+        stz.inDaylightTime(new Date());
+        stz.clone();
     }
 }
