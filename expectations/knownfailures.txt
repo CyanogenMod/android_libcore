@@ -3,21 +3,28 @@
  */
 [
 {
+  description: "Cookie tests failing on the host",
+  bug: 3041920,
+  names: [
+    "libcore.java.net.CookiesTest#testNetscapeResponse",
+    "libcore.java.net.CookiesTest#testQuotedAttributeValues",
+    "libcore.java.net.CookiesTest#testRfc2109Response",
+    "libcore.java.net.CookiesTest#testRfc2965Response",
+    "libcore.java.net.CookiesTest#testSendingCookiesFromStore"
+  ],
+  modes: [ "host" ]
+},
+{
   description: "Math failures when running on the host",
   names: [
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_bitCountJ",
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_highestOneBitJ",
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_reverseBytesJ",
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_reverseJ",
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_rotateLeftJI",
-    "org.apache.harmony.luni.tests.java.lang.LongTest#test_rotateRightJI",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_cbrt_D",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_powDD",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_sinh_D",
     "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_log1p_D",
     "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_rintD"
   ],
-  bug: 2931959
+  bug: 2931959,
+  modes: [ "host" ]
 },
 {
   description: "Double.parseDouble().toString does wrong rounding",
@@ -75,7 +82,8 @@
     "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection",
     "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection_Not_Found_Response"
   ],
-  bug: 3032875
+  bug: 3032875,
+  modes: [ "host" ]
 },
 {
   name: "libcore.java.net.URLConnectionTest#testConnectTimeouts",
