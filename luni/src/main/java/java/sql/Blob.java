@@ -43,6 +43,17 @@ public interface Blob {
     public InputStream getBinaryStream() throws SQLException;
 
     /**
+     * Retrieves {@code length} bytes from this {@code Blob}, starting at 1-based
+     * offset {@code pos}, and returns them as a binary stream.
+     *
+     * @return a binary {@code InputStream} giving access to the {@code Blob}
+     *         data.
+     * @throws SQLException
+     *             if an error occurs accessing the {@code Blob}.
+     */
+    public InputStream getBinaryStream(long pos, long length) throws SQLException;
+
+    /**
      * Gets a portion of the value of this {@code Blob} as an array of bytes.
      *
      * @param pos
@@ -170,16 +181,11 @@ public interface Blob {
     public void truncate(long len) throws SQLException;
 
     /**
-     * TODO Javadoc
+     * Frees any resources held by this blob. After {@code free} is called, calling
+     * method other than {@code free} will throw {@code SQLException} (calling {@code free}
+     * repeatedly will do nothing).
      *
      * @throws SQLException
      */
     public void free() throws SQLException;
-
-    /**
-     * TODO Javadoc
-     *
-     * @throws SQLException
-     */
-    public InputStream getBinaryStream(long pos, long length) throws SQLException;
 }
