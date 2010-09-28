@@ -15,12 +15,11 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
+package libcore.java.net;
 
-import dalvik.annotation.TestTargetClass;
+import junit.framework.TestCase;
 
-@TestTargetClass(java.net.Socket.class)
-public abstract class SocketTestCase extends junit.framework.TestCase {
+public abstract class OldSocketTestCase extends TestCase {
 
     public static final int SO_MULTICAST = 0;
 
@@ -48,20 +47,11 @@ public abstract class SocketTestCase extends junit.framework.TestCase {
 
     public static final int SO_USELOOPBACK = 12;
 
-    public static final String LINUX = "Linux";
-
     private static final String osDoesNotSupportOperationString = "The socket does not support the operation";
 
     private static final String osDoesNotSupportOptionString = "The socket option is not supported";
 
     private static final String osDoesNotSupportOptionArgumentString = "The socket option arguments are invalid";
-
-    public SocketTestCase() {
-    }
-
-    public SocketTestCase(String name) {
-        super(name);
-    }
 
     /**
      * Answer whether the OS supports the given socket option.
@@ -129,8 +119,6 @@ public abstract class SocketTestCase extends junit.framework.TestCase {
      */
     public void ensureExceptionThrownIfOptionIsUnsupportedOnOS(int option) {
         if (!getOptionIsSupported(option)) {
-            String platform = System.getProperty("os.name");
-            String version = System.getProperty("os.version");
             fail("Failed to throw exception for unsupported socket option: "
                     + getSocketOptionString(option));
         }

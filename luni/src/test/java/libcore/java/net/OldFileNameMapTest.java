@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.java.net;
+package libcore.java.net;
 
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
@@ -26,15 +26,8 @@ import junit.framework.TestCase;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 
-@TestTargetClass(FileNameMap.class)
-public class FileNameMapTest extends TestCase {
+public class OldFileNameMapTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getContentTypeFor",
-        args = {java.lang.String.class}
-    )
     public void test_getContentTypeFor() {
         String [] files = {"text", "txt", "htm", "html"};
 

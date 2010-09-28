@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.java.net;
-
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.TestCase;
+package libcore.java.net;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -33,9 +26,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import junit.framework.TestCase;
 
-@TestTargetClass(DatagramSocketImplFactory.class)
-public class DatagramSocketImplFactoryTest extends TestCase {
+public class OldDatagramSocketImplFactoryTest extends TestCase {
 
     DatagramSocketImplFactory oldFactory = null;
     Field factoryField = null;
@@ -45,32 +38,15 @@ public class DatagramSocketImplFactoryTest extends TestCase {
     boolean isDatagramSocketImplCalled = false;
     boolean isCreateDatagramSocketImpl = false;
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "createDatagramSocketImpl",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies SecurityException.",
-            clazz = DatagramSocket.class,
-            method = "setDatagramSocketImplFactory",
-            args = {java.net.DatagramSocketImplFactory.class}
-        )
-    })
-    public void test_createDatagramSocketImpl() throws IllegalArgumentException,
-                                                                    IOException {
-
-        if(isTestable) {
+    public void test_createDatagramSocketImpl() throws IllegalArgumentException, IOException {
+        if (isTestable) {
 
             DatagramSocketImplFactory factory = new TestDatagramSocketImplFactory();
             assertFalse(isCreateDatagramSocketImpl);
             DatagramSocket.setDatagramSocketImplFactory(factory);
 
             try {
-                DatagramSocket ds = new java.net.DatagramSocket();
+                new java.net.DatagramSocket();
                 assertTrue(isCreateDatagramSocketImpl);
                 assertTrue(isDatagramSocketImplCalled);
             } catch (Exception e) {
@@ -101,7 +77,6 @@ public class DatagramSocketImplFactoryTest extends TestCase {
             } catch (SocketException e) {
                 fail("SocketException was thrown.");
             }
-
         }
     }
 
@@ -157,14 +132,10 @@ public class DatagramSocketImplFactoryTest extends TestCase {
 
         @Override
         protected void bind(int arg0, InetAddress arg1) throws SocketException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void close() {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -174,84 +145,61 @@ public class DatagramSocketImplFactoryTest extends TestCase {
 
         @Override
         protected byte getTTL() throws IOException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         protected int getTimeToLive() throws IOException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         protected void join(InetAddress arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void joinGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void leave(InetAddress arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void leaveGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public int peek(InetAddress arg0) throws IOException {
-            // TODO Auto-generated method stub
             return 10;
         }
 
         @Override
         protected int peekData(DatagramPacket arg0) throws IOException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         protected void receive(DatagramPacket arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void send(DatagramPacket arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void setTTL(byte arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void setTimeToLive(int arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         public Object getOption(int arg0) throws SocketException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public void setOption(int arg0, Object arg1) throws SocketException {
-            // TODO Auto-generated method stub
-
         }
     }
 }

@@ -14,41 +14,13 @@
  * limitations under the License.
  */
 
-package tests.api.java.net;
+package libcore.java.net;
 
+import java.net.HttpRetryException;
 import junit.framework.TestCase;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
+public class OldHttpRetryExceptionTest extends TestCase {
 
-import java.net.FileNameMap;
-import java.net.HttpRetryException;
-
-@TestTargetClass(HttpRetryException.class)
-public class HttpRetryExceptionTest extends TestCase {
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "HttpRetryException",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "responseCode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getReason",
-            args = {}
-        )
-    })
     public void test_ConstructorLStringI() {
         String [] message = {"Test message", "", "Message", "~!@#$% &*(", null};
         int [] codes = {400, 404, 200, 500, 0};
@@ -62,32 +34,6 @@ public class HttpRetryExceptionTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "HttpRetryException",
-            args = {java.lang.String.class, int.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getLocation",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "responseCode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getReason",
-            args = {}
-        )
-    })
     public void test_ConstructorLStringILString() {
         String [] message = {"Test message", "", "Message", "~!@#$% &*(", null};
         int [] codes = {400, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 0};
