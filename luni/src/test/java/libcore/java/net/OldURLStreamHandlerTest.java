@@ -1,10 +1,4 @@
-package tests.api.java.net;
-
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
+package libcore.java.net;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,56 +8,33 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.UnknownHostException;
+import junit.framework.TestCase;
 
-@TestTargetClass(URLStreamHandler.class)
-public class URLStreamHandlerTest extends TestCase {
+public class OldURLStreamHandlerTest extends TestCase {
 
     MockURLStreamHandler handler = null;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {URL.class, URL.class}
-    )
-    public void test_equalsLjava_net_URLLjava_net_URL() {
+    public void test_equalsLjava_net_URLLjava_net_URL() throws MalformedURLException {
+        URL url1 = new URL("ftp://test_url/test?a=b&c=%D0+%D1");
+        URL url2 = new URL("http://test_url/test?a=b&c=%D0+%D1");
+        assertFalse(url1.equals(url2));
+
+        new URL("http://test_url+/test?a=b&c=%D0+%D1");
+        assertFalse(handler.equals(url1,url2));
+
         try {
-            URL url1 = new URL("ftp://test_url/test?a=b&c=%D0+%D1");
-            URL url2 = new URL("http://test_url/test?a=b&c=%D0+%D1");
-            assertFalse(url1.equals(url2));
-
-            URL url3 = new URL("http://test_url+/test?a=b&c=%D0+%D1");
-            assertFalse(handler.equals(url1,url2));
-
-            try {
-                assertFalse(handler.equals(null, url1));
-                fail("NullPointerException was not thrown.");
-            } catch(NullPointerException npe) {
-                //expected
-            }
-        } catch (MalformedURLException e) {
-            fail("MalformedURLException was thrown.");
+            assertFalse(handler.equals(null, url1));
+            fail("NullPointerException was not thrown.");
+        } catch(NullPointerException npe) {
+            //expected
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultPort",
-        args = {}
-    )
     public void test_getDefaultPort() {
         assertEquals(-1, handler.getDefaultPort());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHostAddress",
-        args = {URL.class}
-    )
-    public void test_getHostAddress() throws MalformedURLException,
-                                        UnknownHostException {
+    public void test_getHostAddress() throws MalformedURLException, UnknownHostException {
         URL url1 = new URL("ftp://test_url/test?a=b&c=%D0+%D1");
         assertNull(handler.getHostAddress(url1));
 
@@ -74,40 +45,22 @@ public class URLStreamHandlerTest extends TestCase {
         assertEquals(InetAddress.getLocalHost(), handler.getHostAddress(url3));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {URL.class}
-    )
-    public void test_hashCodeLjava_net_URL() {
+    public void test_hashCodeLjava_net_URL() throws MalformedURLException {
+        URL url1 = new URL("ftp://test_url/test?a=b&c=%D0+%D1");
+        URL url2 = new URL("http://test_url/test?a=b&c=%D0+%D1");
+        assertTrue(handler.hashCode(url1) != handler.hashCode(url2));
+
+        new URL("http://test_url+/test?a=b&c=%D0+%D1");
+        assertFalse(handler.equals(url1,url2));
+
         try {
-            URL url1 = new URL("ftp://test_url/test?a=b&c=%D0+%D1");
-            URL url2 = new URL("http://test_url/test?a=b&c=%D0+%D1");
-            assertTrue(handler.hashCode(url1) != handler.hashCode(url2));
-
-            URL url3 = new URL("http://test_url+/test?a=b&c=%D0+%D1");
-            assertFalse(handler.equals(url1,url2));
-
-            try {
-                handler.hashCode(null);
-                fail("NullPointerException was not thrown.");
-            } catch(NullPointerException npe) {
-                //expected
-            }
-        } catch (MalformedURLException e) {
-            fail("MalformedURLException was thrown.");
+            handler.hashCode(null);
+            fail("NullPointerException was not thrown.");
+        } catch(NullPointerException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hostsEqual",
-        args = {URL.class, URL.class}
-    )
-    public void test_hostsEqualLjava_net_URLLjava_net_URL() throws
-                                                    MalformedURLException {
+    public void test_hostsEqualLjava_net_URLLjava_net_URL() throws MalformedURLException {
         URL url1 = new URL("ftp://localhost:21/*test");
         URL url2 = new URL("http://127.0.0.1/_test");
         assertTrue(handler.hostsEqual(url1, url2));
@@ -116,23 +69,11 @@ public class URLStreamHandlerTest extends TestCase {
         assertFalse(handler.hostsEqual(url1, url3));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "openConnection",
-        args = { URL.class }
-    )
     public void test_openConnectionLjava_net_URL() throws IOException {
         // abstract method, it doesn't check anything
         assertNull(handler.openConnection(null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "openConnection",
-        args = {URL.class, Proxy.class}
-    )
     public void test_openConnectionLjava_net_URLLjava_net_Proxy() {
         try {
             handler.openConnection(null, null);
@@ -144,13 +85,6 @@ public class URLStreamHandlerTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Completed testing of this method requres set up " +
-                "URLStreamHandlerFactory that can be done at most once.",
-        method = "parseURL",
-        args = {URL.class, String.class, int.class, int.class}
-    )
     public void test_parseURLLjava_net_URLLjava_lang_StringII()
                                                 throws MalformedURLException {
         String str  = "http://test.org/foo?a=123&b=%D5D6D7&c=++&d=";
@@ -164,12 +98,6 @@ public class URLStreamHandlerTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "sameFile",
-        args = {URL.class, URL.class}
-    )
     public void test_sameFile() throws MalformedURLException {
         URL url1  = new URL("http://test:pwd@localhost:80/foo/foo1.c");
         URL url2  = new URL("http://test:pwd@127.0.01:80/foo/foo1.c");
@@ -185,36 +113,16 @@ public class URLStreamHandlerTest extends TestCase {
         assertFalse("Test case 5", handler.sameFile(url1, url6));
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Completed testing of this method requres set up " +
-                "URLStreamHandlerFactory that can be done at most once.",
-        method = "setURL",
-        args = {java.net.URL.class, java.lang.String.class,
-                java.lang.String.class, int.class, java.lang.String.class,
-                java.lang.String.class}
-    )
     public void test_setURL1() throws MalformedURLException {
         URL url = new URL("http://test.org");
 
         try {
             handler.setURL(url, "http", "localhost", 80, "foo.c", "ref");
             fail("SecurityException should be thrown.");
-        } catch(SecurityException se) {
-            //SecurityException is expected
+        } catch(SecurityException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Completed testing of this method requres set up " +
-                 "URLStreamHandlerFactory that can be done at most once.",
-        method = "setURL",
-        args = {java.net.URL.class, java.lang.String.class,
-                java.lang.String.class, int.class, java.lang.String.class,
-                java.lang.String.class, java.lang.String.class,
-                java.lang.String.class, java.lang.String.class}
-    )
     public void test_setURL2() throws MalformedURLException {
         URL url = new URL("http://test.org");
 
@@ -222,34 +130,21 @@ public class URLStreamHandlerTest extends TestCase {
             handler.setURL(url, "http", "localhost", 80, "authority",
                     "user", "foo.c", "query", "ref");
             fail("SecurityException should be thrown.");
-        } catch(SecurityException se) {
-            //SecurityException is expected
+        } catch(SecurityException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toExternalForm",
-        args = {URL.class}
-    )
     public void test_toExternalForm() throws MalformedURLException {
         URL [] urls = { new URL("ftp://test_url/test?a=b&c=%D0+%D1"),
                         new URL("http://test_url/test?a=b&c=%D0+%D1"),
                         new URL("http://test:pwd@localhost:80/foo/foo1.c")};
 
-        for(URL url:urls) {
+        for(URL url : urls) {
             assertEquals("Test case for " + url.toString(),
                     url.toString(), handler.toExternalForm(url));
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "URLStreamHandler",
-        args = {}
-    )
     public void test_Constructor() {
         MockURLStreamHandler msh = new MockURLStreamHandler();
         assertEquals(-1, msh.getDefaultPort());
@@ -263,7 +158,6 @@ public class URLStreamHandlerTest extends TestCase {
 
         @Override
         protected URLConnection openConnection(URL arg0) throws IOException {
-            // TODO Auto-generated method stub
             return null;
         }
 

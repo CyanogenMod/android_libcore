@@ -15,16 +15,15 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
+package libcore.java.net;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.NetPermission;
+import junit.framework.TestCase;
 
-public class TestServerSocketInit {
+public class OldNetPermissionTest extends TestCase {
 
-    public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.close();
+    public void test_ConstructorLjava_lang_StringLjava_lang_String() {
+        NetPermission n1 = new NetPermission("requestPasswordAuthentication", "");
+        assertEquals("", n1.getActions());
     }
 }
