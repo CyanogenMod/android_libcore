@@ -623,7 +623,8 @@ public abstract class DateFormat extends Format {
         ParsePosition position = new ParsePosition(0);
         Date date = parse(string, position);
         if (position.getIndex() == 0) {
-            throw new ParseException("Unparseable date " + string, position.getErrorIndex());
+            throw new ParseException("Unparseable date: \"" + string + "\"",
+                    position.getErrorIndex());
         }
         return date;
     }
