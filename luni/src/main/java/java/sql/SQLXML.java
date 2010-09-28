@@ -25,25 +25,62 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
 /**
- * TODO Javadoc
+ * Maps SQL's XML type into Java.
  */
 public interface SQLXML {
-
+    /**
+     * Frees any resources held by this object. After {@code free} is called, calling
+     * method other than {@code free} will throw {@code SQLException} (calling {@code free}
+     * repeatedly will do nothing).
+     * @throws SQLException
+     */
     void free() throws SQLException;
 
+    /**
+     * Returns a stream that can be used to read binary data from this SQL {@code XML} object.
+     * @throws SQLException if an error occurs accessing the data
+     */
     InputStream getBinaryStream() throws SQLException;
 
+    /**
+     * Returns a stream that can be used to write binary data to this SQL {@code XML} object.
+     * @throws SQLException if an error occurs accessing the data
+     */
     OutputStream setBinaryStream() throws SQLException;
 
+    /**
+     * Returns a reader that can be used to read character data from this SQL {@code XML} object.
+     * @throws SQLException if an error occurs accessing the data
+     */
     Reader getCharacterStream() throws SQLException;
 
+    /**
+     * Returns a writer that can be used to write character data to this SQL {@code XML} object.
+     * @throws SQLException if an error occurs accessing the data
+     */
     Writer setCharacterStream() throws SQLException;
 
+    /**
+     * Returns this object's data as an XML string.
+     * @throws SQLException if an error occurs accessing the data
+     */
     String getString() throws SQLException;
 
+    /**
+     * Sets this object's data to the given XML string.
+     * @throws SQLException if an error occurs accessing the data
+     */
     void setString(String value) throws SQLException;
 
+    /**
+     * Returns a {@link Source} for reading this object's data.
+     * @throws SQLException if an error occurs accessing the data
+     */
     <T extends Source> T getSource(Class<T> sourceClass) throws SQLException;
 
+    /**
+     * Returns a {@link Result} for writing this object's data.
+     * @throws SQLException if an error occurs accessing the data
+     */
     <T extends Result> T setResult(Class<T> resultClass) throws SQLException;
 }

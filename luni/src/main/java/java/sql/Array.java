@@ -164,6 +164,9 @@ public interface Array {
             throws SQLException;
 
     /**
+     * Frees any resources held by this array. After {@code free} is called, calling
+     * method other than {@code free} will throw {@code SQLException} (calling {@code free}
+     * repeatedly will do nothing).
      * @throws SQLException
      */
     public void free() throws SQLException;

@@ -1382,84 +1382,240 @@ public interface CallableStatement extends PreparedStatement {
      */
     public boolean wasNull() throws SQLException;
 
-    // TODO add javadoc
+    /**
+     * Gets the value of a specified {@code ROWID} parameter as a {@code
+     * java.sql.RowId}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public RowId getRowId(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL ROWID parameter as a {@code
+     * java.sql.RowId}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public RowId getRowId(String parameterName) throws SQLException;
 
-    public void setRowId(String parameterName, RowId x) throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code rowId}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setRowId(String parameterName, RowId rowId) throws SQLException;
 
-    public void setNString(String parameterName, String value)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code string}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNString(String parameterName, String string) throws SQLException;
 
-    public void setNCharacterStream(String parameterName, Reader value,
-            long length) throws SQLException;
+    /**
+     * Sets the named parameter to the characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNCharacterStream(String parameterName, Reader reader, long length) throws SQLException;
 
-    public void setNClob(String parameterName, NClob value) throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code nclob}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNClob(String parameterName, NClob nclob) throws SQLException;
 
-    public void setClob(String parameterName, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException;
 
-    public void setBlob(String parameterName, InputStream inputStream,
-            long length) throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} bytes from the given {@code inputStream}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException;
 
-    public void setNClob(String parameterName, Reader reader, long length)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCLOB parameter as a {@code
+     * java.sql.NClob}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public NClob getNClob(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCLOB parameter as a {@code
+     * java.sql.NClob}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public NClob getNClob(String parameterName) throws SQLException;
 
-    public void setSQLXML(String parameterName, SQLXML xmlObject)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code sqlXml}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setSQLXML(String parameterName, SQLXML sqlXml) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL XML parameter as a {@code
+     * java.sql.SQLXML}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public SQLXML getSQLXML(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL XML parameter as a {@code
+     * java.sql.SQLXML}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public SQLXML getSQLXML(String parameterName) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCHAR, NVARCHAR, or LONGNVARCHAR parameter as a
+     * {@code java.lang.String}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public String getNString(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCHAR, NVARCHAR, or LONGNVARCHAR parameter as a {@code
+     * java.lang.String}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public String getNString(String parameterName) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCHAR, NVARCHAR, or LONGNVARCHAR parameter
+     * as a {@link Reader}.
+     *
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public Reader getNCharacterStream(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified SQL NCHAR, NVARCHAR, or LONGNVARCHAR parameter as a {@code
+     * java.io.Reader}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public Reader getNCharacterStream(String parameterName) throws SQLException;
 
+    /**
+     * Returns the value of the specified parameter as a {@code java.io.Reader}.
+     * @param parameterIndex
+     *            the parameter number index, where the first parameter has
+     *            index 1.
+     * @throws SQLException
+     *             if a database error occurs.
+     */
     public Reader getCharacterStream(int parameterIndex) throws SQLException;
 
+    /**
+     * Returns the value of the specified parameter as a {@code java.io.Reader}.
+     * @param parameterName the parameter name
+     * @throws SQLException if a database error occurs
+     */
     public Reader getCharacterStream(String parameterName) throws SQLException;
 
-    public void setBlob(String parameterName, Blob x) throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code blob}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setBlob(String parameterName, Blob blob) throws SQLException;
 
-    public void setClob(String parameterName, Clob x) throws SQLException;
+    /**
+     * Sets the named parameter to the given {@code clob}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setClob(String parameterName, Clob clob) throws SQLException;
 
-    public void setAsciiStream(String parameterName, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} bytes from the given {@code inputStream}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException;
 
-    public void setBinaryStream(String parameterName, InputStream x, long length)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the bytes from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException;
 
-    public void setCharacterStream(String parameterName, Reader reader,
-            long length) throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} bytes from the given {@code inputStream}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException;
 
-    public void setAsciiStream(String parameterName, InputStream x)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the bytes from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException;
 
-    public void setBinaryStream(String parameterName, InputStream x)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the next {@code length} characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException;
 
-    public void setCharacterStream(String parameterName, Reader reader)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException;
 
-    public void setNCharacterStream(String parameterName, Reader value)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException;
 
-    public void setClob(String parameterName, Reader reader)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setClob(String parameterName, Reader reader) throws SQLException;
 
-    public void setBlob(String parameterName, InputStream inputStream)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the bytes from the given {@code inputStream}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException;
 
-    public void setNClob(String parameterName, Reader reader)
-            throws SQLException;
+    /**
+     * Sets the named parameter to the characters from the given {@code reader}.
+     * @throws SQLException if a database error occurs
+     */
+    public void setNClob(String parameterName, Reader reader) throws SQLException;
 }

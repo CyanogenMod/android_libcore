@@ -652,13 +652,19 @@ public interface Statement extends Wrapper {
     public void setQueryTimeout(int seconds) throws SQLException;
 
     /**
-     * TODO Javadoc
-     *
-     * @return
+     * Returns true if this statement has been closed, false otherwise.
      */
     public boolean isClosed() throws SQLException;
 
+    /**
+     * Hints whether this statement should be pooled. Defaults to false for {@code Statement},
+     * but true for {@code CallableStatement} and {@code PreparedStatement}. Pool manager
+     * implementations may or may not honor this hint.
+     */
     public void setPoolable(boolean poolable) throws SQLException;
 
+    /**
+     * Returns true if this statement is poolable, false otherwise.
+     */
     public boolean isPoolable() throws SQLException;
 }

@@ -312,15 +312,47 @@ public interface SQLInput {
     public URL readURL() throws SQLException;
 
     /**
-     * TODO Javadoc
+     * Returns the next attribute in the stream in the form of a {@code
+     * java.sql.NClob}.
      *
-     * @return
+     * @return the next attribute as a {@code java.sql.NClob}. {@code null} if
+     *         the value is SQL {@code NULL}.
+     * @throws SQLException
+     *             if there is a database error.
      */
     public NClob readNClob() throws SQLException;
 
+    /**
+     * Returns the next attribute in the stream in the form of a {@code
+     * java.lang.String}. Used for the NCHAR, NVARCHAR and LONGNVARCHAR types.
+     * See {@link #readString} otherwise.
+     *
+     * @return the next attribute as a {@code java.lang.String}. {@code null} if
+     *         the value is SQL {@code NULL}.
+     * @throws SQLException
+     *             if there is a database error.
+     */
     public String readNString() throws SQLException;
 
+    /**
+     * Returns the next attribute in the stream in the form of a {@code
+     * java.sql.SQLXML}.
+     *
+     * @return the next attribute as a {@code java.sql.SQLXML}. {@code null} if
+     *         the value is SQL {@code NULL}.
+     * @throws SQLException
+     *             if there is a database error.
+     */
     public SQLXML readSQLXML() throws SQLException;
 
+    /**
+     * Returns the next attribute in the stream in the form of a {@code
+     * java.sql.RowId}. Used for the ROWID type.
+     *
+     * @return the next attribute as a {@code java.sql.RowId}. {@code null} if
+     *         the value is SQL {@code NULL}.
+     * @throws SQLException
+     *             if there is a database error.
+     */
     public RowId readRowId() throws SQLException;
 }
