@@ -14,12 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.text.tests.java.text;
-
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
+package libcore.java.text;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,8 +25,7 @@ import java.io.ObjectOutputStream;
 import java.text.AttributedCharacterIterator;
 
 
-@TestTargetClass(AttributedCharacterIterator.Attribute.class)
-public class AttributedCharacterIteratorAttributeTest extends
+public class OldAttributedCharacterIteratorAttributeTest extends
         junit.framework.TestCase {
 
     private class MockAttributedCharacterIteratorAttribute extends
@@ -68,12 +62,6 @@ public class AttributedCharacterIteratorAttributeTest extends
      *        Test of method
      *        java.text.AttributedCharacterIterator.Attribute#AttributedCharacterIterator.Attribute(java.lang.String).
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Attribute",
-        args = {java.lang.String.class}
-    )
     public void test_Constructor() {
         try {
             new MockAttributedCharacterIteratorAttribute("test");
@@ -87,12 +75,6 @@ public class AttributedCharacterIteratorAttributeTest extends
      *        Test of method
      *        java.text.AttributedCharacterIterator.Attribute#equals(java.lang.Object).
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         try {
             MockAttributedCharacterIteratorAttribute mac1 = new MockAttributedCharacterIteratorAttribute(
@@ -119,12 +101,6 @@ public class AttributedCharacterIteratorAttributeTest extends
      * @tests java.text.AttributedCharacterIterator.Attribute#getName() Test of
      *        method java.text.AttributedCharacterIterator.Attribute#getName().
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         try {
             MockAttributedCharacterIteratorAttribute mac1 = new MockAttributedCharacterIteratorAttribute(
@@ -138,12 +114,6 @@ public class AttributedCharacterIteratorAttributeTest extends
     /**
      * @tests java.text.AttributedCharacterIterator.Attribute#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         try {
             MockAttributedCharacterIteratorAttribute mac1 = new MockAttributedCharacterIteratorAttribute(
@@ -174,12 +144,6 @@ public class AttributedCharacterIteratorAttributeTest extends
      *        of method
      *        java.text.AttributedCharacterIterator.Attribute#readResolve().
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "readResolve",
-        args = {}
-    )
     public void test_readResolve() {
         MockAttributedCharacterIteratorAttribute mac1 = new MockAttributedCharacterIteratorAttribute(
                 "test");
@@ -231,12 +195,6 @@ public class AttributedCharacterIteratorAttributeTest extends
      * @tests java.text.AttributedCharacterIterator.Attribute#toString() Test of
      *        method java.text.AttributedCharacterIterator.Attribute#toString().
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         MockAttributedCharacterIteratorAttribute mac1 = new MockAttributedCharacterIteratorAttribute(
                 null);

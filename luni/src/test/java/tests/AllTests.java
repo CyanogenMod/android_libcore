@@ -49,7 +49,6 @@ public class AllTests
         suite.addTest(tests.sql.AllTests.suite());
         suite.addTest(tests.SQLite.AllTests.suite());
         suite.addTest(tests.suncompat.AllTests.suite());
-        suite.addTest(tests.text.AllTests.suite());
         suite.addTest(tests.xml.AllTests.suite());
         suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
 

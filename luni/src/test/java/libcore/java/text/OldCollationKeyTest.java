@@ -14,118 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.text.tests.java.text;
-
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
+package libcore.java.text;
 
 import java.text.CollationKey;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
-import java.util.Arrays;
 
 
-@TestTargetClass(CollationKey.class)
-public class CollationKeyTest extends junit.framework.TestCase {
+public class OldCollationKeyTest extends junit.framework.TestCase {
 
-    /**
-     * @tests java.text.CollationKey#compareTo(java.text.CollationKey)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "compareTo",
-        args = {java.text.CollationKey.class}
-    )
-    public void test_compareToLjava_text_CollationKey() {
-        Collator collator = Collator.getInstance();
-        collator.setStrength(Collator.PRIMARY);
-        CollationKey key1 = collator.getCollationKey("abc");
-        CollationKey key2 = collator.getCollationKey("ABC");
-        assertEquals("Should be equal", 0, key1.compareTo(key2));
-    }
-
-    /**
-     * @tests java.text.CollationKey#compareTo(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "compareTo",
-        args = {java.lang.Object.class}
-    )
-    public void test_compareToLjava_lang_Object() {
-        // Test for method int
-        // java.text.CollationKey.compareTo(java.lang.Object)
-        Collator collator = Collator.getInstance();
-        collator.setStrength(Collator.PRIMARY);
-        CollationKey key1 = collator.getCollationKey("abc");
-        CollationKey key2 = collator.getCollationKey("ABC");
-        assertEquals("Should be equal", 0, key1.compareTo(key2));
-    }
-
-    /**
-     * @tests java.text.CollationKey#equals(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
-    public void test_equalsLjava_lang_Object() {
-        Collator collator = Collator.getInstance();
-        collator.setStrength(Collator.PRIMARY);
-        CollationKey key1 = collator.getCollationKey("abc");
-        CollationKey key2 = collator.getCollationKey("ABC");
-        assertTrue("Should be equal", key1.equals(key2));
-    }
-
-    /**
-     * @tests java.text.CollationKey#getSourceString()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSourceString",
-        args = {}
-    )
-    public void test_getSourceString() {
-        Collator collator = Collator.getInstance();
-        collator.setStrength(Collator.PRIMARY);
-        assertTrue("Wrong source string1", collator.getCollationKey("abc")
-                .getSourceString() == "abc");
-        assertTrue("Wrong source string2", collator.getCollationKey("ABC")
-                .getSourceString() == "ABC");
-    }
-
-    /**
-     * @tests java.text.CollationKey#hashCode()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
-    public void test_hashCode() {
-        Collator collator = Collator.getInstance();
-        collator.setStrength(Collator.PRIMARY);
-        CollationKey key1 = collator.getCollationKey("abc");
-        CollationKey key2 = collator.getCollationKey("ABC");
-        assertTrue("Should be equal", key1.hashCode() == key2.hashCode());
-    }
-
-    /**
-     * @tests java.text.CollationKey#toByteArray()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "toByteArray",
-        args = {}
-    )
     public void test_toByteArray() {
         // Test for method byte [] java.text.CollationKey.toByteArray()
         Collator collator = Collator.getInstance();

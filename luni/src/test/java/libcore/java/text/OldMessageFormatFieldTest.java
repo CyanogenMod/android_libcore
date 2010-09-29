@@ -14,14 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.text.tests.java.text;
-
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.TestCase;
+package libcore.java.text;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,18 +23,10 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
+import junit.framework.TestCase;
 
-@TestTargetClass(MessageFormat.Field.class)
-public class MessageFormatFieldTest extends TestCase {
-    /**
-     * @tests java.text.MessageFormat$Field#Field(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Field",
-        args = {java.lang.String.class}
-    )
+public class OldMessageFormatFieldTest extends TestCase {
+
     public void test_ConstructorLjava_lang_String() {
         // protected constructor
         String name = "new Message format";
@@ -52,15 +37,6 @@ public class MessageFormatFieldTest extends TestCase {
         assertEquals("field has wrong name", null, field.getName());
     }
 
-    /**
-     * @tests java.text.MessageFormat$Field#readResolve()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "readResolve",
-        args = {}
-    )
     public void test_readResolve() {
         // test for method java.lang.Object readResolve()
 
