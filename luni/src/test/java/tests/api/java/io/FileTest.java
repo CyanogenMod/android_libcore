@@ -963,12 +963,10 @@ public class FileTest extends junit.framework.TestCase {
             assertEquals("Test 4: Incorrect path returned.", base + dirNumber + slash + "Test"
                     + slash + "temp.tst", f.getCanonicalPath());
 
+            // Check that the implicit "user.dir" in a relative path gets canonicalized.
             f = new File("1234.567");
-            expected = System.getProperty("user.dir") + "/1234.567";
-            error = String.format("Test 5: Incorrect path %s returned; %s expected.",
-                    f.getCanonicalPath(), expected);
-            assertTrue(error, f.getCanonicalPath().equals(expected));
-
+            File expectedFile = new File(System.getProperty("user.dir"), "1234.567");
+            assertEquals(expectedFile.getCanonicalPath(), f.getCanonicalPath());
         } catch (IOException e) {
             fail("Unexpected IOException During Test : " + e.getMessage());
         }
