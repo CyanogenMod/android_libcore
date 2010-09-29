@@ -38,8 +38,12 @@ public final class NativePluralRules {
         this.address = address;
     }
 
-    @Override public void finalize() {
-        finalizeImpl(address);
+    @Override public void finalize() throws Throwable {
+        try {
+            finalizeImpl(address);
+        } finally {
+            super.finalize();
+        }
     }
 
     public static NativePluralRules forLocale(Locale locale) {

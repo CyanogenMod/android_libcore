@@ -145,9 +145,16 @@ public class ZipFile implements ZipConstants {
         this(new File(name), OPEN_READ);
     }
 
-    @Override
-    protected void finalize() throws IOException {
-        close();
+    @Override protected void finalize() throws IOException {
+        try {
+            close();
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
+        }
     }
 
     /**

@@ -185,6 +185,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
      * @since 1.6
      */
     @Override
+    @SuppressWarnings("FinalizeDoesntCallSuperFinalize")
     protected final void finalize() {
     }
 

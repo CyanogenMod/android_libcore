@@ -328,11 +328,14 @@ public class Timer {
             this.impl = impl;
         }
 
-        @Override
-        protected void finalize() {
-            synchronized (impl) {
-                impl.finished = true;
-                impl.notify();
+        @Override protected void finalize() throws Throwable {
+            try {
+                synchronized (impl) {
+                    impl.finished = true;
+                    impl.notify();
+                }
+            } finally {
+                super.finalize();
             }
         }
     }

@@ -235,10 +235,13 @@ public final class CharsetDecoderICU extends CharsetDecoder {
      * Releases the system resources by cleanly closing ICU converter opened
      * @stable ICU 2.4
      */
-    protected void finalize() throws Throwable{
-        NativeConverter.closeConverter(converterHandle);
-        super.finalize();
-        converterHandle = 0;
+    @Override protected void finalize() throws Throwable {
+        try {
+            NativeConverter.closeConverter(converterHandle);
+            converterHandle = 0;
+        } finally {
+            super.finalize();
+        }
     }
 
     //------------------------------------------

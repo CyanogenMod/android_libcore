@@ -672,8 +672,7 @@ public final class Matcher implements MatchResult {
         return hitEndImpl(address);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
+    @Override protected void finalize() throws Throwable {
         try {
             closeImpl(address);
         } finally {

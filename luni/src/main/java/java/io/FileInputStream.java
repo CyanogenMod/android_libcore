@@ -131,16 +131,25 @@ public class FileInputStream extends InputStream implements Closeable {
         }
     }
 
-    @Override
-    protected void finalize() throws IOException {
+    /**
+     * Ensures that all resources for this stream are released when it is about
+     * to be garbage collected.
+     *
+     * @throws IOException
+     *             if an error occurs attempting to finalize this stream.
+     */
+    @Override protected void finalize() throws IOException {
         try {
-            super.finalize();
-        } catch (Throwable e) {
-            // for consistency with the RI, we must override Object.finalize() to
-            // remove the 'throws Throwable' clause.
-            throw new AssertionError(e);
+            close();
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                // for consistency with the RI, we must override Object.finalize() to
+                // remove the 'throws Throwable' clause.
+                throw new AssertionError(t);
+            }
         }
-        close();
     }
 
     /**

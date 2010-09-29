@@ -208,10 +208,12 @@ public class PlainSocketImpl extends SocketImpl {
         Platform.NETWORK.socket(fd, streaming);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        close();
+    @Override protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
     }
 
     @Override
