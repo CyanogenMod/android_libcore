@@ -144,8 +144,7 @@ class ExpatParser {
 
             contentHandler.startElement(
                     uri, localName, qName, this.attributes);
-        }
-        finally {
+        } finally {
             inStartElement = false;
             this.attributeCount = -1;
             this.attributePointer = 0;
@@ -552,12 +551,14 @@ class ExpatParser {
         }
     }
 
-    @Override
-    @SuppressWarnings("FinalizeDoesntCallSuperFinalize")
-    protected synchronized void finalize() throws Throwable {
-        if (this.pointer != 0) {
-            release(this.pointer);
-            this.pointer = 0;
+    @Override protected synchronized void finalize() throws Throwable {
+        try {
+            if (this.pointer != 0) {
+                release(this.pointer);
+                this.pointer = 0;
+            }
+        } finally {
+            super.finalize();
         }
     }
 
@@ -658,12 +659,14 @@ class ExpatParser {
             return length;
         }
 
-        @Override
-        @SuppressWarnings("FinalizeDoesntCallSuperFinalize")
-        protected synchronized void finalize() throws Throwable {
-            if (pointer != 0) {
-                freeAttributes(pointer);
-                pointer = 0;
+        @Override protected synchronized void finalize() throws Throwable {
+            try {
+                if (pointer != 0) {
+                    freeAttributes(pointer);
+                    pointer = 0;
+                }
+            } finally {
+                super.finalize();
             }
         }
     }

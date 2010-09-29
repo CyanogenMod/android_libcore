@@ -216,9 +216,12 @@ public class PlainSocketImpl extends SocketImpl {
         netImpl.socket(fd, streaming);
     }
 
-    @Override
-    protected void finalize() throws IOException {
-        close();
+    @Override protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
     }
 
     @Override

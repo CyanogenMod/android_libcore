@@ -64,9 +64,12 @@ public final class NativeBreakIterator implements Cloneable {
         return 42; // No-one uses BreakIterator as a hash key.
     }
 
-    @Override
-    protected void finalize() {
-        closeBreakIteratorImpl(this.addr);
+    @Override protected void finalize() throws Throwable {
+        try {
+            closeBreakIteratorImpl(this.addr);
+        } finally {
+            super.finalize();
+        }
     }
 
     public int current() {

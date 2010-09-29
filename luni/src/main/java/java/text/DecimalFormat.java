@@ -504,7 +504,11 @@ public class DecimalFormat extends NumberFormat {
     private transient NativeDecimalFormat dform;
     private final Object finalizerGuardian = new Object() {
         @Override protected void finalize() throws Throwable {
-            dform.close();
+            try {
+                dform.close();
+            } finally {
+                super.finalize();
+            }
         }
     };
 

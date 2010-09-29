@@ -83,9 +83,16 @@ public class Inflater {
 
     private native synchronized void endImpl(long handle);
 
-    @Override
-    protected void finalize() {
-        end();
+    @Override protected void finalize() {
+        try {
+            end();
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
+        }
     }
 
     /**
