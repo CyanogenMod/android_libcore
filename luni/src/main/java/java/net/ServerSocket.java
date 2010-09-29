@@ -336,10 +336,10 @@ public class ServerSocket {
     }
 
     /**
-     * Binds this server socket to the given local socket address. The default
-     * number of pending connections may be backlogged. If the {@code localAddr}
-     * is set to {@code null} the socket will be bound to an available local
-     * address on any free port of the system.
+     * Binds this server socket to the given local socket address with a maximum
+     * backlog of 50 unaccepted connections. If the {@code localAddr} is set to
+     * {@code null} the socket will be bound to an available local address on
+     * any free port of the system.
      *
      * @param localAddr
      *            the local address and port to bind on.
@@ -356,20 +356,15 @@ public class ServerSocket {
     /**
      * Binds this server socket to the given local socket address. If the
      * {@code localAddr} is set to {@code null} the socket will be bound to an
-     * available local address on any free port of the system. The value for
-     * {@code backlog} must e greater than {@code 0} otherwise the default value
-     * will be used.
+     * available local address on any free port of the system.
      *
-     * @param localAddr
-     *            the local machine address and port to bind on.
-     * @param backlog
-     *            the number of pending connection requests, before requests
-     *            will be rejected.
-     * @throws IllegalArgumentException
-     *             if the {@code SocketAddress} is not supported.
-     * @throws IOException
-     *             if the socket is already bound or a problem occurs during
-     *             binding.
+     * @param localAddr the local machine address and port to bind on.
+     * @param backlog the maximum number of unaccepted connections. Passing 0 or
+     *     a negative value yields the default backlog of 50.
+     * @throws IllegalArgumentException if the {@code SocketAddress} is not
+     *     supported.
+     * @throws IOException if the socket is already bound or a problem occurs
+     *     during binding.
      */
     public void bind(SocketAddress localAddr, int backlog) throws IOException {
         checkClosedAndCreate(true);
