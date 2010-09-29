@@ -642,8 +642,12 @@ public class Executors {
         FinalizableDelegatedExecutorService(ExecutorService executor) {
             super(executor);
         }
-        protected void finalize()  {
-            super.shutdown();
+        @Override protected void finalize() throws Throwable {
+            try {
+                super.shutdown();
+            } finally {
+                super.finalize();
+            }
         }
     }
 

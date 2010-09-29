@@ -166,9 +166,16 @@ public class FileInputStream extends InputStream implements Closeable {
      * @throws IOException
      *             if an error occurs attempting to finalize this stream.
      */
-    @Override
-    protected void finalize() throws IOException {
-        close();
+    @Override protected void finalize() throws IOException {
+        try {
+            close();
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
+        }
     }
 
     /**

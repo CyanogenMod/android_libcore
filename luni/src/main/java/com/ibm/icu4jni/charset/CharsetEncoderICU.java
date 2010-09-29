@@ -311,10 +311,13 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * @exception Throwable exception thrown by super class' finalize method
      * @stable ICU 2.4
      */
-    protected void finalize() throws Throwable {
-        NativeConverter.closeConverter(converterHandle);
-        super.finalize();
-        converterHandle=0;
+    @Override protected void finalize() throws Throwable {
+        try {
+            NativeConverter.closeConverter(converterHandle);
+            converterHandle=0;
+        } finally {
+            super.finalize();
+        }
     }
 
     //------------------------------------------

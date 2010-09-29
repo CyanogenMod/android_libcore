@@ -532,9 +532,12 @@ public final class RuleBasedCollator extends Collator {
         m_collator_ = NativeCollation.openCollator(locale.toString());
     }
 
-    @Override
-    protected void finalize() {
-        NativeCollation.closeCollator(m_collator_);
+    @Override protected void finalize() throws Throwable {
+        try {
+            NativeCollation.closeCollator(m_collator_);
+        } finally {
+            super.finalize();
+        }
     }
 
     private RuleBasedCollator(int addr) {
