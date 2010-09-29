@@ -1,11 +1,4 @@
-package tests.api.java.net;
-
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-import junit.framework.TestCase;
+package libcore.java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +10,10 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketImplFactory;
+import junit.framework.TestCase;
 
 
-@TestTargetClass(SocketImplFactory.class)
-public class SocketImplFactoryTest extends TestCase {
+public class OldSocketImplFactoryTest extends TestCase {
 
     SocketImplFactory oldFactory = null;
     Field factoryField = null;
@@ -30,35 +23,18 @@ public class SocketImplFactoryTest extends TestCase {
     boolean iSocketImplCalled = false;
     boolean isCreateSocketImpl = false;
 
-    @TestTargets ({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "createSocketImpl",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive case, and SocketException.",
-            clazz = Socket.class,
-            method = "setSocketImplFactory",
-            args = {java.net.SocketImplFactory.class}
-        )
-    })
     public void test_createSocketImpl() throws IOException {
         MockSocketImplFactory factory = new MockSocketImplFactory();
         if(isTestable) {
-
             assertFalse(isCreateSocketImpl);
             Socket.setSocketImplFactory(factory);
 
             try {
-                Socket ds = new Socket();
+                new Socket();
                 assertTrue(isCreateSocketImpl);
                 assertTrue(iSocketImplCalled);
             } catch (Exception e) {
                 fail("Exception during test : " + e.getMessage());
-
             }
 
             try {
@@ -142,7 +118,6 @@ public class SocketImplFactoryTest extends TestCase {
         }
         @Override
         protected void accept(SocketImpl arg0) throws IOException {
-
         }
 
         @Override
@@ -152,32 +127,26 @@ public class SocketImplFactoryTest extends TestCase {
 
         @Override
         protected void bind(InetAddress arg0, int arg1) throws IOException {
-
         }
 
         @Override
         protected void close() throws IOException {
-
         }
 
         @Override
         protected void connect(String arg0, int arg1) throws IOException {
-
         }
 
         @Override
         protected void connect(InetAddress arg0, int arg1) throws IOException {
-
         }
 
         @Override
         protected void connect(SocketAddress arg0, int arg1) throws IOException {
-
         }
 
         @Override
         protected void create(boolean arg0) throws IOException {
-
         }
 
         @Override
@@ -192,12 +161,10 @@ public class SocketImplFactoryTest extends TestCase {
 
         @Override
         protected void listen(int arg0) throws IOException {
-
         }
 
         @Override
         protected void sendUrgentData(int arg0) throws IOException {
-
         }
 
         public Object getOption(int arg0) throws SocketException {
@@ -205,7 +172,6 @@ public class SocketImplFactoryTest extends TestCase {
         }
 
         public void setOption(int arg0, Object arg1) throws SocketException {
-
         }
     }
 }

@@ -15,18 +15,10 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
-
-import dalvik.annotation.AndroidOnly;
-//import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
+package libcore.java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Inet4Address;
@@ -44,45 +36,16 @@ import java.net.UnknownHostException;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.SocketChannel;
 import java.security.Permission;
-
 import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(Socket.class)
-public class SocketTest extends SocketTestCase {
+public class OldSocketTest extends OldSocketTestCase {
 
     ServerSocket ss;
 
     Socket s;
 
     Thread t;
-
-    boolean interrupted = false;
-
-    class SServer extends Thread implements Runnable {
-        Socket s1 = null;
-
-        public void run() {
-            try {
-                ss.setSoTimeout(5000);
-                s1 = ss.accept();
-                ss.close();
-                Thread.sleep(4000);
-            } catch (java.io.InterruptedIOException x) {
-                System.out.println(Thread.currentThread()
-                        + ", accept() timeout fired: " + x);
-            } catch (InterruptedException x) {
-            } catch (Exception e) {
-                System.out.println("Unable to accept: " + e.toString());
-            } finally {
-                try {
-                    if (s1 != null)
-                        s1.close();
-                } catch (java.io.IOException e) {
-                }
-            }
-        }
-    }
 
     SecurityManager sm = new SecurityManager() {
 
@@ -93,15 +56,6 @@ public class SocketTest extends SocketTestCase {
         }
     };
 
-    /**
-     * @tests java.net.Socket#Socket()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {}
-    )
     public void test_Constructor() {
         // create the socket and then validate some basic state
         s = new Socket();
@@ -115,15 +69,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.lang.String, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_ConstructorLjava_lang_StringI() throws IOException {
         // Test for method java.net.Socket(java.lang.String, int)
         int sport = startServer("Cons String,I");
@@ -186,16 +131,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.lang.String, int,
-     *        java.net.InetAddress, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.lang.String.class, int.class, java.net.InetAddress.class, int.class}
-    )
     public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI()
             throws IOException {
         // Test for method java.net.Socket(java.lang.String, int,
@@ -213,7 +148,7 @@ public class SocketTest extends SocketTestCase {
             // ALTERNATE IPv6 TEST
             if ("true".equals(System.getProperty("run.ipv6tests"))) {
                 System.out
-                        .println("Running testConstructorLjava_lang_StringILjava_net_InetAddressI(SocketTest) with IPv6GlobalAddressJcl4: "
+                        .println("Running testConstructorLjava_lang_StringILjava_net_InetAddressI(OldSocketTest) with IPv6GlobalAddressJcl4: "
                                 + Support_Configuration.IPv6GlobalAddressJcl4);
                 int testPort = Support_PortManager.getNextPort();
                 Socket s1 = null, s2 = null;
@@ -318,15 +253,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.lang.String, int, boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.lang.String.class, int.class, boolean.class}
-    )
     public void test_ConstructorLjava_lang_StringIZ() throws IOException {
         // Test for method java.net.Socket(java.lang.String, int, boolean)
         int sport = startServer("Cons String,I,Z");
@@ -349,15 +275,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.net.InetAddress, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.net.InetAddress.class, int.class}
-    )
     public void test_ConstructorLjava_net_InetAddressI() throws IOException {
         // Test for method java.net.Socket(java.net.InetAddress, int)
         int sport = startServer("Cons InetAddress,I");
@@ -378,16 +295,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.net.InetAddress, int,
-     *        java.net.InetAddress, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.net.InetAddress.class, int.class, java.net.InetAddress.class, int.class}
-    )
     public void test_ConstructorLjava_net_InetAddressILjava_net_InetAddressI()
             throws IOException {
         // Test for method java.net.Socket(java.net.InetAddress, int,
@@ -413,15 +320,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#Socket(java.net.InetAddress, int, boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.net.InetAddress.class, int.class, boolean.class}
-    )
     public void test_ConstructorLjava_net_InetAddressIZ() throws IOException {
         // Test for method java.net.Socket(java.net.InetAddress, int, boolean)
         int sport = startServer("Cons InetAddress,I,Z");
@@ -444,15 +342,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#close()
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "IOException checking missing.",
-        method = "close",
-        args = {}
-    )
     public void test_close() throws IOException {
         // Test for method void java.net.Socket.close()
         int sport = startServer("SServer close");
@@ -472,34 +361,16 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getInetAddress()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInetAddress",
-        args = {}
-    )
     public void test_getInetAddress() throws IOException {
         // Test for method java.net.InetAddress java.net.Socket.getInetAddress()
         int sport = startServer("SServer getInetAddress");
         int portNumber = Support_PortManager.getNextPort();
         s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
-        assertTrue("Returned incorrect InetAdrees", s.getInetAddress().equals(
+        assertTrue("Returned incorrect InetAddress", s.getInetAddress().equals(
                 InetAddress.getLocalHost()));
 
     }
 
-    /**
-     * @tests java.net.Socket#getInputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInputStream",
-        args = {}
-    )
     public void test_getInputStream() throws IOException {
         // Simple fetch test
         ServerSocket server = new ServerSocket(0);
@@ -511,15 +382,6 @@ public class SocketTest extends SocketTestCase {
         server.close();
     }
 
-    /**
-     * @tests java.net.Socket#getKeepAlive()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKeepAlive",
-        args = {}
-    )
     public void test_getKeepAlive() {
         try {
             int sport = startServer("SServer getKeepAlive");
@@ -553,15 +415,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getLocalAddress()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalAddress",
-        args = {}
-    )
     public void test_getLocalAddress() throws IOException {
         // Test for method java.net.InetAddress
         // java.net.Socket.getLocalAddress()
@@ -571,7 +424,7 @@ public class SocketTest extends SocketTestCase {
         assertEquals("Returned incorrect InetAddress",
                 InetAddress.getLocalHost(), s.getLocalAddress());
 
-        // now validate thet behaviour when the any address is returned
+        // now validate that behaviour when the any address is returned
         String preferIPv4StackValue = System
                 .getProperty("java.net.preferIPv4Stack");
         String preferIPv6AddressesValue = System
@@ -598,15 +451,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#getLocalPort()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalPort",
-        args = {}
-    )
     public void test_getLocalPort() throws IOException {
         // Test for method int java.net.Socket.getLocalPort()
         int sport = startServer("SServer getLocalPort");
@@ -616,16 +460,7 @@ public class SocketTest extends SocketTestCase {
         assertTrue("Returned incorrect port", s.getLocalPort() == portNumber);
     }
 
-    /**
-     * @tests java.net.Socket#getOutputStream()
-     */
     @SuppressWarnings("deprecation")
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IOException checking missing.",
-        method = "getOutputStream",
-        args = {}
-    )
     public void test_getOutputStream() throws IOException {
         // Test for method java.io.OutputStream
         // java.net.Socket.getOutputStream()
@@ -661,15 +496,6 @@ public class SocketTest extends SocketTestCase {
         s.close();
     }
 
-    /**
-     * @tests java.net.Socket#getPort()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPort",
-        args = {}
-    )
     public void test_getPort() throws IOException {
         // Test for method int java.net.Socket.getPort()
         int sport = startServer("SServer getPort");
@@ -679,15 +505,6 @@ public class SocketTest extends SocketTestCase {
                 s.getPort() == sport);
     }
 
-    /**
-     * @tests java.net.Socket#getSoLinger()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSoLinger",
-        args = {}
-    )
     public void test_getSoLinger() {
         // Test for method int java.net.Socket.getSoLinger()
         int sport = startServer("SServer getSoLinger");
@@ -717,15 +534,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getReceiveBufferSize()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getReceiveBufferSize",
-        args = {}
-    )
     public void test_getReceiveBufferSize() {
         try {
             int sport = startServer("SServer getReceiveBufferSize");
@@ -753,15 +561,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getSendBufferSize()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSendBufferSize",
-        args = {}
-    )
     public void test_getSendBufferSize() {
         int sport = startServer("SServer setSendBufferSize");
         try {
@@ -789,15 +588,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getSoTimeout()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSoTimeout",
-        args = {}
-    )
     public void test_getSoTimeout() {
         // Test for method int java.net.Socket.getSoTimeout()
         int sport = startServer("SServer getSoTimeout");
@@ -825,15 +615,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getTcpNoDelay()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTcpNoDelay",
-        args = {}
-    )
     public void test_getTcpNoDelay() {
         // Test for method boolean java.net.Socket.getTcpNoDelay()
         int sport = startServer("SServer getTcpNoDelay");
@@ -864,15 +645,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setKeepAlive(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setKeepAlive",
-        args = {boolean.class}
-    )
     public void test_setKeepAliveZ() throws Exception {
         // There is not really a good test for this as it is there to detect
         // crashed machines. Just make sure we can set it
@@ -905,15 +677,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies SecurityException.",
-        method = "setSocketImplFactory",
-        args = {java.net.SocketImplFactory.class}
-    )
     public void test_setSocketImplFactoryLjava_net_SocketImplFactory() {
         // Test for method void
         // java.net.Socket.setSocketImplFactory(java.net.SocketImplFactory)
@@ -946,15 +709,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#setSendBufferSize(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSendBufferSize",
-        args = {int.class}
-    )
     public void test_setSendBufferSizeI() {
         try {
             int sport = startServer("SServer setSendBufferSizeI");
@@ -979,15 +733,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setReceiveBufferSize(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setReceiveBufferSize",
-        args = {int.class}
-    )
     public void test_setReceiveBufferSizeI() {
         try {
             int sport = startServer("SServer setReceiveBufferSizeI");
@@ -1012,15 +757,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setSoLinger(boolean, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSoLinger",
-        args = {boolean.class, int.class}
-    )
     public void test_setSoLingerZI() {
         // Test for method void java.net.Socket.setSoLinger(boolean, int)
         try {
@@ -1047,15 +783,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setSoTimeout(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSoTimeout",
-        args = {int.class}
-    )
     public void test_setSoTimeoutI() {
         // Test for method void java.net.Socket.setSoTimeout(int)
         try {
@@ -1081,15 +808,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setTcpNoDelay(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTcpNoDelay",
-        args = {boolean.class}
-    )
     public void test_setTcpNoDelayZ() {
         // Test for method void java.net.Socket.setTcpNoDelay(boolean)
         try {
@@ -1117,15 +835,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#toString()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws IOException {
         // Test for method java.lang.String java.net.Socket.toString()
         int sport = startServer("SServer toString");
@@ -1140,16 +849,7 @@ public class SocketTest extends SocketTestCase {
                                 + s.getLocalPort() + "]"));
     }
 
-    /**
-     * @tests java.net.Socket#shutdownInput()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "shutdownInput",
-        args = {}
-    )
-    @AndroidOnly("RI returns wrong value for EOF")
+    // AndroidOnly: RI returns wrong value for EOF
     public void test_shutdownInput() throws Exception {
         InetAddress addr = InetAddress.getLocalHost();
         int port = Support_PortManager.getNextPort();
@@ -1187,15 +887,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#shutdownOutput()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "shutdownOutput",
-        args = {}
-    )
     public void test_shutdownOutput() throws IOException {
         InetAddress addr = InetAddress.getLocalHost();
         int port = Support_PortManager.getNextPort();
@@ -1229,15 +920,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getLocalSocketAddress()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalSocketAddress",
-        args = {}
-    )
     public void test_getLocalSocketAddress() throws IOException {
         // set up server connect and then validate that we get the right
         // response for the local address
@@ -1277,7 +959,7 @@ public class SocketTest extends SocketTestCase {
                                         .getLocalHost(), portNumber)));
         theSocket.close();
 
-        // now validate thet behaviour when the any address is returned
+        // now validate that behaviour when the any address is returned
         s = new Socket();
         s.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0));
 
@@ -1325,15 +1007,6 @@ public class SocketTest extends SocketTestCase {
         s.close();
     }
 
-    /**
-     * @tests java.net.Socket#getRemoteSocketAddress()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getRemoteSocketAddress",
-        args = {}
-    )
     public void test_getRemoteSocketAddress() throws IOException {
         // set up server connect and then validate that we get the right
         // response for the remote address
@@ -1371,15 +1044,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#isBound()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isBound",
-        args = {}
-    )
     public void test_isBound() throws IOException {
         InetAddress addr = InetAddress.getLocalHost();
         int port = Support_PortManager.getNextPort();
@@ -1407,7 +1071,7 @@ public class SocketTest extends SocketTestCase {
         theSocket.close();
         serverSocket.close();
 
-        // now test when we bind explicitely
+        // now test when we bind explicitly
         InetSocketAddress theLocalAddress = new InetSocketAddress(InetAddress
                 .getLocalHost(), Support_PortManager.getNextPort());
         theSocket = new Socket();
@@ -1421,15 +1085,6 @@ public class SocketTest extends SocketTestCase {
                 theSocket.isBound());
     }
 
-    /**
-     * @tests java.net.Socket#isConnected()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isConnected",
-        args = {}
-    )
     public void test_isConnected() throws IOException {
         InetAddress addr = InetAddress.getLocalHost();
         int port = Support_PortManager.getNextPort();
@@ -1457,15 +1112,6 @@ public class SocketTest extends SocketTestCase {
         serverSocket.close();
     }
 
-    /**
-     * @tests java.net.Socket#isClosed()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isClosed",
-        args = {}
-    )
     public void test_isClosed() throws IOException {
         InetAddress addr = InetAddress.getLocalHost();
         int port = Support_PortManager.getNextPort();
@@ -1496,15 +1142,6 @@ public class SocketTest extends SocketTestCase {
                 .isClosed());
     }
 
-    /**
-     * @tests java.net.Socket#bind(java.net.SocketAddress)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "bind",
-        args = {java.net.SocketAddress.class}
-    )
     public void test_bindLjava_net_SocketAddress() throws IOException {
 
         class mySocketAddress extends SocketAddress {
@@ -1574,7 +1211,7 @@ public class SocketTest extends SocketTestCase {
 
         // now check the error conditions
 
-        // Address that we have allready bound to
+        // Address that we have already bound to
         theSocket = new Socket();
         Socket theSocket2 = new Socket();
         try {
@@ -1598,15 +1235,6 @@ public class SocketTest extends SocketTestCase {
         theSocket.close();
     }
 
-    /**
-     * @tests java.net.Socket#bind(java.net.SocketAddress)
-     */
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Checks bind on proxy.",
-        method = "bind",
-        args = {java.net.SocketAddress.class}
-    )
     public void test_bindLjava_net_SocketAddress_Proxy() throws IOException {
         //The Proxy will not impact on the bind operation.It can be assigned with any address.
         Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", 0));
@@ -1625,15 +1253,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#connect(java.net.SocketAddress)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "connect",
-        args = {java.net.SocketAddress.class}
-    )
     public void test_connectLjava_net_SocketAddress() throws Exception {
         // needed for some tests
         class mySocketAddress extends SocketAddress {
@@ -1727,7 +1346,7 @@ public class SocketTest extends SocketTestCase {
                             + e.toString(), (e instanceof ConnectException));
         }
 
-        // now validate that we can acutally connect when sombody is listening
+        // now validate that we can actually connect when somebody is listening
         theSocket = new Socket();
         serverSocket = new ServerSocket();
         serverSocket.bind(theAddress);
@@ -1735,7 +1354,7 @@ public class SocketTest extends SocketTestCase {
         theSocket.close();
         serverSocket.close();
 
-        // now validate that we can acutally connect when sombody is listening
+        // now validate that we can actually connect when somebody is listening
         theSocket = new Socket();
         serverSocket = new ServerSocket();
         serverSocket.bind(theAddress);
@@ -1852,15 +1471,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#connect(java.net.SocketAddress, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "connect",
-        args = {java.net.SocketAddress.class, int.class}
-    )
     public void test_connectLjava_net_SocketAddressI() throws Exception {
 
         // needed for some tests
@@ -1992,7 +1602,7 @@ public class SocketTest extends SocketTestCase {
                             + e.toString(), (e instanceof ConnectException));
         }
 
-        // now validate that we can acutally connect when sombody is listening
+        // now validate that we can actually connect when somebody is listening
         theSocket = new Socket();
         serverSocket = new ServerSocket();
         serverSocket.bind(theAddress);
@@ -2043,7 +1653,7 @@ public class SocketTest extends SocketTestCase {
                     (e instanceof SocketTimeoutException));
         }
 
-        // now validate that we can acutally connect when sombody is listening
+        // now validate that we can actually connect when somebody is listening
         new InetSocketAddress(InetAddress.getLocalHost(), Support_PortManager
                 .getNextPort());
         theSocket = new Socket();
@@ -2086,10 +1696,10 @@ public class SocketTest extends SocketTestCase {
 
         } catch (Exception e) {
             assertTrue(
-                    "Wrong exception when connecting on socket that is allready connected"
+                    "Wrong exception when connecting on socket that is already connected"
                             + e.toString(), (e instanceof SocketException));
             assertFalse(
-                    "Wrong exception when connecting on socket that is allready connected"
+                    "Wrong exception when connecting on socket that is already connected"
                             + e.toString(),
                     (e instanceof SocketTimeoutException));
             try {
@@ -2182,15 +1792,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#isInputShutdown()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isInputShutdown",
-        args = {}
-    )
     public void test_isInputShutdown() throws IOException {
         InetSocketAddress theAddress = new InetSocketAddress(InetAddress
                 .getLocalHost(), Support_PortManager.getNextPort());
@@ -2224,15 +1825,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#isOutputShutdown()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isOutputShutdown",
-        args = {}
-    )
     public void test_isOutputShutdown() throws IOException {
         InetSocketAddress theAddress = new InetSocketAddress(InetAddress
                 .getLocalHost(), Support_PortManager.getNextPort());
@@ -2266,15 +1858,6 @@ public class SocketTest extends SocketTestCase {
 
     }
 
-    /**
-     * @tests java.net.Socket#setReuseAddress(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setReuseAddress",
-        args = {boolean.class}
-    )
     public void test_setReuseAddressZ() {
 
         try {
@@ -2333,7 +1916,7 @@ public class SocketTest extends SocketTestCase {
                 theSocket.close();
                 theSocket2.close();
 
-                // try to bind to port that is allready in use with reuseAddress
+                // try to bind to port that is already in use with reuseAddress
                 // = true
                 theLocalAddress = new InetSocketAddress(
                         (InetAddress) allAddresses[0], Support_PortManager
@@ -2407,15 +1990,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getReuseAddress()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getReuseAddress",
-        args = {}
-    )
     public void test_getReuseAddress() {
         try {
             Socket theSocket = new Socket();
@@ -2444,15 +2018,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setOOBInline(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setOOBInline",
-        args = {boolean.class}
-    )
     public void test_setOOBInlineZ() {
         // mostly tested in getOOBInline. Just set to make sure call works ok
         try {
@@ -2478,15 +2043,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getOOBInline()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOOBInline",
-        args = {}
-    )
     public void test_getOOBInline() {
 
         try {
@@ -2518,21 +2074,10 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#setTrafficClass(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTrafficClass",
-        args = {int.class}
-    )
     public void test_setTrafficClassI() {
         try {
             int IPTOS_LOWCOST = 0x2;
-            int IPTOS_RELIABILTY = 0x4;
             int IPTOS_THROUGHPUT = 0x8;
-            int IPTOS_LOWDELAY = 0x10;
 
             new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort());
@@ -2571,22 +2116,8 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getTrafficClass()
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "SocketException checking missing.",
-        method = "getTrafficClass",
-        args = {}
-    )
     public void test_getTrafficClass() {
         try {
-            int IPTOS_LOWCOST = 0x2;
-            int IPTOS_RELIABILTY = 0x4;
-            int IPTOS_THROUGHPUT = 0x8;
-            int IPTOS_LOWDELAY = 0x10;
-
             new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort());
             Socket theSocket = new Socket();
@@ -2603,15 +2134,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests java.net.Socket#getChannel()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getChannel",
-        args = {}
-    )
     public void test_getChannel() throws Exception {
         assertNull(new Socket().getChannel());
 
@@ -2622,15 +2144,6 @@ public class SocketTest extends SocketTestCase {
         channel.close();
     }
 
-    /**
-     * @tests java.net.Socket#sendUrgentData(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "sendUrgentData",
-        args = {int.class}
-    )
     public void test_sendUrgentDataI() {
 
         // Some platforms may not support urgent data in this case we will not
@@ -2944,29 +2457,11 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /*
-     * @tests java.net.Socket#setPerformancePreference()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPerformancePreferences",
-        args = {int.class, int.class, int.class}
-    )
     public void test_setPerformancePreference_Int_Int_Int() throws Exception {
         Socket theSocket = new Socket();
         theSocket.setPerformancePreferences(1, 1, 1);
     }
 
-    /**
-     * @tests java.net.Socket#Socket(Proxy)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Socket",
-        args = {java.net.Proxy.class}
-    )
     public void test_ConstructorLjava_net_Proxy_Exception() {
 
         SocketAddress addr1 = InetSocketAddress.createUnresolved("127.0.0.1",
@@ -3041,12 +2536,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "SocketException depends on the underlying protocol.",
-        method = "Socket",
-        args = {SocketImpl.class}
-    )
     public void test_ConstructorLSocketImpl() {
         MockSocketImpl msi = new MockSocketImpl();
         try {
@@ -3056,15 +2545,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests Socket#connect(SocketAddress) try an unknownhost
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "UnknownHostException checking only.",
-        method = "connect",
-        args = {java.net.SocketAddress.class, int.class}
-    )
     public void test_connect_unknownhost() throws Exception {
         Socket socket = new Socket();
         InetSocketAddress socketAddress = new InetSocketAddress("unknownhost", 12345);
@@ -3076,16 +2556,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests Socket#connect(SocketAddress) try an unknownhost created by
-     *        createUnresolved()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "UnknownHostException checking only.",
-        method = "connect",
-        args = {java.net.SocketAddress.class, int.class}
-    )
     public void test_connect_unresolved_unknown() throws Exception {
         Socket socket = new Socket();
         InetSocketAddress unresolved = InetSocketAddress.createUnresolved("unknownhost", 12345);
@@ -3097,16 +2567,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests Socket#connect(SocketAddress) try a known host created by
-     *        createUnresolved()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "UnknownHostException checking only.",
-        method = "connect",
-        args = {java.net.SocketAddress.class, int.class}
-    )
     public void test_connect_unresolved() throws Exception {
         Socket socket = new Socket();
         InetSocketAddress unresolvedSocketAddress = InetSocketAddress.createUnresolved(
@@ -3120,15 +2580,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests Socket#getOutputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SocketException, IllegalBlockingModeException checking.",
-        method = "getOutputStream",
-        args = {}
-    )
     public void test_getOutputStream_shutdownOutput() throws Exception {
         // regression test for Harmony-873
         ServerSocket ss = new ServerSocket(0);
@@ -3165,16 +2616,6 @@ public class SocketTest extends SocketTestCase {
         }
     }
 
-    /**
-     * @tests Socket#shutdownInput()
-     * @tests Socket#shutdownOutput()
-     */
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Regression test.",
-        method = "shutdownInput",
-        args = {}
-    )
     public void test_shutdownInputOutput_twice() throws Exception {
         // regression test for Harmony-2944
         Socket s = new Socket("0.0.0.0", 0, false);
@@ -3263,86 +2704,60 @@ public class SocketTest extends SocketTestCase {
 
         @Override
         protected void accept(SocketImpl arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected int available() throws IOException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         protected void bind(InetAddress arg0, int arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void close() throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void connect(String arg0, int arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void connect(InetAddress arg0, int arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void connect(SocketAddress arg0, int arg1) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void create(boolean arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected InputStream getInputStream() throws IOException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         protected OutputStream getOutputStream() throws IOException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         protected void listen(int arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         protected void sendUrgentData(int arg0) throws IOException {
-            // TODO Auto-generated method stub
-
         }
 
         public Object getOption(int arg0) throws SocketException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public void setOption(int arg0, Object arg1) throws SocketException {
-            // TODO Auto-generated method stub
-
         }
-
     }
-
 }

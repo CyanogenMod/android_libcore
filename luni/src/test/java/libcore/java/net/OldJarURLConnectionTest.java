@@ -15,11 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
-
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
+package libcore.java.net;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,11 +27,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.Certificate;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -43,25 +37,11 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import tests.support.resource.Support_Resources;
 
-@TestTargetClass(JarURLConnection.class)
-public class JarURLConnectionTest extends junit.framework.TestCase {
+public class OldJarURLConnectionTest extends junit.framework.TestCase {
 
     JarURLConnection juc;
-
-    URLConnection uc;
-
-    private static final URL BASE = getBaseURL();
-
-    private static URL getBaseURL() {
-        String clazz = JarURLConnectionTest.class.getName();
-        int p = clazz.lastIndexOf(".");
-        String pack = (p == -1 ? "" : clazz.substring(0, p)).replace('.', File.separatorChar);
-
-        return JarURLConnectionTest.class.getClassLoader().getResource(pack);
-    }
 
     private URL createContent(String jarFile, String inFile)
                                                 throws MalformedURLException {
@@ -70,33 +50,16 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
 
         Support_Resources.copyFile(resources, "net", jarFile);
         File file = new File(resources.toString() + "/net/" + jarFile);
-        URL fUrl1 = new URL("jar:file:" + file.getPath() + "!/" + inFile);
 
-        return fUrl1;
+        return new URL("jar:file:" + file.getPath() + "!/" + inFile);
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getAttributes()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getAttributes",
-      args = {}
-    )
     public void test_getAttributes() throws Exception {
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/swt.dll");
-
         URL u = createContent("lf.jar", "swt.dll");
         juc = (JarURLConnection) u.openConnection();
         java.util.jar.Attributes a = juc.getAttributes();
         assertEquals("Returned incorrect Attributes", "SHA MD5", a
                 .get(new java.util.jar.Attributes.Name("Digest-Algorithms")));
-
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
-
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
         JarURLConnection juConn = (JarURLConnection) invURL.openConnection();
@@ -108,17 +71,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getCertificates",
-      args = {}
-    )
     public void test_getCertificates() throws Exception {
-
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/TestCodeSigners.jar!/Test.class");
-
         URL u = createContent("TestCodeSigners.jar", "Test.class");
 
         juc = (JarURLConnection) u.openConnection();
@@ -132,9 +85,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         Certificate [] certs = juc.getCertificates();
         assertEquals(3, certs.length);
 
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
-
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
         JarURLConnection juConn = (JarURLConnection) invURL.openConnection();
@@ -146,17 +96,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getManifest",
-      args = {}
-    )
     public void test_getManifest() throws Exception {
-
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/swt.dll");
-
         URL u = createContent("lf.jar", "swt.dll");
 
         juc = (JarURLConnection) u.openConnection();
@@ -164,9 +104,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         Map<String, Attributes> attr = manifest.getEntries();
         assertEquals(new HashSet<String>(Arrays.asList("plus.bmp", "swt.dll")),
                 attr.keySet());
-
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
 
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
@@ -179,65 +116,34 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @throws Exception
-     * @tests java.net.JarURLConnection#getEntryName()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getEntryName",
-      args = {}
-    )
     public void test_getEntryName() throws Exception {
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/plus.bmp");
-
         URL u = createContent("lf.jar", "plus.bmp");
 
         juc = (JarURLConnection) u.openConnection();
         assertEquals("Returned incorrect entryName", "plus.bmp", juc
                 .getEntryName());
 
-        //u = new URL("jar:" + BASE.toString()+"/lf.jar!/");
-
         u = createContent("lf.jar", "");
 
         juc = (JarURLConnection) u.openConnection();
         assertNull("Returned incorrect entryName", juc.getEntryName());
-//      Regression test for harmony-3053
 
+        // Regression test for harmony-3053
         URL url = new URL("jar:file:///bar.jar!/foo.jar!/Bugs/HelloWorld.class");
         assertEquals("foo.jar!/Bugs/HelloWorld.class",((JarURLConnection)url.openConnection()).getEntryName());
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getJarEntry()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getJarEntry",
-      args = {}
-    )
     public void test_getJarEntry() throws Exception {
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/plus.bmp");
-
         URL u = createContent("lf.jar", "plus.bmp");
 
         juc = (JarURLConnection) u.openConnection();
         assertEquals("Returned incorrect JarEntry", "plus.bmp", juc
                 .getJarEntry().getName());
 
-        //u = new URL("jar:" + BASE.toString()+"/lf.jar!/");
         u = createContent("lf.jar", "");
 
         juc = (JarURLConnection) u.openConnection();
         assertNull("Returned incorrect JarEntry", juc.getJarEntry());
-
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
 
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
@@ -250,24 +156,10 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getJarFile()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getJarFile",
-      args = {}
-    )
-    public void test_getJarFile() throws MalformedURLException, IOException {
-        URL url = null;
-        //url = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/missing");
+    public void test_getJarFile() throws IOException {
+        URL url = createContent("lf.jar", "missing");
 
-        url = createContent("lf.jar", "missing");
-
-        JarURLConnection connection = null;
-        connection = (JarURLConnection) url.openConnection();
+        JarURLConnection connection = (JarURLConnection) url.openConnection();
         try {
             connection.connect();
             fail("Did not throw exception on connect");
@@ -281,9 +173,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // expected
         }
-
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
 
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
@@ -309,7 +198,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         assertTrue("File should exist", file.exists());
 
         fUrl1 = createContent("lf.jar", "");
-        //new URL("jar:" + BASE.toString()+"/lf.jar!/");
 
         con1 = (JarURLConnection) fUrl1.openConnection();
         jf1 = con1.getJarFile();
@@ -319,17 +207,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         jf1.close();
     }
 
-    /**
-     * @tests java.net.JarURLConnection.getJarFile()
-     *
-     * Regression test for HARMONY-29
-     */
-    @TestTargetNew(
-      level = TestLevel.PARTIAL_COMPLETE,
-      notes = "Regression test.",
-      method = "getJarFile",
-      args = {}
-    )
     public void test_getJarFile29() throws Exception {
         File jarFile = File.createTempFile("1+2 3", "test.jar");
         jarFile.deleteOnExit();
@@ -345,12 +222,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
     }
 
     //Regression for HARMONY-3436
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Exceptions checking missed.",
-        method = "setUseCaches",
-        args = {boolean.class}
-    )
     public void test_setUseCaches() throws Exception {
         File resources = Support_Resources.createTempFolder();
         Support_Resources.copyFile(resources, null, "hyts_att.jar");
@@ -359,8 +230,8 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
 
         JarURLConnection connection = (JarURLConnection) url.openConnection();
         connection.setUseCaches(false);
+        connection.getInputStream();
         InputStream in = connection.getInputStream();
-        in = connection.getInputStream();
         JarFile jarFile1 = connection.getJarFile();
         JarEntry jarEntry1 = connection.getJarEntry();
         in.read();
@@ -378,20 +249,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getJarFileURL()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getJarFileURL",
-      args = {}
-    )
     public void test_getJarFileURL() throws Exception {
-        //URL fileURL = new URL(BASE.toString()+"/lf.jar");
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/plus.bmp");
-
         URL u = createContent("lf.jar", "plus.bmp");
 
         URL fileURL = new URL(u.getPath().substring(0, u.getPath().indexOf("!")));
@@ -404,18 +262,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         assertEquals("file:/bar.jar",((JarURLConnection)url.openConnection()).getJarFileURL().toString());
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getMainAttributes()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getMainAttributes",
-      args = {}
-    )
     public void test_getMainAttributes() throws Exception {
-        //URL u = new URL("jar:"
-        //        + BASE.toString()+"/lf.jar!/swt.dll");
         URL u = createContent("lf.jar", "swt.dll");
 
         juc = (JarURLConnection) u.openConnection();
@@ -423,8 +270,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         assertEquals("Returned incorrect Attributes", "1.0", a
                 .get(java.util.jar.Attributes.Name.MANIFEST_VERSION));
 
-        //URL invURL = new URL("jar:"
-        //        + BASE.toString()+"/InvalidJar.jar!/Test.class");
         URL invURL = createContent("InvalidJar.jar", "Test.class");
 
         JarURLConnection juConn = (JarURLConnection) invURL.openConnection();
@@ -436,23 +281,13 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.net.JarURLConnection#getInputStream()
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "Test fails: IOException expected but IllegalStateException is thrown: ticket 128",
-      method = "getInputStream",
-      args = {}
-    )
     public void test_getInputStream_DeleteJarFileUsingURLConnection()
             throws Exception {
-        String jarFileName = "";
         String entry = "text.txt";
         String cts = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(cts);
-        File jarFile = tmpDir.createTempFile("file", ".jar", tmpDir);
-        jarFileName = jarFile.getPath();
+        File jarFile = File.createTempFile("file", ".jar", tmpDir);
+        String jarFileName = jarFile.getPath();
         FileOutputStream jarFileOutputStream = new FileOutputStream(jarFileName);
         JarOutputStream out = new JarOutputStream(new BufferedOutputStream(
                 jarFileOutputStream));
@@ -468,25 +303,8 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         is.close();
 
         assertTrue(jarFile.delete());
-
-        /*
-        try {
-            conn.getInputStream();
-            fail("Exception was not thrown.");
-        } catch (IOException e) {
-            //ok
-        }
-
-        */
-
     }
 
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "JarURLConnection",
-      args = {java.net.URL.class}
-    )
     public void test_Constructor() {
         try {
             String jarFileName = "file.jar";
@@ -499,27 +317,20 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         }
 
         try {
-        URL [] urls = {new URL("file:file.jar"),
-                       new URL("http://foo.com/foo/foo.jar")};
+            URL [] urls = {new URL("file:file.jar"),
+                           new URL("http://foo.com/foo/foo.jar")};
 
-        for(URL url:urls) {
-            try {
-                new TestJarURLConnection(url);
-                fail("MalformedURLException was not thrown.");
-            } catch(MalformedURLException me) {
-                //expected
+            for(URL url : urls) {
+                try {
+                    new TestJarURLConnection(url);
+                    fail("MalformedURLException was not thrown.");
+                } catch(MalformedURLException me) {
+                    //expected
+                }
             }
-        }
         } catch(MalformedURLException me) {
             fail("MalformedURLException was thrown.");
         }
-    }
-
-
-    protected void setUp() {
-    }
-
-    protected void tearDown() {
     }
 
     class TestJarURLConnection extends JarURLConnection {
@@ -537,7 +348,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         public void connect() throws IOException {
 
         }
-
     }
 }
 

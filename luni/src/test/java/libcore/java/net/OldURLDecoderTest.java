@@ -15,72 +15,16 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
-
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
+package libcore.java.net;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-
+import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 
-@TestTargetClass(URLDecoder.class)
-public class URLDecoderTest extends junit.framework.TestCase {
+public class OldURLDecoderTest extends TestCase {
 
-    /**
-     * @tests java.net.URLDecoder#URLDecoder()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "URLDecoder",
-        args = {}
-    )
-    public void test_Constructor() throws Exception {
-        URLDecoder ud = new URLDecoder();
-        assertNotNull("Constructor failed.", ud);
-    }
-
-    /**
-     * @tests java.net.URLDecoder#decode(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "decode",
-        args = {java.lang.String.class}
-    )
-    public void test_decodeLjava_lang_String() throws Exception {
-        // Test for method java.lang.String
-        // java.net.URLDecoder.decode(java.lang.String)
-        final String URL = "http://" + Support_Configuration.HomeAddress;
-        final String URL2 = "telnet://justWantToHaveFun.com:400";
-        final String URL3 = "file://myServer.org/a file with spaces.jpg";
-        assertTrue("1. Incorrect encoding/decoding", URLDecoder.decode(
-                URLEncoder.encode(URL)).equals(URL));
-        assertTrue("2. Incorrect encoding/decoding", URLDecoder.decode(
-                URLEncoder.encode(URL2)).equals(URL2));
-        assertTrue("3. Incorrect encoding/decoding", URLDecoder.decode(
-                URLEncoder.encode(URL3)).equals(URL3));
-    }
-
-    /**
-     * @tests java.net.URLDecoder#decode(java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "decode",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_decodeLjava_lang_String_Ljava_lang_String() {
-        // Regression for HARMONY-467
-
         String enc = "UTF-8";
 
         String [] urls = { "http://" + Support_Configuration.HomeAddress +
@@ -108,13 +52,6 @@ public class URLDecoderTest extends junit.framework.TestCase {
             URLDecoder.decode(urls[urls.length - 1], enc);
         } catch (UnsupportedEncodingException e) {
             fail("UnsupportedEncodingException: " + e.getMessage());
-        }
-
-        try {
-            URLDecoder.decode("", "");
-            fail("UnsupportedEncodingException expected");
-        } catch (UnsupportedEncodingException e) {
-            //expected
         }
     }
 }

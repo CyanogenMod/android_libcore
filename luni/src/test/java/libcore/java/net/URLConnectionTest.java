@@ -330,10 +330,21 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertCached(false, 300);
     }
 
-    public void test_responseCaching_407() throws Exception {
-        // This test will fail on Android because we throw if we're not using a proxy.
-        // This isn't true of the RI, but it seems like useful debugging behavior.
-        assertCached(false, 407);
+    /**
+     * Response code 407 should only come from proxy servers. Android's client
+     * throws if it is sent by an origin server.
+     */
+    public void testOriginServerSends407() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(407));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        try {
+            conn.getResponseCode();
+            fail();
+        } catch (IOException expected) {
+        }
     }
 
     public void test_responseCaching_410() throws Exception {

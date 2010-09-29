@@ -3,6 +3,20 @@
  */
 [
 {
+  description: "Concurrent close tests fail on the device",
+  names: [
+    "libcore.java.net.ConcurrentCloseTest#test_connect",
+    "libcore.java.net.ConcurrentCloseTest#test_connect_nonBlocking"
+  ],
+  modes: [ "device" ],
+  bug: 3044772
+},
+{
+  description: "HTTPS connections should not be pooled.",
+  name: "libcore.java.net.URLConnectionTest#testConnectViaHttpsReusingConnectionsDifferentFactories",
+  bug: 3042192
+},
+{
   description: "Cookie tests failing on the host",
   bug: 3041920,
   names: [
