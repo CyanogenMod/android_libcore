@@ -292,31 +292,22 @@ public class OldURLTest extends TestCase {
         args = {java.lang.Object.class}
     )
     public void testEqualsObject() throws MalformedURLException {
-        URL testURL1 = new URL("http", "www.apache.org:8080", "test.html");
-        URL wrongProto = new URL("ftp", "www.apache.org:8080", "test.html");
-        URL wrongPort = new URL("http", "www.apache.org:8082", "test.html");
-        URL wrongHost = new URL("http", "www.apache2.org:8080", "test.html");
-        URL wrongRef = new URL("http", "www.apache.org:8080",
-                "test2.html#BOTTOM");
+        URL testURL1 = new URL("http", "www.apache.org", 8080, "test.html");
+        URL wrongProto = new URL("ftp", "www.apache.org", 8080, "test.html");
+        URL wrongPort = new URL("http", "www.apache.org", 8082, "test.html");
+        URL wrongHost = new URL("http", "www.apache2.org", 8080, "test.html");
+        URL wrongRef = new URL("http", "www.apache.org", 8080, "test2.html#BOTTOM");
         URL testURL2 = new URL("http://www.apache.org:8080/test.html");
 
-
-        assertFalse("Assert 0: error in equals: not same", testURL1
-                .equals(wrongProto));
-        assertFalse("Assert 1: error in equals: not same", testURL1
-                .equals(wrongPort));
-        assertFalse("Assert 2: error in equals: not same", testURL1
-                .equals(wrongHost));
-        assertFalse("Assert 3: error in equals: not same", testURL1
-                .equals(wrongRef));
-
-        assertFalse("Assert 4: error in equals: not same", testURL1
-                .equals(testURL2));
+        assertFalse("Assert 0: error in equals: not same", testURL1.equals(wrongProto));
+        assertFalse("Assert 1: error in equals: not same", testURL1.equals(wrongPort));
+        assertFalse("Assert 2: error in equals: not same", testURL1.equals(wrongHost));
+        assertFalse("Assert 3: error in equals: not same", testURL1.equals(wrongRef));
+        assertFalse("Assert 4: error in equals: not same", testURL1.equals(testURL2));
 
         URL testURL3 = new URL("http", "www.apache.org", "/test.html");
         URL testURL4 = new URL("http://www.apache.org/test.html");
-        assertTrue("Assert 4: error in equals: same", testURL3
-                .equals(testURL4));
+        assertTrue("Assert 4: error in equals: same", testURL3.equals(testURL4));
     }
 
     /**

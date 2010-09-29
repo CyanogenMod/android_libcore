@@ -387,17 +387,33 @@ public abstract class URLStreamHandler {
     /**
      * Compares two URL objects whether they refer to the same host.
      *
-     * @param url1
-     *            the first URL to be compared.
-     * @param url2
-     *            the second URL to be compared.
+     * @param a the first URL to be compared.
+     * @param b the second URL to be compared.
      * @return {@code true} if both URLs refer to the same host, {@code false}
      *         otherwise.
      */
-    protected boolean hostsEqual(URL url1, URL url2) {
-        String host1 = getHost(url1), host2 = getHost(url2);
-        return (host1 != null && host1.equalsIgnoreCase(host2))
-                || Objects.equal(getHostAddress(url1), getHostAddress(url2));
+    protected boolean hostsEqual(URL a, URL b) {
+        /*
+         * URLs with the same case-insensitive host name have equal hosts
+         */
+        String aHost = getHost(a);
+        String bHost = getHost(b);
+        if (aHost != null && aHost.equalsIgnoreCase(bHost)) {
+            return true;
+        }
+
+        /*
+         * Call out to DNS to resolve the host addresses. If this succeeds for
+         * both addresses and both addresses yield the same InetAddress, report
+         * equality.
+         *
+         * Although it's consistent with historical behavior of the RI, this
+         * approach is fundamentally broken. In particular, acting upon this
+         * result is bogus because a single server may serve content for many
+         * unrelated host names.
+         */
+        InetAddress aResolved = getHostAddress(a);
+        return aResolved != null && aResolved.equals(getHostAddress(b));
     }
 
     /**
