@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "",
+  name: "libcore.java.lang.SystemTest#testBackFromTheDead",
+  bug: 2645458
+},
+{
   description: "Concurrent close tests fail on the device",
   names: [
     "libcore.java.net.ConcurrentCloseTest#test_connect",
@@ -885,23 +890,23 @@
 },
 {
   description: "NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing",
-  result: EXEC_FAILED,
-  name: "javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore"
+  bug: 3045163,
+  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore"
 },
 {
   description: "AlertException instead of SSLException",
-  result: EXEC_FAILED,
-  name: "javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client"
+  bug: 3045163,
+  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client"
 },
 {
   description: "SSLException instead of failure to handshake",
-  result: EXEC_FAILED,
-  name: "javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_server"
+  bug: 3045163,
+  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_server"
 },
 {
   description: "SSLHandshakeException instead of failure to handshake",
-  result: EXEC_FAILED,
-  name: "javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode"
+  bug: 3045163,
+  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode"
 },
 {
   description: "method test fails once in a while. Cannot be sure that exception is thrown in every test execution.",
