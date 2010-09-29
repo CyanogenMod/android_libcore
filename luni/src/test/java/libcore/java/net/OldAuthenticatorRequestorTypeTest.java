@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package tests.api.java.net;
-
-import junit.framework.TestCase;
-
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
+package libcore.java.net;
 
 import java.net.Authenticator;
+import junit.framework.TestCase;
 
-@TestTargetClass(Authenticator.RequestorType.class)
-public class AuthenticatorRequestorTypeTest extends TestCase {
+public class OldAuthenticatorRequestorTypeTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueOf",
-        args = {java.lang.String.class}
-    )
     public void test_valueOfLjava_lang_String() {
         assertEquals(Authenticator.RequestorType.PROXY,
                 Authenticator.RequestorType.valueOf("PROXY"));
@@ -42,25 +29,17 @@ public class AuthenticatorRequestorTypeTest extends TestCase {
         try {
             Authenticator.RequestorType.valueOf("TEST");
             fail("IllegalArgumentException was not thrown.");
-        } catch(IllegalArgumentException iae) {
-            //expected
+        } catch(IllegalArgumentException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_values () {
         Authenticator.RequestorType[] expectedTypes = {
                 Authenticator.RequestorType.PROXY,
                 Authenticator.RequestorType.SERVER
         };
 
-        Authenticator.RequestorType[] types =
-            Authenticator.RequestorType.values();
+        Authenticator.RequestorType[] types = Authenticator.RequestorType.values();
         assertEquals(expectedTypes.length, types.length);
 
         for(int i = 0; i < expectedTypes.length; i++) {

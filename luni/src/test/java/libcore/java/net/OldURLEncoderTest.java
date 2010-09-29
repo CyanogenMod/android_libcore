@@ -15,55 +15,16 @@
  *  limitations under the License.
  */
 
-package tests.api.java.net;
-
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
+package libcore.java.net;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
+import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 
-@TestTargetClass(URLEncoder.class)
-public class URLEncoderTest extends junit.framework.TestCase {
+public class OldURLEncoderTest extends TestCase {
 
-    /**
-     * @tests java.net.URLEncoder#encode(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "encode",
-        args = {java.lang.String.class}
-    )
-    public void test_encodeLjava_lang_String() {
-        // Test for method java.lang.String
-        // java.net.URLEncoder.encode(java.lang.String)
-        final String URL = "http://" + Support_Configuration.HomeAddress;
-        final String URL2 = "telnet://justWantToHaveFun.com:400";
-        final String URL3 = "file://myServer.org/a file with spaces.jpg";
-        try {
-            assertTrue("1. Incorrect encoding/decoding", URLDecoder.decode(
-                    URLEncoder.encode(URL)).equals(URL));
-            assertTrue("2. Incorrect encoding/decoding", URLDecoder.decode(
-                    URLEncoder.encode(URL2)).equals(URL2));
-            assertTrue("3. Incorrect encoding/decoding", URLDecoder.decode(
-                    URLEncoder.encode(URL3)).equals(URL3));
-        } catch (Exception e) {
-            fail("Exception during test : " + e.getMessage());
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "encode",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_encodeLjava_lang_StringLjava_lang_String() {
 
         String enc = "UTF-8";
@@ -102,20 +63,5 @@ public class URLEncoderTest extends junit.framework.TestCase {
         } catch (UnsupportedEncodingException e) {
             //expected
         }
-
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    protected void setUp() {
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
     }
 }
