@@ -366,13 +366,16 @@ public class ExemptionMechanism {
         return len;
     }
 
+    /**
+     * Override to clear any key state in the instance.
+     */
     @Override protected void finalize() {
         try {
             super.finalize();
-        } catch (Throwable e) {
+        } catch (Throwable t) {
             // for consistency with the RI, we must override Object.finalize() to
             // remove the throws clause.
-            throw new AssertionError(e);
+            throw new AssertionError(t);
         }
     }
 }

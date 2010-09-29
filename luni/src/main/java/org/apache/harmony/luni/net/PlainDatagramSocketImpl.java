@@ -93,10 +93,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         Platform.NETWORK.socket(fd, false);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        close();
+    @Override protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
     }
 
     public Object getOption(int optID) throws SocketException {

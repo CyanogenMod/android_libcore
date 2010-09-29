@@ -433,8 +433,7 @@ public final class Pattern implements Serializable {
         return sb.append(string.substring(apos)).append("\\E").toString();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
+    @Override protected void finalize() throws Throwable {
         try {
             closeImpl(address);
         } finally {

@@ -262,11 +262,18 @@ public class Deflater {
         }
     }
 
-    @Override
-    protected void finalize() {
-        synchronized (this) {
-            end(); // to allow overriding classes to clean up
-            endImpl(); // in case those classes don't call super.end()
+    @Override protected void finalize() {
+        try {
+            synchronized (this) {
+                end(); // to allow overriding classes to clean up
+                endImpl(); // in case those classes don't call super.end()
+            }
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
         }
     }
 
