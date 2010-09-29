@@ -1419,8 +1419,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Invokes {@code shutdown} when this executor is no longer
      * referenced and it has no threads.
      */
-    protected void finalize() {
-        shutdown();
+    @Override protected void finalize() {
+        try {
+            shutdown();
+        } finally {
+            try {
+                super.finalize();
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
+        }
     }
 
     /**

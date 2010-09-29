@@ -33,10 +33,12 @@ class BigInt {
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        dispose();
+    @Override protected void finalize() throws Throwable {
+        try {
+            dispose();
+        } finally {
+            super.finalize();
+        }
     }
 
     @Override
