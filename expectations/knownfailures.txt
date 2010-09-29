@@ -3,9 +3,14 @@
  */
 [
 {
-  description: "",
+  description: "finalize() called on objects whose constructor didn't complete normally",
   name: "libcore.java.lang.SystemTest#testBackFromTheDead",
   bug: 2645458
+},
+{
+  description: "DecimalFormat is limited to 127 digits",
+  name: "libcore.java.text.DecimalFormatTest#test_setMaximumIntegerDigits",
+  bug: 2400429
 },
 {
   description: "Concurrent close tests fail on the device",
