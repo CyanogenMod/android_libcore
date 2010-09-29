@@ -1094,23 +1094,23 @@ static jobject OSNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
 #ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
-            sockaddr_storage sockVal;
-            if (!getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &sockVal)) {
+            // Although setsockopt(2) can take an ip_mreqn for IP_MULTICAST_IF, getsockopt(2)
+            // always returns an in_addr.
+            sockaddr_storage ss;
+            memset(&ss, 0, sizeof(ss));
+            ss.ss_family = AF_INET; // This call is IPv4-only.
+            sockaddr_in* sa = reinterpret_cast<sockaddr_in*>(&ss);
+            if (!getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &sa->sin_addr)) {
                 return NULL;
             }
-            if (sockVal.ss_family != AF_INET) {
-                LOGE("sockVal.ss_family != AF_INET (%i)", sockVal.ss_family);
-                // Java expects an AF_INET INADDR_ANY, but Linux just returns AF_UNSPEC.
-                jbyteArray inAddrAny = env->NewByteArray(4); // { 0, 0, 0, 0 }
-                return byteArrayToInetAddress(env, inAddrAny);
-            }
-            return socketAddressToInetAddress(env, &sockVal);
+            return socketAddressToInetAddress(env, &ss);
         }
     case JAVASOCKOPT_IP_MULTICAST_IF2:
         if (family == AF_INET) {
-            ip_mreqn multicastRequest;
-            bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-            return ok ? integerValueOf(env, multicastRequest.imr_ifindex) : NULL;
+            // The caller's asking for an interface index, but that's not how IPv4 works.
+            // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
+            // that will satisfy us.
+            jniThrowSocketException(env, EAFNOSUPPORT);
         } else {
             return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
         }
