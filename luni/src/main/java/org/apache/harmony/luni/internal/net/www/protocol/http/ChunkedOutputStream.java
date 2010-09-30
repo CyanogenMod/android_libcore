@@ -102,7 +102,9 @@ final class ChunkedOutputStream extends AbstractHttpOutputStream {
     }
 
     @Override public synchronized void flush() throws IOException {
-        checkNotClosed();
+        if (closed) {
+            return; // don't throw; this stream might have been closed on the caller's behalf
+        }
         writeBufferedChunkToSocket();
         socketOut.flush();
     }

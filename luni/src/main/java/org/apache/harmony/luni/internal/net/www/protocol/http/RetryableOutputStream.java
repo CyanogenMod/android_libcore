@@ -39,10 +39,6 @@ final class RetryableOutputStream extends AbstractHttpOutputStream {
         this.content = new ByteArrayOutputStream();
     }
 
-    @Override public synchronized void flush() throws IOException {
-        checkNotClosed();
-    }
-
     @Override public synchronized void close() throws IOException {
         if (closed) {
             return;
