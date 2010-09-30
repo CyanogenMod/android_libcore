@@ -601,18 +601,18 @@ public class File implements Serializable, Comparable<File> {
      * keep resolving. If an absolute link is found, resolve the parent
      * directories if resolveAbsolute is true.
      */
-    private static String resolveLink(String path, int length, boolean resolveAbsolute)
-            throws IOException {
+    private static String resolveLink(String path, int length, boolean resolveAbsolute) throws IOException {
         boolean restart = false;
         do {
-            String target = readlink(path);
-            if (target.equals(path)) {
+            String fragment = path.substring(0, length);
+            String target = readlink(fragment);
+            if (target.equals(fragment)) {
                 break;
             }
             if (target.charAt(0) == separatorChar) {
                 // The link target was an absolute path, so we may need to start again.
                 restart = resolveAbsolute;
-                path = target;
+                path = target + path.substring(length);
             } else {
                 path = path.substring(0, path.lastIndexOf(separatorChar, length - 1) + 1) + target;
             }
