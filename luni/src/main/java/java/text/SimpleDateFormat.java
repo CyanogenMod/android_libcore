@@ -94,10 +94,13 @@ import libcore.icu.TimeZones;
  *
  * <li><b>Number</b> the count is the minimum number of digits. Shorter values are
  * zero-padded to this width, longer values overflow this width.
- * Years are handled specially: {@code yy} truncates to 2 digits. So {@code yyyy} might
- * give {@code 2010}, but {@code yy} would give {@code 10}.
- * Fractional seconds are also handled specially: they're
- * zero-padded on the <i>right</i>.
+ *
+ * <p>Years are handled specially: {@code yy} truncates to the last 2 digits, but any
+ * other number of consecutive {@code y}s does not truncate. So where {@code yyyy} or
+ * {@code y} might give {@code 2010}, {@code yy} would give {@code 10}.
+ *
+ * <p>Fractional seconds are also handled specially: they're zero-padded on the
+ * <i>right</i>.
  *
  * <li><b>Text/Number</b>: if the count is 3 or more, use text; otherwise use a number.
  * So {@code MM} might give {@code 07} while {@code MMM} gives {@code July}.
@@ -596,10 +599,11 @@ public class SimpleDateFormat extends DateFormat {
             case YEAR_FIELD:
                 dateFormatField = Field.YEAR;
                 int year = calendar.get(Calendar.YEAR);
-                // According to Unicode CLDR TR35(http://unicode.org/reports/tr35/) :
-                // If date pattern is "yy", display the last 2 digits of year.
-                // Otherwise, display the actual year with minimum digit count.
-                // Therefore, if the pattern is "y", the display value for year 1234  is '1234' not '34'.
+                /*
+                 * For 'y' and 'yyy', we're consistent with Unicode and previous releases
+                 * of Android. But this means we're inconsistent with the RI.
+                 *     http://unicode.org/reports/tr35/
+                 */
                 if (count == 2) {
                     appendNumber(buffer, 2, year %= 100);
                 } else {
