@@ -42,7 +42,9 @@ final class FixedLengthOutputStream extends AbstractHttpOutputStream {
     }
 
     @Override public void flush() throws IOException {
-        checkNotClosed();
+        if (closed) {
+            return; // don't throw; this stream might have been closed on the caller's behalf
+        }
         socketOut.flush();
     }
 
