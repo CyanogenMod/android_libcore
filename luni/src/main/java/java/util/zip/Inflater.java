@@ -17,6 +17,7 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 
 /**
@@ -44,6 +45,8 @@ public class Inflater {
     private boolean needsDictionary; // Set by the inflateImpl native
 
     private long streamHandle = -1;
+
+    private final CloseGuard guard = CloseGuard.get("end");
 
     /**
      * This constructor creates an inflater that expects a header from the input
@@ -73,6 +76,7 @@ public class Inflater {
      * input/output is discarded. This is also called by the finalize method.
      */
     public synchronized void end() {
+        guard.close();
         if (streamHandle != -1) {
             endImpl(streamHandle);
             inRead = 0;
@@ -85,6 +89,7 @@ public class Inflater {
 
     @Override protected void finalize() {
         try {
+            guard.warnIfOpen();
             end();
         } finally {
             try {

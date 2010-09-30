@@ -17,6 +17,7 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -83,6 +84,8 @@ public class ZipFile implements ZipConstants {
 
     private final LinkedHashMap<String, ZipEntry> mEntries = new LinkedHashMap<String, ZipEntry>();
 
+    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
+
     /**
      * Constructs a new {@code ZipFile} with the specified file.
      *
@@ -131,6 +134,7 @@ public class ZipFile implements ZipConstants {
         mRaf = new RandomAccessFile(fileName, "r");
 
         readCentralDir();
+        guard = CloseGuard.get("close");
     }
 
     /**
@@ -147,7 +151,7 @@ public class ZipFile implements ZipConstants {
 
     @Override protected void finalize() throws IOException {
         try {
-            close();
+            guard.warnIfOpen();
         } finally {
             try {
                 super.finalize();
@@ -164,6 +168,7 @@ public class ZipFile implements ZipConstants {
      *             if an IOException occurs.
      */
     public void close() throws IOException {
+        guard.close();
         RandomAccessFile raf = mRaf;
 
         if (raf != null) { // Only close initialized instances

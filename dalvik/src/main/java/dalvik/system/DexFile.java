@@ -32,7 +32,8 @@ import java.util.Enumeration;
  */
 public final class DexFile {
     private final int mCookie;
-    private String mFileName;
+    private final String mFileName;
+    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
 
     /**
      * Opens a DEX file from a given File object. This will usually be a ZIP/JAR
@@ -79,6 +80,7 @@ public final class DexFile {
 
         mCookie = openDexFile(fileName, null, 0);
         mFileName = fileName;
+        guard = CloseGuard.get("close");
         //System.out.println("DEX FILE cookie is " + mCookie);
     }
 
@@ -102,6 +104,7 @@ public final class DexFile {
 
         mCookie = openDexFile(sourceName, outputName, flags);
         mFileName = sourceName;
+        guard = CloseGuard.get("close");
         //System.out.println("DEX FILE cookie is " + mCookie);
     }
 
@@ -164,6 +167,7 @@ public final class DexFile {
      * @cts Second sentence is a bit cryptic.
      */
     public void close() throws IOException {
+        guard.close();
         closeDexFile(mCookie);
     }
 
@@ -255,6 +259,7 @@ public final class DexFile {
      */
     @Override protected void finalize() throws Throwable {
         try {
+            guard.warnIfOpen();
             close();
         } finally {
             super.finalize();

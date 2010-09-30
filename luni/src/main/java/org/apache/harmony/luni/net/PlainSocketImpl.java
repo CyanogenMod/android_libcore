@@ -17,6 +17,7 @@
 
 package org.apache.harmony.luni.net;
 
+import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,8 +55,13 @@ public class PlainSocketImpl extends SocketImpl {
 
     private Proxy proxy;
 
+    private final CloseGuard guard = CloseGuard.getUnopened();
+
     public PlainSocketImpl(FileDescriptor fd) {
         this.fd = fd;
+        if (fd.valid()) {
+            guard.open("close");
+        }
     }
 
     public PlainSocketImpl(Proxy proxy) {
@@ -73,6 +79,9 @@ public class PlainSocketImpl extends SocketImpl {
         this.localport = localport;
         this.address = addr;
         this.port = port;
+        if (fd.valid()) {
+            guard.open("close");
+        }
     }
 
     @Override
@@ -162,6 +171,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected synchronized void close() throws IOException {
+        guard.close();
         Platform.NETWORK.close(fd);
     }
 
@@ -210,6 +220,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override protected void finalize() throws Throwable {
         try {
+            guard.warnIfOpen();
             close();
         } finally {
             super.finalize();

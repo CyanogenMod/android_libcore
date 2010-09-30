@@ -115,6 +115,14 @@ public final class TestSSLContext extends Assert {
         this.port = port;
     }
 
+    public void close() {
+        try {
+            serverSocket.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Usual TestSSLContext creation method, creates underlying
      * SSLContext with certificate and key as well as SSLServerSocket

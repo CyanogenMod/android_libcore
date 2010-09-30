@@ -17,6 +17,7 @@
 
 package java.io;
 
+import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import libcore.io.IoUtils;
@@ -58,6 +59,8 @@ public class FileInputStream extends InputStream implements Closeable {
 
     private final Object repositioningLock = new Object();
 
+    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
+
     /**
      * Constructs a new {@code FileInputStream} that reads from {@code file}.
      *
@@ -81,6 +84,7 @@ public class FileInputStream extends InputStream implements Closeable {
         fd.readOnly = true;
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
         shouldCloseFd = true;
+        this.guard = CloseGuard.get("close");
     }
 
     /**
@@ -104,6 +108,7 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         this.fd = fd;
         this.shouldCloseFd = false;
+        this.guard = CloseGuard.get("close");
     }
 
     /**
@@ -121,6 +126,7 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public void close() throws IOException {
+        guard.close();
         synchronized (this) {
             if (channel != null) {
                 channel.close();
@@ -140,6 +146,7 @@ public class FileInputStream extends InputStream implements Closeable {
      */
     @Override protected void finalize() throws IOException {
         try {
+            guard.warnIfOpen();
             close();
         } finally {
             try {

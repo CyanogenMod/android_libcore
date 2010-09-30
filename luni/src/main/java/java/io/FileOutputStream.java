@@ -17,6 +17,7 @@
 
 package java.io;
 
+import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import libcore.io.IoUtils;
@@ -60,6 +61,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
     /** File access mode */
     private final int mode;
 
+    private final CloseGuard guard;
+
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code file}.
      *
@@ -96,6 +99,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.mode = append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY;
         this.fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), mode);
         this.shouldCloseFd = true;
+        this.guard = CloseGuard.get("close");
     }
 
     /**
@@ -119,6 +123,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.shouldCloseFd = false;
         this.channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_WRONLY);
         this.mode = IFileSystem.O_WRONLY;
+        this.guard = CloseGuard.get("close");
     }
 
     /**
@@ -137,6 +142,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void close() throws IOException {
+	guard.close();
         synchronized (this) {
             if (channel != null) {
                 channel.close();
@@ -156,6 +162,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
      */
     @Override protected void finalize() throws IOException {
         try {
+            guard.warnIfOpen();
             close();
         } finally {
             try {

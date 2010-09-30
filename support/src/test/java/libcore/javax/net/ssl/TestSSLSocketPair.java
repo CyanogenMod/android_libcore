@@ -40,6 +40,16 @@ public final class TestSSLSocketPair {
         this.client = client;
     }
 
+    public void close() {
+        c.close();
+        try {
+            server.close();
+            client.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * based on test_SSLSocket_startHandshake
      */

@@ -16,26 +16,24 @@
 
 package java.math;
 
+import dalvik.system.CloseGuard;
+
 /*
  * In contrast to BigIntegers this class doesn't fake two's complement representation.
  * Any Bit-Operations, including Shifting, solely regard the unsigned magnitude.
  * Moreover BigInt objects are mutable and offer efficient in-place-operations.
  */
-class BigInt {
+final class BigInt {
 
     /* Fields used for the internal representation. */
     transient int bignum = 0;
 
-    public void dispose() {
-        if (this.bignum != 0) {
-            NativeBN.BN_free(this.bignum);
-            this.bignum = 0;
-        }
-    }
-
     @Override protected void finalize() throws Throwable {
         try {
-            dispose();
+            if (this.bignum != 0) {
+                NativeBN.BN_free(this.bignum);
+                this.bignum = 0;
+            }
         } finally {
             super.finalize();
         }
@@ -46,11 +44,11 @@ class BigInt {
         return this.decString();
     }
 
-    public int getNativeBIGNUM() {
+    int getNativeBIGNUM() {
         return this.bignum;
     }
 
-    public static int consumeErrors(StringBuilder sb) {
+    static int consumeErrors(StringBuilder sb) {
         int cnt = 0;
         int e, reason;
         while ((e = NativeBN.ERR_get_error()) != 0) {
@@ -97,34 +95,34 @@ class BigInt {
     }
 
 
-    public static int cmp(BigInt a, BigInt b) {
+    static int cmp(BigInt a, BigInt b) {
         return NativeBN.BN_cmp(a.bignum, b.bignum);
     }
 
 
-    public void putCopy(BigInt from) {
+    void putCopy(BigInt from) {
         this.makeValid();
         Check(NativeBN.BN_copy(this.bignum, from.bignum));
     }
 
-    public BigInt copy() {
+    BigInt copy() {
         BigInt bi = new BigInt();
         bi.putCopy(this);
         return bi;
     }
 
 
-    public void putLongInt(long val) {
+    void putLongInt(long val) {
         this.makeValid();
         Check(NativeBN.putLongInt(this.bignum, val));
     }
 
-    public void putULongInt(long val, boolean neg) {
+    void putULongInt(long val, boolean neg) {
         this.makeValid();
         Check(NativeBN.putULongInt(this.bignum, val, neg));
     }
 
-    public void putDecString(String original) {
+    void putDecString(String original) {
         String s = checkString(original, 10);
         this.makeValid();
         int usedLen = NativeBN.BN_dec2bn(this.bignum, s);
@@ -134,7 +132,7 @@ class BigInt {
         }
     }
 
-    public void putHexString(String original) {
+    void putHexString(String original) {
         String s = checkString(original, 16);
         this.makeValid();
         int usedLen = NativeBN.BN_hex2bn(this.bignum, s);
@@ -151,7 +149,7 @@ class BigInt {
      * ensure we comply with Java's rules.
      * http://code.google.com/p/android/issues/detail?id=7036
      */
-    public String checkString(String s, int base) {
+    String checkString(String s, int base) {
         if (s == null) {
             throw new NullPointerException();
         }
@@ -203,159 +201,164 @@ class BigInt {
         return result.toString();
     }
 
-    public void putBigEndian(byte[] a, boolean neg) {
+    void putBigEndian(byte[] a, boolean neg) {
         this.makeValid();
         Check(NativeBN.BN_bin2bn(a, a.length, neg, this.bignum));
     }
 
-    public void putLittleEndianInts(int[] a, boolean neg) {
+    void putLittleEndianInts(int[] a, boolean neg) {
         this.makeValid();
         Check(NativeBN.litEndInts2bn(a, a.length, neg, this.bignum));
     }
 
-    public void putBigEndianTwosComplement(byte[] a) {
+    void putBigEndianTwosComplement(byte[] a) {
         this.makeValid();
         Check(NativeBN.twosComp2bn(a, a.length, this.bignum));
     }
 
 
-    public long longInt() {
+    long longInt() {
         return NativeBN.longInt(this.bignum);
     }
 
-    public String decString() {
+    String decString() {
         return NativeBN.BN_bn2dec(this.bignum);
     }
 
-    public String hexString() {
+    String hexString() {
         return NativeBN.BN_bn2hex(this.bignum);
     }
 
-    public byte[] bigEndianMagnitude() {
+    byte[] bigEndianMagnitude() {
         return NativeBN.BN_bn2bin(this.bignum);
     }
 
-    public int[] littleEndianIntsMagnitude() {
+    int[] littleEndianIntsMagnitude() {
         return NativeBN.bn2litEndInts(this.bignum);
     }
 
-    public int sign() {
+    int sign() {
         return NativeBN.sign(this.bignum);
     }
 
-    public void setSign(int val) {
-        if (val > 0) NativeBN.BN_set_negative(this.bignum, 0);
-        else if (val < 0) NativeBN.BN_set_negative(this.bignum, 1);
+    void setSign(int val) {
+        if (val > 0) {
+            NativeBN.BN_set_negative(this.bignum, 0);
+        } else {
+            if (val < 0) NativeBN.BN_set_negative(this.bignum, 1);
+        }
     }
 
-    public boolean twosCompFitsIntoBytes(int desiredByteCount) {
+    boolean twosCompFitsIntoBytes(int desiredByteCount) {
         int actualByteCount = (NativeBN.bitLength(this.bignum) + 7) / 8;
         return actualByteCount <= desiredByteCount;
     }
 
-    public int bitLength() {
+    int bitLength() {
         return NativeBN.bitLength(this.bignum);
     }
 
-    public boolean isBitSet(int n) {
+    boolean isBitSet(int n) {
         return NativeBN.BN_is_bit_set(this.bignum, n);
     }
 
     // n > 0: shift left (multiply)
-    public static BigInt shift(BigInt a, int n) {
+    static BigInt shift(BigInt a, int n) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_shift(r.bignum, a.bignum, n));
         return r;
     }
 
-    public void shift(int n) {
+    void shift(int n) {
         Check(NativeBN.BN_shift(this.bignum, this.bignum, n));
     }
 
-    public void addPositiveInt(int w) {
+    void addPositiveInt(int w) {
         Check(NativeBN.BN_add_word(this.bignum, w));
     }
 
-    public void multiplyByPositiveInt(int w) {
+    void multiplyByPositiveInt(int w) {
         Check(NativeBN.BN_mul_word(this.bignum, w));
     }
 
-    public static int remainderByPositiveInt(BigInt a, int w) {
+    static int remainderByPositiveInt(BigInt a, int w) {
         int rem = NativeBN.BN_mod_word(a.bignum, w);
         Check(rem != -1);
         return rem;
     }
 
-    public static BigInt addition(BigInt a, BigInt b) {
+    static BigInt addition(BigInt a, BigInt b) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_add(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
-    public void add(BigInt a) {
+    void add(BigInt a) {
         Check(NativeBN.BN_add(this.bignum, this.bignum, a.bignum));
     }
 
-    public static BigInt subtraction(BigInt a, BigInt b) {
+    static BigInt subtraction(BigInt a, BigInt b) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_sub(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
 
-    public static BigInt gcd(BigInt a, BigInt b) {
+    static BigInt gcd(BigInt a, BigInt b) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_gcd(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
-    public static BigInt product(BigInt a, BigInt b) {
+    static BigInt product(BigInt a, BigInt b) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_mul(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
-    public static BigInt bigExp(BigInt a, BigInt p) {
+    static BigInt bigExp(BigInt a, BigInt p) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
         Check(NativeBN.BN_exp(r.bignum, a.bignum, p.bignum));
         return r;
     }
 
-    public static BigInt exp(BigInt a, int p) {
+    static BigInt exp(BigInt a, int p) {
         // Sign of p is ignored!
         BigInt power = new BigInt();
         power.putLongInt(p);
         return bigExp(a, power);
         // OPTIONAL:
-//      public int BN_sqr(BigInteger r, BigInteger a, BN_CTX ctx);
-      // int BN_sqr(BIGNUM *r, const BIGNUM *a,BN_CTX *ctx);
+        // int BN_sqr(BigInteger r, BigInteger a, BN_CTX ctx);
+        // int BN_sqr(BIGNUM *r, const BIGNUM *a,BN_CTX *ctx);
     }
 
-    public static void division(BigInt dividend, BigInt divisor,
+    static void division(BigInt dividend, BigInt divisor,
             BigInt quotient, BigInt remainder) {
         int quot, rem;
         if (quotient != null) {
             quotient.makeValid();
             quot = quotient.bignum;
+        } else {
+            quot = 0;
         }
-        else quot = 0;
         if (remainder != null) {
             remainder.makeValid();
             rem = remainder.bignum;
+        } else {
+            rem = 0;
         }
-        else rem = 0;
         Check(NativeBN.BN_div(quot, rem, dividend.bignum, divisor.bignum));
     }
 
-    public static BigInt modulus(BigInt a, BigInt m) {
+    static BigInt modulus(BigInt a, BigInt m) {
         // Sign of p is ignored! ?
         BigInt r = newBigInt();
         Check(NativeBN.BN_nnmod(r.bignum, a.bignum, m.bignum));
         return r;
     }
 
-    public static BigInt modExp(BigInt a, BigInt p, BigInt m) {
+    static BigInt modExp(BigInt a, BigInt p, BigInt m) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
         Check(NativeBN.BN_mod_exp(r.bignum, a.bignum, p.bignum, m.bignum));
@@ -366,20 +369,20 @@ class BigInt {
     }
 
 
-    public static BigInt modInverse(BigInt a, BigInt m) {
+    static BigInt modInverse(BigInt a, BigInt m) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_mod_inverse(r.bignum, a.bignum, m.bignum));
         return r;
     }
 
 
-    public static BigInt generatePrimeDefault(int bitLength) {
+    static BigInt generatePrimeDefault(int bitLength) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, false, 0, 0, 0));
         return r;
     }
 
-    public boolean isPrime(int certainty) {
+    boolean isPrime(int certainty) {
         return NativeBN.BN_is_prime_ex(bignum, certainty, 0);
     }
 }

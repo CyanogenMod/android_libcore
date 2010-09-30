@@ -21,6 +21,15 @@ package java.io;
  * are not used any longer. This usually includes all sorts of
  * {@link InputStream}s and {@link OutputStream}s. Calling the {@code close}
  * method releases resources that the object holds.
+ * <p>
+ * A common pattern for using a {@code Closeable} resource: <pre>   {@code
+ *   Closable foo = new Foo();
+ *   try {
+ *      ...;
+ *   } finally {
+ *      foo.close();
+ *   }
+ * }</pre>
  */
 public interface Closeable {
 

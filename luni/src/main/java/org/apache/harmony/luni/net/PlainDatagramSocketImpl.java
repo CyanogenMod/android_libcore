@@ -17,6 +17,7 @@
 
 package org.apache.harmony.luni.net;
 
+import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -46,6 +47,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private volatile boolean isNativeConnected;
 
+    private final CloseGuard guard = CloseGuard.getUnopened();
+
     /**
      * used to keep address to which the socket was connected to at the native
      * level
@@ -58,6 +61,9 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         super();
         this.fd = fd;
         this.localPort = localPort;
+        if (fd.valid()) {
+            guard.open("close");
+        }
     }
 
     public PlainDatagramSocketImpl() {
@@ -82,6 +88,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public synchronized void close() {
+        guard.close();
         try {
             Platform.NETWORK.close(fd);
         } catch (IOException ignored) {
@@ -95,7 +102,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override protected void finalize() throws Throwable {
         try {
-            close();
+            guard.warnIfOpen();
         } finally {
             super.finalize();
         }
@@ -174,7 +181,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void send(DatagramPacket packet) throws IOException {
         int port = isNativeConnected ? 0 : packet.getPort();
         InetAddress address = isNativeConnected ? null : packet.getAddress();
-        Platform.NETWORK.send(fd, packet.getData(), packet.getOffset(), packet.getLength(), port, address);
+        Platform.NETWORK.send(fd, packet.getData(), packet.getOffset(), packet.getLength(),
+                              port, address);
     }
 
     public void setOption(int optID, Object val) throws SocketException {
