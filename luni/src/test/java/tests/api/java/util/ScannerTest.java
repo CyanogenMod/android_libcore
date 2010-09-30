@@ -1276,18 +1276,20 @@ public class ScannerTest extends TestCase {
          * recognized by scanner with locale ar_AE, (123) shouble be recognized
          * by scanner with locale mk_MK. But this is not the case on RI.
          */
-        s = new Scanner("-123 123- -123-");
-        s.useLocale(new Locale("ar", "AE"));
-        assertEquals(-123, s.nextInt(10));
-        // The following test case fails on RI
-        if (!disableRIBugs) {
-            assertEquals(-123, s.nextInt(10));
-        }
-        try {
-            s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+        if (Support_Locale.areLocalesAvailable(new Locale[] {new Locale("ar", "AE")})) {
+          s = new Scanner("-123 123- -123-");
+          s.useLocale(new Locale("ar", "AE"));
+          assertEquals(-123, s.nextInt(10));
+          // The following test case fails on RI
+          if (!disableRIBugs) {
+              assertEquals(-123, s.nextInt(10));
+          }
+          try {
+              s.nextInt(10);
+              fail("Should throw InputMismatchException");
+          } catch (InputMismatchException e) {
+              // expected
+          }
         }
 
         // locale dependent test, bug 1943269
@@ -1504,18 +1506,20 @@ public class ScannerTest extends TestCase {
          * recognized by scanner with locale ar_AE, (123) shouble be recognized
          * by scanner with locale mk_MK. But this is not the case on RI.
          */
-        s = new Scanner("-123 123- -123-");
-        s.useLocale(new Locale("ar", "AE"));
-        assertEquals(-123, s.nextInt());
-        // The following test case fails on RI
-        if (!disableRIBugs) {
-            assertEquals(-123, s.nextInt());
-        }
-        try {
-            s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+        if (Support_Locale.areLocalesAvailable(new Locale[] {new Locale("ar", "AE")})) {
+          s = new Scanner("-123 123- -123-");
+          s.useLocale(new Locale("ar", "AE"));
+          assertEquals(-123, s.nextInt());
+          // The following test case fails on RI
+          if (!disableRIBugs) {
+              assertEquals(-123, s.nextInt());
+          }
+          try {
+              s.nextInt();
+              fail("Should throw InputMismatchException");
+          } catch (InputMismatchException e) {
+              // expected
+          }
         }
 
         // locale dependent test, bug 1943269
