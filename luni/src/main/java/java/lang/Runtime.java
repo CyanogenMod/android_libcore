@@ -48,6 +48,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -101,18 +102,16 @@ public class Runtime {
 
         mLibPaths = pathList.split(pathSep);
 
-        int i;
-
-        if (false)
-            System.out.println("Runtime paths:");
-
         // Add a '/' to the end so we don't have to do the property lookup
         // and concatenation later.
-        for (i = 0; i < mLibPaths.length; i++) {
-            if (!mLibPaths[i].endsWith(fileSep))
+        for (int i = 0; i < mLibPaths.length; i++) {
+            if (!mLibPaths[i].endsWith(fileSep)) {
                 mLibPaths[i] += fileSep;
-            if (false)
-                System.out.println("  " + mLibPaths[i]);
+            }
+        }
+
+        if (false) {
+            System.out.println("Runtime paths: " + Arrays.toString(mLibPaths));
         }
     }
 
@@ -390,9 +389,9 @@ public class Runtime {
         if (filename == null) {
             throw new NullPointerException("library path was null.");
         }
-        if (!nativeLoad(filename, loader)) {
-            throw new UnsatisfiedLinkError(
-                    "Library " + filename + " not found");
+        String error = nativeLoad(filename, loader);
+        if (error != null) {
+            throw new UnsatisfiedLinkError(error);
         }
     }
 
@@ -423,32 +422,44 @@ public class Runtime {
     /*
      * Loads and links a library without security checks.
      */
-    void loadLibrary(String libname, ClassLoader loader) {
-        String filename;
-        int i;
-
+    void loadLibrary(String libraryName, ClassLoader loader) {
         if (loader != null) {
-            filename = loader.findLibrary(libname);
-            if (filename != null && nativeLoad(filename, loader))
-                return;
-            // else fall through to exception
-        } else {
-            filename = System.mapLibraryName(libname);
-            for (i = 0; i < mLibPaths.length; i++) {
-                if (false)
-                    System.out.println("Trying " + mLibPaths[i] + filename);
-                if (nativeLoad(mLibPaths[i] + filename, loader))
-                    return;
+            String filename = loader.findLibrary(libraryName);
+            if (filename == null) {
+                throw new UnsatisfiedLinkError("Couldn't load " + libraryName + ": " +
+                        "findLibrary returned null");
+            }
+            String error = nativeLoad(filename, loader);
+            if (error != null) {
+                throw new UnsatisfiedLinkError(error);
+            }
+            return;
+        }
+
+        String filename = System.mapLibraryName(libraryName);
+        List<String> candidates = new ArrayList<String>();
+        String lastError = null;
+        for (String directory : mLibPaths) {
+            String candidate = directory + filename;
+            candidates.add(candidate);
+            if (new File(candidate).exists()) {
+                String error = nativeLoad(candidate, loader);
+                if (error == null) {
+                    return; // We successfully loaded the library. Job done.
+                }
+                lastError = error;
             }
         }
 
-        throw new UnsatisfiedLinkError("Library " + libname + " not found");
+        if (lastError != null) {
+            throw new UnsatisfiedLinkError(lastError);
+        }
+        throw new UnsatisfiedLinkError("Library " + libraryName + " not found; tried " + candidates);
     }
 
     private static native void nativeExit(int code, boolean isExit);
 
-    private static native boolean nativeLoad(String filename,
-            ClassLoader loader);
+    private static native String nativeLoad(String filename, ClassLoader loader);
 
     /**
      * Requests proper finalization for all Objects on the heap.
@@ -461,7 +472,7 @@ public class Runtime {
 
     /**
      * Provides a hint to the virtual machine that it would be useful to attempt
-     * to perform any outstanding object finalizations.
+     * to perform any outstanding object finalization.
      *
      */
     public void runFinalization() {
@@ -505,7 +516,6 @@ public class Runtime {
      *            off.
      */
     public void traceInstructions(boolean enable) {
-        // TODO(Google) Provide some implementation for this.
         return;
     }
 
