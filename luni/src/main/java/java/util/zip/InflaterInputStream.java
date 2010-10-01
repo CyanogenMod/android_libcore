@@ -21,6 +21,7 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import libcore.base.Streams;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
@@ -229,33 +230,15 @@ public class InflaterInputStream extends FilterInputStream {
     }
 
     /**
-     * Skips up to n bytes of uncompressed data.
+     * Skips up to {@code byteCount} bytes of uncompressed data.
      *
-     * @param nbytes
-     *            the number of bytes to skip.
+     * @param byteCount the number of bytes to skip.
      * @return the number of uncompressed bytes skipped.
-     * @throws IOException
-     *             if an error occurs skipping.
+     * @throws IOException if an error occurs skipping.
      */
     @Override
-    public long skip(long nbytes) throws IOException {
-        if (nbytes >= 0) {
-            if (buf == null) {
-                buf = new byte[(int)Math.min(nbytes, BUF_SIZE)];
-            }
-            long count = 0, rem = 0;
-            while (count < nbytes) {
-                int x = read(buf, 0,
-                        (rem = nbytes - count) > buf.length ? buf.length
-                                : (int) rem);
-                if (x == -1) {
-                    return count;
-                }
-                count += x;
-            }
-            return count;
-        }
-        throw new IllegalArgumentException();
+    public long skip(long byteCount) throws IOException {
+        return Streams.skipByReading(this, byteCount);
     }
 
     /**
