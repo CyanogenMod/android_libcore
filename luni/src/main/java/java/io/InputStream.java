@@ -17,6 +17,8 @@
 
 package java.io;
 
+import libcore.base.Streams;
+
 /**
  * The base class for all input streams. An input stream is a means of reading
  * data from a source in a byte-wise manner.
@@ -34,8 +36,6 @@ package java.io;
  * @see OutputStream
  */
 public abstract class InputStream extends Object implements Closeable {
-
-    private static byte[] skipBuf;
 
     /**
      * This constructor does nothing. It is provided for signature
@@ -227,38 +227,12 @@ public abstract class InputStream extends Object implements Closeable {
      * <p>This default implementation reads bytes into a temporary
      * buffer. Concrete subclasses should provide their own implementation.
      *
-     * @param n the number of bytes to skip.
+     * @param byteCount the number of bytes to skip.
      * @return the number of bytes actually skipped.
      * @throws IOException
      *             if this stream is closed or another IOException occurs.
      */
-    public long skip(long n) throws IOException {
-        if (n <= 0) {
-            return 0;
-        }
-        long skipped = 0;
-        int toRead = n < 4096 ? (int) n : 4096;
-        // We are unsynchronized, so take a local copy of the skipBuf at some
-        // point in time.
-        byte[] localBuf = skipBuf;
-        if (localBuf == null || localBuf.length < toRead) {
-            // May be lazily written back to the static. No matter if it
-            // overwrites somebody else's store.
-            skipBuf = localBuf = new byte[toRead];
-        }
-        while (skipped < n) {
-            int read = read(localBuf, 0, toRead);
-            if (read == -1) {
-                return skipped;
-            }
-            skipped += read;
-            if (read < toRead) {
-                return skipped;
-            }
-            if (n - skipped < toRead) {
-                toRead = (int) (n - skipped);
-            }
-        }
-        return skipped;
+    public long skip(long byteCount) throws IOException {
+        return Streams.skipByReading(this, byteCount);
     }
 }
