@@ -16,9 +16,11 @@
 
 package libcore.java.io;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -67,11 +69,7 @@ public class FileTest extends junit.framework.TestCase {
         assertFalse(source.exists());
         assertTrue(target.exists());
         assertTrue(target.getCanonicalPath().length() > 1024);
-        int result = Runtime.getRuntime().exec(new String[] { "ln", "-s", target.toString(), source.toString() }).waitFor();
-        if (result != 0) {
-            fail("Couldn't create a symbollic link on " + source.toString()
-                    + ". Does that file system support symlinks?");
-        }
+        ln_s(target, source);
         assertTrue(source.exists());
         assertEquals(target.getCanonicalPath(), source.getCanonicalPath());
     }
@@ -121,8 +119,11 @@ public class FileTest extends junit.framework.TestCase {
         String cwd = System.getProperty("user.dir");
         assertEquals(new File(cwd), f.getAbsoluteFile());
         assertEquals(cwd, f.getAbsolutePath());
-        assertEquals(new File(cwd), f.getCanonicalFile());
-        assertEquals(cwd, f.getCanonicalPath());
+        // TODO: how do we test these without hard-coding assumptions about where our temporary
+        // directory is? (In practice, on Android, our temporary directory is accessed through
+        // a symbolic link, so the canonical file/path will be different.)
+        //assertEquals(new File(cwd), f.getCanonicalFile());
+        //assertEquals(cwd, f.getCanonicalPath());
     }
 
     // http://b/2486943 - between eclair and froyo, we added a call to
@@ -140,5 +141,63 @@ public class FileTest extends junit.framework.TestCase {
             }
         }
         new MyFile("");
+    }
+
+    // http://b/3047893 - getCanonicalPath wasn't actually resolving symbolic links.
+    public void test_getCanonicalPath() throws Exception {
+        if (new File("/sdcard").exists()) {
+            // This assumes the current Android setup where /sdcard is a symbolic link to
+            // /mnt/sdcard.
+            File testFile = new File("/sdcard/test1.txt");
+            assertEquals("/mnt/sdcard/test1.txt", testFile.getCanonicalPath());
+        }
+
+        // This assumes you can create symbolic links in the temporary directory. This isn't
+        // true on Android if you're using /sdcard. It will work in /data/local though.
+        File base = createTemporaryDirectory();
+        File target = new File(base, "target");
+        target.createNewFile(); // The RI won't follow a dangling symlink, which seems like a bug!
+        File linkName = new File(base, "link");
+        ln_s(target, linkName);
+        assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
+
+        // .../subdir/shorter -> .../target (using a link to ../target).
+        File subdir = new File(base, "subdir");
+        assertTrue(subdir.mkdir());
+        linkName = new File(subdir, "shorter");
+        ln_s("../target", linkName.toString());
+        assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
+
+        // .../l -> .../subdir/longer (using a relative link to subdir/longer).
+        linkName = new File(base, "l");
+        ln_s("subdir/longer", linkName.toString());
+        File longer = new File(base, "subdir/longer");
+        longer.createNewFile(); // The RI won't follow a dangling symlink, which seems like a bug!
+        assertEquals(longer.getCanonicalPath(), linkName.getCanonicalPath());
+
+        // .../double -> .../target (via a link into subdir and a link back out).
+        linkName = new File(base, "double");
+        ln_s("subdir/shorter", linkName.toString());
+        assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
+    }
+
+    private static void ln_s(File target, File linkName) throws Exception {
+        ln_s(target.toString(), linkName.toString());
+    }
+
+    private static void ln_s(String target, String linkName) throws Exception {
+        String[] args = new String[] { "ln", "-s", target, linkName };
+        // System.err.println("ln -s " + target + " " + linkName);
+        Process p = Runtime.getRuntime().exec(args);
+        int result = p.waitFor();
+        if (result != 0) {
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String line;
+            while ((line = r.readLine()) != null) {
+                System.err.println(line);
+            }
+            fail("ln -s " + target + " " + linkName + " failed. " +
+                    "Does that file system support symlinks?");
+        }
     }
 }
