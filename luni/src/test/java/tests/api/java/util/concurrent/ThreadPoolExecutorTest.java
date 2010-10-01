@@ -1479,4 +1479,33 @@ public class ThreadPoolExecutorTest extends JSR166TestCase {
         }
     }
 
+    // BEGIN android-added
+    /** http://b/3046427 */
+    public void testRejected() {
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(2);
+        ExecutorService executor = new ThreadPoolExecutor(0, 2, 1, TimeUnit.SECONDS, queue);
+        executor.submit(new Sleeper()); // thread #1
+        executor.submit(new Sleeper()); // thread #2
+        executor.submit(new Sleeper()); // queue #1
+        executor.submit(new Sleeper()); // queue #2
+        try {
+            executor.submit(new Sleeper());
+            fail();
+        } catch (RejectedExecutionException expected) {
+            System.out.println(expected.getMessage());
+            assertNotNull(expected.getMessage());
+        }
+        executor.shutdown();
+    }
+
+    static class Sleeper implements Runnable {
+        public void run() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    // END android-added
 }
