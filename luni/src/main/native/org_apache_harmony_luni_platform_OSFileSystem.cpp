@@ -352,11 +352,7 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
 }
 
 static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
-    if (!metadataToo) {
-        LOGW("fdatasync(2) unimplemented on Android - doing fsync(2)"); // http://b/2667481
-    }
-    int rc = fsync(fd);
-    // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
+    int rc = metadataToo ? fsync(fd) : fdatasync(fd);
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
