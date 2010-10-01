@@ -359,20 +359,36 @@ static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, b
     group_req groupRequest;
 
     // Get the IPv4 or IPv6 multicast address to join or leave.
-    jfieldID fid = env->GetFieldID(JniConstants::multicastGroupRequestClass,
+    static jfieldID grGroupFid = env->GetFieldID(JniConstants::multicastGroupRequestClass,
             "gr_group", "Ljava/net/InetAddress;");
-    jobject group = env->GetObjectField(javaGroupRequest, fid);
+    jobject group = env->GetObjectField(javaGroupRequest, grGroupFid);
     if (!inetAddressToSocketAddress(env, group, 0, &groupRequest.gr_group)) {
         return;
     }
 
     // Get the interface index to use (or 0 for "whatever").
-    fid = env->GetFieldID(JniConstants::multicastGroupRequestClass, "gr_interface", "I");
-    groupRequest.gr_interface = env->GetIntField(javaGroupRequest, fid);
+    static jfieldID grInterfaceFid =
+            env->GetFieldID(JniConstants::multicastGroupRequestClass, "gr_interface", "I");
+    groupRequest.gr_interface = env->GetIntField(javaGroupRequest, grInterfaceFid);
 
+    // Decide exactly what we're trying to do...
     int level = groupRequest.gr_group.ss_family == AF_INET ? IPPROTO_IP : IPPROTO_IPV6;
     int option = join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
+
     int rc = setsockopt(fd, level, option, &groupRequest, sizeof(groupRequest));
+    if (rc == -1 && errno == EINVAL) {
+        // Maybe we're a 32-bit binary talking to a 64-bit kernel?
+        // glibc doesn't automatically handle this.
+        struct group_req64 {
+            uint32_t gr_interface;
+            uint32_t my_padding;
+            sockaddr_storage gr_group;
+        };
+        group_req64 groupRequest64;
+        groupRequest64.gr_interface = groupRequest.gr_interface;
+        memcpy(&groupRequest64.gr_group, &groupRequest.gr_group, sizeof(groupRequest.gr_group));
+        rc = setsockopt(fd, level, option, &groupRequest64, sizeof(groupRequest64));
+    }
     if (rc == -1) {
         jniThrowSocketException(env, errno);
         return;
