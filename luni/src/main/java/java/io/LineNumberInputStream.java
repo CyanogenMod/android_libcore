@@ -17,6 +17,8 @@
 
 package java.io;
 
+import libcore.base.Streams;
+
 /**
  * Wraps an existing {@link InputStream} and counts the line terminators
  * encountered while reading the data. Line numbering starts at 0. Recognized
@@ -230,7 +232,7 @@ public class LineNumberInputStream extends FilterInputStream {
      * filtered stream and increments the line number count whenever line
      * terminator sequences are skipped.
      *
-     * @param count
+     * @param byteCount
      *            the number of bytes to skip.
      * @return the number of bytes actually skipped.
      * @throws IOException
@@ -240,16 +242,7 @@ public class LineNumberInputStream extends FilterInputStream {
      * @see #reset()
      */
     @Override
-    public long skip(long count) throws IOException {
-        if (count <= 0) {
-            return 0;
-        }
-        for (int i = 0; i < count; i++) {
-            int currentChar = read();
-            if (currentChar == -1) {
-                return i;
-            }
-        }
-        return count;
+    public long skip(long byteCount) throws IOException {
+        return Streams.skipByReading(this, byteCount);
     }
 }

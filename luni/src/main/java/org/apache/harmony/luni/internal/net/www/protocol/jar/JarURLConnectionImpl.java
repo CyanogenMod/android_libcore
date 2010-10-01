@@ -380,13 +380,10 @@ public class JarURLConnectionImpl extends JarURLConnection {
     }
 
     private class JarURLConnectionInputStream extends FilterInputStream {
-        InputStream inputStream;
-
-        JarFile jarFile;
+        final JarFile jarFile;
 
         protected JarURLConnectionInputStream(InputStream in, JarFile file) {
             super(in);
-            inputStream = in;
             jarFile = file;
         }
 
@@ -397,21 +394,6 @@ public class JarURLConnectionImpl extends JarURLConnection {
                 closed = true;
                 jarFile.close();
             }
-        }
-
-        @Override
-        public int read() throws IOException {
-            return inputStream.read();
-        }
-
-        @Override
-        public int read(byte[] buf, int off, int nbytes) throws IOException {
-            return inputStream.read(buf, off, nbytes);
-        }
-
-        @Override
-        public long skip(long nbytes) throws IOException {
-            return inputStream.skip(nbytes);
         }
     }
 }

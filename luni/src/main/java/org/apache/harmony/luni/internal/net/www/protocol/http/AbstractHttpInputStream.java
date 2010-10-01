@@ -37,7 +37,6 @@ abstract class AbstractHttpInputStream extends InputStream {
     protected final CacheRequest cacheRequest;
     protected final OutputStream cacheOut;
     protected boolean closed;
-    private byte[] skipBuffer;
 
     AbstractHttpInputStream(InputStream in, HttpURLConnectionImpl httpURLConnection,
             CacheRequest cacheRequest) throws IOException {
@@ -55,26 +54,6 @@ abstract class AbstractHttpInputStream extends InputStream {
         byte[] buffer = new byte[1];
         int count = read(buffer, 0, 1);
         return count == -1 ? -1 : buffer[0] & 0xff;
-    }
-
-    /**
-     * skip(long) is implemented using read(byte[], int, int) so subclasses
-     * only need to override the latter.
-     */
-    @Override public final long skip(long n) throws IOException {
-        if (skipBuffer == null) {
-            skipBuffer = new byte[4096];
-        }
-        long total = 0;
-        while (total < n) {
-            // Calling read() ensures the skipped bytes make it into the response cache.
-            int count = read(skipBuffer, 0, (int) Math.min(n - total, skipBuffer.length));
-            if (count == -1) {
-                break;
-            }
-            total += count;
-        }
-        return total;
     }
 
     protected final void checkBounds(byte[] buffer, int offset, int count) {

@@ -84,9 +84,4 @@ class SocketInputStream extends InputStream {
 
         return socket.read(buffer, offset, count);
     }
-
-    @Override
-    public long skip(long n) throws IOException {
-        return (0 == n) ? 0 : super.skip(n);
-    }
 }

@@ -24,10 +24,11 @@ import java.io.PushbackInputStream;
 import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
+import libcore.base.Streams;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
- * uncompresses data from a <i>ZIP-archive</i> input stream.
+ * decompresses data from a <i>ZIP-archive</i> input stream.
  * <p>
  * A <i>ZIP-archive</i> is a collection of compressed (or uncompressed) files -
  * the so called ZIP entries. Therefore when reading from a {@code
@@ -124,7 +125,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         // Ensure all entry bytes are read
         Exception failure = null;
         try {
-            skip(Long.MAX_VALUE);
+            Streams.skipAll(this);
         } catch (Exception e) {
             failure = e;
         }
@@ -348,34 +349,6 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         crc.update(buffer, start, read);
         return read;
-    }
-
-    /**
-     * Skips up to the specified number of bytes in the current ZIP entry.
-     *
-     * @param value
-     *            the number of bytes to skip.
-     * @return the number of bytes skipped.
-     * @throws IOException
-     *             if an {@code IOException} occurs.
-     */
-    @Override
-    public long skip(long value) throws IOException {
-        if (value < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        long skipped = 0;
-        byte[] b = new byte[(int)Math.min(value, 2048L)];
-        while (skipped != value) {
-            long rem = value - skipped;
-            int x = read(b, 0, (int) (b.length > rem ? rem : b.length));
-            if (x == -1) {
-                return skipped;
-            }
-            skipped += x;
-        }
-        return skipped;
     }
 
     @Override
