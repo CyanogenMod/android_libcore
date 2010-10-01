@@ -1947,7 +1947,20 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * @throws RejectedExecutionException always.
          */
         public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-            throw new RejectedExecutionException();
+            // BEGIN android-changed
+            //     provide diagnostic messaging for a common exception
+
+            // a message is helpful even if it isn't created atomically
+            int queueSize = e.getQueue().size();
+            int remainingCapacity = e.getQueue().remainingCapacity();
+            String message = "pool=" + e.getPoolSize() + "/" + e.maximumPoolSize
+                    + ", queue=" + queueSize;
+            if (remainingCapacity != Integer.MAX_VALUE) {
+                message += "/" + (queueSize + remainingCapacity);
+            }
+            throw new RejectedExecutionException(message);
+
+            // END android-changed
         }
     }
 
