@@ -1342,6 +1342,49 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(-1, in.read());
     }
 
+    public void testFlushAfterStreamTransmittedWithChunkedEncoding() throws IOException {
+        testFlushAfterStreamTransmitted(TransferKind.CHUNKED);
+    }
+
+    public void testFlushAfterStreamTransmittedWithFixedLength() throws IOException {
+        testFlushAfterStreamTransmitted(TransferKind.FIXED_LENGTH);
+    }
+
+    public void testFlushAfterStreamTransmittedWithNoLengthHeaders() throws IOException {
+        testFlushAfterStreamTransmitted(TransferKind.END_OF_STREAM);
+    }
+
+    /**
+     * We explicitly permit apps to close the upload stream even after it has
+     * been transmitted.  We also permit flush so that buffered streams can
+     * do a no-op flush when they are closed. http://b/3038470
+     */
+    private void testFlushAfterStreamTransmitted(TransferKind transferKind) throws IOException {
+        server.enqueue(new MockResponse().setBody("abc"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        byte[] upload = "def".getBytes("UTF-8");
+
+        if (transferKind == TransferKind.CHUNKED) {
+            connection.setChunkedStreamingMode(0);
+        } else if (transferKind == TransferKind.FIXED_LENGTH) {
+            connection.setFixedLengthStreamingMode(upload.length);
+        }
+
+        OutputStream out = connection.getOutputStream();
+        out.write(upload);
+        assertEquals("abc", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        out.flush(); // dubious but permitted
+        try {
+            out.write("ghi".getBytes("UTF-8"));
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
     /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
