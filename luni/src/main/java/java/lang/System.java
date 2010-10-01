@@ -516,7 +516,10 @@ public final class System {
     public static native int identityHashCode(Object anObject);
 
     /**
-     * Loads the specified file as a dynamic library.
+     * Loads and links the dynamic library that is identified through the
+     * specified path. This method is similar to {@link #loadLibrary(String)},
+     * but it accepts a full path specification whereas {@code loadLibrary} just
+     * accepts the name of the library to load.
      *
      * @param pathName
      *            the path of the file to be loaded.
@@ -532,9 +535,9 @@ public final class System {
     }
 
     /**
-     * Loads and links the shared library with the given name {@code libName}.
-     * The file will be searched in the default directory for shared libraries
-     * of the local system.
+     * Loads and links the library with the specified name. The mapping of the
+     * specified library name to the full path for loading the library is
+     * implementation-dependent.
      *
      * @param libName
      *            the name of the library to load.
