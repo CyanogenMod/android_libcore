@@ -28,11 +28,11 @@ public class InetSocketAddress extends SocketAddress {
 
     private static final long serialVersionUID = 5076001401234631237L;
 
-    private String hostname;
+    private final String hostname;
 
-    private InetAddress addr;
+    private final InetAddress addr;
 
-    private int port;
+    private final int port;
 
     /**
      * Creates a socket endpoint with the given port number {@code port} and
@@ -97,20 +97,22 @@ public class InetSocketAddress extends SocketAddress {
         if (hostname == null || port < 0 || port > 65535) {
             throw new IllegalArgumentException("host=" + hostname + ", port=" + port);
         }
-        this.hostname = hostname;
         this.port = port;
 
+        InetAddress addr = null;
         if (needResolved) {
             SecurityManager smgr = System.getSecurityManager();
             if (smgr != null) {
                 smgr.checkConnect(hostname, port);
             }
             try {
-                this.addr = InetAddress.getByName(hostname);
-                this.hostname = null;
+                addr = InetAddress.getByName(hostname);
+                hostname = null;
             } catch (UnknownHostException ignored) {
             }
         }
+        this.hostname = hostname;
+        this.addr = addr;
     }
 
     /**
@@ -225,11 +227,6 @@ public class InetSocketAddress extends SocketAddress {
         return addr.equals(iSockAddr.addr);
     }
 
-    /**
-     * Gets the hashcode of this socket.
-     *
-     * @return the appropriate hashcode.
-     */
     @Override
     public final int hashCode() {
         if (addr == null) {
