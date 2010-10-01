@@ -197,11 +197,6 @@
   name: "tests.security.cert.CertificateTest#testGetEncoded"
 },
 {
-  description: "throws SocketException with message: the socket level is invalid. Works on the RI",
-  result: EXEC_FAILED,
-  name: "tests.security.permissions.JavaNetSocketTest#test_ctor2"
-},
-{
   description: "Not all Drivers are loaded in testsetup. ClassLoader issue in DriverManager.",
   result: EXEC_FAILED,
   name: "org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver"
