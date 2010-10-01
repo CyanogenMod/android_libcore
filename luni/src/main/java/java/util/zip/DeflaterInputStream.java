@@ -20,6 +20,7 @@ package java.util.zip;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import libcore.base.Streams;
 
 /**
  * An {@code InputStream} filter to compress data. Callers read
@@ -168,25 +169,9 @@ public class DeflaterInputStream extends FilterInputStream {
      * skip {@code Integer.MAX_VALUE} bytes.
      */
     @Override
-    public long skip(long n) throws IOException {
-        if (n < 0) {
-            throw new IllegalArgumentException();
-        }
-        if (n > Integer.MAX_VALUE) {
-            n = Integer.MAX_VALUE;
-        }
-        checkClosed();
-
-        int remaining = (int) n;
-        byte[] tmp = new byte[Math.min(remaining, DEFAULT_BUFFER_SIZE)];
-        while (remaining > 0) {
-            int count = read(tmp, 0, Math.min(remaining, tmp.length));
-            if (count == -1) {
-                break;
-            }
-            remaining -= count;
-        }
-        return n - remaining;
+    public long skip(long byteCount) throws IOException {
+        byteCount = Math.min(Integer.MAX_VALUE, byteCount);
+        return Streams.skipByReading(this, byteCount);
     }
 
     /**

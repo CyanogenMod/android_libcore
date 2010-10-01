@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import libcore.base.Streams;
 import org.apache.harmony.archive.util.Util;
 import org.apache.harmony.luni.util.InputStreamHelper;
 
@@ -136,19 +137,8 @@ public class JarFile extends ZipFile {
         }
 
         @Override
-        public long skip(long nbytes) throws IOException {
-            long cnt = 0, rem = 0;
-            byte[] buf = new byte[(int)Math.min(nbytes, 2048L)];
-            while (cnt < nbytes) {
-                int x = read(buf, 0,
-                        (rem = nbytes - cnt) > buf.length ? buf.length
-                                : (int) rem);
-                if (x == -1) {
-                    return cnt;
-                }
-                cnt += x;
-            }
-            return cnt;
+        public long skip(long byteCount) throws IOException {
+            return Streams.skipByReading(this, byteCount);
         }
     }
 
