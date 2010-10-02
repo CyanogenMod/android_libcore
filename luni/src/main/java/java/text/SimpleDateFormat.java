@@ -17,7 +17,6 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,6 +28,7 @@ import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.Vector;
+import libcore.icu.LocaleData;
 import libcore.icu.TimeZones;
 
 /**

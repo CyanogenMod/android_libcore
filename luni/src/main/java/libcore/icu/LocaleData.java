@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibm.icu4jni.util;
+package libcore.icu;
 
 import java.text.DateFormat;
 import java.util.Arrays;

@@ -17,14 +17,14 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.InvalidObjectException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.TimeZone;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * An abstract class for date/time formatting subclasses which formats and

@@ -17,8 +17,6 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -28,6 +26,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Locale;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * The abstract base class for all number formats. This class provides the

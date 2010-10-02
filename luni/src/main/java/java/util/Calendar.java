@@ -17,14 +17,14 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.text.DateFormatSymbols;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * {@code Calendar} is an abstract base class for converting between a

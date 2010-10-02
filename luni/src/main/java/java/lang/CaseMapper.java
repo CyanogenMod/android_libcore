@@ -16,8 +16,8 @@
 
 package java.lang;
 
-import com.ibm.icu4jni.util.ICU;
 import java.util.Locale;
+import libcore.icu.ICU;
 
 /**
  * Performs case operations as described by http://unicode.org/reports/tr21/tr21-5.html.
