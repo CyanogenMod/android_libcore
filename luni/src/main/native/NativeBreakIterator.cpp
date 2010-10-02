@@ -139,7 +139,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeBreakIterator, previousImpl, "(I)I"),
     NATIVE_METHOD(NativeBreakIterator, setTextImpl, "(ILjava/lang/String;)V"),
 };
-int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeBreakIterator",
-            gMethods, NELEM(gMethods));
+int register_libcore_icu_NativeBreakIterator(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "libcore/icu/NativeBreakIterator", gMethods, NELEM(gMethods));
 }

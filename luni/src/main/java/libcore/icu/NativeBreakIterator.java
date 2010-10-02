@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibm.icu4jni.text;
+package libcore.icu;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;

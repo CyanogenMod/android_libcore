@@ -17,7 +17,6 @@
 
 package java.text;
 
-import com.ibm.icu4jni.text.NativeDecimalFormat;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,6 +27,7 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Locale;
 import libcore.icu.LocaleData;
+import libcore.icu.NativeDecimalFormat;
 
 /**
  * A concrete subclass of {@link NumberFormat} that formats decimal numbers. It
