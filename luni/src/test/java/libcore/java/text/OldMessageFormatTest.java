@@ -210,6 +210,7 @@ public class OldMessageFormatTest extends TestCase {
     }
 
     public void test_formatLjava_lang_StringLjava_lang_Object() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         int iCurrency = 123;
         int iInteger  = Integer.MIN_VALUE;
 
