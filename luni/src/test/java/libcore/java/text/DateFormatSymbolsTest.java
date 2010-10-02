@@ -24,6 +24,7 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class DateFormatSymbolsTest extends junit.framework.TestCase {
     private void assertLocaleIsEquivalentToRoot(Locale locale) {
@@ -31,6 +32,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals(DateFormatSymbols.getInstance(Locale.ROOT), dfs);
     }
 
+    /** http://b/3056586 */
     public void test_getInstance_unknown_locale() throws Exception {
         // TODO: we fail this test. on Android, the root locale uses GMT offsets as names.
         // see the invalid locale test below. on the RI, the root locale uses English names.
@@ -71,6 +73,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
     private String formatDate(Locale l, String fmt, DateFormatSymbols dfs) {
         SimpleDateFormat sdf = new SimpleDateFormat(fmt, l);
         sdf.setDateFormatSymbols(dfs);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(new Date(0));
     }
 }
