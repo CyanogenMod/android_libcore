@@ -3,6 +3,53 @@
  */
 [
 {
+  description: "ICU seems to treat unknown and invalid locales differently",
+  name: "libcore.java.text.DateFormatSymbolsTest#test_getInstance_unknown_locale",
+  bug: 2541757
+},
+{
+  description: "Root locale uses INF for infinity but unknown locales use \u221e",
+  name: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale",
+  bug: 3056617
+},
+{
+  description: "Minimal days in first week is broken",
+  names: [
+    "libcore.java.text.OldSimpleDateFormatTest#testFormattingWeekOfYear",
+    "libcore.java.text.OldSimpleDateFormatTest#testDefaultMinimalDaysInFirstWeek"
+  ],
+  bug: 1613709
+},
+{
+  description: "Custom SimpleTimeZones not honored by SimpleDateFormat",
+  name: "libcore.java.text.OldSimpleDateFormatTest#testFormattingTimezones",
+  bug: 3049014
+},
+{
+  description: "NaN character not found when deserializing DecimalFormatSymbols",
+  name: "libcore.java.text.OldDecimalFormatSymbolsTest#test_RIHarmony_compatible",
+  bug: 3056792
+},
+{
+  description: "DecimalFormat.formatToCharacterIterator() is failing tests",
+  names: [
+    "libcore.java.text.OldDecimalFormatTest#test_formatToCharacterIterator",
+    "org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object",
+    "org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object__ArithmeticException"
+  ],
+  bug: 3056865
+},
+{
+  description: "DecimalFormat.parse returns wrong type with multiplier: expected Long but was Double",
+  name: "libcore.java.text.OldDecimalFormatTest#test_parseLjava_lang_StringLjava_text_ParsePosition",
+  bug: 33057080
+},
+{
+  description: "DecimalFormat FieldPosition not updated with correct begin and end indices",
+  name: "libcore.java.text.OldDecimalFormatTest#test_formatDLjava_lang_StringBufferLjava_text_FieldPosition",
+  bug: 3057090
+},
+{
   description: "finalize() called on objects whose constructor didn't complete normally",
   name: "libcore.java.lang.SystemTest#testBackFromTheDead",
   bug: 2645458
@@ -828,11 +875,6 @@
   description: "statement.close() does not wrap up",
   result: EXEC_FAILED,
   name: "tests.sql.StatementTest#testGetUpdateCount"
-},
-{
-  description: "Fails in CTS but passes under run-core-tests",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object"
 },
 {
   description: "Handshake Status is never finished. NPE in ClientSessionContext$HostAndPort.hashCode() when host

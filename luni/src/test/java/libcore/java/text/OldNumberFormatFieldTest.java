@@ -36,56 +36,36 @@ public class OldNumberFormatFieldTest extends junit.framework.TestCase {
         assertEquals("field has wrong name", null, field.getName());
     }
 
-    public void test_readResolve() {
+    public void test_readResolve() throws IOException, ClassNotFoundException {
         // test for method java.lang.Object readResolve()
 
         // see serialization stress tests:
         // implemented in
         // SerializationStressTest4.test_writeObject_NumberFormat_Field()
-        ObjectOutputStream out = null;
-        ObjectInputStream in = null;
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(bytes);
+
+        MyNumberFormat field;
+
+        NumberFormat.Field nfield = NumberFormat.Field.CURRENCY;
+
+        field = new MyNumberFormat(null);
+
+        out.writeObject(nfield);
+        out.writeObject(field);
+
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+        NumberFormat.Field nfield2 = (NumberFormat.Field) in.readObject();
+        assertSame("resolved incorrectly", nfield, nfield2);
+
         try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            out = new ObjectOutputStream(bytes);
-
-            NumberFormat.Field nfield, nfield2;
-            MyNumberFormat field;
-
-            nfield = NumberFormat.Field.CURRENCY;
-
-            field = new MyNumberFormat(null);
-
-            out.writeObject(nfield);
-            out.writeObject(field);
-
-            in = new ObjectInputStream(new ByteArrayInputStream(bytes
-                    .toByteArray()));
-            try {
-                nfield2 = (NumberFormat.Field) in.readObject();
-                assertSame("resolved incorrectly", nfield, nfield2);
-            } catch (IllegalArgumentException e) {
-                fail("Unexpected IllegalArgumentException: " + e);
-            }
-
-            try {
-                in.readObject();
-                fail("Expected InvalidObjectException for subclass instance with null name");
-            } catch (InvalidObjectException e) {
-            }
-
-        } catch (IOException e) {
-            fail("unexpected IOException" + e);
-        } catch (ClassNotFoundException e) {
-            fail("unexpected ClassNotFoundException" + e);
-        } finally {
-            try {
-                if (out != null)
-                    out.close();
-                if (in != null)
-                    in.close();
-            } catch (IOException e) {
-            }
+            in.readObject();
+            fail("Expected InvalidObjectException for subclass instance with null name");
+        } catch (InvalidObjectException e) {
         }
+
+        in.close();
+        out.close();
     }
 
     static class MyNumberFormat extends NumberFormat.Field {
