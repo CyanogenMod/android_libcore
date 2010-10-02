@@ -12,9 +12,8 @@
   *
   * @author Ram Viswanadha, IBM
   */
-package com.ibm.icu4jni.charset;
+package libcore.icu;
 
-import com.ibm.icu4jni.common.ErrorCode;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -119,8 +118,8 @@ public final class CharsetDecoderICU extends CharsetDecoder {
 
     private void updateCallback() {
         ec = NativeConverter.setCallbackDecode(converterHandle, this);
-        if (ErrorCode.isFailure(ec)){
-            throw ErrorCode.getException(ec);
+        if (ErrorCode.isFailure(ec)) {
+            throw ErrorCode.throwException(ec);
         }
     }
 
@@ -151,7 +150,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
                         return CoderResult.malformedForLength(data[INPUT_OFFSET]);
                     }
                 } else {
-                    ErrorCode.getException(ec);
+                    throw ErrorCode.throwException(ec);
                 }
             }
             return CoderResult.UNDERFLOW;

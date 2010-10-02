@@ -16,12 +16,12 @@
 
 package java.nio.charset;
 
-import com.ibm.icu4jni.charset.CharsetEncoderICU;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Arrays;
+import libcore.icu.CharsetEncoderICU;
 
 /**
  * Transforms a sequence of 16-bit Java characters to a byte sequence in some encoding.

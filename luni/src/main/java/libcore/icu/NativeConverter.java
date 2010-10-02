@@ -7,7 +7,7 @@
 *******************************************************************************
 */
 
-package com.ibm.icu4jni.charset;
+package libcore.icu;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;

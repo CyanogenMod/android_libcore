@@ -61,7 +61,7 @@ void JniConstants::init(JNIEnv* env) {
     booleanClass = findClass(env, "java/lang/Boolean");
     byteClass = findClass(env, "java/lang/Byte");
     byteArrayClass = findClass(env, "[B");
-    charsetICUClass = findClass(env, "com/ibm/icu4jni/charset/CharsetICU");
+    charsetICUClass = findClass(env, "libcore/icu/CharsetICU");
     constructorClass = findClass(env, "java/lang/reflect/Constructor");
     datagramPacketClass = findClass(env, "java/net/DatagramPacket");
     deflaterClass = findClass(env, "java/util/zip/Deflater");
