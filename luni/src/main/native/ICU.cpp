@@ -563,11 +563,11 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getISO3LanguageNative, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOCountriesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOLanguagesNative, "()[Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, initLocaleDataImpl, "(Ljava/lang/String;Lcom/ibm/icu4jni/util/LocaleData;)Z"),
+    NATIVE_METHOD(ICU, initLocaleDataImpl, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, toUpperCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
-int register_com_ibm_icu4jni_util_ICU(JNIEnv* env) {
+int register_libcore_icu_ICU(JNIEnv* env) {
     // Failures to find the ICU data tend to be somewhat obscure because ICU loads its data on first
     // use, which can be anywhere. Force initialization up front so we can report a nice clear error
     // and bail.
@@ -577,5 +577,5 @@ int register_com_ibm_icu4jni_util_ICU(JNIEnv* env) {
         LOGE("Couldn't initialize ICU: %s", u_errorName(status));
         return -1;
     }
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/util/ICU", gMethods, NELEM(gMethods));
+    return jniRegisterNativeMethods(env, "libcore/icu/ICU", gMethods, NELEM(gMethods));
 }

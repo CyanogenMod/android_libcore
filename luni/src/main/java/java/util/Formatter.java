@@ -15,7 +15,6 @@
  */
 package java.util;
 
-import com.ibm.icu4jni.text.NativeDecimalFormat;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
@@ -34,6 +33,7 @@ import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import libcore.icu.LocaleData;
+import libcore.icu.NativeDecimalFormat;
 
 /**
  * Formats arguments according to a format string (like {@code printf} in C).
