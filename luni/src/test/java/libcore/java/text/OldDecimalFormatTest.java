@@ -17,11 +17,6 @@
 
 package libcore.java.text;
 
-import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.AttributedCharacterIterator;
@@ -36,16 +31,8 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import tests.support.Support_DecimalFormat;
 
-
-@TestTargetClass(DecimalFormat.class)
 public class OldDecimalFormatTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "formatToCharacterIterator",
-        args = {java.lang.Object.class}
-    )
     public void test_formatToCharacterIterator() throws Exception {
         AttributedCharacterIterator iterator;
         int[] runStarts;
@@ -141,20 +128,6 @@ public class OldDecimalFormatTest extends TestCase {
      * Test the getter and setter of parseBigDecimal and parseIntegerOnly and
      * test the default value of them.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isParseBigDecimal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setParseBigDecimal",
-            args = {boolean.class}
-        )
-    })
     public void test_isParseBigDecimalLjava_lang_Boolean_isParseIntegerOnlyLjava_lang_Boolean() {
 
         // parseBigDecimal default to false
@@ -185,20 +158,6 @@ public class OldDecimalFormatTest extends TestCase {
         assertFalse(form.isParseIntegerOnly());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isParseIntegerOnly",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setParseIntegerOnly",
-            args = {boolean.class}
-        )
-    })
     public void test_isParseIntegerOnly() {
 
             DecimalFormat format = new DecimalFormat();
@@ -224,12 +183,6 @@ public class OldDecimalFormatTest extends TestCase {
             }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isGroupingUsed",
-        args = {}
-    )
     public void test_isGroupingUsed() {
         String [] patterns = {"####.##", "######.######", "000000.000000",
                 "######.000000", "000000.######", " ###.###", "$#####.######",
@@ -245,12 +198,6 @@ public class OldDecimalFormatTest extends TestCase {
     }
 
     // Test the type of the returned object
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.lang.String.class, java.text.ParsePosition.class}
-    )
     public void test_parseLjava_lang_String_Ljava_text_ParsePosition() {
         DecimalFormat form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
         form.setParseIntegerOnly(true);
@@ -270,12 +217,7 @@ public class OldDecimalFormatTest extends TestCase {
                 Double.MAX_VALUE)), result);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "getMinimumIntegerDigits",
-        args = {}
-    )
-    @AndroidOnly("Difference to RI")
+    // AndroidOnly: Difference to RI
     public void test_getMaximumIntegerDigits_AndroidOnly() {
         final int maxIntDigit = 309;
 
@@ -298,24 +240,13 @@ public class OldDecimalFormatTest extends TestCase {
         assertEquals(maxIntDigit, form.getMaximumIntegerDigits());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "getMinimumIntegerDigits",
-        args = {}
-    )
-    @AndroidOnly("second 0 needs to be quoted in icu." +
-            "(quoting special characters in prefix and suffix necessary)")
+    // AndroidOnly: second 0 needs to be quoted in icu.
+    // (quoting special characters in prefix and suffix necessary)
     public void test_getMaximumIntegerDigits2() {
         // regression test for HARMONY-878
         assertTrue(new DecimalFormat("0\t'0'").getMaximumIntegerDigits() > 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPositivePrefix",
-        args = {java.lang.String.class}
-    )
     public void test_setPositivePrefixLjava_lang_String() {
         DecimalFormat format = new DecimalFormat();
         assertEquals("", format.getPositivePrefix());
@@ -334,12 +265,6 @@ public class OldDecimalFormatTest extends TestCase {
         format.setPositivePrefix(null);
         assertNull(format.getPositivePrefix());
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPositiveSuffix",
-        args = {java.lang.String.class}
-    )
     public void test_setPositiveSuffixLjava_lang_String() {
         DecimalFormat format = new DecimalFormat();
         assertEquals("", format.getPositiveSuffix());
@@ -358,20 +283,6 @@ public class OldDecimalFormatTest extends TestCase {
         format.setPositiveSuffix(null);
         assertNull(format.getPositiveSuffix());
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setNegativePrefix",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNegativePrefix",
-            args = {}
-        )
-    })
     public void test_setNegativePrefixLjava_lang_String() {
         DecimalFormat format = new DecimalFormat();
         assertEquals("-", format.getNegativePrefix());
@@ -389,12 +300,6 @@ public class OldDecimalFormatTest extends TestCase {
         format.setNegativePrefix(null);
         assertNull(format.getNegativePrefix());
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setNegativeSuffix",
-        args = {java.lang.String.class}
-    )
     public void test_setNegativeSuffixLjava_lang_String() {
         DecimalFormat format = new DecimalFormat();
         assertEquals("", format.getNegativeSuffix());
@@ -414,16 +319,6 @@ public class OldDecimalFormatTest extends TestCase {
         assertNull(format.getNegativeSuffix());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#toLocalizedPattern() Test of method
-     *        java.text.DecimalFormat#toLocalizedPattern().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toLocalizedPattern",
-        args = {}
-    )
     public void test_toLocalizedPattern() {
         DecimalFormat format = new DecimalFormat();
         format.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
@@ -441,16 +336,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#toPattern() Test of method
-     *        java.text.DecimalFormat#toPattern().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toPattern",
-        args = {}
-    )
     public void test_toPattern() {
         DecimalFormat format = new DecimalFormat();
         try {
@@ -466,12 +351,6 @@ public class OldDecimalFormatTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setGroupingUsed",
-        args = {boolean.class}
-    )
     public void test_setGroupingUse() {
         DecimalFormat format = new DecimalFormat();
 
@@ -490,16 +369,6 @@ public class OldDecimalFormatTest extends TestCase {
         assertTrue(format.isGroupingUsed());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#DecimalFormat() Test of method
-     *        java.text.DecimalFormat#DecimalFormat().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DecimalFormat",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.text.DecimalFormat()
         // the constructor form that specifies a pattern is equal to the form
@@ -526,15 +395,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#DecimalFormat(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DecimalFormat",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.text.DecimalFormat(java.lang.String)
         // the constructor form that specifies a pattern is equal to the form
@@ -573,20 +433,10 @@ public class OldDecimalFormatTest extends TestCase {
     }
 
     /**
-     * @tests java.text.DecimalFormat#DecimalFormat(java.lang.String,
-     *        java.text.DecimalFormatSymbols) Test of method
-     *        java.text.DecimalFormat#DecimalFormat(java.lang.String,
-     *        java.text.DecimalFormatSymbols). Case 1: Try to construct object
-     *        using correct pattern and fromat symbols. Case 2: Try to construct
-     *        object using null arguments. Case 3: Try to construct object using
-     *        incorrect pattern.
+     * Case 1: Try to construct object using correct pattern and fromat symbols.
+     * Case 2: Try to construct object using null arguments.
+     * Case 3: Try to construct object using incorrect pattern.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DecimalFormat",
-        args = {java.lang.String.class, java.text.DecimalFormatSymbols.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_text_DecimalFormatSymbols() {
         try {
             // case 1: Try to construct object using correct pattern and fromat
@@ -637,18 +487,9 @@ public class OldDecimalFormatTest extends TestCase {
     }
 
     /**
-     * @tests java.text.DecimalFormat#applyLocalizedPattern(java.lang.String)
-     *        Test of method
-     *        java.text.DecimalFormat#applyLocalizedPattern(java.lang.String).
-     *        Case 1: Try to apply correct variants of pattern. Case 2: Try to
-     *        apply malformed patten. Case 3: Try to apply null patern.
+     * Case 1: Try to apply correct variants of pattern.
+     * Case 2: Try to apply malformed patten. Case 3: Try to apply null pattern.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "applyLocalizedPattern",
-        args = {java.lang.String.class}
-    )
     public void test_applyLocalizedPatternLjava_lang_String() {
         DecimalFormat format = new DecimalFormat();
         try {
@@ -682,14 +523,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#applyPattern(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "applyPattern",
-        args = {java.lang.String.class}
-    )
     public void test_applyPatternLjava_lang_String() {
         DecimalFormat format = new DecimalFormat("#.#");
         assertEquals("Wrong pattern 1", "#0.#", format.toPattern());
@@ -721,12 +554,7 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "applyPattern",
-        args = {java.lang.String.class}
-    )
-    @AndroidOnly("icu supports 2 grouping sizes.")
+    // AndroidOnly: icu supports 2 grouping sizes
     public void test_applyPatternLjava_lang_String2() {
         DecimalFormat decFormat = new DecimalFormat("#.#");
         String [] patterns = {"####.##", "######.######", "000000.000000",
@@ -751,15 +579,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#clone()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         DecimalFormat format = (DecimalFormat) DecimalFormat
                 .getInstance(Locale.US);
@@ -791,15 +610,6 @@ public class OldDecimalFormatTest extends TestCase {
         return result;
     }
 
-    /**
-     * @tests java.text.DecimalFormat#format(double, java.lang.StringBuffer,
-     *        java.text.FieldPosition)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "format",
-        args = {double.class, java.lang.StringBuffer.class, java.text.FieldPosition.class}
-    )
     public void test_formatDLjava_lang_StringBufferLjava_text_FieldPosition() {
         new Support_DecimalFormat(
                 "test_formatDLjava_lang_StringBufferLjava_text_FieldPosition")
@@ -1028,14 +838,6 @@ public class OldDecimalFormatTest extends TestCase {
         compare(formatString + ": -1", df.format(-1.0), "-1");
     }
 
-    /**
-     * @tests java.text.DecimalFormat#format(double)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "format",
-        args = {double.class}
-    )
     public void test_formatD() {
         DecimalFormat format = (DecimalFormat) NumberFormat
                 .getInstance(Locale.ENGLISH);
@@ -1059,24 +861,6 @@ public class OldDecimalFormatTest extends TestCase {
     }
 
 
-    /**
-     * @tests java.text.DecimalFormat#getNegativePrefix() Test of method
-     *        java.text.DecimalFormat#getNegativePrefix().
-     */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNegativePrefix",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setNegativePrefix",
-            args = {java.lang.String.class}
-        )
-    })
     public void test_getNegativePrefix() {
         DecimalFormat df = new DecimalFormat();
         try {
@@ -1088,16 +872,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getNegativeSuffix() Test of method
-     *        java.text.DecimalFormat#getNegativeSuffix().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getNegativeSuffix",
-        args = {}
-    )
     public void test_getNegativeSuffix() {
         DecimalFormat df = new DecimalFormat();
         try {
@@ -1109,16 +883,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getPositivePrefix() Test of method
-     *        java.text.DecimalFormat#getPositivePrefix().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPositivePrefix",
-        args = {}
-    )
     public void test_getPositivePrefix() {
         DecimalFormat df = new DecimalFormat();
         try {
@@ -1130,16 +894,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getPositiveSuffix() Test of method
-     *        java.text.DecimalFormat#getPositiveSuffix().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPositiveSuffix",
-        args = {}
-    )
     public void test_getPositiveSuffix() {
         DecimalFormat df = new DecimalFormat();
         try {
@@ -1151,16 +905,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#hashCode() Test of method
-     *        java.text.DecimalFormat#hashCode().
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         try {
             DecimalFormat df1 = new DecimalFormat();
@@ -1172,16 +916,6 @@ public class OldDecimalFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.DecimalFormat#parse(java.lang.String,
-     *        java.text.ParsePosition)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Vrifies boundary values.",
-        method = "parse",
-        args = {java.lang.String.class, java.text.ParsePosition.class}
-    )
     public void test_parseLjava_lang_StringLjava_text_ParsePosition() {
         DecimalFormat format = (DecimalFormat) NumberFormat
                 .getNumberInstance(Locale.ENGLISH);
@@ -1251,8 +985,7 @@ public class OldDecimalFormatTest extends TestCase {
         // test parse with multipliers
         format.setMultiplier(100);
         result = format.parse("9223372036854775807", new ParsePosition(0));
-        assertTrue("Wrong result type multiplier 100: " + result, result
-                .getClass() == Long.class);
+        assertEquals("Wrong result type multiplier 100: " + result, Long.class, result.getClass());
         // RI on windows and linux both answer with a slightly rounded result
         assertTrue("Wrong result for multiplier 100: " + result, result
                 .longValue() == 92233720368547760L);
