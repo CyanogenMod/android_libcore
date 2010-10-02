@@ -821,52 +821,6 @@ public abstract class NumberFormat extends Format {
         protected Field(String fieldName) {
             super(fieldName);
         }
-
-        /**
-         * Resolves instances that are deserialized to the constant
-         * {@code NumberFormat.Field} values.
-         *
-         * @return the resolved field object.
-         * @throws InvalidObjectException
-         *             if an error occurs while resolving the field object.
-         */
-        @Override
-        protected Object readResolve() throws InvalidObjectException {
-            if (this.equals(INTEGER)) {
-                return INTEGER;
-            }
-            if (this.equals(FRACTION)) {
-                return FRACTION;
-            }
-            if (this.equals(EXPONENT)) {
-                return EXPONENT;
-            }
-            if (this.equals(EXPONENT_SIGN)) {
-                return EXPONENT_SIGN;
-            }
-            if (this.equals(EXPONENT_SYMBOL)) {
-                return EXPONENT_SYMBOL;
-            }
-            if (this.equals(CURRENCY)) {
-                return CURRENCY;
-            }
-            if (this.equals(DECIMAL_SEPARATOR)) {
-                return DECIMAL_SEPARATOR;
-            }
-            if (this.equals(GROUPING_SEPARATOR)) {
-                return GROUPING_SEPARATOR;
-            }
-            if (this.equals(PERCENT)) {
-                return PERCENT;
-            }
-            if (this.equals(PERMILLE)) {
-                return PERMILLE;
-            }
-            if (this.equals(SIGN)) {
-                return SIGN;
-            }
-            throw new InvalidObjectException("Unknown attribute");
-        }
     }
 
     /**

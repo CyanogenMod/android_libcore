@@ -19,6 +19,8 @@ package java.text;
 
 import java.io.InvalidObjectException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,20 +121,23 @@ public interface AttributedCharacterIterator extends CharacterIterator {
          *             or if it is not a known {@code Attribute}.
          */
         protected Object readResolve() throws InvalidObjectException {
-            if (this.getClass() != Attribute.class) {
-                throw new InvalidObjectException("cannot resolve subclasses");
+            /*
+             * This class is used like Java enums, where all instances are
+             * defined as fields of their own class. To preserve identity
+             * equality, resolve to the canonical instance when deserialized.
+             */
+            try {
+                for (Field field : getClass().getFields()) {
+                    if (field.getType() == getClass() && Modifier.isStatic(field.getModifiers())) {
+                        Attribute candidate = (Attribute) field.get(null);
+                        if (name.equals(candidate.name)) {
+                            return candidate;
+                        }
+                    }
+                }
+            } catch (IllegalAccessException e) {
             }
-            String name = this.getName();
-            if (name.equals(INPUT_METHOD_SEGMENT.getName())) {
-                return INPUT_METHOD_SEGMENT;
-            }
-            if (name.equals(LANGUAGE.getName())) {
-                return LANGUAGE;
-            }
-            if (name.equals(READING.getName())) {
-                return READING;
-            }
-            throw new InvalidObjectException("Unknown attribute");
+            throw new InvalidObjectException("Failed to resolve " + this);
         }
 
         /**
