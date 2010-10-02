@@ -1277,66 +1277,20 @@ class AppData {
     Unique_RSA ephemeralRsa;
 
     /**
-     * Creates our application data and attaches it to a given SSL connection.
-     *
-     * @param env The JNIEnv
-     * @param shc The SSLHandshakeCallbacks
-     * @param fd The FileDescriptor
+     * Creates the application data context for the SSL*.
      */
   public:
-    static AppData* create(JNIEnv* env,
-                           jobject shc,
-                           jobject fd) {
-        if (shc == NULL) {
+    static AppData* create() {
+        UniquePtr<AppData> appData(new AppData());
+        if (pipe(appData.get()->fdsEmergency) == -1) {
             return NULL;
         }
-        if (fd == NULL) {
+        if (MUTEX_SETUP(appData.get()->mutex) == -1) {
             return NULL;
         }
-        AppData* appData = new AppData(env);
-        if (pipe(appData->fdsEmergency) == -1) {
-            destroy(env, appData);
-            return NULL;
-        }
-        if (MUTEX_SETUP(appData->mutex) == -1) {
-            destroy(env, appData);
-            return NULL;
-        }
-        appData->sslHandshakeCallbacks = env->NewGlobalRef(shc);
-        if (appData->sslHandshakeCallbacks == NULL) {
-            destroy(env, appData);
-            return NULL;
-        }
-        appData->fileDescriptor = env->NewGlobalRef(fd);
-        if (appData->fileDescriptor == NULL) {
-            destroy(env, appData);
-            return NULL;
-        }
-        return appData;
+        return appData.release();
     }
 
-    static void destroy(JNIEnv* env, AppData* appData) {
-        if (appData == NULL) {
-            return;
-        }
-        appData->cleanupGlobalRef(env);
-        delete appData;
-    }
-
-  private:
-    AppData(JNIEnv* e) :
-            aliveAndKicking(1),
-            waitingThreads(0),
-            env(e),
-            sslHandshakeCallbacks(NULL),
-            ephemeralRsa(NULL) {
-        fdsEmergency[0] = -1;
-        fdsEmergency[1] = -1;
-    }
-
-    /**
-     * Destroys our application data, cleaning up everything in the process.
-     */
     ~AppData() {
         aliveAndKicking = 0;
         if (fdsEmergency[0] != -1) {
@@ -1348,30 +1302,42 @@ class AppData {
         MUTEX_CLEANUP(mutex);
     }
 
-    void cleanupGlobalRef(JNIEnv* env) {
-        if (sslHandshakeCallbacks != NULL) {
-            env->DeleteGlobalRef(sslHandshakeCallbacks);
-            sslHandshakeCallbacks = NULL;
-        }
-        if (fileDescriptor != NULL) {
-            env->DeleteGlobalRef(fileDescriptor);
-            fileDescriptor = NULL;
-        }
-        clearEnv();
+  private:
+    AppData() :
+            aliveAndKicking(1),
+            waitingThreads(0),
+            env(NULL),
+            sslHandshakeCallbacks(NULL),
+            ephemeralRsa(NULL) {
+        fdsEmergency[0] = -1;
+        fdsEmergency[1] = -1;
     }
 
   public:
-    bool setEnv(JNIEnv* e) {
-        NetFd fd(e, fileDescriptor);
-        if (fd.isClosed()) {
+    /**
+     * Used to set the SSL-to-Java callback state before each SSL_*
+     * call that may result in a callback. It should be cleared after
+     * the operation returns with clearCallbackState.
+     *
+     * @param env The JNIEnv
+     * @param shc The SSLHandshakeCallbacks
+     * @param fd The FileDescriptor
+     */
+    bool setCallbackState(JNIEnv* e, jobject shc, jobject fd) {
+        NetFd netFd(e, fd);
+        if (netFd.isClosed()) {
             return false;
         }
         env = e;
+        sslHandshakeCallbacks = shc;
+        fileDescriptor = fd;
         return true;
     }
 
-    void clearEnv() {
+    void clearCallbackState() {
         env = NULL;
+        sslHandshakeCallbacks = NULL;
+        fileDescriptor = NULL;
     }
 
 };
@@ -1388,6 +1354,7 @@ class AppData {
  *
  * @param env
  * @param type Either SSL_ERROR_WANT_READ or SSL_ERROR_WANT_WRITE
+ * @param fdObject The FileDescriptor, since appData->fileDescriptor should be NULL
  * @param appData The application data structure with mutex info etc.
  * @param timeout The timeout value for select call, with the special value
  *                0 meaning no timeout at all (wait indefinitely). Note: This is
@@ -1397,7 +1364,7 @@ class AppData {
  * THROW_SOCKETEXCEPTION if a SocketException was thrown, -1 on
  * additional errors
  */
-static int sslSelect(JNIEnv* env, int type, AppData* appData, int timeout) {
+static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, int timeout) {
     // This loop is an expanded version of the NET_FAILURE_RETRY
     // macro. It cannot simply be used in this case because select
     // cannot be restarted without recreating the fd_sets and timeout
@@ -1406,7 +1373,7 @@ static int sslSelect(JNIEnv* env, int type, AppData* appData, int timeout) {
     fd_set rfds;
     fd_set wfds;
     do {
-        NetFd fd(env, appData->fileDescriptor);
+        NetFd fd(env, fdObject);
         if (fd.isClosed()) {
             result = THROWN_SOCKETEXCEPTION;
             break;
@@ -1876,7 +1843,6 @@ static void NativeCrypto_SSL_CTX_free(JNIEnv* env,
     if (ssl_ctx == NULL) {
         return;
     }
-    env->DeleteGlobalRef((jobject) ssl_ctx->app_verify_arg);
     SSL_CTX_free(ssl_ctx);
 }
 
@@ -2377,48 +2343,24 @@ static jstring NativeCrypto_SSL_get_servername(JNIEnv* env, jclass, jint ssl_add
 }
 
 /**
- * Module scope variables initialized during JNI registration.
- */
-static jfieldID field_Socket_mImpl;
-static jfieldID field_Socket_mFD;
-
-/**
  * Perform SSL handshake
  */
 static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
-    jint ssl_address, jobject socketObject, jobject shc, jint timeout, jboolean client_mode)
+    jint ssl_address, jobject fdObject, jobject shc, jint timeout, jboolean client_mode)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake "
-              "socketObject=%p sslHandshakeCallbacks=%p timeout=%d client_mode=%d",
-              ssl, socketObject, shc, timeout, client_mode);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake fd=%p shc=%p timeout=%d client_mode=%d",
+              ssl, fdObject, shc, timeout, client_mode);
     if (ssl == NULL) {
       return 0;
     }
-
-    if (socketObject == NULL) {
-        jniThrowNullPointerException(env, "socket == null");
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
     }
     if (shc == NULL) {
         jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
-        return 0;
-    }
-
-    jobject socketImplObject = env->GetObjectField(socketObject, field_Socket_mImpl);
-    if (socketImplObject == NULL) {
-        throwSSLExceptionStr(env,
-            "couldn't get the socket impl from the socket");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
-        return 0;
-    }
-
-    jobject fdObject = env->GetObjectField(socketImplObject, field_Socket_mFD);
-    if (fdObject == NULL) {
-        throwSSLExceptionStr(env,
-            "couldn't get the file descriptor from the socket impl");
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
     }
@@ -2456,7 +2398,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     /*
      * Create our special application data.
      */
-    AppData* appData = AppData::create(env, shc, fdObject);
+    AppData* appData = AppData::create();
     if (appData == NULL) {
         throwSSLExceptionStr(env, "Unable to create application data");
         SSL_clear(ssl);
@@ -2475,14 +2417,14 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     ret = 0;
     while (appData->aliveAndKicking) {
         errno = 0;
-        if (!appData->setEnv(env)) {
+        if (!appData->setCallbackState(env, shc, fdObject)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
             JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
             return 0;
         }
         ret = SSL_do_handshake(ssl);
-        appData->clearEnv();
+        appData->clearCallbackState();
         // cert_verify_callback threw exception
         if (env->ExceptionCheck()) {
             SSL_clear(ssl);
@@ -2512,7 +2454,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
          */
         if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
             appData->waitingThreads++;
-            int selectResult = sslSelect(env, sslError, appData, timeout);
+            int selectResult = sslSelect(env, sslError, fdObject, appData, timeout);
 
             if (selectResult == THROWN_SOCKETEXCEPTION) {
                 // SocketException thrown by NetFd.isClosed
@@ -2687,8 +2629,8 @@ static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, ji
  * @return number of bytes read on success, -1 if the connection was
  * cleanly shut down, or THROW_EXCEPTION if an exception should be thrown.
  */
-static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCode,
-        int* sslErrorCode, int timeout) {
+static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* buf, jint len,
+                   int* sslReturnCode, int* sslErrorCode, int timeout) {
 
     // LOGD("Entering sslRead, caller requests to read %d bytes...", len);
 
@@ -2715,12 +2657,12 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
         // LOGD("Doing SSL_Read()");
-        if (!appData->setEnv(env)) {
+        if (!appData->setCallbackState(env, shc, fdObject)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_SOCKETEXCEPTION;
         }
         int result = SSL_read(ssl, buf, len);
-        appData->clearEnv();
+        appData->clearCallbackState();
         int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
             sslError = SSL_get_error(ssl, result);
@@ -2759,7 +2701,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
             // Need to wait for availability of underlying layer, then retry.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, appData, timeout);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, timeout);
                 if (selectResult == THROWN_SOCKETEXCEPTION) {
                     return THROWN_SOCKETEXCEPTION;
                 }
@@ -2808,11 +2750,23 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
 /**
  * OpenSSL read function (1): only one chunk is read (returned as jint).
  */
-static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, jint timeout)
+static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address,
+                                       jobject fdObject, jobject shc, jint timeout)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read_byte timeout=%d", ssl, timeout);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read_byte fd=%p shc=%p timeout=%d",
+              ssl, fdObject, shc, timeout);
     if (ssl == NULL) {
+        return 0;
+    }
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_read_byte => 0", ssl);
+        return 0;
+    }
+    if (shc == NULL) {
+        jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_read_byte => 0", ssl);
         return 0;
     }
 
@@ -2820,7 +2774,7 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
 
-    int ret = sslRead(env, ssl, reinterpret_cast<char*>(&byteRead), 1,
+    int ret = sslRead(env, ssl, fdObject, shc, reinterpret_cast<char*>(&byteRead), 1,
                       &returnCode, &sslErrorCode, timeout);
 
     int result;
@@ -2855,13 +2809,23 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
  * OpenSSL read function (2): read into buffer at offset n chunks.
  * Returns 1 (success) or value <= 0 (failure).
  */
-static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
-                                  ssl_address, jbyteArray b, jint offset, jint len, jint timeout)
+static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
+                                  jobject shc, jbyteArray b, jint offset, jint len, jint timeout)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read b=%p offset=%d len=%d timeout=%d",
-              ssl, b, offset, len, timeout);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d timeout=%d",
+              ssl, fdObject, shc, b, offset, len, timeout);
     if (ssl == NULL) {
+        return 0;
+    }
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_read => fd == null", ssl);
+        return 0;
+    }
+    if (shc == NULL) {
+        jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_read => sslHandshakeCallbacks == null", ssl);
         return 0;
     }
 
@@ -2873,7 +2837,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
-    int ret = sslRead(env, ssl, reinterpret_cast<char*>(bytes.get() + offset), len,
+    int ret = sslRead(env, ssl, fdObject, shc, reinterpret_cast<char*>(bytes.get() + offset), len,
                       &returnCode, &sslErrorCode, timeout);
 
     int result;
@@ -2912,8 +2876,8 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
  * @return number of bytes read on success, -1 if the connection was
  * cleanly shut down, or THROW_EXCEPTION if an exception should be thrown.
  */
-static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslReturnCode,
-        int* sslErrorCode) {
+static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const char* buf, jint len,
+                    int* sslReturnCode, int* sslErrorCode) {
 
     // LOGD("Entering sslWrite(), caller requests to write %d bytes...", len);
 
@@ -2940,12 +2904,12 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
         // LOGD("Doing SSL_write() with %d bytes to go", len);
-        if (!appData->setEnv(env)) {
+        if (!appData->setCallbackState(env, shc, fdObject)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_SOCKETEXCEPTION;
         }
         int result = SSL_write(ssl, buf, len);
-        appData->clearEnv();
+        appData->clearCallbackState();
         int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
             sslError = SSL_get_error(ssl, result);
@@ -2987,7 +2951,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
             // it's also not standard Java behavior, so we wait forever here.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, appData, 0);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, 0);
                 if (selectResult == THROWN_SOCKETEXCEPTION) {
                     return THROWN_SOCKETEXCEPTION;
                 }
@@ -3037,18 +3001,29 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
 /**
  * OpenSSL write function (1): only one chunk is written.
  */
-static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, jint b)
+static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address,
+                                        jobject fdObject, jobject shc, jint b)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_write_byte b=%d", ssl, b);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_write_byte fd=%p shc=%p b=%d", ssl, fdObject, shc, b);
     if (ssl == NULL) {
+        return;
+    }
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_write_byte => fd == null", ssl);
+        return;
+    }
+    if (shc == NULL) {
+        jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_write_byte => sslHandshakeCallbacks == null", ssl);
         return;
     }
 
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     char buf[1] = { (char) b };
-    int ret = sslWrite(env, ssl, buf, 1, &returnCode, &sslErrorCode);
+    int ret = sslWrite(env, ssl, fdObject, shc, buf, 1, &returnCode, &sslErrorCode);
 
     switch (ret) {
         case THROW_EXCEPTION:
@@ -3069,12 +3044,23 @@ static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, j
 /**
  * OpenSSL write function (2): write into buffer at offset n chunks.
  */
-static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
-        jint ssl_address, jbyteArray b, jint offset, jint len)
+static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
+                                   jobject shc, jbyteArray b, jint offset, jint len)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_write b=%p offset=%d len=%d", ssl, b, offset, len);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d",
+              ssl, fdObject, shc, b, offset, len);
     if (ssl == NULL) {
+        return;
+    }
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_write => fd == null", ssl);
+        return;
+    }
+    if (shc == NULL) {
+        jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_write => sslHandshakeCallbacks == null", ssl);
         return;
     }
 
@@ -3085,8 +3071,8 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
     }
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
-    int ret = sslWrite(env, ssl, reinterpret_cast<const char*>(bytes.get() + offset), len,
-            &returnCode, &sslErrorCode);
+    int ret = sslWrite(env, ssl, fdObject, shc, reinterpret_cast<const char*>(bytes.get() + offset),
+                       len, &returnCode, &sslErrorCode);
 
     switch (ret) {
         case THROW_EXCEPTION:
@@ -3132,15 +3118,27 @@ static void NativeCrypto_SSL_interrupt(
 /**
  * OpenSSL close SSL socket function.
  */
-static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address) {
+static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
+                                      jobject fdObject, jobject shc) {
     SSL* ssl = to_SSL(env, ssl_address, false);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown", ssl);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown fd=%p shc=%p", ssl, fdObject, shc);
     if (ssl == NULL) {
         return;
     }
+    if (fdObject == NULL) {
+        jniThrowNullPointerException(env, "fd == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown => fd == null", ssl);
+        return;
+    }
+    if (shc == NULL) {
+        jniThrowNullPointerException(env, "sslHandshakeCallbacks == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown => sslHandshakeCallbacks == null", ssl);
+        return;
+    }
+
     AppData* appData = toAppData(ssl);
     if (appData != NULL) {
-        if (!appData->setEnv(env)) {
+        if (!appData->setCallbackState(env, shc, fdObject)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
             freeSslErrorState();
@@ -3184,7 +3182,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address) {
                 throwSSLExceptionWithSslErrors(env, ssl, sslError, "SSL shutdown failed");
                 break;
         }
-        appData->clearEnv();
+        appData->clearCallbackState();
     }
 
     SSL_clear(ssl);
@@ -3201,10 +3199,10 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
     if (ssl == NULL) {
         return;
     }
+
     AppData* appData = toAppData(ssl);
     SSL_set_app_data(ssl, NULL);
-    JNI_TRACE("ssl=%p AppData::destroy(%p)", ssl, appData);
-    AppData::destroy(env, appData);
+    delete appData;
     SSL_free(ssl);
 }
 
@@ -3388,11 +3386,8 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
 }
 
-/*
- * Defines the mapping from Java methods and their signatures
- * to native functions. Order is (1) Java name, (2) signature,
- * (3) pointer to C function.
- */
+#define FILE_DESCRIPTOR "Ljava/io/FileDescriptor;"
+#define SSL_CALLBACKS "Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$SSLHandshakeCallbacks;"
 static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
@@ -3431,16 +3426,16 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_set_session_creation_enabled, "(IZ)V"),
     NATIVE_METHOD(NativeCrypto, SSL_set_tlsext_host_name, "(ILjava/lang/String;)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_servername, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$SSLHandshakeCallbacks;IZ)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "IZ)I"),
     NATIVE_METHOD(NativeCrypto, SSL_renegotiate, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_read_byte, "(II)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_read, "(I[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_write_byte, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_write, "(I[BII)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_read_byte, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "I)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_read, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_write_byte, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BII)V"),
     NATIVE_METHOD(NativeCrypto, SSL_interrupt, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I" FILE_DESCRIPTOR SSL_CALLBACKS ")V"),
     NATIVE_METHOD(NativeCrypto, SSL_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_session_id, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(I)J"),
@@ -3455,29 +3450,8 @@ static JNINativeMethod sNativeCryptoMethods[] = {
 int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
     JNI_TRACE("register_org_apache_harmony_xnet_provider_jsse_NativeCrypto");
     // Register org.apache.harmony.xnet.provider.jsse.NativeCrypto methods
-    int result = jniRegisterNativeMethods(env,
-                                          "org/apache/harmony/xnet/provider/jsse/NativeCrypto",
-                                          sNativeCryptoMethods,
-                                          NELEM(sNativeCryptoMethods));
-    if (result == -1) {
-        return -1;
-    }
-
-    // java.net.Socket
-    field_Socket_mImpl =
-            env->GetFieldID(JniConstants::socketClass, "impl", "Ljava/net/SocketImpl;");
-    if (field_Socket_mImpl == NULL) {
-        LOGE("Can't find field impl in class java.net.Socket");
-        return -1;
-    }
-
-    // java.net.SocketImpl
-    field_Socket_mFD =
-            env->GetFieldID(JniConstants::socketImplClass, "fd", "Ljava/io/FileDescriptor;");
-    if (field_Socket_mFD == NULL) {
-        LOGE("Can't find field fd in java.net.SocketImpl");
-        return -1;
-    }
-
-    return 0;
+    return jniRegisterNativeMethods(env,
+                                    "org/apache/harmony/xnet/provider/jsse/NativeCrypto",
+                                    sNativeCryptoMethods,
+                                    NELEM(sNativeCryptoMethods));
 }
