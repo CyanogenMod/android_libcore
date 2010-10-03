@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.Socket;
 
 public final class IoUtils {
     private IoUtils() {
@@ -38,6 +39,18 @@ public final class IoUtils {
             try {
                 closeable.close();
             } catch (IOException ignored) {
+            }
+        }
+    }
+
+    /**
+     * Closes 'socket', ignoring any exceptions. Does nothing if 'socket' is null.
+     */
+    public static void closeQuietly(Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (Exception ignored) {
             }
         }
     }

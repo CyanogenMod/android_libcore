@@ -18,7 +18,6 @@
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
 import java.io.BufferedInputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +33,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import libcore.base.Objects;
+import libcore.io.IoUtils;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
 
 /**
@@ -85,30 +85,12 @@ public final class HttpConnection {
     }
 
     public void closeSocketAndStreams() {
-        closeQuietly(sslOutputStream);
-        closeQuietly(sslInputStream);
-        closeQuietly(sslSocket);
-        closeQuietly(outputStream);
-        closeQuietly(inputStream);
-        closeQuietly(socket);
-    }
-
-    private void closeQuietly(Socket socket) {
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    private void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception ignored) {
-            }
-        }
+        IoUtils.closeQuietly(sslOutputStream);
+        IoUtils.closeQuietly(sslInputStream);
+        IoUtils.closeQuietly(sslSocket);
+        IoUtils.closeQuietly(outputStream);
+        IoUtils.closeQuietly(inputStream);
+        IoUtils.closeQuietly(socket);
     }
 
     public void setSoTimeout(int readTimeout) throws SocketException {

@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import javax.xml.validation.SchemaFactory;
+import libcore.io.IoUtils;
 
 /**
  * Implementation of {@link XPathFactory#newInstance(String)}.
@@ -365,12 +366,7 @@ final class XPathFactoryFinder {
             }
         }
 
-        try {
-            // try to close the reader.
-            rd.close();
-        }
-        // Ignore the exception.
-        catch (IOException exc) {}
+        IoUtils.closeQuietly(rd);
 
         return resultFactory;
     }
