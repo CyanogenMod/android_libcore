@@ -290,7 +290,6 @@ public class RuleBasedCollator extends Collator {
         }
         try {
             this.icuColl = new com.ibm.icu4jni.text.RuleBasedCollator(rules);
-            this.icuColl.setDecomposition(com.ibm.icu4jni.text.Collator.CANONICAL_DECOMPOSITION);
         } catch (Exception e) {
             if (e instanceof ParseException) {
                 throw (ParseException) e;

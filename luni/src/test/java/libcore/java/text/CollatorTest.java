@@ -92,9 +92,7 @@ public class CollatorTest extends junit.framework.TestCase {
         RuleBasedCollator coll = new RuleBasedCollator(rule);
 
         assertEquals(Collator.TERTIARY, coll.getStrength());
-        // This is a harmony test, but it assumes that RuleBasedCollators default to
-        // NO_DECOMPOSITION, which isn't true on Android.
-        // assertEquals(Collator.NO_DECOMPOSITION, coll.getDecomposition());
+        assertEquals(Collator.NO_DECOMPOSITION, coll.getDecomposition());
         RuleBasedCollator other = new RuleBasedCollator(rule);
         assertTrue(coll.equals(other));
 
