@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.logging.tests.java.util.logging;
+package libcore.java.util.logging;
 
-import java.util.ListResourceBundle;
+import java.util.logging.SimpleFormatter;
+import junit.framework.TestCase;
 
-public class LevelTestResource extends ListResourceBundle {
-    public Object[][] getContents() {
-        return contents;
+public class OldSimpleFormatterTest extends TestCase {
+
+    SimpleFormatter sf = new SimpleFormatter();
+
+    public void testSimpleFormatter() {
+        assertEquals("Head for this SimpleFormatter should be empty", "", sf.getHead(null));
+        assertEquals("Tail for this SimpleFormatter should be empty", "", sf.getTail(null));
     }
-
-    @SuppressWarnings("nls")
-    static final Object[][] contents = { { "Level_error", "Name" },
-            { "Localized", "Localized message" }, };
 }
