@@ -42,7 +42,7 @@
 {
   description: "DecimalFormat.parse returns wrong type with multiplier: expected Long but was Double",
   name: "libcore.java.text.OldDecimalFormatTest#test_parseLjava_lang_StringLjava_text_ParsePosition",
-  bug: 33057080
+  bug: 3057080
 },
 {
   description: "DecimalFormat FieldPosition not updated with correct begin and end indices",
@@ -995,5 +995,14 @@
   description: "ZeroBlob not supported",
   result: EXEC_FAILED,
   name: "tests.SQLite.FunctionContextTest#testSet_result_zeroblob"
+},
+{
+  modes: [ "jvm" ],
+  description: "The RI's formatter doesn't localize arabic properly",
+  names: [
+    "libcore.java.util.FormatterTest#test_numberLocalization",
+    "libcore.java.util.FormatterTest#test_uppercaseConversions"
+  ],
+  result: EXEC_FAILED
 }
 ]
