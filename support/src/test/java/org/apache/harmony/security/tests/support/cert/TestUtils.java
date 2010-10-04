@@ -546,177 +546,218 @@ public class TestUtils {
     /**
      * Certificate:
      * <pre>
-    Data:
-        Version: 3 (0x2)
-        Serial Number: 0 (0x0)
-        Signature Algorithm: sha1WithRSAEncryption
-        Issuer: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
-        Validity
-            Not Before: Dec  9 16:35:30 2008 GMT
-            Not After : Dec  9 16:35:30 2011 GMT
-        Subject: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-            RSA Public Key: (1024 bit)
-                Modulus (1024 bit):
-                    00:c5:fb:5e:68:37:82:1d:58:ed:cb:31:8c:08:7f:
-                    51:31:4c:68:40:8c:4d:07:a1:0e:18:36:02:6b:89:
-                    92:c1:cf:88:1e:cf:00:22:00:8c:37:e8:6a:76:94:
-                    71:53:81:78:e1:48:94:fa:16:61:93:eb:a0:ee:62:
-                    9d:6a:d2:2c:b8:77:9d:c9:36:d5:d9:1c:eb:26:3c:
-                    43:66:4d:7b:1c:1d:c7:a1:37:66:e2:84:54:d3:ed:
-                    21:dd:01:1c:ec:9b:0c:1e:35:e9:37:15:9d:2b:78:
-                    a8:3b:11:3a:ee:c2:de:55:44:4c:bd:40:8d:e5:52:
-                    b0:fc:53:33:73:4a:e5:d0:df
-                Exponent: 65537 (0x10001)
-        X509v3 extensions:
-            X509v3 Subject Key Identifier:
-                4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
-            X509v3 Authority Key Identifier:
-                keyid:4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
-                DirName:/C=AN/ST=Android/O=Android/OU=Android/CN=Android/emailAddress=android
-                serial:00
-
-            X509v3 Basic Constraints:
-                CA:TRUE
-    Signature Algorithm: sha1WithRSAEncryption
-        72:4f:12:8a:4e:61:b2:9a:ba:58:17:0b:55:96:f5:66:1c:a8:
-        ba:d1:0f:8b:9b:2d:ab:a8:00:ac:7f:99:7d:f6:0f:d7:85:eb:
-        75:4b:e5:42:37:71:46:b1:4a:b0:1b:17:e4:f9:7c:9f:bd:20:
-        75:35:9f:27:8e:07:95:e8:34:bd:ab:e4:10:5f:a3:7b:4c:56:
-        69:d4:d0:f1:e9:74:15:2d:7f:77:f0:38:77:eb:8a:99:f3:a9:
-        88:f0:63:58:07:b9:5a:61:f8:ff:11:e7:06:a1:d1:f8:85:fb:
-        99:1c:f5:cb:77:86:36:cd:43:37:99:09:c2:9a:d8:f2:28:05:
-        06:0c
-
+     * $ openssl req -x509 -nodes -days 365 -subj '/C=AN/ST=Android/O=Android/OU=Android/CN=Android/emailAddress=android' -newkey rsa:1024 -keyout root.pem -out root.pem -text -days 36500
+     * Generating a 1024 bit RSA private key
+     * ..........................................++++++
+     * .................++++++
+     * writing new private key to 'root.pem'
+     * -----BEGIN RSA PRIVATE KEY-----
+     * MIICXwIBAAKBgQDKS+qP2kgqYBtwY4QoJ5p0yyEl35sBr2ZKtAWn6SL4vXgvaIrj
+     * K7vG93CvG239bXfacniGMEBitedBlcqjdPREEY0DQn3jLXyAOd3tnlKcutNH3RjA
+     * fPlnDWNGKLnDdSd9QZEc0G1MsMg/HrERPm1hMfZQG85zdtbYmi2CJ/jS5wIDAQAB
+     * AoGBAIZhvdSHjS7RHwkeonjGLh1tnnx5OI/7AzmWsrci8L9JpZ/gk3pq39dBIhLA
+     * ZuVVpatwJU4GmY65BYEUz0Kb+3JY0PXagypwQKuWs9wb9C0aRnDVy9DNXkbJ+D+L
+     * DNvyZAG5BNknZapxsFSenR5UO4BY08wIsdBtWD/B7YcMTuvxAkEA9zKP18pJCmku
+     * TUDTJkonF/fGvI4PvsBm6YFyINb130yGzKJKCcEn5j2Fm+wF+lGY7nmtUIgQekRm
+     * WkwbjG/v3wJBANGACjKFVIFvuXH6EoyWx90uYw9C8+m2jOtrRaAMfRyUanCvF2Li
+     * ZYOLThPcxv/QvvQAa7RKJjxsK69Ajm+b3fkCQQCR7xWgTVmlfcbJ8LU265v8uFhp
+     * RGzjLe8Td0oLPRxWQXVrJXwUGiYV9MgF7ubwim+AifDZlBo2NF9Ae6Hf3M19AkEA
+     * nJEGDe+a0gj/HHD5f9wHjgLmwTcWNmnZMu8+X3g14DACxCf2YE4183MebLWoevI0
+     * YwIVe+2WWb21gAnM6RghcQJBALq0RZcYkZoQA8qr9TPuuMzi+fF3Y+4m/pDDcCd5
+     * zXbsroEZPdWPfAXKT95juW9yKdVzeOZHO1uwRWmQ9ZlPMhY=
+     * -----END RSA PRIVATE KEY-----
+     * -----
+     * Certificate:
+     *     Data:
+     *         Version: 3 (0x2)
+     *         Serial Number:
+     *             8a:12:37:ed:2d:ad:02:6e
+     *         Signature Algorithm: sha1WithRSAEncryption
+     *         Issuer: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
+     *         Validity
+     *             Not Before: Oct  4 02:20:28 2010 GMT
+     *             Not After : Sep 10 02:20:28 2110 GMT
+     *         Subject: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
+     *         Subject Public Key Info:
+     *             Public Key Algorithm: rsaEncryption
+     *             RSA Public Key: (1024 bit)
+     *                 Modulus (1024 bit):
+     *                     00:ca:4b:ea:8f:da:48:2a:60:1b:70:63:84:28:27:
+     *                     9a:74:cb:21:25:df:9b:01:af:66:4a:b4:05:a7:e9:
+     *                     22:f8:bd:78:2f:68:8a:e3:2b:bb:c6:f7:70:af:1b:
+     *                     6d:fd:6d:77:da:72:78:86:30:40:62:b5:e7:41:95:
+     *                     ca:a3:74:f4:44:11:8d:03:42:7d:e3:2d:7c:80:39:
+     *                     dd:ed:9e:52:9c:ba:d3:47:dd:18:c0:7c:f9:67:0d:
+     *                     63:46:28:b9:c3:75:27:7d:41:91:1c:d0:6d:4c:b0:
+     *                     c8:3f:1e:b1:11:3e:6d:61:31:f6:50:1b:ce:73:76:
+     *                     d6:d8:9a:2d:82:27:f8:d2:e7
+     *                 Exponent: 65537 (0x10001)
+     *         X509v3 extensions:
+     *             X509v3 Subject Key Identifier:
+     *                 14:7D:36:ED:63:44:BF:4F:DB:7D:28:96:78:6A:E7:EC:CE:2C:40:BF
+     *             X509v3 Authority Key Identifier:
+     *                 keyid:14:7D:36:ED:63:44:BF:4F:DB:7D:28:96:78:6A:E7:EC:CE:2C:40:BF
+     *                 DirName:/C=AN/ST=Android/O=Android/OU=Android/CN=Android/emailAddress=android
+     *                 serial:8A:12:37:ED:2D:AD:02:6E
+     *
+     *             X509v3 Basic Constraints:
+     *                 CA:TRUE
+     *     Signature Algorithm: sha1WithRSAEncryption
+     *         7c:f2:84:c0:ee:40:a5:b9:94:85:19:ab:36:02:1d:17:4b:98:
+     *         f9:b9:c8:c5:1a:b0:c1:4f:0f:1d:1c:e8:c4:cf:c7:87:52:19:
+     *         9e:64:55:35:bb:34:e1:38:2f:27:08:c5:ca:e7:97:02:90:fd:
+     *         27:cd:8e:5a:08:40:f5:34:ff:70:65:c4:d6:1f:70:4f:d6:2c:
+     *         cb:28:d8:ed:91:b7:eb:35:06:cd:0e:02:a8:51:cd:b7:3e:f9:
+     *         85:16:97:31:7b:42:4c:cb:6f:de:4b:dd:ae:5e:9d:ef:84:83:
+     *         89:f9:0f:a6:5f:e4:93:cc:30:b5:e9:1d:f4:08:f4:e6:e9:58:
+     *         4b:ba
+     * -----BEGIN CERTIFICATE-----
+     * MIIDLTCCApagAwIBAgIJAIoSN+0trQJuMA0GCSqGSIb3DQEBBQUAMG0xCzAJBgNV
+     * BAYTAkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQKEwdBbmRyb2lkMRAwDgYD
+     * VQQLEwdBbmRyb2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYwFAYJKoZIhvcNAQkBFgdh
+     * bmRyb2lkMCAXDTEwMTAwNDAyMjAyOFoYDzIxMTAwOTEwMDIyMDI4WjBtMQswCQYD
+     * VQQGEwJBTjEQMA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4G
+     * A1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYH
+     * YW5kcm9pZDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAykvqj9pIKmAbcGOE
+     * KCeadMshJd+bAa9mSrQFp+ki+L14L2iK4yu7xvdwrxtt/W132nJ4hjBAYrXnQZXK
+     * o3T0RBGNA0J94y18gDnd7Z5SnLrTR90YwHz5Zw1jRii5w3UnfUGRHNBtTLDIPx6x
+     * ET5tYTH2UBvOc3bW2Jotgif40ucCAwEAAaOB0jCBzzAdBgNVHQ4EFgQUFH027WNE
+     * v0/bfSiWeGrn7M4sQL8wgZ8GA1UdIwSBlzCBlIAUFH027WNEv0/bfSiWeGrn7M4s
+     * QL+hcaRvMG0xCzAJBgNVBAYTAkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQK
+     * EwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRyb2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYw
+     * FAYJKoZIhvcNAQkBFgdhbmRyb2lkggkAihI37S2tAm4wDAYDVR0TBAUwAwEB/zAN
+     * BgkqhkiG9w0BAQUFAAOBgQB88oTA7kCluZSFGas2Ah0XS5j5ucjFGrDBTw8dHOjE
+     * z8eHUhmeZFU1uzThOC8nCMXK55cCkP0nzY5aCED1NP9wZcTWH3BP1izLKNjtkbfr
+     * NQbNDgKoUc23PvmFFpcxe0JMy2/eS92uXp3vhIOJ+Q+mX+STzDC16R30CPTm6VhL
+     * ug==
+     * -----END CERTIFICATE-----
+     * $
      * </pre>
      */
-    public static final String rootCert = "-----BEGIN CERTIFICATE-----\n" +
-    "MIIDGzCCAoSgAwIBAgIBADANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" +
-    "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" +
-    "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" +
-    "Fw0wODEyMDkxNjM1MzBaFw0xMTEyMDkxNjM1MzBaMG0xCzAJBgNVBAYTAkFOMRAw\n" +
-    "DgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQKEwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRy\n" +
-    "b2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYwFAYJKoZIhvcNAQkBFgdhbmRyb2lkMIGf\n" +
-    "MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDF+15oN4IdWO3LMYwIf1ExTGhAjE0H\n" +
-    "oQ4YNgJriZLBz4gezwAiAIw36Gp2lHFTgXjhSJT6FmGT66DuYp1q0iy4d53JNtXZ\n" +
-    "HOsmPENmTXscHcehN2bihFTT7SHdARzsmwweNek3FZ0reKg7ETruwt5VREy9QI3l\n" +
-    "UrD8UzNzSuXQ3wIDAQABo4HKMIHHMB0GA1UdDgQWBBRL4yIUrQoURrdSMYurnlpi\n" +
-    "85g3gDCBlwYDVR0jBIGPMIGMgBRL4yIUrQoURrdSMYurnlpi85g3gKFxpG8wbTEL\n" +
-    "MAkGA1UEBhMCQU4xEDAOBgNVBAgTB0FuZHJvaWQxEDAOBgNVBAoTB0FuZHJvaWQx\n" +
-    "EDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWQxFjAUBgkqhkiG9w0B\n" +
-    "CQEWB2FuZHJvaWSCAQAwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQBy\n" +
-    "TxKKTmGymrpYFwtVlvVmHKi60Q+Lmy2rqACsf5l99g/Xhet1S+VCN3FGsUqwGxfk\n" +
-    "+XyfvSB1NZ8njgeV6DS9q+QQX6N7TFZp1NDx6XQVLX938Dh364qZ86mI8GNYB7la\n" +
-    "Yfj/EecGodH4hfuZHPXLd4Y2zUM3mQnCmtjyKAUGDA==\n" +
-    "-----END CERTIFICATE-----";
-
-    public static final String rootPrivateKey =
-         "-----BEGIN RSA PRIVATE KEY-----\n" +
-         "Proc-Type: 4,ENCRYPTED\n" +
-         "DEK-Info: DES-EDE3-CBC,D9682F66FDA316E5\n" +
-         "\n" +
-         "8lGaQPlUZ/iHhdldB//xfNUrZ3RAkBthzKg+n9HBJsjztXXAZ40NGYZmgvpgnfmr\n" +
-         "7ZJxHxYHFc3GAmBBk9v+/dA8E5yWJa71roffWMQUuFNfGzHhGTOxvNC04W7yAajs\n" +
-         "CPuyI+xnAAo73F7NVTiqX3NVgu4bB8RVxJyToMe4M289oh93YvxWQ4buVTf0ErJ8\n" +
-         "Yc8+0ugpfXjGfRhL36qj6B1CcV7NMdXAVExrGlTf0TWT9wVbiROk4XaoaFuWh17h\n" +
-         "11NEDjsKQ8T4M9kRdC+tKfST8sLik1Pq6jRLIKeX8GQd7tV1IWVZ3KcQBJwu9zLq\n" +
-         "Hi0GTSF7IWCdwXjDyniMQiSbkmHNP+OnVyhaqew5Ooh0uOEQq/KWFewXg7B3VMr0\n" +
-         "l6U8sBX9ODGeW0wVdNopvl17udCkV0xm3S+MRZDnZiTlAXwKx/a/gyf5R5XYp3S0\n" +
-         "0eqrfy2o6Ax4hRkwcNJ2KMeLQNIiYYWKABQj5/i4TYZV6npCIXOnQEkXa9DmqyUE\n" +
-         "qB7eFj5FcXeqQ8ERmsLveWArsLDn2NNPdv5EaKIs2lrvwoKYeYF7hrKNpifq+QqS\n" +
-         "u1kN+KHjibcF42EAUozNVmkHsW8VqlywAs4MsMwxU0D57cVGWycuSedraKhc0D6j\n" +
-         "a4pQOWWY3ZMLoAA1ZmHG9cjDPqcJt0rqk5AhSBRmGVUccfkP7dk9KyJQizro87LI\n" +
-         "u7zWwMIqTfmlhyfAP0AWjrt/bMN9heGByVA55xkyCdSEVaC5gsIfmGpNy4u+wbZ9\n" +
-         "rSWVuTfAbjW0n0FW+CDS1LgdjXNkeAP2Uvc1QgVRCPdA23WniLFFJQ==\n" +
-         "-----END RSA PRIVATE KEY-----";
+    public static final String rootCert = ""
+            + "-----BEGIN CERTIFICATE-----\n"
+            + "MIIDLTCCApagAwIBAgIJAIoSN+0trQJuMA0GCSqGSIb3DQEBBQUAMG0xCzAJBgNV\n"
+            + "BAYTAkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQKEwdBbmRyb2lkMRAwDgYD\n"
+            + "VQQLEwdBbmRyb2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYwFAYJKoZIhvcNAQkBFgdh\n"
+            + "bmRyb2lkMCAXDTEwMTAwNDAyMjAyOFoYDzIxMTAwOTEwMDIyMDI4WjBtMQswCQYD\n"
+            + "VQQGEwJBTjEQMA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4G\n"
+            + "A1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYH\n"
+            + "YW5kcm9pZDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAykvqj9pIKmAbcGOE\n"
+            + "KCeadMshJd+bAa9mSrQFp+ki+L14L2iK4yu7xvdwrxtt/W132nJ4hjBAYrXnQZXK\n"
+            + "o3T0RBGNA0J94y18gDnd7Z5SnLrTR90YwHz5Zw1jRii5w3UnfUGRHNBtTLDIPx6x\n"
+            + "ET5tYTH2UBvOc3bW2Jotgif40ucCAwEAAaOB0jCBzzAdBgNVHQ4EFgQUFH027WNE\n"
+            + "v0/bfSiWeGrn7M4sQL8wgZ8GA1UdIwSBlzCBlIAUFH027WNEv0/bfSiWeGrn7M4s\n"
+            + "QL+hcaRvMG0xCzAJBgNVBAYTAkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQK\n"
+            + "EwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRyb2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYw\n"
+            + "FAYJKoZIhvcNAQkBFgdhbmRyb2lkggkAihI37S2tAm4wDAYDVR0TBAUwAwEB/zAN\n"
+            + "BgkqhkiG9w0BAQUFAAOBgQB88oTA7kCluZSFGas2Ah0XS5j5ucjFGrDBTw8dHOjE\n"
+            + "z8eHUhmeZFU1uzThOC8nCMXK55cCkP0nzY5aCED1NP9wZcTWH3BP1izLKNjtkbfr\n"
+            + "NQbNDgKoUc23PvmFFpcxe0JMy2/eS92uXp3vhIOJ+Q+mX+STzDC16R30CPTm6VhL\n"
+            + "ug==\n"
+            + "-----END CERTIFICATE-----\n";
 
     /**
      * Certificate:
      * <pre>
-    Data:
-        Version: 3 (0x2)
-        Serial Number: 1 (0x1)
-        Signature Algorithm: sha1WithRSAEncryption
-        Issuer: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
-        Validity
-            Not Before: Dec  9 16:40:35 2008 GMT
-            Not After : Dec  9 16:40:35 2009 GMT
-        Subject: C=AN, ST=Android, L=Android, O=Android, OU=Android, CN=Android Certificate/emailAddress=android
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-            RSA Public Key: (1024 bit)
-                Modulus (1024 bit):
-                    00:b8:e3:de:c7:a9:40:47:2c:2a:6f:f5:2a:f4:cd:
-                    f2:2d:40:fa:15:3f:1c:37:66:73:a5:67:4d:5b:a0:
-                    b6:b1:dd:dc:bf:01:c7:e2:c1:48:1a:8f:1c:ce:ec:
-                    b0:a2:55:29:9a:1b:3a:6e:cc:7b:d7:65:ae:0b:05:
-                    34:03:8a:af:db:f0:dc:01:80:92:03:b4:13:e5:d6:
-                    fd:79:66:7f:c3:1a:62:d5:5e:3d:c0:19:a4:42:15:
-                    47:19:e6:f0:c8:b7:e2:7b:82:a2:c7:3d:df:ac:8c:
-                    d5:bc:39:b8:e5:93:ac:3f:af:30:b7:cc:00:a8:00:
-                    f3:38:23:b0:97:0e:92:b1:1b
-                Exponent: 65537 (0x10001)
-        X509v3 extensions:
-            X509v3 Basic Constraints:
-                CA:FALSE
-            Netscape Comment:
-                OpenSSL Generated Certificate
-            X509v3 Subject Key Identifier:
-                88:4D:EC:16:26:A7:76:F5:26:43:BC:34:99:DF:D5:EA:7B:F8:5F:DE
-            X509v3 Authority Key Identifier:
-                keyid:4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
-
-    Signature Algorithm: sha1WithRSAEncryption
-        55:73:95:e6:4c:40:fc:fd:52:8a:5f:83:15:49:73:ca:f3:d8:
-        5f:bb:d6:f5:2e:90:e6:7f:c3:7d:4d:27:d3:45:c6:53:9b:aa:
-        e3:32:99:40:b3:a9:d3:14:7d:d5:e6:a7:70:95:30:6e:dc:8c:
-        7b:48:e1:98:d1:65:7a:eb:bf:b0:5c:cd:c2:eb:31:5e:b6:e9:
-        df:56:95:bc:eb:79:74:27:5b:6d:c8:55:63:09:d3:f9:e2:40:
-        ba:b4:a2:c7:2c:cb:b1:3a:c2:d8:0c:21:31:ee:68:7e:97:ce:
-        98:22:2e:c6:cf:f0:1a:11:04:ca:9a:06:de:98:48:85:ac:6c:
-        6f:98
+     * $ openssl req -nodes -days 365 -subj '/C=AN/ST=Android/L=Android/O=Android/OU=Android/CN=Android Certificate/emailAddress=android' -newkey rsa:1024 -keyout certreq.pem -out certreq.pem -text -days 36500
+     * Generating a 1024 bit RSA private key
+     * .......++++++
+     * ......................++++++
+     * writing new private key to 'certreq.pem'
+     * -----
+     * $ openssl x509 -req -in certreq.pem -CA root.pem -CAcreateserial -out cert.pem -days 36500
+     * Signature ok
+     * subject=/C=AN/ST=Android/L=Android/O=Android/OU=Android/CN=Android Certificate/emailAddress=android
+     * Getting Private key
+     * $ rm root.srl
+     * $ openssl rsa -in certreq.pem
+     * writing RSA key
+     * -----BEGIN RSA PRIVATE KEY-----
+     * MIICXQIBAAKBgQDGvQZRB7fsuLvnZ0Sx43sTCkvwv/SEYrzRumyV16OC+lvKGC2X
+     * lYW9qv7of88hqSVq5823MB+uEP1xZLWaiKkYyEn72RwgV/HqB8KEgGYXEbMKKzUv
+     * j0D1X8kZ/EDGqsZjFKlk/7sZYcg3UqCcGUiEEszTadhyJ6FcowHM1EhrcQIDAQAB
+     * AoGAS4CQn8Qw6ewc5wLipDpqDYfB5grnGExys7MBgcPUyPPYX2TkHUye7LnD8gxs
+     * YrtiDcVW8BuGTZkC0EuUesskgiwGLimNiU3vU3LwH7OvtfUTMdvhv9nd2GFlfiQo
+     * PfwhITZ85GwhDkhiBBXjToDcNc0ntXVgACNAKU1ZlJyoyukCQQDwsGmD0GwKFtJH
+     * cGXI+IK0aB+pXjujZJU/Ikg+eTPMSWDsKD6ReZu9uJJc8W36Xiki/No1/NZvj0gB
+     * MwgIkwh7AkEA02FzaGcWLFSHaRfV1wpx1F3Iuu3X2wWqTzBlhGG9ZDQyy7gWZqHJ
+     * jElCdajiMnbh0mk62hobYy4FcLuvkkJWAwJBAK7FKpkQaqMY1zAQqZg4+4/MW9E8
+     * H8oRa14gopzanYYlcj+JKYWw7CnjMERU+yrl3LEPMdQp9/uh6wMT7y1qtqkCQCNG
+     * mxTsRzYEsUhnkuc9Nfvj3tDbSm+hxWdLw1VRXmLvlx6KTSq5i0IfI7kxAva7Ajq0
+     * Fv845iMqFfxXRhiZe3MCQQCxD0vLzEBegLQPgiavGXfBnRPrRrXgkuAJg7Fq/1Vt
+     * 3InSGat3Tv8GW+pCWWVgmV8iQ4wWReg+Bd03SCSP5uAY
+     * -----END RSA PRIVATE KEY-----
+     * $ openssl x509 -in cert.pem -text
+     * Certificate:
+     *     Data:
+     *         Version: 1 (0x0)
+     *         Serial Number:
+     *             89:34:5f:d5:01:2e:a2:2b
+     *         Signature Algorithm: sha1WithRSAEncryption
+     *         Issuer: C=AN, ST=Android, O=Android, OU=Android, CN=Android/emailAddress=android
+     *         Validity
+     *             Not Before: Oct  4 04:41:54 2010 GMT
+     *             Not After : Sep 10 04:41:54 2110 GMT
+     *         Subject: C=AN, ST=Android, L=Android, O=Android, OU=Android, CN=Android Certificate/emailAddress=android
+     *         Subject Public Key Info:
+     *             Public Key Algorithm: rsaEncryption
+     *             RSA Public Key: (1024 bit)
+     *                 Modulus (1024 bit):
+     *                     00:c6:bd:06:51:07:b7:ec:b8:bb:e7:67:44:b1:e3:
+     *                     7b:13:0a:4b:f0:bf:f4:84:62:bc:d1:ba:6c:95:d7:
+     *                     a3:82:fa:5b:ca:18:2d:97:95:85:bd:aa:fe:e8:7f:
+     *                     cf:21:a9:25:6a:e7:cd:b7:30:1f:ae:10:fd:71:64:
+     *                     b5:9a:88:a9:18:c8:49:fb:d9:1c:20:57:f1:ea:07:
+     *                     c2:84:80:66:17:11:b3:0a:2b:35:2f:8f:40:f5:5f:
+     *                     c9:19:fc:40:c6:aa:c6:63:14:a9:64:ff:bb:19:61:
+     *                     c8:37:52:a0:9c:19:48:84:12:cc:d3:69:d8:72:27:
+     *                     a1:5c:a3:01:cc:d4:48:6b:71
+     *                 Exponent: 65537 (0x10001)
+     *     Signature Algorithm: sha1WithRSAEncryption
+     *         80:06:54:ba:4c:a2:0d:2e:6b:d5:b0:b1:89:b2:fa:c2:fd:d6:
+     *         02:ab:74:af:fb:1c:bc:47:43:58:89:57:80:ad:59:79:e9:2e:
+     *         d9:60:a7:a6:0f:9c:10:9f:e1:80:a1:66:19:59:7e:11:28:17:
+     *         17:0a:1d:e9:8d:78:e8:c2:61:36:03:fc:42:b1:54:bd:28:39:
+     *         3c:48:fd:3c:79:e7:ca:1a:16:c3:8a:77:42:07:96:14:8c:d2:
+     *         51:ca:8e:db:b8:82:31:84:5e:3f:68:b1:a5:f0:96:ae:a9:ca:
+     *         86:f3:01:76:63:98:65:dd:41:81:11:d7:71:c8:ae:17:c7:20:
+     *         e7:22
+     * -----BEGIN CERTIFICATE-----
+     * MIICcjCCAdsCCQCJNF/VAS6iKzANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJB
+     * TjEQMA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMH
+     * QW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9p
+     * ZDAgFw0xMDEwMDQwNDQxNTRaGA8yMTEwMDkxMDA0NDE1NFowgYsxCzAJBgNVBAYT
+     * AkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQHEwdBbmRyb2lkMRAwDgYDVQQK
+     * EwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRyb2lkMRwwGgYDVQQDExNBbmRyb2lkIENl
+     * cnRpZmljYXRlMRYwFAYJKoZIhvcNAQkBFgdhbmRyb2lkMIGfMA0GCSqGSIb3DQEB
+     * AQUAA4GNADCBiQKBgQDGvQZRB7fsuLvnZ0Sx43sTCkvwv/SEYrzRumyV16OC+lvK
+     * GC2XlYW9qv7of88hqSVq5823MB+uEP1xZLWaiKkYyEn72RwgV/HqB8KEgGYXEbMK
+     * KzUvj0D1X8kZ/EDGqsZjFKlk/7sZYcg3UqCcGUiEEszTadhyJ6FcowHM1EhrcQID
+     * AQABMA0GCSqGSIb3DQEBBQUAA4GBAIAGVLpMog0ua9WwsYmy+sL91gKrdK/7HLxH
+     * Q1iJV4CtWXnpLtlgp6YPnBCf4YChZhlZfhEoFxcKHemNeOjCYTYD/EKxVL0oOTxI
+     * /Tx558oaFsOKd0IHlhSM0lHKjtu4gjGEXj9osaXwlq6pyobzAXZjmGXdQYER13HI
+     * rhfHIOci
+     * -----END CERTIFICATE-----
+     * $
      * </pre>
      */
-    public static final String  endCert =
-        "-----BEGIN CERTIFICATE-----\n" +
-        "MIIC6jCCAlOgAwIBAgIBATANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" +
-        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" +
-        "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" +
-        "Fw0wODEyMDkxNjQwMzVaFw0wOTEyMDkxNjQwMzVaMIGLMQswCQYDVQQGEwJBTjEQ\n" +
-        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEBxMHQW5kcm9pZDEQMA4GA1UEChMHQW5k\n" +
-        "cm9pZDEQMA4GA1UECxMHQW5kcm9pZDEcMBoGA1UEAxMTQW5kcm9pZCBDZXJ0aWZp\n" +
-        "Y2F0ZTEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDCBnzANBgkqhkiG9w0BAQEFAAOB\n" +
-        "jQAwgYkCgYEAuOPex6lARywqb/Uq9M3yLUD6FT8cN2ZzpWdNW6C2sd3cvwHH4sFI\n" +
-        "Go8czuywolUpmhs6bsx712WuCwU0A4qv2/DcAYCSA7QT5db9eWZ/wxpi1V49wBmk\n" +
-        "QhVHGebwyLfie4Kixz3frIzVvDm45ZOsP68wt8wAqADzOCOwlw6SsRsCAwEAAaN7\n" +
-        "MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQg\n" +
-        "Q2VydGlmaWNhdGUwHQYDVR0OBBYEFIhN7BYmp3b1JkO8NJnf1ep7+F/eMB8GA1Ud\n" +
-        "IwQYMBaAFEvjIhStChRGt1Ixi6ueWmLzmDeAMA0GCSqGSIb3DQEBBQUAA4GBAFVz\n" +
-        "leZMQPz9UopfgxVJc8rz2F+71vUukOZ/w31NJ9NFxlObquMymUCzqdMUfdXmp3CV\n" +
-        "MG7cjHtI4ZjRZXrrv7BczcLrMV626d9WlbzreXQnW23IVWMJ0/niQLq0oscsy7E6\n" +
-        "wtgMITHuaH6XzpgiLsbP8BoRBMqaBt6YSIWsbG+Y\n" +
-        "-----END CERTIFICATE-----";
-
-    public static final String endPrivateKey =
-        "-----BEGIN RSA PRIVATE KEY-----\n" +
-        "Proc-Type: 4,ENCRYPTED\n" +
-        "DEK-Info: DES-EDE3-CBC,E20AAB000D1D90B1\n" +
-        "\n" +
-        "cWrCb6eHuwb6/gnbX12Va47qSpFW0j99Lq2eEj0fqLdlwA6+KvD3/U+Nj4ldaAQ4\n" +
-        "rYryQv0MJu/kT9z/mJbBI4NwunX/9vXttyuh8s07sv8AqdHCylYR9miz61Q0LkLR\n" +
-        "9H9D8NWMgMnuVhlj+NUXlkF+Jfriu5xkIqeYDhN8c3/AMawQoNdW/pWmgz0BfFIP\n" +
-        "DUxszfXHx5mfSMoRdC2YZGlFdsONSO7s14Ayz8+pKD0PzSARXtTEJ5+mELCnhFsw\n" +
-        "R7zYYwD+9WjL702bjYQxwRS5Sk1Z/VAxLFfjdtlUFSi6VLGIG+jUnM1RF91KtJY1\n" +
-        "bJOQrlHw9/wyH75y9sXUrVpil4qH9shILHgu4A0VaL7IpIFjWS9vPY7SvwqRlbk7\n" +
-        "QPhxoIpiNzjzjEa7PG6nSqy8mRzJP0OLWzRUoMWJn6ntf+oj7CzaaIgFrrwRGOCQ\n" +
-        "BYibTTMZ/paxKDvZ9Lcl8a6uRvi2II2/F63bPcTcILsKDsBdQp93Evanw1QKXdGi\n" +
-        "jb4b0Y1LYZM0jl7z2TSBZ27HyHKp4jMQP9q9mujEKInjzSB+gsRGfP6++OilrR2U\n" +
-        "Y7kN2o/ufnPHltel0pUWOHr45IyK8zowgXWtKVl9U+VRwr2thGbdqkRGk55KjJK4\n" +
-        "Q+OfwvIKHgvn/4cN/BGIA/52eyY//bTFk6ePGY2vlQK4mvB7MeSxtxoCGxdCYQru\n" +
-        "wI28rOHyQ1cdx141yxlKVSIcxBVZHm8sfh9PHeKMKuaOgc8kfx+Qh8IghFHyJ+yg\n" +
-        "PboNF9/PiM/glaaBzY2OKTYQKY6LiTetZiI6RdLE7Y+SFwG7Wwo5dg==\n" +
-        "-----END RSA PRIVATE KEY-----";
+    public static final String  endCert = ""
+            + "-----BEGIN CERTIFICATE-----\n"
+            + "MIICcjCCAdsCCQCJNF/VAS6iKzANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJB\n"
+            + "TjEQMA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMH\n"
+            + "QW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9p\n"
+            + "ZDAgFw0xMDEwMDQwNDQxNTRaGA8yMTEwMDkxMDA0NDE1NFowgYsxCzAJBgNVBAYT\n"
+            + "AkFOMRAwDgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQHEwdBbmRyb2lkMRAwDgYDVQQK\n"
+            + "EwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRyb2lkMRwwGgYDVQQDExNBbmRyb2lkIENl\n"
+            + "cnRpZmljYXRlMRYwFAYJKoZIhvcNAQkBFgdhbmRyb2lkMIGfMA0GCSqGSIb3DQEB\n"
+            + "AQUAA4GNADCBiQKBgQDGvQZRB7fsuLvnZ0Sx43sTCkvwv/SEYrzRumyV16OC+lvK\n"
+            + "GC2XlYW9qv7of88hqSVq5823MB+uEP1xZLWaiKkYyEn72RwgV/HqB8KEgGYXEbMK\n"
+            + "KzUvj0D1X8kZ/EDGqsZjFKlk/7sZYcg3UqCcGUiEEszTadhyJ6FcowHM1EhrcQID\n"
+            + "AQABMA0GCSqGSIb3DQEBBQUAA4GBAIAGVLpMog0ua9WwsYmy+sL91gKrdK/7HLxH\n"
+            + "Q1iJV4CtWXnpLtlgp6YPnBCf4YChZhlZfhEoFxcKHemNeOjCYTYD/EKxVL0oOTxI\n"
+            + "/Tx558oaFsOKd0IHlhSM0lHKjtu4gjGEXj9osaXwlq6pyobzAXZjmGXdQYER13HI\n"
+            + "rhfHIOci\n"
+            + "-----END CERTIFICATE-----\n";
 
     /**
      * a self signed certificate
@@ -741,7 +782,6 @@ public class TestUtils {
         rootCertificateSS = (X509Certificate) cf.generateCertificate(bi);
         bi = new ByteArrayInputStream(endCert.getBytes());
         endCertificate = (X509Certificate) cf.generateCertificate(bi);
-
         BigInteger revokedSerialNumber = BigInteger.valueOf(1);
         crl = new MyCRL("X.509");
 //        X509CRL rootCRL = X509CRL;
@@ -763,7 +803,7 @@ public class TestUtils {
         theCertSelector.setIssuer(endCertificate.getIssuerX500Principal()
                 .getEncoded());
 
-     // build the path
+        // build the path
         builder = CertPathBuilder.getInstance("PKIX");
 
     }
@@ -771,22 +811,13 @@ public class TestUtils {
     public static CertPathBuilder getCertPathBuilder() {
         if (builder == null) {
             throw new RuntimeException(
-            "Call initCertPathSSCertChain prior to buildCertPath");
+            "Call initCertPathSSCertChain prior to initCertPathSSCertChain");
         }
         return builder;
     }
 
-    public static CertPath buildCertPathSSCertChain()
-            throws InvalidAlgorithmParameterException {
-
-        CertPathBuilderResult result;
-        CertPathParameters buildParams = getCertPathParameters();
-        try {
-            result = builder.build(buildParams);
-        } catch (CertPathBuilderException e) {
-            return null;
-        }
-        return result.getCertPath();
+    public static CertPath buildCertPathSSCertChain() throws Exception {
+        return builder.build(getCertPathParameters()).getCertPath();
     }
 
     public static CertPathParameters getCertPathParameters()
@@ -796,7 +827,6 @@ public class TestUtils {
             throw new RuntimeException(
                     "Call initCertPathSSCertChain prior to buildCertPath");
         }
-        PKIXCertPathBuilderResult result = null;
         PKIXBuilderParameters buildParams = new PKIXBuilderParameters(
                 Collections.singleton(new TrustAnchor(rootCertificateSS, null)),
                 theCertSelector);
