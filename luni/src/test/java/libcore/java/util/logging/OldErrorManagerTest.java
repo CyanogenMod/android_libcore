@@ -15,37 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.logging.tests.java.util.logging;
-
-import junit.framework.TestCase;
-
-import org.apache.harmony.logging.tests.java.util.logging.HandlerTest.NullOutputStream;
+package libcore.java.util.logging;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.logging.ErrorManager;
+import junit.framework.TestCase;
 
-public class ErrorManagerTest extends TestCase {
-
+public class OldErrorManagerTest extends TestCase {
 
     private final PrintStream err = System.err;
     private final PrintStream out = System.out;
-
-    private OutputStream errSubstituteStream = null;
-
-    public void setUp() throws Exception{
-        super.setUp();
-        errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));
-    }
 
     public void tearDown() throws Exception{
         System.setErr(err);
         System.setOut(out);
         super.tearDown();
     }
-
 
     public void test_errorCheck() {
         ErrorManager em = new ErrorManager();
@@ -55,25 +41,7 @@ public class ErrorManagerTest extends TestCase {
         System.setOut(st);
         em.error("supertest", null, ErrorManager.GENERIC_FAILURE);
         st.flush();
-
-       assertTrue("message appears (supertest)", aos.getWrittenData().indexOf("supertest") != -1);
-    }
-
-    public void test_errorStringStringint() {
-        ErrorManager em = new ErrorManager();
-        em.error(null, new NullPointerException(),
-                        ErrorManager.GENERIC_FAILURE);
-        em.error("An error message.", null, ErrorManager.GENERIC_FAILURE);
-        em.error(null, null, ErrorManager.GENERIC_FAILURE);
-    }
-
-    public void test_constants() {
-        assertEquals(3, ErrorManager.CLOSE_FAILURE);
-        assertEquals(2, ErrorManager.FLUSH_FAILURE);
-        assertEquals(5, ErrorManager.FORMAT_FAILURE);
-        assertEquals(0, ErrorManager.GENERIC_FAILURE);
-        assertEquals(4, ErrorManager.OPEN_FAILURE);
-        assertEquals(1, ErrorManager.WRITE_FAILURE);
+        assertTrue("message appears (supertest)", aos.getWrittenData().indexOf("supertest") != -1);
     }
 
     public class MockStream extends ByteArrayOutputStream {
@@ -94,8 +62,5 @@ public class ErrorManagerTest extends TestCase {
         }
 
         public String getWrittenData() {return linesWritten.toString();}
-
     }
-
-
 }
