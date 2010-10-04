@@ -31,7 +31,7 @@ public class FormatterTest extends junit.framework.TestCase {
         assertEquals("12 \u0661\u066c\u0662\u0663\u0664\u066c\u0665\u0666\u0667\u066c\u0668\u0669\u0660 34",
                 String.format(arabic, "12 %,d 34", 1234567890));
         // And three localized floating point formats:
-        assertEquals("12 \u0661\u066b\u0662\u0663\u0660e+\u0660\u0660 34",
+        assertEquals("12 \u0661\u066b\u0662\u0663\u0660\u0627\u0633+\u0660\u0660 34",
                 String.format(arabic, "12 %.3e 34", 1.23));
         assertEquals("12 \u0661\u066b\u0662\u0663\u0660 34",
                 String.format(arabic, "12 %.3f 34", 1.23));
