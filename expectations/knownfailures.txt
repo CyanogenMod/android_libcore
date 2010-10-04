@@ -230,15 +230,6 @@
   name: "tests.java.security.SecureClassLoaderTest#testSecureClassLoaderClassLoader"
 },
 {
-  description: "expired certificate bug 2322662",
-  result: EXEC_FAILED,
-  names: [
-    "tests.security.cert.CertPathBuilder1Test#testBuild",
-    "tests.security.cert.CertPathTest#testSerializationCompatibility",
-    "tests.security.cert.CertPathTest#testSerializationSelf"
-  ]
-},
-{
   description: "Assertion does not evaluate to true... Works in javax.Certificate",
   result: EXEC_FAILED,
   name: "tests.security.cert.CertificateTest#testGetEncoded"
