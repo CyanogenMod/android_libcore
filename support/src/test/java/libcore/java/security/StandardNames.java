@@ -370,9 +370,6 @@ public final class StandardNames extends Assert {
             // TODO add to JDKAlgorithmParameters perhaps as wrapper on PBES2Parameters
             // For now, can use AlgorithmParametersSpec javax.crypto.spec.PBEParameterSpec instead
             unprovide("AlgorithmParameters", "PBEWithMD5AndDES"); // 1.2.840.113549.1.5.3
-
-            // missing from Bouncy Castle
-            unprovide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
         }
     }
 
