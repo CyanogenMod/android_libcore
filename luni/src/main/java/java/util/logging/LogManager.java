@@ -37,6 +37,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import libcore.io.IoUtils;
 
 /**
  * {@code LogManager} is used to maintain configuration properties of the
@@ -368,12 +369,11 @@ public class LogManager {
     public void readConfiguration() throws IOException {
         // check config class
         String configClassName = System.getProperty("java.util.logging.config.class");
-        if (null == configClassName
-                || null == getInstanceByClass(configClassName)) {
+        if (configClassName == null || getInstanceByClass(configClassName) == null) {
             // if config class failed, check config file
             String configFile = System.getProperty("java.util.logging.config.file");
 
-            if (null == configFile) {
+            if (configFile == null) {
                 // if cannot find configFile, use default logging.properties
                 configFile = System.getProperty("java.home") + File.separator + "lib" +
                         File.separator + "logging.properties";
@@ -381,27 +381,18 @@ public class LogManager {
 
             InputStream input = null;
             try {
-                // BEGIN android-removed
-                // input = new BufferedInputStream(new FileInputStream(configFile));
-                // END android-removed
-
-                // BEGIN android-added
                 try {
-                    input = new BufferedInputStream(new FileInputStream(configFile));
-                } catch (Exception ex) {
-                    // consult fixed resource as a last resort
-                    input = new BufferedInputStream(
-                            getClass().getResourceAsStream("logging.properties"));
-                }
-                // END android-added
-                readConfiguration(input);
-            } finally {
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (Exception e) {// ignore
+                    input = new FileInputStream(configFile);
+                } catch (IOException exception) {
+                    // fall back to using the built-in logging.properties file
+                    input = LogManager.class.getResourceAsStream("logging.properties");
+                    if (input == null) {
+                        throw exception;
                     }
                 }
+                readConfiguration(new BufferedInputStream(input));
+            } finally {
+                IoUtils.closeQuietly(input);
             }
         }
     }
