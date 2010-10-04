@@ -22,11 +22,6 @@
 
 package org.apache.harmony.testframework.serialization;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,7 +38,6 @@ import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import libcore.base.Objects;
@@ -67,7 +61,6 @@ import libcore.base.Objects;
  * <b>&quot;RESOURCE_DIR&quot; </b> system property.
  *
  */
-@TestTargetClass(Serializable.class)
 public abstract class SerializationTest extends TestCase {
 
     /**
@@ -134,12 +127,6 @@ public abstract class SerializationTest extends TestCase {
      * exceptions, and that deserialization really produces deeply cloned
      * objects.
      */
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!Serialization",
-        args = {}
-    )
     public void testSelf() throws Throwable {
 
         if (this instanceof SerializableAssert) {
@@ -155,12 +142,6 @@ public abstract class SerializationTest extends TestCase {
      * compatibility with Reference Implementation.
      */
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!Serialization",
-        args = {}
-    )
     public void testGolden() throws Throwable {
 
         verifyGolden(this, getData());

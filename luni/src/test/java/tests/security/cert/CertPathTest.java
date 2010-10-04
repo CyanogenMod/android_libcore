@@ -22,31 +22,20 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
+import java.io.ObjectStreamException;
+import java.security.cert.CertPath;
+import java.security.cert.CertificateEncodingException;
+import java.util.Arrays;
 import junit.framework.TestCase;
-
 import org.apache.harmony.security.tests.support.cert.MyCertPath;
 import org.apache.harmony.security.tests.support.cert.MyFailingCertPath;
 import org.apache.harmony.security.tests.support.cert.TestUtils;
 import org.apache.harmony.testframework.serialization.SerializationTest;
-import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
-
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.security.cert.CertPath;
-import java.security.cert.CertificateEncodingException;
-import java.util.Arrays;
 
 /**
  * Tests for <code>CertPath</code> fields and methods
  *
  */
-@TestTargetClass(CertPath.class)
 public class CertPathTest extends TestCase {
     /**
      * Meaningless cert path encoding just for testing purposes
@@ -67,12 +56,6 @@ public class CertPathTest extends TestCase {
      * Test for <code>CertPath(String type)</code> method<br>
      * Assertion: returns hash of the <code>Certificate</code> instance
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertPath",
-        args = {java.lang.String.class}
-    )
     public final void testCertPath() {
         try {
             CertPath cp1 = new MyCertPath(testEncoding);
@@ -93,12 +76,6 @@ public class CertPathTest extends TestCase {
      * Test for <code>hashCode()</code> method<br>
      * Assertion: returns hash of the <code>Certificate</code> instance
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode() {
         CertPath cp1 = new MyCertPath(testEncoding);
         CertPath cp2 = new MyCertPath(testEncoding);
@@ -112,12 +89,6 @@ public class CertPathTest extends TestCase {
      * Test for <code>hashCode()</code> method<br>
      * Assertion: hash code of equal objects should be the same
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCodeEqualsObject() {
         CertPath cp1 = new MyCertPath(testEncoding);
         CertPath cp2 = new MyCertPath(testEncoding);
@@ -128,12 +99,6 @@ public class CertPathTest extends TestCase {
      * Test for <code>getType()</code> method<br>
      * Assertion: returns cert path type
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public final void testGetType() {
         assertEquals("MyEncoding", new MyCertPath(testEncoding).getType());
     }
@@ -142,12 +107,6 @@ public class CertPathTest extends TestCase {
      * Test #1 for <code>equals(Object)</code> method<br>
      * Assertion: object equals to itself
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that object equals to itself.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject01() {
         CertPath cp1 = new MyCertPath(testEncoding);
         assertTrue(cp1.equals(cp1));
@@ -158,12 +117,6 @@ public class CertPathTest extends TestCase {
      * Assertion: object equals to other <code>CertPath</code>
      * instance with the same state
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that CertPath object equals to other CertPath with the same state.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject02() {
         CertPath cp1 = new MyCertPath(testEncoding);
         CertPath cp2 = new MyCertPath(testEncoding);
@@ -174,12 +127,6 @@ public class CertPathTest extends TestCase {
      * Test for <code>equals(Object)</code> method<br>
      * Assertion: object not equals to <code>null</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject03() {
         CertPath cp1 = new MyCertPath(testEncoding);
         assertFalse(cp1.equals(null));
@@ -190,12 +137,6 @@ public class CertPathTest extends TestCase {
      * Assertion: object not equals to other which is not
      * instance of <code>CertPath</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies non equal objects.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject04() {
         CertPath cp1 = new MyCertPath(testEncoding);
         assertFalse(cp1.equals("MyEncoding"));
@@ -206,12 +147,6 @@ public class CertPathTest extends TestCase {
      * Assertion: returns string representation of
      * <code>CertPath</code> object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public final void testToString() {
         CertPath cp1 = new MyCertPath(testEncoding);
         assertNotNull(cp1.toString());
@@ -226,12 +161,6 @@ public class CertPathTest extends TestCase {
     /**
      * This test just calls <code>getCertificates()</code> method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Abstract method.",
-        method = "getCertificates",
-        args = {}
-    )
     public final void testGetCertificates() {
         CertPath cp1 = new MyCertPath(testEncoding);
         cp1.getCertificates();
@@ -242,12 +171,6 @@ public class CertPathTest extends TestCase {
      *
      * @throws CertificateEncodingException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Abstract method.",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testGetEncoded() throws CertificateEncodingException {
         CertPath cp1 = new MyCertPath(testEncoding);
         cp1.getEncoded();
@@ -258,12 +181,6 @@ public class CertPathTest extends TestCase {
      *
      * @throws CertificateEncodingException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Abstract method.",
-        method = "getEncoded",
-        args = {java.lang.String.class}
-    )
     public final void testGetEncodedString() throws CertificateEncodingException {
         CertPath cp1 = new MyCertPath(testEncoding);
         cp1.getEncoded("MyEncoding");
@@ -272,12 +189,6 @@ public class CertPathTest extends TestCase {
     /**
      * This test just calls <code>getEncodings()</code> method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Abstract method.",
-        method = "getEncodings",
-        args = {}
-    )
     public final void testGetEncodings() {
         CertPath cp1 = new MyCertPath(testEncoding);
         cp1.getEncodings();
@@ -286,12 +197,6 @@ public class CertPathTest extends TestCase {
     /**
      * This test just calls <code>writeReplace()</code> method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify ObjectStreamException.",
-        method = "writeReplace",
-        args = {}
-    )
     public final void testWriteReplace() {
         try {
             MyCertPath cp1 = new MyCertPath(testEncoding);
@@ -303,12 +208,6 @@ public class CertPathTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "verifies ObjectStreamException.",
-            method = "writeReplace",
-            args = {}
-        )
     public final void testWriteReplace_ObjectStreamException() {
         try {
             MyFailingCertPath cp = new MyFailingCertPath(testEncoding);
@@ -320,30 +219,8 @@ public class CertPathTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility.
+     * serialization/deserialization compatibility.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility. And tests default constructor",
-            method = "!SerializationSelf",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "writeReplace",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "CertPath.CertPathRep.readResolve",
-            args = {}
-        )
-    })
-    // Test passed on RI
-    @KnownFailure(value="expired certificate bug 2322662")
     public void testSerializationSelf() throws Exception {
         TestUtils.initCertPathSSCertChain();
         CertPath certPath = TestUtils.buildCertPathSSCertChain();
@@ -352,30 +229,8 @@ public class CertPathTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility.",
-            method = "!SerializationGolden",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "writeReplace",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "CertPath.CertPathRep.readResolve",
-            args = {}
-        )
-    })
-    // Test passed on RI
-    @KnownFailure(value="expired certificate bug 2322662")
     public void testSerializationCompatibility() throws Exception {
         TestUtils.initCertPathSSCertChain();
         CertPath certPath = TestUtils.buildCertPathSSCertChain();
