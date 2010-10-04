@@ -17,6 +17,8 @@
 
 package java.text;
 
+import libcore.icu.CollationElementIteratorICU;
+
 /**
  * Created by a {@code RuleBasedCollator} to iterate through a string. The
  * result of each iteration is a 32-bit collation element that defines the
@@ -52,9 +54,9 @@ public final class CollationElementIterator {
      */
     public static final int NULLORDER = -1;
 
-    private com.ibm.icu4jni.text.CollationElementIterator icuIterator;
+    private CollationElementIteratorICU icuIterator;
 
-    CollationElementIterator(com.ibm.icu4jni.text.CollationElementIterator iterator) {
+    CollationElementIterator(CollationElementIteratorICU iterator) {
         this.icuIterator = iterator;
     }
 
@@ -130,7 +132,7 @@ public final class CollationElementIterator {
      * @return the element's 16 bit primary order.
      */
     public static final int primaryOrder(int order) {
-        return com.ibm.icu4jni.text.CollationElementIterator.primaryOrder(order);
+        return CollationElementIteratorICU.primaryOrder(order);
     }
 
     /**
@@ -155,8 +157,7 @@ public final class CollationElementIterator {
      * @return the 8 bit secondary order of the element.
      */
     public static final short secondaryOrder(int order) {
-        return (short) com.ibm.icu4jni.text.CollationElementIterator
-                .secondaryOrder(order);
+        return (short) CollationElementIteratorICU.secondaryOrder(order);
     }
 
     /**
@@ -216,7 +217,6 @@ public final class CollationElementIterator {
      * @return the 8 bit tertiary order of the element.
      */
     public static final short tertiaryOrder(int order) {
-        return (short) com.ibm.icu4jni.text.CollationElementIterator
-                .tertiaryOrder(order);
+        return (short) CollationElementIteratorICU.tertiaryOrder(order);
     }
 }

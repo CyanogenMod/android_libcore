@@ -34,7 +34,6 @@ public final class CollationAttribute {
     public static final int ALTERNATE_HANDLING = 1;
     public static final int CASE_FIRST = 2;
     public static final int CASE_LEVEL = 3;
-    public static final int NORMALIZATION_MODE = 4;
-    public static final int DECOMPOSITION_MODE = NORMALIZATION_MODE;
+    public static final int DECOMPOSITION_MODE = 4;
     public static final int STRENGTH = 5;
 }

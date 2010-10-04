@@ -25,7 +25,6 @@ namespace android {
     extern int register_dalvik_system_TouchDex(JNIEnv* env);
 }
 
-extern int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env);
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
 extern int register_java_io_FileDescriptor(JNIEnv* env);
@@ -53,6 +52,7 @@ extern int register_java_util_zip_Deflater(JNIEnv* env);
 extern int register_java_util_zip_Inflater(JNIEnv* env);
 extern int register_libcore_icu_ICU(JNIEnv* env);
 extern int register_libcore_icu_NativeBreakIterator(JNIEnv* env);
+extern int register_libcore_icu_NativeCollation(JNIEnv* env);
 extern int register_libcore_icu_NativeConverter(JNIEnv* env);
 extern int register_libcore_icu_NativeDecimalFormat(JNIEnv* env);
 extern int register_libcore_icu_NativeIDN(JNIEnv* env);
@@ -76,7 +76,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
     JniConstants::init(env);
 
     bool result =
-            register_com_ibm_icu4jni_text_NativeCollator(env) != -1 &&
             register_java_io_Console(env) != -1 &&
             register_java_io_File(env) != -1 &&
             register_java_io_FileDescriptor(env) != -1 &&
@@ -104,6 +103,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_util_zip_Inflater(env) != -1 &&
             register_libcore_icu_ICU(env) != -1 &&
             register_libcore_icu_NativeBreakIterator(env) != -1 &&
+            register_libcore_icu_NativeCollation(env) != -1 &&
             register_libcore_icu_NativeConverter(env) != -1 &&
             register_libcore_icu_NativeDecimalFormat(env) != -1 &&
             register_libcore_icu_NativeIDN(env) != -1 &&
