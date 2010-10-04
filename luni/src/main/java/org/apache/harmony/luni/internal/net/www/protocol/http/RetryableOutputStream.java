@@ -66,8 +66,6 @@ final class RetryableOutputStream extends AbstractHttpOutputStream {
     }
 
     public void writeToSocket(OutputStream socketOut) throws IOException  {
-        close();
         content.writeTo(socketOut);
-        socketOut.flush();
     }
 }
