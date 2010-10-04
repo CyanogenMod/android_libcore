@@ -13,6 +13,8 @@ package com.ibm.icu4jni.text;
 import java.text.CharacterIterator;
 import java.text.ParseException;
 import java.util.Locale;
+import libcore.icu.CollationElementIteratorICU;
+import libcore.icu.NativeCollation;
 
 /**
 * Concrete implementation class for Collation.
@@ -358,22 +360,11 @@ public final class RuleBasedCollator extends Collator {
      * @stable ICU 2.4
      */
     public int getDecomposition() {
-        return NativeCollation.getNormalization(m_collator_);
+        return NativeCollation.getAttribute(m_collator_, CollationAttribute.DECOMPOSITION_MODE);
     }
 
-    /**
-     * <p>Sets the decomposition mode of the Collator object on or off.
-     * If the decomposition mode is set to on, string would be decomposed into
-     * NFD format where necessary before sorting.</p>
-     * </p>
-     * @param decompositionmode the new decomposition mode
-     * @see #CANONICAL_DECOMPOSITION
-     * @see #NO_DECOMPOSITION
-     * @stable ICU 2.4
-     */
-    public void setDecomposition(int decompositionmode) {
-        NativeCollation.setAttribute(m_collator_,
-                CollationAttribute.NORMALIZATION_MODE, decompositionmode);
+    public void setDecomposition(int mode) {
+        NativeCollation.setAttribute(m_collator_, CollationAttribute.DECOMPOSITION_MODE, mode);
     }
 
     /**
@@ -465,33 +456,15 @@ public final class RuleBasedCollator extends Collator {
         return new CollationKey(source, key);
     }
 
-    /**
-     * Get the collation rules of this Collation object
-     * The rules will follow the rule syntax.
-     * @return collation rules.
-     * @stable ICU 2.4
-     */
     public String getRules() {
         return NativeCollation.getRules(m_collator_);
     }
 
-    /**
-     * Create a CollationElementIterator object that will iterator over the
-     * elements in a string, using the collation rules defined in this
-     * RuleBasedCollator
-     * @param source string to iterate over
-     * @return address of C collationelement
-     * @exception IllegalArgumentException thrown when error occurs
-     * @stable ICU 2.4
-     */
-    public CollationElementIterator getCollationElementIterator(String source) {
-        CollationElementIterator result = new CollationElementIterator(
-                NativeCollation.getCollationElementIterator(m_collator_, source));
-        // result.setOwnCollationElementIterator(true);
-        return result;
+    public CollationElementIteratorICU getCollationElementIterator(String source) {
+        return CollationElementIteratorICU.getInstance(m_collator_, source);
     }
 
-    public CollationElementIterator getCollationElementIterator(CharacterIterator it) {
+    public CollationElementIteratorICU getCollationElementIterator(CharacterIterator it) {
         // We only implement the String-based API, so build a string from the iterator.
         return getCollationElementIterator(characterIteratorToString(it));
     }

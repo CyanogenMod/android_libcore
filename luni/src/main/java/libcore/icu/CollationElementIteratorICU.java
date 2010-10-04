@@ -7,10 +7,9 @@
 *******************************************************************************
 */
 
-package com.ibm.icu4jni.text;
+package libcore.icu;
 
 import java.text.CharacterIterator;
-
 
 /**
 * Collation element iterator JNI wrapper.
@@ -37,8 +36,7 @@ import java.text.CharacterIterator;
 * @author syn wee quek
 * @stable ICU 2.4
 */
-
-public final class CollationElementIterator {
+public final class CollationElementIteratorICU {
     // public data member -------------------------------------------
 
     /**
@@ -159,16 +157,13 @@ public final class CollationElementIterator {
         return order & TERTIARY_ORDER_MASK_;
     }
 
-    // protected constructor ----------------------------------------
+    public static CollationElementIteratorICU getInstance(int collatorAddress, String source) {
+        int iteratorAddress = NativeCollation.getCollationElementIterator(collatorAddress, source);
+        return new CollationElementIteratorICU(iteratorAddress);
+    }
 
-    /**
-     * CollationElementIteratorJNI constructor.
-     * The only caller of this class should be
-     * RuleBasedCollator.getCollationElementIterator().
-     * @param collelemiteratoraddress address of C collationelementiterator
-     */
-    CollationElementIterator(int collelemiteratoraddress) {
-        m_collelemiterator_ = collelemiteratoraddress;
+    private CollationElementIteratorICU(int address) {
+        m_collelemiterator_ = address;
     }
 
     // protected methods --------------------------------------------

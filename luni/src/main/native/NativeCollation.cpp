@@ -63,19 +63,6 @@ static jint NativeCollation_getMaxExpansion(JNIEnv*, jclass, jint address, jint 
     return ucol_getMaxExpansion(toCollationElements(address), order);
 }
 
-static jint NativeCollation_getNormalization(JNIEnv* env, jclass, jint address) {
-    UErrorCode status = U_ZERO_ERROR;
-    jint result = ucol_getAttribute(toCollator(address), UCOL_NORMALIZATION_MODE, &status);
-    icu4jni_error(env, status);
-    return result;
-}
-
-static void NativeCollation_setNormalization(JNIEnv* env, jclass, jint address, jint mode) {
-    UErrorCode status = U_ZERO_ERROR;
-    ucol_setAttribute(toCollator(address), UCOL_NORMALIZATION_MODE, UColAttributeValue(mode), &status);
-    icu4jni_error(env, status);
-}
-
 static jint NativeCollation_getOffset(JNIEnv*, jclass, jint address) {
     return ucol_getOffset(toCollationElements(address));
 }
@@ -182,7 +169,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeCollation, getAttribute, "(II)I"),
     NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(ILjava/lang/String;)I"),
     NATIVE_METHOD(NativeCollation, getMaxExpansion, "(II)I"),
-    NATIVE_METHOD(NativeCollation, getNormalization, "(I)I"),
     NATIVE_METHOD(NativeCollation, getOffset, "(I)I"),
     NATIVE_METHOD(NativeCollation, getRules, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCollation, getSortKey, "(ILjava/lang/String;)[B"),
@@ -193,11 +179,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeCollation, reset, "(I)V"),
     NATIVE_METHOD(NativeCollation, safeClone, "(I)I"),
     NATIVE_METHOD(NativeCollation, setAttribute, "(III)V"),
-    NATIVE_METHOD(NativeCollation, setNormalization, "(II)V"),
     NATIVE_METHOD(NativeCollation, setOffset, "(II)V"),
     NATIVE_METHOD(NativeCollation, setText, "(ILjava/lang/String;)V"),
 };
-int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeCollation",
-                gMethods, NELEM(gMethods));
+int register_libcore_icu_NativeCollation(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "libcore/icu/NativeCollation", gMethods, NELEM(gMethods));
 }
