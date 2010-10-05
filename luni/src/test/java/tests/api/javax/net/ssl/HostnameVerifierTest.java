@@ -17,63 +17,36 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
-
-import org.apache.harmony.xnet.tests.support.mySSLSession;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-
+import javax.security.auth.x500.X500Principal;
+import junit.framework.TestCase;
+import org.apache.harmony.xnet.tests.support.mySSLSession;
 
 /**
  * Tests for <code>HostnameVerifier</code> class constructors and methods.
  *
  */
-@TestTargetClass(HostnameVerifier.class)
 public class HostnameVerifierTest extends TestCase implements
         CertificatesToPlayWith {
 
     /**
-     * @tests javax.net.ssl.HostnameVerifier#verify(String hostname, SSLSession
+     * javax.net.ssl.HostnameVerifier#verify(String hostname, SSLSession
      *        session)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "verify",
-        args = {String.class, SSLSession.class}
-    )
-    public final void test_verify() {
+    public final void test_verify() throws Exception {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-        try {
-            assertFalse(hv.verify("localhost", session));
-        } catch (Exception e) {
-            fail("Unexpected exception: " + e);
-        }
+        assertFalse(hv.verify("localhost", session));
     }
 
     // copied and modified from apache http client test suite.
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "verify",
-        args = {String.class, SSLSession.class}
-    )
-    @AndroidOnly("DefaultHostnameVerifier on RI is weird and cannot be tested this way.")
     public void testVerify() throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         InputStream in;
@@ -82,9 +55,7 @@ public class HostnameVerifierTest extends TestCase implements
         x509 = (X509Certificate) cf.generateCertificate(in);
         mySSLSession session = new mySSLSession(new X509Certificate[] {x509});
 
-        HostnameVerifier verifier = HttpsURLConnection
-                .getDefaultHostnameVerifier();
-
+        HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
         assertTrue(verifier.verify("foo.com", session));
         assertFalse(verifier.verify("a.foo.com", session));
         assertFalse(verifier.verify("bar.com", session));
@@ -175,31 +146,20 @@ public class HostnameVerifierTest extends TestCase implements
         // assertTrue(verifier.verify("a.b.bar.com", session));
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "verify",
-        args = {String.class, SSLSession.class}
-    )
-    @AndroidOnly("DefaultHostnameVerifier on RI is weird and cannot be tested this way.")
-    @KnownFailure("DefaultHostnameVerifier is broken on Android, fixed in donutburger")
     public void testSubjectAlt() throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         InputStream in = new ByteArrayInputStream(X509_MULTIPLE_SUBJECT_ALT);
         X509Certificate x509 = (X509Certificate) cf.generateCertificate(in);
         mySSLSession session = new mySSLSession(new X509Certificate[] {x509});
 
-        HostnameVerifier verifier = HttpsURLConnection
-                .getDefaultHostnameVerifier();
-
-        // Whitespace differences between RI and Android are ignored by
-        // replacing ", " with ","
-        assertEquals(
-                "CN=localhost,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=CH",
-                x509.getSubjectDN().getName().replace(", ", ","));
+        HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
+        String expected = "CN=localhost,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=CH";
+        assertEquals(new X500Principal(expected),
+                     x509.getSubjectX500Principal());
 
         assertTrue(verifier.verify("localhost", session));
         assertTrue(verifier.verify("localhost.localdomain", session));
+        // TODO support IP addresses
         assertTrue(verifier.verify("127.0.0.1", session));
 
         assertFalse(verifier.verify("local.host", session));

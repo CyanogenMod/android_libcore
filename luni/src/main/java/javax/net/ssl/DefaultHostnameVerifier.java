@@ -75,13 +75,9 @@ class DefaultHostnameVerifier implements HostnameVerifier {
         Arrays.sort(BAD_COUNTRY_2LDS);
     }
 
-    public DefaultHostnameVerifier() {
-        super();
-    }
-
     public final void verify(String host, SSLSocket ssl)
           throws IOException {
-        if(host == null) {
+        if (host == null) {
             throw new NullPointerException("host to verify is null");
         }
 
@@ -97,8 +93,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             X509Certificate x509 = (X509Certificate) certs[0];
             verify(host, x509);
             return true;
-        }
-        catch(SSLException e) {
+        } catch (SSLException e) {
             return false;
         }
     }
@@ -114,16 +109,15 @@ class DefaultHostnameVerifier implements HostnameVerifier {
                              final String[] subjectAlts,
                              final boolean strictWithSubDomains)
           throws SSLException {
-
         // Build the list of names we're going to check.  Our DEFAULT and
         // STRICT implementations of the HostnameVerifier only use the
         // first CN provided.  All other CNs are ignored.
         // (Firefox, wget, curl, Sun Java 1.4, 5, 6 all work this way).
         LinkedList<String> names = new LinkedList<String>();
-        if(cns != null && cns.length > 0 && cns[0] != null) {
+        if (cns != null && cns.length > 0 && cns[0] != null) {
             names.add(cns[0]);
         }
-        if(subjectAlts != null) {
+        if (subjectAlts != null) {
             for (String subjectAlt : subjectAlts) {
                 if (subjectAlt != null) {
                     names.add(subjectAlt);
@@ -131,20 +125,19 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             }
         }
 
-        if(names.isEmpty()) {
-            String msg = "Certificate for <" + host +
-                         "> doesn't contain CN or DNS subjectAlt";
+        if (names.isEmpty()) {
+            String msg = "Certificate for <" + host + "> doesn't contain CN or DNS subjectAlt";
             throw new SSLException(msg);
         }
 
         // StringBuilder for building the error message.
         StringBuilder buf = new StringBuilder();
 
-        // We're can be case-insensitive when comparing the host we used to
+        // We can be case-insensitive when comparing the host we used to
         // establish the socket to the hostname in the certificate.
         String hostName = host.trim().toLowerCase(Locale.ENGLISH);
         boolean match = false;
-        for(Iterator<String> it = names.iterator(); it.hasNext();) {
+        for (Iterator<String> it = names.iterator(); it.hasNext();) {
             // Don't trim the CN, though!
             String cn = it.next();
             cn = cn.toLowerCase(Locale.ENGLISH);
@@ -152,7 +145,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             buf.append(" <");
             buf.append(cn);
             buf.append('>');
-            if(it.hasNext()) {
+            if (it.hasNext()) {
                 buf.append(" OR");
             }
 
@@ -164,9 +157,9 @@ class DefaultHostnameVerifier implements HostnameVerifier {
                                  acceptableCountryWildcard(cn) &&
                                  !isValidIPV4Address(host);
 
-            if(doWildcard) {
+            if (doWildcard) {
                 match = hostName.endsWith(cn.substring(1));
-                if(match && strictWithSubDomains) {
+                if (match && strictWithSubDomains) {
                     // If we're in strict mode, then [*.foo.com] is not
                     // allowed to match [a.b.foo.com]
                     match = countDots(hostName) == countDots(cn);
@@ -174,13 +167,12 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             } else {
                 match = hostName.equals(cn);
             }
-            if(match) {
+            if (match) {
                 break;
             }
         }
-        if(!match) {
-            throw new SSLException("hostname in certificate didn't match: <" +
-                                   host + "> !=" + buf);
+        if (!match) {
+            throw new SSLException("hostname in certificate didn't match: <" + host + "> !=" + buf);
         }
     }
 
@@ -230,9 +222,9 @@ class DefaultHostnameVerifier implements HostnameVerifier {
 
     public static boolean acceptableCountryWildcard(String cn) {
         int cnLen = cn.length();
-        if(cnLen >= 7 && cnLen <= 9) {
+        if (cnLen >= 7 && cnLen <= 9) {
             // Look for the '.' in the 3rd-last position:
-            if(cn.charAt(cnLen - 3) == '.') {
+            if (cn.charAt(cnLen - 3) == '.') {
                 // Trim off the [*.] and the [.XX].
                 String s = cn.substring(2, cnLen - 3);
                 // And test against the sorted array of bad 2lds:
@@ -246,37 +238,37 @@ class DefaultHostnameVerifier implements HostnameVerifier {
     public static String[] getCNs(X509Certificate cert) {
         LinkedList<String> cnList = new LinkedList<String>();
         /*
-          Sebastian Hauer's original StrictSSLProtocolSocketFactory used
-          getName() and had the following comment:
-
-              Parses a X.500 distinguished name for the value of the
-              "Common Name" field.  This is done a bit sloppy right
-              now and should probably be done a bit more according to
-              <code>RFC 2253</code>.
-
-          I've noticed that toString() seems to do a better job than
-          getName() on these X500Principal objects, so I'm hoping that
-          addresses Sebastian's concern.
-
-          For example, getName() gives me this:
-          1.2.840.113549.1.9.1=#16166a756c6975736461766965734063756362632e636f6d
-
-          whereas toString() gives me this:
-          EMAILADDRESS=juliusdavies@cucbc.com
-
-          Looks like toString() even works with non-ascii domain names!
-          I tested it with "&#x82b1;&#x5b50;.co.jp" and it worked fine.
+         * Sebastian Hauer's original StrictSSLProtocolSocketFactory used
+         * getName() and had the following comment:
+         *
+         *      Parses a X.500 distinguished name for the value of the
+         *     "Common Name" field.  This is done a bit sloppy right
+         *     now and should probably be done a bit more according to
+         *     <code>RFC 2253</code>.
+         *
+         * I've noticed that toString() seems to do a better job than
+         * getName() on these X500Principal objects, so I'm hoping that
+         * addresses Sebastian's concern.
+         *
+         * For example, getName() gives me this:
+         * 1.2.840.113549.1.9.1=#16166a756c6975736461766965734063756362632e636f6d
+         *
+         * whereas toString() gives me this:
+         * EMAILADDRESS=juliusdavies@cucbc.com
+         *
+         * Looks like toString() even works with non-ascii domain names!
+         * I tested it with "&#x82b1;&#x5b50;.co.jp" and it worked fine.
         */
         String subjectPrincipal = cert.getSubjectX500Principal().toString();
         StringTokenizer st = new StringTokenizer(subjectPrincipal, ",");
         while(st.hasMoreTokens()) {
             String tok = st.nextToken();
             int x = tok.indexOf("CN=");
-            if(x >= 0) {
+            if (x >= 0) {
                 cnList.add(tok.substring(x + 3));
             }
         }
-        if(!cnList.isEmpty()) {
+        if (!cnList.isEmpty()) {
             String[] cns = new String[cnList.size()];
             cnList.toArray(cns);
             return cns;
@@ -305,12 +297,11 @@ class DefaultHostnameVerifier implements HostnameVerifier {
         Collection<List<?>> c = null;
         try {
             c = cert.getSubjectAlternativeNames();
-        }
-        catch(CertificateParsingException cpe) {
+        } catch (CertificateParsingException cpe) {
             Logger.getLogger(DefaultHostnameVerifier.class.getName())
                     .log(Level.FINE, "Error parsing certificate.", cpe);
         }
-        if(c != null) {
+        if (c != null) {
             for (List<?> aC : c) {
                 List<?> list = aC;
                 int type = ((Integer) list.get(0)).intValue();
@@ -321,7 +312,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
                 }
             }
         }
-        if(!subjectAltList.isEmpty()) {
+        if (!subjectAltList.isEmpty()) {
             String[] subjectAlts = new String[subjectAltList.size()];
             subjectAltList.toArray(subjectAlts);
             return subjectAlts;
@@ -337,8 +328,8 @@ class DefaultHostnameVerifier implements HostnameVerifier {
      */
     public static int countDots(final String s) {
         int count = 0;
-        for(int i = 0; i < s.length(); i++) {
-            if(s.charAt(i) == '.') {
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '.') {
                 count++;
             }
         }
