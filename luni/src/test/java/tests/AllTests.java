@@ -36,7 +36,6 @@ public class AllTests
         suite.addTest(tests.annotation.AllTests.suite());
         suite.addTest(tests.concurrent.AllTests.suite());
         suite.addTest(tests.dom.AllTests.suite());
-        suite.addTest(tests.logging.AllTests.suite());
         suite.addTest(tests.luni.AllTestsIo.suite());
         suite.addTest(tests.luni.AllTestsLang.suite());
         suite.addTest(tests.luni.AllTestsNet.suite());

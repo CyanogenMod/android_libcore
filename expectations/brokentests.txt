@@ -57,7 +57,7 @@
                 incorrectly assume that resetting the LogManager will clear the root logger's
                 resource bundle; this isn't the case.",
   result: EXEC_FAILED,
-  name: "org.apache.harmony.logging.tests.java.util.logging.LoggerTest#testGetLoggerWithRes_InvalidResourceBundle",
+  name: "org.apache.harmony.logging.tests.java.util.logging.OldLoggerTest#testGetLoggerWithRes_InvalidResourceBundle",
   substring: "java.lang.IllegalArgumentException: Resource bundle name 'impossible_not_existing' is inconsistent"
 },
 {

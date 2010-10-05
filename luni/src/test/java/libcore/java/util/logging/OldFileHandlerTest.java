@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.logging.tests.java.util.logging;
+package libcore.java.util.logging;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FilePermission;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.InputStream;
 import java.io.Reader;
-import java.security.Permission;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Filter;
@@ -35,41 +33,19 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
-import java.util.logging.LoggingPermission;
-import java.util.logging.XMLFormatter;
-
 import junit.framework.TestCase;
 
-import org.apache.harmony.logging.tests.java.util.logging.HandlerTest.NullOutputStream;
-import org.apache.harmony.logging.tests.java.util.logging.util.EnvironmentHelper;
-
-/**
- */
-public class FileHandlerTest extends TestCase {
+public class OldFileHandlerTest extends TestCase {
 
     static LogManager manager = LogManager.getLogManager();
-
     final static Properties props = new Properties();
-
-    final static String className = FileHandlerTest.class.getName();
-
+    final static String className = OldFileHandlerTest.class.getName();
     final static String SEP = File.separator;
-
     String HOMEPATH;
-
     String TEMPPATH;
-
-    private final PrintStream err = System.err;
-
-    private OutputStream errSubstituteStream = null;
-
     FileHandler handler;
-
     LogRecord r;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         super.setUp();
         manager.reset();
@@ -96,31 +72,25 @@ public class FileHandlerTest extends TestCase {
 
         File file = new File(TEMPPATH + SEP + "log");
         file.mkdir();
-        manager.readConfiguration(EnvironmentHelper
-                .PropertiesToInputStream(props));
+        manager.readConfiguration(propertiesToInputStream(props));
         handler = new FileHandler();
         r = new LogRecord(Level.CONFIG, "msg");
-        errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));
     }
-
-
-    /*
-     * @see TestCase#tearDown()
-     */
 
     protected void tearDown() throws Exception {
         if (null != handler) {
             handler.close();
         }
         reset(TEMPPATH + SEP + "log", "");
-        System.setErr(err);
         super.tearDown();
     }
 
-    /*
-     * test for constructor void FileHandler()
-     */
+    public static InputStream propertiesToInputStream(Properties p) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        p.store(bos, "");
+        return new ByteArrayInputStream(bos.toByteArray());
+    }
+
     public void testFileHandler() throws Exception {
         assertEquals("character encoding is non equal to actual value",
                 "iso-8859-1", handler.getEncoding());
@@ -143,9 +113,6 @@ public class FileHandlerTest extends TestCase {
                 new MockFormatter());
     }
 
-    /*
-     * test for constructor void FileHandler(String)
-     */
     public void testFileHandler_1params() throws Exception {
 
         handler = new FileHandler("%t/log/string");
@@ -226,9 +193,6 @@ public class FileHandlerTest extends TestCase {
         }
     }
 
-    /*
-     * test for constructor void FileHandler(String pattern, boolean append)
-     */
     public void testFileHandler_2params() throws Exception {
         boolean append = false;
         do {
@@ -268,10 +232,6 @@ public class FileHandlerTest extends TestCase {
         }
     }
 
-    /*
-     * test for constructor void FileHandler(String pattern, int limit, int
-     * count)
-     */
     public void testFileHandler_3params() throws Exception {
         int limit = 120;
         int count = 1;
@@ -317,10 +277,6 @@ public class FileHandlerTest extends TestCase {
         }
     }
 
-    /*
-     * test for constructor public FileHandler(String pattern, int limit, int
-     * count, boolean append)
-     */
     public void testFileHandler_4params() throws Exception {
         int limit = 120;
         int count = 1;
@@ -374,29 +330,6 @@ public class FileHandlerTest extends TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-    }
-    public void testDefaultValue() throws Exception {
-        handler.publish(r);
-        handler.close();
-        props.clear();
-        manager.readConfiguration(EnvironmentHelper
-                .PropertiesToInputStream(props));
-        handler = new FileHandler();
-        assertNull(handler.getEncoding());
-        assertNull(handler.getFilter());
-        assertTrue(handler.getFormatter() instanceof XMLFormatter);
-        assertEquals(handler.getLevel(), Level.ALL);
-        assertNotNull(handler.getErrorManager());
-        handler.publish(r);
-        handler.close();
-        // output 3 times, and only one record left
-        // default append mode is false
-        for (int i = 0; i < 3; i++) {
-            handler = new FileHandler();
-            handler.publish(r);
-            handler.close();
-        }
-        assertFileContent(HOMEPATH, "java0.log", new XMLFormatter());
     }
 
     private void assertFileContent(String homepath, String filename,
@@ -452,12 +385,9 @@ public class FileHandlerTest extends TestCase {
 
     /**
      * Does a cleanup of given file
-     *
-     * @param homepath
-     * @param filename
      */
     private void reset(String homepath, String filename) {
-        File file = null;
+        File file;
         try {
             file = new File(homepath + SEP + filename);
             if (file.isFile()) {
@@ -479,269 +409,22 @@ public class FileHandlerTest extends TestCase {
             e.printStackTrace();
         }
     }
-    public void testLimitAndCount() throws Exception {
-        handler.close();
-        // very small limit value, count=2
-        // output, rename current output file to the second generation file
-        // close it and open a new file as rotation output
-        handler = new FileHandler("%t/testLimitCount%g", 1, 2, false);
-        handler.publish(r);
-        handler.close();
-        assertFileContent(TEMPPATH, "testLimitCount1", handler.getFormatter());
 
-        // very small limit value, count=1
-        // output once, rotate(equals to nothing output)
-        handler = new FileHandler("%t/testLimitCount%g", 1, 1, false);
-        handler.publish(r);
-        handler.close();
-        assertFileContent(TEMPPATH, "testLimitCount0", new LogRecord[0],
-                handler.getFormatter());
-
-        // normal case, limit is 60(>2*msg length <3*msg length), append is
-        // false
-        handler = new FileHandler("%t/testLimitCount%u", 60, 3, false);
-        LogRecord[] rs = new LogRecord[10];
-        // batch output twice to test the append mode
-        for (int i = 0; i < 5; i++) {
-            rs[i] = new LogRecord(Level.SEVERE, "msg" + i);
-            handler.publish(rs[i]);
-        }
-        handler.close();
-        handler = new FileHandler("%t/testLimitCount%u", 60, 3, false);
-        for (int i = 5; i < 10; i++) {
-            rs[i] = new LogRecord(Level.SEVERE, "msg" + i);
-            handler.publish(rs[i]);
-        }
-
-        assertFileContent(TEMPPATH, "testLimitCount0.1", new LogRecord[] {
-                rs[5], rs[6], rs[7] }, handler.getFormatter());
-        assertFileContent(TEMPPATH, "testLimitCount0.0", new LogRecord[] {
-                rs[8], rs[9] }, handler.getFormatter());
-
-        // normal case, limit is 60(>2*msg length <3*msg length), append is true
-        handler = new FileHandler("%t/testLimitCount%u", 60, 3, false);
-        // batch output twice to test the append mode
-        for (int i = 0; i < 5; i++) {
-            rs[i] = new LogRecord(Level.SEVERE, "msg" + i);
-            handler.publish(rs[i]);
-        }
-        handler.close();
-        handler = new FileHandler("%t/testLimitCount%u", 60, 3, true);
-        for (int i = 5; i < 10; i++) {
-            rs[i] = new LogRecord(Level.SEVERE, "msg" + i);
-            handler.publish(rs[i]);
-        }
-        handler.close();
-        assertFileContent(TEMPPATH, "testLimitCount0.2", new LogRecord[] {
-                rs[3], rs[4], null, rs[5] }, handler.getFormatter());
-        assertFileContent(TEMPPATH, "testLimitCount0.1", new LogRecord[] {
-                rs[6], rs[7], rs[8] }, handler.getFormatter());
-        assertFileContent(TEMPPATH, "testLimitCount0.0",
-                new LogRecord[] { rs[9] }, handler.getFormatter());
-
-        FileHandler h1 = null;
-        FileHandler h2 = null;
-        try {
-            File logDir = new File("log");
-            reset("log", "");
-            logDir.mkdir();
-            h1 = new FileHandler("log/a", 0, 1);
-            assertNotNull(h1);
-            h2 = new FileHandler("log/a", 0, 1, false);
-            assertNotNull(h2);
-        } finally {
-            try {
-                h1.close();
-            } catch (Exception e) {
-            }
-            try {
-                h2.close();
-            } catch (Exception e) {
-            }
-            reset("log", "");
-        }
-    }
-    public void testSecurity() throws IOException {
-        SecurityManager currentManager = System.getSecurityManager();
-
-        try {
-            System.setSecurityManager(new MockLogSecurityManager());
-            try {
-                handler.close();
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            handler.publish(new LogRecord(Level.SEVERE, "msg"));
-
-            try {
-                handler = new FileHandler();
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-
-            try {
-                handler = new FileHandler("pattern1");
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern2", true);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern3", 1000, 1);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern4", 1000, 1, true);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-        } finally {
-            System.setSecurityManager(currentManager);
-        }
-
-    }
-    public void testFileSecurity() throws IOException {
-        SecurityManager currentManager = System.getSecurityManager();
-
-        try {
-            System.setSecurityManager(new MockFileSecurityManager());
-            handler.publish(new LogRecord(Level.SEVERE, "msg"));
-            try {
-                handler.close();
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-
-            try {
-                handler = new FileHandler();
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-
-            try {
-                handler = new FileHandler("pattern1");
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern2", true);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern3", 1000, 1);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-            try {
-                handler = new FileHandler("pattern4", 1000, 1, true);
-                fail("should throw security exception");
-            } catch (SecurityException e) {
-            }
-        } finally {
-            System.setSecurityManager(currentManager);
-        }
-    }
-    public void testInvalidProperty() throws Exception {
-        props.put("java.util.logging.FileHandler.level", "null");
-        props.put("java.util.logging.FileHandler.filter", className
-                + "$MockFilte");
-        props.put("java.util.logging.FileHandler.formatter", className
-                + "$MockFormatte");
-        props.put("java.util.logging.FileHandler.encoding", "ut");
-        // limit to only two message
-        props.put("java.util.logging.FileHandler.limit", "-1");
-        // rotation count is 2
-        props.put("java.util.logging.FileHandler.count", "-1");
-        // using append mode
-        props.put("java.util.logging.FileHandler.append", "bad");
-
-        handler.close();
-
-        manager.readConfiguration(EnvironmentHelper
-                .PropertiesToInputStream(props));
-        handler = new FileHandler();
-        assertEquals(Level.ALL, handler.getLevel());
-        assertNull(handler.getFilter());
-        assertTrue(handler.getFormatter() instanceof XMLFormatter);
-        assertNull(handler.getEncoding());
-        handler.close();
-
-        props.put("java.util.logging.FileHandler.pattern", "");
-        manager.readConfiguration(EnvironmentHelper
-                .PropertiesToInputStream(props));
-        try {
-            handler = new FileHandler();
-            fail("shouldn't open file with empty name");
-        } catch (NullPointerException e) {
-        }
-    }
     // This test fails on RI. Doesn't parse special pattern \"%t/%h."
     public void testInvalidParams() throws IOException {
 
         // %t and %p parsing can add file separator automatically
-        FileHandler h1 = new FileHandler("%taaa");
-        h1.close();
-        File file = new File(TEMPPATH + SEP + "aaa");
-        assertTrue(file.exists());
-        reset(TEMPPATH, "aaa");
-
-        h1 = new FileHandler("%t%g");
-        h1.close();
-        file = new File(TEMPPATH + SEP + "0");
-        assertTrue(file.exists());
-        reset(TEMPPATH, "0");
-        h1 = new FileHandler("%t%u%g");
-        h1.close();
-        file = new File(TEMPPATH + SEP + "00");
-        assertTrue(file.exists());
-        reset(TEMPPATH, "00");
-
-        // this is normal case
-        h1 = new FileHandler("%t/%u%g%%g");
-        h1.close();
-        file = new File(TEMPPATH + SEP + "00%g");
-        assertTrue(file.exists());
-        reset(TEMPPATH, "00%g");
-
-        // multi separator has no effect
-        h1 = new FileHandler("//%t//multi%g");
-        h1.close();
-        file = new File(TEMPPATH + SEP + "multi0");
-        assertTrue(file.exists());
-        reset(TEMPPATH, "multi0");
-
-        // bad directory, IOException
-        try {
-            h1 = new FileHandler("%t/baddir/multi%g");
-            fail("should throw IO exception");
-        } catch (IOException e) {
-        }
-        file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
-        assertFalse(file.exists());
 
         // bad directory, IOException, append
         try {
-            h1 = new FileHandler("%t/baddir/multi%g", true);
+            new FileHandler("%t/baddir/multi%g", true);
             fail("should throw IO exception");
         } catch (IOException e) {
         }
-        file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
+        File file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
         try {
-            h1 = new FileHandler("%t/baddir/multi%g", false);
-            fail("should throw IO exception");
-        } catch (IOException e) {
-        }
-        file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
-        assertFalse(file.exists());
-
-        try {
-            h1 = new FileHandler("%t/baddir/multi%g", 12, 4);
+            new FileHandler("%t/baddir/multi%g", false);
             fail("should throw IO exception");
         } catch (IOException e) {
         }
@@ -749,45 +432,12 @@ public class FileHandlerTest extends TestCase {
         assertFalse(file.exists());
 
         try {
-            h1 = new FileHandler("%t/baddir/multi%g", 12, 4, true);
+            new FileHandler("%t/baddir/multi%g", 12, 4);
             fail("should throw IO exception");
         } catch (IOException e) {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
-
-
-        try {
-            new FileHandler(null);
-            fail("should throw null exception");
-        } catch (NullPointerException e) {
-        }
-        try {
-            handler.publish(null);
-        } catch (NullPointerException e) {
-            fail("should not throw NPE");
-        }
-        try {
-            new FileHandler(null, false);
-            fail("should throw null exception");
-        } catch (NullPointerException e) {
-        }
-        try {
-            new FileHandler("");
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            new FileHandler("%t/java%u", 0, 0);
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        try {
-            new FileHandler("%t/java%u", -1, 1);
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
 
         try {
             new FileHandler("%t/java%u", -1, -1);
@@ -796,9 +446,6 @@ public class FileHandlerTest extends TestCase {
         }
     }
 
-    /*
-     * test for method public void publish(LogRecord record)
-     */
     public void testPublish() throws Exception {
         LogRecord[] r = new LogRecord[] { new LogRecord(Level.CONFIG, "msg__"),
                 new LogRecord(Level.WARNING, "message"),
@@ -813,58 +460,12 @@ public class FileHandlerTest extends TestCase {
         }
     }
 
-    /*
-     * test for method public void close()
-     */
     public void testClose() throws Exception {
         FileHandler h = new FileHandler("%t/log/stringPublish");
         h.publish(r);
         h.close();
         assertFileContent(TEMPPATH + SEP + "log", "stringPublish", h
                 .getFormatter());
-    }
-    // set output stream still works, just like super StreamHandler
-    public void testSetOutputStream() throws Exception {
-        MockFileHandler handler = new MockFileHandler("%h/setoutput.log");
-        handler.setFormatter(new MockFormatter());
-        handler.publish(r);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        handler.publicSetOutputStream(out);
-        handler.publish(r);
-        handler.close();
-        String msg = new String(out.toByteArray());
-        Formatter f = handler.getFormatter();
-        assertEquals(msg, f.getHead(handler) + f.format(r) + f.getTail(handler));
-        assertFileContent(HOMEPATH, "setoutput.log", handler.getFormatter());
-    }
-
-    public void testEmptyPattern_3params() throws SecurityException,
-            IOException {
-        try {
-            new FileHandler(new String(), 1, 1);
-            fail("Expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
-        }
-    }
-    public void testEmptyPattern_2params() throws SecurityException,
-            IOException {
-        try {
-            new FileHandler(new String(), true);
-            fail("Expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
-        }
-    }
-    public void testEmptyPattern_4params() throws SecurityException,
-            IOException {
-        try {
-            new FileHandler(new String(), 1, 1, true);
-            fail("Expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
-        }
     }
 
     /*
@@ -890,37 +491,6 @@ public class FileHandlerTest extends TestCase {
 
         public String getHead(Handler h) {
             return "head\n";
-        }
-    }
-
-    public static class MockLogSecurityManager extends SecurityManager {
-        public void checkPermission(Permission perm) {
-            if (perm instanceof LoggingPermission) {
-                throw new SecurityException();
-            }
-            return;
-        }
-    }
-
-    public static class MockFileSecurityManager extends SecurityManager {
-        public void checkPermission(Permission perm) {
-            if (perm instanceof FilePermission) {
-                throw new SecurityException();
-            }
-        }
-    }
-
-    public static class MockFileHandler extends FileHandler {
-        public MockFileHandler() throws IOException {
-            super();
-        }
-
-        public MockFileHandler(String pattern) throws IOException {
-            super(pattern);
-        }
-
-        public void publicSetOutputStream(OutputStream stream) {
-            super.setOutputStream(stream);
         }
     }
 }
