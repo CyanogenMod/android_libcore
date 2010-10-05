@@ -17,39 +17,31 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
-
-import org.apache.harmony.security.tests.support.SpiEngUtils;
-
 import junit.framework.TestCase;
+import org.apache.harmony.security.tests.support.SpiEngUtils;
+import org.apache.harmony.xnet.tests.support.MySSLContextSpi;
 
 /**
  * Tests for SSLContext class constructors and methods
  *
  */
-@TestTargetClass(SSLContext.class)
 public class SSLContext2Test extends TestCase {
 
     private static String srvSSLContext = "SSLContext";
 
     private static final String defaultProtocol = "S+S+L";
 
-    public static final String SSLContextProviderClass = "org.apache.harmony.xnet.tests.support.MySSLContextSpi";
+    public static final String SSLContextProviderClass = MySSLContextSpi.class.getName();
 
     private static final String[] invalidValues = SpiEngUtils.invalidValues;
 
@@ -155,17 +147,12 @@ public class SSLContext2Test extends TestCase {
      * throws NoSuchAlgorithmException when protocol is not correct;
      * returns SSLContext object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() throws NoSuchAlgorithmException,
             KeyManagementException {
         try {
             SSLContext.getInstance(null);
-            fail("NoSuchAlgorithmException or NullPointerException should be thrown (protocol is null");
+            fail("NoSuchAlgorithmException or NullPointerException should be thrown "
+                 + "(protocol is null)");
         } catch (NoSuchAlgorithmException e) {
         } catch (NullPointerException e) {
         }
@@ -180,10 +167,8 @@ public class SSLContext2Test extends TestCase {
         SSLContext sslC;
         for (int i = 0; i < validValues.length; i++) {
             sslC = SSLContext.getInstance(validValues[i]);
-            assertTrue("Not instanceof SSLContext object",
-                    sslC instanceof SSLContext);
-            assertEquals("Incorrect protocol", sslC.getProtocol(),
-                    validValues[i]);
+            assertTrue("Not instanceof SSLContext object", sslC instanceof SSLContext);
+            assertEquals("Incorrect protocol", sslC.getProtocol(), validValues[i]);
             assertEquals("Incorrect provider", sslC.getProvider(), mProv);
             checkSSLContext(sslC);
         }
@@ -199,18 +184,13 @@ public class SSLContext2Test extends TestCase {
      * throws NoSuchProviderException when provider is available;
      * returns SSLContext object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
-    public void test_getInstanceLjava_lang_StringLjava_lang_String() throws NoSuchAlgorithmException,
-            NoSuchProviderException, IllegalArgumentException,
-            KeyManagementException {
+    public void test_getInstanceLjava_lang_StringLjava_lang_String()
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            IllegalArgumentException, KeyManagementException {
         try {
             SSLContext.getInstance(null, mProv.getName());
-            fail("NoSuchAlgorithmException or NullPointerException should be thrown (protocol is null");
+            fail("NoSuchAlgorithmException or NullPointerException should be thrown "
+                 + "(protocol is null)");
         } catch (NoSuchAlgorithmException e) {
         } catch (NullPointerException e) {
         }
@@ -251,12 +231,9 @@ public class SSLContext2Test extends TestCase {
         SSLContext sslC;
         for (int i = 0; i < validValues.length; i++) {
             sslC = SSLContext.getInstance(validValues[i], mProv.getName());
-            assertTrue("Not instanceof SSLContext object",
-                    sslC instanceof SSLContext);
-            assertEquals("Incorrect protocol", sslC.getProtocol(),
-                    validValues[i]);
-            assertEquals("Incorrect provider", sslC.getProvider().getName(),
-                    mProv.getName());
+            assertTrue("Not instanceof SSLContext object", sslC instanceof SSLContext);
+            assertEquals("Incorrect protocol", sslC.getProtocol(), validValues[i]);
+            assertEquals("Incorrect provider", sslC.getProvider().getName(), mProv.getName());
             checkSSLContext(sslC);
         }
     }
@@ -270,18 +247,13 @@ public class SSLContext2Test extends TestCase {
      * throws IllegalArgumentException when provider is null;
      * returns SSLContext object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider()
         throws NoSuchAlgorithmException,
         IllegalArgumentException, KeyManagementException {
         try {
             SSLContext.getInstance(null, mProv);
-            fail("NoSuchAlgorithmException or NullPointerException should be thrown (protocol is null");
+            fail("NoSuchAlgorithmException or NullPointerException should be thrown "
+                 + "(protocol is null)");
         } catch (NoSuchAlgorithmException e) {
         } catch (NullPointerException e) {
         }
@@ -305,13 +277,11 @@ public class SSLContext2Test extends TestCase {
         SSLContext sslC;
         for (int i = 0; i < validValues.length; i++) {
             sslC = SSLContext.getInstance(validValues[i], mProv);
-            assertTrue("Not instanceof SSLContext object",
-                    sslC instanceof SSLContext);
-            assertEquals("Incorrect protocol", sslC.getProtocol(),
-                    validValues[i]);
+            assertTrue("Not instanceof SSLContext object", sslC instanceof SSLContext);
+            assertEquals("Incorrect protocol", sslC.getProtocol(), validValues[i]);
             assertEquals("Incorrect provider", sslC.getProvider(), mProv);
             checkSSLContext(sslC);
-       }
+        }
     }
 
     class TManager implements TrustManager {
