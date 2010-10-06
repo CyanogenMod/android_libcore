@@ -17,31 +17,8 @@
 package java.util.regex;
 
 /**
- * Provides a means of matching regular expressions against a given input,
- * finding occurrences of regular expressions in a given input, or replacing
- * parts of a given input. A {@code Matcher} instance has an associated {@link
- * Pattern} instance and an input text. A typical use case is to
- * iteratively find all occurrences of the {@code Pattern}, until the end of
- * the input is reached, as the following example illustrates:
- *
- * <p/>
- *
- * <pre>
- * Pattern p = Pattern.compile("[A-Za-z]+");
- *
- * Matcher m = p.matcher("Hello, Android!");
- * while (m.find()) {
- *     System.out.println(m.group()); // prints "Hello" and "Android"
- * }
- * </pre>
- *
- * <p/>
- *
- * The {@code Matcher} has a state that results from the previous operations.
- * For example, it knows whether the most recent attempt to find the
- * {@code Pattern} was successful and at which position the next attempt would
- * resume the search. Depending on the application's needs, it may become
- * necessary to explicitly {@link #reset()} this state from time to time.
+ * The result of applying a {@code Pattern} to a given input. See {@link Pattern} for
+ * example uses.
  */
 public final class Matcher implements MatchResult {
 
@@ -358,11 +335,22 @@ public final class Matcher implements MatchResult {
 
     /**
      * Returns the text that matched a given group of the regular expression.
+     * Explicit capturing groups in the pattern are numbered left to right in order
+     * of their <i>opening</i> parenthesis, starting at 1.
+     * The special group 0 represents the entire match (as if the entire pattern is surrounded
+     * by an implicit capturing group).
+     * For example, "a((b)c)" matching "abc" would give the following groups:
+     * <pre>
+     * 0 "abc"
+     * 1 "bc"
+     * 2 "b"
+     * </pre>
      *
-     * @param group
-     *            the group, ranging from 0 to groupCount() - 1, with 0
-     *            representing the whole pattern.
-     * @return the text that matched the group.
+     * <p>An optional capturing group that failed to match as part of an overall
+     * successful match (for example, "a(b)?c" matching "ac") returns null.
+     * A capturing group that matched the empty string (for example, "a(b?)c" matching "ac")
+     * returns the empty string.
+     *
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
