@@ -8,12 +8,14 @@
 *******************************************************************************
 */
 
-package com.ibm.icu4jni.text;
+package libcore.icu;
+
+import java.text.CollationKey;
 
 /**
  * A concrete implementation of the abstract java.text.CollationKey.
  */
-public final class CollationKey extends java.text.CollationKey {
+public final class CollationKeyICU extends CollationKey {
     /**
      * The key.
      */
@@ -24,16 +26,16 @@ public final class CollationKey extends java.text.CollationKey {
      */
     private int hashCode;
 
-    CollationKey(String source, byte[] bytes) {
+    CollationKeyICU(String source, byte[] bytes) {
         super(source);
         this.bytes = bytes;
     }
 
-    public int compareTo(java.text.CollationKey other) {
+    @Override public int compareTo(CollationKey other) {
         // Get the bytes from the other collation key.
         final byte[] rhsBytes;
-        if (other instanceof CollationKey) {
-            rhsBytes = ((CollationKey) other).bytes;
+        if (other instanceof CollationKeyICU) {
+            rhsBytes = ((CollationKeyICU) other).bytes;
         } else {
             rhsBytes = other.toByteArray();
         }
@@ -69,14 +71,7 @@ public final class CollationKey extends java.text.CollationKey {
         return 0;
     }
 
-    /**
-     * Checks if target object is equal to this object.
-     * Target is first casted to CollationKey and bitwise compared.
-     * @param target comparison object
-     * @return true if both objects are equal, false otherwise
-     * @stable ICU 2.4
-     */
-    public boolean equals(Object object) {
+    @Override public boolean equals(Object object) {
         if (object == this) {
             return true;
         }
@@ -96,7 +91,7 @@ public final class CollationKey extends java.text.CollationKey {
      * @return hash value of collation key. Hash value is never 0.
      * @stable ICU 2.4
      */
-    public int hashCode() {
+    @Override public int hashCode() {
         if (hashCode == 0) {
             if (bytes != null && bytes.length != 0) {
                 int len = bytes.length;
@@ -113,7 +108,7 @@ public final class CollationKey extends java.text.CollationKey {
         return hashCode;
     }
 
-    public byte[] toByteArray() {
+    @Override public byte[] toByteArray() {
         if (bytes == null || bytes.length == 0) {
             return null;
         }

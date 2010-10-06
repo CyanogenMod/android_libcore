@@ -20,6 +20,7 @@ package java.text;
 import java.util.Comparator;
 import java.util.Locale;
 import libcore.icu.ICU;
+import libcore.icu.RuleBasedCollatorICU;
 
 /**
  * Performs locale-sensitive string comparison. A concrete subclass,
@@ -144,21 +145,17 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      */
     public static final int IDENTICAL = 3;
 
-    // Wrapper class of ICU4JNI Collator
-    com.ibm.icu4jni.text.Collator icuColl;
+    RuleBasedCollatorICU icuColl;
 
-    Collator(com.ibm.icu4jni.text.Collator wrapper) {
-        this.icuColl = wrapper;
+    Collator(RuleBasedCollatorICU icuColl) {
+        this.icuColl = icuColl;
     }
 
     /**
      * Constructs a new {@code Collator} instance.
      */
     protected Collator() {
-        super();
-        // BEGIN android-added
-        icuColl = com.ibm.icu4jni.text.Collator.getInstance(Locale.getDefault());
-        // END android-added
+        icuColl = new RuleBasedCollatorICU(Locale.getDefault());
     }
 
     /**
@@ -172,7 +169,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     public Object clone() {
         try {
             Collator clone = (Collator) super.clone();
-            clone.icuColl = (com.ibm.icu4jni.text.Collator) this.icuColl.clone();
+            clone.icuColl = (RuleBasedCollatorICU) icuColl.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e); // android-changed
@@ -227,8 +224,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
             return false;
         }
         Collator collator = (Collator) object;
-        return this.icuColl == null ? collator.icuColl == null : this.icuColl
-                .equals(collator.icuColl);
+        return icuColl == null ? collator.icuColl == null : icuColl.equals(collator.icuColl);
     }
 
     /**
@@ -273,7 +269,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *         not supported.
      */
     public int getDecomposition() {
-        return decompositionMode_ICU_Java(this.icuColl.getDecomposition());
+        return decompositionMode_ICU_Java(icuColl.getDecomposition());
     }
 
     /**
@@ -292,7 +288,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
         if (locale == null) {
             throw new NullPointerException();
         }
-        return new RuleBasedCollator(com.ibm.icu4jni.text.Collator.getInstance(locale));
+        return new RuleBasedCollator(new RuleBasedCollatorICU(locale));
     }
 
     /**
@@ -302,7 +298,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *         IDENTICAL.
      */
     public int getStrength() {
-        return strength_ICU_Java(this.icuColl.getStrength());
+        return strength_ICU_Java(icuColl.getStrength());
     }
 
     @Override
@@ -320,7 +316,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *            {@code FULL_DECOMPOSITION}.
      */
     public void setDecomposition(int value) {
-        this.icuColl.setDecomposition(decompositionMode_Java_ICU(value));
+        icuColl.setDecomposition(decompositionMode_Java_ICU(value));
     }
 
     /**
@@ -333,15 +329,15 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *            if the provided strength value is not valid.
      */
     public void setStrength(int value) {
-        this.icuColl.setStrength(strength_Java_ICU(value));
+        icuColl.setStrength(strength_Java_ICU(value));
     }
 
     private int decompositionMode_Java_ICU(int mode) {
         switch (mode) {
         case Collator.CANONICAL_DECOMPOSITION:
-            return com.ibm.icu4jni.text.Collator.CANONICAL_DECOMPOSITION;
+            return RuleBasedCollatorICU.VALUE_ON;
         case Collator.NO_DECOMPOSITION:
-            return com.ibm.icu4jni.text.Collator.NO_DECOMPOSITION;
+            return RuleBasedCollatorICU.VALUE_OFF;
         }
         throw new IllegalArgumentException();
     }
@@ -349,12 +345,12 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int decompositionMode_ICU_Java(int mode) {
         int javaMode = mode;
         switch (mode) {
-            case com.ibm.icu4jni.text.Collator.NO_DECOMPOSITION:
-                javaMode = Collator.NO_DECOMPOSITION;
-                break;
-            case com.ibm.icu4jni.text.Collator.CANONICAL_DECOMPOSITION:
-                javaMode = Collator.CANONICAL_DECOMPOSITION;
-                break;
+        case RuleBasedCollatorICU.VALUE_OFF:
+            javaMode = Collator.NO_DECOMPOSITION;
+            break;
+        case RuleBasedCollatorICU.VALUE_ON:
+            javaMode = Collator.CANONICAL_DECOMPOSITION;
+            break;
         }
         return javaMode;
     }
@@ -362,13 +358,13 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int strength_Java_ICU(int value) {
         switch (value) {
         case Collator.PRIMARY:
-            return com.ibm.icu4jni.text.Collator.PRIMARY;
+            return RuleBasedCollatorICU.VALUE_PRIMARY;
         case Collator.SECONDARY:
-            return com.ibm.icu4jni.text.Collator.SECONDARY;
+            return RuleBasedCollatorICU.VALUE_SECONDARY;
         case Collator.TERTIARY:
-            return com.ibm.icu4jni.text.Collator.TERTIARY;
+            return RuleBasedCollatorICU.VALUE_TERTIARY;
         case Collator.IDENTICAL:
-            return com.ibm.icu4jni.text.Collator.IDENTICAL;
+            return RuleBasedCollatorICU.VALUE_IDENTICAL;
         }
         throw new IllegalArgumentException();
     }
@@ -376,18 +372,18 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int strength_ICU_Java(int value) {
         int javaValue = value;
         switch (value) {
-            case com.ibm.icu4jni.text.Collator.PRIMARY:
-                javaValue = Collator.PRIMARY;
-                break;
-            case com.ibm.icu4jni.text.Collator.SECONDARY:
-                javaValue = Collator.SECONDARY;
-                break;
-            case com.ibm.icu4jni.text.Collator.TERTIARY:
-                javaValue = Collator.TERTIARY;
-                break;
-            case com.ibm.icu4jni.text.Collator.IDENTICAL:
-                javaValue = Collator.IDENTICAL;
-                break;
+        case RuleBasedCollatorICU.VALUE_PRIMARY:
+            javaValue = Collator.PRIMARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_SECONDARY:
+            javaValue = Collator.SECONDARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_TERTIARY:
+            javaValue = Collator.TERTIARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_IDENTICAL:
+            javaValue = Collator.IDENTICAL;
+            break;
         }
         return javaValue;
     }
