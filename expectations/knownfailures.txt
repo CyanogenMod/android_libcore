@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "RandomAccessFile missing finalizer",
+  name: "libcore.java.io.RandomAccessFileTest#testRandomAccessFileHasCleanupFinalizer",
+  bug: 3015023
+},
+{
   description: "ICU seems to treat unknown and invalid locales differently",
   name: "libcore.java.text.DateFormatSymbolsTest#test_getInstance_unknown_locale",
   bug: 2541757
