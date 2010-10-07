@@ -64,28 +64,33 @@ public class File implements Serializable, Comparable<File> {
     private static final long serialVersionUID = 301077366599181567L;
 
     /**
-     * The system dependent file separator character.
-     * This field is initialized from the system property "file.separator".
+     * The system-dependent character used to separate components in filenames ('/').
+     * Use of this (rather than hard-coding '/') helps portability to other operating systems.
+     *
+     * <p>This field is initialized from the system property "file.separator".
      * Later changes to that property will have no effect on this field or this class.
      */
     public static final char separatorChar;
 
     /**
-     * The system dependent file separator string.
-     * This field is a single-character string equal to String.valueOf(separatorChar).
+     * The system-dependent string used to separate components in filenames ('/').
+     * See {@link #separatorChar}.
      */
     public static final String separator;
 
     /**
-     * The system dependent path separator character.
-     * This field is initialized from the system property "path.separator".
+     * The system-dependent character used to separate components in search paths (':').
+     * This is used to split such things as the PATH environment variable and classpath
+     * system properties into lists of directories to be searched.
+     *
+     * <p>This field is initialized from the system property "path.separator".
      * Later changes to that property will have no effect on this field or this class.
      */
     public static final char pathSeparatorChar;
 
     /**
-     * The system dependent path separator string.
-     * This field is a single-character string equal to String.valueOf(pathSeparatorChar).
+     * The system-dependent string used to separate components in search paths (":").
+     * See {@link #pathSeparatorChar}.
      */
     public static final String pathSeparator;
 
