@@ -31,13 +31,15 @@ package java.nio;
  */
 final class CharToByteBufferAdapter extends CharBuffer {
 
-    static CharBuffer wrap(ByteBuffer byteBuffer) {
-        return new CharToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    CharToByteBufferAdapter(ByteBuffer byteBuffer) {
+    static CharBuffer asCharBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new CharToByteBufferAdapter(slice);
+    }
+
+    private CharToByteBufferAdapter(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SIZEOF_CHAR);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();

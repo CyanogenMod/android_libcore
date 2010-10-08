@@ -31,13 +31,15 @@ package java.nio;
  */
 final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
-    static DoubleBuffer wrap(ByteBuffer byteBuffer) {
-        return new DoubleToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    DoubleToByteBufferAdapter(ByteBuffer byteBuffer) {
+    static DoubleBuffer asDoubleBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new DoubleToByteBufferAdapter(slice);
+    }
+
+    private DoubleToByteBufferAdapter(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SIZEOF_DOUBLE);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();

@@ -31,13 +31,15 @@ package java.nio;
  */
 final class LongToByteBufferAdapter extends LongBuffer {
 
-    static LongBuffer wrap(ByteBuffer byteBuffer) {
-        return new LongToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    LongToByteBufferAdapter(ByteBuffer byteBuffer) {
+    static LongBuffer asLongBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new LongToByteBufferAdapter(slice);
+    }
+
+    private LongToByteBufferAdapter(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SIZEOF_LONG);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();

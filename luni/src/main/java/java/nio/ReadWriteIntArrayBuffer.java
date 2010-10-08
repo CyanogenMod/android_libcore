@@ -31,8 +31,8 @@ package java.nio;
 final class ReadWriteIntArrayBuffer extends IntArrayBuffer {
 
     static ReadWriteIntArrayBuffer copy(IntArrayBuffer other, int markOfOther) {
-        ReadWriteIntArrayBuffer buf = new ReadWriteIntArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadWriteIntArrayBuffer buf =
+                new ReadWriteIntArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -58,8 +58,7 @@ final class ReadWriteIntArrayBuffer extends IntArrayBuffer {
 
     @Override
     public IntBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

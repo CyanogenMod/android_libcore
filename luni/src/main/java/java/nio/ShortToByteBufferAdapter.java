@@ -30,13 +30,15 @@ package java.nio;
  */
 final class ShortToByteBufferAdapter extends ShortBuffer {
 
-    static ShortBuffer wrap(ByteBuffer byteBuffer) {
-        return new ShortToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    ShortToByteBufferAdapter(ByteBuffer byteBuffer) {
+    static ShortBuffer asShortBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new ShortToByteBufferAdapter(slice);
+    }
+
+    private ShortToByteBufferAdapter(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SIZEOF_SHORT);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();

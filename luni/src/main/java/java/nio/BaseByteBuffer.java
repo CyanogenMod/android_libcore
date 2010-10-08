@@ -28,32 +28,32 @@ abstract class BaseByteBuffer extends ByteBuffer {
 
     @Override
     public final CharBuffer asCharBuffer() {
-        return CharToByteBufferAdapter.wrap(this);
+        return CharToByteBufferAdapter.asCharBuffer(this);
     }
 
     @Override
     public final DoubleBuffer asDoubleBuffer() {
-        return DoubleToByteBufferAdapter.wrap(this);
+        return DoubleToByteBufferAdapter.asDoubleBuffer(this);
     }
 
     @Override
     public final FloatBuffer asFloatBuffer() {
-        return FloatToByteBufferAdapter.wrap(this);
+        return FloatToByteBufferAdapter.asFloatBuffer(this);
     }
 
     @Override
     public final IntBuffer asIntBuffer() {
-        return IntToByteBufferAdapter.wrap(this);
+        return IntToByteBufferAdapter.asIntBuffer(this);
     }
 
     @Override
     public final LongBuffer asLongBuffer() {
-        return LongToByteBufferAdapter.wrap(this);
+        return LongToByteBufferAdapter.asLongBuffer(this);
     }
 
     @Override
     public final ShortBuffer asShortBuffer() {
-        return ShortToByteBufferAdapter.wrap(this);
+        return ShortToByteBufferAdapter.asShortBuffer(this);
     }
 
     @Override
