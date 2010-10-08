@@ -242,7 +242,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
                     ((backingArray[baseOffset++] & 0xff) << 16) |
                     ((backingArray[baseOffset++] & 0xff) <<  8) |
                     ((backingArray[baseOffset  ] & 0xff) <<  0);
-            return (((long) h) << 32) | l;
+            return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
         } else {
             int l = ((backingArray[baseOffset++] & 0xff) <<  0) |
                     ((backingArray[baseOffset++] & 0xff) <<  8) |
@@ -252,7 +252,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
                     ((backingArray[baseOffset++] & 0xff) <<  8) |
                     ((backingArray[baseOffset++] & 0xff) << 16) |
                     ((backingArray[baseOffset  ] & 0xff) << 24);
-            return (((long) h) << 32) | l;
+            return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
         }
     }
 
