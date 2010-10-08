@@ -32,12 +32,11 @@ import org.apache.harmony.luni.platform.OSMemory;
 final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     static ReadWriteHeapByteBuffer copy(HeapByteBuffer other, int markOfOther) {
-        ReadWriteHeapByteBuffer buf = new ReadWriteHeapByteBuffer(other.backingArray,
-                other.capacity(), other.offset);
+        ReadWriteHeapByteBuffer buf =
+                new ReadWriteHeapByteBuffer(other.backingArray, other.capacity(), other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
-        buf.order(other.order());
         return buf;
     }
 
@@ -309,9 +308,6 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer slice() {
-        ReadWriteHeapByteBuffer slice = new ReadWriteHeapByteBuffer(backingArray, remaining(),
-                offset + position);
-        slice.order = order;
-        return slice;
+        return new ReadWriteHeapByteBuffer(backingArray, remaining(), offset + position);
     }
 }

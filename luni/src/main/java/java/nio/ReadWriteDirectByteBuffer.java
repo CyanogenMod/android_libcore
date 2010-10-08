@@ -32,11 +32,11 @@ import org.apache.harmony.luni.platform.OSMemory;
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     static ReadWriteDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(other.block, other.capacity(), other.offset);
+        ReadWriteDirectByteBuffer buf =
+                new ReadWriteDirectByteBuffer(other.block, other.capacity(), other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
-        buf.order(other.order());
         return buf;
     }
 
@@ -263,9 +263,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer slice() {
-        ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(block, remaining(), offset + position);
-        buf.order = order;
-        return buf;
+        return new ReadWriteDirectByteBuffer(block, remaining(), offset + position);
     }
 
 }

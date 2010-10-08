@@ -30,11 +30,13 @@ package java.nio;
  */
 final class FloatToByteBufferAdapter extends FloatBuffer {
 
-    static FloatBuffer wrap(ByteBuffer byteBuffer) {
-        return new FloatToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
+
+    static FloatBuffer asFloatBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new FloatToByteBufferAdapter(slice);
+    }
 
     FloatToByteBufferAdapter(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SIZEOF_FLOAT);

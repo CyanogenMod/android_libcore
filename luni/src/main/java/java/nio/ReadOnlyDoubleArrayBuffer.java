@@ -31,18 +31,16 @@ package java.nio;
  */
 final class ReadOnlyDoubleArrayBuffer extends DoubleArrayBuffer {
 
-    static ReadOnlyDoubleArrayBuffer copy(DoubleArrayBuffer other,
-            int markOfOther) {
-        ReadOnlyDoubleArrayBuffer buf = new ReadOnlyDoubleArrayBuffer(other
-                .capacity(), other.backingArray, other.offset);
+    static ReadOnlyDoubleArrayBuffer copy(DoubleArrayBuffer other, int markOfOther) {
+        ReadOnlyDoubleArrayBuffer buf =
+                new ReadOnlyDoubleArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
         return buf;
     }
 
-    ReadOnlyDoubleArrayBuffer(int capacity, double[] backingArray,
-            int arrayOffset) {
+    ReadOnlyDoubleArrayBuffer(int capacity, double[] backingArray, int arrayOffset) {
         super(capacity, backingArray, arrayOffset);
     }
 
@@ -103,8 +101,7 @@ final class ReadOnlyDoubleArrayBuffer extends DoubleArrayBuffer {
 
     @Override
     public DoubleBuffer slice() {
-        return new ReadOnlyDoubleArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadOnlyDoubleArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

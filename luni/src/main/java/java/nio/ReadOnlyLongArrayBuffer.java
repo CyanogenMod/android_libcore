@@ -32,8 +32,8 @@ package java.nio;
 final class ReadOnlyLongArrayBuffer extends LongArrayBuffer {
 
     static ReadOnlyLongArrayBuffer copy(LongArrayBuffer other, int markOfOther) {
-        ReadOnlyLongArrayBuffer buf = new ReadOnlyLongArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadOnlyLongArrayBuffer buf =
+                new ReadOnlyLongArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -101,8 +101,7 @@ final class ReadOnlyLongArrayBuffer extends LongArrayBuffer {
 
     @Override
     public LongBuffer slice() {
-        return new ReadOnlyLongArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadOnlyLongArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

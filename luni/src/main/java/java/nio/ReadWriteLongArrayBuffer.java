@@ -31,8 +31,8 @@ package java.nio;
 final class ReadWriteLongArrayBuffer extends LongArrayBuffer {
 
     static ReadWriteLongArrayBuffer copy(LongArrayBuffer other, int markOfOther) {
-        ReadWriteLongArrayBuffer buf = new ReadWriteLongArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadWriteLongArrayBuffer buf =
+                new ReadWriteLongArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -58,8 +58,7 @@ final class ReadWriteLongArrayBuffer extends LongArrayBuffer {
 
     @Override
     public LongBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
