@@ -51,4 +51,15 @@ public final class RandomAccessFileTest extends TestCase {
         } catch (IOException expected) {
         }
     }
+
+    // http://b/3015023
+    public void testRandomAccessFileHasCleanupFinalizer() throws IOException {
+        int tooManyOpenFiles = 2000;
+        File file = File.createTempFile("RandomAccessFileTest", "tmp");
+        for (int i = 0; i < tooManyOpenFiles; i++) {
+            new RandomAccessFile(file, "rw");
+            System.gc();
+            System.runFinalization();
+        }
+    }
 }
