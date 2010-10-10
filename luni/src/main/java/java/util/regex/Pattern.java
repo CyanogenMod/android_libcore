@@ -168,8 +168,7 @@ import java.io.Serializable;
  * <tr> <td> (?&gt;<i>a</i>) </td> <td>An independent non-capturing group. (The first match of the subgroup is the only match tried.)</td> </tr>
  * <tr> <td> \<i>n</i> </td> <td>The text already matched by capturing group <i>n</i>.</td> </tr>
  * </table>
- * <p>Explicit capturing groups are numbered from 1, and available via {@link Matcher#group}.
- * Group 0 represents the whole match.
+ * <p>See {@link Matcher#group} for details of how capturing groups are numbered and accessed.
  *
  * <h3>Operators</h3>
  * <p><table>
