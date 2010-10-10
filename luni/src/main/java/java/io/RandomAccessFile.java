@@ -169,7 +169,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if an error occurs while closing this file.
      */
     public void close() throws IOException {
-        // BEGIN android-changed
         synchronized (this) {
             if (channel != null && channel.isOpen()) {
                 channel.close();
@@ -179,7 +178,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 IoUtils.close(fd);
             }
         }
-        // END android-changed
+    }
+
+    @Override protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
     }
 
     /**
