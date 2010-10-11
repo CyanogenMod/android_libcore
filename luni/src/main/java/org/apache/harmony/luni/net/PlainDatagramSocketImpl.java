@@ -47,7 +47,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private volatile boolean isNativeConnected;
 
-    private final CloseGuard guard = CloseGuard.getUnopened();
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * used to keep address to which the socket was connected to at the native
@@ -102,7 +102,10 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override protected void finalize() throws Throwable {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
+            close();
         } finally {
             super.finalize();
         }

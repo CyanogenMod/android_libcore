@@ -16,8 +16,6 @@
 
 package java.math;
 
-import dalvik.system.CloseGuard;
-
 /*
  * In contrast to BigIntegers this class doesn't fake two's complement representation.
  * Any Bit-Operations, including Shifting, solely regard the unsigned magnitude.

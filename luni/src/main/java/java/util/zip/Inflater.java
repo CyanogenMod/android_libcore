@@ -46,7 +46,7 @@ public class Inflater {
 
     private long streamHandle = -1;
 
-    private final CloseGuard guard = CloseGuard.get("end");
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * This constructor creates an inflater that expects a header from the input
@@ -67,6 +67,7 @@ public class Inflater {
      */
     public Inflater(boolean noHeader) {
         streamHandle = createStream(noHeader);
+        guard.open("end");
     }
 
     private native long createStream(boolean noHeader1);
@@ -89,7 +90,9 @@ public class Inflater {
 
     @Override protected void finalize() {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             end();
         } finally {
             try {
