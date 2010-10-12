@@ -249,25 +249,6 @@ $(HOST_CORE_JAR): $(LOCAL_BUILT_MODULE)
 
 $(LOCAL_INSTALLED_MODULE): $(HOST_CORE_JAR)
 
-$(LOCAL_INSTALLED_MODULE): run-core-tests
-
-# Definitions to copy the core-tests runner script.
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := run-core-tests
-LOCAL_MODULE_CLASS := EXECUTABLES
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := run-core-tests
-include $(BUILD_PREBUILT)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := run-core-tests-on-ri
-LOCAL_IS_HOST_MODULE := true
-LOCAL_MODULE_CLASS := EXECUTABLES
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := run-core-tests-on-ri
-include $(BUILD_PREBUILT)
-
 
 #
 # Build for the host.
