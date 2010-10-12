@@ -129,7 +129,7 @@ public class Deflater {
 
     private int inLength;
 
-    private final CloseGuard guard = CloseGuard.get("end");
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Constructs a new {@code Deflater} instance with default compression
@@ -172,6 +172,7 @@ public class Deflater {
         }
         compressLevel = level;
         streamHandle = createStream(compressLevel, strategy, noHeader);
+        guard.open("end");
     }
 
     /**
@@ -268,7 +269,9 @@ public class Deflater {
 
     @Override protected void finalize() {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             synchronized (this) {
                 end(); // to allow overriding classes to clean up
                 endImpl(); // in case those classes don't call super.end()

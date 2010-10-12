@@ -27,18 +27,25 @@ import java.util.logging.Logger;
  * A simple example: <pre>   {@code
  *   class Foo {
  *
- *       private final CloseGuard guard = CloseGuard.get("cleanup");
+ *       private final CloseGuard guard = CloseGuard.get();
  *
  *       ...
+ *
+ *       public Foo() {
+ *           ...;
+ *           guard.open("cleanup");
+ *       }
  *
  *       public void cleanup() {
  *          guard.close();
  *          ...;
  *       }
  *
- *       protected void finalize throws Throwable {
+ *       protected void finalize() throws Throwable {
  *           try {
- *               guard.warnIfOpen();
+ *               if (guard != null) {
+ *                   guard.warnIfOpen();
+ *               }
  *               cleanup();
  *           } finally {
  *               super.finalize();
@@ -56,9 +63,13 @@ import java.util.logging.Logger;
  *
  *       ...
  *
+ *       public Bar() {
+ *           ...;
+ *       }
+ *
  *       public void connect() {
- *          guard.open("cleanup");
  *          ...;
+ *          guard.open("cleanup");
  *       }
  *
  *       public void cleanup() {
@@ -66,9 +77,11 @@ import java.util.logging.Logger;
  *          ...;
  *       }
  *
- *       protected void finalize throws Throwable {
+ *       protected void finalize() throws Throwable {
  *           try {
- *               guard.warnIfOpen();
+ *               if (guard != null) {
+ *                   guard.warnIfOpen();
+ *               }
  *               cleanup();
  *           } finally {
  *               super.finalize();
@@ -76,6 +89,19 @@ import java.util.logging.Logger;
  *       }
  *   }
  * }</pre>
+ *
+ * When used in a constructor calls to {@code open} should occur at
+ * the end of the constructor since an exception that would cause
+ * abrupt termination of the constructor will mean that the user will
+ * not have a reference to the object to cleanup explicitly. When used
+ * in a method, the call to {@code open} should occur just after
+ * resource acquisition.
+ *
+ * <p>
+ *
+ * Note that the null check on {@code guard} in the finalizer is to
+ * cover cases where a constructor throws an exception causing the
+ * {@code guard} to be uninitialized.
  *
  * @hide
  */
@@ -87,23 +113,12 @@ public final class CloseGuard {
     private static final CloseGuard NOOP = new CloseGuard();
 
     /**
-     * Returns an open CloseGuard instance for the specified {@code
-     * closer} method. This is equivalent to calling {@link
-     * #getUnopened()} followed by {@link #open(String)}.
+     * Returns a CloseGuard instance. If CloseGuard is enabled, {@code
+     * #open(String)} can be used to set up the instance to warn on
+     * failure to close. If CloseGuard is disabled, a non-null no-op
+     * instanace is returned.
      */
-    public static CloseGuard get(String closer) {
-        CloseGuard guard = getUnopened();
-        guard.open(closer);
-        return guard;
-    }
-
-    /**
-     * Returns an unopened CloseGuard instance. If CloseGuard is
-     * enabled, {@code #open(String)} can be used to set up the
-     * instance to warn on failure to close. If CloseGuard is
-     * disabled, a non-null no-op instanace is returned.
-     */
-    public static CloseGuard getUnopened() {
+    public static CloseGuard get() {
         if (!enabled()) {
             return NOOP;
         }

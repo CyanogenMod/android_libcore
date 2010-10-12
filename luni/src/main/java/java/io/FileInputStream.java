@@ -59,7 +59,7 @@ public class FileInputStream extends InputStream implements Closeable {
 
     private final Object repositioningLock = new Object();
 
-    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Constructs a new {@code FileInputStream} that reads from {@code file}.
@@ -84,7 +84,7 @@ public class FileInputStream extends InputStream implements Closeable {
         fd.readOnly = true;
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
         shouldCloseFd = true;
-        this.guard = CloseGuard.get("close");
+        guard.open("close");
     }
 
     /**
@@ -108,7 +108,7 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         this.fd = fd;
         this.shouldCloseFd = false;
-        this.guard = CloseGuard.get("close");
+        this.guard.open("close");
     }
 
     /**
@@ -146,7 +146,9 @@ public class FileInputStream extends InputStream implements Closeable {
      */
     @Override protected void finalize() throws IOException {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             close();
         } finally {
             try {

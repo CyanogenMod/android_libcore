@@ -84,7 +84,7 @@ public class ZipFile implements ZipConstants {
 
     private final LinkedHashMap<String, ZipEntry> mEntries = new LinkedHashMap<String, ZipEntry>();
 
-    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Constructs a new {@code ZipFile} with the specified file.
@@ -134,7 +134,7 @@ public class ZipFile implements ZipConstants {
         mRaf = new RandomAccessFile(fileName, "r");
 
         readCentralDir();
-        guard = CloseGuard.get("close");
+        guard.open("close");
     }
 
     /**
@@ -151,7 +151,9 @@ public class ZipFile implements ZipConstants {
 
     @Override protected void finalize() throws IOException {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
         } finally {
             try {
                 super.finalize();

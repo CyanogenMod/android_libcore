@@ -47,7 +47,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     private int mode;
 
-    private final CloseGuard guard; // TODO Move initialization here http://b/2645458
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
@@ -126,7 +126,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         }
 
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), this.mode);
-        this.guard = CloseGuard.get("close");
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -136,6 +135,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 // Ignored
             }
         }
+        guard.open("close");
     }
 
     /**
@@ -187,7 +187,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
     @Override protected void finalize() throws Throwable {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             close();
         } finally {
             super.finalize();

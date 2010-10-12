@@ -55,7 +55,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     private Proxy proxy;
 
-    private final CloseGuard guard = CloseGuard.getUnopened();
+    private final CloseGuard guard = CloseGuard.get();
 
     public PlainSocketImpl(FileDescriptor fd) {
         this.fd = fd;
@@ -220,7 +220,9 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override protected void finalize() throws Throwable {
         try {
-            guard.warnIfOpen();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             close();
         } finally {
             super.finalize();
