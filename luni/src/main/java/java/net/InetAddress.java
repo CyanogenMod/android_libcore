@@ -506,6 +506,15 @@ public class InetAddress implements Serializable {
     private static native byte[][] getaddrinfo(String name) throws UnknownHostException;
 
     /**
+     * Removes all entries from the VM's DNS cache. This does not affect the C library's DNS
+     * cache, nor any caching DNS servers between you and the canonical server.
+     * @hide
+     */
+    public static void clearDnsCache() {
+        addressCache.clear();
+    }
+
+    /**
      * Query the IP stack for the host address. The host is in address form.
      *
      * @param addr
@@ -513,8 +522,7 @@ public class InetAddress implements Serializable {
      * @throws UnknownHostException
      *             if an error occurs during lookup.
      */
-    static InetAddress getHostByAddrImpl(byte[] addr)
-            throws UnknownHostException {
+    static InetAddress getHostByAddrImpl(byte[] addr) throws UnknownHostException {
         BlockGuard.getThreadPolicy().onNetwork();
         if (addr.length == 4) {
             return new Inet4Address(addr, getnameinfo(addr));

@@ -77,6 +77,15 @@ class AddressCache {
     }
 
     /**
+     * Removes all entries from the cache.
+     */
+    public void clear() {
+        synchronized (map) {
+            map.clear();
+        }
+    }
+
+    /**
      * Returns the cached addresses associated with 'hostname'. Returns null if nothing is known
      * about 'hostname'. Returns an empty array if 'hostname' is known not to exist.
      */
