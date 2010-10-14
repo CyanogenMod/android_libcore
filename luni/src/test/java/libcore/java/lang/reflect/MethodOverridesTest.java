@@ -18,6 +18,7 @@ package libcore.java.lang.reflect;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class MethodOverridesTest extends TestCase {
 
     public void testGetMethodsIncludesInheritedMethods() {
         Set<String> signatures = signatures(Sub.class.getMethods());
-        assertTrue(signatures.contains("void notOverridden[] throws []"));
+        assertContains(signatures, "void notOverridden[] throws []");
     }
 
     public void testGetDeclaredMethodsDoesNotIncludeInheritedMethods() {
@@ -68,20 +69,29 @@ public class MethodOverridesTest extends TestCase {
 
     public void testGetMethodsDoesNotIncludeExceptionChanges() throws NoSuchMethodException {
         Set<String> signatures = signatures(Sub.class.getMethods());
-        assertTrue(signatures.contains("void thrower[] throws []"));
+        assertContains(signatures, "void thrower[] throws []");
         assertFalse(signatures.contains("void thrower[] throws [java.lang.Exception]"));
+        assertEquals(Sub.class, Sub.class.getMethod("thrower").getDeclaringClass());
     }
 
     public void testGetMethodsIncludesSyntheticMethods() throws NoSuchMethodException {
         Set<String> signatures = signatures(Sub.class.getMethods());
-        assertTrue(signatures.contains("java.lang.String returner[] throws []"));
-        assertTrue(signatures.contains("java.lang.Object returner[] throws []"));
+        assertContains(signatures, "java.lang.String returner[] throws []");
+        assertContains(signatures, "java.lang.Object returner[] throws []");
+
+        Method method = Sub.class.getMethod("returner");
+        assertEquals(Sub.class, method.getDeclaringClass());
+        assertFalse(method.isSynthetic());
     }
 
     public void testGetDeclaredMethodsIncludesSyntheticMethods() throws NoSuchMethodException {
         Set<String> signatures = signatures(Sub.class.getDeclaredMethods());
-        assertTrue(signatures.contains("java.lang.String returner[] throws []"));
-        assertTrue(signatures.contains("java.lang.Object returner[] throws []"));
+        assertContains(signatures, "java.lang.String returner[] throws []");
+        assertContains(signatures, "java.lang.Object returner[] throws []");
+
+        Method method = Sub.class.getMethod("returner");
+        assertEquals(Sub.class, method.getDeclaringClass());
+        assertFalse(method.isSynthetic());
     }
 
     public void testSubclassChangesVisibility() throws NoSuchMethodException {
@@ -89,10 +99,33 @@ public class MethodOverridesTest extends TestCase {
         int count = 0;
         for (Method method : methods) {
             if (signature(method).equals("void visibility[] throws []")) {
+                assertEquals(Sub.class, method.getDeclaringClass());
+                assertFalse(method.isSynthetic());
                 count++;
             }
         }
         assertEquals(1, count);
+
+        Method method = Sub.class.getMethod("visibility");
+        assertEquals(Sub.class, method.getDeclaringClass());
+        assertFalse(method.isSynthetic());
+    }
+
+    public void testMoreVisibleSubclassChangesVisibility() throws NoSuchMethodException {
+        Method[] methods = PublicSub.class.getMethods();
+        int count = 0;
+        for (Method method : methods) {
+            if (signature(method).equals("void unchanged[] throws []")) {
+                assertEquals(PublicSub.class, method.getDeclaringClass());
+                assertTrue(method.isSynthetic());
+                count++;
+            }
+        }
+        assertEquals(1, count);
+
+        Method method = PublicSub.class.getMethod("unchanged");
+        assertEquals(PublicSub.class, method.getDeclaringClass());
+        assertTrue(method.isSynthetic());
     }
 
     public static class Super {
@@ -114,6 +147,12 @@ public class MethodOverridesTest extends TestCase {
         @Override public void visibility() {}
     }
 
+    static class PackageSuper {
+        public void unchanged() {}
+    }
+
+    public static class PublicSub extends PackageSuper {}
+
     /**
      * Returns a method signature of this form:
      * {@code java.lang.String concat[class java.lang.String] throws []}.
@@ -130,5 +169,9 @@ public class MethodOverridesTest extends TestCase {
             signatures.add(signature(method));
         }
         return signatures;
+    }
+
+    private <T> void assertContains(Collection<T> elements, T value) {
+        assertTrue("Expected " + value + " in " + elements, elements.contains(value));
     }
 }
