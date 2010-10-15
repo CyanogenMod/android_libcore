@@ -32,7 +32,6 @@
 
 package java.lang.reflect;
 
-import dalvik.system.VMStack;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import org.apache.harmony.kernel.vm.StringUtils;
@@ -47,9 +46,7 @@ import org.apache.harmony.luni.lang.reflect.Types;
 public final class Method extends AccessibleObject implements GenericDeclaration, Member {
 
     /**
-     * Orders methods by their signature, including name, parameters and return
-     * type. When one method overrides another, they will always have the same
-     * type signature unless covariant return types are in play.
+     * Orders methods by their name and parameters.
      *
      * @hide
      */
@@ -70,12 +67,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
                 }
             }
 
-            comparison = aParameters.length - bParameters.length;
-            if (comparison != 0) {
-                return comparison;
-            }
-
-            return a.returnType.getName().compareTo(b.returnType.getName());
+            return aParameters.length - bParameters.length;
         }
     };
 
