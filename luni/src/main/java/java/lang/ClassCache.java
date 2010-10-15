@@ -175,25 +175,35 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         getMethodsRecursive(clazz, allMethods);
 
         /*
-         * Keep only unique methods by signature. If two signatures differ only
-         * by return type, covariant return types are in play. For consistency
-         * with the RI we return both methods.
+         * Remove methods defined by multiple types, preferring to keep methods
+         * declared by derived types.
+         *
+         * Classes may define multiple methods with the same name and parameter
+         * types due to covariant return types. In this case both are returned,
+         * with the non-synthetic method first because it is preferred by
+         * getMethod(String,Class[]).
          */
         Collections.sort(allMethods, Method.ORDER_BY_SIGNATURE);
-        List<Method> uniqueMethods = new ArrayList<Method>(allMethods.size());
-        if (!allMethods.isEmpty()) {
-            Method last = allMethods.get(0);
-            uniqueMethods.add(last);
-            for (int i = 1; i < allMethods.size(); i++) {
-                Method current = allMethods.get(i);
-                if (Method.ORDER_BY_SIGNATURE.compare(last, current) != 0) {
-                    uniqueMethods.add(current);
-                    last = current;
-                }
+        List<Method> natural = new ArrayList<Method>(allMethods.size());
+        List<Method> synthetic = new ArrayList<Method>(allMethods.size());
+        Method previous = null;
+        for (Method method : allMethods) {
+            if (previous != null
+                    && Method.ORDER_BY_SIGNATURE.compare(method, previous) == 0
+                    && method.getDeclaringClass() != previous.getDeclaringClass()) {
+                continue;
             }
+            if (method.isSynthetic()) {
+                synthetic.add(method);
+            } else {
+                natural.add(method);
+            }
+            previous = method;
         }
-
-        return uniqueMethods.toArray(new Method[uniqueMethods.size()]);
+        List<Method> result = new ArrayList<Method>(allMethods.size());
+        result.addAll(natural);
+        result.addAll(synthetic);
+        return result.toArray(new Method[result.size()]);
     }
 
     /**
@@ -228,8 +238,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
             throw new NullPointerException("Method name must not be null.");
         }
         for (Method method : list) {
-            if (!method.isSynthetic()
-                    && method.getName().equals(name)
+            if (method.getName().equals(name)
                     && compareClassLists(method.getParameterTypes(), parameterTypes)) {
                 return method;
             }
