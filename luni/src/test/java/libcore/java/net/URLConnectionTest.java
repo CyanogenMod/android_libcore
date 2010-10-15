@@ -70,12 +70,6 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     };
 
-    private final HostnameVerifier ALWAYS_TRUST_VERIFIER = new HostnameVerifier() {
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
-        }
-    };
-
     private MockWebServer server = new MockWebServer();
     private String hostname;
 
@@ -87,6 +81,12 @@ public class URLConnectionTest extends junit.framework.TestCase {
     @Override protected void tearDown() throws Exception {
         ResponseCache.setDefault(null);
         Authenticator.setDefault(null);
+        System.clearProperty("proxyHost");
+        System.clearProperty("proxyPort");
+        System.clearProperty("http.proxyHost");
+        System.clearProperty("http.proxyPort");
+        System.clearProperty("https.proxyHost");
+        System.clearProperty("https.proxyPort");
         server.shutdown();
         super.tearDown();
     }
@@ -458,13 +458,25 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
     }
 
-    public void testConnectViaProxy() throws IOException, InterruptedException {
+    public void testConnectViaProxyUsingProxyArg() throws Exception {
+        testConnectViaProxy(ProxyConfig.CREATE_ARG);
+    }
+
+    public void testConnectViaProxyUsingProxySystemProperty() throws Exception {
+        testConnectViaProxy(ProxyConfig.PROXY_SYSTEM_PROPERTY);
+    }
+
+    public void testConnectViaProxyUsingHttpProxySystemProperty() throws Exception {
+        testConnectViaProxy(ProxyConfig.HTTP_PROXY_SYSTEM_PROPERTY);
+    }
+
+    private void testConnectViaProxy(ProxyConfig proxyConfig) throws Exception {
         MockResponse mockResponse = new MockResponse().setBody("this response comes via a proxy");
         server.enqueue(mockResponse);
         server.play();
 
-        URLConnection connection = new URL("http://android.com/foo").openConnection(
-                server.toProxyAddress());
+        URL url = new URL("http://android.com/foo");
+        HttpURLConnection connection = proxyConfig.connect(server, url);
         assertContent("this response comes via a proxy", connection);
 
         RecordedRequest request = server.takeRequest();
@@ -498,8 +510,33 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertContent("abc", server.getUrl("/").openConnection());
     }
 
-    public void testConnectViaHttpProxyToHttps() throws IOException, InterruptedException {
+    public void testConnectViaHttpProxyToHttpsUsingProxyArg() throws Exception {
+        testConnectViaHttpProxyToHttps(ProxyConfig.CREATE_ARG);
+    }
+
+    /**
+     * We weren't honoring all of the appropriate proxy system properties when
+     * connecting via HTTPS. http://b/3097518
+     */
+    public void testConnectViaHttpProxyToHttpsUsingProxySystemProperty() throws Exception {
+        testConnectViaHttpProxyToHttps(ProxyConfig.PROXY_SYSTEM_PROPERTY);
+    }
+
+    public void testConnectViaHttpProxyToHttpsUsingHttpProxySystemProperty() throws Exception {
+        testConnectViaHttpProxyToHttps(ProxyConfig.HTTP_PROXY_SYSTEM_PROPERTY);
+    }
+
+    public void testConnectViaHttpProxyToHttpsUsingHttpsProxySystemProperty() throws Exception {
+        testConnectViaHttpProxyToHttps(ProxyConfig.HTTPS_PROXY_SYSTEM_PROPERTY);
+    }
+
+    /**
+     * We were verifying the wrong hostname when connecting to an HTTPS site
+     * through a proxy. http://b/3097277
+     */
+    private void testConnectViaHttpProxyToHttps(ProxyConfig proxyConfig) throws Exception {
         TestSSLContext testSSLContext = TestSSLContext.create();
+        RecordingHostnameVerifier hostnameVerifier = new RecordingHostnameVerifier();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
         server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
@@ -507,10 +544,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.play();
 
         URL url = new URL("https://android.com/foo");
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
-                server.toProxyAddress());
+        HttpsURLConnection connection = (HttpsURLConnection) proxyConfig.connect(server, url);
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setHostnameVerifier(ALWAYS_TRUST_VERIFIER);
+        connection.setHostnameVerifier(hostnameVerifier);
 
         assertContent("this response comes via a secure proxy", connection);
 
@@ -522,6 +558,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordedRequest get = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
         assertContains(get.getHeaders(), "Host: android.com");
+        assertEquals(Arrays.asList("verify android.com"), hostnameVerifier.calls);
     }
 
     /**
@@ -529,6 +566,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
      */
     public void testProxyConnectIncludesProxyHeadersOnly()
             throws IOException, InterruptedException {
+        RecordingHostnameVerifier hostnameVerifier = new RecordingHostnameVerifier();
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
@@ -543,7 +581,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         connection.addRequestProperty("Proxy-Authorization", "bar");
         connection.addRequestProperty("User-Agent", "baz");
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setHostnameVerifier(ALWAYS_TRUST_VERIFIER);
+        connection.setHostnameVerifier(hostnameVerifier);
         assertContent("encrypted response from the origin server", connection);
 
         RecordedRequest connect = server.takeRequest();
@@ -555,6 +593,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         RecordedRequest get = server.takeRequest();
         assertContains(get.getHeaders(), "Private: Secret");
+        assertEquals(Arrays.asList("verify android.com"), hostnameVerifier.calls);
     }
 
     public void testDisconnectedConnection() throws IOException {
@@ -1457,6 +1496,44 @@ public class URLConnectionTest extends junit.framework.TestCase {
         void setBody(MockResponse response, String content, int chunkSize) throws IOException {
             setBody(response, content.getBytes("UTF-8"), chunkSize);
         }
+    }
+
+    enum ProxyConfig {
+        CREATE_ARG() {
+            @Override public HttpURLConnection connect(MockWebServer server, URL url)
+                    throws IOException {
+                return (HttpURLConnection) url.openConnection(server.toProxyAddress());
+            }
+        },
+
+        PROXY_SYSTEM_PROPERTY() {
+            @Override public HttpURLConnection connect(MockWebServer server, URL url)
+                    throws IOException {
+                System.setProperty("proxyHost", "localhost");
+                System.setProperty("proxyPort", Integer.toString(server.getPort()));
+                return (HttpURLConnection) url.openConnection();
+            }
+        },
+
+        HTTP_PROXY_SYSTEM_PROPERTY() {
+            @Override public HttpURLConnection connect(MockWebServer server, URL url)
+                    throws IOException {
+                System.setProperty("http.proxyHost", "localhost");
+                System.setProperty("http.proxyPort", Integer.toString(server.getPort()));
+                return (HttpURLConnection) url.openConnection();
+            }
+        },
+
+        HTTPS_PROXY_SYSTEM_PROPERTY() {
+            @Override public HttpURLConnection connect(MockWebServer server, URL url)
+                    throws IOException {
+                System.setProperty("https.proxyHost", "localhost");
+                System.setProperty("https.proxyPort", Integer.toString(server.getPort()));
+                return (HttpURLConnection) url.openConnection();
+            }
+        };
+
+        public abstract HttpURLConnection connect(MockWebServer server, URL url) throws IOException;
     }
 
     private static class RecordingTrustManager implements X509TrustManager {
