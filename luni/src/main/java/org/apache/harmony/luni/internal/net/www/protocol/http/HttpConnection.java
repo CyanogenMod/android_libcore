@@ -172,8 +172,8 @@ public final class HttpConnection {
             boolean tlsTolerant) throws IOException {
         if (sslSocket == null) {
             // create the wrapper over connected socket
-            SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(
-                    socket, address.hostName, address.hostPort, true /* autoClose */);
+            SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
+                    address.uri.getHost(), address.uri.getEffectivePort(), true /* autoClose */);
             // tlsTolerant mimics Chrome's behavior
             if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
                 OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
@@ -184,8 +184,8 @@ public final class HttpConnection {
             } else {
                 unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
             }
-            if (!hostnameVerifier.verify(address.hostName, unverifiedSocket.getSession())) {
-                throw new IOException("Hostname '" + address.hostName + "' was not verified");
+            if (!hostnameVerifier.verify(address.uri.getHost(), unverifiedSocket.getSession())) {
+                throw new IOException("Hostname '" + address.uri.getHost() + "' was not verified");
             }
             sslSocket = unverifiedSocket;
         }
