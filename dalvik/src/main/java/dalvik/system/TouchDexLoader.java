@@ -35,7 +35,21 @@ class TouchDexLoader extends ClassLoader {
 
     private String path;
 
-    private boolean initialized;
+    /*
+     * Parallel arrays for jar/apk files.
+     *
+     * (could stuff these into an object and have a single array;
+     * improves clarity but adds overhead)
+     */
+    private final String[] mPaths;
+    private final File[] mFiles;
+    private final ZipFile[] mZips;
+    private final DexFile[] mDexs;
+
+    /**
+     * Native library path.
+     */
+    private final String[] mLibPaths;
 
     /**
      * Create a ClassLoader that finds files in the specified path.
@@ -47,14 +61,6 @@ class TouchDexLoader extends ClassLoader {
             throw new NullPointerException();
 
         this.path = path;
-    }
-
-    private void ensureInit() {
-        if (initialized) {
-            return;
-        }
-
-        initialized = true;
 
         mPaths = path.split(":");
         //System.out.println("TouchDexLoader: " + mPaths);
@@ -128,8 +134,6 @@ class TouchDexLoader extends ClassLoader {
      */
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
-        ensureInit();
-
         byte[] data = null;
         int i;
 
@@ -185,8 +189,6 @@ class TouchDexLoader extends ClassLoader {
      * archive.
      */
     protected URL findResource(String name) {
-        ensureInit();
-
         byte[] data = null;
         int i;
 
@@ -315,8 +317,6 @@ class TouchDexLoader extends ClassLoader {
      * we find.
      */
     protected String findLibrary(String libname) {
-        ensureInit();
-
         String fileName = System.mapLibraryName(libname);
         for (int i = 0; i < mLibPaths.length; i++) {
             String pathName = mLibPaths[i] + fileName;
@@ -328,11 +328,5 @@ class TouchDexLoader extends ClassLoader {
 
         return null;
     }
-
-    private String[] mPaths;
-    private File[] mFiles;
-    private ZipFile[] mZips;
-    private DexFile[] mDexs;
-    private String[] mLibPaths;
 }
 

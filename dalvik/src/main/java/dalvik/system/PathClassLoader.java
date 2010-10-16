@@ -42,13 +42,21 @@ public class PathClassLoader extends ClassLoader {
     private final String path;
     private final String libPath;
 
-    private boolean initialized;
+    /*
+     * Parallel arrays for jar/apk files.
+     *
+     * (could stuff these into an object and have a single array;
+     * improves clarity but adds overhead)
+     */
+    private final String[] mPaths;
+    private final File[] mFiles;
+    private final ZipFile[] mZips;
+    private final DexFile[] mDexs;
 
-    private String[] mPaths;
-    private File[] mFiles;
-    private ZipFile[] mZips;
-    private DexFile[] mDexs;
-    private List<String> libraryPathElements;
+    /**
+     * Native library path.
+     */
+    private final List<String> libraryPathElements;
 
     /**
      * Creates a {@code PathClassLoader} that operates on a given list of files
@@ -67,17 +75,20 @@ public class PathClassLoader extends ClassLoader {
     }
 
     /**
-     * Creates a {@code PathClassLoader} that operates on two given lists of
-     * files and directories. The entries of the first list should be one of the
-     * following:
+     * Creates a {@code PathClassLoader} that operates on two given
+     * lists of files and directories. The entries of the first list
+     * should be one of the following:
+     *
      * <ul>
      * <li>Directories containing classes or resources.
      * <li>JAR/ZIP/APK files, possibly containing a "classes.dex" file.
      * <li>"classes.dex" files.
      * </ul>
-     * The entries of the second list should be directories containing native
-     * library files. Both lists are separated using the character specified by
-     * the "path.separator" system property, which, on Android, defaults to ":".
+     *
+     * The entries of the second list should be directories containing
+     * native library files. Both lists are separated using the
+     * character specified by the "path.separator" system property,
+     * which, on Android, defaults to ":".
      *
      * @param path
      *            the list of files and directories containing classes and
@@ -97,14 +108,6 @@ public class PathClassLoader extends ClassLoader {
 
         this.path = path;
         this.libPath = libPath;
-    }
-
-    private synchronized void ensureInit() {
-        if (initialized) {
-            return;
-        }
-
-        initialized = true;
 
         mPaths = path.split(":");
         int length = mPaths.length;
@@ -185,8 +188,6 @@ public class PathClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
-        ensureInit();
-
         //System.out.println("PathClassLoader " + this + ": findClass '" + name + "'");
 
         byte[] data = null;
@@ -251,8 +252,6 @@ public class PathClassLoader extends ClassLoader {
      */
     @Override
     protected URL findResource(String name) {
-        ensureInit();
-
         //java.util.logging.Logger.global.severe("findResource: " + name);
 
         int length = mPaths.length;
@@ -276,8 +275,6 @@ public class PathClassLoader extends ClassLoader {
      */
     @Override
     protected Enumeration<URL> findResources(String resName) {
-        ensureInit();
-
         int length = mPaths.length;
         ArrayList<URL> results = new ArrayList<URL>();
 
@@ -417,8 +414,6 @@ public class PathClassLoader extends ClassLoader {
      *         is not found.
      */
     public String findLibrary(String libname) {
-        ensureInit();
-
         String fileName = System.mapLibraryName(libname);
         for (String pathElement : libraryPathElements) {
             String pathName = pathElement + fileName;
