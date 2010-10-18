@@ -37,7 +37,6 @@
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -106,7 +105,7 @@ static int EsTranslateOpenFlags(int flags) {
 
 // Checks whether we can safely treat the given jlong as an off_t without
 // accidental loss of precision.
-// TODO: this is bogus; we should use _FILE_OFFSET_BITS=64.
+// TODO: this is bogus; we should use _FILE_OFFSET_BITS=64, but bionic doesn't support it.
 static bool offsetTooLarge(JNIEnv* env, jlong longOffset) {
     if (sizeof(off_t) >= sizeof(jlong)) {
         // We're only concerned about the possibility that off_t is
@@ -116,7 +115,11 @@ static bool offsetTooLarge(JNIEnv* env, jlong longOffset) {
     }
 
     // TODO: use std::numeric_limits<off_t>::max() and min() when we have them.
-    assert(sizeof(off_t) == sizeof(int));
+    if (sizeof(off_t) != sizeof(int)) {
+        jniThrowException(env, "java/lang/AssertionError",
+                "off_t is smaller than 64-bit, but not 32-bit!");
+        return true;
+    }
     static const off_t off_t_max = INT_MAX;
     static const off_t off_t_min = INT_MIN;
 
@@ -136,8 +139,8 @@ static jlong translateLockLength(jlong length) {
     return (length == 0x7fffffffffffffffLL) ? 0 : length;
 }
 
-static struct flock flockFromStartAndLength(jlong start, jlong length) {
-    struct flock lock;
+static struct flock64 flockFromStartAndLength(jlong start, jlong length) {
+    struct flock64 lock;
     memset(&lock, 0, sizeof(lock));
 
     lock.l_whence = SEEK_SET;
@@ -147,15 +150,11 @@ static struct flock flockFromStartAndLength(jlong start, jlong length) {
     return lock;
 }
 
-static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
+static jint OSFileSystem_lockImpl(JNIEnv*, jobject, jint fd,
         jlong start, jlong length, jint typeFlag, jboolean waitFlag) {
 
     length = translateLockLength(length);
-    if (offsetTooLarge(env, start) || offsetTooLarge(env, length)) {
-        return -1;
-    }
-
-    struct flock lock(flockFromStartAndLength(start, length));
+    struct flock64 lock(flockFromStartAndLength(start, length));
 
     if ((typeFlag & SHARED_LOCK_TYPE) == SHARED_LOCK_TYPE) {
         lock.l_type = F_RDLCK;
@@ -163,20 +162,16 @@ static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
         lock.l_type = F_WRLCK;
     }
 
-    int waitMode = (waitFlag) ? F_SETLKW : F_SETLK;
+    int waitMode = (waitFlag) ? F_SETLKW64 : F_SETLK64;
     return TEMP_FAILURE_RETRY(fcntl(fd, waitMode, &lock));
 }
 
 static void OSFileSystem_unlockImpl(JNIEnv* env, jobject, jint fd, jlong start, jlong length) {
     length = translateLockLength(length);
-    if (offsetTooLarge(env, start) || offsetTooLarge(env, length)) {
-        return;
-    }
-
-    struct flock lock(flockFromStartAndLength(start, length));
+    struct flock64 lock(flockFromStartAndLength(start, length));
     lock.l_type = F_UNLCK;
 
-    int rc = TEMP_FAILURE_RETRY(fcntl(fd, F_SETLKW, &lock));
+    int rc = TEMP_FAILURE_RETRY(fcntl(fd, F_SETLKW64, &lock));
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
@@ -337,14 +332,7 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
         return -1;
     }
 
-    // If the offset is relative, lseek(2) will tell us whether it's too large.
-    // We're just worried about too large an absolute offset, which would cause
-    // us to lie to lseek(2).
-    if (offsetTooLarge(env, offset)) {
-        return -1;
-    }
-
-    jlong result = lseek(fd, offset, nativeWhence);
+    jlong result = lseek64(fd, offset, nativeWhence);
     if (result == -1) {
         jniThrowIOException(env, errno);
     }
@@ -359,6 +347,7 @@ static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataT
 }
 
 static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
+    // TODO: if we had ftruncate64, we could kill this (http://b/3107933).
     if (offsetTooLarge(env, length)) {
         return -1;
     }

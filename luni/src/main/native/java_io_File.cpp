@@ -24,6 +24,7 @@
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
+#include "StaticAssert.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -208,6 +209,7 @@ static jlong File_getFreeSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
     }
+    STATIC_ASSERT(sizeof(sb.f_bfree) == sizeof(jlong), statfs_not_64_bit);
     return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
 }
 
@@ -216,6 +218,7 @@ static jlong File_getTotalSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
     }
+    STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
     return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
 }
 
@@ -224,6 +227,7 @@ static jlong File_getUsableSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
     }
+    STATIC_ASSERT(sizeof(sb.f_bavail) == sizeof(jlong), statfs_not_64_bit);
     return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
 }
 
