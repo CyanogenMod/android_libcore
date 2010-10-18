@@ -116,6 +116,10 @@ public final class Long extends Number implements Comparable<Long> {
         return thisValue < thatValue ? -1 : (thisValue == thatValue ? 0 : 1);
     }
 
+    private static NumberFormatException invalidLong(String s) {
+        throw new NumberFormatException("Invalid long: \"" + s + "\"");
+    }
+
     /**
      * Parses the specified string and returns a {@code Long} instance if the
      * string can be decoded into a long value. The string may be an optional
@@ -131,13 +135,13 @@ public final class Long extends Number implements Comparable<Long> {
     public static Long decode(String string) throws NumberFormatException {
         int length = string.length(), i = 0;
         if (length == 0) {
-            throw new NumberFormatException();
+            throw invalidLong(string);
         }
         char firstDigit = string.charAt(i);
         boolean negative = firstDigit == '-';
         if (negative) {
             if (length == 1) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
             firstDigit = string.charAt(++i);
         }
@@ -149,7 +153,7 @@ public final class Long extends Number implements Comparable<Long> {
             }
             if ((firstDigit = string.charAt(i)) == 'x' || firstDigit == 'X') {
                 if (i == length) {
-                    throw new NumberFormatException(string);
+                    throw invalidLong(string);
                 }
                 i++;
                 base = 16;
@@ -158,7 +162,7 @@ public final class Long extends Number implements Comparable<Long> {
             }
         } else if (firstDigit == '#') {
             if (i == length) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
             i++;
             base = 16;
@@ -328,17 +332,19 @@ public final class Long extends Number implements Comparable<Long> {
      *             can not be parsed as a long value.
      */
     public static long parseLong(String string, int radix) throws NumberFormatException {
-        if (string == null || radix < Character.MIN_RADIX
-                || radix > Character.MAX_RADIX) {
-            throw new NumberFormatException();
+        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
+            throw new NumberFormatException("Invalid radix: " + radix);
+        }
+        if (string == null) {
+            throw invalidLong(string);
         }
         int length = string.length(), i = 0;
         if (length == 0) {
-            throw new NumberFormatException(string);
+            throw invalidLong(string);
         }
         boolean negative = string.charAt(i) == '-';
         if (negative && ++i == length) {
-            throw new NumberFormatException(string);
+            throw invalidLong(string);
         }
 
         return parse(string, i, radix, negative);
@@ -350,21 +356,21 @@ public final class Long extends Number implements Comparable<Long> {
         while (offset < length) {
             int digit = Character.digit(string.charAt(offset++), radix);
             if (digit == -1) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
             if (max > result) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
             long next = result * radix - digit;
             if (next > result) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
             result = next;
         }
         if (!negative) {
             result = -result;
             if (result < 0) {
-                throw new NumberFormatException(string);
+                throw invalidLong(string);
             }
         }
         return result;

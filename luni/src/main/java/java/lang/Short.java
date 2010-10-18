@@ -126,7 +126,7 @@ public final class Short extends Number implements Comparable<Short> {
         if (result == intValue) {
             return valueOf(result);
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for short: \"" + string + "\"");
     }
 
     @Override
@@ -201,14 +201,13 @@ public final class Short extends Number implements Comparable<Short> {
      *             {@code radix > Character.MAX_RADIX}, or if {@code string}
      *             can not be parsed as a short value.
      */
-    public static short parseShort(String string, int radix)
-            throws NumberFormatException {
+    public static short parseShort(String string, int radix) throws NumberFormatException {
         int intValue = Integer.parseInt(string, radix);
         short result = (short) intValue;
         if (result == intValue) {
             return result;
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for short: \"" + string + "\"");
     }
 
     /**

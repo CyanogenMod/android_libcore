@@ -289,7 +289,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             throw new NullPointerException();
         }
         if ((last >= in.length) || (offset < 0) || (len <= 0) || (last < 0)) {
-            throw new NumberFormatException();
+            throw new NumberFormatException("Bad offset/length: offset=" + offset +
+                    " len=" + len + " in.length=" + in.length);
         }
         unscaledBuffer = new StringBuilder(len);
         int bufLength = 0;
@@ -301,8 +302,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         int counter = 0;
         boolean wasNonZero = false;
         // Accumulating all digits until a possible decimal point
-        for (; (offset <= last) && (in[offset] != '.')
-        && (in[offset] != 'e') && (in[offset] != 'E'); offset++) {
+        for (; (offset <= last) && (in[offset] != '.') && (in[offset] != 'e') && (in[offset] != 'E'); offset++) {
             if (!wasNonZero) {
                 if (in[offset] == '0') {
                     counter++;
@@ -496,7 +496,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public BigDecimal(double val) {
         if (Double.isInfinite(val) || Double.isNaN(val)) {
-            throw new NumberFormatException("Infinity or NaN");
+            throw new NumberFormatException("Infinity or NaN: " + val);
         }
         long bits = Double.doubleToLongBits(val); // IEEE-754
         long mantissa;
@@ -774,7 +774,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public static BigDecimal valueOf(double val) {
         if (Double.isInfinite(val) || Double.isNaN(val)) {
-            throw new NumberFormatException("Infinity or NaN");
+            throw new NumberFormatException("Infinity or NaN: " + val);
         }
         return new BigDecimal(Double.toString(val));
     }

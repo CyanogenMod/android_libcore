@@ -120,13 +120,17 @@ final class BigInt {
         Check(NativeBN.putULongInt(this.bignum, val, neg));
     }
 
+    private NumberFormatException invalidBigInteger(String s) {
+        throw new NumberFormatException("Invalid BigInteger: " + s);
+    }
+
     void putDecString(String original) {
         String s = checkString(original, 10);
         this.makeValid();
         int usedLen = NativeBN.BN_dec2bn(this.bignum, s);
         Check((usedLen > 0));
         if (usedLen < s.length()) {
-            throw new NumberFormatException(original);
+            throw invalidBigInteger(original);
         }
     }
 
@@ -136,7 +140,7 @@ final class BigInt {
         int usedLen = NativeBN.BN_hex2bn(this.bignum, s);
         Check((usedLen > 0));
         if (usedLen < s.length()) {
-            throw new NumberFormatException(original);
+            throw invalidBigInteger(original);
         }
     }
 
@@ -167,13 +171,13 @@ final class BigInt {
             }
         }
         if (charCount - i == 0) {
-            throw new NumberFormatException(s);
+            throw invalidBigInteger(s);
         }
         boolean nonAscii = false;
         for (; i < charCount; ++i) {
             char ch = s.charAt(i);
             if (Character.digit(ch, base) == -1) {
-                throw new NumberFormatException(s);
+                throw invalidBigInteger(s);
             }
             if (ch > 128) {
                 nonAscii = true;

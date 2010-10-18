@@ -469,7 +469,7 @@ public class Timestamp extends Date {
             // Require the next character to be a "."
             if (s.charAt(position) != '.') {
                 throw new NumberFormatException("Bad input string format: expected '.' not '" +
-                        s.charAt(position) + "'");
+                        s.charAt(position) + "' in \"" + s + "\"");
             }
             // Get the length of the number string - need to account for the '.'
             int nanoLength = s.length() - position - 1;

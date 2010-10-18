@@ -126,7 +126,7 @@ public final class Byte extends Number implements Comparable<Byte> {
         if (result == intValue) {
             return valueOf(result);
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for byte: \"" + string + "\"");
     }
 
     @Override
@@ -182,12 +182,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      *             can not be parsed as a byte value.
      */
     public static byte parseByte(String string) throws NumberFormatException {
-        int intValue = Integer.parseInt(string);
-        byte result = (byte) intValue;
-        if (result == intValue) {
-            return result;
-        }
-        throw new NumberFormatException();
+        return parseByte(string, 10);
     }
 
     /**
@@ -206,14 +201,13 @@ public final class Byte extends Number implements Comparable<Byte> {
      *             {@code radix > Character.MAX_RADIX}, or if {@code string}
      *             can not be parsed as a byte value.
      */
-    public static byte parseByte(String string, int radix)
-            throws NumberFormatException {
+    public static byte parseByte(String string, int radix) throws NumberFormatException {
         int intValue = Integer.parseInt(string, radix);
         byte result = (byte) intValue;
         if (result == intValue) {
             return result;
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for byte: \"" + string + "\"");
     }
 
     @Override
@@ -271,8 +265,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      *             can not be parsed as a byte value.
      * @see #parseByte(String, int)
      */
-    public static Byte valueOf(String string, int radix)
-            throws NumberFormatException {
+    public static Byte valueOf(String string, int radix) throws NumberFormatException {
         return valueOf(parseByte(string, radix));
     }
 

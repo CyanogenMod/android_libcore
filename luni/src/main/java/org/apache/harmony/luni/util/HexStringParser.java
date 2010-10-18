@@ -82,9 +82,8 @@ final class HexStringParser {
      * Parses the hex string to a double number.
      */
     public static double parseDouble(String hexString) {
-        HexStringParser parser = new HexStringParser(DOUBLE_EXPONENT_WIDTH,
-                DOUBLE_MANTISSA_WIDTH);
-        long result = parser.parse(hexString);
+        HexStringParser parser = new HexStringParser(DOUBLE_EXPONENT_WIDTH, DOUBLE_MANTISSA_WIDTH);
+        long result = parser.parse(hexString, true);
         return Double.longBitsToDouble(result);
     }
 
@@ -92,17 +91,21 @@ final class HexStringParser {
      * Parses the hex string to a float number.
      */
     public static float parseFloat(String hexString) {
-        HexStringParser parser = new HexStringParser(FLOAT_EXPONENT_WIDTH,
-                FLOAT_MANTISSA_WIDTH);
-        int result = (int) parser.parse(hexString);
+        HexStringParser parser = new HexStringParser(FLOAT_EXPONENT_WIDTH, FLOAT_MANTISSA_WIDTH);
+        int result = (int) parser.parse(hexString, false);
         return Float.intBitsToFloat(result);
     }
 
-    private long parse(String hexString) {
-        String[] hexSegments = getSegmentsFromHexString(hexString);
-        String signStr = hexSegments[0];
-        String significantStr = hexSegments[1];
-        String exponentStr = hexSegments[2];
+    private long parse(String hexString, boolean isDouble) {
+        Matcher matcher = PATTERN.matcher(hexString);
+        if (!matcher.matches()) {
+            throw new NumberFormatException("Invalid hex " + (isDouble ? "double" : "float")+ ":" +
+                    hexString);
+        }
+
+        String signStr = matcher.group(1);
+        String significantStr = matcher.group(2);
+        String exponentStr = matcher.group(3);
 
         parseHexSign(signStr);
         parseExponent(exponentStr);
@@ -111,23 +114,6 @@ final class HexStringParser {
         sign <<= (MANTISSA_WIDTH + EXPONENT_WIDTH);
         exponent <<= MANTISSA_WIDTH;
         return sign | exponent | mantissa;
-    }
-
-    /*
-     * Analyzes the hex string and extracts the sign and digit segments.
-     */
-    private static String[] getSegmentsFromHexString(String hexString) {
-        Matcher matcher = PATTERN.matcher(hexString);
-        if (!matcher.matches()) {
-            throw new NumberFormatException();
-        }
-
-        String[] hexSegments = new String[3];
-        hexSegments[0] = matcher.group(1);
-        hexSegments[1] = matcher.group(2);
-        hexSegments[2] = matcher.group(3);
-
-        return hexSegments;
     }
 
     /*

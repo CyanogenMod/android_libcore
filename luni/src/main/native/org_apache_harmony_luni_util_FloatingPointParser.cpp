@@ -332,7 +332,7 @@ static jdouble createDouble1(JNIEnv* env, uint64_t* f, int32_t length, jint e) {
  * is currently set such that if the oscillation occurs more than twice
  * then return the original approximation.
  */
-static jdouble doubleAlgorithm(JNIEnv*, uint64_t* f, int32_t length, jint e, jdouble z) {
+static jdouble doubleAlgorithm(JNIEnv* env, uint64_t* f, int32_t length, jint e, jdouble z) {
   uint64_t m;
   int32_t k, comparison, comparison2;
   uint64_t* x;
@@ -510,9 +510,7 @@ OutOfMemory:
   free(y);
   free(D);
   free(D2);
-
-  DOUBLE_TO_LONGBITS (z) = -2;
-
+  jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
   return z;
 }
 
@@ -584,7 +582,6 @@ static const uint32_t float_tens[] = {
             break; \
         } \
     }
-#define ERROR_OCCURRED(x) (HIGH_I32_FROM_VAR(x) < 0)
 
 static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
   /* assumes s is a null terminated string with at least one
@@ -809,7 +806,7 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
  * is currently set such that if the oscillation occurs more than twice
  * then return the original approximation.
  */
-static jfloat floatAlgorithm(JNIEnv*, uint64_t* f, int32_t length, jint e, jfloat z) {
+static jfloat floatAlgorithm(JNIEnv* env, uint64_t* f, int32_t length, jint e, jfloat z) {
   uint64_t m;
   int32_t k, comparison, comparison2;
   uint64_t* x;
@@ -987,9 +984,7 @@ OutOfMemory:
   free(y);
   free(D);
   free(D2);
-
-  FLOAT_TO_INTBITS (z) = -2;
-
+  jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
   return z;
 }
 
@@ -998,16 +993,7 @@ static jfloat FloatingPointParser_parseFltImpl(JNIEnv* env, jclass, jstring s, j
     if (str.c_str() == NULL) {
         return 0.0;
     }
-    jfloat flt = createFloat(env, str.c_str(), e);
-
-    if (((int32_t) FLOAT_TO_INTBITS (flt)) >= 0) {
-        return flt;
-    } else if (((int32_t) FLOAT_TO_INTBITS (flt)) == (int32_t) - 1) {
-        jniThrowException(env, "java/lang/NumberFormatException", NULL);
-    } else {
-        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
-    }
-    return 0.0;
+    return createFloat(env, str.c_str(), e);
 }
 
 static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, jint e) {
@@ -1015,16 +1001,7 @@ static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, 
     if (str.c_str() == NULL) {
         return 0.0;
     }
-    jdouble dbl = createDouble(env, str.c_str(), e);
-
-    if (!ERROR_OCCURRED (dbl)) {
-        return dbl;
-    } else if (LOW_I32_FROM_VAR (dbl) == (int32_t) - 1) {
-        jniThrowException(env, "java/lang/NumberFormatException", NULL);
-    } else {
-        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
-    }
-    return 0.0;
+    return createDouble(env, str.c_str(), e);
 }
 
 static JNINativeMethod gMethods[] = {
