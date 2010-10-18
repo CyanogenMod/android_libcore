@@ -239,7 +239,7 @@ public class Extension {
     }
 
     public int hashCode() {
-    	return (extnID.hashCode() * 37 + (critical ? 1 : 0)) * 37 + extnValue.hashCode();
+        return (extnID.hashCode() * 37 + (critical ? 1 : 0)) * 37 + extnValue.hashCode();
     }
 
     public ExtensionValue getDecodedExtensionValue() throws IOException {
@@ -456,4 +456,3 @@ public class Extension {
         }
     };
 }
-

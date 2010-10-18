@@ -32,9 +32,9 @@ import org.apache.harmony.security.utils.ObjectIdentifier;
  */
 public class AttributeTypeAndValueComparator implements Comparator, Serializable {
 
-	private static final long serialVersionUID = -1286471842007103132L;
+    private static final long serialVersionUID = -1286471842007103132L;
 
-	/**
+    /**
      * compares two AttributeTypeAndValues
      *
      * @param obj1

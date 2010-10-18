@@ -251,29 +251,26 @@ simpleMultiplyAddHighPrecision (uint64_t * arg1, int32_t length, uint64_t arg2,
 
 #if __BYTE_ORDER != __LITTLE_ENDIAN
 void simpleMultiplyAddHighPrecisionBigEndianFix(uint64_t* arg1, int32_t length, uint64_t arg2, uint32_t* result) {
-	/* Assumes result can hold the product and arg2 only holds 32 bits
-	   of information */
-	uint64_t product;
-	int32_t index, resultIndex;
+    /* Assumes result can hold the product and arg2 only holds 32 bits of information */
+    int32_t index = 0;
+    int32_t resultIndex = 0;
+    uint64_t product = 0;
 
-	index = resultIndex = 0;
-	product = 0;
+    do {
+        product = HIGH_IN_U64(product) + result[halfAt(resultIndex)] + arg2 * LOW_U32_FROM_PTR(arg1 + index);
+        result[halfAt(resultIndex)] = LOW_U32_FROM_VAR(product);
+        ++resultIndex;
+        product = HIGH_IN_U64(product) + result[halfAt(resultIndex)] + arg2 * HIGH_U32_FROM_PTR(arg1 + index);
+        result[halfAt(resultIndex)] = LOW_U32_FROM_VAR(product);
+        ++resultIndex;
+    } while (++index < length);
 
-	do {
-		product = HIGH_IN_U64(product) + result[halfAt(resultIndex)] + arg2 * LOW_U32_FROM_PTR(arg1 + index);
-		result[halfAt(resultIndex)] = LOW_U32_FROM_VAR(product);
-		++resultIndex;
-		product = HIGH_IN_U64(product) + result[halfAt(resultIndex)] + arg2 * HIGH_U32_FROM_PTR(arg1 + index);
-		result[halfAt(resultIndex)] = LOW_U32_FROM_VAR(product);
-		++resultIndex;
-	} while (++index < length);
-
-	result[halfAt(resultIndex)] += HIGH_U32_FROM_VAR(product);
-	if (result[halfAt(resultIndex)] < HIGH_U32_FROM_VAR(product)) {
-		/* must be careful with ++ operator and macro expansion */
-		++resultIndex;
-		while (++result[halfAt(resultIndex)] == 0) ++resultIndex;
-	}
+    result[halfAt(resultIndex)] += HIGH_U32_FROM_VAR(product);
+    if (result[halfAt(resultIndex)] < HIGH_U32_FROM_VAR(product)) {
+        /* must be careful with ++ operator and macro expansion */
+        ++resultIndex;
+        while (++result[halfAt(resultIndex)] == 0) ++resultIndex;
+    }
 }
 #endif
 

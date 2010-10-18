@@ -8,8 +8,6 @@
 *******************************************************************************
 */
 /*
- *  @(#) icujniinterface.c	1.2 00/10/11
- *
  * (C) Copyright IBM Corp. 2000 - All Rights Reserved
  *  A JNI wrapper to ICU native converter Interface
  * @author: Ram Viswanadha
