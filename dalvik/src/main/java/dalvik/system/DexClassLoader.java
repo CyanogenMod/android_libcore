@@ -42,23 +42,20 @@ public class DexClassLoader extends ClassLoader {
     private final String mRawLibPath;
     private final String mDexOutputPath;
 
-    private boolean mInitialized;
-
     /*
      * Parallel arrays for jar/apk files.
      *
      * (could stuff these into an object and have a single array;
      * improves clarity but adds overhead)
      */
-    private File[] mFiles;              // source file Files, for rsrc URLs
-    private ZipFile[] mZips;            // source zip files, with resources
-    private DexFile[] mDexs;            // opened, prepped DEX files
+    private final File[] mFiles;         // source file Files, for rsrc URLs
+    private final ZipFile[] mZips;       // source zip files, with resources
+    private final DexFile[] mDexs;       // opened, prepped DEX files
 
-    /*
+    /**
      * Native library path.
      */
-    private String[] mLibPaths;
-
+    private final String[] mLibPaths;
 
     /**
      * Creates a {@code DexClassLoader} that finds interpreted and native
@@ -88,21 +85,8 @@ public class DexClassLoader extends ClassLoader {
         mRawDexPath = dexPath;
         mDexOutputPath = dexOutputDir;
         mRawLibPath = libPath;
-    }
 
-    /**
-     * Complete initialization on first use of the class loader.
-     */
-    private synchronized void ensureInit() {
-        if (mInitialized) {
-            return;
-        }
-
-        String[] dexPathList;
-
-        mInitialized = true;
-
-        dexPathList = mRawDexPath.split(":");
+        String[] dexPathList = mRawDexPath.split(":");
         int length = dexPathList.length;
 
         //System.out.println("DexClassLoader: " + dexPathList);
@@ -227,8 +211,6 @@ public class DexClassLoader extends ClassLoader {
      */
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        ensureInit();
-
         if (VERBOSE_DEBUG)
             System.out.println("DexClassLoader " + this
                 + ": findClass '" + name + "'");
@@ -265,8 +247,6 @@ public class DexClassLoader extends ClassLoader {
      */
     @Override
     protected URL findResource(String name) {
-        ensureInit();
-
         int length = mFiles.length;
 
         for (int i = 0; i < length; i++) {
@@ -305,8 +285,6 @@ public class DexClassLoader extends ClassLoader {
      */
     @Override
     protected String findLibrary(String libname) {
-        ensureInit();
-
         String fileName = System.mapLibraryName(libname);
         for (int i = 0; i < mLibPaths.length; i++) {
             String pathName = mLibPaths[i] + fileName;
