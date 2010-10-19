@@ -18,6 +18,7 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
+import libcore.io.SizeOf;
 
 /**
  * Rather than duplicate all the code from ReadOnlyDirectByteBuffer and
@@ -137,7 +138,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public char getChar() {
         wrapped.position(position);
         char result = wrapped.getChar();
-        position += SIZEOF_CHAR;
+        position += SizeOf.CHAR;
         return result;
     }
 
@@ -150,7 +151,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public double getDouble() {
         wrapped.position(position);
         double result = wrapped.getDouble();
-        position += SIZEOF_DOUBLE;
+        position += SizeOf.DOUBLE;
         return result;
     }
 
@@ -163,7 +164,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public float getFloat() {
         wrapped.position(position);
         float result = wrapped.getFloat();
-        position += SIZEOF_FLOAT;
+        position += SizeOf.FLOAT;
         return result;
     }
 
@@ -176,7 +177,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public int getInt() {
         wrapped.position(position);
         int result = wrapped.getInt();
-        position += SIZEOF_INT;
+        position += SizeOf.INT;
         return result;
     }
 
@@ -189,7 +190,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public long getLong() {
         wrapped.position(position);
         long result = wrapped.getLong();
-        position += SIZEOF_LONG;
+        position += SizeOf.LONG;
         return result;
     }
 
@@ -202,7 +203,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public short getShort() {
         wrapped.position(position);
         short result = wrapped.getShort();
-        position += SIZEOF_SHORT;
+        position += SizeOf.SHORT;
         return result;
     }
 
@@ -253,7 +254,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putChar(char value) {
         wrapped.position(this.position);
         wrapped.putChar(value);
-        this.position += SIZEOF_CHAR;
+        this.position += SizeOf.CHAR;
         return this;
     }
 
@@ -268,7 +269,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putDouble(double value) {
         wrapped.position(this.position);
         wrapped.putDouble(value);
-        this.position += SIZEOF_DOUBLE;
+        this.position += SizeOf.DOUBLE;
         return this;
     }
 
@@ -283,7 +284,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putFloat(float value) {
         wrapped.position(this.position);
         wrapped.putFloat(value);
-        this.position += SIZEOF_FLOAT;
+        this.position += SizeOf.FLOAT;
         return this;
     }
 
@@ -305,7 +306,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putInt(int value) {
         wrapped.position(this.position);
         wrapped.putInt(value);
-        this.position += SIZEOF_INT;
+        this.position += SizeOf.INT;
         return this;
     }
 
@@ -320,7 +321,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putLong(long value) {
         wrapped.position(this.position);
         wrapped.putLong(value);
-        this.position += SIZEOF_LONG;
+        this.position += SizeOf.LONG;
         return this;
     }
 
@@ -335,7 +336,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
     public ByteBuffer putShort(short value) {
         wrapped.position(this.position);
         wrapped.putShort(value);
-        this.position += SIZEOF_SHORT;
+        this.position += SizeOf.SHORT;
         return this;
     }
 

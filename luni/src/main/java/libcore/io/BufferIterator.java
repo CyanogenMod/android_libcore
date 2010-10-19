@@ -16,67 +16,42 @@
 
 package libcore.io;
 
-import org.apache.harmony.luni.platform.OSMemory;
-
 /**
  * Iterates over big- or little-endian bytes. See {@link MemoryMappedFile#bigEndianIterator} and
  * {@link MemoryMappedFile#littleEndianIterator}.
  *
  * @hide don't make this public without adding bounds checking.
  */
-public final class BufferIterator {
-    private final int address;
-    private final int size;
-    private final boolean swap;
-
-    private int position;
-
-    BufferIterator(int address, int size, boolean swap) {
-        this.address = address;
-        this.size = size;
-        this.swap = swap;
-    }
-
+public abstract class BufferIterator {
     /**
      * Skips forwards or backwards {@code byteCount} bytes from the current position.
      */
-    public void skip(int byteCount) {
-        position += byteCount;
-    }
+    public abstract void skip(int byteCount);
 
     /**
      * Copies {@code byteCount} bytes from the current position into {@code dst}, starting at
      * {@code dstOffset}, and advances the current position {@code byteCount} bytes.
      */
-    public void readByteArray(byte[] dst, int dstOffset, int byteCount) {
-        OSMemory.peekByteArray(address + position, dst, dstOffset, byteCount);
-        position += byteCount;
-    }
+    public abstract void readByteArray(byte[] dst, int dstOffset, int byteCount);
 
     /**
      * Returns the byte at the current position, and advances the current position one byte.
      */
-    public byte readByte() {
-        byte result = OSMemory.peekByte(address + position);
-        ++position;
-        return result;
-    }
+    public abstract byte readByte();
 
     /**
      * Returns the 32-bit int at the current position, and advances the current position four bytes.
      */
-    public int readInt() {
-        int result = OSMemory.peekInt(address + position, swap);
-        position += 4;
-        return result;
-    }
+    public abstract int readInt();
 
     /**
      * Copies {@code intCount} 32-bit ints from the current position into {@code dst}, starting at
      * {@code dstOffset}, and advances the current position {@code 4 * intCount} bytes.
      */
-    public void readIntArray(int[] dst, int dstOffset, int intCount) {
-        OSMemory.peekIntArray(address + position, dst, dstOffset, intCount, swap);
-        position += 4 * intCount;
-    }
+    public abstract void readIntArray(int[] dst, int dstOffset, int intCount);
+
+    /**
+     * Returns the 16-bit short at the current position, and advances the current position two bytes.
+     */
+    public abstract short readShort();
 }

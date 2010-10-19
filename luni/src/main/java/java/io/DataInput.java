@@ -140,8 +140,7 @@ public interface DataInput {
      * @see DataOutput#write(byte[])
      * @see DataOutput#write(byte[], int, int)
      */
-    public abstract void readFully(byte[] buffer, int offset, int count)
-            throws IOException;
+    public abstract void readFully(byte[] buffer, int offset, int count) throws IOException;
 
     /**
      * Reads a 32-bit integer value.

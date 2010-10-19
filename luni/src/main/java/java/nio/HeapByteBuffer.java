@@ -17,6 +17,7 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 
 /**
@@ -64,38 +65,38 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
     }
 
     final void get(char[] dst, int dstOffset, int charCount) {
-        int byteCount = checkGetBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_CHAR, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.CHAR, dst.length, dstOffset, charCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.CHAR, order.needsSwap);
         position += byteCount;
     }
 
     final void get(double[] dst, int dstOffset, int doubleCount) {
-        int byteCount = checkGetBounds(SIZEOF_DOUBLE, dst.length, dstOffset, doubleCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_DOUBLE, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.DOUBLE, dst.length, dstOffset, doubleCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.DOUBLE, order.needsSwap);
         position += byteCount;
     }
 
     final void get(float[] dst, int dstOffset, int floatCount) {
-        int byteCount = checkGetBounds(SIZEOF_FLOAT, dst.length, dstOffset, floatCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_FLOAT, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.FLOAT, dst.length, dstOffset, floatCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.FLOAT, order.needsSwap);
         position += byteCount;
     }
 
     final void get(int[] dst, int dstOffset, int intCount) {
-        int byteCount = checkGetBounds(SIZEOF_INT, dst.length, dstOffset, intCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_INT, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.INT, dst.length, dstOffset, intCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.INT, order.needsSwap);
         position += byteCount;
     }
 
     final void get(long[] dst, int dstOffset, int longCount) {
-        int byteCount = checkGetBounds(SIZEOF_LONG, dst.length, dstOffset, longCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_LONG, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.LONG, dst.length, dstOffset, longCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.LONG, order.needsSwap);
         position += byteCount;
     }
 
     final void get(short[] dst, int dstOffset, int shortCount) {
-        int byteCount = checkGetBounds(SIZEOF_SHORT, dst.length, dstOffset, shortCount);
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SIZEOF_SHORT, order.needsSwap);
+        int byteCount = checkGetBounds(SizeOf.SHORT, dst.length, dstOffset, shortCount);
+        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, offset + position, SizeOf.SHORT, order.needsSwap);
         position += byteCount;
     }
 
@@ -117,7 +118,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final char getChar() {
-        int newPosition = position + SIZEOF_CHAR;
+        int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -128,7 +129,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final char getChar(int index) {
-        if (index < 0 || index + SIZEOF_CHAR > limit) {
+        if (index < 0 || index + SizeOf.CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
         return (char) OSMemory.peekShort(backingArray, offset + index, order);
@@ -156,7 +157,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt() {
-        int newPosition = position + SIZEOF_INT;
+        int newPosition = position + SizeOf.INT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -167,7 +168,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt(int index) {
-        if (index < 0 || index + SIZEOF_INT > limit) {
+        if (index < 0 || index + SizeOf.INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return OSMemory.peekInt(backingArray, offset + index, order);
@@ -175,7 +176,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong() {
-        int newPosition = position + SIZEOF_LONG;
+        int newPosition = position + SizeOf.LONG;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -186,7 +187,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong(int index) {
-        if (index < 0 || index + SIZEOF_LONG > limit) {
+        if (index < 0 || index + SizeOf.LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         return OSMemory.peekLong(backingArray, offset + index, order);
@@ -194,7 +195,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort() {
-        int newPosition = position + SIZEOF_SHORT;
+        int newPosition = position + SizeOf.SHORT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -205,7 +206,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort(int index) {
-        if (index < 0 || index + SIZEOF_SHORT > limit) {
+        if (index < 0 || index + SizeOf.SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return OSMemory.peekShort(backingArray, offset + index, order);

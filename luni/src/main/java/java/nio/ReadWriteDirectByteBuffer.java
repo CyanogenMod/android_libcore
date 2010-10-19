@@ -17,6 +17,7 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 
 /**
@@ -106,44 +107,44 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     }
 
     final void put(char[] src, int srcOffset, int charCount) {
-        int byteCount = checkPutBounds(SIZEOF_CHAR, src.length, srcOffset, charCount);
+        int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
         this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
         position += byteCount;
     }
 
     final void put(double[] src, int srcOffset, int doubleCount) {
-        int byteCount = checkPutBounds(SIZEOF_DOUBLE, src.length, srcOffset, doubleCount);
+        int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
         this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
         position += byteCount;
     }
 
     final void put(float[] src, int srcOffset, int floatCount) {
-        int byteCount = checkPutBounds(SIZEOF_FLOAT, src.length, srcOffset, floatCount);
+        int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
         this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
         position += byteCount;
     }
 
     final void put(int[] src, int srcOffset, int intCount) {
-        int byteCount = checkPutBounds(SIZEOF_INT, src.length, srcOffset, intCount);
+        int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
         this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
         position += byteCount;
     }
 
     final void put(long[] src, int srcOffset, int longCount) {
-        int byteCount = checkPutBounds(SIZEOF_LONG, src.length, srcOffset, longCount);
+        int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
         this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
         position += byteCount;
     }
 
     final void put(short[] src, int srcOffset, int shortCount) {
-        int byteCount = checkPutBounds(SIZEOF_SHORT, src.length, srcOffset, shortCount);
+        int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
         this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
         position += byteCount;
     }
 
     @Override
     public ByteBuffer putChar(char value) {
-        int newPosition = position + SIZEOF_CHAR;
+        int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -154,7 +155,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putChar(int index, char value) {
-        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+        if (index < 0 || (long) index + SizeOf.CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeShort(offset + index, (short) value, order);
@@ -163,7 +164,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putDouble(double value) {
-        int newPosition = position + SIZEOF_DOUBLE;
+        int newPosition = position + SizeOf.DOUBLE;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -174,7 +175,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putDouble(int index, double value) {
-        if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
+        if (index < 0 || (long) index + SizeOf.DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeLong(offset + index, Double.doubleToRawLongBits(value), order);
@@ -183,7 +184,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putFloat(float value) {
-        int newPosition = position + SIZEOF_FLOAT;
+        int newPosition = position + SizeOf.FLOAT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -194,7 +195,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
+        if (index < 0 || (long) index + SizeOf.FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeInt(offset + index, Float.floatToRawIntBits(value), order);
@@ -203,7 +204,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putInt(int value) {
-        int newPosition = position + SIZEOF_INT;
+        int newPosition = position + SizeOf.INT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -214,7 +215,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + SIZEOF_INT > limit) {
+        if (index < 0 || (long) index + SizeOf.INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeInt(offset + index, value, order);
@@ -223,7 +224,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putLong(long value) {
-        int newPosition = position + SIZEOF_LONG;
+        int newPosition = position + SizeOf.LONG;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -234,7 +235,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
+        if (index < 0 || (long) index + SizeOf.LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeLong(offset + index, value, order);
@@ -243,7 +244,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putShort(short value) {
-        int newPosition = position + SIZEOF_SHORT;
+        int newPosition = position + SizeOf.SHORT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -254,7 +255,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
+        if (index < 0 || (long) index + SizeOf.SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         this.block.pokeShort(offset + index, value, order);

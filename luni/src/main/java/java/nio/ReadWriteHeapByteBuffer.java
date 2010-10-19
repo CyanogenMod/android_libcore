@@ -16,6 +16,7 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 
 /**
@@ -118,44 +119,44 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
     }
 
     final void put(char[] src, int srcOffset, int charCount) {
-        int byteCount = checkPutBounds(SIZEOF_CHAR, src.length, srcOffset, charCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_CHAR, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.CHAR, order.needsSwap);
         position += byteCount;
     }
 
     final void put(double[] src, int srcOffset, int doubleCount) {
-        int byteCount = checkPutBounds(SIZEOF_DOUBLE, src.length, srcOffset, doubleCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_DOUBLE, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.DOUBLE, order.needsSwap);
         position += byteCount;
     }
 
     final void put(float[] src, int srcOffset, int floatCount) {
-        int byteCount = checkPutBounds(SIZEOF_FLOAT, src.length, srcOffset, floatCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_FLOAT, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.FLOAT, order.needsSwap);
         position += byteCount;
     }
 
     final void put(int[] src, int srcOffset, int intCount) {
-        int byteCount = checkPutBounds(SIZEOF_INT, src.length, srcOffset, intCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_INT, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.INT, order.needsSwap);
         position += byteCount;
     }
 
     final void put(long[] src, int srcOffset, int longCount) {
-        int byteCount = checkPutBounds(SIZEOF_LONG, src.length, srcOffset, longCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_LONG, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.LONG, order.needsSwap);
         position += byteCount;
     }
 
     final void put(short[] src, int srcOffset, int shortCount) {
-        int byteCount = checkPutBounds(SIZEOF_SHORT, src.length, srcOffset, shortCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SIZEOF_SHORT, order.needsSwap);
+        int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
+        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.SHORT, order.needsSwap);
         position += byteCount;
     }
 
     @Override
     public ByteBuffer putChar(int index, char value) {
-        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+        if (index < 0 || (long) index + SizeOf.CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
         OSMemory.pokeShort(backingArray, offset + index, (short) value, order);
@@ -164,7 +165,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putChar(char value) {
-        int newPosition = position + SIZEOF_CHAR;
+        int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -195,7 +196,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putInt(int value) {
-        int newPosition = position + SIZEOF_INT;
+        int newPosition = position + SizeOf.INT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -206,7 +207,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + SIZEOF_INT > limit) {
+        if (index < 0 || (long) index + SizeOf.INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         OSMemory.pokeInt(backingArray, offset + index, value, order);
@@ -215,7 +216,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
+        if (index < 0 || (long) index + SizeOf.LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         OSMemory.pokeLong(backingArray, offset + index, value, order);
@@ -224,7 +225,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putLong(long value) {
-        int newPosition = position + SIZEOF_LONG;
+        int newPosition = position + SizeOf.LONG;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
@@ -235,7 +236,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
+        if (index < 0 || (long) index + SizeOf.SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         OSMemory.pokeShort(backingArray, offset + index, value, order);
@@ -244,7 +245,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putShort(short value) {
-        int newPosition = position + SIZEOF_SHORT;
+        int newPosition = position + SizeOf.SHORT;
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }

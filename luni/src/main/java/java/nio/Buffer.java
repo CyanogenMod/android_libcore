@@ -45,14 +45,6 @@ package java.nio;
  * synchronization issues.
  */
 public abstract class Buffer {
-
-    static final int SIZEOF_CHAR = 2;
-    static final int SIZEOF_DOUBLE = 8;
-    static final int SIZEOF_FLOAT = 4;
-    static final int SIZEOF_INT = 4;
-    static final int SIZEOF_LONG = 8;
-    static final int SIZEOF_SHORT = 2;
-
     /**
      * <code>UNSET_MARK</code> means the mark has not been set.
      */
