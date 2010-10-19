@@ -65,16 +65,21 @@ import java.util.List;
  * <tr><td>socksProxyPort</td><td>Port number of the SOCKS proxy server.</td><td>1080</td></tr>
  * </table>
  *
+ * <p>Hostname patterns specify which hosts should be connected to directly,
+ * ignoring any other proxy system properties. If the URL's host matches the
+ * corresponding hostname pattern, {@link Proxy#NO_PROXY} is returned.
+ *
+ * <p>The format of a hostname pattern is a list of hostnames that are
+ * separated by {@code |} and that use {@code *} as a wildcard. For example,
+ * setting the {@code http.nonProxyHosts} property to {@code
+ * *.android.com|*.kernel.org} will cause requests to {@code
+ * http://developer.android.com} to be made without a proxy.
+ *
  * <p>The default proxy selector always returns exactly one proxy. If no proxy
  * is applicable, {@link Proxy#NO_PROXY} is returned. If multiple proxies are
  * applicable, such as when both the {@code proxyHost} and {@code
  * socksProxyHost} system properties are set, the result is the property listed
  * earliest in the table above.
- *
- * <p>Hostname patterns are lists of hostnames that are separated by {@code |}
- * and that use {@code *} as a wildcard. For example, setting the {@code
- * http.nonProxyHosts} property to {@code *.android.com|*.kernel.org} will cause
- * requests to {@code http://developer.android.com} to be made without a proxy.
  *
  * <h3>Alternatives</h3>
  * <p>To request a URL without involving the system proxy selector, explicitly
