@@ -75,11 +75,8 @@ public class TrustManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new TrustManagerFactory((TrustManagerFactorySpi) ENGINE.getSpi(),
-                                           ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new TrustManagerFactory((TrustManagerFactorySpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -137,11 +134,8 @@ public class TrustManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new TrustManagerFactory((TrustManagerFactorySpi) ENGINE.getSpi(), provider,
-                                           algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new TrustManagerFactory((TrustManagerFactorySpi) spi, provider, algorithm);
     }
 
     // Store used provider

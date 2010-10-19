@@ -103,10 +103,8 @@ public class Mac implements Cloneable {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new Mac((MacSpi) ENGINE.getSpi(), ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new Mac((MacSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -167,10 +165,8 @@ public class Mac implements Cloneable {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new Mac((MacSpi) ENGINE.getSpi(), provider, algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new Mac((MacSpi) spi, provider, algorithm);
     }
 
     /**

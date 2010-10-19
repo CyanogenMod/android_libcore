@@ -100,11 +100,8 @@ public class ExemptionMechanism {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new ExemptionMechanism((ExemptionMechanismSpi) ENGINE.getSpi(),
-                    ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new ExemptionMechanism((ExemptionMechanismSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -167,11 +164,8 @@ public class ExemptionMechanism {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new ExemptionMechanism((ExemptionMechanismSpi) ENGINE.getSpi(),
-                    provider, algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new ExemptionMechanism((ExemptionMechanismSpi) spi, provider, algorithm);
     }
 
     /**

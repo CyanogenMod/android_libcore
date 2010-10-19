@@ -76,11 +76,8 @@ public class KeyManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new KeyManagerFactory((KeyManagerFactorySpi) ENGINE.getSpi(),
-                                         ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new KeyManagerFactory((KeyManagerFactorySpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -138,11 +135,8 @@ public class KeyManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new KeyManagerFactory((KeyManagerFactorySpi) ENGINE.getSpi(), provider,
-                                         algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new KeyManagerFactory((KeyManagerFactorySpi) spi, provider, algorithm);
     }
 
     // Store used provider

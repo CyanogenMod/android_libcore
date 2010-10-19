@@ -94,11 +94,8 @@ public class AlgorithmParameters {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new AlgorithmParameters((AlgorithmParametersSpi) ENGINE.getSpi(),
-                    ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new AlgorithmParameters((AlgorithmParametersSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -156,11 +153,8 @@ public class AlgorithmParameters {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new AlgorithmParameters((AlgorithmParametersSpi) ENGINE.getSpi(),
-                    provider, algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new AlgorithmParameters((AlgorithmParametersSpi) spi, provider, algorithm);
     }
 
     /**

@@ -126,12 +126,8 @@ public abstract class Policy {
         }
 
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, params);
-                return new PolicyDelegate((PolicySpi) ENGINE.getSpi(),
-                        ENGINE.getProvider(), type, params);
-            }
-
+            Engine.SpiAndProvider sap = ENGINE.getInstance(type, params);
+            return new PolicyDelegate((PolicySpi) sap.spi, sap.provider, type, params);
         } catch (NoSuchAlgorithmException e) {
             if (e.getCause() == null) {
                 throw e;
@@ -242,11 +238,8 @@ public abstract class Policy {
         }
 
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, provider, params);
-                return new PolicyDelegate((PolicySpi) ENGINE.getSpi(), provider,
-                        type, params);
-            }
+            Object spi = ENGINE.getInstance(type, provider, params);
+            return new PolicyDelegate((PolicySpi) spi, provider, type, params);
         } catch (NoSuchAlgorithmException e) {
             if (e.getCause() == null) {
                 throw e;

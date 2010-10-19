@@ -105,11 +105,8 @@ public class SecretKeyFactory {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new SecretKeyFactory((SecretKeyFactorySpi) ENGINE.getSpi(),
-                    ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new SecretKeyFactory((SecretKeyFactorySpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -170,11 +167,8 @@ public class SecretKeyFactory {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new SecretKeyFactory((SecretKeyFactorySpi) ENGINE.getSpi(), provider,
-                    algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new SecretKeyFactory((SecretKeyFactorySpi) spi, provider, algorithm);
     }
 
     /**

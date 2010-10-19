@@ -101,11 +101,8 @@ public class CertStore {
             throw new NullPointerException();
         }
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, params);
-                return new CertStore((CertStoreSpi) ENGINE.getSpi(), ENGINE.getProvider(),
-                        type, params);
-            }
+            Engine.SpiAndProvider sap = ENGINE.getInstance(type, params);
+            return new CertStore((CertStoreSpi) sap.spi, sap.provider, type, params);
         } catch (NoSuchAlgorithmException e) {
             Throwable th = e.getCause();
             if (th == null) {
@@ -182,11 +179,8 @@ public class CertStore {
             throw new NullPointerException();
         }
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, provider, params);
-                return new CertStore((CertStoreSpi) ENGINE.getSpi(), provider, type,
-                        params);
-            }
+            Object spi = ENGINE.getInstance(type, provider, params);
+            return new CertStore((CertStoreSpi) spi, provider, type, params);
         } catch (NoSuchAlgorithmException e) {
             Throwable th = e.getCause();
             if (th == null) {

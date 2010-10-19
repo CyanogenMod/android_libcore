@@ -105,11 +105,8 @@ public class CertPathBuilder {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new CertPathBuilder((CertPathBuilderSpi) ENGINE.getSpi(),
-                    ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new CertPathBuilder((CertPathBuilderSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -165,10 +162,8 @@ public class CertPathBuilder {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new CertPathBuilder((CertPathBuilderSpi) ENGINE.getSpi(), provider, algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new CertPathBuilder((CertPathBuilderSpi) spi, provider, algorithm);
     }
 
     /**

@@ -82,13 +82,9 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Object spi;
-        Provider provider;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            spi = ENGINE.getSpi();
-            provider = ENGINE.getProvider();
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        Object spi = sap.spi;
+        Provider provider = sap.provider;
         if (spi instanceof KeyPairGenerator) {
             KeyPairGenerator result = (KeyPairGenerator) spi;
             result.algorithm = algorithm;
@@ -149,11 +145,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Object spi;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            spi = ENGINE.getSpi();
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
         if (spi instanceof KeyPairGenerator) {
             KeyPairGenerator result = (KeyPairGenerator) spi;
             result.algorithm = algorithm;
