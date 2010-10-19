@@ -36,10 +36,10 @@ import org.apache.harmony.security.fortress.Engine;
 public class KeyAgreement {
 
     // Used to access common engine functionality
-    private static final Engine engine = new Engine("KeyAgreement");
+    private static final Engine ENGINE = new Engine("KeyAgreement");
 
     // Store SecureRandom
-    private static final SecureRandom rndm = new SecureRandom();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     // Store used provider
     private final Provider provider;
@@ -101,9 +101,9 @@ public class KeyAgreement {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new KeyAgreement((KeyAgreementSpi) engine.spi, engine.provider,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new KeyAgreement((KeyAgreementSpi) ENGINE.getSpi(), ENGINE.getProvider(),
                     algorithm);
         }
     }
@@ -166,9 +166,9 @@ public class KeyAgreement {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new KeyAgreement((KeyAgreementSpi) engine.spi, provider,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new KeyAgreement((KeyAgreementSpi) ENGINE.getSpi(), provider,
                     algorithm);
         }
     }
@@ -183,7 +183,7 @@ public class KeyAgreement {
      *             agreement.
      */
     public final void init(Key key) throws InvalidKeyException {
-        spiImpl.engineInit(key, rndm);//new SecureRandom());
+        spiImpl.engineInit(key, RANDOM);//new SecureRandom());
     }
 
     /**
@@ -220,7 +220,7 @@ public class KeyAgreement {
      */
     public final void init(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        spiImpl.engineInit(key, params, rndm);//new SecureRandom());
+        spiImpl.engineInit(key, params, RANDOM);//new SecureRandom());
     }
 
     /**

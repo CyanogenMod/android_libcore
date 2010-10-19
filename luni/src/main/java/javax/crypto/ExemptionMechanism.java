@@ -36,7 +36,7 @@ import org.apache.harmony.security.fortress.Engine;
 public class ExemptionMechanism {
 
     // Used to access common engine functionality
-    private static final Engine engine = new Engine("ExemptionMechanism");
+    private static final Engine ENGINE = new Engine("ExemptionMechanism");
 
     // Store used provider
     private final Provider provider;
@@ -100,10 +100,10 @@ public class ExemptionMechanism {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new ExemptionMechanism((ExemptionMechanismSpi) engine.spi,
-                    engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new ExemptionMechanism((ExemptionMechanismSpi) ENGINE.getSpi(),
+                    ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -167,9 +167,9 @@ public class ExemptionMechanism {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new ExemptionMechanism((ExemptionMechanismSpi) engine.spi,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new ExemptionMechanism((ExemptionMechanismSpi) ENGINE.getSpi(),
                     provider, algorithm);
         }
     }

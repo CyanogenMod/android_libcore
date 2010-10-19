@@ -35,7 +35,7 @@ public class CertPathBuilder {
     private static final String SERVICE = "CertPathBuilder";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
     private static final String PROPERTYNAME = "certpathbuilder.type";
@@ -48,7 +48,7 @@ public class CertPathBuilder {
     private final Provider provider;
 
     // Store spi implementation
-    private CertPathBuilderSpi spiImpl;
+    private final CertPathBuilderSpi spiImpl;
 
     // Store algorithm name
     private final String algorithm;
@@ -105,10 +105,10 @@ public class CertPathBuilder {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new CertPathBuilder((CertPathBuilderSpi) engine.spi,
-                    engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new CertPathBuilder((CertPathBuilderSpi) ENGINE.getSpi(),
+                    ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -165,10 +165,9 @@ public class CertPathBuilder {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new CertPathBuilder((CertPathBuilderSpi) engine.spi, provider,
-                    algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new CertPathBuilder((CertPathBuilderSpi) ENGINE.getSpi(), provider, algorithm);
         }
     }
 

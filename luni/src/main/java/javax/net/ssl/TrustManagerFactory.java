@@ -37,7 +37,7 @@ public class TrustManagerFactory {
     private static final String SERVICE = "TrustManagerFactory";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
     private static final String PROPERTYNAME = "ssl.TrustManagerFactory.algorithm";
@@ -75,10 +75,10 @@ public class TrustManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new TrustManagerFactory((TrustManagerFactorySpi) engine.spi, engine.provider,
-                    algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new TrustManagerFactory((TrustManagerFactorySpi) ENGINE.getSpi(),
+                                           ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -137,9 +137,10 @@ public class TrustManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new TrustManagerFactory((TrustManagerFactorySpi) engine.spi, provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new TrustManagerFactory((TrustManagerFactorySpi) ENGINE.getSpi(), provider,
+                                           algorithm);
         }
     }
 
@@ -211,7 +212,8 @@ public class TrustManagerFactory {
      * @throws InvalidAlgorithmParameterException
      *             if the initialization fails.
      */
-    public final void init(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException {
+    public final void init(ManagerFactoryParameters spec)
+            throws InvalidAlgorithmParameterException {
         spiImpl.engineInit(spec);
     }
 

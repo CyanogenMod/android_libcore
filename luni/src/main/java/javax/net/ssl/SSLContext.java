@@ -97,7 +97,7 @@ public class SSLContext {
         }
         synchronized (ENGINE) {
             ENGINE.getInstance(protocol, null);
-            return new SSLContext((SSLContextSpi) ENGINE.spi, ENGINE.provider, protocol);
+            return new SSLContext((SSLContextSpi) ENGINE.getSpi(), ENGINE.getProvider(), protocol);
         }
     }
 
@@ -160,7 +160,7 @@ public class SSLContext {
         }
         synchronized (ENGINE) {
             ENGINE.getInstance(protocol, provider, null);
-            return new SSLContext((SSLContextSpi) ENGINE.spi, provider, protocol);
+            return new SSLContext((SSLContextSpi) ENGINE.getSpi(), provider, protocol);
         }
     }
 

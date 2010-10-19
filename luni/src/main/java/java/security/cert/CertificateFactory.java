@@ -41,7 +41,7 @@ public class CertificateFactory {
     private static final String SERVICE = "CertificateFactory";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store used provider
     private final Provider provider;
@@ -87,10 +87,10 @@ public class CertificateFactory {
             throw new NullPointerException();
         }
         try {
-            synchronized (engine) {
-                engine.getInstance(type, null);
-                return new CertificateFactory((CertificateFactorySpi) engine.spi,
-                        engine.provider, type);
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, null);
+                return new CertificateFactory((CertificateFactorySpi) ENGINE.getSpi(),
+                        ENGINE.getProvider(), type);
             }
         } catch (NoSuchAlgorithmException e) {
             throw new CertificateException(e);
@@ -156,9 +156,9 @@ public class CertificateFactory {
             throw new NullPointerException();
         }
         try {
-            synchronized (engine) {
-                engine.getInstance(type, provider, null);
-                return new CertificateFactory((CertificateFactorySpi) engine.spi,
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, provider, null);
+                return new CertificateFactory((CertificateFactorySpi) ENGINE.getSpi(),
                         provider, type);
             }
         } catch (NoSuchAlgorithmException e) {

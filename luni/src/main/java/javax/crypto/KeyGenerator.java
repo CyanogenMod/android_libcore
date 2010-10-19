@@ -34,10 +34,10 @@ import org.apache.harmony.security.fortress.Engine;
 public class KeyGenerator {
 
     // Used to access common engine functionality
-    private static final Engine engine = new Engine("KeyGenerator");
+    private static final Engine ENGINE = new Engine("KeyGenerator");
 
     // Store SecureRandom
-    private static final SecureRandom rndm = new SecureRandom();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     // Store used provider
     private final Provider provider;
@@ -100,9 +100,9 @@ public class KeyGenerator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new KeyGenerator((KeyGeneratorSpi) engine.spi, engine.provider,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new KeyGenerator((KeyGeneratorSpi) ENGINE.getSpi(), ENGINE.getProvider(),
                     algorithm);
         }
     }
@@ -163,9 +163,9 @@ public class KeyGenerator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new KeyGenerator((KeyGeneratorSpi) engine.spi, provider,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new KeyGenerator((KeyGeneratorSpi) ENGINE.getSpi(), provider,
                     algorithm);
         }
     }
@@ -191,7 +191,7 @@ public class KeyGenerator {
      */
     public final void init(AlgorithmParameterSpec params)
             throws InvalidAlgorithmParameterException {
-        spiImpl.engineInit(params, rndm);//new SecureRandom());
+        spiImpl.engineInit(params, RANDOM);//new SecureRandom());
     }
 
     /**
@@ -219,7 +219,7 @@ public class KeyGenerator {
      *            the size of the key (in bits).
      */
     public final void init(int keysize) {
-        spiImpl.engineInit(keysize, rndm);//new SecureRandom());
+        spiImpl.engineInit(keysize, RANDOM);//new SecureRandom());
     }
 
     /**

@@ -37,7 +37,7 @@ public class KeyManagerFactory {
     private static final String SERVICE = "KeyManagerFactory";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
     private static final String PROPERTY_NAME = "ssl.KeyManagerFactory.algorithm";
@@ -76,10 +76,10 @@ public class KeyManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new KeyManagerFactory((KeyManagerFactorySpi) engine.spi, engine.provider,
-                    algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new KeyManagerFactory((KeyManagerFactorySpi) ENGINE.getSpi(),
+                                         ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -138,9 +138,10 @@ public class KeyManagerFactory {
         if (algorithm == null) {
             throw new NullPointerException("algorithm is null");
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new KeyManagerFactory((KeyManagerFactorySpi) engine.spi, provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new KeyManagerFactory((KeyManagerFactorySpi) ENGINE.getSpi(), provider,
+                                         algorithm);
         }
     }
 
@@ -163,8 +164,8 @@ public class KeyManagerFactory {
      * @param algorithm
      *            the key management algorithm name.
      */
-    protected KeyManagerFactory(KeyManagerFactorySpi factorySpi, Provider provider, String algorithm) {
-        super();
+    protected KeyManagerFactory(KeyManagerFactorySpi factorySpi, Provider provider,
+                                String algorithm) {
         this.provider = provider;
         this.algorithm = algorithm;
         this.spiImpl = factorySpi;
@@ -216,7 +217,8 @@ public class KeyManagerFactory {
      * @throws InvalidAlgorithmParameterException
      *             if an error occurs.
      */
-    public final void init(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException {
+    public final void init(ManagerFactoryParameters spec)
+            throws InvalidAlgorithmParameterException {
         spiImpl.engineInit(spec);
     }
 

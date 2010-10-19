@@ -36,27 +36,27 @@ public class AlgorithmParameters {
     /**
      * Used to access common engine functionality.
      */
-    private static Engine engine = new Engine(SEVICE);
+    private static final Engine ENGINE = new Engine(SEVICE);
 
     /**
      * The security provider.
      */
-    private Provider provider;
+    private final Provider provider;
 
     /**
      * The SPI implementation.
      */
-    private AlgorithmParametersSpi spiImpl;
+    private final AlgorithmParametersSpi spiImpl;
 
     /**
      * The security algorithm.
      */
-    private String algorithm;
+    private final String algorithm;
 
     /**
      * The initialization state.
      */
-    private boolean initialized; // = false;
+    private boolean initialized;
 
     /**
      * Constructs a new instance of {@code AlgorithmParameters} with the given
@@ -94,10 +94,10 @@ public class AlgorithmParameters {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new AlgorithmParameters((AlgorithmParametersSpi) engine.spi,
-                    engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new AlgorithmParameters((AlgorithmParametersSpi) ENGINE.getSpi(),
+                    ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -156,9 +156,9 @@ public class AlgorithmParameters {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new AlgorithmParameters((AlgorithmParametersSpi) engine.spi,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new AlgorithmParameters((AlgorithmParametersSpi) ENGINE.getSpi(),
                     provider, algorithm);
         }
     }

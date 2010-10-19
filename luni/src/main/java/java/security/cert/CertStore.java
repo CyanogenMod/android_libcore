@@ -37,7 +37,7 @@ public class CertStore {
     private static final String SERVICE = "CertStore";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
     private static final String PROPERTYNAME = "certstore.type";
@@ -101,9 +101,9 @@ public class CertStore {
             throw new NullPointerException();
         }
         try {
-            synchronized (engine) {
-                engine.getInstance(type, params);
-                return new CertStore((CertStoreSpi) engine.spi, engine.provider,
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, params);
+                return new CertStore((CertStoreSpi) ENGINE.getSpi(), ENGINE.getProvider(),
                         type, params);
             }
         } catch (NoSuchAlgorithmException e) {
@@ -182,9 +182,9 @@ public class CertStore {
             throw new NullPointerException();
         }
         try {
-            synchronized (engine) {
-                engine.getInstance(type, provider, params);
-                return new CertStore((CertStoreSpi) engine.spi, provider, type,
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, provider, params);
+                return new CertStore((CertStoreSpi) ENGINE.getSpi(), provider, type,
                         params);
             }
         } catch (NoSuchAlgorithmException e) {

@@ -30,10 +30,10 @@ public class AlgorithmParameterGenerator {
     private static final String SERVICE = "AlgorithmParameterGenerator";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store SecureRandom
-    private static SecureRandom randm = new SecureRandom();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     // Store used provider
     private final Provider provider;
@@ -90,10 +90,10 @@ public class AlgorithmParameterGenerator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
             return new AlgorithmParameterGenerator(
-                    (AlgorithmParameterGeneratorSpi) engine.spi, engine.provider,
+                    (AlgorithmParameterGeneratorSpi) ENGINE.getSpi(), ENGINE.getProvider(),
                     algorithm);
         }
     }
@@ -154,11 +154,10 @@ public class AlgorithmParameterGenerator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
             return new AlgorithmParameterGenerator(
-                    (AlgorithmParameterGeneratorSpi) engine.spi, provider,
-                    algorithm);
+                    (AlgorithmParameterGeneratorSpi) ENGINE.getSpi(), provider, algorithm);
         }
     }
 
@@ -182,7 +181,7 @@ public class AlgorithmParameterGenerator {
      *            the size (in number of bits).
      */
     public final void init(int size) {
-        spiImpl.engineInit(size, randm);
+        spiImpl.engineInit(size, RANDOM);
     }
 
     /**
@@ -211,7 +210,7 @@ public class AlgorithmParameterGenerator {
      */
     public final void init(AlgorithmParameterSpec genParamSpec)
             throws InvalidAlgorithmParameterException {
-        spiImpl.engineInit(genParamSpec, randm);
+        spiImpl.engineInit(genParamSpec, RANDOM);
     }
 
     /**

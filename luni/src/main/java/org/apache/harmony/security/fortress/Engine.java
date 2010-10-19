@@ -28,11 +28,61 @@ import org.apache.harmony.security.Util;
 
 
 /**
+ * This class implements common functionality for Provider supplied
+ * classes. The usage pattern is to allocate static Engine instance
+ * per service type and synchronize on that instance during calls to
+ * {@code getInstance} and retreival of the selected {@code Provider}
+ * and Service Provider Interface (SPI) results. Retreiving the
+ * results with {@code getProvider} and {@code getSpi} sets the
+ * internal {@code Engine} values to null to prevent memory leaks.
  *
- * This class implements common functionality for all engine classes
+ * <p>
  *
+ * For example: <pre>   {@code
+ *   public class Foo {
+ *
+ *       private static final Engine ENGINE = new Engine("Foo");
+ *
+ *       private final FooSpi spi;
+ *       private final Provider provider;
+ *       private final String algorithm;
+ *
+ *       protected Foo(FooSpi spi,
+ *                     Provider provider,
+ *                     String algorithm) {
+ *           this.spi = spi;
+ *           this.provider = provider;
+ *           this.algorithm = algorithm;
+ *       }
+ *
+ *       public static Foo getInstance(String algorithm) {
+ *           synchronized (ENGINE) {
+ *               ENGINE.getInstance(algorithm, null);
+ *               return new Foo((FooSpi) ENGINE.getSpi(),
+ *                              ENGINE.getProvider(),
+ *                              algorithm);
+ *           }
+ *       }
+ *
+ *       public static Foo getInstance(String algorithm, Provider provider) {
+ *           synchronized (ENGINE) {
+ *               ENGINE.getInstance(algorithm, provider, null);
+ *               return new Foo((FooSpi) ENGINE.getSpi(),
+ *                              provider(),
+ *                              algorithm);
+ *           }
+ *       }
+ *
+ *       ...
+ *
+ * }</pre>
  */
 public class Engine {
+
+    /**
+     * Access to package visible api in java.security
+     */
+    public static SecurityAccess door;
 
     // Service name
     private final String serviceName;
@@ -47,19 +97,14 @@ public class Engine {
     private int refreshNumber;
 
     /**
-     * Provider
+     * Provider selected by last call to getInstance
      */
-    public Provider provider;
+    private Provider provider;
 
     /**
-     * SPI instance
+     * SPI selected by last call to getInstance
      */
-    public Object spi;
-
-    /**
-     * Access to package visible api in java.security
-     */
-    public static SecurityAccess door;
+    private Object spi;
 
     /**
      * Creates a Engine object
@@ -79,7 +124,7 @@ public class Engine {
      * @param service
      * @throws NoSuchAlgorithmException
      */
-    public synchronized void getInstance(String algorithm, Object param)
+    public void getInstance(String algorithm, Object param)
             throws NoSuchAlgorithmException {
         Provider.Service serv;
 
@@ -88,8 +133,8 @@ public class Engine {
         }
         Services.refresh();
         if (returnedService != null
-                && Util.equalsIgnoreCase(algorithm, lastAlgorithm)
-                && refreshNumber == Services.refreshNumber) {
+                && Util.equalsIgnoreCase(algorithm, this.lastAlgorithm)
+                && this.refreshNumber == Services.refreshNumber) {
             serv = returnedService;
         } else {
             if (Services.isEmpty()) {
@@ -102,15 +147,17 @@ public class Engine {
                 throw notFound(serviceName, algorithm);
             }
             returnedService = serv;
-            lastAlgorithm = algorithm;
-            refreshNumber = Services.refreshNumber;
+            this.lastAlgorithm = algorithm;
+            this.refreshNumber = Services.refreshNumber;
         }
-        spi = serv.newInstance(param);
+        this.spi = serv.newInstance(param);
         this.provider = serv.getProvider();
     }
 
-    private NoSuchAlgorithmException notFound(String serviceName, String algorithm) throws NoSuchAlgorithmException {
-        throw new NoSuchAlgorithmException(serviceName + " " + algorithm + " implementation not found");
+    private NoSuchAlgorithmException notFound(String serviceName, String algorithm)
+            throws NoSuchAlgorithmException {
+        throw new NoSuchAlgorithmException(serviceName + " " + algorithm
+                                           + " implementation not found");
     }
 
     /**
@@ -123,7 +170,7 @@ public class Engine {
      * @param provider
      * @throws NoSuchAlgorithmException
      */
-    public synchronized void getInstance(String algorithm, Provider provider,
+    public void getInstance(String algorithm, Provider provider,
             Object param) throws NoSuchAlgorithmException {
 
         Provider.Service serv = null;
@@ -134,8 +181,29 @@ public class Engine {
         if (serv == null) {
             throw notFound(serviceName, algorithm);
         }
-        spi = serv.newInstance(param);
+        this.spi = serv.newInstance(param);
         this.provider = provider;
     }
 
+    /**
+     * Returns the provider selected by last call to getInstance and
+     * then clears the internal provider state such that subsequent
+     * calls with return null until the next call to getInstance.
+     */
+    public Provider getProvider() {
+        Provider result = provider;
+        provider = null;
+        return result;
+    }
+
+    /**
+     * Returns the provider selected by last call to getInstance and
+     * then clears the internal provider state such that subsequent
+     * calls with return null until the next call to getInstance.
+     */
+    public Object getSpi() {
+        Object result = spi;
+        spi = null;
+        return result;
+    }
 }

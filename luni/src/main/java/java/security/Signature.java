@@ -39,7 +39,7 @@ public abstract class Signature extends SignatureSpi {
     private static final String SERVICE = "Signature";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static Engine ENGINE = new Engine(SERVICE);
 
     // The provider
     private Provider provider;
@@ -101,19 +101,20 @@ public abstract class Signature extends SignatureSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Signature result;
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            if (engine.spi instanceof Signature) {
-                result = (Signature) engine.spi;
-                result.algorithm = algorithm;
-                result.provider = engine.provider;
-            } else {
-                result = new SignatureImpl((SignatureSpi) engine.spi,
-                        engine.provider, algorithm);
-            }
+        Object spi;
+        Provider provider;
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            spi = ENGINE.getSpi();
+            provider = ENGINE.getProvider();
         }
-        return result;
+        if (spi instanceof Signature) {
+            Signature result = (Signature) spi;
+            result.algorithm = algorithm;
+            result.provider = provider;
+            return result;
+        }
+        return new SignatureImpl((SignatureSpi) spi, provider, algorithm);
     }
 
     /**
@@ -178,19 +179,18 @@ public abstract class Signature extends SignatureSpi {
 
     private static Signature getSignatureInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
-        Signature result;
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            if (engine.spi instanceof Signature) {
-                result = (Signature) engine.spi;
-                result.algorithm = algorithm;
-                result.provider = provider;
-            } else {
-                result = new SignatureImpl((SignatureSpi) engine.spi, provider,
-                        algorithm);
-            }
+        Object spi;
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            spi = ENGINE.getSpi();
         }
-        return result;
+        if (spi instanceof Signature) {
+            Signature result = (Signature) spi;
+            result.algorithm = algorithm;
+            result.provider = provider;
+            return result;
+        }
+        return new SignatureImpl((SignatureSpi) spi, provider, algorithm);
     }
 
     /**
