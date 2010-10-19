@@ -158,7 +158,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
-        storeShort(index, (short) value);
+        OSMemory.pokeShort(backingArray, offset + index, (short) value, order);
         return this;
     }
 
@@ -168,7 +168,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        storeShort(position, (short) value);
+        OSMemory.pokeShort(backingArray, offset + position, (short) value, order);
         position = newPosition;
         return this;
     }
@@ -199,7 +199,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        storeInt(position, value);
+        OSMemory.pokeInt(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -209,7 +209,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        storeInt(index, value);
+        OSMemory.pokeInt(backingArray, offset + index, value, order);
         return this;
     }
 
@@ -218,7 +218,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        storeLong(index, value);
+        OSMemory.pokeLong(backingArray, offset + index, value, order);
         return this;
     }
 
@@ -228,7 +228,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        storeLong(position, value);
+        OSMemory.pokeLong(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -238,7 +238,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        storeShort(index, value);
+        OSMemory.pokeShort(backingArray, offset + index, value, order);
         return this;
     }
 
@@ -248,62 +248,9 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        storeShort(position, value);
+        OSMemory.pokeShort(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
-    }
-
-    private final void storeInt(int index, int value) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            backingArray[baseOffset++] = (byte) ((value >> 24) & 0xff);
-            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
-            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((value >>  0) & 0xff);
-        } else {
-            backingArray[baseOffset++] = (byte) ((value >>  0) & 0xff);
-            backingArray[baseOffset++] = (byte) ((value >>  8) & 0xff);
-            backingArray[baseOffset++] = (byte) ((value >> 16) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((value >> 24) & 0xff);
-        }
-    }
-
-    private final void storeLong(int index, long value) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            int i = (int) (value >> 32);
-            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
-            i = (int) value;
-            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((i >>  0) & 0xff);
-        } else {
-            int i = (int) value;
-            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >> 24) & 0xff);
-            i = (int) (value >> 32);
-            backingArray[baseOffset++] = (byte) ((i >>  0) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >>  8) & 0xff);
-            backingArray[baseOffset++] = (byte) ((i >> 16) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((i >> 24) & 0xff);
-        }
-    }
-
-    private final void storeShort(int index, short value) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            backingArray[baseOffset++] = (byte) ((value >> 8) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((value >> 0) & 0xff);
-        } else {
-            backingArray[baseOffset++] = (byte) ((value >> 0) & 0xff);
-            backingArray[baseOffset  ] = (byte) ((value >> 8) & 0xff);
-        }
     }
 
     @Override

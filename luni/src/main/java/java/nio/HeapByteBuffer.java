@@ -121,7 +121,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        char result = (char) loadShort(position);
+        char result = (char) OSMemory.peekShort(backingArray, offset + position, order);
         position = newPosition;
         return result;
     }
@@ -131,7 +131,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (index < 0 || index + SIZEOF_CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return (char) loadShort(index);
+        return (char) OSMemory.peekShort(backingArray, offset + index, order);
     }
 
     @Override
@@ -160,7 +160,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        int result = loadInt(position);
+        int result = OSMemory.peekInt(backingArray, offset + position, order);
         position = newPosition;
         return result;
     }
@@ -170,7 +170,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (index < 0 || index + SIZEOF_INT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return loadInt(index);
+        return OSMemory.peekInt(backingArray, offset + index, order);
     }
 
     @Override
@@ -179,7 +179,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        long result = loadLong(position);
+        long result = OSMemory.peekLong(backingArray, offset + position, order);
         position = newPosition;
         return result;
     }
@@ -189,7 +189,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (index < 0 || index + SIZEOF_LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return loadLong(index);
+        return OSMemory.peekLong(backingArray, offset + index, order);
     }
 
     @Override
@@ -198,7 +198,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        short result = loadShort(position);
+        short result = OSMemory.peekShort(backingArray, offset + position, order);
         position = newPosition;
         return result;
     }
@@ -208,62 +208,11 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         if (index < 0 || index + SIZEOF_SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return loadShort(index);
+        return OSMemory.peekShort(backingArray, offset + index, order);
     }
 
     @Override
     public final boolean isDirect() {
         return false;
-    }
-
-    private final int loadInt(int index) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            return (((backingArray[baseOffset++] & 0xff) << 24) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset  ] & 0xff) <<  0));
-        } else {
-            return (((backingArray[baseOffset++] & 0xff) <<  0) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset  ] & 0xff) << 24));
-        }
-    }
-
-    private final long loadLong(int index) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            int h = ((backingArray[baseOffset++] & 0xff) << 24) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset++] & 0xff) <<  0);
-            int l = ((backingArray[baseOffset++] & 0xff) << 24) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset  ] & 0xff) <<  0);
-            return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
-        } else {
-            int l = ((backingArray[baseOffset++] & 0xff) <<  0) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset++] & 0xff) << 24);
-            int h = ((backingArray[baseOffset++] & 0xff) <<  0) |
-                    ((backingArray[baseOffset++] & 0xff) <<  8) |
-                    ((backingArray[baseOffset++] & 0xff) << 16) |
-                    ((backingArray[baseOffset  ] & 0xff) << 24);
-            return (((long) h) << 32L) | ((long) l) & 0xffffffffL;
-        }
-    }
-
-    private final short loadShort(int index) {
-        int baseOffset = offset + index;
-        if (order == ByteOrder.BIG_ENDIAN) {
-            return (short)
-                    ((backingArray[baseOffset] << 8) | (backingArray[baseOffset + 1] & 0xff));
-        } else {
-            return (short)
-                    ((backingArray[baseOffset + 1] << 8) | (backingArray[baseOffset] & 0xff));
-        }
     }
 }
