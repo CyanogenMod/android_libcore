@@ -88,20 +88,16 @@ public abstract class MessageDigest extends MessageDigestSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Object spi;
-        Provider provider;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            spi = ENGINE.getSpi();
-            provider = ENGINE.getProvider();
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        Object spi = sap.spi;
+        Provider provider = sap.provider;
         if (spi instanceof MessageDigest) {
             MessageDigest result = (MessageDigest) spi;
             result.algorithm = algorithm;
             result.provider = provider;
             return result;
         }
-        return new MessageDigestImpl((MessageDigestSpi) spi, provider, algorithm);
+        return new MessageDigestImpl((MessageDigestSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -158,11 +154,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Object spi;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            spi = ENGINE.getSpi();
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
         if (spi instanceof MessageDigest) {
             MessageDigest result = (MessageDigest) spi;
             result.algorithm = algorithm;

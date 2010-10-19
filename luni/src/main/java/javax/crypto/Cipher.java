@@ -264,51 +264,54 @@ public class Cipher {
 
         boolean needSetPadding = false;
         boolean needSetMode = false;
-        Object engineSpi;
-        Provider engineProvider;
-        synchronized (ENGINE) {
-            if (transf[1] == null && transf[2] == null) { // "algorithm"
-                if (provider == null) {
-                    ENGINE.getInstance(transf[0], null);
-                } else {
-                    ENGINE.getInstance(transf[0], provider, null);
-                }
+        Object engineSpi = null;
+        Provider engineProvider = provider;
+        if (transf[1] == null && transf[2] == null) { // "algorithm"
+            if (provider == null) {
+                Engine.SpiAndProvider sap = ENGINE.getInstance(transf[0], null);
+                engineSpi = sap.spi;
+                engineProvider = sap.provider;
             } else {
-                String[] searhOrder = {
-                    transf[0] + "/" + transf[1] + "/" + transf[2], // "algorithm/mode/padding"
-                    transf[0] + "/" + transf[1], // "algorithm/mode"
-                    transf[0] + "//" + transf[2], // "algorithm//padding"
-                    transf[0] // "algorithm"
-                };
-                int i;
-                for (i = 0; i < searhOrder.length; i++) {
-                    try {
-                        if (provider == null) {
-                            ENGINE.getInstance(searhOrder[i], null);
-                        } else {
-                            ENGINE.getInstance(searhOrder[i], provider, null);
-                        }
-                        break;
-                    } catch (NoSuchAlgorithmException e) {
-                        if ( i == searhOrder.length-1) {
-                            throw new NoSuchAlgorithmException(transformation);
-                        }
+                engineSpi = ENGINE.getInstance(transf[0], provider, null);
+            }
+        } else {
+            String[] searchOrder = {
+                transf[0] + "/" + transf[1] + "/" + transf[2], // "algorithm/mode/padding"
+                transf[0] + "/" + transf[1], // "algorithm/mode"
+                transf[0] + "//" + transf[2], // "algorithm//padding"
+                transf[0] // "algorithm"
+            };
+            int i;
+            for (i = 0; i < searchOrder.length; i++) {
+                try {
+                    if (provider == null) {
+                        Engine.SpiAndProvider sap = ENGINE.getInstance(searchOrder[i], null);
+                        engineSpi = sap.spi;
+                        engineProvider = sap.provider;
+                    } else {
+                        engineSpi = ENGINE.getInstance(searchOrder[i], provider, null);
+                    }
+                    break;
+                } catch (NoSuchAlgorithmException e) {
+                    if (i == searchOrder.length-1) {
+                        throw new NoSuchAlgorithmException(transformation);
                     }
                 }
-                switch (i) {
-                    case 1: // "algorithm/mode"
-                        needSetPadding = true;
-                        break;
-                    case 2: // "algorithm//padding"
-                        needSetMode = true;
-                        break;
-                    case 3: // "algorithm"
-                        needSetPadding = true;
-                        needSetMode = true;
-                }
             }
-            engineSpi = ENGINE.getSpi();
-            engineProvider = ENGINE.getProvider();
+            switch (i) {
+                case 1: // "algorithm/mode"
+                    needSetPadding = true;
+                    break;
+                case 2: // "algorithm//padding"
+                    needSetMode = true;
+                    break;
+                case 3: // "algorithm"
+                    needSetPadding = true;
+                    needSetMode = true;
+            }
+        }
+        if (engineSpi == null || engineProvider == null) {
+            throw new NoSuchAlgorithmException(transformation);
         }
         if (!(engineSpi instanceof CipherSpi)) {
             throw new NoSuchAlgorithmException(engineSpi.getClass().getName());

@@ -101,13 +101,9 @@ public abstract class Signature extends SignatureSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        Object spi;
-        Provider provider;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            spi = ENGINE.getSpi();
-            provider = ENGINE.getProvider();
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        Object spi = sap.spi;
+        Provider provider = sap.provider;
         if (spi instanceof Signature) {
             Signature result = (Signature) spi;
             result.algorithm = algorithm;
@@ -179,11 +175,7 @@ public abstract class Signature extends SignatureSpi {
 
     private static Signature getSignatureInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
-        Object spi;
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            spi = ENGINE.getSpi();
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
         if (spi instanceof Signature) {
             Signature result = (Signature) spi;
             result.algorithm = algorithm;

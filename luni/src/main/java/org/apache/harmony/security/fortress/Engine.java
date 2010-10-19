@@ -56,21 +56,13 @@ import org.apache.harmony.security.Util;
  *       }
  *
  *       public static Foo getInstance(String algorithm) {
- *           synchronized (ENGINE) {
- *               ENGINE.getInstance(algorithm, null);
- *               return new Foo((FooSpi) ENGINE.getSpi(),
- *                              ENGINE.getProvider(),
- *                              algorithm);
- *           }
+ *           Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+ *           return new Foo((FooSpi) sap.spi, sap.provider, algorithm);
  *       }
  *
  *       public static Foo getInstance(String algorithm, Provider provider) {
- *           synchronized (ENGINE) {
- *               ENGINE.getInstance(algorithm, provider, null);
- *               return new Foo((FooSpi) ENGINE.getSpi(),
- *                              provider(),
- *                              algorithm);
- *           }
+ *           Object spi = ENGINE.getInstance(algorithm, provider, null);
+ *           return new Foo((FooSpi) spi, provider, algorithm);
  *       }
  *
  *       ...
@@ -84,27 +76,44 @@ public class Engine {
      */
     public static SecurityAccess door;
 
-    // Service name
+    /**
+     * Service name such as Cipher or SSLContext
+     */
     private final String serviceName;
 
-    // for getInstance(String algorithm, Object param) optimization:
-    // previous result
-    private Provider.Service returnedService;
-
-    // previous parameter
-    private String lastAlgorithm;
-
-    private int refreshNumber;
-
     /**
-     * Provider selected by last call to getInstance
+     * Previous result for getInstance(String, Object) optimization.
+     * Only this non-Provider version of getInstance is optimized
+     * since the the Provider version does not require an expensive
+     * Services.getService call.
      */
-    private Provider provider;
+    private volatile ServiceCacheEntry serviceCache;
 
-    /**
-     * SPI selected by last call to getInstance
-     */
-    private Object spi;
+    private static final class ServiceCacheEntry {
+        /** used to test for cache hit */
+        private final String algorithm;
+        /** used to test for cache validity */
+        private final int refreshNumber;
+        /** cached result */
+        private final Provider.Service service;
+
+        private ServiceCacheEntry(String algorithm,
+                                  int refreshNumber,
+                                  Provider.Service service) {
+            this.algorithm = algorithm;
+            this.refreshNumber = refreshNumber;
+            this.service = service;
+        }
+    }
+
+    public static final class SpiAndProvider {
+        public final Object spi;
+        public final Provider provider;
+        private SpiAndProvider(Object spi, Provider provider) {
+            this.spi = spi;
+            this.provider = provider;
+        }
+    }
 
     /**
      * Creates a Engine object
@@ -116,94 +125,60 @@ public class Engine {
     }
 
     /**
-     *
-     * Finds the appropriate service implementation and creates instance of the
-     * class that implements corresponding Service Provider Interface.
-     *
-     * @param algorithm
-     * @param service
-     * @throws NoSuchAlgorithmException
+     * Finds the appropriate service implementation and returns an
+     * {@code SpiAndProvider} instance containing a reference to SPI
+     * and its {@code Provider}
      */
-    public void getInstance(String algorithm, Object param)
+    public SpiAndProvider getInstance(String algorithm, Object param)
             throws NoSuchAlgorithmException {
-        Provider.Service serv;
-
         if (algorithm == null) {
             throw new NoSuchAlgorithmException("Null algorithm name");
         }
         Services.refresh();
-        if (returnedService != null
-                && Util.equalsIgnoreCase(algorithm, this.lastAlgorithm)
-                && this.refreshNumber == Services.refreshNumber) {
-            serv = returnedService;
+        Provider.Service service;
+        ServiceCacheEntry cacheEntry = this.serviceCache;
+        if (cacheEntry != null
+                && Util.equalsIgnoreCase(algorithm, cacheEntry.algorithm)
+                && Services.refreshNumber != cacheEntry.refreshNumber) {
+            service = cacheEntry.service;
         } else {
             if (Services.isEmpty()) {
                 throw notFound(serviceName, algorithm);
             }
-            serv = Services.getService(new StringBuilder(128)
-                    .append(serviceName).append(".").append(
-                            Util.toUpperCase(algorithm)).toString());
-            if (serv == null) {
+            String name = new StringBuilder(128)
+                    .append(this.serviceName)
+                    .append(".")
+                    .append(Util.toUpperCase(algorithm))
+                    .toString();
+            service = Services.getService(name);
+            if (service == null) {
                 throw notFound(serviceName, algorithm);
             }
-            returnedService = serv;
-            this.lastAlgorithm = algorithm;
-            this.refreshNumber = Services.refreshNumber;
+            this.serviceCache = new ServiceCacheEntry(algorithm, Services.refreshNumber, service);
         }
-        this.spi = serv.newInstance(param);
-        this.provider = serv.getProvider();
+        return new SpiAndProvider(service.newInstance(param), service.getProvider());
+    }
+
+    /**
+     * Finds the appropriate service implementation and returns and
+     * instance of the class that implements corresponding Service
+     * Provider Interface.
+     */
+    public Object getInstance(String algorithm, Provider provider, Object param)
+            throws NoSuchAlgorithmException {
+        if (algorithm == null) {
+            throw new NoSuchAlgorithmException("algorithm == null");
+        }
+        Provider.Service service = provider.getService(serviceName, algorithm);
+        if (service == null) {
+            throw notFound(serviceName, algorithm);
+        }
+        return service.newInstance(param);
     }
 
     private NoSuchAlgorithmException notFound(String serviceName, String algorithm)
             throws NoSuchAlgorithmException {
         throw new NoSuchAlgorithmException(serviceName + " " + algorithm
                                            + " implementation not found");
-    }
-
-    /**
-     *
-     * Finds the appropriate service implementation and creates instance of the
-     * class that implements corresponding Service Provider Interface.
-     *
-     * @param algorithm
-     * @param service
-     * @param provider
-     * @throws NoSuchAlgorithmException
-     */
-    public void getInstance(String algorithm, Provider provider,
-            Object param) throws NoSuchAlgorithmException {
-
-        Provider.Service serv = null;
-        if (algorithm == null) {
-            throw new NoSuchAlgorithmException("algorithm == null");
-        }
-        serv = provider.getService(serviceName, algorithm);
-        if (serv == null) {
-            throw notFound(serviceName, algorithm);
-        }
-        this.spi = serv.newInstance(param);
-        this.provider = provider;
-    }
-
-    /**
-     * Returns the provider selected by last call to getInstance and
-     * then clears the internal provider state such that subsequent
-     * calls with return null until the next call to getInstance.
-     */
-    public Provider getProvider() {
-        Provider result = provider;
-        provider = null;
-        return result;
-    }
-
-    /**
-     * Returns the provider selected by last call to getInstance and
-     * then clears the internal provider state such that subsequent
-     * calls with return null until the next call to getInstance.
-     */
-    public Object getSpi() {
-        Object result = spi;
-        spi = null;
-        return result;
     }
 }

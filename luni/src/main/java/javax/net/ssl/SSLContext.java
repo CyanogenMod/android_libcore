@@ -95,10 +95,8 @@ public class SSLContext {
         if (protocol == null) {
             throw new NullPointerException("protocol is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(protocol, null);
-            return new SSLContext((SSLContextSpi) ENGINE.getSpi(), ENGINE.getProvider(), protocol);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(protocol, null);
+        return new SSLContext((SSLContextSpi) sap.spi, sap.provider, protocol);
     }
 
     /**
@@ -158,10 +156,8 @@ public class SSLContext {
         if (protocol == null) {
             throw new NullPointerException("protocol is null");
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(protocol, provider, null);
-            return new SSLContext((SSLContextSpi) ENGINE.getSpi(), provider, protocol);
-        }
+        Object spi = ENGINE.getInstance(protocol, provider, null);
+        return new SSLContext((SSLContextSpi) spi, provider, protocol);
     }
 
     private final Provider provider;
