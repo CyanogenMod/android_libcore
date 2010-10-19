@@ -101,11 +101,8 @@ public class KeyAgreement {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new KeyAgreement((KeyAgreementSpi) ENGINE.getSpi(), ENGINE.getProvider(),
-                    algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new KeyAgreement((KeyAgreementSpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -166,11 +163,8 @@ public class KeyAgreement {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new KeyAgreement((KeyAgreementSpi) ENGINE.getSpi(), provider,
-                    algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new KeyAgreement((KeyAgreementSpi) spi, provider, algorithm);
     }
 
     /**

@@ -87,11 +87,8 @@ public class CertificateFactory {
             throw new NullPointerException();
         }
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, null);
-                return new CertificateFactory((CertificateFactorySpi) ENGINE.getSpi(),
-                        ENGINE.getProvider(), type);
-            }
+            Engine.SpiAndProvider sap = ENGINE.getInstance(type, null);
+            return new CertificateFactory((CertificateFactorySpi) sap.spi, sap.provider, type);
         } catch (NoSuchAlgorithmException e) {
             throw new CertificateException(e);
         }
@@ -156,11 +153,8 @@ public class CertificateFactory {
             throw new NullPointerException();
         }
         try {
-            synchronized (ENGINE) {
-                ENGINE.getInstance(type, provider, null);
-                return new CertificateFactory((CertificateFactorySpi) ENGINE.getSpi(),
-                        provider, type);
-            }
+            Object spi = ENGINE.getInstance(type, provider, null);
+            return new CertificateFactory((CertificateFactorySpi) spi, provider, type);
         } catch (NoSuchAlgorithmException e) {
             throw new CertificateException(e.getMessage());
         }

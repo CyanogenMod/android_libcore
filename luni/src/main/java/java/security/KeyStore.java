@@ -112,13 +112,11 @@ public class KeyStore {
         if (type == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            try {
-                ENGINE.getInstance(type, null);
-                return new KeyStore((KeyStoreSpi) ENGINE.getSpi(), ENGINE.getProvider(), type);
-            } catch (NoSuchAlgorithmException e) {
+        try {
+            Engine.SpiAndProvider sap = ENGINE.getInstance(type, null);
+            return new KeyStore((KeyStoreSpi) sap.spi, sap.provider, type);
+        } catch (NoSuchAlgorithmException e) {
                 throw new KeyStoreException(e.getMessage());
-            }
         }
     }
 
@@ -188,14 +186,12 @@ public class KeyStore {
             throw new NullPointerException();
         }
         // return KeyStore instance
-        synchronized (ENGINE) {
-            try {
-                ENGINE.getInstance(type, provider, null);
-                return new KeyStore((KeyStoreSpi) ENGINE.getSpi(), provider, type);
-            } catch (Exception e) {
+        try {
+            Object spi = ENGINE.getInstance(type, provider, null);
+            return new KeyStore((KeyStoreSpi) spi, provider, type);
+        } catch (Exception e) {
             // override exception
-                throw new KeyStoreException(e.getMessage());
-            }
+            throw new KeyStoreException(e.getMessage());
         }
     }
 

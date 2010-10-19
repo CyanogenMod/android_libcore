@@ -78,10 +78,8 @@ public class KeyFactory {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, null);
-            return new KeyFactory((KeyFactorySpi) ENGINE.getSpi(), ENGINE.getProvider(), algorithm);
-        }
+        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
+        return new KeyFactory((KeyFactorySpi) sap.spi, sap.provider, algorithm);
     }
 
     /**
@@ -135,10 +133,8 @@ public class KeyFactory {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (ENGINE) {
-            ENGINE.getInstance(algorithm, provider, null);
-            return new KeyFactory((KeyFactorySpi) ENGINE.getSpi(), provider, algorithm);
-        }
+        Object spi = ENGINE.getInstance(algorithm, provider, null);
+        return new KeyFactory((KeyFactorySpi) spi, provider, algorithm);
     }
 
     /**
