@@ -51,7 +51,7 @@ import org.apache.harmony.security.fortress.Engine;
 public abstract class MessageDigest extends MessageDigestSpi {
 
     // Used to access common engine functionality
-    private static final Engine engine = new Engine("MessageDigest");
+    private static final Engine ENGINE = new Engine("MessageDigest");
 
     // The provider
     private Provider provider;
@@ -88,18 +88,20 @@ public abstract class MessageDigest extends MessageDigestSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        MessageDigest result;
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            if (engine.spi instanceof MessageDigest) {
-                result = (MessageDigest) engine.spi;
-                result.algorithm = algorithm;
-                result.provider = engine.provider;
-                return result;
-            }
-            return new MessageDigestImpl((MessageDigestSpi) engine.spi,
-                    engine.provider, algorithm);
+        Object spi;
+        Provider provider;
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            spi = ENGINE.getSpi();
+            provider = ENGINE.getProvider();
         }
+        if (spi instanceof MessageDigest) {
+            MessageDigest result = (MessageDigest) spi;
+            result.algorithm = algorithm;
+            result.provider = provider;
+            return result;
+        }
+        return new MessageDigestImpl((MessageDigestSpi) spi, provider, algorithm);
     }
 
     /**
@@ -156,19 +158,18 @@ public abstract class MessageDigest extends MessageDigestSpi {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        MessageDigest result;
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            if (engine.spi instanceof MessageDigest) {
-                result = (MessageDigest) engine.spi;
-                result.algorithm = algorithm;
-                result.provider = provider;
-                return result;
-            }
-            result = new MessageDigestImpl((MessageDigestSpi) engine.spi,
-                    provider, algorithm);
+        Object spi;
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            spi = ENGINE.getSpi();
+        }
+        if (spi instanceof MessageDigest) {
+            MessageDigest result = (MessageDigest) spi;
+            result.algorithm = algorithm;
+            result.provider = provider;
             return result;
         }
+        return new MessageDigestImpl((MessageDigestSpi) spi, provider, algorithm);
     }
 
     /**

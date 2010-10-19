@@ -35,7 +35,7 @@ public class CertPathValidator {
     private static final String SERVICE = "CertPathValidator";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
     private static final String PROPERTYNAME = "certpathvalidator.type";
@@ -104,10 +104,10 @@ public class CertPathValidator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new CertPathValidator((CertPathValidatorSpi) engine.spi,
-                    engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new CertPathValidator((CertPathValidatorSpi) ENGINE.getSpi(),
+                    ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -166,9 +166,9 @@ public class CertPathValidator {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new CertPathValidator((CertPathValidatorSpi) engine.spi,
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new CertPathValidator((CertPathValidatorSpi) ENGINE.getSpi(),
                     provider, algorithm);
         }
     }

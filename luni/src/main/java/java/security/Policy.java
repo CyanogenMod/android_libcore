@@ -44,30 +44,31 @@ public abstract class Policy {
             "setPolicy");
 
     // The SecurityPermission required to get current Policy.
-    static final SecurityPermission GET_POLICY = new SecurityPermission("getPolicy");
+    private static final SecurityPermission GET_POLICY = new SecurityPermission("getPolicy");
 
     // The policy currently in effect.
+    // protected by Policy.class monitor.
     private static Policy activePolicy;
 
     // Store spi implementation service name
     private static final String POLICYSERVICE = "Policy";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(POLICYSERVICE);
+    private static final Engine ENGINE = new Engine(POLICYSERVICE);
 
-    private String type;
+    private final String type;
 
-    private Policy.Parameters params;
+    private final Policy.Parameters params;
 
-    private Provider provider;
+    private final Provider provider;
 
     // Store used spi implementation
-    private PolicySpi spiImpl;
+    private final PolicySpi spiImpl;
 
     private static final String CREATE_POLICY = "createPolicy.";
 
     public Policy() {
-        // default constructor
+        this(null, null, null, null);
     }
 
     private Policy(PolicySpi spi, Provider p, String t, Policy.Parameters para) {
@@ -97,22 +98,22 @@ public abstract class Policy {
      * Note that the list of registered providers may be retrieved via the
      * Security.getProviders() method.
      *
-     * @param type -
+     * @param type
      *            the specified Policy type. See Appendix A in the Java
      *            Cryptography Architecture API Specification & Reference for a
      *            list of standard Policy types.
-     * @param params -
+     * @param params
      *            parameters for the Policy, which may be null.
      * @return the new Policy object.
-     * @throws NoSuchAlgorithmException -
+     * @throws NoSuchAlgorithmException
      *             if no Provider supports a PolicySpi implementation for the
      *             specified type.
-     * @throws SecurityException -
+     * @throws SecurityException
      *             if the caller does not have permission to get a Policy
      *             instance for the specified type.
-     * @throws NullPointerException -
+     * @throws NullPointerException
      *             if the specified type is null.
-     * @throws IllegalArgumentException -
+     * @throws IllegalArgumentException
      *             if the specified parameters' type are not allowed by the
      *             PolicySpi implementation from the selected Provider.
      */
@@ -125,10 +126,10 @@ public abstract class Policy {
         }
 
         try {
-            synchronized (engine) {
-                engine.getInstance(type, params);
-                return new PolicyDelegate((PolicySpi) engine.spi,
-                        engine.provider, type, params);
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, params);
+                return new PolicyDelegate((PolicySpi) ENGINE.getSpi(),
+                        ENGINE.getProvider(), type, params);
             }
 
         } catch (NoSuchAlgorithmException e) {
@@ -147,27 +148,27 @@ public abstract class Policy {
      * in the provider list via the Security.getProviders() method, otherwise
      * NoSuchProviderException will be thrown.
      *
-     * @param type -
+     * @param type
      *            the specified Policy type. So far in Java 6, only 'JavaPolicy'
      *            supported.
-     * @param params -
+     * @param params
      *            the Policy.Parameter object, which may be null.
-     * @param provider -
+     * @param provider
      *            the provider.
      * @return the new Policy object.
      *
-     * @throws NoSuchProviderException -
+     * @throws NoSuchProviderException
      *             if the specified provider is not registered in the security
      *             provider list.
-     * @throws NoSuchAlgorithmException -
+     * @throws NoSuchAlgorithmException
      *             if the specified provider does not support a PolicySpi
      *             implementation for the specified type.
-     * @throws SecurityException -
+     * @throws SecurityException
      *             if the caller does not have permission to get a Policy
      *             instance for the specified type.
-     * @throws NullPointerException -
+     * @throws NullPointerException
      *             if the specified type is null.
-     * @throws IllegalArgumentException -
+     * @throws IllegalArgumentException
      *             if the specified Provider is null, or if the specified
      *             parameters' type are not allowed by the PolicySpi
      *             implementation from the specified Provider.
@@ -195,25 +196,25 @@ public abstract class Policy {
      * specified Provider object is returned. Note that the specified Provider
      * object does not have to be registered in the provider list.
      *
-     * @param type -
+     * @param type
      *            the specified Policy type. So far in Java 6, only 'JavaPolicy'
      *            supported.
-     * @param params -
+     * @param params
      *            the Policy.Parameter object, which may be null.
-     * @param provider -
+     * @param provider
      *            the Policy service Provider.
      * @return the new Policy object.
      *
-     * @throws NoSuchAlgorithmException -
+     * @throws NoSuchAlgorithmException
      *             if the specified Provider does not support a PolicySpi
      *             implementation for the specified type.
-     * @throws IllegalArgumentException -
+     * @throws IllegalArgumentException
      *             if the specified Provider is null, or if the specified
      *             parameters' type are not allowed by the PolicySpi
      *             implementation from the specified Provider.
-     * @throws NullPointerException -
+     * @throws NullPointerException
      *             if the specified type is null.
-     * @throws SecurityException -
+     * @throws SecurityException
      *             if the caller does not have permission to get a Policy
      *             instance for the specified type.
      */
@@ -234,15 +235,16 @@ public abstract class Policy {
         }
     }
 
-    private static Policy getInstanceImpl(String type, Policy.Parameters params, Provider provider) throws NoSuchAlgorithmException {
+    private static Policy getInstanceImpl(String type, Policy.Parameters params, Provider provider)
+            throws NoSuchAlgorithmException {
         if (type == null) {
             throw new NullPointerException();
         }
 
         try {
-            synchronized (engine) {
-                engine.getInstance(type, provider, params);
-                return new PolicyDelegate((PolicySpi) engine.spi, provider,
+            synchronized (ENGINE) {
+                ENGINE.getInstance(type, provider, params);
+                return new PolicyDelegate((PolicySpi) ENGINE.getSpi(), provider,
                         type, params);
             }
         } catch (NoSuchAlgorithmException e) {
@@ -484,8 +486,7 @@ public abstract class Policy {
                 try {
                     return (Policy) Class.forName(defaultClass, true,
                             ClassLoader.getSystemClassLoader()).newInstance();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     //TODO log error
                     //System.err.println("Error loading policy provider <"
                     //                 + defaultClass + "> : " + e
@@ -502,7 +503,9 @@ public abstract class Policy {
      * Returns {@code true} if system policy provider is instantiated.
      */
     static boolean isSet() {
-        return activePolicy != null;
+        synchronized (Policy.class) {
+            return activePolicy != null;
+        }
     }
 
     /**
@@ -511,11 +514,13 @@ public abstract class Policy {
      * so this method never returns <code>null</code>. <br>
      * This method is synchronized with setPolicy()
      */
-    static synchronized Policy getAccessiblePolicy() {
-        if (activePolicy == null) {
-            activePolicy = getDefaultProvider();
+    static Policy getAccessiblePolicy() {
+        synchronized (Policy.class) {
+            if (activePolicy == null) {
+                activePolicy = getDefaultProvider();
+            }
+            return activePolicy;
         }
-        return activePolicy;
     }
 
     /**

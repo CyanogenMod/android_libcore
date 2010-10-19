@@ -52,7 +52,7 @@ public class KeyStore {
     private static final String SERVICE = "KeyStore";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     //  Store KeyStore property name
     private static final String PROPERTYNAME = "keystore.type";
@@ -112,10 +112,10 @@ public class KeyStore {
         if (type == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
+        synchronized (ENGINE) {
             try {
-                engine.getInstance(type, null);
-                return new KeyStore((KeyStoreSpi) engine.spi, engine.provider, type);
+                ENGINE.getInstance(type, null);
+                return new KeyStore((KeyStoreSpi) ENGINE.getSpi(), ENGINE.getProvider(), type);
             } catch (NoSuchAlgorithmException e) {
                 throw new KeyStoreException(e.getMessage());
             }
@@ -188,10 +188,10 @@ public class KeyStore {
             throw new NullPointerException();
         }
         // return KeyStore instance
-        synchronized (engine) {
+        synchronized (ENGINE) {
             try {
-                engine.getInstance(type, provider, null);
-                return new KeyStore((KeyStoreSpi) engine.spi, provider, type);
+                ENGINE.getInstance(type, provider, null);
+                return new KeyStore((KeyStoreSpi) ENGINE.getSpi(), provider, type);
             } catch (Exception e) {
             // override exception
                 throw new KeyStoreException(e.getMessage());
@@ -880,7 +880,8 @@ public class KeyStore {
             // CallbackHandlerProtection
             if (!(protectionParameter instanceof PasswordProtection)
                     && !(protectionParameter instanceof CallbackHandlerProtection)) {
-                throw new IllegalArgumentException("protectionParameter is neither PasswordProtection nor CallbackHandlerProtection instance");
+                throw new IllegalArgumentException("protectionParameter is neither "
+                        + "PasswordProtection nor CallbackHandlerProtection instance");
             }
             // check file parameter
             if (!file.exists()) {
@@ -964,13 +965,13 @@ public class KeyStore {
             // Store AccessControlContext which is used in getKeyStore() method
             private final AccessControlContext accControlContext;
 
-            //
-            // Constructor BuilderImpl initializes private fields: keyStore,
-            // protParameter, typeForKeyStore providerForKeyStore fileForLoad,
-            // isGetKeyStore
-            //
+            /**
+             * Constructor BuilderImpl initializes private fields: keyStore,
+             * protParameter, typeForKeyStore providerForKeyStore fileForLoad,
+             * isGetKeyStore
+             */
             BuilderImpl(KeyStore ks, ProtectionParameter pp, File file,
-                    String type, Provider provider, AccessControlContext context) {
+                        String type, Provider provider, AccessControlContext context) {
                 super();
                 keyStore = ks;
                 protParameter = pp;
@@ -982,20 +983,20 @@ public class KeyStore {
                 accControlContext = context;
             }
 
-            //
-            // Implementation of abstract getKeyStore() method If
-            // KeyStoreBuilder encapsulates KeyStore object then this object is
-            // returned
-            //
-            // If KeyStoreBuilder encapsulates KeyStore type and provider then
-            // KeyStore is created using these parameters. If KeyStoreBuilder
-            // encapsulates file and ProtectionParameter then KeyStore data are
-            // loaded from FileInputStream that is created on file. If file is
-            // not defined then KeyStore object is initialized with null
-            // InputStream and null password.
-            //
-            // Result KeyStore object is returned.
-            //
+            /**
+             * Implementation of abstract getKeyStore() method If
+             * KeyStoreBuilder encapsulates KeyStore object then this object is
+             * returned
+             *
+             * If KeyStoreBuilder encapsulates KeyStore type and provider then
+             * KeyStore is created using these parameters. If KeyStoreBuilder
+             * encapsulates file and ProtectionParameter then KeyStore data are
+             * loaded from FileInputStream that is created on file. If file is
+             * not defined then KeyStore object is initialized with null
+             * InputStream and null password.
+             *
+             * Result KeyStore object is returned.
+             */
             @Override
             public synchronized KeyStore getKeyStore() throws KeyStoreException {
                 // If KeyStore was created but in final block some exception was
@@ -1028,7 +1029,8 @@ public class KeyStore {
                         passwd = KeyStoreSpi
                                 .getPasswordFromCallBack(protParameter);
                     } else {
-                        throw new KeyStoreException("protectionParameter is neither PasswordProtection nor CallbackHandlerProtection instance");
+                        throw new KeyStoreException("protectionParameter is neither "
+                                + "PasswordProtection nor CallbackHandlerProtection instance");
                     }
 
                     // load KeyStore from file
@@ -1063,13 +1065,13 @@ public class KeyStore {
                 }
             }
 
-            //
-            // This is implementation of abstract method
-            // getProtectionParameter(String alias)
-            //
-            // Return: ProtectionParameter to get Entry which was saved in
-            // KeyStore with defined alias
-            //
+            /**
+             * This is implementation of abstract method
+             * getProtectionParameter(String alias)
+             *
+             * Return: ProtectionParameter to get Entry which was saved in
+             * KeyStore with defined alias
+             */
             @Override
             public synchronized ProtectionParameter getProtectionParameter(
                     String alias) throws KeyStoreException {
@@ -1284,13 +1286,15 @@ public class KeyStore {
             // the end certificate
             String s = chain[0].getType();
             if (!(chain[0].getPublicKey().getAlgorithm()).equals(privateKey.getAlgorithm())) {
-                throw new IllegalArgumentException("Algorithm of private key does not match " +
-                        "algorithm of public key in end certificate of entry (with index number: 0)");
+                throw new IllegalArgumentException("Algorithm of private key does not match "
+                        + "algorithm of public key in end certificate of entry "
+                        + "(with index number: 0)");
             }
             // Match certificate types
             for (int i = 1; i < chain.length; i++) {
                 if (!s.equals(chain[i].getType())) {
-                    throw new IllegalArgumentException("Certificates from the given chain have different types");
+                    throw new IllegalArgumentException("Certificates from the given chain have "
+                                                       + "different types");
                 }
             }
             // clone chain - this.chain = (Certificate[])chain.clone();

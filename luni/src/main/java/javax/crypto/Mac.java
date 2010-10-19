@@ -36,7 +36,7 @@ import org.apache.harmony.security.fortress.Engine;
 public class Mac implements Cloneable {
 
     //Used to access common engine functionality
-    private static final Engine engine = new Engine("Mac");
+    private static final Engine ENGINE = new Engine("Mac");
 
     // Store used provider
     private final Provider provider;
@@ -103,9 +103,9 @@ public class Mac implements Cloneable {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new Mac((MacSpi) engine.spi, engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new Mac((MacSpi) ENGINE.getSpi(), ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -167,9 +167,9 @@ public class Mac implements Cloneable {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new Mac((MacSpi) engine.spi, provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new Mac((MacSpi) ENGINE.getSpi(), provider, algorithm);
         }
     }
 

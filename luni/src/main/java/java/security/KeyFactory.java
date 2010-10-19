@@ -31,18 +31,17 @@ public class KeyFactory {
     // The service name.
     private static final String SERVICE = "KeyFactory";
 
-    // The provider
-    private Provider provider;
-
-
     // Used to access common engine functionality
-    static private Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
+
+    // The provider
+    private final Provider provider;
 
     // The SPI implementation.
-    private KeyFactorySpi spiImpl;
+    private final KeyFactorySpi spiImpl;
 
     // The algorithm.
-    private String algorithm;
+    private final String algorithm;
 
     /**
      * Constructs a new instance of {@code KeyFactory} with the specified
@@ -59,7 +58,7 @@ public class KeyFactory {
                          Provider provider,
                          String algorithm) {
         this.provider = provider;
-        this. algorithm = algorithm;
+        this.algorithm = algorithm;
         this.spiImpl = keyFacSpi;
     }
 
@@ -75,13 +74,13 @@ public class KeyFactory {
      *             if no provider provides the requested algorithm.
      */
     public static KeyFactory getInstance(String algorithm)
-                                throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new KeyFactory((KeyFactorySpi)engine.spi, engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new KeyFactory((KeyFactorySpi) ENGINE.getSpi(), ENGINE.getProvider(), algorithm);
         }
     }
 
@@ -136,9 +135,9 @@ public class KeyFactory {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new KeyFactory((KeyFactorySpi)engine.spi, provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new KeyFactory((KeyFactorySpi) ENGINE.getSpi(), provider, algorithm);
         }
     }
 

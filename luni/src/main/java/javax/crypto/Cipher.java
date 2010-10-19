@@ -107,7 +107,7 @@ public class Cipher {
     /**
      * Used to access common engine functionality.
      */
-    private static final Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     /**
      * The provider.
@@ -264,53 +264,57 @@ public class Cipher {
 
         boolean needSetPadding = false;
         boolean needSetMode = false;
-        if (transf[1] == null && transf[2] == null) { // "algorithm"
-            if (provider == null) {
-                engine.getInstance(transf[0], null);
+        Object engineSpi;
+        Provider engineProvider;
+        synchronized (ENGINE) {
+            if (transf[1] == null && transf[2] == null) { // "algorithm"
+                if (provider == null) {
+                    ENGINE.getInstance(transf[0], null);
+                } else {
+                    ENGINE.getInstance(transf[0], provider, null);
+                }
             } else {
-                engine.getInstance(transf[0], provider, null);
-            }
-        } else {
-            String[] searhOrder = {
+                String[] searhOrder = {
                     transf[0] + "/" + transf[1] + "/" + transf[2], // "algorithm/mode/padding"
                     transf[0] + "/" + transf[1], // "algorithm/mode"
                     transf[0] + "//" + transf[2], // "algorithm//padding"
                     transf[0] // "algorithm"
-            };
-            int i;
-            for (i = 0; i < searhOrder.length; i++) {
-                try {
-                    if (provider == null) {
-                        engine.getInstance(searhOrder[i], null);
-                    } else {
-                        engine.getInstance(searhOrder[i], provider, null);
-                    }
-                    break;
-                } catch (NoSuchAlgorithmException e) {
-                    if ( i == searhOrder.length-1) {
-                        throw new NoSuchAlgorithmException(transformation);
+                };
+                int i;
+                for (i = 0; i < searhOrder.length; i++) {
+                    try {
+                        if (provider == null) {
+                            ENGINE.getInstance(searhOrder[i], null);
+                        } else {
+                            ENGINE.getInstance(searhOrder[i], provider, null);
+                        }
+                        break;
+                    } catch (NoSuchAlgorithmException e) {
+                        if ( i == searhOrder.length-1) {
+                            throw new NoSuchAlgorithmException(transformation);
+                        }
                     }
                 }
+                switch (i) {
+                    case 1: // "algorithm/mode"
+                        needSetPadding = true;
+                        break;
+                    case 2: // "algorithm//padding"
+                        needSetMode = true;
+                        break;
+                    case 3: // "algorithm"
+                        needSetPadding = true;
+                        needSetMode = true;
+                }
             }
-            switch (i) {
-            case 1: // "algorithm/mode"
-                needSetPadding = true;
-                break;
-            case 2: // "algorithm//padding"
-                needSetMode = true;
-                break;
-            case 3: // "algorithm"
-                needSetPadding = true;
-                needSetMode = true;
-            }
+            engineSpi = ENGINE.getSpi();
+            engineProvider = ENGINE.getProvider();
         }
-        CipherSpi cspi;
-        try {
-            cspi = (CipherSpi) engine.spi;
-        } catch (ClassCastException e) {
-            throw new NoSuchAlgorithmException(e);
+        if (!(engineSpi instanceof CipherSpi)) {
+            throw new NoSuchAlgorithmException(engineSpi.getClass().getName());
         }
-        Cipher c = new Cipher(cspi, engine.provider, transformation);
+        CipherSpi cspi = (CipherSpi) engineSpi;
+        Cipher c = new Cipher(cspi, engineProvider, transformation);
         if (needSetMode) {
             c.spiImpl.engineSetMode(transf[1]);
         }
@@ -513,7 +517,8 @@ public class Cipher {
     }
 
     private void checkMode(int mode) {
-        if (mode != ENCRYPT_MODE && mode != DECRYPT_MODE && mode != UNWRAP_MODE && mode != WRAP_MODE) {
+        if (mode != ENCRYPT_MODE && mode != DECRYPT_MODE
+            && mode != UNWRAP_MODE && mode != WRAP_MODE) {
             throw new InvalidParameterException("Invalid mode: " + mode);
         }
     }
@@ -801,9 +806,11 @@ public class Cipher {
                     //                          decipherOnly (8) }
                     if (keyUsage != null) {
                         if (opmode == ENCRYPT_MODE && (!keyUsage[7])) {
-                            throw new InvalidKeyException("The public key in the certificate cannot be used for ENCRYPT_MODE");
+                            throw new InvalidKeyException("The public key in the certificate "
+                                                          + "cannot be used for ENCRYPT_MODE");
                         } else if (opmode == DECRYPT_MODE && (!keyUsage[8])) {
-                            throw new InvalidKeyException("The public key in the certificate cannot be used for DECRYPT_MODE");
+                            throw new InvalidKeyException("The public key in the certificate "
+                                                          + "cannot be used for DECRYPT_MODE");
                         }
                     }
                 }

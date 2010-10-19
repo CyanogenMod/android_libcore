@@ -31,27 +31,19 @@ public class SecureRandom extends Random {
     private static final long serialVersionUID = 4940670005562187L;
 
     // The service name.
-    private static final transient String SERVICE = "SecureRandom";
+    private static final String SERVICE = "SecureRandom";
 
     // Used to access common engine functionality
-    private static transient Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
-    private Provider provider;
+    private final Provider provider;
 
-    private SecureRandomSpi secureRandomSpi;
+    private final SecureRandomSpi secureRandomSpi;
 
-    private String algorithm;
-
-    private byte[] state;
-
-    private byte[] randomBytes;
-
-    private int randomBytesUsed;
-
-    private long counter;
+    private final String algorithm;
 
     // Internal SecureRandom used for getSeed(int)
-    private static transient SecureRandom internalSecureRandom;
+    private static volatile SecureRandom internalSecureRandom;
 
     /**
      * Constructs a new instance of {@code SecureRandom}. An implementation for
@@ -132,9 +124,10 @@ public class SecureRandom extends Random {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, null);
-            return new SecureRandom((SecureRandomSpi)engine.spi, engine.provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, null);
+            return new SecureRandom((SecureRandomSpi) ENGINE.getSpi(), ENGINE.getProvider(),
+                                    algorithm);
         }
     }
 
@@ -192,9 +185,9 @@ public class SecureRandom extends Random {
         if (algorithm == null) {
             throw new NullPointerException();
         }
-        synchronized (engine) {
-            engine.getInstance(algorithm, provider, null);
-            return new SecureRandom((SecureRandomSpi)engine.spi, provider, algorithm);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(algorithm, provider, null);
+            return new SecureRandom((SecureRandomSpi) ENGINE.getSpi(), provider, algorithm);
         }
     }
 
@@ -305,10 +298,12 @@ public class SecureRandom extends Random {
      * @return the seed bytes
      */
     public static byte[] getSeed(int numBytes) {
-        if (internalSecureRandom == null) {
-            internalSecureRandom = new SecureRandom();
+        SecureRandom result = internalSecureRandom;
+        if (result == null) {
+            // single-check idiom
+            internalSecureRandom = result = new SecureRandom();
         }
-        return internalSecureRandom.generateSeed(numBytes);
+        return result.generateSeed(numBytes);
     }
 
     /**
