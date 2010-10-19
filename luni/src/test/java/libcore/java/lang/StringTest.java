@@ -196,4 +196,20 @@ public class StringTest extends TestCase {
         }
         throw new UnsupportedOperationException("No chars[] field on String!");
     }
+
+    /**
+     * Test that strings interned manually and then later loaded as literals
+     * maintain reference equality. http://b/3098960
+     */
+    public void testInternBeforeLiteralIsLoaded() throws Exception{
+        String programmatic = Arrays.asList("5058", "9962", "1563", "5744").toString().intern();
+        String literal = (String) Class.forName("libcore.java.lang.StringTest$HasLiteral")
+                .getDeclaredField("literal").get(null);
+        assertEquals(System.identityHashCode(programmatic), System.identityHashCode(literal));
+        assertSame(programmatic, literal);
+    }
+
+    static class HasLiteral {
+        static String literal = "[5058, 9962, 1563, 5744]";
+    }
 }
