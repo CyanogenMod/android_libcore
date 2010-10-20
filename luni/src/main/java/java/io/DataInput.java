@@ -18,7 +18,7 @@
 package java.io;
 
 /**
- * Defines an interface for classes that are able to read typed data from some
+ * Defines an interface for classes that are able to read big-endian typed data from some
  * source. Typically, this data has been written by a class which implements
  * {@link DataOutput}. Types that can be read include byte, 16-bit short, 32-bit
  * int, 32-bit float, 64-bit long, 64-bit double, byte strings, and MUTF-8
@@ -71,7 +71,7 @@ public interface DataInput {
     public abstract byte readByte() throws IOException;
 
     /**
-     * Reads a 16-bit character value.
+     * Reads a big-endian 16-bit character value.
      *
      * @return the next char value.
      * @throws EOFException if the end of the input is reached before the read
@@ -83,7 +83,7 @@ public interface DataInput {
     public abstract char readChar() throws IOException;
 
     /**
-     * Reads a 64-bit double value.
+     * Reads a big-endian 64-bit double value.
      *
      * @return the next double value.
      * @throws EOFException if the end of the input is reached before the read
@@ -95,7 +95,7 @@ public interface DataInput {
     public abstract double readDouble() throws IOException;
 
     /**
-     * Reads a 32-bit float value.
+     * Reads a big-endian 32-bit float value.
      *
      * @return the next float value.
      * @throws EOFException if the end of the input is reached before the read
@@ -143,7 +143,7 @@ public interface DataInput {
     public abstract void readFully(byte[] buffer, int offset, int count) throws IOException;
 
     /**
-     * Reads a 32-bit integer value.
+     * Reads a big-endian 32-bit integer value.
      *
      * @return the next int value.
      * @throws EOFException if the end of the input is reached before the read
@@ -170,7 +170,7 @@ public interface DataInput {
     public abstract String readLine() throws IOException;
 
     /**
-     * Reads a 64-bit long value.
+     * Reads a big-endian 64-bit long value.
      *
      * @return the next long value.
      * @throws EOFException if the end of the input is reached before the read
@@ -182,7 +182,7 @@ public interface DataInput {
     public abstract long readLong() throws IOException;
 
     /**
-     * Reads a 16-bit short value.
+     * Reads a big-endian 16-bit short value.
      *
      * @return the next short value.
      * @throws EOFException if the end of the input is reached before the read
@@ -206,7 +206,7 @@ public interface DataInput {
     public abstract int readUnsignedByte() throws IOException;
 
     /**
-     * Reads a 16-bit unsigned short value and returns it as an int.
+     * Reads a big-endian 16-bit unsigned short value and returns it as an int.
      *
      * @return the next unsigned short value.
      * @throws EOFException if the end of the input is reached before the read

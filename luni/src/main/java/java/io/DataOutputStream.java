@@ -18,7 +18,7 @@
 package java.io;
 
 /**
- * Wraps an existing {@link OutputStream} and writes typed data to it.
+ * Wraps an existing {@link OutputStream} and writes big-endian typed data to it.
  * Typically, this stream can be read in by DataInputStream. Types that can be
  * written include byte, 16-bit short, 32-bit int, 32-bit float, 64-bit long,
  * 64-bit double, byte strings, and {@link DataInput MUTF-8} encoded strings.
@@ -89,9 +89,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      */
     @Override
     public void write(byte[] buffer, int offset, int count) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         if (buffer == null) {
             throw new NullPointerException("buffer == null");
         }
@@ -145,16 +142,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written++;
     }
 
-    /**
-     * Writes the low order bytes from a string to the target stream.
-     *
-     * @param str
-     *            the string containing the bytes to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readFully(byte[])
-     * @see DataInputStream#readFully(byte[],int,int)
-     */
     public final void writeBytes(String str) throws IOException {
         if (str.length() == 0) {
             return;
@@ -167,17 +154,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += bytes.length;
     }
 
-    /**
-     * Writes a 16-bit character to the target stream. Only the two lower bytes
-     * of the integer {@code val} are written, with the higher one written
-     * first. This corresponds to the Unicode value of {@code val}.
-     *
-     * @param val
-     *            the character to write to the target stream
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readChar()
-     */
     public final void writeChar(int val) throws IOException {
         buff[0] = (byte) (val >> 8);
         buff[1] = (byte) val;
@@ -185,17 +161,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 2;
     }
 
-    /**
-     * Writes the 16-bit characters contained in {@code str} to the target
-     * stream.
-     *
-     * @param str
-     *            the string that contains the characters to write to this
-     *            stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readChar()
-     */
     public final void writeChars(String str) throws IOException {
         byte[] newBytes = new byte[str.length() * 2];
         for (int index = 0; index < str.length(); index++) {
@@ -207,44 +172,14 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += newBytes.length;
     }
 
-    /**
-     * Writes a 64-bit double to the target stream. The resulting output is the
-     * eight bytes resulting from calling Double.doubleToLongBits().
-     *
-     * @param val
-     *            the double to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readDouble()
-     */
     public final void writeDouble(double val) throws IOException {
         writeLong(Double.doubleToLongBits(val));
     }
 
-    /**
-     * Writes a 32-bit float to the target stream. The resulting output is the
-     * four bytes resulting from calling Float.floatToIntBits().
-     *
-     * @param val
-     *            the float to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readFloat()
-     */
     public final void writeFloat(float val) throws IOException {
         writeInt(Float.floatToIntBits(val));
     }
 
-    /**
-     * Writes a 32-bit int to the target stream. The resulting output is the
-     * four bytes, highest order first, of {@code val}.
-     *
-     * @param val
-     *            the int to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readInt()
-     */
     public final void writeInt(int val) throws IOException {
         buff[0] = (byte) (val >> 24);
         buff[1] = (byte) (val >> 16);
@@ -254,16 +189,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 4;
     }
 
-    /**
-     * Writes a 64-bit long to the target stream. The resulting output is the
-     * eight bytes, highest order first, of {@code val}.
-     *
-     * @param val
-     *            the long to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readLong()
-     */
     public final void writeLong(long val) throws IOException {
         buff[0] = (byte) (val >> 56);
         buff[1] = (byte) (val >> 48);
@@ -289,18 +214,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         return offset;
     }
 
-    /**
-     * Writes the specified 16-bit short to the target stream. Only the lower
-     * two bytes of the integer {@code val} are written, with the higher one
-     * written first.
-     *
-     * @param val
-     *            the short to write to the target stream.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @see DataInputStream#readShort()
-     * @see DataInputStream#readUnsignedShort()
-     */
     public final void writeShort(int val) throws IOException {
         buff[0] = (byte) (val >> 8);
         buff[1] = (byte) val;
@@ -314,19 +227,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         return offset;
     }
 
-    /**
-     * Writes the specified encoded in {@link DataInput modified UTF-8} to this
-     * stream.
-     *
-     * @param str
-     *            the string to write to the target stream encoded in
-     *            {@link DataInput modified UTF-8}.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     * @throws UTFDataFormatException
-     *             if the encoded string is longer than 65535 bytes.
-     * @see DataInputStream#readUTF()
-     */
     public final void writeUTF(String str) throws IOException {
         long utfCount = countUTFBytes(str);
         if (utfCount > 65535) {
