@@ -540,26 +540,6 @@ public class DriverManagerTest extends TestCase {
         DriverManager.setLogStream(null);
 
         assertNull(DriverManager.getLogStream());
-
-        // Now let's deal with the case where there is a SecurityManager in
-        // place
-        TestSecurityManager theSecManager = new TestSecurityManager();
-        System.setSecurityManager(theSecManager);
-
-        theSecManager.setLogAccess(false);
-
-        try {
-            DriverManager.setLogStream(testPrintStream);
-            fail("Should throw SecurityException.");
-        } catch (SecurityException s) {
-            //expected
-        }
-
-        theSecManager.setLogAccess(true);
-
-        DriverManager.setLogStream(testPrintStream);
-
-        System.setSecurityManager(null);
     } // end method testSetLogStream()
 
     static ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -585,25 +565,6 @@ public class DriverManagerTest extends TestCase {
 
         assertNull("testDriverManager: Log writer not null:", DriverManager
                 .getLogWriter());
-
-        // Now let's deal with the case where there is a SecurityManager in
-        // place
-        TestSecurityManager theSecManager = new TestSecurityManager();
-        System.setSecurityManager(theSecManager);
-
-        theSecManager.setLogAccess(false);
-
-        try {
-            DriverManager.setLogWriter(testPrintWriter);
-            fail("Should throw SecurityException.");
-        } catch (SecurityException s) {
-            //expected
-        }
-
-        theSecManager.setLogAccess(true);
-        DriverManager.setLogWriter(testPrintWriter);
-
-        System.setSecurityManager(null);
     } // end method testSetLogWriter()
 
     /*

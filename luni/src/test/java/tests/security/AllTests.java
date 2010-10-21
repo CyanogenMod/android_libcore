@@ -36,8 +36,6 @@ public class AllTests {
         suite.addTest(tests.security.interfaces.AllTests.suite());
         suite.addTest(tests.security.spec.AllTests.suite());
 
-        suite.addTest(tests.security.permissions.AllTests.suite());
-
         suite.addTest(tests.api.javax.security.cert.AllTests.suite());
 
         suite.addTest(tests.targets.security.AllTests.suite());

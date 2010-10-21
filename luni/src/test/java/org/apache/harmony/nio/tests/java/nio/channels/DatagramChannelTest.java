@@ -2500,64 +2500,6 @@ public class DatagramChannelTest extends TestCase {
         private static final long serialVersionUID = 1L;
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "send",
-        args = {java.nio.ByteBuffer.class, java.net.SocketAddress.class}
-    )
-    public void testSend_MockSocketAddress() throws Exception {
-
-        SocketAddress badAddr = new mockAddress();
-        final SecurityManager sm = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            // no problem.
-            this.channel1
-                    .send(ByteBuffer.allocate(CAPACITY_NORMAL), localAddr1);
-            // re open
-            this.channel1.close();
-            this.channel1 = DatagramChannel.open();
-            try {
-                this.channel1.send(ByteBuffer.allocate(CAPACITY_NORMAL),
-                        badAddr);
-                fail("Should throw ClassCastException");
-            } catch (ClassCastException e) {
-                // ok
-            }
-        } finally {
-            System.setSecurityManager(sm);
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify AsynchronousCloseException, ClosedByInterruptException, IOException.",
-        method = "send",
-        args = {java.nio.ByteBuffer.class, SocketAddress.class}
-    )
-    public void testSend_Security() throws Exception {
-        ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
-        String strHello = "hello";
-        localAddr1 = new InetSocketAddress("127.0.0.1", testPort);
-        this.channel1.socket().bind(localAddr1);
-        this.channel2.socket().bind(localAddr2);
-        this.channel1.connect(localAddr2);
-
-        final SecurityManager sm = System.getSecurityManager();
-        MockSecurityManager mockManager = new MockSecurityManager("127.0.0.1");
-        System.setSecurityManager(mockManager);
-
-        try {
-            this.channel2.send(ByteBuffer.wrap(strHello.getBytes()), localAddr1);
-            assertEquals(strHello.length(), this.channel1.read(buf));
-        } finally {
-            System.setSecurityManager(sm);
-        }
-
-        assertTrue(mockManager.checkConnectCalled);
-    }
-
     public void disabled_testSend_Block_close() throws Exception {
         // bind and connect
         this.channel1.socket().bind(localAddr2);
@@ -2618,33 +2560,6 @@ public class DatagramChannelTest extends TestCase {
         if (thread.errMsg != null) {
             fail(thread.errMsg);
         }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "receive",
-        args = {java.nio.ByteBuffer.class}
-    )
-    public void testReceive_Security() throws Exception {
-        ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
-        String strHello = "hello";
-        localAddr1 = new InetSocketAddress("127.0.0.1", testPort);
-        this.channel1.socket().bind(localAddr1);
-        sendByChannel(strHello, localAddr1);
-
-        final SecurityManager sm = System.getSecurityManager();
-        MockSecurityManager mockManager = new MockSecurityManager("10.0.0.1");
-        System.setSecurityManager(mockManager);
-
-        try {
-            this.channel1.configureBlocking(false);
-            assertNull(this.channel1.receive(buf));
-        } finally {
-            System.setSecurityManager(sm);
-        }
-
-        assertTrue(mockManager.checkAcceptCalled);
     }
 
     @TestTargetNew(
@@ -2719,27 +2634,6 @@ public class DatagramChannelTest extends TestCase {
         if (thread.errMsg != null) {
             fail(thread.errMsg);
         }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "connect",
-        args = {java.net.SocketAddress.class}
-    )
-    public void testConnect_Security() throws IOException {
-        localAddr1 = new InetSocketAddress("127.0.0.1", testPort);
-        SecurityManager sm = System.getSecurityManager();
-        MockSecurityManager mockManager = new MockSecurityManager("127.0.0.1");
-        System.setSecurityManager(mockManager);
-
-        try {
-            this.channel1.connect(localAddr1);
-        } finally {
-            System.setSecurityManager(sm);
-        }
-
-        assertTrue(mockManager.checkConnectCalled);
     }
 
     // -------------------------------------------------------------------

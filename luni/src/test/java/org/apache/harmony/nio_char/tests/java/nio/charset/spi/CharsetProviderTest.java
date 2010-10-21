@@ -45,18 +45,6 @@ public class CharsetProviderTest extends TestCase {
     public void testConstructor() {
         // with sufficient privilege
         new MockCharsetProvider();
-
-        SecurityManager oldMan = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        // set a normal value
-        try {
-            new MockCharsetProvider();
-            fail("Should throw SecurityException!");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldMan);
-        }
     }
 
     /*
@@ -72,34 +60,4 @@ public class CharsetProviderTest extends TestCase {
             return null;
         }
     }
-
-    /*
-     * Used to grant all permissions except charset provider access.
-     */
-    public static class MockSecurityManager extends SecurityManager {
-
-        public MockSecurityManager() {
-        }
-
-        public void checkPermission(Permission perm) {
-            // grant all permissions except logging control
-            if (perm instanceof RuntimePermission) {
-                RuntimePermission rp = (RuntimePermission) perm;
-                if (rp.getName().equals("charsetProvider")) {
-                    throw new SecurityException();
-                }
-            }
-        }
-
-        public void checkPermission(Permission perm, Object context) {
-            // grant all permissions except logging control
-            if (perm instanceof RuntimePermission) {
-                RuntimePermission rp = (RuntimePermission) perm;
-                if (rp.getName().equals("charsetProvider")) {
-                    throw new SecurityException();
-                }
-            }
-        }
-    }
-
 }

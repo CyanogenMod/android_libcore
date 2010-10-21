@@ -1957,35 +1957,6 @@ public class URLConnectionTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies SecurityException.",
-            method = "setContentHandlerFactory",
-            args = {java.net.ContentHandlerFactory.class}
-     )
-    public void test_setContentHandlerFactory() {
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkSetFactory() {
-                throw new SecurityException();
-            }
-        };
-        SecurityManager old_sm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            uc.setContentHandlerFactory(null);
-            fail("SecurityException was not thrown.");
-        } catch(SecurityException se) {
-            //exception
-        } finally {
-            System.setSecurityManager(old_sm);
-        }
-
-    }
-
     private URLConnection openGifURLConnection() throws IOException {
         String cts = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(cts);

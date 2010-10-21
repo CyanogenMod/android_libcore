@@ -56,27 +56,6 @@ public class SystemTest extends junit.framework.TestCase {
         System.setIn(in);
         assertTrue("in not set", System.in == in);
         System.setIn(orgIn);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("setIO")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.setIn(in);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -94,27 +73,6 @@ public class SystemTest extends junit.framework.TestCase {
         System.setOut(out);
         assertTrue("out not set", System.out == out);
         System.setOut(orgOut);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("setIO")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.setOut(out);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -132,27 +90,6 @@ public class SystemTest extends junit.framework.TestCase {
         System.setErr(err);
         assertTrue("err not set", System.err == err);
         System.setErr(orgErr);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("setIO")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.setErr(err);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -340,45 +277,6 @@ public class SystemTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.System#exit(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies SecurityException.",
-        method = "exit",
-        args = {int.class}
-    )
-    public void test_exitI() {
-        SecurityManager sm = new SecurityManager() {
-
-            final String forbidenPermissionName = "user.dir";
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals(forbidenPermissionName)) {
-                    throw new SecurityException();
-                }
-            }
-
-            public void checkExit(int status) {
-                if(status == -1)
-                    throw new SecurityException();
-            }
-
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            System.exit(-1);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-    }
-
-    /**
      * @tests java.lang.System#getProperties()
      */
     @TestTargetNew(
@@ -437,28 +335,6 @@ public class SystemTest extends junit.framework.TestCase {
                     + props[i], p.getProperty(props[i]));
             assertNotNull("System property is null: " + props[i],
                     System.getProperty(props[i]));
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkPropertiesAccess() {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.getProperties();
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -520,29 +396,6 @@ public class SystemTest extends junit.framework.TestCase {
         } catch(IllegalArgumentException  iae) {
             //expected
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            @SuppressWarnings("unused")
-            public void checkPropertyAccess(String key) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.getProperty("user.name");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -575,29 +428,6 @@ public class SystemTest extends junit.framework.TestCase {
             fail("IllegalArgumentException should be thrown.");
         } catch(IllegalArgumentException  iae) {
             //expected
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            @SuppressWarnings("unused")
-            public void checkPropertyAccess(String key) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.getProperty("java.version", "0");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -684,27 +514,6 @@ public class SystemTest extends junit.framework.TestCase {
         SelectorProvider sp = SelectorProvider.provider();
         assertEquals("Incorrect value of channel",
                 sp.inheritedChannel(), iChannel);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("inheritedChannel")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.inheritedChannel();
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -753,28 +562,6 @@ public class SystemTest extends junit.framework.TestCase {
             System.runFinalizersOnExit(true);
         } catch (Throwable t) {
             fail("Failed to set runFinalizersOnExit");
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkExit(int status) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.runFinalizersOnExit(true);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -892,33 +679,6 @@ public class SystemTest extends junit.framework.TestCase {
         }
 
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setSecurityManager",
-            args = {java.lang.SecurityManager.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSecurityManager",
-            args = {}
-        )
-    })
-    public void test_setSecurityManagerLjava_lang_SecurityManager() {
-        assertEquals("Incorrect SecurityManager",
-                null, System.getSecurityManager());
-        try {
-            SecurityManager localManager = new MockSecurityManager();
-            System.setSecurityManager(localManager);
-            assertEquals("Incorrect SecurityManager",
-                    localManager, System.getSecurityManager());
-        } finally {
-            System.setSecurityManager(null);
-        }
-    }
-
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -942,26 +702,6 @@ public class SystemTest extends junit.framework.TestCase {
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals("test")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            System.clearProperty("test");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -1007,27 +747,6 @@ public class SystemTest extends junit.framework.TestCase {
            assertNotNull("There is no property: " + props[i],
                    envMap.get(props[i]));
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("getenv.*")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.getenv();
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     @TestTargetNew(
@@ -1043,27 +762,6 @@ public class SystemTest extends junit.framework.TestCase {
 
         assertNull("Doesn't return NULL for non existent property",
                   System.getenv("nonexistent.property"));
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if(perm.getName().equals("getenv.PATH")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            System.getenv("PATH");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             System.getenv(null);
@@ -1100,28 +798,6 @@ public class SystemTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-
-            }
-
-            public void checkLink(String lib) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            System.load("/nonExistentLibrary.so");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     @TestTargetNew(
@@ -1145,27 +821,6 @@ public class SystemTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkLink(String lib) {
-                throw new SecurityException();
-            }
-         };
-
-         SecurityManager oldSm = System.getSecurityManager();
-         System.setSecurityManager(sm);
-         try {
-             System.loadLibrary("nonExistentLibrary.so");
-             fail("SecurityException should be thrown.");
-         } catch (SecurityException e) {
-             // expected
-         } finally {
-             System.setSecurityManager(oldSm);
-         }
     }
 
     @TestTargetNew(

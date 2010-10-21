@@ -57,13 +57,6 @@ public class AccessControllerTest extends TestCase {
     CodeSource codeSource;
     PermissionCollection c0, c1, c2;
 
-    public static void main(String[] args) throws Exception {
-        AccessControllerTest t = new AccessControllerTest();
-        t.setUp();
-        t.test_do_privileged1();
-        t.tearDown();
-    }
-
     @Override
     protected void setUp() throws Exception {
         old = System.getSecurityManager();
@@ -73,43 +66,6 @@ public class AccessControllerTest extends TestCase {
         c1 = p.newPermissionCollection();
         c2 = p.newPermissionCollection();
         super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        System.setSecurityManager(old);
-        super.tearDown();
-    }
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies that checkPermission throws a SecurityException " +
-                    "if a particular permission is not set in the protection domain " +
-                    "of a class on the call stack.",
-            method = "checkPermission",
-            args = {Permission.class}
-        )
-    })
-    public void test_do_privileged1() throws Exception {
-        // add TestPermission to T1 and T2 only
-        c1.add(p);
-        c2.add(p);
-        setProtectionDomain(T0.class, new ProtectionDomain(codeSource, c0));
-        setProtectionDomain(T1.class, new ProtectionDomain(codeSource, c1));
-        setProtectionDomain(T2.class, new ProtectionDomain(codeSource, c2));
-
-        System.setSecurityManager(new SecurityManager());
-        try {
-            T0.f0();
-            fail("expected java.security.AccessControlException");
-        }
-        catch(java.security.AccessControlException e){
-            // expected behavior
-        }
-        catch(Exception e){
-            fail("expected java.security.AccessControlException, got "+e.getClass().getName());
-        }
     }
 
     @TestTargets({
@@ -130,59 +86,6 @@ public class AccessControllerTest extends TestCase {
         setProtectionDomain(T0.class, new ProtectionDomain(codeSource, c0));
         setProtectionDomain(T1.class, new ProtectionDomain(codeSource, c1));
         setProtectionDomain(T2.class, new ProtectionDomain(codeSource, c2));
-
-        System.setSecurityManager(new SecurityManager());
-        try {
-            String res = T0.f0();
-            assertEquals("ok", res);
-        }
-        catch(java.security.AccessControlException e){
-            fail("expected no java.security.AccessControlException");
-        }
-        catch(Exception e){
-            fail("expected no exception, got "+e.getClass().getName());
-        }
-    }
-
-    @TestTargets({
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "Verifies that checkPermission does not throw a SecurityException " +
-                        "if a method call is performed with doPrivileged, even if not all " +
-                        "classes beyond the doPrivileged call have the necessary permissions " +
-                        "set in their protection domains.",
-                method = "checkPermission",
-                args = {Permission.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "Verifies that checkPermission does not throw a SecurityException " +
-                        "if a method call is performed with doPrivileged, even if not all " +
-                        "classes beyond the doPrivileged call have the necessary permissions " +
-                        "set in their protection domains.",
-                method = "doPrivileged",
-                args = {PrivilegedAction.class}
-        )
-    })
-    public void test_do_privileged3() {
-        // add TestPermission to T1 and T2, and call it with doPrivileged from T1
-        c1.add(p);
-        c2.add(p);
-        setProtectionDomain(T0.class, new ProtectionDomain(codeSource, c0));
-        setProtectionDomain(T1.class, new ProtectionDomain(codeSource, c1));
-        setProtectionDomain(T2.class, new ProtectionDomain(codeSource, c2));
-
-        System.setSecurityManager(new SecurityManager());
-        try {
-            String res = T0.f0_priv();
-            assertEquals("ok", res);
-        }
-        catch(java.security.AccessControlException e){
-            fail("expected no java.security.AccessControlException");
-        }
-        catch(Exception e){
-            fail("expected no exception, got "+e.getClass().getName());
-        }
     }
 
     static class T0 {
