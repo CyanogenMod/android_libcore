@@ -91,17 +91,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
             // expected
         }
 
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new URLClassLoader(u);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
         try {
             new URLClassLoader(new URL[] { null });
         } catch(Exception e) {

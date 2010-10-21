@@ -88,29 +88,6 @@ public class ResourceBundleTest extends junit.framework.TestCase {
 
         // Test with a security manager
         Locale.setDefault(new Locale("en", "US"));
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR",
-                    "VAR"));
-            assertEquals("Security: Wrong bundle fr_FR_VAR", "frFRVARValue4", bundle.getString(
-                    "parent4"));
-            bundle = ResourceBundle.getBundle(name,
-                    new Locale("fr", "FR", "v1"));
-            assertEquals("Security: Wrong bundle fr_FR_v1", "frFRValue4", bundle.getString(
-                    "parent4"));
-            bundle = ResourceBundle.getBundle(name, new Locale("fr", "US",
-                    "VAR"));
-            assertEquals("Security: Wrong bundle fr_US_var", "frValue4", bundle.getString(
-                    "parent4"));
-            bundle = ResourceBundle.getBundle(name, new Locale("de", "FR",
-                    "VAR"));
-            assertTrue("Security: Wrong bundle de_FR_var: "
-                    + bundle.getString("parent4"), bundle.getString("parent4")
-                    .equals("enUSValue4"));
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             ResourceBundle.getBundle(null, Locale.getDefault());

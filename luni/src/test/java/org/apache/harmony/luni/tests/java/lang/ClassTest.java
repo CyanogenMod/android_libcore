@@ -617,36 +617,6 @@ public class ClassTest extends junit.framework.TestCase {
     }
 
     @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getProtectionDomain",
-        args = {}
-    )
-    @KnownFailure("There is no protection domain set in Android.")
-    public void test_getProtectionDomain() {
-        ProtectionDomain pd = PublicTestClass.class.getProtectionDomain();
-        assertNotNull("Test 1: Protection domain expected to be set.", pd);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals("getProtectionDomain")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            PublicTestClass.class.getProtectionDomain();
-            fail("Test 2: SecurityException expected.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-    }
-    @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "",
         method = "getSigners",
@@ -843,26 +813,6 @@ public class ClassTest extends junit.framework.TestCase {
 
         assertNull(int.class.getClassLoader());
         assertNull(void.class.getClassLoader());
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if ((perm instanceof RuntimePermission) &&
-                        perm.getName().equals("getClassLoader")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            System.class.getClassLoader();
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException expected) {
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -877,201 +827,6 @@ public class ClassTest extends junit.framework.TestCase {
     public void test_getClasses() {
         assertEquals("Incorrect class array returned",
                      4, ClassTest.class.getClasses().length);
-    }
-
-    /**
-     * @tests java.lang.Class#getClasses()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        method = "getClasses",
-        args = {}
-    )
-    @KnownFailure("Defining classes from byte[] not supported in Android")
-    public void test_getClasses_subtest0() {
-        final Permission privCheckPermission = new BasicPermission("Privilege check") {
-            private static final long serialVersionUID = 1L;
-        };
-
-        class MyCombiner implements DomainCombiner {
-            boolean combine;
-
-            public ProtectionDomain[] combine(ProtectionDomain[] executionDomains,
-                    ProtectionDomain[] parentDomains) {
-                combine = true;
-                return new ProtectionDomain[0];
-            }
-
-            private boolean recurring = false;
-
-            public boolean isPriviledged() {
-                if (recurring) {
-                    return true;
-                }
-                try {
-                    recurring = true;
-                    combine = false;
-                    try {
-                        AccessController.checkPermission(privCheckPermission);
-                    } catch (SecurityException e) {}
-                    return !combine;
-                } finally {
-                    recurring = false;
-                }
-            }
-        }
-
-        final MyCombiner combiner = new MyCombiner();
-        class SecurityManagerCheck extends SecurityManager {
-            String reason;
-
-            Class<?> checkClass;
-
-            int checkType;
-
-            int checkPermission;
-
-            int checkMemberAccess;
-
-            int checkPackageAccess;
-
-            public void setExpected(String reason, Class<?> cls, int type) {
-                this.reason = reason;
-                checkClass = cls;
-                checkType = type;
-                checkPermission = 0;
-                checkMemberAccess = 0;
-                checkPackageAccess = 0;
-            }
-
-            @Override
-            public void checkPermission(Permission perm) {
-                if (combiner.isPriviledged())
-                    return;
-                checkPermission++;
-            }
-
-            @Override
-            public void checkMemberAccess(Class<?> cls, int type) {
-                if (combiner.isPriviledged())
-                    return;
-                checkMemberAccess++;
-                assertEquals(reason + " unexpected class", checkClass, cls);
-                assertEquals(reason + "unexpected type", checkType, type);
-            }
-
-            @Override
-            public void checkPackageAccess(String packageName) {
-                if (combiner.isPriviledged())
-                    return;
-                checkPackageAccess++;
-                String name = checkClass.getName();
-                int index = name.lastIndexOf('.');
-                String checkPackage = name.substring(0, index);
-                assertEquals(reason + " unexpected package",
-                             checkPackage,  packageName);
-            }
-
-            public void assertProperCalls() {
-                assertEquals(reason + " unexpected checkPermission count",
-                             0, checkPermission);
-                assertEquals(reason + " unexpected checkMemberAccess count",
-                             1, checkMemberAccess);
-                assertEquals(reason + " unexpected checkPackageAccess count",
-                             1, checkPackageAccess);
-            }
-        }
-
-        AccessControlContext acc = new AccessControlContext(new ProtectionDomain[0]);
-        AccessControlContext acc2 = new AccessControlContext(acc, combiner);
-
-        PrivilegedAction<?> action = new PrivilegedAction<Object>() {
-            public Object run() {
-                File resources = Support_Resources.createTempFolder();
-                try {
-                    Support_Resources.copyFile(resources, null, "hyts_security.jar");
-                    File file = new File(resources.toString() + "/hyts_security.jar");
-                    URL url = new URL("file:" + file.getPath());
-                    ClassLoader loader = new URLClassLoader(new URL[] { url }, null);
-                    Class<?> cls = Class.forName("packB.SecurityTestSub", false, loader);
-                    SecurityManagerCheck sm = new SecurityManagerCheck();
-                    System.setSecurityManager(sm);
-                    try {
-                        sm.setExpected("getClasses", cls, Member.PUBLIC);
-                        cls.getClasses();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredClasses", cls, Member.DECLARED);
-                        cls.getDeclaredClasses();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getConstructor", cls, Member.PUBLIC);
-                        cls.getConstructor(new Class[0]);
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getConstructors", cls, Member.PUBLIC);
-                        cls.getConstructors();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredConstructor", cls, Member.DECLARED);
-                        cls.getDeclaredConstructor(new Class[0]);
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredConstructors", cls, Member.DECLARED);
-                        cls.getDeclaredConstructors();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getField", cls, Member.PUBLIC);
-                        cls.getField("publicField");
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getFields", cls, Member.PUBLIC);
-                        cls.getFields();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredField", cls, Member.DECLARED);
-                        cls.getDeclaredField("publicField");
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredFields", cls, Member.DECLARED);
-                        cls.getDeclaredFields();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredMethod", cls, Member.DECLARED);
-                        cls.getDeclaredMethod("publicMethod", new Class[0]);
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getDeclaredMethods", cls, Member.DECLARED);
-                        cls.getDeclaredMethods();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getMethod", cls, Member.PUBLIC);
-                        cls.getMethod("publicMethod", new Class[0]);
-                        sm.assertProperCalls();
-
-                        sm.setExpected("getMethods", cls, Member.PUBLIC);
-                        cls.getMethods();
-                        sm.assertProperCalls();
-
-                        sm.setExpected("newInstance", cls, Member.PUBLIC);
-                        cls.newInstance();
-                        sm.assertProperCalls();
-                    } finally {
-                        System.setSecurityManager(null);
-                    }
-/* Remove this comment to let the test pass on Android.
-                } catch (java.lang.ClassNotFoundException ce) {
-                    // Expected for Android.
-*/
-                } catch (Exception e) {
-                    if (e instanceof RuntimeException)
-                        throw (RuntimeException) e;
-                    fail("unexpected exception: " + e);
-                }
-                return null;
-            }
-        };
-        AccessController.doPrivileged(action, acc2);
     }
 
     /**
@@ -1112,17 +867,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch (NoSuchMethodException e) {
             // Correct - constructor with obj is private
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getConstructor(new Class[0]);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1137,17 +881,6 @@ public class ClassTest extends junit.framework.TestCase {
     public void test_getConstructors() throws Exception {
         Constructor[] c = TestClass.class.getConstructors();
         assertEquals("Incorrect number of constructors returned", 1, c.length);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getConstructors();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1187,43 +920,6 @@ public class ClassTest extends junit.framework.TestCase {
 
         declClasses = TestInterface.class.getDeclaredClasses();
         assertEquals(0, declClasses.length);
-
-        SecurityManager sm = new SecurityManager() {
-
-            final String forbidenPermissionName = "user.dir";
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals(forbidenPermissionName)) {
-                    throw new SecurityException();
-                }
-            }
-
-            public void checkMemberAccess(Class<?> clazz,
-                    int which) {
-                if(clazz.equals(TestInterface.class)) {
-                    throw new SecurityException();
-                }
-            }
-
-            public void checkPackageAccess(String pkg) {
-                if(pkg.equals(PublicTestClass.class.getPackage())) {
-                    throw new SecurityException();
-                }
-            }
-
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestInterface.class.getDeclaredClasses();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
     }
 
 
@@ -1247,17 +943,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch(NoSuchMethodException nsme) {
             //expected
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredConstructor(Object.class);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1272,17 +957,6 @@ public class ClassTest extends junit.framework.TestCase {
     public void test_getDeclaredConstructors() throws Exception {
         Constructor[] c = TestClass.class.getDeclaredConstructors();
         assertEquals("Incorrect number of constructors returned", 2, c.length);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredConstructors();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1311,17 +985,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch(NoSuchFieldException nsfe) {
             //expected
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredField("pubField");
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1339,17 +1002,6 @@ public class ClassTest extends junit.framework.TestCase {
         f = SubTestClass.class.getDeclaredFields();
         // Declared fields do not include inherited
         assertEquals("Returned incorrect number of fields", 0, f.length);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredFields();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1381,17 +1033,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch(NoSuchMethodException nsme) {
             //expected
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredMethod("pubMethod", new Class[0]);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1408,17 +1049,6 @@ public class ClassTest extends junit.framework.TestCase {
         assertEquals("Returned incorrect number of methods", 3, m.length);
         m = SubTestClass.class.getDeclaredMethods();
         assertEquals("Returned incorrect number of methods", 0, m.length);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getDeclaredMethods();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1468,42 +1098,6 @@ public class ClassTest extends junit.framework.TestCase {
             fail("NullPointerException is thrown.");
         } catch(NullPointerException npe) {
             //expected
-        }
-
-       SecurityManager sm = new SecurityManager() {
-
-            final String forbidenPermissionName = "user.dir";
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals(forbidenPermissionName)) {
-                    throw new SecurityException();
-                }
-            }
-
-            public void checkMemberAccess(Class<?> clazz,
-                    int which) {
-                if(clazz.equals(TestClass.class)) {
-                    throw new SecurityException();
-                }
-            }
-
-            public void checkPackageAccess(String pkg) {
-                if(pkg.equals(TestClass.class.getPackage())) {
-                    throw new SecurityException();
-                }
-            }
-
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getField("pubField");
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -1572,17 +1166,6 @@ public class ClassTest extends junit.framework.TestCase {
         f = SubTestClass.class.getFields();
         // Check inheritance of pub fields
         assertEquals("Test 2: Incorrect number of fields;", 2, f.length);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getFields();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         Field expected = null;
         Field[] fields = Cls2.class.getFields();
@@ -1676,17 +1259,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getMethod("pubMethod", new Class[0]);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**
@@ -1706,17 +1278,6 @@ public class ClassTest extends junit.framework.TestCase {
         assertEquals("Returned incorrect number of sub-class methods",
                      2 + Object.class.getMethods().length, m.length);
         // Number of inherited methods
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            TestClass.class.getMethods();
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         assertEquals("Incorrect number of methods", 10,
                 Cls2.class.getMethods().length);
@@ -2037,28 +1598,6 @@ public class ClassTest extends junit.framework.TestCase {
         } catch (java.lang.ExceptionInInitializerError ie) {
             //expected
         }
-    }
-
-    /**
-     * @tests java.lang.Class#newInstance()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {}
-    )
-    public void test_newInstance2() throws Exception {
-      SecurityManager oldSm = System.getSecurityManager();
-      System.setSecurityManager(sm);
-      try {
-          TestClass.class.newInstance();
-          fail("Test 1: SecurityException expected.");
-      } catch (SecurityException e) {
-          // expected
-      } finally {
-          System.setSecurityManager(oldSm);
-      }
     }
 
     /**

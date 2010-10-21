@@ -456,19 +456,6 @@ public class OldURLTest extends TestCase {
         } catch (IOException e) {
             //ok
         }
-
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            URL u = new URL("http://127.0.0.1");
-            URLConnection conn = u.openConnection();
-            conn.connect();
-            fail("Should not be able to read from this site.");
-        } catch (SecurityException e) {
-            //ok
-        } finally {
-            System.setSecurityManager(null);
-        }
-
     }
 
     /**

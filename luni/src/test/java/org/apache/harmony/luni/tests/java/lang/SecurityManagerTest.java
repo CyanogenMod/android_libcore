@@ -39,8 +39,6 @@ public class SecurityManagerTest extends TestCase {
 
     MockSecurityManager mockSM = null;
 
-    SecurityManager originalSM = null;
-
     /**
      * @tests java.lang.SecurityManager#checkPackageAccess(String)
      */
@@ -138,73 +136,6 @@ public class SecurityManagerTest extends TestCase {
     }
 
     /**
-     * @tests java.lang.SecurityManager#checkMemberAccess(java.lang.Class, int)
-     */
-    public void test_checkMemberAccessLjava_lang_ClassI() {
-        // enable all but one check
-        mutableSM.addPermission(new AllPermission());
-        mutableSM
-                .denyPermission(new RuntimePermission("accessDeclaredMembers"));
-        System.setSecurityManager(mutableSM);
-        try {
-            getClass().getDeclaredFields();
-
-            try {
-                Object.class.getDeclaredFields();
-                fail("This should throw a SecurityException.");
-            } catch (SecurityException e) {
-            }
-
-        } finally {
-            System.setSecurityManager(null);
-        }
-    }
-
-    /**
-     * @tests java.lang.SecurityManager#checkPermission(java.security.Permission)
-     */
-    /* BEGIN android-removed: we don't have Support_Exec.execJava.
-    public void test_checkPermissionLjava_security_Permission()
-            throws Exception {
-
-        // tmp user home to avoid presence of ${user.home}/.java.policy
-        String tmpUserHome = System.getProperty("java.io.tmpdir")
-                + File.separatorChar + "tmpUserHomeForSecurityManagerTest";
-        File dir = new File(tmpUserHome);
-        if (!dir.exists()) {
-            dir.mkdirs();
-            dir.deleteOnExit();
-        }
-        String javaPolycy = tmpUserHome + File.separatorChar + ".java.policy";
-        assertFalse("There should be no java policy file: " + javaPolycy,
-                new File(javaPolycy).exists());
-
-        String[] arg = new String[] { "-Duser.home=" + tmpUserHome,
-                checkPermissionLjava_security_PermissionTesting.class.getName() };
-
-        Support_Exec.execJava(arg, null, true);
-    }
-    */
-
-    private static class checkPermissionLjava_security_PermissionTesting {
-        public static void main(String[] args) {
-            MutableSecurityManager sm = new MutableSecurityManager();
-            sm.addPermission(MutableSecurityManager.SET_SECURITY_MANAGER);
-            System.setSecurityManager(sm);
-            try {
-                try {
-                    System.getSecurityManager().checkPermission(
-                            new RuntimePermission("createClassLoader"));
-                    fail("This should throw a SecurityException");
-                } catch (SecurityException e) {
-                }
-            } finally {
-                System.setSecurityManager(null);
-            }
-        }
-    }
-
-    /**
      * @tests java.lang.SecurityManager#checkAccess(java.lang.Thread)
      */
     public void test_checkAccessLjava_lang_Thread() throws InterruptedException {
@@ -220,24 +151,6 @@ public class SecurityManagerTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.lang.SecurityManager#checkAccept(String, int)}
-     */
-    @SuppressWarnings("nls")
-    public void test_checkAcceptLjava_lang_String_int() {
-        // enable all but one check
-        mutableSM.addPermission(new AllPermission());
-        mutableSM.denyPermission(new SocketPermission("localhost:1024-",
-                "accept, connect, listen"));
-        System.setSecurityManager(mutableSM);
-        try {
-            mutableSM.checkAccept("localhost", 1024);
-            fail("This should throw a SecurityException.");
-        } catch (SecurityException e) {
-            // expected
-        }
-    }
-
-    /**
      * @tests {@link java.lang.SecurityManager#checkConnect(String, int, Object)}
      */
     @SuppressWarnings("nls")
@@ -246,7 +159,6 @@ public class SecurityManagerTest extends TestCase {
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new SocketPermission("localhost:1024-",
                 "accept, connect, listen"));
-        System.setSecurityManager(mutableSM);
         ProtectionDomain pDomain = this.getClass().getProtectionDomain();
         ProtectionDomain[] pd = { pDomain };
         AccessControlContext acc = new AccessControlContext(pd);
@@ -265,9 +177,7 @@ public class SecurityManagerTest extends TestCase {
     public void test_checkExecLjava_lang_String() {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
-        mutableSM
-                .denyPermission(new FilePermission("<<ALL FILES>>", "execute"));
-        System.setSecurityManager(mutableSM);
+        mutableSM.denyPermission(new FilePermission("<<ALL FILES>>", "execute"));
         try {
             mutableSM.checkExec("java");
             fail("This should throw a SecurityException.");
@@ -284,7 +194,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new RuntimePermission("exitVM"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkExit(0);
             fail("This should throw a SecurityException.");
@@ -301,7 +210,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new RuntimePermission("loadLibrary.harmony"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkLink("harmony");
             fail("This should throw a SecurityException.");
@@ -319,7 +227,6 @@ public class SecurityManagerTest extends TestCase {
         mutableSM.addPermission(new AllPermission());
         mutableSM
                 .denyPermission(new SocketPermission("localhost:80", "listen"));
-        System.setSecurityManager(mutableSM);
 
         try {
             mutableSM.checkListen(80);
@@ -330,7 +237,6 @@ public class SecurityManagerTest extends TestCase {
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new SocketPermission("localhost:1024-",
                 "listen"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkListen(0);
             fail("This should throw a SecurityException.");
@@ -350,7 +256,6 @@ public class SecurityManagerTest extends TestCase {
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new SocketPermission(InetAddress.getByName(
                 "localhost").getHostAddress(), "accept,connect"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkMulticast(InetAddress.getByName("localhost"));
             fail("This should throw a SecurityException.");
@@ -370,7 +275,6 @@ public class SecurityManagerTest extends TestCase {
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new SocketPermission(InetAddress.getByName(
                 "localhost").getHostAddress(), "accept,connect"));
-        System.setSecurityManager(mutableSM);
         try {
             // the second parameter is the TTL(time to live)
             mutableSM.checkMulticast(InetAddress.getByName("localhost"),
@@ -392,7 +296,6 @@ public class SecurityManagerTest extends TestCase {
         Permission denyp = new SocketPermission("localhost:1024-",
                 "accept, connect, listen");
         mutableSM.denyPermission(denyp);
-        System.setSecurityManager(mutableSM);
         ProtectionDomain pDomain = this.getClass().getProtectionDomain();
         ProtectionDomain[] pd = { pDomain };
         AccessControlContext acc = new AccessControlContext(pd);
@@ -412,7 +315,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new RuntimePermission("queuePrintJob"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkPrintJobAccess();
             fail("This should throw a SecurityException.");
@@ -429,7 +331,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new RuntimePermission("readFileDescriptor"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkRead(new FileDescriptor());
             fail("This should throw a SecurityException.");
@@ -449,7 +350,6 @@ public class SecurityManagerTest extends TestCase {
         ProtectionDomain pDomain = this.getClass().getProtectionDomain();
         ProtectionDomain[] pd = { pDomain };
         AccessControlContext acc = new AccessControlContext(pd);
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkRead("aa", acc);
             fail("This should throw a SecurityException.");
@@ -466,7 +366,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new RuntimePermission("setFactory"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkSetFactory();
             fail("This should throw a SecurityException.");
@@ -493,7 +392,6 @@ public class SecurityManagerTest extends TestCase {
         // enable all but one check
         mutableSM.addPermission(new AllPermission());
         mutableSM.denyPermission(new FilePermission("<<ALL FILES>>", "read"));
-        System.setSecurityManager(mutableSM);
         try {
             mutableSM.checkRead("aa", mutableSM.getSecurityContext());
             fail("This should throw a SecurityException.");
@@ -603,12 +501,10 @@ public class SecurityManagerTest extends TestCase {
         super.setUp();
         mutableSM = new MutableSecurityManager();
         mockSM = new MockSecurityManager();
-        originalSM = System.getSecurityManager();
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        System.setSecurityManager(originalSM);
     }
 }

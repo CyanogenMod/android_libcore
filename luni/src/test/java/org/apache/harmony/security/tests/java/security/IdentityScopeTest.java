@@ -156,26 +156,6 @@ public class IdentityScopeTest extends TestCase {
             is = new IdentityScopeStub("Aleksei Semenov");
             IdentityScopeStub.mySetSystemScope(is);
             assertSame(is, IdentityScope.getSystemScope());
-            // all permissions are granted - sm is installed
-            MySecurityManager sm = new MySecurityManager();
-            System.setSecurityManager(sm);
-            try {
-                is = new IdentityScopeStub("aaa");
-                IdentityScopeStub.mySetSystemScope(is);
-                assertSame(is, IdentityScope.getSystemScope());
-                // permission is denied
-                sm.denied.add(new SecurityPermission("setSystemScope"));
-                IdentityScope is2 = new IdentityScopeStub("bbb");
-                try{
-                    IdentityScopeStub.mySetSystemScope(is2);
-                    fail("SecurityException should be thrown");
-                } catch (SecurityException e){
-                    assertSame(is, IdentityScope.getSystemScope());
-                }
-            } finally {
-                System.setSecurityManager(null);
-                assertNull("Error, security manager is not removed!", System.getSecurityManager());
-            }
         } finally {
             IdentityScopeStub.mySetSystemScope(systemScope);
         }

@@ -218,23 +218,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                     Support_Configuration.SpecialInetTestAddress));
         }// end for all aliases
 
-        // check the getByName if there is a security manager.
-        SecurityManager oldman = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            boolean exception = false;
-            try {
-                InetAddress.getByName("3d.com");
-            } catch (SecurityException ex) {
-                exception = true;
-            } catch (Exception ex) {
-                fail("getByName threw wrong exception : " + ex.getMessage());
-            }
-            assertTrue("expected SecurityException", exception);
-        } finally {
-            System.setSecurityManager(oldman);
-        }
-
         // Regression for HARMONY-56
         InetAddress[] addresses = InetAddress.getAllByName(null);
         assertTrue("getAllByName(null): no results", addresses.length > 0);
@@ -308,21 +291,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 }
             }
         }
-        SecurityManager oldman = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            boolean exception = false;
-            try {
-                InetAddress.getByName("google.com");
-                fail("SecurityException was not thrown.");
-            } catch (SecurityException ex) {
-                //expected
-            } catch (Exception ex) {
-                fail("getByName threw wrong exception : " + ex.getMessage());
-            }
-        } finally {
-            System.setSecurityManager(oldman);
-        }
 
         try {
             InetAddress.getByName("0.0.0.0.0");
@@ -378,24 +346,6 @@ public class InetAddressTest extends junit.framework.TestCase {
 //        assertTrue(
 //        "Expected " + Support_Configuration.InetTestAddress + "*",
 //        ia.getHostName().startsWith(Support_Configuration.InetTestAddress));
-
-        // Test for any of the host lookups, where the default SecurityManager
-        // is installed.
-
-        SecurityManager oldman = System.getSecurityManager();
-        try {
-            String exp = Support_Configuration.InetTestIP;
-            System.setSecurityManager(new MockSecurityManager());
-            ia = InetAddress.getByName(exp);
-            String ans = ia.getHostName();
-        /* FIXME: comment the assertion below because it is platform/configuration dependent
-         * Please refer to HARMONY-1664 (https://issues.apache.org/jira/browse/HARMONY-1664)
-         * for details
-         */
-        //    assertEquals(Support_Configuration.InetTestIP, ans);
-        } finally {
-            System.setSecurityManager(oldman);
-        }
 
         // Make sure there is no caching
         System.setProperty("networkaddress.cache.ttl", "0");
