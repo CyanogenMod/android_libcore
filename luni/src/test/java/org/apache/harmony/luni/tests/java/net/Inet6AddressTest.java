@@ -895,34 +895,6 @@ public class Inet6AddressTest extends junit.framework.TestCase {
             } catch (Exception e) {
             }
         }
-
-        class MockSecurityManager extends SecurityManager {
-            public void checkPermission(Permission permission) {
-                if (permission.getName().equals("setSecurityManager")){
-                    return;
-                }
-                if (permission.getName().equals("3d.com")){
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-
-        SecurityManager oldman = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            boolean exception = false;
-            try {
-                Inet6Address.getByName("3d.com");
-                fail("SecurityException was not thrown.");
-            } catch (SecurityException ex) {
-                //expected
-            } catch (Exception ex) {
-                fail("getByName threw wrong exception : " + ex.getMessage());
-            }
-        } finally {
-            System.setSecurityManager(oldman);
-        }
     }
 
     /**

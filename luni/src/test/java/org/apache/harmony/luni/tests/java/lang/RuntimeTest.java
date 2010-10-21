@@ -254,17 +254,6 @@ public class RuntimeTest extends junit.framework.TestCase {
         // of the Exceptions to be thrown.
         Runtime.getRuntime().removeShutdownHook(thrException);
 
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().addShutdownHook(thrException);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
         try {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException ie) {
@@ -315,20 +304,6 @@ public class RuntimeTest extends junit.framework.TestCase {
                 throw new SecurityException();
             }
         };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            Runtime.getRuntime().exec("ls", envp);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Runtime.getRuntime().exec("", envp);
@@ -383,20 +358,6 @@ public class RuntimeTest extends junit.framework.TestCase {
             }
         };
 
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            Runtime.getRuntime().exec(new String[]{"ls"}, envp);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
         try {
             Runtime.getRuntime().exec(new String[]{}, envp);
             fail("IndexOutOfBoundsException should be thrown.");
@@ -448,20 +409,6 @@ public class RuntimeTest extends junit.framework.TestCase {
                 throw new SecurityException();
             }
         };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            Runtime.getRuntime().exec("ls",  envp, workFolder);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Runtime.getRuntime().exec("",  envp, workFolder);
@@ -517,20 +464,6 @@ public class RuntimeTest extends junit.framework.TestCase {
                 throw new SecurityException();
             }
         };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-
-        try {
-            Runtime.getRuntime().exec(new String[] {"ls"},  envp, workFolder);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Runtime.getRuntime().exec(new String[]{""}, envp, workFolder);
@@ -623,29 +556,6 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException was thrown.");
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkExec(String cmd) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().exec("ls");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException ioe) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     @TestTargetNew(
@@ -685,29 +595,6 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         }
 
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkExec(String cmd) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().exec(new String[]{"ls"});
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException ioe) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
         try {
             Runtime.getRuntime().exec(new String[]{""});
             fail("IOException should be thrown.");
@@ -724,27 +611,6 @@ public class RuntimeTest extends junit.framework.TestCase {
     )
     public void test_runFinalizersOnExit() {
         Runtime.getRuntime().runFinalizersOnExit(true);
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-            }
-
-            public void checkExit(int status) {
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().runFinalizersOnExit(true);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     @TestTargetNew(
@@ -786,26 +652,6 @@ public class RuntimeTest extends junit.framework.TestCase {
             Runtime.getRuntime().addShutdownHook(thr2);
         } catch (Throwable t) {
             fail(t.getMessage());
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-                if (perm.getName().equals("shutdownHooks")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().addShutdownHook(thr1);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
 
         try {
@@ -929,30 +775,6 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-
-            }
-
-            public void checkLink(String lib) {
-                if (lib.endsWith("libjvm.so")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().load("libjvm.so");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     @TestTargetNew(
@@ -974,101 +796,6 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
-        }
-
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-
-            }
-
-            public void checkLink(String lib) {
-                if (lib.endsWith("libjvm.so")) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Runtime.getRuntime().loadLibrary("libjvm.so");
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "This method never returns normally, " +
-                "and can't be tested. Only SecurityException can be checked.",
-        method = "exit",
-        args = {int.class}
-    )
-    public void test_exit() {
-        statusCode = -1;
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-
-            }
-
-            public void checkExit(int status) {
-                statusCode = status;
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            r.exit(0);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            assertTrue("Incorrect status code was received: " + statusCode,
-                    statusCode == 0);
-            System.setSecurityManager(oldSm);
-        }
-
-    }
-
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Can't be tested. This method terminates the currently " +
-                "running VM. Only SecurityException can be checked.",
-        method = "halt",
-        args = {int.class}
-    )
-    public void test_halt() {
-        statusCode = -1;
-        SecurityManager sm = new SecurityManager() {
-
-            public void checkPermission(Permission perm) {
-
-            }
-
-            public void checkExit(int status) {
-                statusCode = status;
-                throw new SecurityException();
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            r.halt(0);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            assertTrue("Incorrect status code was received: " + statusCode,
-                    statusCode == 0);
-            System.setSecurityManager(oldSm);
         }
     }
 

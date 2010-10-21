@@ -569,17 +569,6 @@ public class LocaleTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Locale.setDefault(Locale.CANADA);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     /**

@@ -53,21 +53,6 @@ import javax.security.auth.x500.X500Principal;
 public class SubjectDomainCombinerTest extends TestCase {
     private final static boolean DEBUG = true;
 
-    SecurityManager old;
-
-    @Override
-    protected void setUp() throws Exception {
-        old = System.getSecurityManager();
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        System.setSecurityManager(old);
-        super.tearDown();
-    }
-
-
     /**
      * @tests javax.security.auth.SubjectDomainCombiner#SubjectDomainCombiner(Subject subject)
      */
@@ -98,60 +83,10 @@ public class SubjectDomainCombinerTest extends TestCase {
         args = {}
     )
     public void test_getSubject_01() {
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "getSubjectFromDomainCombiner".equals(permission.getName())) {
-                    return;
-                }
-                super.checkPermission(permission);
-            }
-        }
-
-        TestSecurityManager sm = new TestSecurityManager();
-        System.setSecurityManager(sm);
-
         Subject s = new Subject();
         SubjectDomainCombiner c = new SubjectDomainCombiner(s);
 
         assertEquals(s, c.getSubject());
-    }
-
-
-    /**
-     * @tests javax.security.auth.SubjectDomainCombiner#getSubject()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SecurityException to be thrown if caller doesn't have permissions to get the Subject",
-        method = "getSubject",
-        args = {}
-    )
-    public void test_getSubject_02() {
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "getSubjectFromDomainCombiner".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-
-        TestSecurityManager sm = new TestSecurityManager();
-        System.setSecurityManager(sm);
-
-        Subject s = new Subject();
-        SubjectDomainCombiner c = new SubjectDomainCombiner(s);
-
-        try {
-            c.getSubject();
-            fail("SecurityException expected");
-        } catch(SecurityException se) {
-            // expected
-        }
     }
 
     protected final static String locationUrl = "http://localhost";

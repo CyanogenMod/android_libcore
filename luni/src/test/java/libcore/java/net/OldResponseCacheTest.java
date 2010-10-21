@@ -88,63 +88,6 @@ public class OldResponseCacheTest extends TestCase {
         assertNull(ResponseCache.getDefault());
     }
 
-    /**
-     * @tests java.net.ResponseCache#getDefault()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getDefault method.",
-        method = "getDefault",
-        args = {}
-    )
-    public void test_GetDefault_Security() {
-        SecurityManager old = System.getSecurityManager();
-        try {
-            System.setSecurityManager(new MockSM());
-        } catch (SecurityException e) {
-            System.err.println("No setSecurityManager permission.");
-            System.err.println("test_setDefaultLjava_net_ResponseCache_NoPermission is not tested");
-            return;
-        }
-        try {
-            ResponseCache.getDefault();
-            fail("should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(old);
-        }
-    }
-
-    /**
-     * @tests java.net.ResponseCache#setDefault(ResponseCache)
-     */
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "This is a complete subset of tests for setDefault method.",
-        method = "setDefault",
-        args = {java.net.ResponseCache.class}
-    )
-    public void test_setDefaultLjava_net_ResponseCache_NoPermission() {
-        ResponseCache rc = new MockResponseCache();
-        SecurityManager old = System.getSecurityManager();
-        try {
-            System.setSecurityManager(new MockSM());
-        } catch (SecurityException e) {
-            System.err.println("No setSecurityManager permission.");
-            System.err.println("test_setDefaultLjava_net_ResponseCache_NoPermission is not tested");
-            return;
-        }
-        try {
-            ResponseCache.setDefault(rc);
-            fail("should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(old);
-        }
-    }
-
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

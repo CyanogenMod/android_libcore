@@ -612,29 +612,6 @@ public class ObjectOutputStreamTest extends junit.framework.TestCase implements
     static final String INIT_STR_VALUE = "a string that is blortz";
 
     /**
-     * @tests java.io.ObjectInputStream#ObjectOutputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies the protected ObjectOutputStream() constructor.",
-        method = "ObjectOutputStream",
-        args = {}
-    )
-    public void test_Constructor() throws IOException {
-        SecurityManager sm = System.getSecurityManager();
-        System.setSecurityManager(new Support_IOTestSecurityManager());
-
-        try {
-            oos = new BasicObjectOutputStream();
-            fail("SecurityException expected.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(sm);
-        }
-    }
-
-    /**
      * @tests java.io.ObjectOutputStream#ObjectOutputStream(java.io.OutputStream)
      */
     @TestTargetNew(
@@ -661,79 +638,6 @@ public class ObjectOutputStreamTest extends junit.framework.TestCase implements
             fail("Test 2: IOException expected.");
         } catch (IOException e) {
             // Expected.
-        }
-    }
-
-    /**
-     * @tests java.io.ObjectOutputStream#ObjectOutputStream(java.io.OutputStream)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks SecurityException.",
-        method = "ObjectOutputStream",
-        args = {java.io.OutputStream.class}
-    )
-    public void test_ConstructorLjava_io_OutputStream_subtest0() throws IOException {
-
-        // custom security manager
-        SecurityManager sm = new SecurityManager() {
-
-            final SerializablePermission forbidenPermission =
-                new SerializablePermission("enableSubclassImplementation");
-
-            public void checkPermission(Permission perm) {
-                if (forbidenPermission.equals(perm)) {
-                    throw new SecurityException();
-                }
-            }
-        };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            // should not cause SecurityException
-            new ObjectOutputStream(out);
-            // should not cause SecurityException
-            class SubTest1 extends ObjectOutputStream {
-                SubTest1(OutputStream out) throws IOException {
-                    super(out);
-                }
-            }
-
-            // should not cause SecurityException
-            new SubTest1(out);
-            class SubTest2 extends ObjectOutputStream {
-                SubTest2(OutputStream out) throws IOException {
-                    super(out);
-                }
-
-                public void writeUnshared(Object obj) throws IOException {
-                }
-            }
-
-            try {
-                new SubTest2(out);
-                fail("should throw SecurityException 1");
-            } catch (SecurityException e) {
-            }
-            class SubTest3 extends ObjectOutputStream {
-                SubTest3(OutputStream out) throws IOException {
-                    super(out);
-                }
-
-                public PutField putFields() throws IOException {
-                    return null;
-                }
-            }
-
-            try {
-                new SubTest3(out);
-                fail("should throw SecurityException 2");
-            } catch (SecurityException e) {
-            }
-        } finally {
-            System.setSecurityManager(oldSm);
         }
     }
 
@@ -824,18 +728,6 @@ public class ObjectOutputStreamTest extends junit.framework.TestCase implements
 
         assertTrue("Test 2: enableReplaceObject did not return the previous value.",
                 boos.enableReplaceObject(false));
-
-        // Test 3: Check that a security exception is thrown.
-        SecurityManager sm = System.getSecurityManager();
-        System.setSecurityManager(new Support_IOTestSecurityManager());
-        try {
-            boos.enableReplaceObject(true);
-            fail("Test 3: SecurityException expected.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(sm);
-        }
     }
 
     /**

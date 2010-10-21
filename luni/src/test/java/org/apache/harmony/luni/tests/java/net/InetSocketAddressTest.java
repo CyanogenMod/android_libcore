@@ -72,34 +72,6 @@ public class InetSocketAddressTest extends TestCase {
         } catch(IllegalArgumentException iae) {
             //expected
         }
-
-        class MockSecurityManager extends SecurityManager {
-            public void checkPermission(Permission permission) {
-
-            }
-
-            public void checkConnect(String host, int port) {
-                if(host.equals("google.com")) {
-                    throw new SecurityException();
-                }
-            }
-        }
-        SecurityManager oldman = System.getSecurityManager();
-        System.setSecurityManager(new MockSecurityManager());
-        try {
-            boolean exception = false;
-            try {
-                new InetSocketAddress("google.com", 80);
-                fail("SecurityException was not thrown.");
-            } catch (SecurityException ex) {
-                //expected
-            } catch (Exception ex) {
-                fail("getByName threw wrong exception : " + ex.getMessage());
-            }
-        } finally {
-            System.setSecurityManager(oldman);
-        }
-
     }
 
     @TestTargets({
