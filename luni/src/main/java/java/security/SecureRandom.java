@@ -23,8 +23,44 @@ import org.apache.harmony.security.fortress.Services;
 import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
 
 /**
- * {@code SecureRandom} is an engine class which is capable of generating
- * cryptographically secure pseudo-random numbers.
+ * This class generates cryptographically secure pseudo-random numbers.
+ *
+ * <h3>Supported Algorithms</h3>
+ * <ul>
+ *   <li><strong>SHA1PRNG</strong>: Based on <a
+ *     href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a>. Not guaranteed to be
+ *     compatible with the SHA1PRNG algorithm on the reference
+ *     implementation.</li>
+ * </ul>
+ *
+ * <p>The default algorithm is defined by the first {@code SecureRandomSpi}
+ * provider found in the VM's installed security providers. Use {@link
+ * Security} to install custom {@link SecureRandomSpi} providers.
+ *
+ * <a name="insecure_seed"><h3>Seeding {@code SecureRandom} may be
+ * insecure</h3></a>
+ * A seed is an array of bytes used to bootstrap random number generation.
+ * To produce cryptographically secure random numbers, both the seed and the
+ * algorithm must be secure.
+ *
+ * <p>By default, instances of this class will generate an initial seed using
+ * an internal entropy source, such as {@code /dev/urandom}. This seed is
+ * unpredictable and appropriate for secure use.
+ *
+ * <p>You may alternatively specify the initial seed explicitly with the
+ * {@link #SecureRandom(byte[]) seeded constructor} or by calling {@link
+ * #setSeed} before any random numbers have been generated. Specifying a fixed
+ * seed will cause the instance to return a predictable sequence of numbers.
+ * This may be useful for testing but it is not appropriate for secure use.
+ *
+ * <p>Although it is common practice to seed {@link Random} with the current
+ * time, that is dangerous with {@code SecureRandom} since that value is
+ * predictable to an attacker and not appropriate for secure use.
+ *
+ * <p>Calling {@link #setSeed} on a {@code SecureRandom} <i>after</i> it has
+ * been used to generate random numbers (ie. calling {#link nextBytes}) will
+ * supplement the existing seed. This does not cause the instance to return a
+ * predictable numbers, nor does it harm the security of the numbers generated.
  */
 public class SecureRandom extends Random {
 
@@ -54,9 +90,7 @@ public class SecureRandom extends Random {
     private static transient SecureRandom internalSecureRandom;
 
     /**
-     * Constructs a new instance of {@code SecureRandom}. An implementation for
-     * the highest-priority provider is returned. The constructed instance will
-     * not have been seeded.
+     * Constructs a new {@code SecureRandom} that uses the default algorithm.
      */
     public SecureRandom() {
         super(0);
@@ -78,12 +112,9 @@ public class SecureRandom extends Random {
     }
 
     /**
-     * Constructs a new instance of {@code SecureRandom}. An implementation for
-     * the highest-priority provider is returned. The constructed instance will
-     * be seeded with the parameter.
-     *
-     * @param seed
-     *            the seed for this generator.
+     * Constructs a new seeded {@code SecureRandom} that uses the default
+     * algorithm. <a href="#insecure_seed">Seeding {@code SecureRandom} may be
+     * insecure</a>.
      */
     public SecureRandom(byte[] seed) {
         this();
@@ -217,24 +248,18 @@ public class SecureRandom extends Random {
     }
 
     /**
-     * Reseeds this {@code SecureRandom} instance with the specified {@code
-     * seed}. The seed of this {@code SecureRandom} instance is supplemented,
-     * not replaced.
-     *
-     * @param seed
-     *            the new seed.
+     * Seeds this {@code SecureRandom} instance with the specified {@code
+     * seed}. <a href="#insecure_seed">Seeding {@code SecureRandom} may be
+     * insecure</a>.
      */
     public synchronized void setSeed(byte[] seed) {
         secureRandomSpi.engineSetSeed(seed);
     }
 
     /**
-     * Reseeds this this {@code SecureRandom} instance with the eight bytes
-     * described by the representation of the given {@code long seed}. The seed
-     * of this {@code SecureRandom} instance is supplemented, not replaced.
-     *
-     * @param seed
-     *            the new seed.
+     * Seeds this {@code SecureRandom} instance with the specified eight-byte
+     * {@code seed}. <a href="#insecure_seed">Seeding {@code SecureRandom} may
+     * be insecure</a>.
      */
     @Override
     public void setSeed(long seed) {
