@@ -20,8 +20,11 @@ package java.io;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.nio.ByteOrder;
+import java.nio.charset.ModifiedUtf8;
 import java.util.IdentityHashMap;
-
+import libcore.io.SizeOf;
+import org.apache.harmony.luni.platform.OSMemory;
 
 // BEGIN android-note
 // Harmony uses ObjectAccessors to access fields through JNI. Android has not
@@ -1602,22 +1605,23 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @throws IOException
      *             If an IO exception happened when writing the String.
      */
-    private Integer writeNewString(String object, boolean unshared)
-            throws IOException {
-        long count = output.countUTFBytes(object);
+    private Integer writeNewString(String object, boolean unshared) throws IOException {
+        long count = ModifiedUtf8.countBytes(object, false);
         byte[] buffer;
         int offset = 0;
         if (count <= 0xffff) {
-            buffer = new byte[(int)count+3];
+            buffer = new byte[1 + SizeOf.SHORT + (int) count];
             buffer[offset++] = TC_STRING;
-            offset = output.writeShortToBuffer((short) count, buffer, offset);
+            OSMemory.pokeShort(buffer, offset, (short) count, ByteOrder.BIG_ENDIAN);
+            offset += SizeOf.SHORT;
         } else {
-            buffer = new byte[(int)count+9];
+            buffer = new byte[1 + SizeOf.LONG + (int) count];
             buffer[offset++] = TC_LONGSTRING;
-            offset = output.writeLongToBuffer(count, buffer, offset);
+            OSMemory.pokeLong(buffer, offset, count, ByteOrder.BIG_ENDIAN);
+            offset += SizeOf.LONG;
         }
-        offset = output.writeUTFBytesToBuffer(object, buffer, offset);
-        output.write(buffer, 0, offset);
+        ModifiedUtf8.encode(buffer, offset, object);
+        output.write(buffer, 0, buffer.length);
 
         Integer handle = nextHandle();
 

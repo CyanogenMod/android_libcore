@@ -18,6 +18,9 @@
 package java.nio.charset;
 
 import java.io.UTFDataFormatException;
+import java.nio.ByteOrder;
+import libcore.io.SizeOf;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * @hide internal use only
@@ -58,6 +61,66 @@ public class ModifiedUtf8 {
             }
         }
         return new String(out, 0, s);
+    }
+
+    /**
+     * Returns the number of bytes the modified UTF8 representation of 's' would take. Note
+     * that this is just the space for the bytes representing the characters, not the length
+     * which precedes those bytes, because different callers represent the length differently,
+     * as two, four, or even eight bytes. If {@code shortLength} is true, we'll throw an
+     * exception if the string is too long for its length to be represented by a short.
+     */
+    public static long countBytes(String s, boolean shortLength) throws UTFDataFormatException {
+        long result = 0;
+        final int length = s.length();
+        for (int i = 0; i < length; ++i) {
+            char ch = s.charAt(i);
+            if (ch != 0 && ch <= 127) { // U+0000 uses two bytes.
+                ++result;
+            } else if (ch <= 2047) {
+                result += 2;
+            } else {
+                result += 3;
+            }
+            if (shortLength && result > 65535) {
+                throw new UTFDataFormatException("String more than 65535 UTF bytes long");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Encodes the <i>modified UTF-8</i> bytes corresponding to string {@code s} into the
+     * byte array {@code dst}, starting at the given {@code offset}.
+     */
+    public static void encode(byte[] dst, int offset, String s) {
+        final int length = s.length();
+        for (int i = 0; i < length; i++) {
+            char ch = s.charAt(i);
+            if (ch != 0 && ch <= 127) { // U+0000 uses two bytes.
+                dst[offset++] = (byte) ch;
+            } else if (ch <= 2047) {
+                dst[offset++] = (byte) (0xc0 | (0x1f & (ch >> 6)));
+                dst[offset++] = (byte) (0x80 | (0x3f & ch));
+            } else {
+                dst[offset++] = (byte) (0xe0 | (0x0f & (ch >> 12)));
+                dst[offset++] = (byte) (0x80 | (0x3f & (ch >> 6)));
+                dst[offset++] = (byte) (0x80 | (0x3f & ch));
+            }
+        }
+    }
+
+    /**
+     * Returns an array containing the <i>modified UTF-8</i> form of {@code s}, using a
+     * big-endian 16-bit length. Throws UTFDataFormatException if {@code s} is too long
+     * for a two-byte length.
+     */
+    public static byte[] encode(String s) throws UTFDataFormatException {
+        int utfCount = (int) ModifiedUtf8.countBytes(s, true);
+        byte[] result = new byte[SizeOf.SHORT + utfCount];
+        OSMemory.pokeShort(result, 0, (short) utfCount, ByteOrder.BIG_ENDIAN);
+        ModifiedUtf8.encode(result, SizeOf.SHORT, s);
+        return result;
     }
 
     private ModifiedUtf8() {

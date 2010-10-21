@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.nio.charset.ModifiedUtf8;
+
 /**
  * Wraps an existing {@link OutputStream} and writes big-endian typed data to it.
  * Typically, this stream can be read in by DataInputStream. Types that can be
@@ -162,14 +164,9 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
     }
 
     public final void writeChars(String str) throws IOException {
-        byte[] newBytes = new byte[str.length() * 2];
-        for (int index = 0; index < str.length(); index++) {
-            int newIndex = index == 0 ? index : index * 2;
-            newBytes[newIndex] = (byte) (str.charAt(index) >> 8);
-            newBytes[newIndex + 1] = (byte) str.charAt(index);
-        }
-        out.write(newBytes);
-        written += newBytes.length;
+        byte[] bytes = str.getBytes("UTF-16BE");
+        out.write(bytes);
+        written += bytes.length;
     }
 
     public final void writeDouble(double val) throws IOException {
@@ -202,18 +199,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 8;
     }
 
-    int writeLongToBuffer(long val, byte[] buffer, int offset) throws IOException {
-        buffer[offset++] = (byte) (val >> 56);
-        buffer[offset++] = (byte) (val >> 48);
-        buffer[offset++] = (byte) (val >> 40);
-        buffer[offset++] = (byte) (val >> 32);
-        buffer[offset++] = (byte) (val >> 24);
-        buffer[offset++] = (byte) (val >> 16);
-        buffer[offset++] = (byte) (val >> 8);
-        buffer[offset++] = (byte) val;
-        return offset;
-    }
-
     public final void writeShort(int val) throws IOException {
         buff[0] = (byte) (val >> 8);
         buff[1] = (byte) val;
@@ -221,54 +206,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         written += 2;
     }
 
-    int writeShortToBuffer(int val, byte[] buffer, int offset) throws IOException {
-        buffer[offset++] = (byte) (val >> 8);
-        buffer[offset++] = (byte) val;
-        return offset;
-    }
-
     public final void writeUTF(String str) throws IOException {
-        long utfCount = countUTFBytes(str);
-        if (utfCount > 65535) {
-            throw new UTFDataFormatException("String more than 65535 UTF bytes long");
-        }
-        byte[] buffer = new byte[(int)utfCount + 2];
-        int offset = 0;
-        offset = writeShortToBuffer((int) utfCount, buffer, offset);
-        offset = writeUTFBytesToBuffer(str, buffer, offset);
-        write(buffer, 0, offset);
-    }
-
-    long countUTFBytes(String str) {
-        int utfCount = 0, length = str.length();
-        for (int i = 0; i < length; i++) {
-            int charValue = str.charAt(i);
-            if (charValue > 0 && charValue <= 127) {
-                utfCount++;
-            } else if (charValue <= 2047) {
-                utfCount += 2;
-            } else {
-                utfCount += 3;
-            }
-        }
-        return utfCount;
-    }
-
-    int writeUTFBytesToBuffer(String str, byte[] buffer, int offset) throws IOException {
-        int length = str.length();
-        for (int i = 0; i < length; i++) {
-            int charValue = str.charAt(i);
-            if (charValue > 0 && charValue <= 127) {
-                buffer[offset++] = (byte) charValue;
-            } else if (charValue <= 2047) {
-                buffer[offset++] = (byte) (0xc0 | (0x1f & (charValue >> 6)));
-                buffer[offset++] = (byte) (0x80 | (0x3f & charValue));
-            } else {
-                buffer[offset++] = (byte) (0xe0 | (0x0f & (charValue >> 12)));
-                buffer[offset++] = (byte) (0x80 | (0x3f & (charValue >> 6)));
-                buffer[offset++] = (byte) (0x80 | (0x3f & charValue));
-             }
-        }
-        return offset;
+        write(ModifiedUtf8.encode(str));
     }
 }

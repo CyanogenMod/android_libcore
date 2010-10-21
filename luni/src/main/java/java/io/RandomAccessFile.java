@@ -917,13 +917,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readChar()
      */
     public final void writeChars(String str) throws IOException {
-        byte[] newBytes = new byte[str.length() * 2];
-        for (int index = 0; index < str.length(); index++) {
-            int newIndex = index == 0 ? index : index * 2;
-            newBytes[newIndex] = (byte) ((str.charAt(index) >> 8) & 0xFF);
-            newBytes[newIndex + 1] = (byte) (str.charAt(index) & 0xFF);
-        }
-        write(newBytes);
+        write(str.getBytes("UTF-16BE"));
     }
 
     /**
@@ -1029,37 +1023,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readUTF()
      */
     public final void writeUTF(String str) throws IOException {
-        int utfCount = 0, length = str.length();
-        for (int i = 0; i < length; i++) {
-            int charValue = str.charAt(i);
-            if (charValue > 0 && charValue <= 127) {
-                utfCount++;
-            } else if (charValue <= 2047) {
-                utfCount += 2;
-            } else {
-                utfCount += 3;
-            }
-        }
-        if (utfCount > 65535) {
-            throw new UTFDataFormatException("String more than 65535 UTF bytes long");
-        }
-        byte[] utfBytes = new byte[utfCount + 2];
-        int utfIndex = 2;
-        for (int i = 0; i < length; i++) {
-            int charValue = str.charAt(i);
-            if (charValue > 0 && charValue <= 127) {
-                utfBytes[utfIndex++] = (byte) charValue;
-            } else if (charValue <= 2047) {
-                utfBytes[utfIndex++] = (byte) (0xc0 | (0x1f & (charValue >> 6)));
-                utfBytes[utfIndex++] = (byte) (0x80 | (0x3f & charValue));
-            } else {
-                utfBytes[utfIndex++] = (byte) (0xe0 | (0x0f & (charValue >> 12)));
-                utfBytes[utfIndex++] = (byte) (0x80 | (0x3f & (charValue >> 6)));
-                utfBytes[utfIndex++] = (byte) (0x80 | (0x3f & charValue));
-            }
-        }
-        utfBytes[0] = (byte) (utfCount >> 8);
-        utfBytes[1] = (byte) utfCount;
-        write(utfBytes);
+        write(ModifiedUtf8.encode(str));
     }
 }

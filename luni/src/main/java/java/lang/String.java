@@ -991,6 +991,8 @@ outer:
             return Charsets.toIsoLatin1Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
             return Charsets.toAsciiBytes(value, offset, count);
+        } else if (canonicalCharsetName.equals("UTF-16BE")) {
+            return Charsets.toBigEndianUtf16Bytes(value, offset, count);
         } else {
             CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
             ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
