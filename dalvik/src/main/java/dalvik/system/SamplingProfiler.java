@@ -99,7 +99,8 @@ public final class SamplingProfiler {
     /**
      * Timer that is used for the lifetime of the profiler
      */
-    private final Timer timer = new Timer(getClass().getName(), true);
+    // note that dalvik/vm/Thread.c depends on this name
+    private final Timer timer = new Timer("SamplingProfiler", true);
 
     /**
      * A sampler is created every time profiling starts and cleared
@@ -302,7 +303,7 @@ public final class SamplingProfiler {
             Thread[] newThreads = threadSet.threads();
             if (!Arrays.equals(currentThreads, newThreads)) {
                 updateThreadHistory(currentThreads, newThreads);
-                currentThreads = newThreads;
+                currentThreads = newThreads.clone();
             }
 
             for (Thread thread : currentThreads) {
