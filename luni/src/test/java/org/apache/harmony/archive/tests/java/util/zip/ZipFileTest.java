@@ -93,19 +93,6 @@ public class ZipFileTest extends junit.framework.TestCase {
         } catch (IOException ee) {
             // expected
         }
-        // IOException can not be checked throws ZipException in case of IO
-        // problems.
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            file = new File(tempFileName);
-            zip = new ZipFile(file, ZipFile.OPEN_READ);
-            fail("SecurityException expected");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
         file = new File(tempFileName);
         try {
             zip = new ZipFile(file, -1);
@@ -133,18 +120,6 @@ public class ZipFileTest extends junit.framework.TestCase {
             // expected
         }
         file.delete();
-        // IOException can not be checked throws ZipException in case of IO
-        // problems.
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            zip = new ZipFile(tempFileName);
-            fail("SecurityException expected");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     protected ZipEntry test_finalize1(ZipFile zip) {

@@ -143,30 +143,6 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlContext#AccessControlContext(java.security.AccessControlContext,
-     *        java.security.DomainCombiner)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks SecurityException.",
-        method = "AccessControlContext",
-        args = {java.security.AccessControlContext.class, java.security.DomainCombiner.class}
-    )
-    public void test_ConstructorLjava_security_AccessControlContextLjava_security_DomainCombiner2() {
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(new TestSecurityManager());
-        AccessControlContext context = AccessController.getContext();
-        try {
-            new AccessControlContext(context, null);
-            fail("Test 1: SecurityException expected.");
-        } catch (SecurityException e) {
-            // Expected.
-        }
-        System.setSecurityManager(oldSm);
-    }
-
-    /**
      * @tests java.security.AccessControlException#checkPermission(Permission)
      */
     @TestTargetNew(
@@ -326,16 +302,6 @@ public class AccessControlContextTest extends junit.framework.TestCase {
         assertNull(acc1.getDomainCombiner());
         assertNotNull(acc2.getDomainCombiner());
         assertNull(acc3.getDomainCombiner());
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(new TestSecurityManager());
-        try {
-            acc1.getDomainCombiner();
-            fail("SecurityException expected.");
-        } catch (SecurityException e) {
-            // Expected.
-        }
-        System.setSecurityManager(oldSm);
     }
 
     /**

@@ -116,19 +116,6 @@ public class OldSocketTest extends OldSocketTestCase {
                 socket.close();
             } catch(Exception e) {}
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost().getHostName(), sport);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI()
@@ -237,20 +224,6 @@ public class OldSocketTest extends OldSocketTestCase {
             }
             assertTrue("Was able to create two sockets on same port", exception);
         }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket("127.0.0.1", 0, InetAddress
-                    .getLocalHost(), 0);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_ConstructorLjava_lang_StringIZ() throws IOException {
@@ -260,19 +233,6 @@ public class OldSocketTest extends OldSocketTestCase {
         assertTrue("Failed to create socket", s.getPort() == sport);
 
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport, false);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost().getHostName(), sport, true);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_ConstructorLjava_net_InetAddressI() throws IOException {
@@ -280,19 +240,6 @@ public class OldSocketTest extends OldSocketTestCase {
         int sport = startServer("Cons InetAddress,I");
         s = new Socket(InetAddress.getLocalHost(), sport);
         assertTrue("Failed to create socket", s.getPort() == sport);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost(), sport);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_ConstructorLjava_net_InetAddressILjava_net_InetAddressI()
@@ -304,20 +251,6 @@ public class OldSocketTest extends OldSocketTestCase {
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport,
                 InetAddress.getLocalHost(), portNumber);
         assertTrue("Failed to create socket", s.getLocalPort() == portNumber);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost().getHostName(), sport,
-                    InetAddress.getLocalHost(), portNumber);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_ConstructorLjava_net_InetAddressIZ() throws IOException {
@@ -327,19 +260,6 @@ public class OldSocketTest extends OldSocketTestCase {
         assertTrue("Failed to create socket", s.getPort() == sport);
 
         s = new Socket(InetAddress.getLocalHost(), sport, false);
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost(), sport, true);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
     }
 
     public void test_close() throws IOException {
@@ -693,20 +613,6 @@ public class OldSocketTest extends OldSocketTestCase {
                 throw new SecurityException();
             }
         };
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            Socket.setSocketImplFactory(null);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
     }
 
     public void test_setSendBufferSizeI() {
@@ -2481,52 +2387,6 @@ public class OldSocketTest extends OldSocketTestCase {
         // should not throw any exception
         new Socket(proxy2);
         new Socket(Proxy.NO_PROXY);
-
-        // SecurityException test
-        SecurityManager originalSecurityManager = System.getSecurityManager();
-        try {
-            System.setSecurityManager(new MockSecurityManager());
-        } catch (SecurityException e) {
-            System.err
-                    .println("No permission to setSecurityManager, security related test in test_ConstructorLjava_net_Proxy_Security is ignored");
-            return;
-        }
-
-        Proxy proxy3 = new Proxy(Proxy.Type.SOCKS, addr1);
-        Proxy proxy4 = new Proxy(Proxy.Type.SOCKS, addr2);
-        try {
-            try {
-                new Socket(proxy3);
-                fail("should throw SecurityException");
-            } catch (SecurityException e) {
-                // expected
-            }
-            try {
-                new Socket(proxy4);
-                fail("should throw SecurityException");
-            } catch (SecurityException e) {
-                // expected
-            }
-        } finally {
-            System.setSecurityManager(originalSecurityManager);
-        }
-
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            new Socket(InetAddress.getLocalHost(), 0, true);
-            fail("SecurityException should be thrown.");
-        } catch (SecurityException e) {
-            // expected
-        } catch (SocketException e) {
-            fail("SocketException was thrown.");
-        } catch (UnknownHostException e) {
-            fail("UnknownHostException was thrown.");
-        } catch (IOException e) {
-            fail("IOException was thrown.");
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             new Socket((Proxy) null);

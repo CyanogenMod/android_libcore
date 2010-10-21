@@ -187,49 +187,6 @@ public class SecureClassLoaderTest extends TestCase {
             (byte) 0x21, };
 
     /**
-     * Tests default ctor
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecureClassLoader",
-        args = {}
-    )
-    public void testSecureClassLoader() {
-        new MyClassLoader();
-
-        class TestSecurityManager extends SecurityManager {
-            boolean called;
-            @Override
-            public void checkCreateClassLoader() {
-                called = true;
-                super.checkCreateClassLoader();
-            }
-
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof RuntimePermission) {
-                    if (permission.getName().equals("createClassLoader")) {
-                        throw new SecurityException();
-                    }
-                }
-            }
-        }
-
-        TestSecurityManager sm = new TestSecurityManager();
-        try {
-            System.setSecurityManager(sm);
-            new MyClassLoader();
-            fail("expected SecurityException");
-        } catch (SecurityException e) {
-            assertTrue("checkCreateClassLoader was not called", sm.called);
-            // ok
-        } finally {
-            System.setSecurityManager(null);
-        }
-    }
-
-    /**
      * Tests SecureClassLoader(ClassLoader)
      */
     @TestTargetNew(
@@ -248,37 +205,6 @@ public class SecureClassLoaderTest extends TestCase {
             new MyClassLoader(null);
         } catch (Exception e) {
             fail("unexpected exception: " + e);
-        }
-
-        class TestSecurityManager extends SecurityManager {
-            boolean called;
-            @Override
-            public void checkCreateClassLoader() {
-                called = true;
-                super.checkCreateClassLoader();
-            }
-
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof RuntimePermission) {
-                    if (permission.getName().equals("createClassLoader")) {
-                        throw new SecurityException();
-                    }
-                }
-            }
-        }
-
-        TestSecurityManager sm = new TestSecurityManager();
-        try {
-            System.setSecurityManager(sm);
-            new MyClassLoader(ucl);
-            fail("expected SecurityException");
-        } catch (SecurityException e) {
-            // ok
-            assertTrue("checkCreateClassLoader was not called", sm.called);
-
-        } finally {
-            System.setSecurityManager(null);
         }
     }
 

@@ -76,8 +76,6 @@ public class ProviderTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        System.setSecurityManager(null);
-
         p.remove("MessageDigest.ASH-1");
         p.remove("MessageDigest.abc");
         p.remove("Alg.Alias.MessageDigest.ASH1");
@@ -422,62 +420,6 @@ public class ProviderTest extends TestCase {
         }
         // END android-added
     }
-
-    // BEGIN android-added
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "clear",
-            args = {}
-        )
-    public final void testClear_SecurityManager() {
-        TestSecurityManager sm = new TestSecurityManager("clearProviderProperties.MyProvider");
-        System.setSecurityManager(sm);
-        p.clear();
-        assertTrue("Provider.clear must call checkPermission with "
-                + "SecurityPermission clearProviderProperties.NAME",
-                sm.called);
-        System.setSecurityManager(null);
-    }
-    // END android-added
-
-    // BEGIN android-added
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "put",
-            args = {java.lang.Object.class, java.lang.Object.class}
-        )
-    public final void testPutObjectObject_SecurityManager() {
-
-        TestSecurityManager sm = new TestSecurityManager("putProviderProperty.MyProvider");
-        Provider p = new MyProvider();
-        System.setSecurityManager(sm);
-        p.put(new Object(), new Object());
-        assertTrue("Provider put must call checkPermission "
-                + "SecurityPermission putProviderProperty.Name", sm.called);
-        System.setSecurityManager(null);
-    }
-    // END android-added
-
-    // BEGIN android-added
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
-    public final void testRemoveObject_SecurityManager() {
-        TestSecurityManager sm = new TestSecurityManager(
-                "removeProviderProperty.MyProvider");
-        System.setSecurityManager(sm);
-        p.remove(new Object());
-        assertTrue("Provider.remove must check permission "
-                + "SecurityPermission removeProviderProperty.NAME",
-                sm.called);
-        System.setSecurityManager(null);
-    }
-    // END android-added
 
     // BEGIN android-added
     @TestTargetNew(

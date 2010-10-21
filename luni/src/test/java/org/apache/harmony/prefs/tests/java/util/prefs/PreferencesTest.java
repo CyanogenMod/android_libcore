@@ -42,8 +42,6 @@ import java.util.prefs.Preferences;
 @TestTargetClass(Preferences.class)
 public class PreferencesTest extends TestCase {
 
-    MockSecurityManager manager = new MockSecurityManager();
-
     MockInputStream stream = null;
 
     final static String longKey;
@@ -316,74 +314,6 @@ public class PreferencesTest extends TestCase {
             Preferences.importPreferences(stream);
             fail();
         } catch (RuntimeException e) {
-        }
-    }
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException checking.",
-            method = "userRoot",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException checking.",
-            method = "systemRoot",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException checking.",
-            method = "userNodeForPackage",
-            args = {java.lang.Class.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException checking.",
-            method = "systemNodeForPackage",
-            args = {java.lang.Class.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException checking.",
-            method = "importPreferences",
-            args = {java.io.InputStream.class}
-        )
-    })
-    public void testSecurity() throws InvalidPreferencesFormatException,
-            IOException {
-        try {
-            manager.install();
-            try {
-                Preferences.userRoot();
-                fail();
-            } catch (SecurityException e) {
-            }
-            try {
-                Preferences.systemRoot();
-                fail();
-            } catch (SecurityException e) {
-            }
-            try {
-                Preferences.userNodeForPackage(null);
-                fail();
-            } catch (SecurityException e) {
-            }
-
-            try {
-                Preferences.systemNodeForPackage(null);
-                fail();
-            } catch (SecurityException e) {
-            }
-
-            try {
-                Preferences.importPreferences(stream);
-                fail();
-            } catch (SecurityException e) {
-            }
-        } finally {
-            manager.restoreDefault();
         }
     }
 
