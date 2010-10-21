@@ -113,18 +113,6 @@ public class JarFileTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            JarFile jarFile = new JarFile(new File("tmp.jar"));
-            fail("Should throw SecurityException");
-        } catch (IOException e) {
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Support_Resources.copyFile(resources, null, jarName);
@@ -143,18 +131,6 @@ public class JarFileTest extends TestCase {
             fail("Should throw IOException");
         } catch (IOException e) {
             // expected
-        }
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            JarFile jarFile = new JarFile("tmp.jar");
-            fail("Should throw SecurityException");
-        } catch (IOException e) {
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
 
         try {
@@ -176,18 +152,6 @@ public class JarFileTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            JarFile jarFile = new JarFile("tmp.jar", true);
-            fail("Should throw SecurityException");
-        } catch (IOException e) {
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Support_Resources.copyFile(resources, null, jarName);
@@ -208,18 +172,6 @@ public class JarFileTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            JarFile jarFile = new JarFile(new File("tmp.jar"), false);
-            fail("Should throw SecurityException");
-        } catch (IOException e) {
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
 
         try {
             Support_Resources.copyFile(resources, null, jarName);
@@ -239,19 +191,6 @@ public class JarFileTest extends TestCase {
             fail("Should throw IOException");
         } catch (IOException e) {
             // expected
-        }
-        SecurityManager oldSm = System.getSecurityManager();
-        System.setSecurityManager(sm);
-        try {
-            JarFile jarFile = new JarFile(new File("tmp.jar"), false,
-                    ZipFile.OPEN_READ);
-            fail("Should throw SecurityException");
-        } catch (IOException e) {
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(oldSm);
         }
 
         try {

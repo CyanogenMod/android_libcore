@@ -158,68 +158,6 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
-     */
-    public void test_ConstructorLjava_io_InputStream_subtest0() throws IOException {
-        SecurityManager sm = System.getSecurityManager();
-        System.setSecurityManager(new SecurityManager() {
-            Permission golden = new SerializablePermission("enableSubclassImplementation");
-
-            @Override
-            public void checkPermission(Permission p) {
-                if (golden.equals(p)) {
-                    throw new SecurityException();
-                }
-            }
-        });
-
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ObjectOutputStream obout = new ObjectOutputStream(out);
-            obout.write(0);
-            obout.close();
-
-            InputStream in = new ByteArrayInputStream(out.toByteArray());
-
-            // should not cause SecurityException
-            new ObjectInputStream(in);
-            in.reset();
-
-            // should not cause SecurityException
-            new ObjectInputStream(in) {};
-            in.reset();
-
-            try {
-                new ObjectInputStream(in) {
-                    @Override
-                    public Object readUnshared() throws IOException, ClassNotFoundException {
-                        return null;
-                    }
-                };
-                fail("should throw SecurityException 1");
-            } catch (SecurityException e) {
-                // Expected
-            }
-
-            in.reset();
-            try {
-                new ObjectInputStream(in) {
-                    @Override
-                    public GetField readFields() throws IOException,
-                            ClassNotFoundException, NotActiveException {
-                        return null;
-                    }
-                };
-                fail("should throw SecurityException 2");
-            } catch (SecurityException e) {
-                // Expected
-            }
-        } finally {
-            System.setSecurityManager(sm);
-        }
-    }
-
-    /**
      * @tests {@link java.io.ObjectInputStream#resolveProxyClass(String[])}
      */
     public void test_resolveProxyClass() throws IOException,

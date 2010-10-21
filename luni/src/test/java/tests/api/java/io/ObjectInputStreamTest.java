@@ -67,29 +67,6 @@ public class ObjectInputStreamTest extends junit.framework.TestCase implements
     private final int testLength = testString.length();
 
     /**
-     * @tests java.io.ObjectInputStream#ObjectInputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies the protected ObjectInputStream() constructor.",
-        method = "ObjectInputStream",
-        args = {}
-    )
-    public void test_Constructor() throws IOException {
-        SecurityManager sm = System.getSecurityManager();
-        System.setSecurityManager(new Support_IOTestSecurityManager());
-
-        try {
-            ois = new BasicObjectInputStream();
-            fail("SecurityException expected.");
-        } catch (SecurityException e) {
-            // expected
-        } finally {
-            System.setSecurityManager(sm);
-        }
-    }
-
-    /**
      * @tests java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
      */
     @TestTargetNew(

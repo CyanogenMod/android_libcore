@@ -173,34 +173,6 @@ public class SignerTest extends TestCase {
     }
 
     /**
-     * verify Signer.getPrivateKey() throws SecurityException if permission is denied
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPrivateKey",
-        args = {}
-    )
-    public void testGetPrivateKey_denied() throws Exception {
-        MySecurityManager sm = new MySecurityManager();
-        sm.denied.add(new SecurityPermission("getSignerPrivateKey"));
-        System.setSecurityManager(sm);
-        try {
-            Signer s = new SignerStub("sss6");
-            s.setKeyPair(new KeyPair(new PublicKeyStub("public", "fff", null), new PrivateKeyStub(
-                    "private", "fff", null)));
-            try {
-                s.getPrivateKey();
-                fail("SecurityException should be thrown");
-            } catch (SecurityException ok) {
-            }
-        } finally {
-            System.setSecurityManager(null);
-        }
-
-    }
-
-    /**
      * @tests java.security.Signer#setKeyPair(java.security.KeyPair)
      */
     @TestTargetNew(
@@ -218,24 +190,6 @@ public class SignerTest extends TestCase {
             fail("No expected NullPointerException");
         } catch (NullPointerException e) {
         }
-
-        // test: SecurityException if permission is denied
-        SecurityManager oldSm = System.getSecurityManager();
-        MySecurityManager sm = new MySecurityManager();
-        sm.denied.add(new SecurityPermission("setSignerKeyPair"));
-        System.setSecurityManager(sm);
-        try {
-            Signer s = new SignerStub("sss7");
-            try {
-                s.setKeyPair(new KeyPair(new PublicKeyStub("public", "fff",
-                        null), new PrivateKeyStub("private", "fff", null)));
-                fail("SecurityException should be thrown");
-            } catch (SecurityException ok) {
-            }
-        } finally {
-            System.setSecurityManager(oldSm);
-        }
-
 
         try {
             KeyPair kp = new KeyPair(null, null);

@@ -49,20 +49,6 @@ import org.apache.harmony.security.tests.support.acl.PrincipalImpl;
 @TestTargetClass(Subject.class)
 public class SubjectTest extends TestCase {
 
-    SecurityManager old;
-
-    @Override
-    protected void setUp() throws Exception {
-        old = System.getSecurityManager();
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        System.setSecurityManager(old);
-        super.tearDown();
-    }
-
     /**
      * @tests javax.security.auth.Subject#Subject()
      */
@@ -191,24 +177,6 @@ public class SubjectTest extends TestCase {
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "doAs".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            Object obj = Subject.doAs(subj, pa);
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
-        }
     }
 
     /**
@@ -254,26 +222,6 @@ public class SubjectTest extends TestCase {
             fail("PrivilegedActionException wasn't thrown");
         } catch (PrivilegedActionException e) {
         }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "doAs".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            Object obj = Subject.doAs(subj, pea);
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
-        } catch (Exception e) {
-            fail(e + " was thrown instead of SecurityException");
-        }
     }
 
     /**
@@ -309,24 +257,6 @@ public class SubjectTest extends TestCase {
             Object obj = Subject.doAsPrivileged(subj, paNull, acc);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
-        }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "doAsPrivileged".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            Object obj = Subject.doAsPrivileged(subj, pa, acc);
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
         }
     }
 
@@ -376,26 +306,6 @@ public class SubjectTest extends TestCase {
             fail("PrivilegedActionException wasn't thrown");
         } catch (PrivilegedActionException e) {
         }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "doAsPrivileged".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            Object obj = Subject.doAsPrivileged(subj, pea, acc);
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
-        } catch (Exception e) {
-            fail(e + " was thrown instead of SecurityException");
-        }
     }
 
     /**
@@ -437,25 +347,6 @@ public class SubjectTest extends TestCase {
             assertFalse(s1.equals(new Object()));
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
-        }
-
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof PrivateCredentialPermission
-                        && "equals".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            s1.equals(s1);
-            //fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
         }
     }
 
@@ -570,24 +461,6 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e);
         }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "setReadOnly".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager ss = new TestSecurityManager();
-        System.setSecurityManager(ss);
-        try {
-            s.setReadOnly();
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
-        }
     }
 
     /**
@@ -607,24 +480,6 @@ public class SubjectTest extends TestCase {
             assertNull(Subject.getSubject(acc));
         } catch (Exception e) {
             fail("Unexpected exception " + e);
-        }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "getSubject".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            Subject.getSubject(acc);
-            fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
         }
     }
 
@@ -663,24 +518,6 @@ public class SubjectTest extends TestCase {
             assertNotNull("Null returned", subj.hashCode());
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
-        }
-
-        class TestSecurityManager extends SecurityManager {
-            @Override
-            public void checkPermission(Permission permission) {
-                if (permission instanceof AuthPermission
-                        && "hashCode".equals(permission.getName())) {
-                    throw new SecurityException();
-                }
-                super.checkPermission(permission);
-            }
-        }
-        TestSecurityManager s = new TestSecurityManager();
-        System.setSecurityManager(s);
-        try {
-            subj.hashCode();
-            //fail("SecurityException wasn't thrown");
-        } catch (SecurityException se) {
         }
     }
 
