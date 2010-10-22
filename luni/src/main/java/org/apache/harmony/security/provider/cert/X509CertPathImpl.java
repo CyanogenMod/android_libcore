@@ -83,10 +83,8 @@ public class X509CertPathImpl extends CertPath {
     public static final int PKCS7 = 1;
 
     // supported encoding names
-    private static final String[] encodingsArr =
-                                        new String[] {"PkiPath", "PKCS7"};
-    static final List encodings = Collections.unmodifiableList(
-                                            Arrays.asList(encodingsArr));
+    private static final String[] encodingsArr = new String[] {"PkiPath", "PKCS7"};
+    static final List encodings = Collections.unmodifiableList(Arrays.asList(encodingsArr));
     // the list of certificates representing this certification path
     private final List certificates;
     // PkiPath encoding of the certification path
@@ -107,7 +105,8 @@ public class X509CertPathImpl extends CertPath {
         for (int i=0; i<size; i++) {
             Object cert = certs.get(i);
             if (!(cert instanceof X509Certificate) ) {
-                throw new CertificateException("One of the provided certificates is not an X509 certificate");
+                throw new CertificateException(
+                        "One of the provided certificates is not an X509 certificate");
             }
             certificates.add(cert);
         }
@@ -140,8 +139,7 @@ public class X509CertPathImpl extends CertPath {
      * @throws CertificateException if some problems occurred during
      * the decoding.
      */
-    public static X509CertPathImpl getInstance(InputStream in)
-                                        throws CertificateException {
+    public static X509CertPathImpl getInstance(InputStream in) throws CertificateException {
         try {
             return (X509CertPathImpl) ASN1.decode(in);
         } catch (IOException e) {
@@ -157,7 +155,7 @@ public class X509CertPathImpl extends CertPath {
      * or some problems occurred during the decoding.
      */
     public static X509CertPathImpl getInstance(InputStream in, String encoding)
-        throws CertificateException {
+            throws CertificateException {
         if (!encodings.contains(encoding)) {
             throw new CertificateException("Unsupported encoding");
         }
@@ -170,7 +168,8 @@ public class X509CertPathImpl extends CertPath {
                 ContentInfo ci = (ContentInfo) ContentInfo.ASN1.decode(in);
                 SignedData sd = ci.getSignedData();
                 if (sd == null) {
-                    throw new CertificateException("Incorrect PKCS7 encoded form: missing signed data");
+                    throw new CertificateException(
+                            "Incorrect PKCS7 encoded form: missing signed data");
                 }
                 List certs = sd.getCertificates();
                 if (certs == null) {
@@ -194,8 +193,7 @@ public class X509CertPathImpl extends CertPath {
      * @throws CertificateException if some problems occurred during
      * the decoding.
      */
-    public static X509CertPathImpl getInstance(byte[] in)
-                                        throws CertificateException {
+    public static X509CertPathImpl getInstance(byte[] in) throws CertificateException {
         try {
             return (X509CertPathImpl) ASN1.decode(in);
         } catch (IOException e) {
@@ -211,7 +209,7 @@ public class X509CertPathImpl extends CertPath {
      * or some problems occurred during the decoding.
      */
     public static X509CertPathImpl getInstance(byte[] in, String encoding)
-        throws CertificateException {
+            throws CertificateException {
         if (!encodings.contains(encoding)) {
             throw new CertificateException("Unsupported encoding");
         }
