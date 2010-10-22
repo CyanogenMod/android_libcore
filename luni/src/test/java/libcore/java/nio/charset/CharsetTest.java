@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Arrays;
 
-public class OldCharsetTest extends junit.framework.TestCase {
+public class CharsetTest extends junit.framework.TestCase {
     public void test_guaranteedCharsetsAvailable() throws Exception {
         // All Java implementations must support these charsets.
         assertNotNull(Charset.forName("ISO-8859-1"));
