@@ -66,6 +66,10 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * Calling {@link URL#openConnection()} on a URL with the "https" scheme will
  * return an {@link javax.net.ssl.HttpsURLConnection HttpsURLConnection}.
  *
+ * <p>This class attempts to create secure connections using common TLS
+ * extensions and SSL deflate compression. Should that fail, the connection
+ * will be retried with SSL3 only.
+ *
  * <h3>Response Handling</h3>
  * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
  * follow redirects from one origin server to another. This implementation
@@ -87,7 +91,7 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * memory before it is transmitted, wasting (and possibly exhausting) heap and
  * increasing latency.
  *
- * <p>For example, to perform an upload: {@code   <pre>
+ * <p>For example, to perform an upload: <pre>   {@code
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
  *   try {
  *     urlConnection.setDoOutput(true);
@@ -131,6 +135,27 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  * compression can be disabled by setting the acceptable encodings in the
  * request header: <pre>   {@code
  *   urlConnection.setRequestProperty("Accept-Encoding", "identity");
+ * }</pre>
+ *
+ * <h3>Handling Network Sign-On</h3>
+ * Some Wi-Fi networks block Internet access until the user clicks through a
+ * sign-on page. Such sign-on pages are typically presented by using HTTP
+ * redirects. You can use {@link #getURL()} to test if your connection has been
+ * unexpectedly redirected. This check is not valid until <strong>after</strong>
+ * the response headers have been received, which you can trigger by calling
+ * {@link #getHeaderFields()} or {@link #getInputStream()}. For example, to
+ * check that a response was not redirected to an unexpected host:
+ * <pre>   {@code
+ *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+ *   try {
+ *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+ *     if (!url.getHost().equals(urlConnection.getURL().getHost())) {
+ *       // we were redirected! Kick the user out to the browser to sign on?
+ *     }
+ *     ...
+ *   } finally {
+ *     urlConnection.disconnect();
+ *   }
  * }</pre>
  *
  * <h3>HTTP Authentication</h3>
