@@ -29,7 +29,6 @@ public class AllTests {
         // $JUnit-BEGIN$
 
         suite.addTestSuite(AccessControlContextTest.class);
-        suite.addTestSuite(DomainCombinerTest.class);
         suite.addTestSuite(PermissionCollectionTest.class);
 
         // $JUnit-END$
