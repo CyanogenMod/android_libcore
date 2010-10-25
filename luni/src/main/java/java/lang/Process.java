@@ -22,10 +22,38 @@ import java.io.OutputStream;
 
 /**
  * Represents an external process. Enables writing to, reading from, destroying,
- * and waiting for the external process, as well as querying its exit value.
+ * and waiting for the external process, as well as querying its exit value. Use
+ * {@link ProcessBuilder} to create processes.
  *
- * @see Runtime#exec
- * @see ProcessBuilder#start()
+ * <p>The target process writes its output to two streams, {@code out} and
+ * {@code err}. These streams should be read by this process using {@link
+ * #getInputStream()} and {@link #getErrorStream()} respectively. If these
+ * streams are not read, the target process may block while it awaits buffer
+ * space. If you are not interested in differentiating the out and err
+ * streams, use {@link ProcessBuilder#redirectErrorStream(boolean)
+ * redirectErrorStream(true)} to merge the two streams. This simplifies your
+ * reading code and makes it easier to avoid blocking the target process.
+ *
+ * <p>Running processes hold resources. When a process is no longer used, the
+ * process should be closed by calling {@link #destroy}. This will kill the
+ * process and release the resources that it holds.
+ *
+ * <p>For example, to run {@code /system/bin/ping} to ping {@code android.com}:
+ * <pre>   {@code
+ *   Process process = new ProcessBuilder()
+ *       .command("/system/bin/ping", "android.com")
+ *       .redirectErrorStream(true)
+ *       .start();
+ *   try {
+ *     InputStream in = process.getInputStream();
+ *     OutputStream out = process.getOutputStream();
+ *
+ *     readStream(in);
+ *
+ *   } finally {
+ *     process.destroy();
+ *   }
+ * }</pre>
  */
 public abstract class Process {
 

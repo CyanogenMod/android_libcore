@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * CloseGuard is a mechanism for flagging implict finalizer cleanup of
+ * CloseGuard is a mechanism for flagging implicit finalizer cleanup of
  * resources that should have been cleaned up by explicit close
  * methods (aka "explicit termination methods" in Effective Java).
  * <p>
@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  *   }
  * }</pre>
  *
- * In usage where the resource to be explictly cleaned up are
+ * In usage where the resource to be explicitly cleaned up are
  * allocated after object construction, CloseGuard can protection can
  * be deferred. For example: <pre>   {@code
  *   class Bar {
@@ -116,7 +116,7 @@ public final class CloseGuard {
      * Returns a CloseGuard instance. If CloseGuard is enabled, {@code
      * #open(String)} can be used to set up the instance to warn on
      * failure to close. If CloseGuard is disabled, a non-null no-op
-     * instanace is returned.
+     * instance is returned.
      */
     public static CloseGuard get() {
         if (!enabled()) {
@@ -134,10 +134,10 @@ public final class CloseGuard {
 
     /**
      * If CloseGuard is enabled, {@code open} initializes the instance
-     * with a warning that the caller should have explictly called the
+     * with a warning that the caller should have explicitly called the
      * {@code closer} method instead of relying on finalization.
      *
-     * @param closer non-null name of explict termination method
+     * @param closer non-null name of explicit termination method
      * @throws NullPointerException if closer is null, regardless of
      * whether or not CloseGuard is enabled
      */
@@ -179,6 +179,7 @@ public final class CloseGuard {
                 ("A resource was acquired at attached stack trace but never released. "
                  + "See java.io.Closeable for information on avoiding resource leaks.");
 
-        Logger.global.log(Level.WARNING, message, allocationSite);
+        Logger.getLogger(CloseGuard.class.getName())
+                .log(Level.WARNING, message, allocationSite);
     }
 }

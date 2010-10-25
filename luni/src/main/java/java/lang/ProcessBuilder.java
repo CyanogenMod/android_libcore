@@ -24,18 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Creates operating system processes.
- *
- * @since 1.5
+ * Creates operating system processes. See {@link Process} for documentation and
+ * example usage.
  */
 public final class ProcessBuilder {
 
     private List<String> command;
-
     private File directory;
-
     private Map<String, String> environment;
-
     private boolean redirectErrorStream;
 
     /**

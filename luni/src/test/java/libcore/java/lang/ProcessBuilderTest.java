@@ -17,11 +17,16 @@
 package libcore.java.lang;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import libcore.dalvik.system.CloseGuardTester;
 import static tests.support.Support_Exec.execAndCheckOutput;
 
 public class ProcessBuilderTest extends junit.framework.TestCase {
+
     private static String shell() {
         String deviceSh = "/system/bin/sh";
         String desktopSh = "/bin/sh";
@@ -47,6 +52,46 @@ public class ProcessBuilderTest extends junit.framework.TestCase {
         ProcessBuilder pb = new ProcessBuilder(shell(), "-c", "echo $A");
         pb.environment().put("A", "android");
         execAndCheckOutput(pb, "android\n", "");
+    }
+
+    public void testDestroyClosesEverything() throws IOException {
+        Process process = new ProcessBuilder(shell(), "-c", "echo out; echo err 1>&2").start();
+        InputStream in = process.getInputStream();
+        InputStream err = process.getErrorStream();
+        OutputStream out = process.getOutputStream();
+        process.destroy();
+
+        try {
+            in.read();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            err.read();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            /*
+             * We test write+flush because the RI returns a wrapped stream, but
+             * only bothers to close the underlying stream.
+             */
+            out.write(1);
+            out.flush();
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testDestroyDoesNotLeak() throws IOException {
+        CloseGuardTester closeGuardTester = new CloseGuardTester();
+        try {
+            Process process = new ProcessBuilder(shell(), "-c", "echo out; echo err 1>&2").start();
+            process.destroy();
+            closeGuardTester.assertEverythingWasClosed();
+        } finally {
+            closeGuardTester.close();
+        }
     }
 
     public void testEnvironmentMapForbidsNulls() throws Exception {
