@@ -19,8 +19,8 @@ package libcore.dalvik.system;
 import dalvik.system.CloseGuard;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -29,7 +29,7 @@ import junit.framework.Assert;
 
 public final class CloseGuardTester implements Closeable {
 
-    private final List<LogRecord> logRecords = new ArrayList<LogRecord>();
+    private final List<LogRecord> logRecords = new CopyOnWriteArrayList<LogRecord>();
     private final Logger logger = Logger.getLogger(CloseGuard.class.getName());
 
     private final Handler logWatcher = new Handler() {
