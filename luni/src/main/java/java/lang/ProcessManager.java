@@ -273,7 +273,7 @@ final class ProcessManager {
             try {
                 kill(this.id);
             } catch (IOException e) {
-                Logger.getLogger(Runtime.class.getName()).log(Level.FINE,
+                Logger.getLogger(Process.class.getName()).log(Level.FINE,
                         "Failed to destroy process " + id + ".", e);
             }
             IoUtils.closeQuietly(inputStream);

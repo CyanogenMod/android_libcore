@@ -25,14 +25,16 @@ import java.io.OutputStream;
  * and waiting for the external process, as well as querying its exit value. Use
  * {@link ProcessBuilder} to create processes.
  *
- * <p>The target process writes its output to two streams, {@code out} and
- * {@code err}. These streams should be read by this process using {@link
+ * <p>The child process writes its output to two streams, {@code out} and
+ * {@code err}. These streams should be read by the parent process using {@link
  * #getInputStream()} and {@link #getErrorStream()} respectively. If these
  * streams are not read, the target process may block while it awaits buffer
- * space. If you are not interested in differentiating the out and err
- * streams, use {@link ProcessBuilder#redirectErrorStream(boolean)
- * redirectErrorStream(true)} to merge the two streams. This simplifies your
- * reading code and makes it easier to avoid blocking the target process.
+ * space. It isn't sufficient to read the streams in sequence; to avoid blocking
+ * each of the two streams must have its own reader thread. If you are not
+ * interested in differentiating the out and err streams, use {@link
+ * ProcessBuilder#redirectErrorStream(boolean) redirectErrorStream(true)} to
+ * merge the two streams. This simplifies your reading code and makes it easier
+ * to avoid blocking the target process.
  *
  * <p>Running processes hold resources. When a process is no longer used, the
  * process should be closed by calling {@link #destroy}. This will kill the
