@@ -85,7 +85,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @param string
      *            the string representation of a long value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into a long value.
+     *             if {@code string} cannot be parsed as a long value.
      * @see #parseLong(String)
      */
     public Long(String string) throws NumberFormatException {
@@ -130,7 +130,7 @@ public final class Long extends Number implements Comparable<Long> {
      *            a string representation of a long value.
      * @return a {@code Long} containing the value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} can not be parsed as a long value.
+     *             if {@code string} cannot be parsed as a long value.
      */
     public static Long decode(String string) throws NumberFormatException {
         int length = string.length(), i = 0;
@@ -308,8 +308,7 @@ public final class Long extends Number implements Comparable<Long> {
      *            the string representation of a long value.
      * @return the primitive long value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a long value.
+     *             if {@code string} cannot be parsed as a long value.
      */
     public static long parseLong(String string) throws NumberFormatException {
         return parseLong(string, 10);
@@ -326,10 +325,9 @@ public final class Long extends Number implements Comparable<Long> {
      * @return the primitive long value represented by {@code string} using
      *         {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a long value.
+     *             if {@code string} cannot be parsed as a long value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      */
     public static long parseLong(String string, int radix) throws NumberFormatException {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
@@ -467,8 +465,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @return a {@code Long} instance containing the long value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a long value.
+     *             if {@code string} cannot be parsed as a long value.
      * @see #parseLong(String)
      */
     public static Long valueOf(String string) throws NumberFormatException {
@@ -486,10 +483,9 @@ public final class Long extends Number implements Comparable<Long> {
      * @return a {@code Long} instance containing the long value represented by
      *         {@code string} using {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a long value.
+     *             if {@code string} cannot be parsed as a long value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      * @see #parseLong(String, int)
      */
     public static Long valueOf(String string, int radix) throws NumberFormatException {

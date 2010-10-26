@@ -98,7 +98,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @param string
      *            the string representation of an integer value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      * @see #parseInt(String)
      */
     public Integer(String string) throws NumberFormatException {
@@ -144,7 +144,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} containing the value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      */
     public static Integer decode(String string) throws NumberFormatException {
         int length = string.length(), i = 0;
@@ -321,8 +321,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      *            the string representation of an integer value.
      * @return the primitive integer value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      */
     public static int parseInt(String string) throws NumberFormatException {
         return parseInt(string, 10);
@@ -339,10 +338,9 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the primitive integer value represented by {@code string} using
      *         {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value,
+     *             or {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      */
     public static int parseInt(String string, int radix) throws NumberFormatException {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
@@ -480,8 +478,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} instance containing the integer value
      *         represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      * @see #parseInt(String)
      */
     public static Integer valueOf(String string) throws NumberFormatException {
@@ -499,14 +496,12 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} instance containing the integer value
      *         represented by {@code string} using {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      * @see #parseInt(String, int)
      */
-    public static Integer valueOf(String string, int radix)
-            throws NumberFormatException {
+    public static Integer valueOf(String string, int radix) throws NumberFormatException {
         return valueOf(parseInt(string, radix));
     }
 

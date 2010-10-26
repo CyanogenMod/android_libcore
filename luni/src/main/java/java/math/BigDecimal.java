@@ -269,14 +269,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            first index to be copied.
      * @param len
      *            number of characters to be used.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
-     *             if {@code offset < 0} or {@code len <= 0} or {@code
-     *             offset+len-1 < 0} or {@code offset+len-1 >= in.length}.
-     * @throws NumberFormatException
-     *             if in does not contain a valid string representation of a big
-     *             decimal.
+     *             if {@code offset < 0 || len <= 0 || offset+len-1 < 0 ||
+     *             offset+len-1 >= in.length}, or if {@code in} does not
+     *             contain a valid string representation of a big decimal.
      */
     public BigDecimal(char[] in, int offset, int len) {
         int begin = offset; // first index to be copied
@@ -381,14 +377,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            number of characters to be used.
      * @param mc
      *            rounding mode and precision for the result of this operation.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
-     *             if {@code offset < 0} or {@code len <= 0} or {@code
-     *             offset+len-1 < 0} or {@code offset+len-1 >= in.length}.
-     * @throws NumberFormatException
-     *             if {@code in} does not contain a valid string representation
-     *             of a big decimal.
+     *             if {@code offset < 0 || len <= 0 || offset+len-1 < 0 ||
+     *             offset+len-1 >= in.length}, or if {@code in} does not
+     *             contain a valid string representation of a big decimal.
      * @throws ArithmeticException
      *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
      *             UNNECESSARY} and the new big decimal cannot be represented
@@ -406,8 +398,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @param in
      *            array of characters containing the string representation of
      *            this {@code BigDecimal}.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
      *             if {@code in} does not contain a valid string representation
      *             of a big decimal.
@@ -426,8 +416,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            this {@code BigDecimal}.
      * @param mc
      *            rounding mode and precision for the result of this operation.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
      *             if {@code in} does not contain a valid string representation
      *             of a big decimal.

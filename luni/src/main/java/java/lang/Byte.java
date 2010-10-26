@@ -74,7 +74,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @param string
      *            the string representation of a single byte value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into a byte value.
+     *             if {@code string} cannot be parsed as a byte value.
      * @see #parseByte(String)
      */
     public Byte(String string) throws NumberFormatException {
@@ -118,7 +118,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      *            a string representation of a single byte value.
      * @return a {@code Byte} containing the value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} can not be parsed as a byte value.
+     *             if {@code string} cannot be parsed as a byte value.
      */
     public static Byte decode(String string) throws NumberFormatException {
         int intValue = Integer.decode(string).intValue();
@@ -178,8 +178,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      *            the string representation of a single byte value.
      * @return the primitive byte value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a byte value.
+     *             if {@code string} can not be parsed as a byte value.
      */
     public static byte parseByte(String string) throws NumberFormatException {
         return parseByte(string, 10);
@@ -196,10 +195,9 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @return the primitive byte value represented by {@code string} using
      *         {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a byte value.
+     *             if {@code string} can not be parsed as a byte value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      */
     public static byte parseByte(String string, int radix) throws NumberFormatException {
         int intValue = Integer.parseInt(string, radix);
@@ -240,8 +238,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @return a {@code Byte} instance containing the byte value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a byte value.
+     *             if {@code string} can not be parsed as a byte value.
      * @see #parseByte(String)
      */
     public static Byte valueOf(String string) throws NumberFormatException {
@@ -259,10 +256,9 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @return a {@code Byte} instance containing the byte value represented by
      *         {@code string} using {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a byte value.
+     *             if {@code string} can not be parsed as a byte value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      * @see #parseByte(String, int)
      */
     public static Byte valueOf(String string, int radix) throws NumberFormatException {

@@ -136,7 +136,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @param string
      *            the string representation of a float value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into a float value.
+     *             if {@code string} can not be parsed as a float value.
      * @see #parseFloat(String)
      */
     public Float(String string) throws NumberFormatException {
@@ -314,8 +314,7 @@ public final class Float extends Number implements Comparable<Float> {
      *            the string representation of a float value.
      * @return the primitive float value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a float value.
+     *             if {@code string} can not be parsed as a float value.
      * @see #valueOf(String)
      * @since 1.2
      */
@@ -354,8 +353,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @return a {@code Float} instance containing the float value represented
      *         by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a float value.
+     *             if {@code string} can not be parsed as a float value.
      * @see #parseFloat(String)
      */
     public static Float valueOf(String string) throws NumberFormatException {
