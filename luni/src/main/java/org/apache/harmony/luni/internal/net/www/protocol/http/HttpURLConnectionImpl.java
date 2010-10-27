@@ -34,6 +34,7 @@ import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.ResponseCache;
+import java.net.SecureCacheResponse;
 import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,6 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
+import javax.net.ssl.HttpsURLConnection;
 import libcore.base.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
@@ -120,7 +122,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private ResponseCache responseCache;
 
-    private CacheResponse cacheResponse;
+    protected CacheResponse cacheResponse;
 
     private CacheRequest cacheRequest;
 
@@ -304,6 +306,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         hasTriedCache = true;
         cacheResponse = responseCache.get(uri, method, requestHeader.getFieldMap());
+        if (cacheResponse != null && getConnectionForCaching() instanceof HttpsURLConnection
+                && !(cacheResponse instanceof SecureCacheResponse)) {
+            // drop the cached response if it is insecure and we need it to be secure
+            cacheResponse = null;
+        }
         if (cacheResponse == null) {
             return socketIn != null; // TODO: if this is non-null, why are we calling getFromCache?
         }
@@ -328,7 +335,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
         // Offer this request to the cache.
-        cacheRequest = responseCache.put(uri, this);
+        cacheRequest = responseCache.put(uri, getConnectionForCaching());
     }
 
     /**
@@ -1004,6 +1011,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
+     * Returns this connection in a form suitable for use by the response cache.
+     * If this returns an HTTPS connection, only secure cache responses will be
+     * honored.
+     */
+    protected HttpURLConnection getConnectionForCaching() {
+        return this;
+    }
+
+    /**
      * Aggressively tries to get the final HTTP response, potentially making
      * many HTTP requests in the process in order to cope with redirects and
      * authentication.
@@ -1017,10 +1033,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         while (true) {
             makeConnection();
 
-            // if we can get a response from the cache, we're done
+            // if we got a response from the cache, we're done
             if (cacheResponse != null) {
                 // TODO: how does this interact with redirects? Consider processing the headers so
-                // that a redirect is never returned.
+                // that a redirect is never returned. (HTTPS also shortcuts like this.)
                 return;
             }
 

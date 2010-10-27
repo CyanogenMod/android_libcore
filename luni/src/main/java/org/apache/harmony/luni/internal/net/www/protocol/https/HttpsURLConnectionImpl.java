@@ -19,8 +19,10 @@ package org.apache.harmony.luni.internal.net.www.protocol.https;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.Proxy;
+import java.net.SecureCacheResponse;
 import java.net.URL;
 import java.security.Permission;
 import java.security.Principal;
@@ -62,30 +64,47 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public String getCipherSuite() {
+        if (httpsEngine.getCacheResponse() != null) {
+            return httpsEngine.getCacheResponse().getCipherSuite();
+        }
         checkConnected();
         return sslSocket.getSession().getCipherSuite();
     }
 
     @Override
     public Certificate[] getLocalCertificates() {
+        if (httpsEngine.getCacheResponse() != null) {
+            List<Certificate> result = httpsEngine.getCacheResponse().getLocalCertificateChain();
+            return result != null ? result.toArray(new Certificate[result.size()]) : null;
+        }
         checkConnected();
         return sslSocket.getSession().getLocalCertificates();
     }
 
     @Override
     public Certificate[] getServerCertificates() throws SSLPeerUnverifiedException {
+        if (httpsEngine.getCacheResponse() != null) {
+            List<Certificate> result = httpsEngine.getCacheResponse().getServerCertificateChain();
+            return result != null ? result.toArray(new Certificate[result.size()]) : null;
+        }
         checkConnected();
         return sslSocket.getSession().getPeerCertificates();
     }
 
     @Override
     public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+        if (httpsEngine.getCacheResponse() != null) {
+            return httpsEngine.getCacheResponse().getPeerPrincipal();
+        }
         checkConnected();
         return sslSocket.getSession().getPeerPrincipal();
     }
 
     @Override
     public Principal getLocalPrincipal() {
+        if (httpsEngine.getCacheResponse() != null) {
+            return httpsEngine.getCacheResponse().getLocalPrincipal();
+        }
         checkConnected();
         return sslSocket.getSession().getLocalPrincipal();
     }
@@ -380,6 +399,11 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         private void makeSslConnection(boolean tlsTolerant) throws IOException {
             super.makeConnection();
 
+            // if we got a response from the cache, we're done
+            if (cacheResponse != null) {
+                return;
+            }
+
             // make SSL Tunnel
             if (requiresTunnel()) {
                 String originalMethod = method;
@@ -400,6 +424,10 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             setUpTransportIO(connection);
         }
 
+        public SecureCacheResponse getCacheResponse() {
+            return (SecureCacheResponse) cacheResponse;
+        }
+
         @Override protected void setUpTransportIO(HttpConnection connection) throws IOException {
             if (!requiresTunnel() && sslSocket == null) {
                 return; // don't initialize streams that won't be used
@@ -409,6 +437,10 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
         @Override protected boolean requiresTunnel() {
             return usingProxy();
+        }
+
+        @Override protected HttpURLConnection getConnectionForCaching() {
+            return HttpsURLConnectionImpl.this;
         }
 
         @Override protected String requestString() {
