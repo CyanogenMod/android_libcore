@@ -211,8 +211,9 @@ public class InetAddress implements Serializable {
      * @param hostName the hostname corresponding to the IP address.
      * @return the corresponding InetAddresses, appropriately sorted.
      */
-    static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName) {
-        // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo
+    static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName)
+            throws UnknownHostException {
+        // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo(3)
         // and always put IPv4 addresses first. Arrays.sort() is stable, so the
         // internal ordering will not be changed.
         if (!preferIPv6Addresses()) {
@@ -222,17 +223,7 @@ public class InetAddress implements Serializable {
         // Convert the byte arrays to InetAddresses.
         InetAddress[] returnedAddresses = new InetAddress[rawAddresses.length];
         for (int i = 0; i < rawAddresses.length; i++) {
-            byte[] rawAddress = rawAddresses[i];
-            if (rawAddress.length == 16) {
-                returnedAddresses[i] = new Inet6Address(rawAddress, hostName);
-            } else if (rawAddress.length == 4) {
-                returnedAddresses[i] = new Inet4Address(rawAddress, hostName);
-            } else {
-              // Cannot happen, because the underlying code only returns
-              // addresses that are 4 or 16 bytes long.
-              throw new AssertionError("Impossible address length " +
-                                       rawAddress.length);
-            }
+            returnedAddresses[i] = makeInetAddress(rawAddresses[i], hostName);
         }
         return returnedAddresses;
     }
@@ -272,15 +263,9 @@ public class InetAddress implements Serializable {
         }
 
         try {
-            byte[] hBytes = ipStringToByteArray(host);
-            if (hBytes.length == 4) {
-                return (new InetAddress[] { new Inet4Address(hBytes) });
-            } else if (hBytes.length == 16) {
-                return (new InetAddress[] { new Inet6Address(hBytes) });
-            } else {
-                throw new UnknownHostException(wrongAddressLength());
-            }
+            return new InetAddress[] { makeInetAddress(ipStringToByteArray(host), null) };
         } catch (UnknownHostException e) {
+            // It wasn't a numeric IP address. Carry on...
         }
 
         SecurityManager security = System.getSecurityManager();
@@ -291,13 +276,19 @@ public class InetAddress implements Serializable {
         return lookupHostByName(host);
     }
 
+    private static InetAddress makeInetAddress(byte[] bytes, String hostname) throws UnknownHostException {
+        if (bytes.length == 4) {
+            return new Inet4Address(bytes, hostname);
+        } else if (bytes.length == 16) {
+            return new Inet6Address(bytes, hostname, 0);
+        } else {
+            throw badAddressLength(bytes);
+        }
+    }
+
     private static native String byteArrayToIpString(byte[] address);
 
     static native byte[] ipStringToByteArray(String address) throws UnknownHostException;
-
-    private static String wrongAddressLength() {
-        return "Invalid IP Address is neither 4 or 16 bytes";
-    }
 
     static boolean preferIPv6Addresses() {
         String propertyName = "java.net.preferIPv6Addresses";
@@ -484,14 +475,14 @@ public class InetAddress implements Serializable {
     private static InetAddress[] lookupHostByName(String host) throws UnknownHostException {
         BlockGuard.getThreadPolicy().onNetwork();
         // Do we have a result cached?
-        InetAddress[] cachedResult = addressCache.get(host);
+        Object cachedResult = addressCache.get(host);
         if (cachedResult != null) {
-            if (cachedResult.length > 0) {
+            if (cachedResult instanceof InetAddress[]) {
                 // A cached positive result.
-                return cachedResult;
+                return (InetAddress[]) cachedResult;
             } else {
                 // A cached negative result.
-                throw new UnknownHostException(host);
+                throw new UnknownHostException((String) cachedResult);
             }
         }
         try {
@@ -499,8 +490,9 @@ public class InetAddress implements Serializable {
             addressCache.put(host, addresses);
             return addresses;
         } catch (UnknownHostException e) {
-            addressCache.putUnknownHost(host);
-            throw new UnknownHostException(host);
+            String detailMessage = e.getMessage();
+            addressCache.putUnknownHost(host, detailMessage);
+            throw new UnknownHostException(detailMessage);
         }
     }
     private static native byte[][] getaddrinfo(String name) throws UnknownHostException;
@@ -524,13 +516,7 @@ public class InetAddress implements Serializable {
      */
     static InetAddress getHostByAddrImpl(byte[] addr) throws UnknownHostException {
         BlockGuard.getThreadPolicy().onNetwork();
-        if (addr.length == 4) {
-            return new Inet4Address(addr, getnameinfo(addr));
-        } else if (addr.length == 16) {
-            return new Inet6Address(addr, getnameinfo(addr));
-        } else {
-            throw new UnknownHostException(wrongAddressLength());
-        }
+        return makeInetAddress(addr, getnameinfo(addr));
     }
 
     /**
@@ -1003,27 +989,29 @@ public class InetAddress implements Serializable {
      * @return the InetAddress
      * @throws UnknownHostException
      */
-    static InetAddress getByAddressInternal(String hostName, byte[] ipAddress,
-            int scope_id) throws UnknownHostException {
+    static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scope_id)
+            throws UnknownHostException {
         if (ipAddress == null) {
             throw new UnknownHostException("ipAddress == null");
         }
-        switch (ipAddress.length) {
-            case 4:
-                return new Inet4Address(ipAddress.clone());
-            case 16:
-                // First check to see if the address is an IPv6-mapped
-                // IPv4 address. If it is, then we can make it a IPv4
-                // address, otherwise, we'll create an IPv6 address.
-                if (isIPv4MappedAddress(ipAddress)) {
-                    return new Inet4Address(ipv4MappedToIPv4(ipAddress));
-                } else {
-                    return new Inet6Address(ipAddress.clone(), scope_id);
-                }
-            default:
-                throw new UnknownHostException(
-                        "Invalid IP Address is neither 4 or 16 bytes: " + hostName);
+        if (ipAddress.length == 4) {
+            return new Inet4Address(ipAddress.clone(), null);
+        } else if (ipAddress.length == 16) {
+            // First check to see if the address is an IPv6-mapped
+            // IPv4 address. If it is, then we can make it a IPv4
+            // address, otherwise, we'll create an IPv6 address.
+            if (isIPv4MappedAddress(ipAddress)) {
+                return new Inet4Address(ipv4MappedToIPv4(ipAddress), null);
+            } else {
+                return new Inet6Address(ipAddress.clone(), null, scope_id);
+            }
+        } else {
+            throw badAddressLength(ipAddress);
         }
+    }
+
+    private static UnknownHostException badAddressLength(byte[] bytes) throws UnknownHostException {
+        throw new UnknownHostException("Address is neither 4 or 16 bytes: " + Arrays.toString(bytes));
     }
 
     /**
@@ -1032,12 +1020,10 @@ public class InetAddress implements Serializable {
      * makes no checks on the validity of the parameters.
      */
     static void intToBytes(int value, byte[] bytes, int start) {
-        // Shift the int so the current byte is right-most
-        // Use a byte mask of 255 to single out the last byte.
-        bytes[start] = (byte) ((value >> 24) & 255);
-        bytes[start + 1] = (byte) ((value >> 16) & 255);
-        bytes[start + 2] = (byte) ((value >> 8) & 255);
-        bytes[start + 3] = (byte) (value & 255);
+        bytes[start] = (byte) ((value >> 24) & 0xff);
+        bytes[start + 1] = (byte) ((value >> 16) & 0xff);
+        bytes[start + 2] = (byte) ((value >> 8) & 0xff);
+        bytes[start + 3] = (byte) (value & 0xff);
     }
 
     /**
@@ -1046,17 +1032,8 @@ public class InetAddress implements Serializable {
      * of the parameters.
      */
     static int bytesToInt(byte[] bytes, int start) {
-        // First mask the byte with 255, as when a negative
-        // signed byte converts to an integer, it has bits
-        // on in the first 3 bytes, we are only concerned
-        // about the right-most 8 bits.
-        // Then shift the rightmost byte to align with its
-        // position in the integer.
-        int value = ((bytes[start + 3] & 255))
-                | ((bytes[start + 2] & 255) << 8)
-                | ((bytes[start + 1] & 255) << 16)
-                | ((bytes[start] & 255) << 24);
-        return value;
+        return (bytes[start + 3] & 0xff) | ((bytes[start + 2] & 0xff) << 8) |
+                ((bytes[start + 1] & 0xff) << 16) | ((bytes[start] & 0xff) << 24);
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {

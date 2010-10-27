@@ -28,14 +28,8 @@ public final class Inet4Address extends InetAddress {
 
     private static final int AF_INET = 2;
 
-    final static InetAddress ANY = new Inet4Address(new byte[] { 0, 0, 0, 0 });
-    final static InetAddress LOOPBACK = new Inet4Address(
-            new byte[] { 127, 0, 0, 1 }, "localhost");
-
-    Inet4Address(byte[] address) {
-        family = AF_INET;
-        ipaddress = address;
-    }
+    final static InetAddress ANY = new Inet4Address(new byte[] { 0, 0, 0, 0 }, null);
+    final static InetAddress LOOPBACK = new Inet4Address(new byte[] { 127, 0, 0, 1 }, "localhost");
 
     Inet4Address(byte[] address, String name) {
         family = AF_INET;
