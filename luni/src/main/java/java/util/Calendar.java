@@ -738,7 +738,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      *                if {@code field} is {@code DST_OFFSET} or {@code
      *                ZONE_OFFSET}.
      */
-    abstract public void add(int field, int value);
+    public abstract void add(int field, int value);
 
     /**
      * Returns whether the {@code Date} specified by this {@code Calendar} instance is after the {@code Date}
@@ -979,7 +979,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      *            the field.
      * @return the greatest minimum value of the specified field.
      */
-    abstract public int getGreatestMinimum(int field);
+    public abstract int getGreatestMinimum(int field);
 
     /**
      * Constructs a new instance of the {@code Calendar} subclass appropriate for the
@@ -1042,7 +1042,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      *            the field number.
      * @return the smallest maximum value of the specified field.
      */
-    abstract public int getLeastMaximum(int field);
+    public abstract int getLeastMaximum(int field);
 
     /**
      * Gets the greatest maximum value of the specified field. This returns the
@@ -1052,7 +1052,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      *            the field.
      * @return the greatest maximum value of the specified field.
      */
-    abstract public int getMaximum(int field);
+    public abstract int getMaximum(int field);
 
     /**
      * Gets the minimal days in the first week of the year.
@@ -1071,7 +1071,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      *            the field number.
      * @return the smallest minimum value of the specified field.
      */
-    abstract public int getMinimum(int field);
+    public abstract int getMinimum(int field);
 
     /**
      * Gets the time of this {@code Calendar} as a {@code Date} object.
@@ -1197,7 +1197,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @param increment
      *            {@code true} to increment the field, {@code false} to decrement.
      */
-    abstract public void roll(int field, boolean increment);
+    public abstract void roll(int field, boolean increment);
 
     /**
      * Sets a field to the specified value.

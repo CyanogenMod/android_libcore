@@ -62,7 +62,7 @@ public abstract class Process {
     /**
      * Terminates this process and closes any associated streams.
      */
-    abstract public void destroy();
+    public abstract void destroy();
 
     /**
      * Returns the exit value of the native process represented by this object.
@@ -72,7 +72,7 @@ public abstract class Process {
      * @throws IllegalThreadStateException
      *             if this process has not terminated.
      */
-    abstract public int exitValue();
+    public abstract int exitValue();
 
     /**
      * Returns an input stream that is connected to the error stream
@@ -81,7 +81,7 @@ public abstract class Process {
      * @return the input stream to read from the error stream associated with
      *         the native process.
      */
-    abstract public InputStream getErrorStream();
+    public abstract InputStream getErrorStream();
 
     /**
      * Returns an input stream that is connected to the standard output stream
@@ -90,7 +90,7 @@ public abstract class Process {
      * @return the input stream to read from the output stream associated with
      *         the native process.
      */
-    abstract public InputStream getInputStream();
+    public abstract InputStream getInputStream();
 
     /**
      * Returns an output stream that is connected to the standard input stream
@@ -99,7 +99,7 @@ public abstract class Process {
      * @return the output stream to write to the input stream associated with
      *         the native process.
      */
-    abstract public OutputStream getOutputStream();
+    public abstract OutputStream getOutputStream();
 
     /**
      * Causes the calling thread to wait for the native process associated with
@@ -109,5 +109,5 @@ public abstract class Process {
      * @throws InterruptedException
      *             if the calling thread is interrupted.
      */
-    abstract public int waitFor() throws InterruptedException;
+    public abstract int waitFor() throws InterruptedException;
 }
