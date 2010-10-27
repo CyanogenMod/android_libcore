@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
@@ -32,10 +33,11 @@ public final class Inet6Address extends InetAddress {
 
     private static final int AF_INET6 = 10;
 
-    static final InetAddress ANY = new Inet6Address(new byte[]
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-    static final InetAddress LOOPBACK = new Inet6Address(new byte[]
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, "localhost");
+    static final InetAddress ANY =
+            new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, null, 0);
+    static final InetAddress LOOPBACK =
+            new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+                    "localhost", 0);
 
     int scope_id;
 
@@ -50,19 +52,6 @@ public final class Inet6Address extends InetAddress {
      */
     transient NetworkInterface scopedIf;
 
-    Inet6Address(byte[] address) {
-        family = AF_INET6;
-        ipaddress = address;
-        scope_id = 0;
-    }
-
-    Inet6Address(byte[] address, String name) {
-        family = AF_INET6;
-        hostName = name;
-        ipaddress = address;
-        scope_id = 0;
-    }
-
     /**
      * Constructs an {@code InetAddress} representing the {@code address} and
      * {@code name} and {@code scope_id}.
@@ -75,13 +64,11 @@ public final class Inet6Address extends InetAddress {
      *            the scope id for link- or site-local addresses.
      */
     Inet6Address(byte[] address, String name, int scope_id) {
-        family = AF_INET6;
-        hostName = name;
-        ipaddress = address;
+        this.family = AF_INET6;
+        this.hostName = name;
+        this.ipaddress = address;
         this.scope_id = scope_id;
-        if (scope_id != 0) {
-            scope_id_set = true;
-        }
+        this.scope_id_set = (scope_id != 0);
     }
 
     /**
@@ -98,14 +85,15 @@ public final class Inet6Address extends InetAddress {
      * @throws UnknownHostException
      *             if the address is null or has an invalid length.
      */
-    public static Inet6Address getByAddress(String host, byte[] addr,
-            int scope_id) throws UnknownHostException {
+    public static Inet6Address getByAddress(String host, byte[] addr, int scope_id)
+            throws UnknownHostException {
         if (addr == null || addr.length != 16) {
-            throw new UnknownHostException("Illegal IPv6 address");
+            throw new UnknownHostException("Not an IPv6 address: " + Arrays.toString(addr));
         }
         if (scope_id < 0) {
             scope_id = 0;
         }
+        // TODO: should we clone 'addr'?
         return new Inet6Address(addr, host, scope_id);
     }
 
@@ -158,7 +146,7 @@ public final class Inet6Address extends InetAddress {
         // if no address matches the type of addr, throws an
         // UnknownHostException.
         if (!address.scope_id_set) {
-            throw new UnknownHostException("Scope id not found for the given address");
+            throw new UnknownHostException("Scope id not found for address: " + Arrays.toString(addr));
         }
         return address;
     }
@@ -183,23 +171,6 @@ public final class Inet6Address extends InetAddress {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Constructs an {@code InetAddress} representing the {@code address} and
-     * {@code scope_id}.
-     *
-     * @param address
-     *            the network address.
-     * @param scope_id
-     *            the scope id for link- or site-local addresses.
-     */
-    Inet6Address(byte[] address, int scope_id) {
-        ipaddress = address;
-        this.scope_id = scope_id;
-        if (scope_id != 0) {
-            scope_id_set = true;
-        }
     }
 
     /**
