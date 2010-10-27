@@ -80,7 +80,7 @@ public abstract class ResponseCache {
      *
      * @param uri
      *            the reference to the requested resource.
-     * @param conn
+     * @param connection
      *            the connection to fetch the response.
      * @return a CacheRequest object with a WriteableByteChannel if the resource
      *         has to be cached, {@code null} otherwise.
@@ -89,5 +89,5 @@ public abstract class ResponseCache {
      * @throws IllegalArgumentException
      *             if any one of the parameters is set to {@code null}.
      */
-    public abstract CacheRequest put(URI uri, URLConnection conn) throws IOException;
+    public abstract CacheRequest put(URI uri, URLConnection connection) throws IOException;
 }
