@@ -108,12 +108,15 @@ public class Zygote {
      * dimension having a length of 3 and representing
      * (resource, rlim_cur, rlim_max). These are set via the posix
      * setrlimit(2) call.
+     * @param permittedCapabilities argument for setcap()
+     * @param effectiveCapabilities argument for setcap()
      *
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
     native public static int forkSystemServer(int uid, int gid,
-            int[] gids, int debugFlags, int[][] rlimits);
+            int[] gids, int debugFlags, int[][] rlimits,
+            long permittedCapabilities, long effectiveCapabilities);
 
     /**
      * Special method to start the system server process.
