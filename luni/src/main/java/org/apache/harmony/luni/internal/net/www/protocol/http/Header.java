@@ -19,89 +19,69 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
 /**
- * The general structure for request / response header. It is essentially
- * constructed by hashtable with key indexed in a vector for position lookup.
+ * The HTTP status and header lines of a single HTTP message. This class tracks
+ * the order of the header lines within the HTTP message. This treats the status
+ * line as a header value for the null field.
  */
-public class Header implements Cloneable {
-    private ArrayList<String> props;
+public final class Header implements Cloneable {
 
-    private SortedMap<String, LinkedList<String>> keyTable;
+    // TODO: drop the map?
 
-    private String statusLine;
-
-    /**
-     * A generic header structure. Used mostly for request / response header.
-     * The key/value pair of the header may be inserted for later use. The key
-     * is stored in an array for indexed slot access.
-     */
-    public Header() {
-        super();
-        this.props = new ArrayList<String>(20);
-        this.keyTable = new TreeMap<String, LinkedList<String>>(
-                String.CASE_INSENSITIVE_ORDER);
-    }
-
-    /**
-     * The alternative constructor which sets the input map as its initial
-     * keyTable.
-     *
-     * @param map
-     *            the initial keyTable as a map
-     */
-    public Header(Map<String, List<String>> map) {
-        this(); // initialize fields
-        for (Entry<String, List<String>> next : map.entrySet()) {
-            String key = next.getKey();
-            List<String> value = next.getValue();
-            LinkedList<String> linkedList = new LinkedList<String>();
-            for (String element : value) {
-                linkedList.add(element);
-                props.add(key);
-                props.add(element);
+    private static final Comparator<String> HEADER_COMPARATOR = new Comparator<String>() {
+        @Override public int compare(String a, String b) {
+            if (a == b) {
+                return 0;
+            } else if (a == null) {
+                return -1;
+            } else if (b == null) {
+                return 1;
+            } else {
+                return String.CASE_INSENSITIVE_ORDER.compare(a, b);
             }
-            keyTable.put(key, linkedList);
+        }
+    };
+
+    private ArrayList<String> alternatingKeysAndValues = new ArrayList<String>(20);
+    private TreeMap<String, LinkedList<String>> keysToValuesMap
+            = new TreeMap<String, LinkedList<String>>(HEADER_COMPARATOR);
+
+    public Header() {}
+
+    public Header(Map<String, List<String>> copyFrom) {
+        for (Entry<String, List<String>> entry : copyFrom.entrySet()) {
+            addAll(entry.getKey(), entry.getValue());
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object clone() {
+    public Header clone() {
         try {
             Header clone = (Header) super.clone();
-            clone.props = (ArrayList<String>) props.clone();
-            clone.keyTable = new TreeMap<String, LinkedList<String>>(
-                    String.CASE_INSENSITIVE_ORDER);
-            for (Map.Entry<String, LinkedList<String>> next : this.keyTable
-                    .entrySet()) {
-                LinkedList<String> v = (LinkedList<String>) next.getValue()
-                        .clone();
-                clone.keyTable.put(next.getKey(), v);
+            clone.alternatingKeysAndValues = (ArrayList<String>) alternatingKeysAndValues.clone();
+            clone.keysToValuesMap = (TreeMap<String, LinkedList<String>>) keysToValuesMap.clone();
+            for (Map.Entry<String, LinkedList<String>> entry : clone.keysToValuesMap.entrySet()) {
+                entry.setValue((LinkedList<String>) entry.getValue().clone());
             }
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 
     /**
      * Add a field with the specified value.
-     *
-     * @param key
-     * @param value
      */
     public void add(String key, String value) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
         if (value == null) {
             /*
              * Given null values, the RI sends a malformed header line like
@@ -112,23 +92,28 @@ public class Header implements Cloneable {
                     "Ignoring HTTP header field " + key + " because its value is null.");
             return;
         }
-        LinkedList<String> list = keyTable.get(key);
+        LinkedList<String> list = keysToValuesMap.get(key);
         if (list == null) {
             list = new LinkedList<String>();
-            keyTable.put(key, list);
+            keysToValuesMap.put(key, list);
         }
         list.add(value);
-        props.add(key);
-        props.add(value);
+        if (key == null) {
+            alternatingKeysAndValues.add(0, key);
+            alternatingKeysAndValues.add(1, value);
+        } else {
+            alternatingKeysAndValues.add(key);
+            alternatingKeysAndValues.add(value);
+        }
     }
 
     public void removeAll(String key) {
-        keyTable.remove(key);
+        keysToValuesMap.remove(key);
 
-        for (int i = 0; i < props.size(); i += 2) {
-            if (key.equals(props.get(i))) {
-                props.remove(i); // key
-                props.remove(i); // value
+        for (int i = 0; i < alternatingKeysAndValues.size(); i += 2) {
+            if (key.equals(alternatingKeysAndValues.get(i))) {
+                alternatingKeysAndValues.remove(i); // key
+                alternatingKeysAndValues.remove(i); // value
             }
         }
     }
@@ -148,9 +133,6 @@ public class Header implements Cloneable {
     /**
      * Set a field with the specified value. If the field is not found, it is
      * added. If the field is found, the existing value(s) are overwritten.
-     *
-     * @param key
-     * @param value
      */
     public void set(String key, String value) {
         removeAll(key);
@@ -163,54 +145,43 @@ public class Header implements Cloneable {
      * Lists of Strings.
      *
      * @return an unmodifiable map of the headers
-     *
-     * @since 1.4
      */
     public Map<String, List<String>> getFieldMap() {
-        Map<String, List<String>> result = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER); // android-changed
-        for (Map.Entry<String, LinkedList<String>> next : keyTable.entrySet()) {
-            List<String> v = next.getValue();
-            result.put(next.getKey(), Collections.unmodifiableList(v));
+        @SuppressWarnings("unchecked") // cloning a collection retains type parameters
+        Map<String, List<String>> result = (TreeMap<String, List<String>>) keysToValuesMap.clone();
+        for (Map.Entry<String, List<String>> entry : result.entrySet()) {
+            entry.setValue(Collections.unmodifiableList(entry.getValue()));
         }
         return Collections.unmodifiableMap(result);
     }
 
     /**
-     * Returns the element at <code>pos</code>, null if no such element
-     * exist.
-     *
-     * @return java.lang.String the value of the key
-     * @param pos
-     *            int the position to look for
+     * Returns the value at {@code position} or null if that is out of range.
      */
-    public String get(int pos) {
-        if (pos >= 0 && pos < props.size() / 2) {
-            return props.get(pos * 2 + 1);
+    public String get(int valueIndex) {
+        int index = valueIndex * 2 + 1;
+        if (index < 0 || index >= alternatingKeysAndValues.size()) {
+            return null;
         }
-        return null;
+        return alternatingKeysAndValues.get(index);
     }
 
     /**
-     * Returns the key of this header at <code>pos</code>, null if there are
-     * fewer keys in the header
-     *
-     *
-     * @return the key the desired position
-     * @param pos
-     *            the position to look for
+     * Returns the key at {@code position} or null if that is out of range.
      */
-    public String getKey(int pos) {
-        if (pos >= 0 && pos < props.size() / 2) {
-            return props.get(pos * 2);
+    public String getKey(int keyIndex) {
+        int index = keyIndex * 2;
+        if (index < 0 || index >= alternatingKeysAndValues.size()) {
+            return null;
         }
-        return null;
+        return alternatingKeysAndValues.get(index);
     }
 
     /**
      * Returns the value corresponding to the specified key, or null.
      */
     public String get(String key) {
-        LinkedList<String> result = keyTable.get(key);
+        LinkedList<String> result = keysToValuesMap.get(key);
         if (result == null) {
             return null;
         }
@@ -219,39 +190,16 @@ public class Header implements Cloneable {
 
     /**
      * Returns the number of keys stored in this header
-     *
-     * @return the number of keys.
      */
     public int length() {
-        return props.size() / 2;
+        return alternatingKeysAndValues.size() / 2;
     }
 
-    /**
-     * Sets the status line in the header request example: GET / HTTP/1.1
-     * response example: HTTP/1.1 200 OK
-     *
-     * @param statusLine
-     */
     public void setStatusLine(String statusLine) {
-        this.statusLine = statusLine;
-        /*
-         * we add the status line to the list of headers so that it is
-         * accessible from java.net.HttpURLConnection.getResponseCode() which
-         * calls
-         * org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnection.getHeaderField(0)
-         * to get it
-         */
-        props.add(0, null);
-        props.add(1, statusLine);
+        add(null, statusLine);
     }
 
-    /**
-     * Gets the status line in the header request example: GET / HTTP/1.1
-     * response example: HTTP/1.1 200 OK
-     *
-     * @return the status line
-     */
     public String getStatusLine() {
-        return statusLine;
+        return get(null);
     }
 }

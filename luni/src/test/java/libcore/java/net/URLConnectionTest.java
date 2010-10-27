@@ -159,6 +159,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(200, urlConnection.getResponseCode());
         assertEquals("Fantastic", urlConnection.getResponseMessage());
         Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
+        assertEquals(Arrays.asList("HTTP/1.0 200 Fantastic"), responseHeaders.get(null));
         assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));
         try {
             responseHeaders.put("N", Arrays.asList("o"));
@@ -631,7 +632,8 @@ public class URLConnectionTest extends junit.framework.TestCase {
      * http://code.google.com/p/android/issues/detail?id=8175
      */
     private void testResponseCaching(TransferKind transferKind) throws IOException {
-        MockResponse response = new MockResponse();
+        MockResponse response = new MockResponse()
+                .setStatus("HTTP/1.1 200 Fantastic");
         transferKind.setBody(response, "I love puppies but hate spiders", 1);
         server.enqueue(response);
         server.play();
@@ -640,7 +642,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         ResponseCache.setDefault(cache);
 
         // Make sure that calling skip() doesn't omit bytes from the cache.
-        URLConnection urlConnection = server.getUrl("/").openConnection();
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         InputStream in = urlConnection.getInputStream();
         assertEquals("I love ", readAscii(in, "I love ".length()));
         reliableSkip(in, "puppies but hate ".length());
@@ -650,10 +652,13 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, cache.getSuccessCount());
         assertEquals(0, cache.getAbortCount());
 
-        urlConnection = server.getUrl("/").openConnection(); // this response is cached!
+        urlConnection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
         in = urlConnection.getInputStream();
         assertEquals("I love puppies but hate spiders",
                 readAscii(in, "I love puppies but hate spiders".length()));
+        assertEquals(200, urlConnection.getResponseCode());
+        assertEquals("Fantastic", urlConnection.getResponseMessage());
+
         assertEquals(-1, in.read());
         assertEquals(1, cache.getMissCount());
         assertEquals(1, cache.getHitCount());
@@ -712,6 +717,52 @@ public class URLConnectionTest extends junit.framework.TestCase {
         connection = (HttpsURLConnection) server.getUrl("/").openConnection(); // not cached!
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertEquals("DEF", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+    }
+
+    public void testResponseCachingAndRedirects() throws IOException {
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_PERM)
+                .addHeader("Location: /foo"));
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        DefaultResponseCache cache = new DefaultResponseCache();
+        ResponseCache.setDefault(cache);
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        connection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
+        assertEquals(2, cache.getHitCount());
+    }
+
+    public void testSecureResponseCachingAndRedirects() throws IOException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_PERM)
+                .addHeader("Location: /foo"));
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        DefaultResponseCache cache = new DefaultResponseCache();
+        ResponseCache.setDefault(cache);
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection(); // cached!
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
+        assertEquals(2, cache.getHitCount());
     }
 
     public void testResponseCacheRequestHeaders() throws IOException, URISyntaxException {
