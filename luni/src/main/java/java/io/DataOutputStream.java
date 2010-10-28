@@ -17,7 +17,10 @@
 
 package java.io;
 
+import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import libcore.io.SizeOf;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Wraps an existing {@link OutputStream} and writes big-endian typed data to it.
@@ -28,7 +31,7 @@ import java.nio.charset.ModifiedUtf8;
  * @see DataInputStream
  */
 public class DataOutputStream extends FilterOutputStream implements DataOutput {
-    private final byte[] buff = new byte[8];
+    private final byte[] scratch = new byte[8];
 
     /**
      * The number of bytes written out so far.
@@ -157,10 +160,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
     }
 
     public final void writeChar(int val) throws IOException {
-        buff[0] = (byte) (val >> 8);
-        buff[1] = (byte) val;
-        out.write(buff, 0, 2);
-        written += 2;
+        writeShort(val);
     }
 
     public final void writeChars(String str) throws IOException {
@@ -178,32 +178,21 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
     }
 
     public final void writeInt(int val) throws IOException {
-        buff[0] = (byte) (val >> 24);
-        buff[1] = (byte) (val >> 16);
-        buff[2] = (byte) (val >> 8);
-        buff[3] = (byte) val;
-        out.write(buff, 0, 4);
-        written += 4;
+        OSMemory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        out.write(scratch, 0, SizeOf.INT);
+        written += SizeOf.INT;
     }
 
     public final void writeLong(long val) throws IOException {
-        buff[0] = (byte) (val >> 56);
-        buff[1] = (byte) (val >> 48);
-        buff[2] = (byte) (val >> 40);
-        buff[3] = (byte) (val >> 32);
-        buff[4] = (byte) (val >> 24);
-        buff[5] = (byte) (val >> 16);
-        buff[6] = (byte) (val >> 8);
-        buff[7] = (byte) val;
-        out.write(buff, 0, 8);
-        written += 8;
+        OSMemory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        out.write(scratch, 0, SizeOf.LONG);
+        written += SizeOf.LONG;
     }
 
     public final void writeShort(int val) throws IOException {
-        buff[0] = (byte) (val >> 8);
-        buff[1] = (byte) val;
-        out.write(buff, 0, 2);
-        written += 2;
+        OSMemory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
+        out.write(scratch, 0, SizeOf.SHORT);
+        written += SizeOf.SHORT;
     }
 
     public final void writeUTF(String str) throws IOException {

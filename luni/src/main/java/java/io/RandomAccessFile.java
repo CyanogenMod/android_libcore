@@ -18,11 +18,14 @@
 package java.io;
 
 import dalvik.system.CloseGuard;
+import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import libcore.io.IoUtils;
+import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.IFileSystem;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -48,6 +51,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     private int mode;
 
     private final CloseGuard guard = CloseGuard.get();
+
+    private final byte[] scratch = new byte[8];
 
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
@@ -161,8 +166,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
-    public RandomAccessFile(String fileName, String mode)
-            throws FileNotFoundException {
+    public RandomAccessFile(String fileName, String mode) throws FileNotFoundException {
         this(new File(fileName), mode);
     }
 
@@ -278,9 +282,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public int read() throws IOException {
         openCheck();
-        byte[] bytes = new byte[1];
-        long byteCount = Platform.FILE_SYSTEM.read(fd.descriptor, bytes, 0, 1);
-        return byteCount == -1 ? -1 : bytes[0] & 0xff;
+        long byteCount = Platform.FILE_SYSTEM.read(fd.descriptor, scratch, 0, 1);
+        return byteCount == -1 ? -1 : scratch[0] & 0xff;
     }
 
     /**
@@ -395,11 +398,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeChar(int)
      */
     public final char readChar() throws IOException {
-        byte[] buffer = new byte[2];
-        if (read(buffer, 0, buffer.length) != buffer.length) {
-            throw new EOFException();
-        }
-        return (char) (((buffer[0] & 0xff) << 8) + (buffer[1] & 0xff));
+        return (char) readShort();
     }
 
     /**
@@ -511,12 +510,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeInt(int)
      */
     public final int readInt() throws IOException {
-        byte[] buffer = new byte[4];
-        if (read(buffer, 0, buffer.length) != buffer.length) {
+        if (read(scratch, 0, SizeOf.INT) != SizeOf.INT) {
             throw new EOFException();
         }
-        return ((buffer[0] & 0xff) << 24) + ((buffer[1] & 0xff) << 16)
-                + ((buffer[2] & 0xff) << 8) + (buffer[3] & 0xff);
+        return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -576,16 +573,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeLong(long)
      */
     public final long readLong() throws IOException {
-        byte[] buffer = new byte[8];
-        if (read(buffer, 0, buffer.length) != buffer.length) {
+        if (read(scratch, 0, SizeOf.LONG) != SizeOf.LONG) {
             throw new EOFException();
         }
-        return ((long) (((buffer[0] & 0xff) << 24) + ((buffer[1] & 0xff) << 16)
-                + ((buffer[2] & 0xff) << 8) + (buffer[3] & 0xff)) << 32)
-                + ((long) (buffer[4] & 0xff) << 24)
-                + ((buffer[5] & 0xff) << 16)
-                + ((buffer[6] & 0xff) << 8)
-                + (buffer[7] & 0xff);
+        return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -601,11 +592,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeShort(int)
      */
     public final short readShort() throws IOException {
-        byte[] buffer = new byte[2];
-        if (read(buffer, 0, buffer.length) != buffer.length) {
+        if (read(scratch, 0, SizeOf.SHORT) != SizeOf.SHORT) {
             throw new EOFException();
         }
-        return (short) (((buffer[0] & 0xff) << 8) + (buffer[1] & 0xff));
+        return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -641,11 +631,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeShort(int)
      */
     public final int readUnsignedShort() throws IOException {
-        byte[] buffer = new byte[2];
-        if (read(buffer, 0, buffer.length) != buffer.length) {
-            throw new EOFException();
-        }
-        return ((buffer[0] & 0xff) << 8) + (buffer[1] & 0xff);
+        return ((int) readShort()) & 0xffff;
     }
 
     /**
@@ -746,8 +732,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public int skipBytes(int count) throws IOException {
         if (count > 0) {
             long currentPos = getFilePointer(), eof = length();
-            int newCount = (int) ((currentPos + count > eof) ? eof - currentPos
-                    : count);
+            int newCount = (int) ((currentPos + count > eof) ? eof - currentPos : count);
             seek(currentPos + newCount);
             return newCount;
         }
@@ -828,9 +813,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public void write(int oneByte) throws IOException {
         openCheck();
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) (oneByte & 0xff);
-        Platform.FILE_SYSTEM.write(fd.descriptor, bytes, 0, 1);
+        scratch[0] = (byte) (oneByte & 0xff);
+        Platform.FILE_SYSTEM.write(fd.descriptor, scratch, 0, 1);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -900,10 +884,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readChar()
      */
     public final void writeChar(int val) throws IOException {
-        byte[] buffer = new byte[2];
-        buffer[0] = (byte) (val >> 8);
-        buffer[1] = (byte) val;
-        write(buffer, 0, buffer.length);
+        writeShort(val);
     }
 
     /**
@@ -961,12 +942,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readInt()
      */
     public final void writeInt(int val) throws IOException {
-        byte[] buffer = new byte[4];
-        buffer[0] = (byte) (val >> 24);
-        buffer[1] = (byte) (val >> 16);
-        buffer[2] = (byte) (val >> 8);
-        buffer[3] = (byte) val;
-        write(buffer, 0, buffer.length);
+        OSMemory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        write(scratch, 0, SizeOf.INT);
     }
 
     /**
@@ -980,17 +957,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readLong()
      */
     public final void writeLong(long val) throws IOException {
-        byte[] buffer = new byte[8];
-        int t = (int) (val >> 32);
-        buffer[0] = (byte) (t >> 24);
-        buffer[1] = (byte) (t >> 16);
-        buffer[2] = (byte) (t >> 8);
-        buffer[3] = (byte) t;
-        buffer[4] = (byte) (val >> 24);
-        buffer[5] = (byte) (val >> 16);
-        buffer[6] = (byte) (val >> 8);
-        buffer[7] = (byte) val;
-        write(buffer, 0, buffer.length);
+        OSMemory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        write(scratch, 0, SizeOf.LONG);
     }
 
     /**
@@ -1006,7 +974,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see DataInput#readUnsignedShort()
      */
     public final void writeShort(int val) throws IOException {
-        writeChar(val);
+        OSMemory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
+        write(scratch, 0, SizeOf.SHORT);
     }
 
     /**
