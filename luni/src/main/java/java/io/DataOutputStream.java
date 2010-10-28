@@ -89,8 +89,6 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      *             if an error occurs while writing to the target stream.
      * @throws NullPointerException
      *             if {@code buffer} is {@code null}.
-     * @see DataInputStream#readFully(byte[])
-     * @see DataInputStream#readFully(byte[], int, int)
      */
     @Override
     public void write(byte[] buffer, int offset, int count) throws IOException {

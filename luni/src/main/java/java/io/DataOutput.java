@@ -37,8 +37,6 @@ public interface DataOutput {
      *            the buffer to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[], int, int)
      */
     public abstract void write(byte[] buffer) throws IOException;
 
@@ -54,8 +52,6 @@ public interface DataOutput {
      *            the number of bytes from the {@code buffer} to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[], int, int)
      */
     public abstract void write(byte[] buffer, int offset, int count) throws IOException;
 
@@ -100,8 +96,6 @@ public interface DataOutput {
      *            the string containing the bytes to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[],int,int)
      */
     public abstract void writeBytes(String str) throws IOException;
 

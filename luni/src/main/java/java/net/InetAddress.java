@@ -25,12 +25,14 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -334,7 +336,7 @@ public class InetAddress implements Serializable {
             if (hostName == null) {
                 int address = 0;
                 if (ipaddress.length == 4) {
-                    address = bytesToInt(ipaddress, 0);
+                    address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                     if (address == 0) {
                         return hostName = byteArrayToIpString(ipaddress);
                     }
@@ -373,7 +375,7 @@ public class InetAddress implements Serializable {
         try {
             int address = 0;
             if (ipaddress.length == 4) {
-                address = bytesToInt(ipaddress, 0);
+                address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                 if (address == 0) {
                     return byteArrayToIpString(ipaddress);
                 }
@@ -1014,28 +1016,6 @@ public class InetAddress implements Serializable {
         throw new UnknownHostException("Address is neither 4 or 16 bytes: " + Arrays.toString(bytes));
     }
 
-    /**
-     * Takes the integer and chops it into 4 bytes, putting it into the byte
-     * array starting with the high order byte at the index start. This method
-     * makes no checks on the validity of the parameters.
-     */
-    static void intToBytes(int value, byte[] bytes, int start) {
-        bytes[start] = (byte) ((value >> 24) & 0xff);
-        bytes[start + 1] = (byte) ((value >> 16) & 0xff);
-        bytes[start + 2] = (byte) ((value >> 8) & 0xff);
-        bytes[start + 3] = (byte) (value & 0xff);
-    }
-
-    /**
-     * Takes the byte array and creates an integer out of four bytes starting at
-     * start as the high-order byte. This method makes no checks on the validity
-     * of the parameters.
-     */
-    static int bytesToInt(byte[] bytes, int start) {
-        return (bytes[start + 3] & 0xff) | ((bytes[start + 2] & 0xff) << 8) |
-                ((bytes[start + 1] & 0xff) << 16) | ((bytes[start] & 0xff) << 24);
-    }
-
     private static final ObjectStreamField[] serialPersistentFields = {
             new ObjectStreamField("address", Integer.TYPE),
             new ObjectStreamField("family", Integer.TYPE),
@@ -1046,7 +1026,7 @@ public class InetAddress implements Serializable {
         if (ipaddress == null) {
             fields.put("address", 0);
         } else {
-            fields.put("address", bytesToInt(ipaddress, 0));
+            fields.put("address", OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN));
         }
         fields.put("family", family);
         fields.put("hostName", hostName);
@@ -1054,12 +1034,11 @@ public class InetAddress implements Serializable {
         stream.writeFields();
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
         int addr = fields.get("address", 0);
         ipaddress = new byte[4];
-        intToBytes(addr, ipaddress, 0);
+        OSMemory.pokeInt(ipaddress, 0, addr, ByteOrder.BIG_ENDIAN);
         hostName = (String) fields.get("hostName", null);
         family = fields.get("family", 2);
     }

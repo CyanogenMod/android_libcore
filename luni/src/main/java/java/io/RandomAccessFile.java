@@ -22,6 +22,7 @@ import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
+import libcore.base.Streams;
 import libcore.io.IoUtils;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.IFileSystem;
@@ -338,7 +339,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IndexOutOfBoundsException();
         }
         // END android-changed
-        if (0 == count) {
+        if (count == 0) {
             return 0;
         }
         openCheck();
@@ -434,48 +435,41 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads bytes from this file into {@code buffer}. Blocks until {@code
-     * buffer.length} number of bytes have been read, the end of the file is
-     * reached or an exception is thrown.
-     *
-     * @param buffer
-     *            the buffer to read bytes into.
-     * @throws EOFException
-     *             if the end of this file is detected.
-     * @throws IOException
-     *             if this file is closed or another I/O error occurs.
-     * @throws NullPointerException
-     *             if {@code buffer} is {@code null}.
+     * Equivalent to {@code readFully(dst, 0, dst.length);}.
      */
-    public final void readFully(byte[] buffer) throws IOException {
-        readFully(buffer, 0, buffer.length);
+    public final void readFully(byte[] dst) throws IOException {
+        readFully(dst, 0, dst.length);
     }
 
     /**
-     * Read bytes from this file into {@code buffer} starting at offset {@code
-     * offset}. This method blocks until {@code count} number of bytes have been
-     * read.
+     * Reads {@code byteCount} bytes from this stream and stores them in the byte
+     * array {@code dst} starting at {@code offset}. If {@code byteCount} is zero, then this
+     * method returns without reading any bytes. Otherwise, this method blocks until
+     * {@code byteCount} bytes have been read. If insufficient bytes are available,
+     * {@code EOFException} is thrown. If an I/O error occurs, {@code IOException} is
+     * thrown. When an exception is thrown, some bytes may have been consumed from the stream
+     * and written into the array.
      *
-     * @param buffer
-     *            the buffer to read bytes into.
+     * @param dst
+     *            the byte array into which the data is read.
      * @param offset
-     *            the initial position in {@code buffer} to store the bytes read
-     *            from this file.
-     * @param count
-     *            the maximum number of bytes to store in {@code buffer}.
+     *            the offset in {@code dst} at which to store the bytes.
+     * @param byteCount
+     *            the number of bytes to read.
      * @throws EOFException
-     *             if the end of this file is detected.
+     *             if the end of the source stream is reached before enough
+     *             bytes have been read.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code count < 0}, or if {@code
-     *             offset + count} is greater than the length of {@code buffer}.
+     *             if {@code offset < 0} or {@code byteCount < 0}, or
+     *             {@code offset + byteCount > dst.length}.
      * @throws IOException
-     *             if this file is closed or another I/O error occurs.
+     *             if a problem occurs while reading from this stream.
      * @throws NullPointerException
-     *             if {@code buffer} is {@code null}.
+     *             if {@code dst} is null.
      */
-    public final void readFully(byte[] buffer, int offset, int count) throws IOException {
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
+    public final void readFully(byte[] dst, int offset, int byteCount) throws IOException {
+        if (dst == null) {
+            throw new NullPointerException("dst == null");
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -483,17 +477,17 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // RI, but are spec-compliant.
         // removed redundant check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
-        if ((offset | count) < 0 || count > buffer.length - offset) {
+        if ((offset | byteCount) < 0 || byteCount > dst.length - offset) {
             throw new IndexOutOfBoundsException();
         }
         // END android-changed
-        while (count > 0) {
-            int result = read(buffer, offset, count);
+        while (byteCount > 0) {
+            int result = read(dst, offset, byteCount);
             if (result < 0) {
                 throw new EOFException();
             }
             offset += result;
-            count -= result;
+            byteCount -= result;
         }
     }
 
@@ -510,9 +504,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeInt(int)
      */
     public final int readInt() throws IOException {
-        if (read(scratch, 0, SizeOf.INT) != SizeOf.INT) {
-            throw new EOFException();
-        }
+        readFully(scratch, 0, SizeOf.INT);
         return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
@@ -573,9 +565,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeLong(long)
      */
     public final long readLong() throws IOException {
-        if (read(scratch, 0, SizeOf.LONG) != SizeOf.LONG) {
-            throw new EOFException();
-        }
+        readFully(scratch, 0, SizeOf.LONG);
         return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
@@ -592,9 +582,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #writeShort(int)
      */
     public final short readShort() throws IOException {
-        if (read(scratch, 0, SizeOf.SHORT) != SizeOf.SHORT) {
-            throw new EOFException();
-        }
+        readFully(scratch, 0, SizeOf.SHORT);
         return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
@@ -747,10 +735,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *            the buffer to write.
      * @throws IOException
      *             if an I/O error occurs while writing to this file.
-     * @see #read(byte[])
-     * @see #read(byte[],int,int)
-     * @see #readFully(byte[])
-     * @see #readFully(byte[],int,int)
      */
     public void write(byte[] buffer) throws IOException {
         write(buffer, 0, buffer.length);
@@ -772,8 +756,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             offset} is greater than the size of {@code buffer}.
      * @throws IOException
      *             if an I/O error occurs while writing to this file.
-     * @see #read(byte[], int, int)
-     * @see #readFully(byte[], int, int)
      */
     public void write(byte[] buffer, int offset, int count) throws IOException {
         // BEGIN android-changed
@@ -859,10 +841,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *            the string containing the bytes to write to this file
      * @throws IOException
      *             if an I/O error occurs while writing to this file.
-     * @see #read(byte[])
-     * @see #read(byte[],int,int)
-     * @see #readFully(byte[])
-     * @see #readFully(byte[],int,int)
      */
     public final void writeBytes(String str) throws IOException {
         byte[] bytes = new byte[str.length()];

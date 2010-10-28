@@ -16,6 +16,7 @@
 
 package libcore.base;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,6 +25,33 @@ public final class Streams {
     private static AtomicReference<byte[]> skipBuffer = new AtomicReference<byte[]>();
 
     private Streams() {}
+
+    /**
+     * Implements {@link java.io.DataInputStream#readFully(byte[], int, int)}.
+     */
+    public static void readFully(InputStream in, byte[] dst, int offset, int byteCount) throws IOException {
+        if (byteCount == 0) {
+            return;
+        }
+        if (in == null) {
+            throw new NullPointerException("in == null");
+        }
+        if (dst == null) {
+            throw new NullPointerException("dst == null");
+        }
+        if ((offset | byteCount) < 0 || offset > dst.length - byteCount) {
+            throw new IndexOutOfBoundsException("offset=" + offset + " byteCount=" + byteCount +
+                    " dst.length=" + dst.length);
+        }
+        while (byteCount > 0) {
+            int bytesRead = in.read(dst, offset, byteCount);
+            if (bytesRead < 0) {
+                throw new EOFException();
+            }
+            offset += bytesRead;
+            byteCount -= bytesRead;
+        }
+    }
 
     public static void skipAll(InputStream in) throws IOException {
         do {

@@ -107,40 +107,37 @@ public interface DataInput {
     public abstract float readFloat() throws IOException;
 
     /**
-     * Reads bytes into the byte array {@code buffer}. This method will block
-     * until {@code buffer.length} number of bytes have been read.
-     *
-     * @param buffer
-     *            the buffer to read bytes into.
-     * @throws EOFException if the end of the input is reached before the read
-     *         request can be satisfied.
-     * @throws IOException
-     *             if an I/O error occurs while reading.
-     * @see DataOutput#write(byte[])
-     * @see DataOutput#write(byte[], int, int)
+     * Equivalent to {@code readFully(dst, 0, dst.length);}.
      */
-    public abstract void readFully(byte[] buffer) throws IOException;
+    public abstract void readFully(byte[] dst) throws IOException;
 
     /**
-     * Reads bytes and stores them in the byte array {@code buffer} starting at
-     * offset {@code offset}. This method blocks until {@code count} number of
-     * bytes have been read.
+     * Reads {@code byteCount} bytes from this stream and stores them in the byte
+     * array {@code dst} starting at {@code offset}. If {@code byteCount} is zero, then this
+     * method returns without reading any bytes. Otherwise, this method blocks until
+     * {@code byteCount} bytes have been read. If insufficient bytes are available,
+     * {@code EOFException} is thrown. If an I/O error occurs, {@code IOException} is
+     * thrown. When an exception is thrown, some bytes may have been consumed from the stream
+     * and written into the array.
      *
-     * @param buffer
-     *            the byte array in which to store the bytes read.
+     * @param dst
+     *            the byte array into which the data is read.
      * @param offset
-     *            the initial position in {@code buffer} to store the bytes
-     *            read.
-     * @param count
-     *            the maximum number of bytes to store in {@code buffer}.
-     * @throws EOFException if the end of the input is reached before the read
-     *         request can be satisfied.
+     *            the offset in {@code dst} at which to store the bytes.
+     * @param byteCount
+     *            the number of bytes to read.
+     * @throws EOFException
+     *             if the end of the source stream is reached before enough
+     *             bytes have been read.
+     * @throws IndexOutOfBoundsException
+     *             if {@code offset < 0} or {@code byteCount < 0}, or
+     *             {@code offset + byteCount > dst.length}.
      * @throws IOException
-     *             if an I/O error occurs while reading.
-     * @see DataOutput#write(byte[])
-     * @see DataOutput#write(byte[], int, int)
+     *             if a problem occurs while reading from this stream.
+     * @throws NullPointerException
+     *             if {@code dst} is null.
      */
-    public abstract void readFully(byte[] buffer, int offset, int count) throws IOException;
+    public abstract void readFully(byte[] dst, int offset, int byteCount) throws IOException;
 
     /**
      * Reads a big-endian 32-bit integer value.

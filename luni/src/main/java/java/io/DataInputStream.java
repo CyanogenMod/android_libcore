@@ -17,7 +17,11 @@
 
 package java.io;
 
+import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import libcore.base.Streams;
+import libcore.io.SizeOf;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Wraps an existing {@link InputStream} and reads big-endian typed data from it.
@@ -30,7 +34,7 @@ import java.nio.charset.ModifiedUtf8;
  */
 public class DataInputStream extends FilterInputStream implements DataInput {
 
-    private final byte[] buff = new byte[8];
+    private final byte[] scratch = new byte[8];
 
     /**
      * Constructs a new DataInputStream on the InputStream {@code in}. All
@@ -110,23 +114,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
     }
 
     public final char readChar() throws IOException {
-        if (readToBuff(2) < 0){
-            throw new EOFException();
-        }
-        return (char) (((buff[0] & 0xff) << 8) | (buff[1] & 0xff));
-
-    }
-
-    private int readToBuff(int count) throws IOException {
-        int offset = 0;
-        while (offset < count) {
-            int bytesRead = in.read(buff, offset, count - offset);
-            if (bytesRead == -1) {
-                return bytesRead;
-            }
-            offset += bytesRead;
-        }
-        return offset;
+        return (char) readShort();
     }
 
     public final double readDouble() throws IOException {
@@ -137,70 +125,17 @@ public class DataInputStream extends FilterInputStream implements DataInput {
         return Float.intBitsToFloat(readInt());
     }
 
-    public final void readFully(byte[] buffer) throws IOException {
-        readFully(buffer, 0, buffer.length);
+    public final void readFully(byte[] dst) throws IOException {
+        readFully(dst, 0, dst.length);
     }
 
-    /**
-     * Reads bytes from this stream and stores them in the byte array {@code
-     * buffer} starting at the position {@code offset}. This method blocks until
-     * {@code length} bytes have been read. If {@code length} is zero, then this
-     * method returns without reading any bytes.
-     *
-     * @param buffer
-     *            the byte array into which the data is read.
-     * @param offset
-     *            the offset in {@code buffer} from where to store the bytes
-     *            read.
-     * @param length
-     *            the maximum number of bytes to read.
-     * @throws EOFException
-     *             if the end of the source stream is reached before enough
-     *             bytes have been read.
-     * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code length < 0}, or if {@code
-     *             offset + length} is greater than the size of {@code buffer}.
-     * @throws IOException
-     *             if a problem occurs while reading from this stream.
-     * @throws NullPointerException
-     *             if {@code buffer} or the source stream are null.
-     * @see java.io.DataInput#readFully(byte[], int, int)
-     */
-    public final void readFully(byte[] buffer, int offset, int length) throws IOException {
-        if (length == 0) {
-            return;
-        }
-        if (in == null) {
-            throw new NullPointerException("in == null");
-        }
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // used (offset | length) < 0 instead of separate (offset < 0) and
-        // (length < 0) check to safe one operation
-        if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
-        while (length > 0) {
-            int result = in.read(buffer, offset, length);
-            if (result < 0) {
-                throw new EOFException();
-            }
-            offset += result;
-            length -= result;
-        }
+    public final void readFully(byte[] dst, int offset, int byteCount) throws IOException {
+        Streams.readFully(in, dst, offset, byteCount);
     }
 
     public final int readInt() throws IOException {
-        if (readToBuff(4) < 0){
-            throw new EOFException();
-        }
-        return ((buff[0] & 0xff) << 24) | ((buff[1] & 0xff) << 16) |
-            ((buff[2] & 0xff) << 8) | (buff[3] & 0xff);
+        Streams.readFully(in, scratch, 0, SizeOf.INT);
+        return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     @Deprecated
@@ -239,22 +174,13 @@ public class DataInputStream extends FilterInputStream implements DataInput {
     }
 
     public final long readLong() throws IOException {
-        if (readToBuff(8) < 0){
-            throw new EOFException();
-        }
-        int i1 = ((buff[0] & 0xff) << 24) | ((buff[1] & 0xff) << 16) |
-            ((buff[2] & 0xff) << 8) | (buff[3] & 0xff);
-        int i2 = ((buff[4] & 0xff) << 24) | ((buff[5] & 0xff) << 16) |
-            ((buff[6] & 0xff) << 8) | (buff[7] & 0xff);
-
-        return ((i1 & 0xffffffffL) << 32) | (i2 & 0xffffffffL);
+        Streams.readFully(in, scratch, 0, SizeOf.LONG);
+        return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final short readShort() throws IOException {
-        if (readToBuff(2) < 0){
-            throw new EOFException();
-        }
-        return (short) (((buff[0] & 0xff) << 8) | (buff[1] & 0xff));
+        Streams.readFully(in, scratch, 0, SizeOf.SHORT);
+        return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final int readUnsignedByte() throws IOException {
@@ -266,10 +192,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
     }
 
     public final int readUnsignedShort() throws IOException {
-        if (readToBuff(2) < 0){
-            throw new EOFException();
-        }
-        return (char) (((buff[0] & 0xff) << 8) | (buff[1] & 0xff));
+        return ((int) readShort()) & 0xffff;
     }
 
     public final String readUTF() throws IOException {

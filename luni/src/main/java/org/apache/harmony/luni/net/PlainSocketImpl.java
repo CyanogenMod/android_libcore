@@ -32,8 +32,10 @@ import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -371,8 +373,7 @@ public class PlainSocketImpl extends SocketImpl {
         Socks4Message reply = socksReadReply();
 
         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
-            throw new IOException(reply.getErrorString(reply
-                    .getCommandOrResult()));
+            throw new IOException(reply.getErrorString(reply.getCommandOrResult()));
         }
 
         // A peculiarity of socks 4 - if the address returned is 0, use the
@@ -384,28 +385,16 @@ public class PlainSocketImpl extends SocketImpl {
             // currently the Socks4Message.getIP() only returns int,
             // so only works with IPv4 4byte addresses
             byte[] replyBytes = new byte[4];
-            intToBytes(reply.getIP(), replyBytes, 0);
+            OSMemory.pokeInt(replyBytes, 0, reply.getIP(), ByteOrder.BIG_ENDIAN);
             address = InetAddress.getByAddress(replyBytes);
         }
         localport = reply.getPort();
     }
 
-    private static void intToBytes(int value, byte[] bytes, int start) {
-        /*
-         * Shift the int so the current byte is right-most Use a byte mask of
-         * 255 to single out the last byte.
-         */
-        bytes[start] = (byte) ((value >> 24) & 255);
-        bytes[start + 1] = (byte) ((value >> 16) & 255);
-        bytes[start + 2] = (byte) ((value >> 8) & 255);
-        bytes[start + 3] = (byte) (value & 255);
-    }
-
     /**
      * Send a SOCKS V4 request.
      */
-    private void socksSendRequest(int command, InetAddress address, int port)
-            throws IOException {
+    private void socksSendRequest(int command, InetAddress address, int port) throws IOException {
         Socks4Message request = new Socks4Message();
         request.setCommandOrResult(command);
         request.setPort(port);

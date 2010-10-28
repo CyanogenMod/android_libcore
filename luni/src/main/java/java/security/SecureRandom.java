@@ -17,7 +17,10 @@
 
 package java.security;
 
+import java.nio.ByteOrder;
 import java.util.Random;
+import libcore.io.SizeOf;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.Services;
 import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
@@ -255,16 +258,8 @@ public class SecureRandom extends Random {
         if (seed == 0) {    // skip call from Random
             return;
         }
-        byte[] byteSeed = {
-                (byte)((seed >> 56) & 0xFF),
-                (byte)((seed >> 48) & 0xFF),
-                (byte)((seed >> 40) & 0xFF),
-                (byte)((seed >> 32) & 0xFF),
-                (byte)((seed >> 24) & 0xFF),
-                (byte)((seed >> 16) & 0xFF),
-                (byte)((seed >> 8) & 0xFF),
-                (byte)((seed) & 0xFF)
-        };
+        byte[] byteSeed = new byte[SizeOf.LONG];
+        OSMemory.pokeLong(byteSeed, 0, seed, ByteOrder.BIG_ENDIAN);
         setSeed(byteSeed);
     }
 

@@ -18,6 +18,8 @@
 package java.net;
 
 import java.io.ObjectStreamException;
+import java.nio.ByteOrder;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * An IPv4 address. See {@link InetAddress}.
@@ -130,7 +132,7 @@ public final class Inet4Address extends InetAddress {
             return false;
         }
 
-        int address = InetAddress.bytesToInt(ipaddress, 0);
+        int address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
         /*
          * Now check the boundaries of the global space if we have an address
          * that is prefixed by something less than 111000000000000000000001
@@ -175,7 +177,8 @@ public final class Inet4Address extends InetAddress {
      */
     @Override
     public boolean isMCLinkLocal() {
-        return InetAddress.bytesToInt(ipaddress, 0) >>> 8 == 0xE00000;
+        int address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+        return (address >>> 8) == 0xE00000;
     }
 
     /**
@@ -188,7 +191,8 @@ public final class Inet4Address extends InetAddress {
      */
     @Override
     public boolean isMCSiteLocal() {
-        return (InetAddress.bytesToInt(ipaddress, 0) >>> 16) == 0xEFFF;
+        int address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+        return (address >>> 16) == 0xEFFF;
     }
 
     /**
@@ -202,7 +206,8 @@ public final class Inet4Address extends InetAddress {
      */
     @Override
     public boolean isMCOrgLocal() {
-        int prefix = InetAddress.bytesToInt(ipaddress, 0) >>> 16;
+        int address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+        int prefix = address >>> 16;
         return prefix >= 0xEFC0 && prefix <= 0xEFC3;
     }
 

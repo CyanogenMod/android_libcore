@@ -1336,10 +1336,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     }
 
     /**
-     * Reads bytes from the source stream into the byte array {@code buffer}.
-     * This method will block until {@code buffer.length} bytes have been read.
+     * Reads bytes from the source stream into the byte array {@code dst}.
+     * This method will block until {@code dst.length} bytes have been read.
      *
-     * @param buffer
+     * @param dst
      *            the array in which to store the bytes read.
      * @throws EOFException
      *             if the end of the input is reached before the read
@@ -1347,31 +1347,28 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      * @throws IOException
      *             if an error occurs while reading from the source stream.
      */
-    public void readFully(byte[] buffer) throws IOException {
-        primitiveTypes.readFully(buffer);
+    public void readFully(byte[] dst) throws IOException {
+        primitiveTypes.readFully(dst);
     }
 
     /**
-     * Reads bytes from the source stream into the byte array {@code buffer}.
-     * This method will block until {@code length} number of bytes have been
-     * read.
+     * Reads {@code byteCount} bytes from the source stream into the byte array {@code dst}.
      *
-     * @param buffer
+     * @param dst
      *            the byte array in which to store the bytes read.
      * @param offset
-     *            the initial position in {@code buffer} to store the bytes
+     *            the initial position in {@code dst} to store the bytes
      *            read from the source stream.
-     * @param length
-     *            the maximum number of bytes to store in {@code buffer}.
+     * @param byteCount
+     *            the number of bytes to read.
      * @throws EOFException
      *             if the end of the input is reached before the read
      *             request can be satisfied.
      * @throws IOException
      *             if an error occurs while reading from the source stream.
      */
-    public void readFully(byte[] buffer, int offset, int length)
-            throws IOException {
-        primitiveTypes.readFully(buffer, offset, length);
+    public void readFully(byte[] dst, int offset, int byteCount) throws IOException {
+        primitiveTypes.readFully(dst, offset, byteCount);
     }
 
     /**
