@@ -19,6 +19,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.https;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CacheResponse;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.Proxy;
@@ -64,8 +65,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public String getCipherSuite() {
-        if (httpsEngine.getCacheResponse() != null) {
-            return httpsEngine.getCacheResponse().getCipherSuite();
+        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        if (cacheResponse != null) {
+            return cacheResponse.getCipherSuite();
         }
         checkConnected();
         return sslSocket.getSession().getCipherSuite();
@@ -73,8 +75,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public Certificate[] getLocalCertificates() {
-        if (httpsEngine.getCacheResponse() != null) {
-            List<Certificate> result = httpsEngine.getCacheResponse().getLocalCertificateChain();
+        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        if (cacheResponse != null) {
+            List<Certificate> result = cacheResponse.getLocalCertificateChain();
             return result != null ? result.toArray(new Certificate[result.size()]) : null;
         }
         checkConnected();
@@ -83,8 +86,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public Certificate[] getServerCertificates() throws SSLPeerUnverifiedException {
-        if (httpsEngine.getCacheResponse() != null) {
-            List<Certificate> result = httpsEngine.getCacheResponse().getServerCertificateChain();
+        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        if (cacheResponse != null) {
+            List<Certificate> result = cacheResponse.getServerCertificateChain();
             return result != null ? result.toArray(new Certificate[result.size()]) : null;
         }
         checkConnected();
@@ -93,8 +97,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-        if (httpsEngine.getCacheResponse() != null) {
-            return httpsEngine.getCacheResponse().getPeerPrincipal();
+        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        if (cacheResponse != null) {
+            return cacheResponse.getPeerPrincipal();
         }
         checkConnected();
         return sslSocket.getSession().getPeerPrincipal();
@@ -102,8 +107,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     @Override
     public Principal getLocalPrincipal() {
-        if (httpsEngine.getCacheResponse() != null) {
-            return httpsEngine.getCacheResponse().getLocalPrincipal();
+        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        if (cacheResponse != null) {
+            return cacheResponse.getLocalPrincipal();
         }
         checkConnected();
         return sslSocket.getSession().getLocalPrincipal();
@@ -441,6 +447,10 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
         @Override protected HttpURLConnection getConnectionForCaching() {
             return HttpsURLConnectionImpl.this;
+        }
+
+        @Override protected boolean acceptCacheResponse(CacheResponse cacheResponse) {
+            return cacheResponse instanceof SecureCacheResponse;
         }
 
         @Override protected String requestString() {

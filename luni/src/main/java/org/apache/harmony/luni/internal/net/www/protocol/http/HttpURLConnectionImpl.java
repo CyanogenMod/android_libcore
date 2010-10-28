@@ -34,7 +34,6 @@ import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.ResponseCache;
-import java.net.SecureCacheResponse;
 import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,7 +49,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
-import javax.net.ssl.HttpsURLConnection;
 import libcore.base.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
@@ -170,19 +168,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     protected HttpURLConnectionImpl(URL url, int port) {
         super(url);
         defaultPort = port;
-        requestHeader = (Header) defaultRequestHeader.clone();
+        requestHeader = defaultRequestHeader.clone();
 
-        try {
-            uri = url.toURI();
-        } catch (URISyntaxException e) {
-            // do nothing.
-        }
-        responseCache = AccessController
-                .doPrivileged(new PrivilegedAction<ResponseCache>() {
-                    public ResponseCache run() {
-                        return ResponseCache.getDefault();
-                    }
-                });
+        responseCache = AccessController.doPrivileged(new PrivilegedAction<ResponseCache>() {
+            public ResponseCache run() {
+                return ResponseCache.getDefault();
+            }
+        });
     }
 
     /**
@@ -218,23 +210,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public void makeConnection() throws IOException {
         connected = true;
 
-        if (connection != null) {
+        if (connection != null || responseBodyIn != null) {
             return;
+        }
+
+        try {
+            uri = url.toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
         }
 
         if (getFromCache()) {
             return;
-        }
-
-        /*
-         * URL.toURI() throws if it has illegal characters. Since we don't mind
-         * illegal characters for proxy selection, just create the minimal URI.
-         */
-        try {
-            uri = new URI(url.getProtocol(), null, url.getHost(), url.getPort(), url.getPath(),
-                    null, null);
-        } catch (URISyntaxException e1) {
-            throw new IOException(e1.getMessage());
         }
 
         // try to determine: to use the proxy or not
@@ -296,30 +283,41 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Returns true if the input streams are prepared to return data from the
-     * cache.
+     * Attempts to load the response headers and body from the response cache.
+     * Returns true if the request was satisfied by the cache.
      */
     private boolean getFromCache() throws IOException {
         if (!useCaches || responseCache == null || hasTriedCache) {
-            return (hasTriedCache && socketIn != null);
+            return false;
         }
 
         hasTriedCache = true;
-        cacheResponse = responseCache.get(uri, method, requestHeader.getFieldMap());
-        if (cacheResponse != null && getConnectionForCaching() instanceof HttpsURLConnection
-                && !(cacheResponse instanceof SecureCacheResponse)) {
-            // drop the cached response if it is insecure and we need it to be secure
-            cacheResponse = null;
+        CacheResponse candidate = responseCache.get(uri, method, requestHeader.getFieldMap());
+        if (!acceptCacheResponse(candidate)) {
+            return false;
         }
-        if (cacheResponse == null) {
-            return socketIn != null; // TODO: if this is non-null, why are we calling getFromCache?
+        Map<String, List<String>> headersMap = candidate.getHeaders();
+        if (headersMap == null) {
+            return false;
         }
-        Map<String, List<String>> headersMap = cacheResponse.getHeaders();
-        if (headersMap != null) {
-            responseHeader = new Header(headersMap);
+        InputStream cacheBodyIn = candidate.getBody();
+        if (cacheBodyIn == null) {
+            return false;
         }
-        socketIn = responseBodyIn = cacheResponse.getBody();
-        return socketIn != null;
+
+        cacheResponse = candidate;
+        responseHeader = new Header(headersMap);
+        parseStatusLine();
+        responseBodyIn = cacheBodyIn;
+        return true;
+    }
+
+    /**
+     * Returns true if {@code cacheResponse} is sufficient to forgo a network
+     * request. HTTPS connections require secure cache responses.
+     */
+    protected boolean acceptCacheResponse(CacheResponse cacheResponse) {
+        return cacheResponse != null;
     }
 
     private void maybeCache() throws IOException {
@@ -405,6 +403,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             responseCode = -1;
             responseMessage = null;
             cacheRequest = null;
+            uri = null;
+            cacheResponse = null;
+            hasTriedCache = false;
         } finally {
             intermediateResponse = false;
         }
@@ -428,27 +429,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Returns the value of the field at position <code>pos<code>.
-     * Returns <code>null</code> if there is fewer than <code>pos</code> fields
-     * in the response header.
-     *
-     * @return java.lang.String     The value of the field
-     * @param pos int               the position of the field from the top
-     *
-     * @see         #getHeaderField(String)
-     * @see         #getHeaderFieldKey
+     * Returns the value of the field at {@code position}. Returns null if there
+     * are fewer than {@code position} headers.
      */
     @Override
-    public String getHeaderField(int pos) {
+    public String getHeaderField(int position) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
-            return null;
-        }
-        return responseHeader.get(pos);
+        return responseHeader != null ? responseHeader.get(position) : null;
     }
 
     /**
@@ -469,26 +459,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public String getHeaderField(String key) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
-            return null;
-        }
-        return responseHeader.get(key);
+        return responseHeader != null ? responseHeader.get(key) : null;
     }
 
     @Override
-    public String getHeaderFieldKey(int pos) {
+    public String getHeaderFieldKey(int position) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
-            return null;
-        }
-        return responseHeader.getKey(pos);
+        return responseHeader != null ? responseHeader.getKey(position) : null;
     }
 
     @Override
@@ -535,7 +517,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseBodyIn;
     }
 
-    private InputStream initContentStream() throws IOException {
+    private void initContentStream() throws IOException {
         InputStream transferStream = getTransferStream();
         if (transparentGzip && "gzip".equalsIgnoreCase(responseHeader.get("Content-Encoding"))) {
             /*
@@ -547,7 +529,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         } else {
             responseBodyIn = transferStream;
         }
-        return responseBodyIn;
     }
 
     private InputStream getTransferStream() throws IOException {
@@ -651,7 +632,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override
     public String getRequestProperty(String field) {
-        if (null == field) {
+        if (field == null) {
             return null;
         }
         return requestHeader.get(field);
@@ -691,12 +672,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private void readResponseHeaders() throws IOException {
         do {
-            responseCode = -1;
-            responseMessage = null;
             responseHeader = new Header();
             responseHeader.setStatusLine(readLine(socketIn).trim());
             readHeaders();
-        } while (parseResponseCode() == HTTP_CONTINUE);
+            parseStatusLine();
+        } while (responseCode == HTTP_CONTINUE);
     }
 
     /**
@@ -734,16 +714,20 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseCode;
     }
 
-    private int parseResponseCode() {
-        // Response Code Sample : "HTTP/1.0 200 OK"
+    private void parseStatusLine() {
+        httpVersion = 1;
+        responseCode = -1;
+        responseMessage = null;
+
+        // Status line sample: "HTTP/1.0 200 OK"
         String response = responseHeader.getStatusLine();
         if (response == null || !response.startsWith("HTTP/")) {
-            return -1;
+            return;
         }
         response = response.trim();
         int mark = response.indexOf(" ") + 1;
         if (mark == 0) {
-            return -1;
+            return;
         }
         if (response.charAt(mark - 2) != '1') {
             httpVersion = 0;
@@ -756,7 +740,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (last + 1 <= response.length()) {
             responseMessage = response.substring(last + 1);
         }
-        return responseCode;
     }
 
     void readHeaders() throws IOException {
@@ -1033,33 +1016,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         while (true) {
             makeConnection();
 
-            // if we got a response from the cache, we're done
-            if (cacheResponse != null) {
-                // TODO: how does this interact with redirects? Consider processing the headers so
-                // that a redirect is never returned. (HTTPS also shortcuts like this.)
-                return;
+            if (cacheResponse == null) {
+                getFromNetwork();
             }
-
-            if (!sentRequestHeaders) {
-                writeRequestHeaders(socketOut);
-            }
-
-            if (requestBodyOut != null) {
-                requestBodyOut.close();
-                if (requestBodyOut instanceof RetryableOutputStream) {
-                    ((RetryableOutputStream) requestBodyOut).writeToSocket(socketOut);
-                }
-            }
-
-            socketOut.flush();
-
-            readResponseHeaders();
-
-            if (hasResponseBody()) {
-                maybeCache(); // reentrant. this calls into user code which may call back into this!
-            }
-
-            initContentStream();
 
             Retry retry = processResponseHeaders();
 
@@ -1085,6 +1044,29 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 releaseSocket(true);
             }
         }
+    }
+
+    private void getFromNetwork() throws IOException {
+        if (!sentRequestHeaders) {
+            writeRequestHeaders(socketOut);
+        }
+
+        if (requestBodyOut != null) {
+            requestBodyOut.close();
+            if (requestBodyOut instanceof RetryableOutputStream) {
+                ((RetryableOutputStream) requestBodyOut).writeToSocket(socketOut);
+            }
+        }
+
+        socketOut.flush();
+
+        readResponseHeaders();
+
+        if (hasResponseBody()) {
+            maybeCache(); // reentrant. this calls into user code which may call back into this!
+        }
+
+        initContentStream();
     }
 
     enum Retry {

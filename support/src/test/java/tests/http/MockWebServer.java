@@ -242,6 +242,8 @@ public final class MockWebServer {
                     socket = sslSocketFactory.createSocket(
                             raw, raw.getInetAddress().getHostAddress(), raw.getPort(), true);
                     ((SSLSocket) socket).setUseClientMode(false);
+                    openClientSockets.add(socket);
+                    openClientSockets.remove(raw);
                 } else {
                     socket = raw;
                 }
@@ -256,8 +258,8 @@ public final class MockWebServer {
 
                 in.close();
                 out.close();
-                raw.close();
-                openClientSockets.remove(raw);
+                socket.close();
+                openClientSockets.remove(socket);
                 return null;
             }
 
