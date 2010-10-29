@@ -297,7 +297,12 @@ public final class BlockGuard {
         }
 
         public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
+            if (timeout != 0) {
+                // Less than 0 is blocking forever.
+                // Greater than 0 is a timeout.
+                // Zero is okay.
+                BlockGuard.getThreadPolicy().onNetwork();
+            }
             return mNetwork.isConnected(fd, timeout);
         }
 
