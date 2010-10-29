@@ -158,6 +158,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         assertEquals(200, urlConnection.getResponseCode());
         assertEquals("Fantastic", urlConnection.getResponseMessage());
+        assertEquals("HTTP/1.0 200 Fantastic", urlConnection.getHeaderField(null));
         Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
         assertEquals(Arrays.asList("HTTP/1.0 200 Fantastic"), responseHeaders.get(null));
         assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));

@@ -17,13 +17,12 @@
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
 import java.util.Arrays;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.TestCase;
 
-public class HeaderTest extends junit.framework.TestCase {
+public class HttpHeadersTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=6684
     public void test_caseInsensitiveButCasePreserving() {
-        Header h = new Header();
+        HttpHeaders h = new HttpHeaders();
         h.add("Content-Type", "text/plain");
         // Case-insensitive:
         assertEquals("text/plain", h.get("Content-Type"));
@@ -31,25 +30,25 @@ public class HeaderTest extends junit.framework.TestCase {
         assertEquals("text/plain", h.get("content-type"));
         assertEquals("text/plain", h.get("CONTENT-TYPE"));
         // ...but case-preserving:
-        assertEquals("Content-Type", h.getFieldMap().keySet().toArray()[0]);
+        assertEquals("Content-Type", h.toMultimap().keySet().toArray()[0]);
 
         // We differ from the RI in that the Map we return is also case-insensitive.
         // Our behavior seems more consistent. (And code that works on the RI will work on Android.)
-        assertEquals(Arrays.asList("text/plain"), h.getFieldMap().get("Content-Type"));
-        assertEquals(Arrays.asList("text/plain"), h.getFieldMap().get("Content-type")); // RI fails this.
+        assertEquals(Arrays.asList("text/plain"), h.toMultimap().get("Content-Type"));
+        assertEquals(Arrays.asList("text/plain"), h.toMultimap().get("Content-type")); // RI fails this.
     }
 
     // The copy constructor used to be broken for headers with multiple values.
     // http://code.google.com/p/android/issues/detail?id=6722
     public void test_copyConstructor() {
-        Header h1 = new Header();
+        HttpHeaders h1 = new HttpHeaders();
         h1.add("key", "value1");
         h1.add("key", "value2");
-        Header h2 = new Header(h1.getFieldMap());
+        HttpHeaders h2 = HttpHeaders.fromMultimap(h1.toMultimap());
         assertEquals(2, h2.length());
         assertEquals("key", h2.getKey(0));
-        assertEquals("value1", h2.get(0));
+        assertEquals("value1", h2.getValue(0));
         assertEquals("key", h2.getKey(1));
-        assertEquals("value2", h2.get(1));
+        assertEquals("value2", h2.getValue(1));
     }
 }

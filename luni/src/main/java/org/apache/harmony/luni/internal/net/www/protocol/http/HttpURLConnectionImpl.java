@@ -142,12 +142,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // the destination URI
     private URI uri;
 
-    private static Header defaultRequestHeader = new Header();
+    private static HttpHeaders defaultRequestHeader = new HttpHeaders();
 
-    private final Header requestHeader;
+    private final HttpHeaders requestHeader;
 
     /** Null until a response is received from the network or the cache */
-    private Header responseHeader;
+    private HttpHeaders responseHeader;
 
     private int redirectionCount;
 
@@ -168,7 +168,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     protected HttpURLConnectionImpl(URL url, int port) {
         super(url);
         defaultPort = port;
-        requestHeader = defaultRequestHeader.clone();
+        requestHeader = new HttpHeaders(defaultRequestHeader);
 
         responseCache = AccessController.doPrivileged(new PrivilegedAction<ResponseCache>() {
             public ResponseCache run() {
@@ -292,7 +292,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         hasTriedCache = true;
-        CacheResponse candidate = responseCache.get(uri, method, requestHeader.getFieldMap());
+        CacheResponse candidate = responseCache.get(uri, method, requestHeader.toMultimap());
         if (!acceptCacheResponse(candidate)) {
             return false;
         }
@@ -306,7 +306,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         cacheResponse = candidate;
-        responseHeader = new Header(headersMap);
+        responseHeader = HttpHeaders.fromMultimap(headersMap);
         parseStatusLine();
         responseBodyIn = cacheBodyIn;
         return true;
@@ -438,7 +438,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             getInputStream();
         } catch (IOException ignored) {
         }
-        return responseHeader != null ? responseHeader.get(position) : null;
+        return responseHeader != null ? responseHeader.getValue(position) : null;
     }
 
     /**
@@ -461,7 +461,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             getInputStream();
         } catch (IOException ignored) {
         }
-        return responseHeader != null ? responseHeader.get(key) : null;
+        if (responseHeader == null) {
+            return null;
+        }
+        return key == null ? responseHeader.getStatusLine() : responseHeader.get(key);
     }
 
     @Override
@@ -479,7 +482,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             retrieveResponse();
         } catch (IOException ignored) {
         }
-        return responseHeader != null ? responseHeader.getFieldMap() : null;
+        return responseHeader != null ? responseHeader.toMultimap() : null;
     }
 
     @Override
@@ -487,7 +490,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (connected) {
             throw new IllegalStateException("Cannot access request header fields after connection is set");
         }
-        return requestHeader.getFieldMap();
+        return requestHeader.toMultimap();
     }
 
     @Override
@@ -672,7 +675,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private void readResponseHeaders() throws IOException {
         do {
-            responseHeader = new Header();
+            responseHeader = new HttpHeaders();
             responseHeader.setStatusLine(readLine(socketIn).trim());
             readHeaders();
             parseStatusLine();
@@ -757,7 +760,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            cookieHandler.put(uri, responseHeader.getFieldMap());
+            cookieHandler.put(uri, responseHeader.toMultimap());
         }
     }
 
@@ -774,19 +777,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * value.
      */
     private void writeRequestHeaders(OutputStream out) throws IOException {
-        Header header = prepareRequestHeaders();
-
-        StringBuilder result = new StringBuilder(256);
-        result.append(header.getStatusLine()).append("\r\n");
-        for (int i = 0; i < header.length(); i++) {
-            String key = header.getKey(i);
-            String value = header.get(i);
-            if (key != null) {
-                result.append(key).append(": ").append(value).append("\r\n");
-            }
-        }
-        result.append("\r\n");
-        out.write(result.toString().getBytes(Charsets.ISO_8859_1));
+        String headerLines = prepareRequestHeaders().toHeaderString();
+        out.write(headerLines.getBytes(Charsets.ISO_8859_1));
         sentRequestHeaders = true;
     }
 
@@ -797,14 +789,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <p>This client doesn't specify a default {@code Accept} header because it
      * doesn't know what content types the application is interested in.
      */
-    private Header prepareRequestHeaders() throws IOException {
+    private HttpHeaders prepareRequestHeaders() throws IOException {
         /*
          * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2),
          * send only the minimum set of headers. This avoids sending potentially
          * sensitive data like HTTP cookies to the proxy unencrypted.
          */
         if (method == CONNECT) {
-            Header proxyHeader = new Header();
+            HttpHeaders proxyHeader = new HttpHeaders();
             proxyHeader.setStatusLine(getStatusLine());
 
             // always set Host and User-Agent
@@ -867,7 +859,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
             Map<String, List<String>> allCookieHeaders
-                    = cookieHandler.get(uri, requestHeader.getFieldMap());
+                    = cookieHandler.get(uri, requestHeader.toMultimap());
             for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
                 String key = entry.getKey();
                 if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
