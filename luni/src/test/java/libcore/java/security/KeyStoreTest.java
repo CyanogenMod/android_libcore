@@ -53,13 +53,9 @@ import junit.framework.TestCase;
 public class KeyStoreTest extends TestCase {
 
     private static final PrivateKeyEntry PRIVATE_KEY
-            = TestKeyStore.privateKey(TestKeyStore.getServer().keyStore,
-                                      TestKeyStore.getServer().keyPassword,
-                                      "RSA");
+            = TestKeyStore.getServer().getPrivateKey("RSA");
     private static final PrivateKeyEntry PRIVATE_KEY_2
-            = TestKeyStore.privateKey(TestKeyStore.getClientCertificate().keyStore,
-                                      TestKeyStore.getClientCertificate().keyPassword,
-                                      "RSA");
+            = TestKeyStore.getClientCertificate().getPrivateKey("RSA");
     private static final SecretKey SECRET_KEY = generateSecretKey();
     private static final SecretKey SECRET_KEY_2 = generateSecretKey();
 
@@ -91,7 +87,7 @@ public class KeyStoreTest extends TestCase {
     private static final ProtectionParameter PARAM_KEY = new PasswordProtection(PASSWORD_KEY);
     private static final ProtectionParameter PARAM_BAD = new PasswordProtection(PASSWORD_BAD);
 
-    public static List<KeyStore> keyStores () throws Exception {
+    public static List<KeyStore> keyStores() throws Exception {
         List<KeyStore> keyStores = new ArrayList<KeyStore>();
         Provider[] providers = Security.getProviders();
         for (Provider provider : providers) {
@@ -577,7 +573,8 @@ public class KeyStoreTest extends TestCase {
     public void test_KeyStore_getCreationDate() throws Exception {
         for (KeyStore keyStore : keyStores()) {
             try {
-                assertNotNull(keyStore.getCreationDate(null));
+                keyStore.getCreationDate(null);
+                fail();
             } catch (KeyStoreException expected) {
             }
         }
@@ -905,6 +902,7 @@ public class KeyStoreTest extends TestCase {
             } else {
                 try {
                     keyStore.setCertificateEntry(ALIAS_CERTIFICATE, null);
+                    fail();
                 } catch (KeyStoreException expected) {
                 }
             }
@@ -1379,7 +1377,7 @@ public class KeyStoreTest extends TestCase {
                             return null;
                         }
                     });
-                assertEquals(0, keyStore.size());
+                fail();
             } catch (UnsupportedOperationException expected) {
             }
         }
@@ -1762,6 +1760,7 @@ public class KeyStoreTest extends TestCase {
                 Builder.newInstance(keyStore.getType(),
                                     keyStore.getProvider(),
                                     null);
+                fail();
             } catch (NullPointerException expected) {
             }
         }

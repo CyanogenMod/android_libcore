@@ -44,7 +44,7 @@ import org.apache.harmony.security.fortress.Services;
 public final class Security {
 
     // Security properties
-    private static Properties secprops = new Properties();
+    private static final Properties secprops = new Properties();
 
     // static initialization
     // - load security properties files

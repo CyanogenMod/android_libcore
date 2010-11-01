@@ -50,7 +50,7 @@ public class SSLSocketTest extends TestCase {
     }
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
-        // note the rare usage of DSA keys here in addition to RSA
+        // note the rare usage of non-RSA keys
         TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
                                                         null,
                                                         null,
@@ -92,34 +92,44 @@ public class SSLSocketTest extends TestCase {
                                                  clientProvider, serverProvider);
         String[] cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
-            /*
-             * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-             * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
-             */
-            if (cipherSuite.startsWith("TLS_KRB5_")) {
-                continue;
-            }
-            // System.out.println("Trying to connect cipher suite " + cipherSuite
-            //                    + " client=" + clientProvider
-            //                    + " server=" + serverProvider);
-            String[] cipherSuiteArray = new String[] { cipherSuite };
-            SSLSocket[] pair = TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
+            try {
+                /*
+                 * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
+                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
+                 */
+                if (cipherSuite.startsWith("TLS_KRB5_")) {
+                    continue;
+                }
+                /*
+                 * Elliptic Curve cipher suites are not supported
+                 */
+                if (cipherSuite.startsWith("TLS_EC")) {
+                    continue;
+                }
+                String[] cipherSuiteArray = new String[] { cipherSuite };
+                SSLSocket[] pair = TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
 
-            SSLSocket server = pair[0];
-            SSLSocket client = pair[1];
-            server.getOutputStream().write(serverToClient);
-            client.getOutputStream().write(clientToServer);
-            // arrays are too big to make sure we get back only what we expect
-            byte[] clientFromServer = new byte[serverToClient.length+1];
-            byte[] serverFromClient = new byte[clientToServer.length+1];
-            int readFromServer = client.getInputStream().read(clientFromServer);
-            int readFromClient = server.getInputStream().read(serverFromClient);
-            assertEquals(serverToClient.length, readFromServer);
-            assertEquals(clientToServer.length, readFromClient);
-            assertEquals(clientToServerString, new String(serverFromClient, 0, readFromClient));
-            assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
-            server.close();
-            client.close();
+                SSLSocket server = pair[0];
+                SSLSocket client = pair[1];
+                server.getOutputStream().write(serverToClient);
+                client.getOutputStream().write(clientToServer);
+                // arrays are too big to make sure we get back only what we expect
+                byte[] clientFromServer = new byte[serverToClient.length+1];
+                byte[] serverFromClient = new byte[clientToServer.length+1];
+                int readFromServer = client.getInputStream().read(clientFromServer);
+                int readFromClient = server.getInputStream().read(serverFromClient);
+                assertEquals(serverToClient.length, readFromServer);
+                assertEquals(clientToServer.length, readFromClient);
+                assertEquals(clientToServerString, new String(serverFromClient, 0, readFromClient));
+                assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
+                server.close();
+                client.close();
+            } catch (Exception e) {
+                throw new Exception("Problem trying to connect cipher suite " + cipherSuite
+                                    + " client=" + clientProvider
+                                    + " server=" + serverProvider,
+                                    e);
+            }
         }
     }
 
@@ -794,6 +804,10 @@ public class SSLSocketTest extends TestCase {
     }
 
     public void test_SSLSocket_setSoTimeout_wrapper() throws Exception {
+        if (StandardNames.IS_RI) {
+            // RI cannot handle this case
+            return;
+        }
         ServerSocket listening = new ServerSocket(0);
 
         // setSoTimeout applies to read, not connect, so connect first

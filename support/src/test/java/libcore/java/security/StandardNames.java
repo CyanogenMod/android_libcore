@@ -53,6 +53,7 @@ public final class StandardNames extends Assert {
     public static final String SECURITY_PROVIDER_NAME = (IS_RI) ? "SUN" : "BC";
 
     public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "X509";
+    public static final String TRUST_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "PKIX" : "X509";
 
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
@@ -451,32 +452,32 @@ public final class StandardNames extends Assert {
 
     static {
         // Note these are added in priority order as defined by RI 6 documentation.
-        // Android currently does not support Elliptic Curve or Diffie-Hellman
+        // Android currently does not support Elliptic Curve
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
-        addNeither("TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-        addNeither("TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-        addNeither("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addNeither("TLS_ECDH_RSA_WITH_RC4_128_SHA");
-        addNeither("TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
-        addNeither("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-        addNeither("TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
-        addNeither("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
-        addNeither("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-        addNeither("TLS_ECDHE_RSA_WITH_RC4_128_SHA");
-        addNeither("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
-        addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
-        addNeither("TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addNeither("TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-        addNeither("TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addNeither("TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
@@ -488,34 +489,34 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_NULL_MD5");
         addBoth(   "SSL_RSA_WITH_NULL_SHA");
-        addNeither("TLS_ECDH_ECDSA_WITH_NULL_SHA");
-        addNeither("TLS_ECDH_RSA_WITH_NULL_SHA");
-        addNeither("TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-        addNeither("TLS_ECDHE_RSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_NULL_SHA");
         addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addNeither("TLS_ECDH_anon_WITH_RC4_128_SHA");
-        addNeither("TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-        addNeither("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addNeither("TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-        addNeither("TLS_ECDH_anon_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_NULL_SHA");
 
         // Android does not have Keberos support
-        addRi     ("TLS_KRB5_WITH_RC4_128_SHA");
-        addRi     ("TLS_KRB5_WITH_RC4_128_MD5");
-        addRi     ("TLS_KRB5_WITH_3DES_EDE_CBC_SHA");
-        addRi     ("TLS_KRB5_WITH_3DES_EDE_CBC_MD5");
-        addRi     ("TLS_KRB5_WITH_DES_CBC_SHA");
-        addRi     ("TLS_KRB5_WITH_DES_CBC_MD5");
-        addRi     ("TLS_KRB5_EXPORT_WITH_RC4_40_SHA");
-        addRi     ("TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
-        addRi     ("TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
-        addRi     ("TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
+        addRi(     "TLS_KRB5_WITH_RC4_128_SHA");
+        addRi(     "TLS_KRB5_WITH_RC4_128_MD5");
+        addRi(     "TLS_KRB5_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_KRB5_WITH_3DES_EDE_CBC_MD5");
+        addRi(     "TLS_KRB5_WITH_DES_CBC_SHA");
+        addRi(     "TLS_KRB5_WITH_DES_CBC_MD5");
+        addRi(     "TLS_KRB5_EXPORT_WITH_RC4_40_SHA");
+        addRi(     "TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
+        addRi(     "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
+        addRi(     "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
 
         // Dropped
         addNeither("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
@@ -553,7 +554,7 @@ public final class StandardNames extends Assert {
                 unknownCipherSuites.add(cipherSuite);
             }
         }
-        assertEquals(Collections.EMPTY_SET, unknownCipherSuites);
+        assertEquals("Unknown cipher suites", Collections.EMPTY_SET, unknownCipherSuites);
         return remainingCipherSuites;
     }
 
@@ -564,7 +565,7 @@ public final class StandardNames extends Assert {
      */
     public static void assertSupportedCipherSuites(Set<String> expected, String[] cipherSuites) {
         Set<String> remainingCipherSuites = assertValidCipherSuites(expected, cipherSuites);
-        assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
+        assertEquals("Extra cipher suites", Collections.EMPTY_SET, remainingCipherSuites);
         assertEquals(expected.size(), cipherSuites.length);
     }
 
@@ -587,7 +588,7 @@ public final class StandardNames extends Assert {
                 unknownProtocols.add(protocol);
             }
         }
-        assertEquals(Collections.EMPTY_SET, unknownProtocols);
+        assertEquals("Unknown protocols", Collections.EMPTY_SET, unknownProtocols);
         return remainingProtocols;
     }
 
@@ -598,7 +599,7 @@ public final class StandardNames extends Assert {
      */
     public static void assertSupportedProtocols(Set<String> expected, String[] protocols) {
         Set<String> remainingProtocols = assertValidProtocols(expected, protocols);
-        assertEquals(Collections.EMPTY_SET, remainingProtocols);
+        assertEquals("Extra protocols", Collections.EMPTY_SET, remainingProtocols);
         assertEquals(expected.size(), protocols.length);
     }
 }
