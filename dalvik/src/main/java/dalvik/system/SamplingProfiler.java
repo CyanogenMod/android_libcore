@@ -48,17 +48,17 @@ import java.util.TimerTask;
  * The following example shows how to use the {@code
  * SamplingProfiler}. It samples the current thread's stack to a depth
  * of 12 stack frame elements over two different measurement periods
- * at a rate of 10 samples a second. In then prints the results in
- * hprof format to the standard output.
+ * with samples taken every 100 milliseconds. In then prints the
+ * results in hprof format to the standard output.
  *
  * <pre> {@code
  * ThreadSet threadSet = SamplingProfiler.newArrayThreadSet(Thread.currentThread());
  * SamplingProfiler profiler = new SamplingProfiler(12, threadSet);
- * profiler.start(10);
+ * profiler.start(100);
  * // period of measurement
  * profiler.stop();
  * // period of non-measurement
- * profiler.start(10);
+ * profiler.start(100);
  * // another period of measurement
  * profiler.stop();
  * profiler.shutdown();
@@ -238,17 +238,17 @@ public final class SamplingProfiler {
     /**
      * Starts profiler sampling at the specified rate.
      *
-     * @param samplesPerSecond The number of samples to take a second
+     * @param interval The number of milliseconds between samples
      */
-    public void start(int samplesPerSecond) {
-        if (samplesPerSecond < 1) {
-            throw new IllegalArgumentException("samplesPerSecond < 1");
+    public void start(int interval) {
+        if (interval < 1) {
+            throw new IllegalArgumentException("interval < 1");
         }
         if (sampler != null) {
             throw new IllegalStateException("profiling already started");
         }
         sampler = new Sampler();
-        timer.scheduleAtFixedRate(sampler, 0, 1000/samplesPerSecond);
+        timer.scheduleAtFixedRate(sampler, 0, interval);
     }
 
     /**
