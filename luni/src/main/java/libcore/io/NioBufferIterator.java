@@ -37,6 +37,10 @@ public final class NioBufferIterator extends BufferIterator {
         this.swap = swap;
     }
 
+    public void seek(int offset) {
+        position = offset;
+    }
+
     public void skip(int byteCount) {
         position += byteCount;
     }

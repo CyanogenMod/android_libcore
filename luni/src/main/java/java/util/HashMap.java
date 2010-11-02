@@ -529,7 +529,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
         if (newCapacity <= oldCapacity) {
             return;
         }
-        if (newCapacity == oldCapacity << 1) {
+        if (newCapacity == oldCapacity * 2) {
             doubleCapacity();
             return;
         }
@@ -575,7 +575,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
         if (oldCapacity == MAXIMUM_CAPACITY) {
             return oldTable;
         }
-        int newCapacity = oldCapacity << 1;
+        int newCapacity = oldCapacity * 2;
         HashMapEntry<K, V>[] newTable = makeTable(newCapacity);
         if (size == 0) {
             return newTable;

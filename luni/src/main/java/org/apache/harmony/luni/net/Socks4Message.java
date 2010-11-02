@@ -17,7 +17,9 @@
 
 package org.apache.harmony.luni.net;
 
+import java.nio.ByteOrder;
 import java.nio.charset.Charsets;
+import org.apache.harmony.luni.platform.OSMemory;
 
 class Socks4Message {
     static final int COMMAND_CONNECT = 1;
@@ -76,21 +78,21 @@ class Socks4Message {
      * Returns the request's port number.
      */
     public int getPort() {
-        return getInt16(INDEX_PORT);
+        return OSMemory.peekShort(buffer, INDEX_PORT, ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Set the request's port number.
      */
     public void setPort(int port) {
-        setInt16(INDEX_PORT, port);
+        OSMemory.pokeShort(buffer, INDEX_PORT, (short) port, ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Returns the IP address of the request as an integer.
      */
     public int getIP() {
-        return getInt32(INDEX_IP);
+        return OSMemory.peekInt(buffer, INDEX_IP, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -178,22 +180,6 @@ class Socks4Message {
     }
 
     /**
-     * Get a 16 bit integer from the buffer at the offset given.
-     */
-    private int getInt16(int offset) {
-        return (((buffer[offset] & 0xFF) << 8) + (buffer[offset + 1] & 0xFF));
-    }
-
-    /**
-     * Get a 32 bit integer from the buffer at the offset given.
-     */
-    private int getInt32(int offset) {
-        return ((buffer[offset + 3] & 0xFF)
-                + ((buffer[offset + 2] & 0xFF) << 8)
-                + ((buffer[offset + 1] & 0xFF) << 16) + ((buffer[offset + 0] & 0xFF) << 24));
-    }
-
-    /**
      * Get a String from the buffer at the offset given. The method reads until
      * it encounters a null value or reaches the maxLength given.
      */
@@ -211,14 +197,6 @@ class Socks4Message {
      */
     private int getVersionNumber() {
         return buffer[INDEX_VERSION];
-    }
-
-    /**
-     * Put a 16 bit integer into the buffer at the offset given.
-     */
-    private void setInt16(int offset, int value) {
-        buffer[offset] = (byte) (value >>> 8 & 0xFF);
-        buffer[offset + 1] = (byte) (value & 0xFF);
     }
 
     /**

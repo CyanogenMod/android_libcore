@@ -638,7 +638,7 @@ public class WeakHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
     }
 
     private void rehash() {
-        int length = elementData.length << 1;
+        int length = elementData.length * 2;
         if (length == 0) {
             length = 1;
         }

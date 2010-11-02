@@ -1125,10 +1125,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         int sign = scaledDividend.signum() * scaledDivisor.signum();
         int compRem;                                      // 'compare to remainder'
-        if(scaledDivisor.bitLength() < 63) { // 63 in order to avoid out of long after <<1
+        if(scaledDivisor.bitLength() < 63) { // 63 in order to avoid out of long after *2
             long rem = remainder.longValue();
             long divisor = scaledDivisor.longValue();
-            compRem = longCompareTo(Math.abs(rem) << 1,Math.abs(divisor));
+            compRem = longCompareTo(Math.abs(rem) * 2,Math.abs(divisor));
             // To look if there is a carry
             compRem = roundingBehavior(quotient.testBit(0) ? 1 : 0,
                     sign * (5 + compRem), roundingMode);
@@ -1157,7 +1157,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (remainder != 0) {
             // Checking if:  remainder * 2 >= scaledDivisor
             int compRem;                                      // 'compare to remainder'
-            compRem = longCompareTo(Math.abs(remainder) << 1,Math.abs(scaledDivisor));
+            compRem = longCompareTo(Math.abs(remainder) * 2,Math.abs(scaledDivisor));
             // To look if there is a carry
             quotient += roundingBehavior(((int)quotient) & 1,
                     sign * (5 + compRem),
@@ -2819,7 +2819,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         // If the discarded fraction is non-zero perform rounding
         if (fraction != 0) {
             // To check if the discarded fraction >= 0.5
-            compRem = longCompareTo(Math.abs(fraction) << 1,sizeOfFraction);
+            compRem = longCompareTo(Math.abs(fraction) * 2, sizeOfFraction);
             // To look if there is a carry
             integer += roundingBehavior( ((int)integer) & 1,
                     Long.signum(fraction) * (5 + compRem),

@@ -509,7 +509,7 @@ class TimSort<T> {
             int maxOfs = len - hint;
             while (ofs < maxOfs && c.compare(key, a[base + hint + ofs]) > 0) {
                 lastOfs = ofs;
-                ofs = (ofs << 1) + 1;
+                ofs = (ofs * 2) + 1;
                 if (ofs <= 0)   // int overflow
                     ofs = maxOfs;
             }
@@ -524,7 +524,7 @@ class TimSort<T> {
             final int maxOfs = hint + 1;
             while (ofs < maxOfs && c.compare(key, a[base + hint - ofs]) <= 0) {
                 lastOfs = ofs;
-                ofs = (ofs << 1) + 1;
+                ofs = (ofs * 2) + 1;
                 if (ofs <= 0)   // int overflow
                     ofs = maxOfs;
             }
@@ -580,7 +580,7 @@ class TimSort<T> {
             int maxOfs = hint + 1;
             while (ofs < maxOfs && c.compare(key, a[base + hint - ofs]) < 0) {
                 lastOfs = ofs;
-                ofs = (ofs << 1) + 1;
+                ofs = (ofs * 2) + 1;
                 if (ofs <= 0)   // int overflow
                     ofs = maxOfs;
             }
@@ -596,7 +596,7 @@ class TimSort<T> {
             int maxOfs = len - hint;
             while (ofs < maxOfs && c.compare(key, a[base + hint + ofs]) >= 0) {
                 lastOfs = ofs;
-                ofs = (ofs << 1) + 1;
+                ofs = (ofs * 2) + 1;
                 if (ofs <= 0)   // int overflow
                     ofs = maxOfs;
             }

@@ -39,6 +39,10 @@ public final class HeapBufferIterator extends BufferIterator {
         this.order = order;
     }
 
+    public void seek(int offset) {
+        position = offset;
+    }
+
     public void skip(int byteCount) {
         position += byteCount;
     }

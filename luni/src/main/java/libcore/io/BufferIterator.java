@@ -24,6 +24,11 @@ package libcore.io;
  */
 public abstract class BufferIterator {
     /**
+     * Seeks to the absolute position {@code offset}, measured in bytes from the start.
+     */
+    public abstract void seek(int offset);
+
+    /**
      * Skips forwards or backwards {@code byteCount} bytes from the current position.
      */
     public abstract void skip(int byteCount);
