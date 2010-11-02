@@ -17,6 +17,7 @@
 
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +103,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     public static final int DEFAULT_CHUNK_LENGTH = 1024;
 
+    /**
+     * The maximum number of bytes to buffer when sending a header and a request
+     * body. When the header and body can be sent in a single write, the request
+     * completes sooner. In one WiFi benchmark, using a large enough buffer sped
+     * up some uploads by half.
+     */
+    private static final int MAX_REQUEST_BUFFER_LENGTH = 32768;
+
     private final int defaultPort;
 
     /**
@@ -115,8 +124,17 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private InputStream socketIn;
     private OutputStream socketOut;
 
-    private InputStream responseBodyIn;
+    /**
+     * This stream buffers the request header and the request body when their
+     * combined size is less than MAX_REQUEST_BUFFER_LENGTH. By combining them
+     * we can save socket writes, which in turn saves a packet transmission.
+     * This is socketOut if the request size is large or unknown.
+     */
+    private OutputStream requestOut;
+
     private AbstractHttpOutputStream requestBodyOut;
+
+    private InputStream responseBodyIn;
 
     private ResponseCache responseCache;
 
@@ -279,6 +297,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     protected void setUpTransportIO(HttpConnection connection) throws IOException {
         socketOut = connection.getOutputStream();
+        requestOut = socketOut;
         socketIn = connection.getInputStream();
     }
 
@@ -375,12 +394,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         /*
-         * Clear "socketIn" and "socketOut" to ensure that no further I/O
-         * attempts from this instance make their way to the underlying
-         * connection (which may get recycled).
+         * Ensure that no further I/O attempts from this instance make their way
+         * to the underlying connection (which may get recycled).
          */
-        socketIn = null;
         socketOut = null;
+        socketIn = null;
+        requestOut = null;
     }
 
     /**
@@ -614,12 +633,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (fixedContentLength != -1) {
-            writeRequestHeaders(socketOut);
-            requestBodyOut = new FixedLengthOutputStream(socketOut, fixedContentLength);
+            writeRequestHeaders(fixedContentLength);
+            requestBodyOut = new FixedLengthOutputStream(requestOut, fixedContentLength);
         } else if (sendChunked) {
-            writeRequestHeaders(socketOut);
-            requestBodyOut = new ChunkedOutputStream(socketOut, chunkLength);
+            writeRequestHeaders(-1);
+            requestBodyOut = new ChunkedOutputStream(requestOut, chunkLength);
         } else if (contentLength != -1) {
+            writeRequestHeaders(contentLength);
             requestBodyOut = new RetryableOutputStream(contentLength);
         } else {
             requestBodyOut = new RetryableOutputStream();
@@ -775,10 +795,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <strong>after</strong> the output stream has been written to and closed.
      * This ensures that the {@code Content-Length} header receives the proper
      * value.
+     *
+     * @param contentLength the number of bytes in the request body, or -1 if
+     *      the request body length is unknown.
      */
-    private void writeRequestHeaders(OutputStream out) throws IOException {
-        String headerLines = prepareRequestHeaders().toHeaderString();
-        out.write(headerLines.getBytes(Charsets.ISO_8859_1));
+    private void writeRequestHeaders(int contentLength) throws IOException {
+        byte[] headerBytes = prepareRequestHeaders().toHeaderString().getBytes(Charsets.ISO_8859_1);
+
+        if (contentLength != -1
+                && headerBytes.length + contentLength <= MAX_REQUEST_BUFFER_LENGTH) {
+            requestOut = new BufferedOutputStream(socketOut, headerBytes.length + contentLength);
+        }
+
+        requestOut.write(headerBytes);
         sentRequestHeaders = true;
     }
 
@@ -1040,17 +1069,21 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private void getFromNetwork() throws IOException {
         if (!sentRequestHeaders) {
-            writeRequestHeaders(socketOut);
+            int contentLength = requestBodyOut instanceof RetryableOutputStream
+                    ? ((RetryableOutputStream) requestBodyOut).contentLength()
+                    : -1;
+            writeRequestHeaders(contentLength);
         }
 
         if (requestBodyOut != null) {
             requestBodyOut.close();
             if (requestBodyOut instanceof RetryableOutputStream) {
-                ((RetryableOutputStream) requestBodyOut).writeToSocket(socketOut);
+                ((RetryableOutputStream) requestBodyOut).writeToSocket(requestOut);
             }
         }
 
-        socketOut.flush();
+        requestOut.flush();
+        requestOut = socketOut;
 
         readResponseHeaders();
 
