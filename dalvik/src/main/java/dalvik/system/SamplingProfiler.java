@@ -317,6 +317,9 @@ public final class SamplingProfiler {
                 // TODO replace with a VMStack.getThreadStackTrace
                 // variant to avoid allocating unneeded elements
                 StackTraceElement[] stack = thread.getStackTrace();
+                if (stack.length == 0) {
+                    continue;
+                }
                 if (stack.length > depth) {
                     stack = Arrays.copyOfRange(stack, 0, depth);
                 }
