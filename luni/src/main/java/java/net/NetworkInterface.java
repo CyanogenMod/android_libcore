@@ -53,10 +53,6 @@ public final class NetworkInterface extends Object {
 
     private final List<NetworkInterface> children = new LinkedList<NetworkInterface>();
 
-    // BEGIN android-changed: we pay this extra complexity on the Java side
-    // in return for vastly simpler native code.
-    private static native InterfaceAddress[] getAllInterfaceAddressesImpl() throws SocketException;
-
     private static NetworkInterface[] getNetworkInterfacesImpl() throws SocketException {
         Map<String, NetworkInterface> networkInterfaces = new LinkedHashMap<String, NetworkInterface>();
         for (InterfaceAddress ia : getAllInterfaceAddressesImpl()) {
@@ -75,7 +71,7 @@ public final class NetworkInterface extends Object {
         }
         return networkInterfaces.values().toArray(new NetworkInterface[networkInterfaces.size()]);
     }
-    // END android-changed
+    private static native InterfaceAddress[] getAllInterfaceAddressesImpl() throws SocketException;
 
     /**
      * This constructor is used by the native method in order to construct the
@@ -332,10 +328,8 @@ public final class NetworkInterface extends Object {
         string.append(name);
         string.append("][");
         string.append(displayName);
-        // BEGIN android-added: the RI shows this, and it's useful for IPv6 users.
         string.append("][");
         string.append(interfaceIndex);
-        // END android-added
         string.append("]");
 
         /*
