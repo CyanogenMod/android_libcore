@@ -987,72 +987,6 @@ static int NativeCrypto_RAND_load_file(JNIEnv* env, jclass, jstring filename, jl
     return result;
 }
 
-/**
- * Convert ssl version constant to string. Based on SSL_get_version
- */
-// TODO move to jsse.patch
-static const char* get_ssl_version(int ssl_version) {
-    switch (ssl_version) {
-        // newest to oldest
-        case TLS1_VERSION: {
-          return SSL_TXT_TLSV1;
-        }
-        case SSL3_VERSION: {
-          return SSL_TXT_SSLV3;
-        }
-        case SSL2_VERSION: {
-          return SSL_TXT_SSLV2;
-        }
-        default: {
-          return "unknown";
-        }
-    }
-}
-
-#ifdef WITH_JNI_TRACE
-/**
- * Convert content type constant to string.
- */
-// TODO move to jsse.patch
-static const char* get_content_type(int content_type) {
-    switch (content_type) {
-        case SSL3_RT_CHANGE_CIPHER_SPEC: {
-            return "SSL3_RT_CHANGE_CIPHER_SPEC";
-        }
-        case SSL3_RT_ALERT: {
-            return "SSL3_RT_ALERT";
-        }
-        case SSL3_RT_HANDSHAKE: {
-            return "SSL3_RT_HANDSHAKE";
-        }
-        case SSL3_RT_APPLICATION_DATA: {
-            return "SSL3_RT_APPLICATION_DATA";
-        }
-        default: {
-            LOGD("Unknown TLS/SSL content type %d", content_type);
-            return "<unknown>";
-        }
-    }
-}
-#endif
-
-#ifdef WITH_JNI_TRACE
-/**
- * Simple logging call back to show hand shake messages
- */
-static void ssl_msg_callback_LOG(int write_p, int ssl_version, int content_type,
-                                 const void* buf, size_t len, SSL* ssl, void* arg) {
-  JNI_TRACE("ssl=%p SSL msg %s %s %s %p %d %p",
-           ssl,
-           (write_p) ? "send" : "recv",
-           get_ssl_version(ssl_version),
-           get_content_type(content_type),
-           buf,
-           len,
-           arg);
-}
-#endif
-
 #ifdef WITH_JNI_TRACE
 /**
  * Based on example logging call back from SSL_CTX_set_info_callback man page
@@ -1470,76 +1404,6 @@ static void sslNotify(AppData* appData) {
     errno = errnoBackup;
 }
 
-// From private header file external/openssl/ssl_locl.h
-// TODO move dependent code to jsse.patch to avoid dependency
-#define SSL_aRSA                0x00000001L
-#define SSL_aDSS                0x00000002L
-#define SSL_aNULL               0x00000004L
-#define SSL_aDH                 0x00000008L
-#define SSL_aECDH               0x00000010L
-#define SSL_aKRB5               0x00000020L
-#define SSL_aECDSA              0x00000040L
-#define SSL_aPSK                0x00000080L
-
-/**
- * Converts an SSL_CIPHER's algorithms field to a TrustManager auth argument
- */
-// TODO move to jsse.patch
-static const char* SSL_CIPHER_authentication_method(const SSL_CIPHER* cipher)
-{
-    unsigned long alg_auth = cipher->algorithm_auth;
-
-    const char* au;
-    switch (alg_auth) {
-        case SSL_aRSA:
-            au="RSA";
-            break;
-        case SSL_aDSS:
-            au="DSS";
-            break;
-        case SSL_aDH:
-            au="DH";
-            break;
-        case SSL_aKRB5:
-            au="KRB5";
-            break;
-        case SSL_aECDH:
-            au = "ECDH";
-            break;
-        case SSL_aNULL:
-            au="None";
-            break;
-        case SSL_aECDSA:
-            au="ECDSA";
-            break;
-        case SSL_aPSK:
-            au="PSK";
-            break;
-        default:
-            au="unknown";
-            break;
-    }
-    return au;
-}
-
-/**
- * Converts an SSL_CIPHER's algorithms field to a TrustManager auth argument
- */
-// TODO move to jsse.patch
-static const char* SSL_authentication_method(SSL* ssl)
-{
-    switch (ssl->version) {
-      case SSL2_VERSION:
-        return "RSA";
-      case SSL3_VERSION:
-      case TLS1_VERSION:
-      case DTLS1_VERSION:
-        return SSL_CIPHER_authentication_method(ssl->s3->tmp.new_cipher);
-      default:
-        return "unknown";
-    }
-}
-
 static AppData* toAppData(const SSL* ssl) {
     return reinterpret_cast<AppData*>(SSL_get_app_data(ssl));
 }
@@ -1825,9 +1689,6 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     SSL_CTX_set_tmp_rsa_callback(sslCtx.get(), tmp_rsa_callback);
     SSL_CTX_set_tmp_dh_callback(sslCtx.get(), tmp_dh_callback);
 
-#ifdef WITH_JNI_TRACE
-    SSL_CTX_set_msg_callback(sslCtx.get(), ssl_msg_callback_LOG); /* enable for message debug */
-#endif
     JNI_TRACE("NativeCrypto_SSL_CTX_new => %p", sslCtx.get());
     return (jint) sslCtx.release();
 }
@@ -3241,16 +3102,6 @@ static jlong NativeCrypto_SSL_SESSION_get_time(JNIEnv* env, jclass, jint ssl_ses
     result *= 1000; // OpenSSL uses seconds, Java uses milliseconds.
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_time => %lld", ssl_session, result);
     return result;
-}
-
-/**
- * Our implementation of what might be considered
- * SSL_SESSION_get_version, based on SSL_get_version.
- * See get_ssl_version above.
- */
-// TODO move to jsse.patch
-static const char* SSL_SESSION_get_version(SSL_SESSION* ssl_session) {
-  return get_ssl_version(ssl_session->ssl_version);
 }
 
 /**
