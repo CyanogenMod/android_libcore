@@ -353,21 +353,6 @@ static jobjectArray getNames(JNIEnv* env, UResourceBundle* namesBundle, bool mon
     return result;
 }
 
-static jstring getIntCurrencyCode(JNIEnv* env, jstring locale) {
-    ScopedUtfChars localeChars(env, locale);
-
-    // Extract the 2-character country name.
-    if (strlen(localeChars.c_str()) < 5) {
-        return NULL;
-    }
-    if (localeChars[3] < 'A' || localeChars[3] > 'Z' || localeChars[4] < 'A' || localeChars[4] > 'Z') {
-        return NULL;
-    }
-
-    char country[3] = { localeChars[3], localeChars[4], 0 };
-    return ICU_getCurrencyCodeNative(env, NULL, env->NewStringUTF(country));
-}
-
 static void setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int value) {
     ScopedLocalRef<jobject> integerValue(env, integerValueOf(env, value));
     jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "Ljava/lang/Integer;");
@@ -506,7 +491,8 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     }
     status = U_ZERO_ERROR;
 
-    jstring internationalCurrencySymbol = getIntCurrencyCode(env, locale);
+    jstring countryCode = env->NewStringUTF(Locale::createFromName(localeName.c_str()).getCountry());
+    jstring internationalCurrencySymbol = ICU_getCurrencyCodeNative(env, NULL, countryCode);
     jstring currencySymbol = NULL;
     if (internationalCurrencySymbol != NULL) {
         currencySymbol = ICU_getCurrencySymbolNative(env, NULL, locale, internationalCurrencySymbol);
