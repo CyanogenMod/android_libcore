@@ -164,8 +164,8 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
     }
 
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
-    	in.defaultReadObject();
-    	params = new DSAParameterSpec(p, q, g);
+        in.defaultReadObject();
+        params = new DSAParameterSpec(p, q, g);
     }
 
 }

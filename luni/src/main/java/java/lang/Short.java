@@ -66,7 +66,7 @@ public final class Short extends Number implements Comparable<Short> {
      * @param string
      *            the string representation of a short value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into a short value.
+     *             if {@code string} cannot be parsed as a short value.
      * @see #parseShort(String)
      */
     public Short(String string) throws NumberFormatException {
@@ -118,7 +118,7 @@ public final class Short extends Number implements Comparable<Short> {
      * @return a {@code Short} containing the value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} can not be parsed as a short value.
+     *             if {@code string} cannot be parsed as a short value.
      */
     public static Short decode(String string) throws NumberFormatException {
         int intValue = Integer.decode(string).intValue();
@@ -126,7 +126,7 @@ public final class Short extends Number implements Comparable<Short> {
         if (result == intValue) {
             return valueOf(result);
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for short: \"" + string + "\"");
     }
 
     @Override
@@ -178,8 +178,7 @@ public final class Short extends Number implements Comparable<Short> {
      *            the string representation of a short value.
      * @return the primitive short value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a short value.
+     *             if {@code string} cannot be parsed as a short value.
      */
     public static short parseShort(String string) throws NumberFormatException {
         return parseShort(string, 10);
@@ -196,19 +195,17 @@ public final class Short extends Number implements Comparable<Short> {
      * @return the primitive short value represented by {@code string} using
      *         {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a short value.
+     *             if {@code string} cannot be parsed as a short value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      */
-    public static short parseShort(String string, int radix)
-            throws NumberFormatException {
+    public static short parseShort(String string, int radix) throws NumberFormatException {
         int intValue = Integer.parseInt(string, radix);
         short result = (short) intValue;
         if (result == intValue) {
             return result;
         }
-        throw new NumberFormatException();
+        throw new NumberFormatException("Value out of range for short: \"" + string + "\"");
     }
 
     /**
@@ -246,8 +243,7 @@ public final class Short extends Number implements Comparable<Short> {
      * @return a {@code Short} instance containing the short value represented
      *         by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a short value.
+     *             if {@code string} cannot be parsed as a short value.
      * @see #parseShort(String)
      */
     public static Short valueOf(String string) throws NumberFormatException {
@@ -265,14 +261,12 @@ public final class Short extends Number implements Comparable<Short> {
      * @return a {@code Short} instance containing the short value represented
      *         by {@code string} using {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as a short value.
+     *             if {@code string} cannot be parsed as a short value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      * @see #parseShort(String, int)
      */
-    public static Short valueOf(String string, int radix)
-            throws NumberFormatException {
+    public static Short valueOf(String string, int radix) throws NumberFormatException {
         return valueOf(parseShort(string, radix));
     }
 

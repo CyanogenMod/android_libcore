@@ -98,7 +98,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @param string
      *            the string representation of an integer value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      * @see #parseInt(String)
      */
     public Integer(String string) throws NumberFormatException {
@@ -129,6 +129,10 @@ public final class Integer extends Number implements Comparable<Integer> {
         return thisValue < thatValue ? -1 : (thisValue == thatValue ? 0 : 1);
     }
 
+    private static NumberFormatException invalidInt(String s) {
+        throw new NumberFormatException("Invalid int: \"" + s + "\"");
+    }
+
     /**
      * Parses the specified string and returns a {@code Integer} instance if the
      * string can be decoded into an integer value. The string may be an
@@ -140,22 +144,18 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} containing the value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      */
     public static Integer decode(String string) throws NumberFormatException {
         int length = string.length(), i = 0;
         if (length == 0) {
-            // BEGIN android-changed
-            throw new NumberFormatException("unable to parse '"+string+"' as integer");
-            // END android-changed
+            throw invalidInt(string);
         }
         char firstDigit = string.charAt(i);
         boolean negative = firstDigit == '-';
         if (negative) {
             if (length == 1) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
             firstDigit = string.charAt(++i);
         }
@@ -167,9 +167,7 @@ public final class Integer extends Number implements Comparable<Integer> {
             }
             if ((firstDigit = string.charAt(i)) == 'x' || firstDigit == 'X') {
                 if (++i == length) {
-                    // BEGIN android-changed
-                    throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                    // END android-changed
+                    throw invalidInt(string);
                 }
                 base = 16;
             } else {
@@ -177,9 +175,7 @@ public final class Integer extends Number implements Comparable<Integer> {
             }
         } else if (firstDigit == '#') {
             if (++i == length) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
             base = 16;
         }
@@ -325,8 +321,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      *            the string representation of an integer value.
      * @return the primitive integer value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      */
     public static int parseInt(String string) throws NumberFormatException {
         return parseInt(string, 10);
@@ -343,65 +338,50 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the primitive integer value represented by {@code string} using
      *         {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value,
+     *             or {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      */
-    public static int parseInt(String string, int radix)
-            throws NumberFormatException {
-        if (string == null || radix < Character.MIN_RADIX
-                || radix > Character.MAX_RADIX) {
-            // BEGIN android-changed
-            throw new NumberFormatException("unable to parse '"+string+"' as integer");
-            // END android-changed
+    public static int parseInt(String string, int radix) throws NumberFormatException {
+        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
+            throw new NumberFormatException("Invalid radix: " + radix);
+        }
+        if (string == null) {
+            throw invalidInt(string);
         }
         int length = string.length(), i = 0;
         if (length == 0) {
-            // BEGIN android-changed
-            throw new NumberFormatException("unable to parse '"+string+"' as integer");
-            // END android-changed
+            throw invalidInt(string);
         }
         boolean negative = string.charAt(i) == '-';
         if (negative && ++i == length) {
-            // BEGIN android-changed
-            throw new NumberFormatException("unable to parse '"+string+"' as integer");
-            // END android-changed
+            throw invalidInt(string);
         }
 
         return parse(string, i, radix, negative);
     }
 
-    private static int parse(String string, int offset, int radix,
-            boolean negative) throws NumberFormatException {
+    private static int parse(String string, int offset, int radix, boolean negative) throws NumberFormatException {
         int max = Integer.MIN_VALUE / radix;
         int result = 0, length = string.length();
         while (offset < length) {
             int digit = Character.digit(string.charAt(offset++), radix);
             if (digit == -1) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
             if (max > result) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
             int next = result * radix - digit;
             if (next > result) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
             result = next;
         }
         if (!negative) {
             result = -result;
             if (result < 0) {
-                // BEGIN android-changed
-                throw new NumberFormatException("unable to parse '"+string+"' as integer");
-                // END android-changed
+                throw invalidInt(string);
             }
         }
         return result;
@@ -498,8 +478,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} instance containing the integer value
      *         represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value.
      * @see #parseInt(String)
      */
     public static Integer valueOf(String string) throws NumberFormatException {
@@ -517,14 +496,12 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return an {@code Integer} instance containing the integer value
      *         represented by {@code string} using {@code radix}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null} or has a length of zero,
-     *             {@code radix < Character.MIN_RADIX},
-     *             {@code radix > Character.MAX_RADIX}, or if {@code string}
-     *             can not be parsed as an integer value.
+     *             if {@code string} cannot be parsed as an integer value, or
+     *             {@code radix < Character.MIN_RADIX ||
+     *             radix > Character.MAX_RADIX}.
      * @see #parseInt(String, int)
      */
-    public static Integer valueOf(String string, int radix)
-            throws NumberFormatException {
+    public static Integer valueOf(String string, int radix) throws NumberFormatException {
         return valueOf(parseInt(string, radix));
     }
 

@@ -34,7 +34,6 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
-        buf.order(other.order());
         return buf;
     }
 
@@ -134,8 +133,6 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer slice() {
-        ReadOnlyDirectByteBuffer buf = new ReadOnlyDirectByteBuffer(block, remaining(), offset + position);
-        buf.order = order;
-        return buf;
+        return new ReadOnlyDirectByteBuffer(block, remaining(), offset + position);
     }
 }

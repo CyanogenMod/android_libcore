@@ -30,11 +30,14 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ResponseCache;
+import java.net.SecureCacheResponse;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.Principal;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -155,7 +158,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         assertEquals(200, urlConnection.getResponseCode());
         assertEquals("Fantastic", urlConnection.getResponseMessage());
+        assertEquals("HTTP/1.0 200 Fantastic", urlConnection.getHeaderField(null));
         Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
+        assertEquals(Arrays.asList("HTTP/1.0 200 Fantastic"), responseHeaders.get(null));
         assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));
         try {
             responseHeaders.put("N", Arrays.asList("o"));
@@ -628,7 +633,8 @@ public class URLConnectionTest extends junit.framework.TestCase {
      * http://code.google.com/p/android/issues/detail?id=8175
      */
     private void testResponseCaching(TransferKind transferKind) throws IOException {
-        MockResponse response = new MockResponse();
+        MockResponse response = new MockResponse()
+                .setStatus("HTTP/1.1 200 Fantastic");
         transferKind.setBody(response, "I love puppies but hate spiders", 1);
         server.enqueue(response);
         server.play();
@@ -637,7 +643,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         ResponseCache.setDefault(cache);
 
         // Make sure that calling skip() doesn't omit bytes from the cache.
-        URLConnection urlConnection = server.getUrl("/").openConnection();
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         InputStream in = urlConnection.getInputStream();
         assertEquals("I love ", readAscii(in, "I love ".length()));
         reliableSkip(in, "puppies but hate ".length());
@@ -647,15 +653,117 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, cache.getSuccessCount());
         assertEquals(0, cache.getAbortCount());
 
-        urlConnection = server.getUrl("/").openConnection(); // this response is cached!
+        urlConnection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
         in = urlConnection.getInputStream();
         assertEquals("I love puppies but hate spiders",
                 readAscii(in, "I love puppies but hate spiders".length()));
+        assertEquals(200, urlConnection.getResponseCode());
+        assertEquals("Fantastic", urlConnection.getResponseMessage());
+
         assertEquals(-1, in.read());
         assertEquals(1, cache.getMissCount());
         assertEquals(1, cache.getHitCount());
         assertEquals(1, cache.getSuccessCount());
         assertEquals(0, cache.getAbortCount());
+    }
+
+    public void testSecureResponseCaching() throws IOException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.play();
+
+        DefaultResponseCache cache = new DefaultResponseCache();
+        ResponseCache.setDefault(cache);
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        // OpenJDK 6 fails on this line, complaining that the connection isn't open yet
+        String suite = connection.getCipherSuite();
+        List<Certificate> localCerts = toListOrNull(connection.getLocalCertificates());
+        List<Certificate> serverCerts = toListOrNull(connection.getServerCertificates());
+        Principal peerPrincipal = connection.getPeerPrincipal();
+        Principal localPrincipal = connection.getLocalPrincipal();
+
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection(); // cached!
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(1, cache.getMissCount());
+        assertEquals(1, cache.getHitCount());
+
+        assertEquals(suite, connection.getCipherSuite());
+        assertEquals(localCerts, toListOrNull(connection.getLocalCertificates()));
+        assertEquals(serverCerts, toListOrNull(connection.getServerCertificates()));
+        assertEquals(peerPrincipal, connection.getPeerPrincipal());
+        assertEquals(localPrincipal, connection.getLocalPrincipal());
+    }
+
+    public void testCacheReturnsInsecureResponseForSecureRequest() throws IOException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        ResponseCache insecureResponseCache = new InsecureResponseCache();
+        ResponseCache.setDefault(insecureResponseCache);
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection(); // not cached!
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("DEF", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+    }
+
+    public void testResponseCachingAndRedirects() throws IOException {
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_PERM)
+                .addHeader("Location: /foo"));
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        DefaultResponseCache cache = new DefaultResponseCache();
+        ResponseCache.setDefault(cache);
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        connection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
+        assertEquals(2, cache.getHitCount());
+    }
+
+    public void testSecureResponseCachingAndRedirects() throws IOException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_PERM)
+                .addHeader("Location: /foo"));
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        DefaultResponseCache cache = new DefaultResponseCache();
+        ResponseCache.setDefault(cache);
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection(); // cached!
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("ABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
+        assertEquals(2, cache.getHitCount());
     }
 
     public void testResponseCacheRequestHeaders() throws IOException, URISyntaxException {
@@ -1435,6 +1543,10 @@ public class URLConnectionTest extends junit.framework.TestCase {
         return bytesOut.toByteArray();
     }
 
+    private <T> List<T> toListOrNull(T[] arrayOrNull) {
+        return arrayOrNull != null ? Arrays.asList(arrayOrNull) : null;
+    }
+
     /**
      * Reads at most {@code limit} characters from {@code in} and asserts that
      * content equals {@code expected}.
@@ -1569,6 +1681,30 @@ public class URLConnectionTest extends junit.framework.TestCase {
         public boolean verify(String hostname, SSLSession session) {
             calls.add("verify " + hostname);
             return true;
+        }
+    }
+
+    private static class InsecureResponseCache extends ResponseCache {
+        private final DefaultResponseCache delegate = new DefaultResponseCache();
+
+        @Override public CacheRequest put(URI uri, URLConnection connection) throws IOException {
+            return delegate.put(uri, connection);
+        }
+
+        @Override public CacheResponse get(URI uri, String requestMethod,
+                Map<String, List<String>> requestHeaders) throws IOException {
+            final CacheResponse response = delegate.get(uri, requestMethod, requestHeaders);
+            if (response instanceof SecureCacheResponse) {
+                return new CacheResponse() {
+                    @Override public InputStream getBody() throws IOException {
+                        return response.getBody();
+                    }
+                    @Override public Map<String, List<String>> getHeaders() throws IOException {
+                        return response.getHeaders();
+                    }
+                };
+            }
+            return response;
         }
     }
 }

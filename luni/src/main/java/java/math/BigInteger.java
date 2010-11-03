@@ -217,7 +217,7 @@ public class BigInteger extends Number
             setBigInt(bigInt);
         } else {
             if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-                throw new NumberFormatException("bad radix: " + radix);
+                throw new NumberFormatException("Invalid radix: " + radix);
             }
             if (value.isEmpty()) {
                 throw new NumberFormatException("value.isEmpty()");
@@ -243,7 +243,7 @@ public class BigInteger extends Number
             throw new NullPointerException("magnitude == null");
         }
         if (signum < -1 || signum > 1) {
-            throw new NumberFormatException("bad signum: " + signum);
+            throw new NumberFormatException("Invalid signum: " + signum);
         }
         if (signum == 0) {
             for (byte element : magnitude) {

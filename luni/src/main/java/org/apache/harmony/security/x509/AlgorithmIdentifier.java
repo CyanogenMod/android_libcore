@@ -143,8 +143,7 @@ public class AlgorithmIdentifier {
     }
 
     public int hashCode() {
-    	return algorithm.hashCode() * 37 +
-    		(parameters != null ? parameters.hashCode() : 0);
+        return algorithm.hashCode() * 37 + (parameters != null ? parameters.hashCode() : 0);
     }
 
     /**
@@ -186,4 +185,3 @@ public class AlgorithmIdentifier {
     };
 
 }
-

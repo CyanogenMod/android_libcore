@@ -21,6 +21,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import libcore.base.Streams;
 
 /**
  * This class wraps an {@code InputStream} and a cipher so that {@code read()}
@@ -162,30 +163,9 @@ public class CipherInputStream extends FilterInputStream {
         return i;
     }
 
-    /**
-     * Skips up to n bytes from this input stream.
-     * <p>
-     * The number of bytes skipped depends on the result of a call to
-     * {@link CipherInputStream#available() available}. The smaller of n and the
-     * result are the number of bytes being skipped.
-     *
-     * @param n
-     *            the number of bytes that should be skipped.
-     * @return the number of bytes actually skipped.
-     * @throws IOException
-     *             if an error occurs
-     */
     @Override
-    public long skip(long n) throws IOException {
-        long i = 0;
-        int available = available();
-        if (available < n) {
-            n = available;
-        }
-        while ((i < n) && (read() != -1)) {
-            i++;
-        }
-        return i;
+    public long skip(long byteCount) throws IOException {
+        return Streams.skipByReading(this, byteCount);
     }
 
     @Override

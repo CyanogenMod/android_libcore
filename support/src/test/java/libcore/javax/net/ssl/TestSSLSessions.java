@@ -58,6 +58,10 @@ public final class TestSSLSessions {
         this.s = s;
     }
 
+    public void close() {
+        s.close();
+    }
+
     public static final TestSSLSessions create() {
         try {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();

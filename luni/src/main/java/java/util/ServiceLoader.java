@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import libcore.io.IoUtils;
 
 /**
  * A service-provider loader.
@@ -249,12 +250,7 @@ public final class ServiceLoader<S> implements Iterable<S> {
                 } catch (Exception e) {
                     throw new ServiceConfigurationError("Couldn't read " + url, e);
                 } finally {
-                    try {
-                        if (reader != null) {
-                            reader.close();
-                        }
-                    } catch (IOException ex) {
-                    }
+                    IoUtils.closeQuietly(reader);
                 }
             }
         }

@@ -142,7 +142,7 @@ public class ThreadLocal<T> {
      * We increment by Doug Lea's Magic Number(TM) (*2 since keys are in
      * every other bucket) to help prevent clustering.
      */
-    private final int hash = hashCounter.getAndAdd(0x61c88647 << 1);
+    private final int hash = hashCounter.getAndAdd(0x61c88647 * 2);
 
     /**
      * Per-thread map of ThreadLocal instances to values.
@@ -247,7 +247,7 @@ public class ThreadLocal<T> {
          * Creates a new, empty table with the given capacity.
          */
         private void initializeTable(int capacity) {
-            this.table = new Object[capacity << 1];
+            this.table = new Object[capacity * 2];
             this.mask = table.length - 1;
             this.clean = 0;
             this.maximumLoad = capacity * 2 / 3; // 2/3
@@ -322,7 +322,7 @@ public class ThreadLocal<T> {
             if (size > (capacity >> 1)) {
                 // More than 1/2 filled w/ live entries.
                 // Double size.
-                newCapacity = capacity << 1;
+                newCapacity = capacity * 2;
             }
 
             Object[] oldTable = this.table;

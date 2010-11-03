@@ -28,6 +28,7 @@ import java.nio.channels.FileLock;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
+import libcore.io.IoUtils;
 
 /**
  * A {@code FileHandler} writes logging records into a specified file or a
@@ -202,12 +203,8 @@ public class FileHandler extends StreamHandler {
                  * undead cycle
                  */
                 lock = channel.tryLock();
-                if (null == lock) {
-                    try {
-                        fileStream.close();
-                    } catch (Exception e) {
-                        // ignore
-                    }
+                if (lock == null) {
+                    IoUtils.closeQuietly(fileStream);
                     continue;
                 }
                 allLocks.put(fileName, lock);

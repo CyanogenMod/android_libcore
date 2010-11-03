@@ -495,7 +495,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private void rehash() {
-        int newlength = elementData.length << 1;
+        int newlength = elementData.length * 2;
         if (newlength == 0) {
             newlength = 1;
         }

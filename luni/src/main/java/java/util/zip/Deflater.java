@@ -17,6 +17,7 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
 
 /**
  * This class compresses data using the <i>DEFLATE</i> algorithm (see <a
@@ -128,6 +129,8 @@ public class Deflater {
 
     private int inLength;
 
+    private final CloseGuard guard = CloseGuard.get();
+
     /**
      * Constructs a new {@code Deflater} instance with default compression
      * level. The strategy can be specified with {@link #setStrategy}, only. A
@@ -169,6 +172,7 @@ public class Deflater {
         }
         compressLevel = level;
         streamHandle = createStream(compressLevel, strategy, noHeader);
+        guard.open("end");
     }
 
     /**
@@ -251,6 +255,7 @@ public class Deflater {
      * methods will typically throw an {@code IllegalStateException}.
      */
     public synchronized void end() {
+        guard.close();
         endImpl();
     }
 
@@ -264,6 +269,9 @@ public class Deflater {
 
     @Override protected void finalize() {
         try {
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             synchronized (this) {
                 end(); // to allow overriding classes to clean up
                 endImpl(); // in case those classes don't call super.end()

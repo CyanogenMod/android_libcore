@@ -17,14 +17,14 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.InvalidObjectException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.TimeZone;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * An abstract class for date/time formatting subclasses which formats and
@@ -882,43 +882,6 @@ public abstract class DateFormat extends Format {
             }
 
             return table.get(Integer.valueOf(calendarField));
-        }
-
-        /**
-         * Resolves instances that are deserialized to the constant
-         * {@code DateFormat.Field} values.
-         *
-         * @return the resolved field object.
-         * @throws InvalidObjectException
-         *             if an error occurs while resolving the field object.
-         */
-        @Override
-        protected Object readResolve() throws InvalidObjectException {
-            if (this.getClass() != Field.class) {
-                throw new InvalidObjectException("cannot resolve subclasses");
-            }
-            if (calendarField != -1) {
-                try {
-                    Field result = ofCalendarField(calendarField);
-
-                    if (result != null && this.getName().equals(result.getName())) {
-                        return result;
-                    }
-                } catch (IllegalArgumentException e) {
-                    throw new InvalidObjectException("Unknown attribute");
-                }
-            } else {
-                if (this.equals(TIME_ZONE)) {
-                    return TIME_ZONE;
-                }
-                if (this.equals(HOUR1)) {
-                    return HOUR1;
-                }
-                if (this.equals(HOUR_OF_DAY1)) {
-                    return HOUR_OF_DAY1;
-                }
-            }
-            throw new InvalidObjectException("Unknown attribute");
         }
     }
 

@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import libcore.io.IoUtils;
 
 /**
  * A parser that parses a text string of primitive types and strings with the
@@ -191,11 +192,7 @@ public final class Scanner implements Iterator<String> {
         try {
             input = new InputStreamReader(fis, charsetName);
         } catch (UnsupportedEncodingException e) {
-            try {
-                fis.close();
-            } catch (IOException ioException) {
-                // ignore
-            }
+            IoUtils.closeQuietly(fis);
             throw new IllegalArgumentException(e.getMessage());
         }
         initialization();

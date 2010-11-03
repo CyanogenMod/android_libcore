@@ -21,10 +21,13 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.charset.Charsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import libcore.io.BufferIterator;
+import libcore.io.HeapBufferIterator;
 
 /**
  * An instance of {@code ZipEntry} represents an entry within a <i>ZIP-archive</i>.
@@ -361,30 +364,25 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         myReadFully(in, hdrBuf);
 
-        long sig = (hdrBuf[0] & 0xff) | ((hdrBuf[1] & 0xff) << 8) |
-            ((hdrBuf[2] & 0xff) << 16) | ((hdrBuf[3] << 24) & 0xffffffffL);
+        BufferIterator it = HeapBufferIterator.iterator(hdrBuf, 0, hdrBuf.length, ByteOrder.LITTLE_ENDIAN);
+
+        int sig = it.readInt();
         if (sig != CENSIG) {
              throw new ZipException("Central Directory Entry not found");
         }
 
-        compressionMethod = (hdrBuf[10] & 0xff) | ((hdrBuf[11] & 0xff) << 8);
-        time = (hdrBuf[12] & 0xff) | ((hdrBuf[13] & 0xff) << 8);
-        modDate = (hdrBuf[14] & 0xff) | ((hdrBuf[15] & 0xff) << 8);
-        crc = (hdrBuf[16] & 0xff) | ((hdrBuf[17] & 0xff) << 8)
-                | ((hdrBuf[18] & 0xff) << 16)
-                | ((hdrBuf[19] << 24) & 0xffffffffL);
-        compressedSize = (hdrBuf[20] & 0xff) | ((hdrBuf[21] & 0xff) << 8)
-                | ((hdrBuf[22] & 0xff) << 16)
-                | ((hdrBuf[23] << 24) & 0xffffffffL);
-        size = (hdrBuf[24] & 0xff) | ((hdrBuf[25] & 0xff) << 8)
-                | ((hdrBuf[26] & 0xff) << 16)
-                | ((hdrBuf[27] << 24) & 0xffffffffL);
-        nameLen = (hdrBuf[28] & 0xff) | ((hdrBuf[29] & 0xff) << 8);
-        int extraLen = (hdrBuf[30] & 0xff) | ((hdrBuf[31] & 0xff) << 8);
-        int commentLen = (hdrBuf[32] & 0xff) | ((hdrBuf[33] & 0xff) << 8);
-        mLocalHeaderRelOffset = (hdrBuf[42] & 0xff) | ((hdrBuf[43] & 0xff) << 8)
-                | ((hdrBuf[44] & 0xff) << 16)
-                | ((hdrBuf[45] << 24) & 0xffffffffL);
+        it.seek(10);
+        compressionMethod = it.readShort();
+        time = it.readShort();
+        modDate = it.readShort();
+        crc = it.readInt();
+        compressedSize = it.readInt();
+        size = it.readInt();
+        nameLen = it.readShort();
+        int extraLen = it.readShort();
+        int commentLen = it.readShort();
+        it.seek(42);
+        mLocalHeaderRelOffset = it.readInt();
 
         byte[] nameBytes = new byte[nameLen];
         myReadFully(in, nameBytes);

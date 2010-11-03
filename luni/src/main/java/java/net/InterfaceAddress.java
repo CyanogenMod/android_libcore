@@ -69,7 +69,7 @@ public class InterfaceAddress {
                 broadcast[i] = (byte) (addrBytes[i] | ~maskBytes[i]);
             }
         }
-        return new Inet4Address(broadcast);
+        return new Inet4Address(broadcast, null);
     }
 
     private static short countPrefixLength(InetAddress mask) {

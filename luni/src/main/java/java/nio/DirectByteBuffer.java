@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
+
 abstract class DirectByteBuffer extends BaseByteBuffer {
     // This is the offset into {@code Buffer.block} at which this buffer logically starts.
     // TODO: rewrite this so we set 'block' to an OffsetMemoryBlock?
@@ -43,37 +45,37 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
     }
 
     final void get(char[] dst, int dstOffset, int charCount) {
-        int byteCount = checkGetBounds(SIZEOF_CHAR, dst.length, dstOffset, charCount);
+        int byteCount = checkGetBounds(SizeOf.CHAR, dst.length, dstOffset, charCount);
         this.block.peekCharArray(offset + position, dst, dstOffset, charCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(double[] dst, int dstOffset, int doubleCount) {
-        int byteCount = checkGetBounds(SIZEOF_DOUBLE, dst.length, dstOffset, doubleCount);
+        int byteCount = checkGetBounds(SizeOf.DOUBLE, dst.length, dstOffset, doubleCount);
         this.block.peekDoubleArray(offset + position, dst, dstOffset, doubleCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(float[] dst, int dstOffset, int floatCount) {
-        int byteCount = checkGetBounds(SIZEOF_FLOAT, dst.length, dstOffset, floatCount);
+        int byteCount = checkGetBounds(SizeOf.FLOAT, dst.length, dstOffset, floatCount);
         this.block.peekFloatArray(offset + position, dst, dstOffset, floatCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(int[] dst, int dstOffset, int intCount) {
-        int byteCount = checkGetBounds(SIZEOF_INT, dst.length, dstOffset, intCount);
+        int byteCount = checkGetBounds(SizeOf.INT, dst.length, dstOffset, intCount);
         this.block.peekIntArray(offset + position, dst, dstOffset, intCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(long[] dst, int dstOffset, int longCount) {
-        int byteCount = checkGetBounds(SIZEOF_LONG, dst.length, dstOffset, longCount);
+        int byteCount = checkGetBounds(SizeOf.LONG, dst.length, dstOffset, longCount);
         this.block.peekLongArray(offset + position, dst, dstOffset, longCount, order.needsSwap);
         position += byteCount;
     }
 
     final void get(short[] dst, int dstOffset, int shortCount) {
-        int byteCount = checkGetBounds(SIZEOF_SHORT, dst.length, dstOffset, shortCount);
+        int byteCount = checkGetBounds(SizeOf.SHORT, dst.length, dstOffset, shortCount);
         this.block.peekShortArray(offset + position, dst, dstOffset, shortCount, order.needsSwap);
         position += byteCount;
     }
@@ -96,7 +98,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final char getChar() {
-        int newPosition = position + SIZEOF_CHAR;
+        int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -107,7 +109,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final char getChar(int index) {
-        if (index < 0 || (long) index + SIZEOF_CHAR > limit) {
+        if (index < 0 || (long) index + SizeOf.CHAR > limit) {
             throw new IndexOutOfBoundsException();
         }
         return (char) this.block.peekShort(offset + index, order);
@@ -115,7 +117,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final double getDouble() {
-        int newPosition = position + SIZEOF_DOUBLE;
+        int newPosition = position + SizeOf.DOUBLE;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -126,7 +128,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final double getDouble(int index) {
-        if (index < 0 || (long) index + SIZEOF_DOUBLE > limit) {
+        if (index < 0 || (long) index + SizeOf.DOUBLE > limit) {
             throw new IndexOutOfBoundsException();
         }
         return Double.longBitsToDouble(this.block.peekLong(offset + index, order));
@@ -134,7 +136,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final float getFloat() {
-        int newPosition = position + SIZEOF_FLOAT;
+        int newPosition = position + SizeOf.FLOAT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -145,7 +147,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final float getFloat(int index) {
-        if (index < 0 || (long) index + SIZEOF_FLOAT > limit) {
+        if (index < 0 || (long) index + SizeOf.FLOAT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return Float.intBitsToFloat(this.block.peekInt(offset + index, order));
@@ -153,7 +155,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt() {
-        int newPosition = position + SIZEOF_INT;
+        int newPosition = position + SizeOf.INT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -164,7 +166,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt(int index) {
-        if (index < 0 || (long) index + SIZEOF_INT > limit) {
+        if (index < 0 || (long) index + SizeOf.INT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return this.block.peekInt(offset + index, order);
@@ -172,7 +174,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong() {
-        int newPosition = position + SIZEOF_LONG;
+        int newPosition = position + SizeOf.LONG;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -183,7 +185,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong(int index) {
-        if (index < 0 || (long) index + SIZEOF_LONG > limit) {
+        if (index < 0 || (long) index + SizeOf.LONG > limit) {
             throw new IndexOutOfBoundsException();
         }
         return this.block.peekLong(offset + index, order);
@@ -191,7 +193,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort() {
-        int newPosition = position + SIZEOF_SHORT;
+        int newPosition = position + SizeOf.SHORT;
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
@@ -202,7 +204,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort(int index) {
-        if (index < 0 || (long) index + SIZEOF_SHORT > limit) {
+        if (index < 0 || (long) index + SizeOf.SHORT > limit) {
             throw new IndexOutOfBoundsException();
         }
         return this.block.peekShort(offset + index, order);

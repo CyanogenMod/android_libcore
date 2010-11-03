@@ -16,6 +16,8 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
+
 /**
  * This class wraps a byte buffer to be a short buffer.
  * <p>
@@ -30,14 +32,16 @@ package java.nio;
  */
 final class ShortToByteBufferAdapter extends ShortBuffer {
 
-    static ShortBuffer wrap(ByteBuffer byteBuffer) {
-        return new ShortToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    ShortToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SIZEOF_SHORT);
+    static ShortBuffer asShortBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new ShortToByteBufferAdapter(slice);
+    }
+
+    private ShortToByteBufferAdapter(ByteBuffer byteBuffer) {
+        super(byteBuffer.capacity() / SizeOf.SHORT);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
@@ -57,8 +61,8 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit * SIZEOF_SHORT);
-        byteBuffer.position(position * SIZEOF_SHORT);
+        byteBuffer.limit(limit * SizeOf.SHORT);
+        byteBuffer.position(position * SizeOf.SHORT);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -81,7 +85,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getShort(position++ * SIZEOF_SHORT);
+        return byteBuffer.getShort(position++ * SizeOf.SHORT);
     }
 
     @Override
@@ -89,13 +93,13 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        return byteBuffer.getShort(index * SIZEOF_SHORT);
+        return byteBuffer.getShort(index * SizeOf.SHORT);
     }
 
     @Override
     public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
-        byteBuffer.limit(limit * SIZEOF_SHORT);
-        byteBuffer.position(position * SIZEOF_SHORT);
+        byteBuffer.limit(limit * SizeOf.SHORT);
+        byteBuffer.position(position * SizeOf.SHORT);
         if (byteBuffer instanceof DirectByteBuffer) {
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, shortCount);
         } else {
@@ -140,7 +144,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putShort(position++ * SIZEOF_SHORT, c);
+        byteBuffer.putShort(position++ * SizeOf.SHORT, c);
         return this;
     }
 
@@ -149,14 +153,14 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        byteBuffer.putShort(index * SIZEOF_SHORT, c);
+        byteBuffer.putShort(index * SizeOf.SHORT, c);
         return this;
     }
 
     @Override
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
-        byteBuffer.limit(limit * SIZEOF_SHORT);
-        byteBuffer.position(position * SIZEOF_SHORT);
+        byteBuffer.limit(limit * SizeOf.SHORT);
+        byteBuffer.position(position * SizeOf.SHORT);
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, shortCount);
         } else {
@@ -168,8 +172,8 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public ShortBuffer slice() {
-        byteBuffer.limit(limit * SIZEOF_SHORT);
-        byteBuffer.position(position * SIZEOF_SHORT);
+        byteBuffer.limit(limit * SizeOf.SHORT);
+        byteBuffer.position(position * SizeOf.SHORT);
         ShortBuffer result = new ShortToByteBufferAdapter(byteBuffer.slice());
         byteBuffer.clear();
         return result;

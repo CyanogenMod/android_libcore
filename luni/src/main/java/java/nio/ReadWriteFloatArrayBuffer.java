@@ -32,8 +32,8 @@ package java.nio;
 final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
 
     static ReadWriteFloatArrayBuffer copy(FloatArrayBuffer other, int markOfOther) {
-        ReadWriteFloatArrayBuffer buf = new ReadWriteFloatArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadWriteFloatArrayBuffer buf =
+                new ReadWriteFloatArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -48,8 +48,7 @@ final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
         super(capacity);
     }
 
-    ReadWriteFloatArrayBuffer(int capacity, float[] backingArray,
-            int arrayOffset) {
+    ReadWriteFloatArrayBuffer(int capacity, float[] backingArray, int arrayOffset) {
         super(capacity, backingArray, arrayOffset);
     }
 
@@ -60,8 +59,7 @@ final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
 
     @Override
     public FloatBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

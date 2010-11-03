@@ -526,7 +526,7 @@ public class ArrayDeque<E> extends AbstractCollection<E> implements Deque<E>,
             throw new IllegalStateException();
         }
         int length = elements.length;
-        int newLength = length << 1;
+        int newLength = length * 2;
         // bigger than Integer.MAX_VALUE
         if (newLength < 0) {
             newLength = Integer.MAX_VALUE;

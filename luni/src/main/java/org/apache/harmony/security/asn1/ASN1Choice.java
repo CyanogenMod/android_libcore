@@ -269,7 +269,7 @@ public abstract class ASN1Choice extends ASN1Type {
         Iterator it = map.entrySet().iterator();
 
         for (int i = 0; i < size; i++) {
-        	Map.Entry entry = (Map.Entry) it.next();
+            Map.Entry entry = (Map.Entry) it.next();
             BigInteger identifier = (BigInteger) entry.getKey();
 
             identifiers[0][i] = identifier.intValue();

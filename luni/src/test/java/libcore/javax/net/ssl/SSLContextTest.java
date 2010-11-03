@@ -305,5 +305,6 @@ public class SSLContextTest extends TestCase {
         assertNotNull(testContext.serverSocket);
         assertNotNull(testContext.host);
         assertTrue(testContext.port != 0);
+        testContext.close();
     }
 }

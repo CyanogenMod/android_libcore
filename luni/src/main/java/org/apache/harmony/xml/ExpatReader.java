@@ -19,6 +19,7 @@ package org.apache.harmony.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import libcore.io.IoUtils;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -261,8 +262,7 @@ public class ExpatReader implements XMLReader {
             try {
                 parse(reader, input.getPublicId(), input.getSystemId());
             } finally {
-                // TODO: Don't eat original exception when close() throws.
-                reader.close();
+                IoUtils.closeQuietly(reader);
             }
             return;
         }
@@ -274,8 +274,7 @@ public class ExpatReader implements XMLReader {
             try {
                 parse(in, encoding, input.getPublicId(), input.getSystemId());
             } finally {
-                // TODO: Don't eat original exception when close() throws.
-                in.close();
+                IoUtils.closeQuietly(in);
             }
             return;
         }
@@ -290,7 +289,7 @@ public class ExpatReader implements XMLReader {
         try {
             parse(in, encoding, input.getPublicId(), systemId);
         } finally {
-            in.close();
+            IoUtils.closeQuietly(in);
         }
     }
 

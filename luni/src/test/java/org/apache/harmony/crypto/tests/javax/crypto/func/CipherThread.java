@@ -35,7 +35,7 @@ public abstract class CipherThread implements Runnable {
     private String paddingMode = null;
     private int fails = 0;
 
-    abstract public void crypt() throws Exception;
+    public abstract void crypt() throws Exception;
 
     CipherThread(String name, int[] keys, String[] modes, String[] paddings) {
         algName     = name;

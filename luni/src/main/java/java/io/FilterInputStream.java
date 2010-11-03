@@ -179,7 +179,7 @@ public class FilterInputStream extends InputStream {
      * used. This implementation skips {@code count} number of bytes in the
      * filtered stream.
      *
-     * @param count
+     * @param byteCount
      *            the number of bytes to skip.
      * @return the number of bytes actually skipped.
      * @throws IOException
@@ -188,7 +188,7 @@ public class FilterInputStream extends InputStream {
      * @see #reset()
      */
     @Override
-    public long skip(long count) throws IOException {
-        return in.skip(count);
+    public long skip(long byteCount) throws IOException {
+        return in.skip(byteCount);
     }
 }

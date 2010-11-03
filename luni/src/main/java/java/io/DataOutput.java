@@ -18,7 +18,7 @@
 package java.io;
 
 /**
- * Defines an interface for classes that are able to write typed data to some
+ * Defines an interface for classes that are able to write big-endian typed data to some
  * target. Typically, this data can be read in by a class which implements
  * DataInput. Types that can be written include byte, 16-bit short, 32-bit int,
  * 32-bit float, 64-bit long, 64-bit double, byte strings, and {@link DataInput
@@ -37,8 +37,6 @@ public interface DataOutput {
      *            the buffer to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[], int, int)
      */
     public abstract void write(byte[] buffer) throws IOException;
 
@@ -54,13 +52,8 @@ public interface DataOutput {
      *            the number of bytes from the {@code buffer} to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[], int, int)
      */
     public abstract void write(byte[] buffer, int offset, int count) throws IOException;
-    // BEGIN android-note
-    // changed array notation to be consistent with the rest of harmony
-    // END android-note
 
     /**
      * Writes the specified 8-bit byte.
@@ -103,15 +96,12 @@ public interface DataOutput {
      *            the string containing the bytes to write.
      * @throws IOException
      *             if an I/O error occurs while writing.
-     * @see DataInput#readFully(byte[])
-     * @see DataInput#readFully(byte[],int,int)
      */
     public abstract void writeBytes(String str) throws IOException;
 
     /**
-     * Writes the specified 16-bit character. Only the two least significant
-     * bytes of the integer {@code oneByte} are written, with the higher one
-     * written first. This represents the Unicode value of the char.
+     * Writes the specified 16-bit character in big-endian order. Only the two least significant
+     * bytes of the integer {@code oneByte} are written.
      *
      * @param val
      *            the character to write.
@@ -122,7 +112,7 @@ public interface DataOutput {
     public abstract void writeChar(int val) throws IOException;
 
     /**
-     * Writes the 16-bit characters contained in {@code str}.
+     * Writes the 16-bit characters contained in {@code str} in big-endian order.
      *
      * @param str
      *            the string that contains the characters to write.
@@ -133,7 +123,7 @@ public interface DataOutput {
     public abstract void writeChars(String str) throws IOException;
 
     /**
-     * Writes the specified 64-bit double. The resulting output is the eight
+     * Writes the specified 64-bit double in big-endian order. The resulting output is the eight
      * bytes returned by {@link Double#doubleToLongBits(double)}.
      *
      * @param val
@@ -145,7 +135,7 @@ public interface DataOutput {
     public abstract void writeDouble(double val) throws IOException;
 
     /**
-     * Writes the specified 32-bit float. The resulting output is the four bytes
+     * Writes the specified 32-bit float in big-endian order. The resulting output is the four bytes
      * returned by {@link Float#floatToIntBits(float)}.
      *
      * @param val
@@ -157,8 +147,7 @@ public interface DataOutput {
     public abstract void writeFloat(float val) throws IOException;
 
     /**
-     * Writes the specified 32-bit int. The resulting output is the four bytes,
-     * highest order first, of {@code val}.
+     * Writes the specified 32-bit int in big-endian order.
      *
      * @param val
      *            the int to write.
@@ -169,8 +158,7 @@ public interface DataOutput {
     public abstract void writeInt(int val) throws IOException;
 
     /**
-     * Writes the specified 64-bit long. The resulting output is the eight
-     * bytes, highest order first, of {@code val}.
+     * Writes the specified 64-bit long in big-endian order.
      *
      * @param val
      *            the long to write.
@@ -181,8 +169,8 @@ public interface DataOutput {
     public abstract void writeLong(long val) throws IOException;
 
     /**
-     * Writes the specified 16-bit short. Only the lower two bytes of {@code
-     * val} are written with the higher one written first.
+     * Writes the specified 16-bit short in big-endian order. Only the lower two bytes of {@code
+     * val} are written.
      *
      * @param val
      *            the short to write.

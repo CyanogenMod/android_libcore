@@ -17,8 +17,6 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,6 +24,8 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.Currency;
 import java.util.Locale;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * Encapsulates the set of symbols (such as the decimal separator, the grouping

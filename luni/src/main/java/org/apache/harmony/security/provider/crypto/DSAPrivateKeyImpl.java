@@ -152,8 +152,8 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
     }
 
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
-    	in.defaultReadObject();
-    	params = new DSAParameterSpec(p, q, g);
+        in.defaultReadObject();
+        params = new DSAParameterSpec(p, q, g);
     }
 
 }

@@ -17,9 +17,9 @@
 
 package java.text;
 
-import com.ibm.icu4jni.text.NativeBreakIterator;
-import com.ibm.icu4jni.util.ICU;
 import java.util.Locale;
+import libcore.icu.ICU;
+import libcore.icu.NativeBreakIterator;
 
 /**
  * Locates boundaries in text. This class defines a protocol for objects that

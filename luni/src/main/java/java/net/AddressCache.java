@@ -40,15 +40,13 @@ class AddressCache {
     // Default time-to-live for negative cache entries. 10 seconds.
     private static final long DEFAULT_NEGATIVE_TTL_NANOS = 10 * 1000000000L;
 
-    // Failed lookups are represented in the cache my mappings to this empty array.
-    private static final InetAddress[] NO_ADDRESSES = new InetAddress[0];
-
     // The actual cache.
     private final Map<String, AddressCacheEntry> map;
 
     static class AddressCacheEntry {
-        // The addresses. May be the empty array for a negative cache entry.
-        InetAddress[] addresses;
+        // Either an InetAddress[] for a positive entry,
+        // or a String detail message for a negative entry.
+        final Object value;
 
         /**
          * The absolute expiry time in nanoseconds. Nanoseconds from System.nanoTime is ideal
@@ -56,10 +54,10 @@ class AddressCache {
          *
          * Unless we need to cope with DNS TTLs of 292 years, we don't need to worry about overflow.
          */
-        long expiryNanos;
+        final long expiryNanos;
 
-        AddressCacheEntry(InetAddress[] addresses, long expiryNanos) {
-            this.addresses = addresses;
+        AddressCacheEntry(Object value, long expiryNanos) {
+            this.value = value;
             this.expiryNanos = expiryNanos;
         }
     }
@@ -77,17 +75,27 @@ class AddressCache {
     }
 
     /**
-     * Returns the cached addresses associated with 'hostname'. Returns null if nothing is known
-     * about 'hostname'. Returns an empty array if 'hostname' is known not to exist.
+     * Removes all entries from the cache.
      */
-    public InetAddress[] get(String hostname) {
+    public void clear() {
+        synchronized (map) {
+            map.clear();
+        }
+    }
+
+    /**
+     * Returns the cached InetAddress[] associated with 'hostname'. Returns null if nothing is known
+     * about 'hostname'. Returns a String suitable for use as an UnknownHostException detail
+     * message if 'hostname' is known not to exist.
+     */
+    public Object get(String hostname) {
         AddressCacheEntry entry;
         synchronized (map) {
             entry = map.get(hostname);
         }
         // Do we have a valid cache entry?
         if (entry != null && entry.expiryNanos >= System.nanoTime()) {
-            return entry.addresses;
+            return entry.value;
         }
         // Either we didn't find anything, or it had expired.
         // No need to remove expired entries: the caller will provide a replacement shortly.
@@ -99,8 +107,23 @@ class AddressCache {
      * certain length of time.
      */
     public void put(String hostname, InetAddress[] addresses) {
+        put(hostname, addresses, true);
+    }
+
+    /**
+     * Associates the given 'detailMessage' with 'hostname'. The association will expire after a
+     * certain length of time.
+     */
+    public void put(String hostname, String detailMessage) {
+        put(hostname, detailMessage, false);
+    }
+
+    /**
+     * Associates the given 'addresses' with 'hostname'. The association will expire after a
+     * certain length of time.
+     */
+    public void put(String hostname, Object value, boolean isPositive) {
         // Calculate the expiry time.
-        boolean isPositive = (addresses.length > 0);
         String propertyName = isPositive ? "networkaddress.cache.ttl" : "networkaddress.cache.negative.ttl";
         long defaultTtlNanos = isPositive ? DEFAULT_POSITIVE_TTL_NANOS : DEFAULT_NEGATIVE_TTL_NANOS;
         // Fast-path the default case...
@@ -114,7 +137,7 @@ class AddressCache {
         }
         // Update the cache.
         synchronized (map) {
-            map.put(hostname, new AddressCacheEntry(addresses, expiryNanos));
+            map.put(hostname, new AddressCacheEntry(value, expiryNanos));
         }
     }
 
@@ -122,8 +145,8 @@ class AddressCache {
      * Records that 'hostname' is known not to have any associated addresses. (I.e. insert a
      * negative cache entry.)
      */
-    public void putUnknownHost(String hostname) {
-        put(hostname, NO_ADDRESSES);
+    public void putUnknownHost(String hostname, String detailMessage) {
+        put(hostname, detailMessage);
     }
 
     private long customTtl(String propertyName, long defaultTtlNanos) {

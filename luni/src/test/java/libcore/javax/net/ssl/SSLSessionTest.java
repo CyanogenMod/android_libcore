@@ -30,6 +30,7 @@ public class SSLSessionTest extends TestCase {
         assertFalse(s.invalid.isValid());
         assertTrue(s.server.isValid());
         assertTrue(s.client.isValid());
+        s.close();
     }
 
     public void test_SSLSession_getApplicationBufferSize() {
@@ -37,6 +38,7 @@ public class SSLSessionTest extends TestCase {
         assertTrue(s.invalid.getApplicationBufferSize() > 0);
         assertTrue(s.server.getApplicationBufferSize() > 0);
         assertTrue(s.client.getApplicationBufferSize() > 0);
+        s.close();
     }
 
     public void test_SSLSession_getCipherSuite() {
@@ -48,6 +50,7 @@ public class SSLSessionTest extends TestCase {
         assertEquals(s.server.getCipherSuite(),
                      s.client.getCipherSuite());
         assertTrue(StandardNames.CIPHER_SUITES.contains(s.server.getCipherSuite()));
+        s.close();
     }
 
     public void test_SSLSession_getCreationTime() {
@@ -56,6 +59,7 @@ public class SSLSessionTest extends TestCase {
         assertTrue(s.server.getCreationTime() > 0);
         assertTrue(s.client.getCreationTime() > 0);
         assertTrue(Math.abs(s.server.getCreationTime() - s.client.getCreationTime()) < 1 * 1000);
+        s.close();
     }
 
     public void test_SSLSession_getId() {
@@ -71,6 +75,7 @@ public class SSLSessionTest extends TestCase {
             assertTrue(Arrays.equals(s.server.getId(), s.client.getId()));
         }
         assertEquals(32, s.client.getId().length);
+        s.close();
     }
 
     public void test_SSLSession_getLastAccessedTime() {
@@ -84,6 +89,7 @@ public class SSLSessionTest extends TestCase {
                    s.server.getCreationTime());
         assertTrue(s.client.getLastAccessedTime() >=
                    s.client.getCreationTime());
+        s.close();
     }
 
     public void test_SSLSession_getLocalCertificates() throws Exception {
@@ -96,6 +102,7 @@ public class SSLSessionTest extends TestCase {
                                                     s.server.getLocalCertificates());
         TestSSLContext.assertCertificateInKeyStore(s.server.getLocalCertificates()[0],
                                                    s.s.c.serverKeyStore);
+        s.close();
     }
 
     public void test_SSLSession_getLocalPrincipal() throws Exception {
@@ -106,6 +113,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.server.getLocalPrincipal().getName());
         TestSSLContext.assertCertificateInKeyStore(s.server.getLocalPrincipal(),
                                                    s.s.c.serverKeyStore);
+        s.close();
     }
 
     public void test_SSLSession_getPacketBufferSize() {
@@ -113,6 +121,7 @@ public class SSLSessionTest extends TestCase {
         assertTrue(s.invalid.getPacketBufferSize() > 0);
         assertTrue(s.server.getPacketBufferSize() > 0);
         assertTrue(s.client.getPacketBufferSize() > 0);
+        s.close();
     }
 
     public void test_SSLSession_getPeerCertificateChain() throws Exception {
@@ -129,6 +138,7 @@ public class SSLSessionTest extends TestCase {
             fail();
         } catch (SSLPeerUnverifiedException expected) {
         }
+        s.close();
     }
 
     public void test_SSLSession_getPeerCertificates() throws Exception {
@@ -149,6 +159,7 @@ public class SSLSessionTest extends TestCase {
             fail();
         } catch (SSLPeerUnverifiedException expected) {
         }
+        s.close();
     }
 
     public void test_SSLSession_getPeerHost() {
@@ -156,6 +167,7 @@ public class SSLSessionTest extends TestCase {
         assertNull(s.invalid.getPeerHost());
         assertNotNull(s.server.getPeerHost());
         assertNotNull(s.client.getPeerHost());
+        s.close();
     }
 
     public void test_SSLSession_getPeerPort() {
@@ -163,6 +175,7 @@ public class SSLSessionTest extends TestCase {
         assertEquals(-1, s.invalid.getPeerPort());
         assertTrue(s.server.getPeerPort() > 0);
         assertEquals(s.s.c.port, s.client.getPeerPort());
+        s.close();
     }
 
     public void test_SSLSession_getPeerPrincipal() throws Exception {
@@ -181,6 +194,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.client.getPeerPrincipal().getName());
         TestSSLContext.assertCertificateInKeyStore(s.client.getPeerPrincipal(),
                                                    s.s.c.serverKeyStore);
+        s.close();
     }
 
     public void test_SSLSession_getProtocol() {
@@ -192,6 +206,7 @@ public class SSLSessionTest extends TestCase {
         assertEquals(s.server.getProtocol(),
                      s.client.getProtocol());
         assertTrue(StandardNames.SSL_SOCKET_PROTOCOLS.contains(s.server.getProtocol()));
+        s.close();
     }
 
     public void test_SSLSession_getSessionContext() {
@@ -205,6 +220,7 @@ public class SSLSessionTest extends TestCase {
                      s.client.getSessionContext());
         assertNotSame(s.server.getSessionContext(),
                       s.client.getSessionContext());
+        s.close();
     }
 
     public void test_SSLSession_getValue() {
@@ -214,16 +230,19 @@ public class SSLSessionTest extends TestCase {
         } catch (IllegalArgumentException expected) {
         }
         assertNull(s.invalid.getValue("BOGUS"));
+        s.close();
     }
 
     public void test_SSLSession_getValueNames() {
         TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getValueNames());
         assertEquals(0, s.invalid.getValueNames().length);
+        s.close();
     }
 
     public void test_SSLSession_invalidate() {
         TestSSLSessions s = TestSSLSessions.create();
+
         assertFalse(s.invalid.isValid());
         s.invalid.invalidate();
         assertFalse(s.invalid.isValid());
@@ -238,6 +257,8 @@ public class SSLSessionTest extends TestCase {
         s.client.invalidate();
         assertFalse(s.client.isValid());
         assertNull(s.client.getSessionContext());
+
+        s.close();
     }
 
     public void test_SSLSession_isValid() {
@@ -245,6 +266,7 @@ public class SSLSessionTest extends TestCase {
         assertFalse(s.invalid.isValid());
         assertTrue(s.server.isValid());
         assertTrue(s.client.isValid());
+        s.close();
     }
 
     public void test_SSLSession_putValue() {
@@ -257,6 +279,7 @@ public class SSLSessionTest extends TestCase {
         assertSame(value, s.invalid.getValue(key));
         assertEquals(1, s.invalid.getValueNames().length);
         assertEquals(key, s.invalid.getValueNames()[0]);
+        s.close();
     }
 
     public void test_SSLSession_removeValue() {
@@ -269,5 +292,6 @@ public class SSLSessionTest extends TestCase {
         s.invalid.removeValue(key);
         assertNull(s.invalid.getValue(key));
         assertEquals(0, s.invalid.getValueNames().length);
+        s.close();
     }
 }

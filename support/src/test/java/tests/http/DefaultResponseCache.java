@@ -24,13 +24,19 @@ import java.io.OutputStream;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.ResponseCache;
+import java.net.SecureCacheResponse;
 import java.net.URI;
 import java.net.URLConnection;
+import java.security.Principal;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * Cache all responses in memory by URI.
@@ -111,10 +117,12 @@ public final class DefaultResponseCache extends ResponseCache {
         };
         private final Map<String, List<String>> headers;
         private final URI uri;
+        private final CacheResponse cacheResponse;
 
-        private Entry(URI uri, URLConnection conn) {
+        private Entry(URI uri, URLConnection connection) {
             this.uri = uri;
-            this.headers = deepCopy(conn.getHeaderFields());
+            this.headers = deepCopy(connection.getHeaderFields());
+            this.cacheResponse = connectionToCacheResponse(connection);
         }
 
         public CacheRequest asRequest() {
@@ -136,15 +144,77 @@ public final class DefaultResponseCache extends ResponseCache {
             };
         }
 
-        public CacheResponse asResponse() {
-            return new CacheResponse() {
-                @Override public InputStream getBody() throws IOException {
+        private CacheResponse connectionToCacheResponse(URLConnection connection) {
+            if (!(connection instanceof HttpsURLConnection)) {
+                return new CacheResponse() {
+                    @Override public InputStream getBody() {
+                        return new ByteArrayInputStream(getBytes());
+                    }
+                    @Override public Map<String, List<String>> getHeaders() {
+                        return deepCopy(headers);
+                    }
+                };
+            }
+
+            HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+
+            /*
+             * Retrieve the fields eagerly to avoid needing a strong reference
+             * to the connection. We do acrobatics for the two methods that can
+             * throw so that the cache response also throws.
+             */
+            List<Certificate> serverCertificatesNonFinal = null;
+            try {
+                serverCertificatesNonFinal = Arrays.asList(httpsConnection.getServerCertificates());
+            } catch (SSLPeerUnverifiedException ignored) {
+            }
+            Principal peerPrincipalNonFinal = null;
+            try {
+                peerPrincipalNonFinal = httpsConnection.getPeerPrincipal();
+            } catch (SSLPeerUnverifiedException ignored) {
+            }
+            final String cipherSuite = httpsConnection.getCipherSuite();
+            final Certificate[] localCertificates = httpsConnection.getLocalCertificates();
+            final List<Certificate> serverCertificates = serverCertificatesNonFinal;
+            final Principal peerPrincipal = peerPrincipalNonFinal;
+            final Principal localPrincipal = httpsConnection.getLocalPrincipal();
+
+            return new SecureCacheResponse() {
+                @Override public InputStream getBody() {
                     return new ByteArrayInputStream(getBytes());
                 }
-                @Override public Map<String, List<String>> getHeaders() throws IOException {
+                @Override public Map<String, List<String>> getHeaders() {
                     return deepCopy(headers);
                 }
+                @Override public String getCipherSuite() {
+                    return cipherSuite;
+                }
+                @Override public List<Certificate> getLocalCertificateChain() {
+                    return localCertificates != null
+                            ? Arrays.asList(localCertificates.clone())
+                            : null;
+                }
+                @Override public List<Certificate> getServerCertificateChain()
+                        throws SSLPeerUnverifiedException {
+                    if (serverCertificates == null) {
+                        throw new SSLPeerUnverifiedException(null);
+                    }
+                    return new ArrayList<Certificate>(serverCertificates);
+                }
+                @Override public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+                    if (peerPrincipal == null) {
+                        throw new SSLPeerUnverifiedException(null);
+                    }
+                    return peerPrincipal;
+                }
+                @Override public Principal getLocalPrincipal() {
+                    return localPrincipal;
+                }
             };
+        }
+
+        public CacheResponse asResponse() {
+            return cacheResponse;
         }
 
         public byte[] getBytes() {

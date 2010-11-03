@@ -20,6 +20,8 @@ package java.util.zip;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * The {@code GZIPInputStream} class is used to read data stored in the GZIP
@@ -79,7 +81,7 @@ public class GZIPInputStream extends InflaterInputStream {
         super(is, new Inflater(true), size);
         byte[] header = new byte[10];
         readFully(header, 0, header.length);
-        int magic = getShort(header, 0);
+        int magic = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
         if (magic != GZIP_MAGIC) {
             throw new IOException(String.format("unknown format (magic number %x)", magic));
         }
@@ -93,7 +95,7 @@ public class GZIPInputStream extends InflaterInputStream {
             if (hcrc) {
                 crc.update(header, 0, 2);
             }
-            int length = getShort(header, 0);
+            int length = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
             while (length > 0) {
                 int max = length > buf.length ? buf.length : length;
                 int result = in.read(buf, 0, max);
@@ -114,7 +116,7 @@ public class GZIPInputStream extends InflaterInputStream {
         }
         if (hcrc) {
             readFully(header, 0, 2);
-            int crc16 = getShort(header, 0);
+            int crc16 = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
             if ((crc.getValue() & 0xffff) != crc16) {
                 throw new IOException("CRC mismatch");
             }
@@ -129,19 +131,6 @@ public class GZIPInputStream extends InflaterInputStream {
     public void close() throws IOException {
         eos = true;
         super.close();
-    }
-
-    private long getLong(byte[] buffer, int off) {
-        long l = 0;
-        l |= (buffer[off] & 0xFF);
-        l |= (buffer[off + 1] & 0xFF) << 8;
-        l |= (buffer[off + 2] & 0xFF) << 16;
-        l |= ((long) (buffer[off + 3] & 0xFF)) << 24;
-        return l;
-    }
-
-    private int getShort(byte[] buffer, int off) {
-        return (buffer[off] & 0xFF) | ((buffer[off + 1] & 0xFF) << 8);
     }
 
     /**
@@ -197,10 +186,10 @@ public class GZIPInputStream extends InflaterInputStream {
         System.arraycopy(buf, len - size, b, 0, copySize);
         readFully(b, copySize, trailerSize - copySize);
 
-        if (getLong(b, 0) != crc.getValue()) {
+        if (OSMemory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != crc.getValue()) {
             throw new IOException("CRC mismatch");
         }
-        if ((int) getLong(b, 4) != inf.getTotalOut()) {
+        if (OSMemory.peekInt(b, 4, ByteOrder.LITTLE_ENDIAN) != inf.getTotalOut()) {
             throw new IOException("Size mismatch");
         }
     }

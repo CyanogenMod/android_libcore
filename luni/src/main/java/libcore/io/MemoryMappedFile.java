@@ -81,14 +81,14 @@ public final class MemoryMappedFile implements Closeable {
      * Returns a new iterator that treats the mapped data as big-endian.
      */
     public BufferIterator bigEndianIterator() {
-        return new BufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN);
+        return new NioBufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Returns a new iterator that treats the mapped data as little-endian.
      */
     public BufferIterator littleEndianIterator() {
-        return new BufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN);
+        return new NioBufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN);
     }
 
     /**

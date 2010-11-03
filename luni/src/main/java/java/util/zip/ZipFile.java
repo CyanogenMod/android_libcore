@@ -17,17 +17,22 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import libcore.io.BufferIterator;
+import libcore.io.HeapBufferIterator;
 
 /**
  * This class provides random read access to a <i>ZIP-archive</i> file.
@@ -83,6 +88,8 @@ public class ZipFile implements ZipConstants {
 
     private final LinkedHashMap<String, ZipEntry> mEntries = new LinkedHashMap<String, ZipEntry>();
 
+    private final CloseGuard guard = CloseGuard.get();
+
     /**
      * Constructs a new {@code ZipFile} with the specified file.
      *
@@ -131,6 +138,7 @@ public class ZipFile implements ZipConstants {
         mRaf = new RandomAccessFile(fileName, "r");
 
         readCentralDir();
+        guard.open("close");
     }
 
     /**
@@ -147,7 +155,9 @@ public class ZipFile implements ZipConstants {
 
     @Override protected void finalize() throws IOException {
         try {
-            close();
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
         } finally {
             try {
                 super.finalize();
@@ -164,6 +174,7 @@ public class ZipFile implements ZipConstants {
      *             if an IOException occurs.
      */
     public void close() throws IOException {
+        guard.close();
         RandomAccessFile raf = mRaf;
 
         if (raf != null) { // Only close initialized instances
@@ -342,33 +353,26 @@ public class ZipFile implements ZipConstants {
             }
         }
 
-        /*
-         * Found it, read the EOCD.
-         *
-         * For performance we want to use buffered I/O when reading the
-         * file.  We wrap a buffered stream around the random-access file
-         * object.  If we just read from the RandomAccessFile we'll be
-         * doing a read() system call every time.
-         */
-        RAFStream rafs = new RAFStream(mRaf, mRaf.getFilePointer());
-        DataInputStream is = new DataInputStream(new BufferedInputStream(rafs, ENDHDR));
+        // Read the End Of Central Directory. We could use ENDHDR instead of the magic number 18,
+        // but we don't actually need all the header.
+        byte[] eocd = new byte[18];
+        mRaf.readFully(eocd);
 
-        short diskNumber = Short.reverseBytes(is.readShort());
-        short diskWithCentralDir = Short.reverseBytes(is.readShort());
-        short numEntries = Short.reverseBytes(is.readShort());
-        short totalNumEntries = Short.reverseBytes(is.readShort());
-        /*centralDirSize =*/ Integer.reverseBytes(is.readInt());
-        int centralDirOffset = Integer.reverseBytes(is.readInt());
-        /*commentLen =*/ Short.reverseBytes(is.readShort());
+        // Pull out the information we need.
+        BufferIterator it = HeapBufferIterator.iterator(eocd, 0, eocd.length, ByteOrder.LITTLE_ENDIAN);
+        short diskNumber = it.readShort();
+        short diskWithCentralDir = it.readShort();
+        short numEntries = it.readShort();
+        short totalNumEntries = it.readShort();
+        it.skip(4); // Ignore centralDirSize.
+        int centralDirOffset = it.readInt();
 
         if (numEntries != totalNumEntries || diskNumber != 0 || diskWithCentralDir != 0) {
             throw new ZipException("spanned archives not supported");
         }
 
-        /*
-         * Seek to the first CDE and read all entries.
-         */
-        rafs = new RAFStream(mRaf, centralDirOffset);
+        // Seek to the first CDE and read all entries.
+        RAFStream rafs = new RAFStream(mRaf, centralDirOffset);
         BufferedInputStream bin = new BufferedInputStream(rafs, 4096);
         byte[] hdrBuf = new byte[CENHDR]; // Reuse the same buffer for each entry.
         for (int i = 0; i < numEntries; ++i) {

@@ -63,6 +63,7 @@ public class SSLEngineTest extends TestCase {
         String[] cipherSuites = e.getSupportedCipherSuites();
         StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
+        c.close();
     }
 
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
@@ -103,6 +104,7 @@ public class SSLEngineTest extends TestCase {
                 throw new Exception("Problem trying to connect cipher suite " + cipherSuite, e);
             }
         }
+        c.close();
     }
 
     public void test_SSLEngine_getEnabledCipherSuites() throws Exception {
@@ -111,6 +113,7 @@ public class SSLEngineTest extends TestCase {
         String[] cipherSuites = e.getEnabledCipherSuites();
         StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
+        c.close();
     }
 
     public void test_SSLEngine_setEnabledCipherSuites() throws Exception {
@@ -136,6 +139,7 @@ public class SSLEngineTest extends TestCase {
         e.setEnabledCipherSuites(new String[0]);
         e.setEnabledCipherSuites(e.getEnabledCipherSuites());
         e.setEnabledCipherSuites(e.getSupportedCipherSuites());
+        c.close();
     }
 
     public void test_SSLEngine_getSupportedProtocols() throws Exception {
@@ -144,6 +148,7 @@ public class SSLEngineTest extends TestCase {
         String[] protocols = e.getSupportedProtocols();
         StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
         assertNotSame(protocols, e.getSupportedProtocols());
+        c.close();
     }
 
     public void test_SSLEngine_getEnabledProtocols() throws Exception {
@@ -152,6 +157,7 @@ public class SSLEngineTest extends TestCase {
         String[] protocols = e.getEnabledProtocols();
         StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
         assertNotSame(protocols, e.getEnabledProtocols());
+        c.close();
     }
 
     public void test_SSLEngine_setEnabledProtocols() throws Exception {
@@ -176,6 +182,7 @@ public class SSLEngineTest extends TestCase {
         e.setEnabledProtocols(new String[0]);
         e.setEnabledProtocols(e.getEnabledProtocols());
         e.setEnabledProtocols(e.getSupportedProtocols());
+        c.close();
     }
 
     public void test_SSLEngine_getSession() throws Exception {
@@ -184,6 +191,7 @@ public class SSLEngineTest extends TestCase {
         SSLSession session = e.getSession();
         assertNotNull(session);
         assertFalse(session.isValid());
+        c.close();
     }
 
     public void test_SSLEngine_beginHandshake() throws Exception {
@@ -196,6 +204,8 @@ public class SSLEngineTest extends TestCase {
         }
 
         assertConnected(TestSSLEnginePair.create(null));
+
+        c.close();
     }
 
     public void test_SSLEngine_beginHandshake_noKeyStore() throws Exception {
@@ -208,18 +218,21 @@ public class SSLEngineTest extends TestCase {
             fail();
         } catch (SSLHandshakeException expected) {
         }
+        c.close();
     }
 
     public void test_SSLEngine_beginHandshake_noClientCertificate() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine[] engines = TestSSLEnginePair.connect(c, null);
         assertConnected(engines[0], engines[1]);
+        c.close();
     }
 
     public void test_SSLEngine_getUseClientMode() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         assertFalse(c.clientContext.createSSLEngine().getUseClientMode());
         assertFalse(c.clientContext.createSSLEngine(null, -1).getUseClientMode());
+        c.close();
     }
 
     public void test_SSLEngine_setUseClientMode() throws Exception {
@@ -309,12 +322,15 @@ public class SSLEngineTest extends TestCase {
         TestKeyStore.assertChainLength(p.client.getSession().getLocalCertificates());
         TestSSLContext.assertClientCertificateChain(clientAuthContext.clientTrustManager,
                                                     p.client.getSession().getLocalCertificates());
+        clientAuthContext.close();
+        c.close();
     }
 
     public void test_SSLEngine_getEnableSessionCreation() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         assertTrue(e.getEnableSessionCreation());
+        c.close();
     }
 
     public void test_SSLEngine_setEnableSessionCreation_server() throws Exception {
@@ -359,6 +375,8 @@ public class SSLEngineTest extends TestCase {
 
         assertEquals(p.getWantClientAuth(), e.getWantClientAuth());
         assertEquals(p.getNeedClientAuth(), e.getNeedClientAuth());
+
+        c.close();
     }
 
     public void test_SSLEngine_setSSLParameters() throws Exception {
@@ -411,6 +429,7 @@ public class SSLEngineTest extends TestCase {
             assertFalse(e.getNeedClientAuth());
             assertFalse(e.getWantClientAuth());
         }
+        c.close();
     }
 
     public void test_TestSSLEnginePair_create() throws Exception {

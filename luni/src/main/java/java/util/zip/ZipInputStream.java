@@ -21,13 +21,16 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
+import libcore.base.Streams;
+import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
- * uncompresses data from a <i>ZIP-archive</i> input stream.
+ * decompresses data from a <i>ZIP-archive</i> input stream.
  * <p>
  * A <i>ZIP-archive</i> is a collection of compressed (or uncompressed) files -
  * the so called ZIP entries. Therefore when reading from a {@code
@@ -124,7 +127,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         // Ensure all entry bytes are read
         Exception failure = null;
         try {
-            skip(Long.MAX_VALUE);
+            Streams.skipAll(this);
         } catch (Exception e) {
             failure = e;
         }
@@ -171,13 +174,13 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
         if (hasDD) {
             in.read(hdrBuf, 0, EXTHDR);
-            long sig = getLong(hdrBuf, 0);
+            long sig = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
             if (sig != EXTSIG) {
                 throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));
             }
-            currentEntry.crc = getLong(hdrBuf, EXTCRC);
-            currentEntry.compressedSize = getLong(hdrBuf, EXTSIZ);
-            currentEntry.size = getLong(hdrBuf, EXTLEN);
+            currentEntry.crc = OSMemory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN);
+            currentEntry.compressedSize = OSMemory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN);
+            currentEntry.size = OSMemory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN);
         }
         if (currentEntry.crc != crc.getValue()) {
             throw new ZipException("CRC mismatch");
@@ -209,7 +212,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
                 return null;
             }
         }
-        long hdr = getLong(hdrBuf, 0);
+        long hdr = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
         if (hdr == CENSIG) {
             entriesEnd = true;
             return null;
@@ -226,26 +229,26 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
                 throw new EOFException();
             }
         }
-        int version = getShort(hdrBuf, 0) & 0xff;
+        int version = OSMemory.peekShort(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN) & 0xff;
         if (version > ZIPLocalHeaderVersionNeeded) {
             throw new ZipException("Cannot read local header version " + version);
         }
-        int flags = getShort(hdrBuf, LOCFLG - LOCVER);
+        int flags = OSMemory.peekShort(hdrBuf, LOCFLG - LOCVER, ByteOrder.LITTLE_ENDIAN);
         hasDD = ((flags & ZipFile.GPBF_DATA_DESCRIPTOR_FLAG) != 0);
-        int cetime = getShort(hdrBuf, LOCTIM - LOCVER);
-        int cemodDate = getShort(hdrBuf, LOCTIM - LOCVER + 2);
-        int cecompressionMethod = getShort(hdrBuf, LOCHOW - LOCVER);
+        int cetime = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER, ByteOrder.LITTLE_ENDIAN);
+        int cemodDate = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER + 2, ByteOrder.LITTLE_ENDIAN);
+        int cecompressionMethod = OSMemory.peekShort(hdrBuf, LOCHOW - LOCVER, ByteOrder.LITTLE_ENDIAN);
         long cecrc = 0, cecompressedSize = 0, cesize = -1;
         if (!hasDD) {
-            cecrc = getLong(hdrBuf, LOCCRC - LOCVER);
-            cecompressedSize = getLong(hdrBuf, LOCSIZ - LOCVER);
-            cesize = getLong(hdrBuf, LOCLEN - LOCVER);
+            cecrc = OSMemory.peekInt(hdrBuf, LOCCRC - LOCVER, ByteOrder.LITTLE_ENDIAN);
+            cecompressedSize = OSMemory.peekInt(hdrBuf, LOCSIZ - LOCVER, ByteOrder.LITTLE_ENDIAN);
+            cesize = OSMemory.peekInt(hdrBuf, LOCLEN - LOCVER, ByteOrder.LITTLE_ENDIAN);
         }
-        int flen = getShort(hdrBuf, LOCNAM - LOCVER);
+        int flen = OSMemory.peekShort(hdrBuf, LOCNAM - LOCVER, ByteOrder.LITTLE_ENDIAN);
         if (flen == 0) {
             throw new ZipException("Entry is not named");
         }
-        int elen = getShort(hdrBuf, LOCEXT - LOCVER);
+        int elen = OSMemory.peekShort(hdrBuf, LOCEXT - LOCVER, ByteOrder.LITTLE_ENDIAN);
 
         count = 0;
         if (flen > nameBuf.length) {
@@ -350,34 +353,6 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         return read;
     }
 
-    /**
-     * Skips up to the specified number of bytes in the current ZIP entry.
-     *
-     * @param value
-     *            the number of bytes to skip.
-     * @return the number of bytes skipped.
-     * @throws IOException
-     *             if an {@code IOException} occurs.
-     */
-    @Override
-    public long skip(long value) throws IOException {
-        if (value < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        long skipped = 0;
-        byte[] b = new byte[(int)Math.min(value, 2048L)];
-        while (skipped != value) {
-            long rem = value - skipped;
-            int x = read(b, 0, (int) (b.length > rem ? rem : b.length));
-            if (x == -1) {
-                return skipped;
-            }
-            skipped += x;
-        }
-        return skipped;
-    }
-
     @Override
     public int available() throws IOException {
         checkClosed();
@@ -394,19 +369,6 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
      */
     protected ZipEntry createZipEntry(String name) {
         return new ZipEntry(name);
-    }
-
-    private int getShort(byte[] buffer, int off) {
-        return (buffer[off] & 0xFF) | ((buffer[off + 1] & 0xFF) << 8);
-    }
-
-    private long getLong(byte[] buffer, int off) {
-        long l = 0;
-        l |= (buffer[off] & 0xFF);
-        l |= (buffer[off + 1] & 0xFF) << 8;
-        l |= (buffer[off + 2] & 0xFF) << 16;
-        l |= ((long) (buffer[off + 3] & 0xFF)) << 24;
-        return l;
     }
 
     private void checkClosed() throws IOException {

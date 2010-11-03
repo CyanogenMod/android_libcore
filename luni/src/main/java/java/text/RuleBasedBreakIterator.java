@@ -17,10 +17,10 @@
 
 package java.text;
 
-import com.ibm.icu4jni.text.NativeBreakIterator;
+import libcore.icu.NativeBreakIterator;
 
 /*
- * Default implementation of BreakIterator. Wraps com.ibm.icu4jni.text.NativeBreakIterator.
+ * Default implementation of BreakIterator. Wraps libcore.icu.NativeBreakIterator.
  * We need this because BreakIterator.isBoundary and BreakIterator.preceding are non-abstract,
  * and we don't have Java implementations of those methods (other than the current ones, which
  * forward to the wrapped NativeBreakIterator).

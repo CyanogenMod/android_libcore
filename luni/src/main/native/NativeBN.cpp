@@ -24,9 +24,9 @@
 #include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
+#include "StaticAssert.h"
 #include "UniquePtr.h"
 #include "jni.h"
-#include <assert.h>
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
@@ -169,7 +169,7 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int l
             return JNI_FALSE;
         }
 
-        assert(sizeof(BN_ULONG) == sizeof(jint));
+        STATIC_ASSERT(sizeof(BN_ULONG) == sizeof(jint), BN_ULONG_not_32_bit);
         const BN_ULONG* tmpInts = reinterpret_cast<const BN_ULONG*>(scopedArray.get());
         if ((tmpInts != NULL) && (bn_wexpand(ret, len) != NULL)) {
             int i = len; do { i--; ret->d[i] = tmpInts[i]; } while (i > 0);
@@ -197,10 +197,9 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int l
   | (bytes[k + 0] & 0xFF) << 24 )
 
 static jboolean negBigEndianBytes2bn(JNIEnv*, jclass, const unsigned char* bytes, int bytesLen, BIGNUM* ret) {
-// We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
-//
+    // We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
     bn_check_top(ret);
-// FIXME: ASSERT (bytesLen > 0);
+    // FIXME: assert bytesLen > 0
     int intLen = (bytesLen + 3) / 4;
     int firstNonzeroDigit = -2;
     if (bn_wexpand(ret, intLen) != NULL) {

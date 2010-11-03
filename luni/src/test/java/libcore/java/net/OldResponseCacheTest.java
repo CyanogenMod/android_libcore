@@ -20,6 +20,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -208,9 +209,8 @@ public class OldResponseCacheTest extends TestCase {
     class TestCacheResponse extends CacheResponse {
         InputStream is = null;
 
-        public TestCacheResponse(String filename) {
-            String path = getClass().getPackage().getName().replace(".", "/");
-            is = getClass().getResourceAsStream("/" + path + "/" + filename);
+        public TestCacheResponse(String body) {
+            is = new ByteArrayInputStream(body.getBytes());
         }
 
         @Override
@@ -256,7 +256,7 @@ public class OldResponseCacheTest extends TestCase {
         public CacheResponse get(URI uri, String rqstMethod, Map rqstHeaders) {
             getWasCalled = uri;
             if (testGet && uri.equals(uri1)) {
-                return new TestCacheResponse("file1.cache");
+                return new TestCacheResponse("Cache test");
             }
             return null;
         }

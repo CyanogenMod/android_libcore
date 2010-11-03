@@ -16,6 +16,8 @@
 
 package java.nio;
 
+import libcore.io.SizeOf;
+
 /**
  * This class wraps a byte buffer to be a char buffer.
  * <p>
@@ -31,14 +33,16 @@ package java.nio;
  */
 final class CharToByteBufferAdapter extends CharBuffer {
 
-    static CharBuffer wrap(ByteBuffer byteBuffer) {
-        return new CharToByteBufferAdapter(byteBuffer.slice());
-    }
-
     private final ByteBuffer byteBuffer;
 
-    CharToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SIZEOF_CHAR);
+    static CharBuffer asCharBuffer(ByteBuffer byteBuffer) {
+        ByteBuffer slice = byteBuffer.slice();
+        slice.order(byteBuffer.order());
+        return new CharToByteBufferAdapter(slice);
+    }
+
+    private CharToByteBufferAdapter(ByteBuffer byteBuffer) {
+        super(byteBuffer.capacity() / SizeOf.CHAR);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
@@ -58,8 +62,8 @@ final class CharToByteBufferAdapter extends CharBuffer {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit * SIZEOF_CHAR);
-        byteBuffer.position(position * SIZEOF_CHAR);
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -82,7 +86,7 @@ final class CharToByteBufferAdapter extends CharBuffer {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getChar(position++ * SIZEOF_CHAR);
+        return byteBuffer.getChar(position++ * SizeOf.CHAR);
     }
 
     @Override
@@ -90,13 +94,13 @@ final class CharToByteBufferAdapter extends CharBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        return byteBuffer.getChar(index * SIZEOF_CHAR);
+        return byteBuffer.getChar(index * SizeOf.CHAR);
     }
 
     @Override
     public CharBuffer get(char[] dst, int dstOffset, int charCount) {
-        byteBuffer.limit(limit * SIZEOF_CHAR);
-        byteBuffer.position(position * SIZEOF_CHAR);
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         if (byteBuffer instanceof DirectByteBuffer) {
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, charCount);
         } else {
@@ -141,7 +145,7 @@ final class CharToByteBufferAdapter extends CharBuffer {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putChar(position++ * SIZEOF_CHAR, c);
+        byteBuffer.putChar(position++ * SizeOf.CHAR, c);
         return this;
     }
 
@@ -150,14 +154,14 @@ final class CharToByteBufferAdapter extends CharBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        byteBuffer.putChar(index * SIZEOF_CHAR, c);
+        byteBuffer.putChar(index * SizeOf.CHAR, c);
         return this;
     }
 
     @Override
     public CharBuffer put(char[] src, int srcOffset, int charCount) {
-        byteBuffer.limit(limit * SIZEOF_CHAR);
-        byteBuffer.position(position * SIZEOF_CHAR);
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
             ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, charCount);
         } else {
@@ -169,8 +173,8 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public CharBuffer slice() {
-        byteBuffer.limit(limit * SIZEOF_CHAR);
-        byteBuffer.position(position * SIZEOF_CHAR);
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         CharBuffer result = new CharToByteBufferAdapter(byteBuffer.slice());
         byteBuffer.clear();
         return result;

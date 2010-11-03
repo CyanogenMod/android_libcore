@@ -45,6 +45,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import libcore.io.IoUtils;
 
 /**
  * This class loader is responsible for loading classes and resources from a
@@ -161,20 +162,9 @@ public class URLClassLoader extends SecureClassLoader {
                 // Ignore this jar's index
             } catch (IOException e) {
                 // Ignore this jar's index
-            }
-            finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                    }
-                }
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                    }
-                }
+            } finally {
+                IoUtils.closeQuietly(in);
+                IoUtils.closeQuietly(is);
             }
             return null;
         }
@@ -240,10 +230,7 @@ public class URLClassLoader extends SecureClassLoader {
             } catch (IOException e) {
                 return null;
             } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
+                IoUtils.closeQuietly(is);
             }
             if (packageName != null) {
                 String packageDotName = packageName.replace('/', '.');
@@ -401,12 +388,7 @@ public class URLClassLoader extends SecureClassLoader {
             } catch (IOException e) {
                 return null;
             } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                    }
-                }
+                IoUtils.closeQuietly(is);
             }
             if (packageName != null) {
                 String packageDotName = packageName.replace('/', '.');

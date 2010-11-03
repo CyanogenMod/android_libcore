@@ -17,11 +17,11 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
 
 /**
  * This class represents a currency as identified in the ISO 4217 currency

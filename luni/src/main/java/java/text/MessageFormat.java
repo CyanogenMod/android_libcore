@@ -1322,22 +1322,5 @@ public class MessageFormat extends Format {
         protected Field(String fieldName) {
             super(fieldName);
         }
-
-        /**
-         * Resolves instances that are deserialized to the constant
-         * {@code MessageFormat.Field} values.
-         *
-         * @return the resolved field object.
-         * @throws InvalidObjectException
-         *             if an error occurs while resolving the field object.
-         */
-        @Override
-        protected Object readResolve() throws InvalidObjectException {
-            String name = this.getName();
-            if (Objects.equal(name, ARGUMENT.getName())) {
-                return ARGUMENT;
-            }
-            throw new InvalidObjectException("Not a valid MessageFormat.Field, subclass should override readResolve()");
-        }
     }
 }

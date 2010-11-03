@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import libcore.io.IoUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -348,8 +349,7 @@ class ExpatParser {
                 entityParser.parseFragment(reader);
                 entityParser.append("</externalEntity>");
             } finally {
-                // TODO: Don't eat original exception when close() throws.
-                reader.close();
+                IoUtils.closeQuietly(reader);
             }
             return;
         }
@@ -364,8 +364,7 @@ class ExpatParser {
                 entityParser.append("</externalEntity>"
                         .getBytes(entityParser.encoding));
             } finally {
-                // TODO: Don't eat original exception when close() throws.
-                in.close();
+                IoUtils.closeQuietly(in);
             }
             return;
         }
@@ -386,7 +385,7 @@ class ExpatParser {
             entityParser.append("</externalEntity>"
                     .getBytes(entityParser.encoding));
         } finally {
-            in.close();
+            IoUtils.closeQuietly(in);
         }
     }
 

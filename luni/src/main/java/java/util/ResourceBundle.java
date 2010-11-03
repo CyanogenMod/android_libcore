@@ -17,7 +17,6 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
 import dalvik.system.VMStack;
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import libcore.icu.ICU;
 
 /**
  * {@code ResourceBundle} is an abstract class which is the superclass of classes which

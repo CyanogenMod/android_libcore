@@ -103,9 +103,9 @@ public class Base64 {
             quantum = (quantum << 6) | (byte) bits;
             if (in_index%4 == 3) {
                 // 4 characters were read, so make the output:
-                out[out_index++] = (byte) ((quantum & 0x00FF0000) >> 16);
-                out[out_index++] = (byte) ((quantum & 0x0000FF00) >> 8);
-                out[out_index++] = (byte) (quantum & 0x000000FF);
+                out[out_index++] = (byte) (quantum >> 16);
+                out[out_index++] = (byte) (quantum >> 8);
+                out[out_index++] = (byte) quantum;
             }
             in_index++;
         }
@@ -113,9 +113,9 @@ public class Base64 {
             // adjust the quantum value according to the padding
             quantum = quantum << (6*pad);
             // make output
-            out[out_index++] = (byte) ((quantum & 0x00FF0000) >> 16);
+            out[out_index++] = (byte) (quantum >> 16);
             if (pad == 1) {
-                out[out_index++] = (byte) ((quantum & 0x0000FF00) >> 8);
+                out[out_index++] = (byte) (quantum >> 8);
             }
         }
         // create the resulting array
@@ -138,10 +138,8 @@ public class Base64 {
         int index = 0, i, crlr = 0, end = in.length - in.length%3;
         for (i=0; i<end; i+=3) {
             out[index++] = map[(in[i] & 0xff) >> 2];
-            out[index++] = map[((in[i] & 0x03) << 4)
-                                | ((in[i+1] & 0xff) >> 4)];
-            out[index++] = map[((in[i+1] & 0x0f) << 2)
-                                | ((in[i+2] & 0xff) >> 6)];
+            out[index++] = map[((in[i] & 0x03) << 4) | ((in[i+1] & 0xff) >> 4)];
+            out[index++] = map[((in[i+1] & 0x0f) << 2) | ((in[i+2] & 0xff) >> 6)];
             out[index++] = map[(in[i+2] & 0x3f)];
             if (((index - crlr)%76 == 0) && (index != 0)) {
                 out[index++] = '\n';
@@ -159,8 +157,7 @@ public class Base64 {
                 break;
             case 2:
                 out[index++] = map[(in[end] & 0xff) >> 2];
-                out[index++] = map[((in[end] & 0x03) << 4)
-                                    | ((in[end+1] & 0xff) >> 4)];
+                out[index++] = map[((in[end] & 0x03) << 4) | ((in[end+1] & 0xff) >> 4)];
                 out[index++] = map[((in[end+1] & 0x0f) << 2)];
                 out[index++] = '=';
                 break;

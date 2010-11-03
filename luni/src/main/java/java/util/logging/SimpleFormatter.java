@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.Date;
+import libcore.io.IoUtils;
 
 /**
  * {@code SimpleFormatter} can be used to print a summary of the information
@@ -62,13 +63,7 @@ public class SimpleFormatter extends Formatter {
                 t.printStackTrace(pw);
                 sb.append(sw.toString());
             } finally {
-                if (pw != null) {
-                    try {
-                        pw.close();
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                }
+                IoUtils.closeQuietly(pw);
             }
         }
         return sb.toString();

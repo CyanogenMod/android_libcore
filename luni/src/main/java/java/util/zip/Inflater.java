@@ -17,6 +17,7 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 
 /**
@@ -45,6 +46,8 @@ public class Inflater {
 
     private long streamHandle = -1;
 
+    private final CloseGuard guard = CloseGuard.get();
+
     /**
      * This constructor creates an inflater that expects a header from the input
      * stream. Use {@code Inflater(boolean)} if the input comes without a ZLIB
@@ -64,6 +67,7 @@ public class Inflater {
      */
     public Inflater(boolean noHeader) {
         streamHandle = createStream(noHeader);
+        guard.open("end");
     }
 
     private native long createStream(boolean noHeader1);
@@ -73,6 +77,7 @@ public class Inflater {
      * input/output is discarded. This is also called by the finalize method.
      */
     public synchronized void end() {
+        guard.close();
         if (streamHandle != -1) {
             endImpl(streamHandle);
             inRead = 0;
@@ -85,6 +90,9 @@ public class Inflater {
 
     @Override protected void finalize() {
         try {
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             end();
         } finally {
             try {

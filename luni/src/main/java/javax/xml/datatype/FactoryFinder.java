@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Properties;
+import libcore.io.IoUtils;
 
 /**
  * <p>Implement pluggabile Datatypes.</p>
@@ -290,18 +291,11 @@ final class FactoryFinder {
             // XXX Does not handle all possible input as specified by the
             // Jar Service Provider specification
             factoryClassName = rd.readLine();
-        }
-        catch (IOException x) {
+        } catch (IOException x) {
             // No provider found
             return null;
-        }
-        finally {
-            try {
-                // try to close the reader.
-                rd.close();
-            }
-            // Ignore the exception.
-            catch (IOException exc) {}
+        } finally {
+            IoUtils.closeQuietly(rd);
         }
 
         if (factoryClassName != null &&

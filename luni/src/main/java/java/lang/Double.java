@@ -130,7 +130,7 @@ public final class Double extends Number implements Comparable<Double> {
      * @param string
      *            the string representation of a double value.
      * @throws NumberFormatException
-     *             if {@code string} can not be decoded into a double value.
+     *             if {@code string} cannot be parsed as a double value.
      * @see #parseDouble(String)
      */
     public Double(String string) throws NumberFormatException {
@@ -311,8 +311,7 @@ public final class Double extends Number implements Comparable<Double> {
      *            the string representation of a double value.
      * @return the primitive double value represented by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a double value.
+     *             if {@code string} cannot be parsed as a double value.
      */
     public static double parseDouble(String string) throws NumberFormatException {
         return org.apache.harmony.luni.util.FloatingPointParser.parseDouble(string);
@@ -348,8 +347,7 @@ public final class Double extends Number implements Comparable<Double> {
      * @return a {@code Double} instance containing the double value represented
      *         by {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} is {@code null}, has a length of zero or
-     *             can not be parsed as a double value.
+     *             if {@code string} cannot be parsed as a double value.
      * @see #parseDouble(String)
      */
     public static Double valueOf(String string) throws NumberFormatException {

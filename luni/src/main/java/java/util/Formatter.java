@@ -15,8 +15,6 @@
  */
 package java.util;
 
-import com.ibm.icu4jni.text.NativeDecimalFormat;
-import com.ibm.icu4jni.util.LocaleData;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
@@ -34,6 +32,9 @@ import java.math.MathContext;
 import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import libcore.icu.LocaleData;
+import libcore.icu.NativeDecimalFormat;
+import libcore.io.IoUtils;
 
 /**
  * Formats arguments according to a format string (like {@code printf} in C).
@@ -828,10 +829,10 @@ public final class Formatter implements Closeable, Flushable {
             fout = new FileOutputStream(file);
             out = new BufferedWriter(new OutputStreamWriter(fout, csn));
         } catch (RuntimeException e) {
-            closeOutputStream(fout);
+            IoUtils.closeQuietly(fout);
             throw e;
         } catch (UnsupportedEncodingException e) {
-            closeOutputStream(fout);
+            IoUtils.closeQuietly(fout);
             throw e;
         }
 
@@ -1136,17 +1137,6 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         return args[index];
-    }
-
-    private static void closeOutputStream(OutputStream os) {
-        if (os == null) {
-            return;
-        }
-        try {
-            os.close();
-        } catch (IOException e) {
-            // silently
-        }
     }
 
     /*

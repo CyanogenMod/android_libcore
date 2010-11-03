@@ -32,6 +32,7 @@ import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import javax.security.auth.callback.CallbackHandler;
+import libcore.io.IoUtils;
 import org.apache.harmony.security.fortress.Engine;
 
 /**
@@ -1038,10 +1039,7 @@ public class KeyStore {
                                             fis = new FileInputStream(fileForLoad);
                                             ks.load(fis, passwd);
                                         } finally {
-                                            // close file input stream
-                                            if( fis != null ) {
-                                                fis.close();
-                                            }
+                                            IoUtils.closeQuietly(fis);
                                         }
                                     } else {
                                         ks.load(new TmpLSParameter(

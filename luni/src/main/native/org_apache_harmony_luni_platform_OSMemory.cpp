@@ -45,58 +45,38 @@ template <typename T> static T cast(jint address) {
     return reinterpret_cast<T>(static_cast<uintptr_t>(address));
 }
 
-static inline void fastSwap16(jshort& v) {
-#if __ARM_ARCH__ >= 6
-    asm("rev16 %[v], %[v]" : [v] "+r" (v));
-#else
-    v = bswap_16(v);
-#endif
-}
-
-static inline void fastSwap32(jint& v) {
-#if __ARM_ARCH__ >= 6
-    asm("rev %[v], %[v]" : [v] "+r" (v));
-#else
-    v = bswap_32(v);
-#endif
-}
-
-static void swapShorts(jshort* dstShorts, const jshort* srcShorts, size_t count) {
+static inline void swapShorts(jshort* dstShorts, const jshort* srcShorts, size_t count) {
     // Do 32-bit swaps as long as possible...
     jint* dst = reinterpret_cast<jint*>(dstShorts);
     const jint* src = reinterpret_cast<const jint*>(srcShorts);
     for (size_t i = 0; i < count / 2; ++i) {
         jint v = *src++;                            // v=ABCD
-        fastSwap32(v);                              // v=DCBA
+        v = bswap_32(v);                            // v=DCBA
         jint v2 = (v << 16) | ((v >> 16) & 0xffff); // v=BADC
         *dst++ = v2;
     }
     // ...with one last 16-bit swap if necessary.
     if ((count % 2) != 0) {
         jshort v = *reinterpret_cast<const jshort*>(src);
-        fastSwap16(v);
-        *reinterpret_cast<jshort*>(dst) = v;
+        *reinterpret_cast<jshort*>(dst) = bswap_16(v);
     }
 }
 
-static void swapInts(jint* dstInts, const jint* srcInts, size_t count) {
+static inline void swapInts(jint* dstInts, const jint* srcInts, size_t count) {
     for (size_t i = 0; i < count; ++i) {
         jint v = *srcInts++;
-        fastSwap32(v);
-        *dstInts++ = v;
+        *dstInts++ = bswap_32(v);
     }
 }
 
-static void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t count) {
+static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t count) {
     jint* dst = reinterpret_cast<jint*>(dstLongs);
     const jint* src = reinterpret_cast<const jint*>(srcLongs);
     for (size_t i = 0; i < count; ++i) {
         jint v1 = *src++;
         jint v2 = *src++;
-        fastSwap32(v1);
-        fastSwap32(v2);
-        *dst++ = v2;
-        *dst++ = v1;
+        *dst++ = bswap_32(v2);
+        *dst++ = bswap_32(v1);
     }
 }
 
@@ -249,14 +229,14 @@ static void OSMemory_pokeShortArray(JNIEnv* env, jclass, jint dstAddress, jshort
 static jshort OSMemory_peekShort(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jshort result = *cast<const jshort*>(srcAddress);
     if (swap) {
-        fastSwap16(result);
+        result = bswap_16(result);
     }
     return result;
 }
 
 static void OSMemory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, jboolean swap) {
     if (swap) {
-        fastSwap16(value);
+        value = bswap_16(value);
     }
     *cast<jshort*>(dstAddress) = value;
 }
@@ -264,14 +244,14 @@ static void OSMemory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, j
 static jint OSMemory_peekInt(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
     jint result = *cast<const jint*>(srcAddress);
     if (swap) {
-        fastSwap32(result);
+        result = bswap_32(result);
     }
     return result;
 }
 
 static void OSMemory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jboolean swap) {
     if (swap) {
-        fastSwap32(value);
+        value = bswap_32(value);
     }
     *cast<jint*>(dstAddress) = value;
 }

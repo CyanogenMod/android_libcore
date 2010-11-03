@@ -145,9 +145,12 @@ static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaNam
     } else if (result == EAI_SYSTEM && errno == EACCES) {
         /* No permission to use network */
         jniThrowException(env, "java/lang/SecurityException",
-            "Permission denied (maybe missing INTERNET permission)");
+                "Permission denied (maybe missing INTERNET permission)");
     } else {
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(result));
+        char buf[256];
+        snprintf(buf, sizeof(buf), "Unable to resolve host \"%s\": %s",
+                name.c_str(), gai_strerror(result));
+        jniThrowException(env, "java/net/UnknownHostException", buf);
     }
 
     if (addressList) {

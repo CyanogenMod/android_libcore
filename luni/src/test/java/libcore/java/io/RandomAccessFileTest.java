@@ -17,11 +17,40 @@
 package libcore.java.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import junit.framework.TestCase;
 
 public final class RandomAccessFileTest extends TestCase {
+
+    private File file;
+
+    @Override protected void setUp() throws Exception {
+        file = File.createTempFile("RandomAccessFileTest", "tmp");
+    }
+
+    @Override protected void tearDown() throws Exception {
+        file.delete();
+    }
+
+    public void testSeekTooLarge() throws FileNotFoundException {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        try {
+            raf.seek(Long.MAX_VALUE);
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testSetLengthTooLarge() throws FileNotFoundException {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        try {
+            raf.setLength(Long.MAX_VALUE);
+            fail();
+        } catch (IOException expected) {
+        }
+    }
 
     // http://b/3015023
     public void testRandomAccessFileHasCleanupFinalizer() throws IOException {

@@ -860,22 +860,5 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                         "position became invalid or stream has not been marked");
             }
         }
-
-        @Override
-        public long skip(long n) throws IOException {
-            if (pos >= 0) {
-                long i = 0;
-                int av = available();
-                if (av < n) {
-                    n = av;
-                }
-                while ((i < n) && (read() != -1)) {
-                    i++;
-                }
-                return i;
-            } else {
-                return inStream.skip(n);
-            }
-        }
     }
 }

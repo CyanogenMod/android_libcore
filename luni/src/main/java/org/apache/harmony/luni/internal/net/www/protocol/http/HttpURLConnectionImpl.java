@@ -17,6 +17,7 @@
 
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +103,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     public static final int DEFAULT_CHUNK_LENGTH = 1024;
 
+    /**
+     * The maximum number of bytes to buffer when sending a header and a request
+     * body. When the header and body can be sent in a single write, the request
+     * completes sooner. In one WiFi benchmark, using a large enough buffer sped
+     * up some uploads by half.
+     */
+    private static final int MAX_REQUEST_BUFFER_LENGTH = 32768;
+
     private final int defaultPort;
 
     /**
@@ -115,12 +124,21 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private InputStream socketIn;
     private OutputStream socketOut;
 
-    private InputStream responseBodyIn;
+    /**
+     * This stream buffers the request header and the request body when their
+     * combined size is less than MAX_REQUEST_BUFFER_LENGTH. By combining them
+     * we can save socket writes, which in turn saves a packet transmission.
+     * This is socketOut if the request size is large or unknown.
+     */
+    private OutputStream requestOut;
+
     private AbstractHttpOutputStream requestBodyOut;
+
+    private InputStream responseBodyIn;
 
     private ResponseCache responseCache;
 
-    private CacheResponse cacheResponse;
+    protected CacheResponse cacheResponse;
 
     private CacheRequest cacheRequest;
 
@@ -142,12 +160,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // the destination URI
     private URI uri;
 
-    private static Header defaultRequestHeader = new Header();
+    private static HttpHeaders defaultRequestHeader = new HttpHeaders();
 
-    private final Header requestHeader;
+    private final HttpHeaders requestHeader;
 
     /** Null until a response is received from the network or the cache */
-    private Header responseHeader;
+    private HttpHeaders responseHeader;
 
     private int redirectionCount;
 
@@ -168,19 +186,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     protected HttpURLConnectionImpl(URL url, int port) {
         super(url);
         defaultPort = port;
-        requestHeader = (Header) defaultRequestHeader.clone();
+        requestHeader = new HttpHeaders(defaultRequestHeader);
 
-        try {
-            uri = url.toURI();
-        } catch (URISyntaxException e) {
-            // do nothing.
-        }
-        responseCache = AccessController
-                .doPrivileged(new PrivilegedAction<ResponseCache>() {
-                    public ResponseCache run() {
-                        return ResponseCache.getDefault();
-                    }
-                });
+        responseCache = AccessController.doPrivileged(new PrivilegedAction<ResponseCache>() {
+            public ResponseCache run() {
+                return ResponseCache.getDefault();
+            }
+        });
     }
 
     /**
@@ -216,23 +228,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public void makeConnection() throws IOException {
         connected = true;
 
-        if (connection != null) {
+        if (connection != null || responseBodyIn != null) {
             return;
+        }
+
+        try {
+            uri = url.toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
         }
 
         if (getFromCache()) {
             return;
-        }
-
-        /*
-         * URL.toURI() throws if it has illegal characters. Since we don't mind
-         * illegal characters for proxy selection, just create the minimal URI.
-         */
-        try {
-            uri = new URI(url.getProtocol(), null, url.getHost(), url.getPort(), url.getPath(),
-                    null, null);
-        } catch (URISyntaxException e1) {
-            throw new IOException(e1.getMessage());
         }
 
         // try to determine: to use the proxy or not
@@ -290,29 +297,46 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     protected void setUpTransportIO(HttpConnection connection) throws IOException {
         socketOut = connection.getOutputStream();
+        requestOut = socketOut;
         socketIn = connection.getInputStream();
     }
 
     /**
-     * Returns true if the input streams are prepared to return data from the
-     * cache.
+     * Attempts to load the response headers and body from the response cache.
+     * Returns true if the request was satisfied by the cache.
      */
     private boolean getFromCache() throws IOException {
         if (!useCaches || responseCache == null || hasTriedCache) {
-            return (hasTriedCache && socketIn != null);
+            return false;
         }
 
         hasTriedCache = true;
-        cacheResponse = responseCache.get(uri, method, requestHeader.getFieldMap());
-        if (cacheResponse == null) {
-            return socketIn != null; // TODO: if this is non-null, why are we calling getFromCache?
+        CacheResponse candidate = responseCache.get(uri, method, requestHeader.toMultimap());
+        if (!acceptCacheResponse(candidate)) {
+            return false;
         }
-        Map<String, List<String>> headersMap = cacheResponse.getHeaders();
-        if (headersMap != null) {
-            responseHeader = new Header(headersMap);
+        Map<String, List<String>> headersMap = candidate.getHeaders();
+        if (headersMap == null) {
+            return false;
         }
-        socketIn = responseBodyIn = cacheResponse.getBody();
-        return socketIn != null;
+        InputStream cacheBodyIn = candidate.getBody();
+        if (cacheBodyIn == null) {
+            return false;
+        }
+
+        cacheResponse = candidate;
+        responseHeader = HttpHeaders.fromMultimap(headersMap);
+        parseStatusLine();
+        responseBodyIn = cacheBodyIn;
+        return true;
+    }
+
+    /**
+     * Returns true if {@code cacheResponse} is sufficient to forgo a network
+     * request. HTTPS connections require secure cache responses.
+     */
+    protected boolean acceptCacheResponse(CacheResponse cacheResponse) {
+        return cacheResponse != null;
     }
 
     private void maybeCache() throws IOException {
@@ -328,7 +352,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
         // Offer this request to the cache.
-        cacheRequest = responseCache.put(uri, this);
+        cacheRequest = responseCache.put(uri, getConnectionForCaching());
     }
 
     /**
@@ -370,12 +394,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         /*
-         * Clear "socketIn" and "socketOut" to ensure that no further I/O
-         * attempts from this instance make their way to the underlying
-         * connection (which may get recycled).
+         * Ensure that no further I/O attempts from this instance make their way
+         * to the underlying connection (which may get recycled).
          */
-        socketIn = null;
         socketOut = null;
+        socketIn = null;
+        requestOut = null;
     }
 
     /**
@@ -398,6 +422,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             responseCode = -1;
             responseMessage = null;
             cacheRequest = null;
+            uri = null;
+            cacheResponse = null;
+            hasTriedCache = false;
         } finally {
             intermediateResponse = false;
         }
@@ -421,27 +448,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Returns the value of the field at position <code>pos<code>.
-     * Returns <code>null</code> if there is fewer than <code>pos</code> fields
-     * in the response header.
-     *
-     * @return java.lang.String     The value of the field
-     * @param pos int               the position of the field from the top
-     *
-     * @see         #getHeaderField(String)
-     * @see         #getHeaderFieldKey
+     * Returns the value of the field at {@code position}. Returns null if there
+     * are fewer than {@code position} headers.
      */
     @Override
-    public String getHeaderField(int pos) {
+    public String getHeaderField(int position) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
-            return null;
-        }
-        return responseHeader.get(pos);
+        return responseHeader != null ? responseHeader.getValue(position) : null;
     }
 
     /**
@@ -462,26 +478,21 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public String getHeaderField(String key) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
+        if (responseHeader == null) {
             return null;
         }
-        return responseHeader.get(key);
+        return key == null ? responseHeader.getStatusLine() : responseHeader.get(key);
     }
 
     @Override
-    public String getHeaderFieldKey(int pos) {
+    public String getHeaderFieldKey(int position) {
         try {
             getInputStream();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignored) {
         }
-        if (null == responseHeader) {
-            return null;
-        }
-        return responseHeader.getKey(pos);
+        return responseHeader != null ? responseHeader.getKey(position) : null;
     }
 
     @Override
@@ -490,7 +501,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             retrieveResponse();
         } catch (IOException ignored) {
         }
-        return responseHeader != null ? responseHeader.getFieldMap() : null;
+        return responseHeader != null ? responseHeader.toMultimap() : null;
     }
 
     @Override
@@ -498,7 +509,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (connected) {
             throw new IllegalStateException("Cannot access request header fields after connection is set");
         }
-        return requestHeader.getFieldMap();
+        return requestHeader.toMultimap();
     }
 
     @Override
@@ -528,7 +539,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseBodyIn;
     }
 
-    private InputStream initContentStream() throws IOException {
+    private void initContentStream() throws IOException {
         InputStream transferStream = getTransferStream();
         if (transparentGzip && "gzip".equalsIgnoreCase(responseHeader.get("Content-Encoding"))) {
             /*
@@ -540,7 +551,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         } else {
             responseBodyIn = transferStream;
         }
-        return responseBodyIn;
     }
 
     private InputStream getTransferStream() throws IOException {
@@ -623,12 +633,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (fixedContentLength != -1) {
-            writeRequestHeaders(socketOut);
-            requestBodyOut = new FixedLengthOutputStream(socketOut, fixedContentLength);
+            writeRequestHeaders(fixedContentLength);
+            requestBodyOut = new FixedLengthOutputStream(requestOut, fixedContentLength);
         } else if (sendChunked) {
-            writeRequestHeaders(socketOut);
-            requestBodyOut = new ChunkedOutputStream(socketOut, chunkLength);
+            writeRequestHeaders(-1);
+            requestBodyOut = new ChunkedOutputStream(requestOut, chunkLength);
         } else if (contentLength != -1) {
+            writeRequestHeaders(contentLength);
             requestBodyOut = new RetryableOutputStream(contentLength);
         } else {
             requestBodyOut = new RetryableOutputStream();
@@ -644,7 +655,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override
     public String getRequestProperty(String field) {
-        if (null == field) {
+        if (field == null) {
             return null;
         }
         return requestHeader.get(field);
@@ -684,12 +695,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private void readResponseHeaders() throws IOException {
         do {
-            responseCode = -1;
-            responseMessage = null;
-            responseHeader = new Header();
+            responseHeader = new HttpHeaders();
             responseHeader.setStatusLine(readLine(socketIn).trim());
             readHeaders();
-        } while (parseResponseCode() == HTTP_CONTINUE);
+            parseStatusLine();
+        } while (responseCode == HTTP_CONTINUE);
     }
 
     /**
@@ -727,16 +737,20 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseCode;
     }
 
-    private int parseResponseCode() {
-        // Response Code Sample : "HTTP/1.0 200 OK"
+    private void parseStatusLine() {
+        httpVersion = 1;
+        responseCode = -1;
+        responseMessage = null;
+
+        // Status line sample: "HTTP/1.0 200 OK"
         String response = responseHeader.getStatusLine();
         if (response == null || !response.startsWith("HTTP/")) {
-            return -1;
+            return;
         }
         response = response.trim();
         int mark = response.indexOf(" ") + 1;
         if (mark == 0) {
-            return -1;
+            return;
         }
         if (response.charAt(mark - 2) != '1') {
             httpVersion = 0;
@@ -749,7 +763,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (last + 1 <= response.length()) {
             responseMessage = response.substring(last + 1);
         }
-        return responseCode;
     }
 
     void readHeaders() throws IOException {
@@ -767,7 +780,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            cookieHandler.put(uri, responseHeader.getFieldMap());
+            cookieHandler.put(uri, responseHeader.toMultimap());
         }
     }
 
@@ -782,21 +795,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <strong>after</strong> the output stream has been written to and closed.
      * This ensures that the {@code Content-Length} header receives the proper
      * value.
+     *
+     * @param contentLength the number of bytes in the request body, or -1 if
+     *      the request body length is unknown.
      */
-    private void writeRequestHeaders(OutputStream out) throws IOException {
-        Header header = prepareRequestHeaders();
+    private void writeRequestHeaders(int contentLength) throws IOException {
+        byte[] headerBytes = prepareRequestHeaders().toHeaderString().getBytes(Charsets.ISO_8859_1);
 
-        StringBuilder result = new StringBuilder(256);
-        result.append(header.getStatusLine()).append("\r\n");
-        for (int i = 0; i < header.length(); i++) {
-            String key = header.getKey(i);
-            String value = header.get(i);
-            if (key != null) {
-                result.append(key).append(": ").append(value).append("\r\n");
-            }
+        if (contentLength != -1
+                && headerBytes.length + contentLength <= MAX_REQUEST_BUFFER_LENGTH) {
+            requestOut = new BufferedOutputStream(socketOut, headerBytes.length + contentLength);
         }
-        result.append("\r\n");
-        out.write(result.toString().getBytes(Charsets.ISO_8859_1));
+
+        requestOut.write(headerBytes);
         sentRequestHeaders = true;
     }
 
@@ -807,14 +818,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <p>This client doesn't specify a default {@code Accept} header because it
      * doesn't know what content types the application is interested in.
      */
-    private Header prepareRequestHeaders() throws IOException {
+    private HttpHeaders prepareRequestHeaders() throws IOException {
         /*
          * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2),
          * send only the minimum set of headers. This avoids sending potentially
          * sensitive data like HTTP cookies to the proxy unencrypted.
          */
         if (method == CONNECT) {
-            Header proxyHeader = new Header();
+            HttpHeaders proxyHeader = new HttpHeaders();
             proxyHeader.setStatusLine(getStatusLine());
 
             // always set Host and User-Agent
@@ -877,7 +888,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
             Map<String, List<String>> allCookieHeaders
-                    = cookieHandler.get(uri, requestHeader.getFieldMap());
+                    = cookieHandler.get(uri, requestHeader.toMultimap());
             for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
                 String key = entry.getKey();
                 if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
@@ -1004,6 +1015,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
+     * Returns this connection in a form suitable for use by the response cache.
+     * If this returns an HTTPS connection, only secure cache responses will be
+     * honored.
+     */
+    protected HttpURLConnection getConnectionForCaching() {
+        return this;
+    }
+
+    /**
      * Aggressively tries to get the final HTTP response, potentially making
      * many HTTP requests in the process in order to cope with redirects and
      * authentication.
@@ -1017,33 +1037,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         while (true) {
             makeConnection();
 
-            // if we can get a response from the cache, we're done
-            if (cacheResponse != null) {
-                // TODO: how does this interact with redirects? Consider processing the headers so
-                // that a redirect is never returned.
-                return;
+            if (cacheResponse == null) {
+                getFromNetwork();
             }
-
-            if (!sentRequestHeaders) {
-                writeRequestHeaders(socketOut);
-            }
-
-            if (requestBodyOut != null) {
-                requestBodyOut.close();
-                if (requestBodyOut instanceof RetryableOutputStream) {
-                    ((RetryableOutputStream) requestBodyOut).writeToSocket(socketOut);
-                }
-            }
-
-            socketOut.flush();
-
-            readResponseHeaders();
-
-            if (hasResponseBody()) {
-                maybeCache(); // reentrant. this calls into user code which may call back into this!
-            }
-
-            initContentStream();
 
             Retry retry = processResponseHeaders();
 
@@ -1069,6 +1065,33 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 releaseSocket(true);
             }
         }
+    }
+
+    private void getFromNetwork() throws IOException {
+        if (!sentRequestHeaders) {
+            int contentLength = requestBodyOut instanceof RetryableOutputStream
+                    ? ((RetryableOutputStream) requestBodyOut).contentLength()
+                    : -1;
+            writeRequestHeaders(contentLength);
+        }
+
+        if (requestBodyOut != null) {
+            requestBodyOut.close();
+            if (requestBodyOut instanceof RetryableOutputStream) {
+                ((RetryableOutputStream) requestBodyOut).writeToSocket(requestOut);
+            }
+        }
+
+        requestOut.flush();
+        requestOut = socketOut;
+
+        readResponseHeaders();
+
+        if (hasResponseBody()) {
+            maybeCache(); // reentrant. this calls into user code which may call back into this!
+        }
+
+        initContentStream();
     }
 
     enum Retry {

@@ -8,8 +8,6 @@
 *******************************************************************************
 */
 /*
- *  @(#) icujniinterface.c	1.2 00/10/11
- *
  * (C) Copyright IBM Corp. 2000 - All Rights Reserved
  *  A JNI wrapper to ICU native converter Interface
  * @author: Ram Viswanadha
@@ -686,7 +684,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeConverter, setCallbackDecode, "(JII[C)I"),
     NATIVE_METHOD(NativeConverter, setCallbackEncode, "(JII[B)I"),
 };
-int register_com_ibm_icu4jni_converters_NativeConverter(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/charset/NativeConverter",
-                gMethods, NELEM(gMethods));
+int register_libcore_icu_NativeConverter(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "libcore/icu/NativeConverter", gMethods, NELEM(gMethods));
 }

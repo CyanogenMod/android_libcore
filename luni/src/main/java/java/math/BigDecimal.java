@@ -269,14 +269,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            first index to be copied.
      * @param len
      *            number of characters to be used.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
-     *             if {@code offset < 0} or {@code len <= 0} or {@code
-     *             offset+len-1 < 0} or {@code offset+len-1 >= in.length}.
-     * @throws NumberFormatException
-     *             if in does not contain a valid string representation of a big
-     *             decimal.
+     *             if {@code offset < 0 || len <= 0 || offset+len-1 < 0 ||
+     *             offset+len-1 >= in.length}, or if {@code in} does not
+     *             contain a valid string representation of a big decimal.
      */
     public BigDecimal(char[] in, int offset, int len) {
         int begin = offset; // first index to be copied
@@ -289,7 +285,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             throw new NullPointerException();
         }
         if ((last >= in.length) || (offset < 0) || (len <= 0) || (last < 0)) {
-            throw new NumberFormatException();
+            throw new NumberFormatException("Bad offset/length: offset=" + offset +
+                    " len=" + len + " in.length=" + in.length);
         }
         unscaledBuffer = new StringBuilder(len);
         int bufLength = 0;
@@ -301,8 +298,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         int counter = 0;
         boolean wasNonZero = false;
         // Accumulating all digits until a possible decimal point
-        for (; (offset <= last) && (in[offset] != '.')
-        && (in[offset] != 'e') && (in[offset] != 'E'); offset++) {
+        for (; (offset <= last) && (in[offset] != '.') && (in[offset] != 'e') && (in[offset] != 'E'); offset++) {
             if (!wasNonZero) {
                 if (in[offset] == '0') {
                     counter++;
@@ -381,14 +377,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            number of characters to be used.
      * @param mc
      *            rounding mode and precision for the result of this operation.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
-     *             if {@code offset < 0} or {@code len <= 0} or {@code
-     *             offset+len-1 < 0} or {@code offset+len-1 >= in.length}.
-     * @throws NumberFormatException
-     *             if {@code in} does not contain a valid string representation
-     *             of a big decimal.
+     *             if {@code offset < 0 || len <= 0 || offset+len-1 < 0 ||
+     *             offset+len-1 >= in.length}, or if {@code in} does not
+     *             contain a valid string representation of a big decimal.
      * @throws ArithmeticException
      *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
      *             UNNECESSARY} and the new big decimal cannot be represented
@@ -406,8 +398,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @param in
      *            array of characters containing the string representation of
      *            this {@code BigDecimal}.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
      *             if {@code in} does not contain a valid string representation
      *             of a big decimal.
@@ -426,8 +416,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *            this {@code BigDecimal}.
      * @param mc
      *            rounding mode and precision for the result of this operation.
-     * @throws NullPointerException
-     *             if {@code in == null}.
      * @throws NumberFormatException
      *             if {@code in} does not contain a valid string representation
      *             of a big decimal.
@@ -496,7 +484,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public BigDecimal(double val) {
         if (Double.isInfinite(val) || Double.isNaN(val)) {
-            throw new NumberFormatException("Infinity or NaN");
+            throw new NumberFormatException("Infinity or NaN: " + val);
         }
         long bits = Double.doubleToLongBits(val); // IEEE-754
         long mantissa;
@@ -774,7 +762,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public static BigDecimal valueOf(double val) {
         if (Double.isInfinite(val) || Double.isNaN(val)) {
-            throw new NumberFormatException("Infinity or NaN");
+            throw new NumberFormatException("Infinity or NaN: " + val);
         }
         return new BigDecimal(Double.toString(val));
     }
@@ -1137,10 +1125,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         int sign = scaledDividend.signum() * scaledDivisor.signum();
         int compRem;                                      // 'compare to remainder'
-        if(scaledDivisor.bitLength() < 63) { // 63 in order to avoid out of long after <<1
+        if(scaledDivisor.bitLength() < 63) { // 63 in order to avoid out of long after *2
             long rem = remainder.longValue();
             long divisor = scaledDivisor.longValue();
-            compRem = longCompareTo(Math.abs(rem) << 1,Math.abs(divisor));
+            compRem = longCompareTo(Math.abs(rem) * 2,Math.abs(divisor));
             // To look if there is a carry
             compRem = roundingBehavior(quotient.testBit(0) ? 1 : 0,
                     sign * (5 + compRem), roundingMode);
@@ -1169,7 +1157,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (remainder != 0) {
             // Checking if:  remainder * 2 >= scaledDivisor
             int compRem;                                      // 'compare to remainder'
-            compRem = longCompareTo(Math.abs(remainder) << 1,Math.abs(scaledDivisor));
+            compRem = longCompareTo(Math.abs(remainder) * 2,Math.abs(scaledDivisor));
             // To look if there is a carry
             quotient += roundingBehavior(((int)quotient) & 1,
                     sign * (5 + compRem),
@@ -2831,7 +2819,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         // If the discarded fraction is non-zero perform rounding
         if (fraction != 0) {
             // To check if the discarded fraction >= 0.5
-            compRem = longCompareTo(Math.abs(fraction) << 1,sizeOfFraction);
+            compRem = longCompareTo(Math.abs(fraction) * 2, sizeOfFraction);
             // To look if there is a carry
             integer += roundingBehavior( ((int)integer) & 1,
                     Long.signum(fraction) * (5 + compRem),

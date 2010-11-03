@@ -153,8 +153,8 @@ public class TBSCertList {
         }
 
         public int hashCode() {
-        	return userCertificate.hashCode() * 37 + (int)revocationDate.getTime() / 1000
-        	+ (crlEntryExtensions == null ? 0 : crlEntryExtensions.hashCode());
+            return userCertificate.hashCode() * 37 + (int)revocationDate.getTime() / 1000
+                    + (crlEntryExtensions == null ? 0 : crlEntryExtensions.hashCode());
         }
 
         /**
@@ -363,9 +363,9 @@ public class TBSCertList {
     }
 
     public int hashCode() {
-    	return ((version * 37 + signature.hashCode()) * 37
-    		+ issuer.getEncoded().hashCode()) * 37
-    		+ (int)thisUpdate.getTime() / 1000;
+        return ((version * 37 + signature.hashCode()) * 37
+                + issuer.getEncoded().hashCode()) * 37
+                + (int)thisUpdate.getTime() / 1000;
     }
 
     /**
@@ -448,4 +448,3 @@ public class TBSCertList {
         }
     };
 }
-

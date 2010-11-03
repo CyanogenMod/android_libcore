@@ -17,6 +17,7 @@
 
 package org.apache.harmony.luni.net;
 
+import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +32,10 @@ import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -54,8 +57,13 @@ public class PlainSocketImpl extends SocketImpl {
 
     private Proxy proxy;
 
+    private final CloseGuard guard = CloseGuard.get();
+
     public PlainSocketImpl(FileDescriptor fd) {
         this.fd = fd;
+        if (fd.valid()) {
+            guard.open("close");
+        }
     }
 
     public PlainSocketImpl(Proxy proxy) {
@@ -73,6 +81,9 @@ public class PlainSocketImpl extends SocketImpl {
         this.localport = localport;
         this.address = addr;
         this.port = port;
+        if (fd.valid()) {
+            guard.open("close");
+        }
     }
 
     @Override
@@ -162,6 +173,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected synchronized void close() throws IOException {
+        guard.close();
         Platform.NETWORK.close(fd);
     }
 
@@ -210,6 +222,9 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override protected void finalize() throws Throwable {
         try {
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
             close();
         } finally {
             super.finalize();
@@ -358,8 +373,7 @@ public class PlainSocketImpl extends SocketImpl {
         Socks4Message reply = socksReadReply();
 
         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
-            throw new IOException(reply.getErrorString(reply
-                    .getCommandOrResult()));
+            throw new IOException(reply.getErrorString(reply.getCommandOrResult()));
         }
 
         // A peculiarity of socks 4 - if the address returned is 0, use the
@@ -371,28 +385,16 @@ public class PlainSocketImpl extends SocketImpl {
             // currently the Socks4Message.getIP() only returns int,
             // so only works with IPv4 4byte addresses
             byte[] replyBytes = new byte[4];
-            intToBytes(reply.getIP(), replyBytes, 0);
+            OSMemory.pokeInt(replyBytes, 0, reply.getIP(), ByteOrder.BIG_ENDIAN);
             address = InetAddress.getByAddress(replyBytes);
         }
         localport = reply.getPort();
     }
 
-    private static void intToBytes(int value, byte[] bytes, int start) {
-        /*
-         * Shift the int so the current byte is right-most Use a byte mask of
-         * 255 to single out the last byte.
-         */
-        bytes[start] = (byte) ((value >> 24) & 255);
-        bytes[start + 1] = (byte) ((value >> 16) & 255);
-        bytes[start + 2] = (byte) ((value >> 8) & 255);
-        bytes[start + 3] = (byte) (value & 255);
-    }
-
     /**
      * Send a SOCKS V4 request.
      */
-    private void socksSendRequest(int command, InetAddress address, int port)
-            throws IOException {
+    private void socksSendRequest(int command, InetAddress address, int port) throws IOException {
         Socks4Message request = new Socks4Message();
         request.setCommandOrResult(command);
         request.setPort(port);

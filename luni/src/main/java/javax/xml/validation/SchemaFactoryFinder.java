@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import javax.xml.XMLConstants;
+import libcore.io.IoUtils;
 
 /**
  * Implementation of {@link SchemaFactory#newInstance(String)}.
@@ -454,12 +455,7 @@ final class SchemaFactoryFinder  {
             }
         }
 
-        try {
-            // try to close the reader.
-            rd.close();
-        }
-        // Ignore the exception.
-        catch (IOException exc) {}
+        IoUtils.closeQuietly(rd);
 
         return resultFactory;
     }

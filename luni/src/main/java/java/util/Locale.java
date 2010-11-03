@@ -17,13 +17,13 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.security.AccessController;
+import libcore.icu.ICU;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.Util;
 

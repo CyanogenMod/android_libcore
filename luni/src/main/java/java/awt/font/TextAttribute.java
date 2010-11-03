@@ -20,10 +20,7 @@
  */
 package java.awt.font;
 
-import java.io.InvalidObjectException;
 import java.text.AttributedCharacterIterator.Attribute;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The TextAttribute class defines attribute keys and attribute values
@@ -42,10 +39,6 @@ public final class TextAttribute extends Attribute {
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 7744112784117861702L;
 
-    // set of available text attributes
-    /** The Constant attrMap. */
-    private static final Map<String, TextAttribute> attrMap = new HashMap<String, TextAttribute>();
-
     /**
      * Instantiates a new TextAttribute with the specified name.
      *
@@ -53,23 +46,6 @@ public final class TextAttribute extends Attribute {
      */
     protected TextAttribute(String name) {
         super(name);
-        attrMap.put(name, this);
-    }
-
-    /**
-     * Resolves the instance being deserialized.
-     *
-     * @return the Object.
-     *
-     * @throws InvalidObjectException the InvalidObjectException.
-     */
-    @Override
-    protected Object readResolve() throws InvalidObjectException {
-        TextAttribute result = attrMap.get(this.getName());
-        if (result != null) {
-            return result;
-        }
-        throw new InvalidObjectException("Unknown attribute name");
     }
 
     /**

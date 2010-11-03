@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
+import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -588,12 +590,11 @@ public class ObjectStreamClass implements Serializable {
 
         // now compute the UID based on the SHA
         byte[] hash = digest.digest(sha.toByteArray());
-
-        return littleEndianLongAt(hash, 0);
+        return OSMemory.peekLong(hash, 0, ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
-     * Returns what the serializaton specification calls "descriptor" given a
+     * Returns what the serialization specification calls "descriptor" given a
      * field signature.
      *
      * @param signature
@@ -605,7 +606,7 @@ public class ObjectStreamClass implements Serializable {
     }
 
     /**
-     * Return what the serializaton specification calls "descriptor" given a
+     * Return what the serialization specification calls "descriptor" given a
      * method/constructor signature.
      *
      * @param signature
@@ -910,23 +911,6 @@ public class ObjectStreamClass implements Serializable {
     boolean isEnum() {
         resolveProperties();
         return isEnum;
-    }
-
-    /**
-     * Return a little endian long stored in a given position of the buffer
-     *
-     * @param buffer
-     *            a byte array with the byte representation of the number
-     * @param position
-     *            index where the number starts in the byte array
-     * @return the number that was stored in little endian format
-     */
-    private static long littleEndianLongAt(byte[] buffer, int position) {
-        long result = 0;
-        for (int i = position + 7; i >= position; i--) {
-            result = (result << 8) + (buffer[i] & 0xff);
-        }
-        return result;
     }
 
     /**

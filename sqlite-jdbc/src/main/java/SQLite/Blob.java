@@ -30,7 +30,11 @@ class BlobR extends InputStream {
 	this.pos = 0;
     }
 
-    @Override
+    /**
+     * Return number of available bytes for reading.
+     * @return available input bytes
+     */
+
     public int available() throws IOException {
 	int ret = blob.size - pos;
 	return (ret < 0) ? 0 : ret;

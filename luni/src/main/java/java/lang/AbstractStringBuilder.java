@@ -279,8 +279,8 @@ abstract class AbstractStringBuilder {
      */
     public void ensureCapacity(int min) {
         if (min > value.length) {
-            int twice = (value.length << 1) + 2;
-            enlargeBuffer(twice > min ? twice : min);
+            int ourMin = value.length*2 + 2;
+            enlargeBuffer(Math.max(ourMin, min));
         }
     }
 
@@ -390,14 +390,13 @@ abstract class AbstractStringBuilder {
         int newCount;
         if (value.length - count >= size) {
             if (!shared) {
-                System.arraycopy(value, index, value, index + size, count
-                        - index); // index == count case is no-op
+                // index == count case is no-op
+                System.arraycopy(value, index, value, index + size, count - index);
                 return;
             }
             newCount = value.length;
         } else {
-            int a = count + size, b = (value.length << 1) + 2;
-            newCount = a > b ? a : b;
+            newCount = Math.max(count + size, value.length*2 + 2);
         }
 
         char[] newData = new char[newCount];

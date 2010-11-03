@@ -139,11 +139,10 @@ public class BufferedOutputStream extends FilterOutputStream {
         }
 
         // flush the internal buffer first if we have not enough space left
-        if (length >= (internalBuffer.length - count)) {
+        if (length > (internalBuffer.length - count)) {
             flushInternal();
         }
 
-        // the length is always less than (internalBuffer.length - count) here so arraycopy is safe
         System.arraycopy(buffer, offset, internalBuffer, count, length);
         count += length;
     }

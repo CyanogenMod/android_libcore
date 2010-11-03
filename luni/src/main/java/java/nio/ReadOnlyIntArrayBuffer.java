@@ -32,8 +32,8 @@ package java.nio;
 final class ReadOnlyIntArrayBuffer extends IntArrayBuffer {
 
     static ReadOnlyIntArrayBuffer copy(IntArrayBuffer other, int markOfOther) {
-        ReadOnlyIntArrayBuffer buf = new ReadOnlyIntArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadOnlyIntArrayBuffer buf =
+                new ReadOnlyIntArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -101,8 +101,7 @@ final class ReadOnlyIntArrayBuffer extends IntArrayBuffer {
 
     @Override
     public IntBuffer slice() {
-        return new ReadOnlyIntArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadOnlyIntArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

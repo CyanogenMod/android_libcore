@@ -20,6 +20,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.ftp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import libcore.io.IoUtils;
 
 /**
  * This class associates a given inputStream with a control socket. This ensures
@@ -63,16 +64,8 @@ class FtpURLInputStream extends InputStream {
 
     @Override
     public void close() {
-        try {
-            is.close();
-        } catch (Exception e) {
-            // ignored
-        }
-        try {
-            controlSocket.close();
-        } catch (Exception e) {
-            // ignored
-        }
+        IoUtils.closeQuietly(is);
+        IoUtils.closeQuietly(controlSocket);
     }
 
     @Override

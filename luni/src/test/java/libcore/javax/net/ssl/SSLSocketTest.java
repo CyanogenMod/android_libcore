@@ -122,8 +122,8 @@ public class SSLSocketTest extends TestCase {
                 assertEquals(clientToServer.length, readFromClient);
                 assertEquals(clientToServerString, new String(serverFromClient, 0, readFromClient));
                 assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
-                server.close();
                 client.close();
+                server.close();
             } catch (Exception e) {
                 throw new Exception("Problem trying to connect cipher suite " + cipherSuite
                                     + " client=" + clientProvider
@@ -131,6 +131,7 @@ public class SSLSocketTest extends TestCase {
                                     e);
             }
         }
+        c.close();
     }
 
     public void test_SSLSocket_getEnabledCipherSuites() throws Exception {
@@ -256,6 +257,9 @@ public class SSLSocketTest extends TestCase {
                                                     peerCertificates);
         TestSSLContext.assertCertificateInKeyStore(peerCertificates[0], c.serverKeyStore);
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
@@ -264,10 +268,12 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         try {
-            SSLSocket server = (SSLSocket) c.serverSocket.accept();
+            c.serverSocket.accept();
             fail();
         } catch (SSLException expected) {
         }
+        client.close();
+        c.close();
     }
 
     public void test_SSLSocket_startHandshake_noClientCertificate() throws Exception {
@@ -291,6 +297,9 @@ public class SSLSocketTest extends TestCase {
         thread.start();
         client.startHandshake();
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_HandshakeCompletedListener() throws Exception {
@@ -394,6 +403,9 @@ public class SSLSocketTest extends TestCase {
                 handshakeCompletedListenerCalled.wait();
             }
         }
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_HandshakeCompletedListener_RuntimeException() throws Exception {
@@ -420,6 +432,9 @@ public class SSLSocketTest extends TestCase {
         });
         client.startHandshake();
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_getUseClientMode() throws Exception {
@@ -429,6 +444,9 @@ public class SSLSocketTest extends TestCase {
         SSLSocket server = (SSLSocket) c.serverSocket.accept();
         assertTrue(client.getUseClientMode());
         assertFalse(server.getUseClientMode());
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_setUseClientMode() throws Exception {
@@ -509,6 +527,9 @@ public class SSLSocketTest extends TestCase {
         if (socketTimeoutException[0] != null) {
             throw socketTimeoutException[0];
         }
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_clientAuth() throws Exception {
@@ -554,6 +575,9 @@ public class SSLSocketTest extends TestCase {
         TestSSLContext.assertClientCertificateChain(c.clientTrustManager,
                                                     client.getSession().getLocalCertificates());
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_getEnableSessionCreation() throws Exception {
@@ -563,6 +587,9 @@ public class SSLSocketTest extends TestCase {
         SSLSocket server = (SSLSocket) c.serverSocket.accept();
         assertTrue(client.getEnableSessionCreation());
         assertTrue(server.getEnableSessionCreation());
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_setEnableSessionCreation_server() throws Exception {
@@ -593,6 +620,9 @@ public class SSLSocketTest extends TestCase {
         } catch (SSLException expected) {
         }
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_setEnableSessionCreation_client() throws Exception {
@@ -623,6 +653,9 @@ public class SSLSocketTest extends TestCase {
         } catch (SSLException expected) {
         }
         thread.join();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_getSSLParameters() throws Exception {
@@ -780,6 +813,8 @@ public class SSLSocketTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+
+        pair.close();
     }
 
     public void test_SSLSocket_setSoTimeout_basic() throws Exception {
@@ -899,6 +934,7 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(test.client.getSession());
         assertTrue(test.server.getSession().isValid());
         assertTrue(test.client.getSession().isValid());
+        test.close();
     }
 
     /**
@@ -915,6 +951,14 @@ public class SSLSocketTest extends TestCase {
             } else {
                 System.out.print("X");
             }
+
+            /*
+              We don't close on purpose in this stress test to add
+              races in file descriptors reuse when the garbage
+              collector runs concurrently and finalizes sockets
+            */
+            // test.close();
+
         }
     }
 

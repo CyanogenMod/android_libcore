@@ -385,11 +385,11 @@ public class Extensions {
     }
 
     public int hashCode() {
-    	int hashcode = 0;
-    	if (extensions != null) {
-    		hashcode = extensions.hashCode();
-    	}
-    	return hashcode;
+        int hashcode = 0;
+        if (extensions != null) {
+            hashcode = extensions.hashCode();
+        }
+        return hashcode;
     }
 
     /**
@@ -422,4 +422,3 @@ public class Extensions {
         }
     };
 }
-

@@ -608,7 +608,7 @@ static void startElement(void* data, const char* elementName, const char** attri
 
     // Count the number of attributes.
     int count = 0;
-    while (attributes[count << 1]) count++;
+    while (attributes[count * 2]) count++;
 
     // Make the attributes available for the duration of this call.
     parsingContext->attributes = attributes;
@@ -1159,7 +1159,7 @@ static jstring ExpatAttributes_getQName(JNIEnv* env, jobject, jint pointer,
 static jstring ExpatAttributes_getValueByIndex(JNIEnv* env, jobject,
         jint attributePointer, jint index) {
     const char** attributes = toAttributes(attributePointer);
-    const char* value = attributes[(index << 1) + 1];
+    const char* value = attributes[(index * 2) + 1];
     return env->NewStringUTF(value);
 }
 
@@ -1262,7 +1262,7 @@ static jstring ExpatAttributes_getValue(JNIEnv* env, jobject clazz,
  */
 static jint ExpatParser_cloneAttributes(JNIEnv* env, jobject, jint address, jint count) {
     const char** source = reinterpret_cast<const char**>(static_cast<uintptr_t>(address));
-    count <<= 1;
+    count *= 2;
 
     // Figure out how big the buffer needs to be.
     int arraySize = (count + 1) * sizeof(char*);

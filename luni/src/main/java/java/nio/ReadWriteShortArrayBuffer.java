@@ -32,8 +32,8 @@ package java.nio;
 final class ReadWriteShortArrayBuffer extends ShortArrayBuffer {
 
     static ReadWriteShortArrayBuffer copy(ShortArrayBuffer other, int markOfOther) {
-        ReadWriteShortArrayBuffer buf = new ReadWriteShortArrayBuffer(other.capacity(),
-                other.backingArray, other.offset);
+        ReadWriteShortArrayBuffer buf =
+                new ReadWriteShortArrayBuffer(other.capacity(), other.backingArray, other.offset);
         buf.limit = other.limit;
         buf.position = other.position();
         buf.mark = markOfOther;
@@ -60,8 +60,7 @@ final class ReadWriteShortArrayBuffer extends ShortArrayBuffer {
 
     @Override
     public ShortBuffer compact() {
-        System.arraycopy(backingArray, position + offset, backingArray, offset,
-                remaining());
+        System.arraycopy(backingArray, position + offset, backingArray, offset, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;
@@ -127,8 +126,7 @@ final class ReadWriteShortArrayBuffer extends ShortArrayBuffer {
 
     @Override
     public ShortBuffer slice() {
-        return new ReadWriteShortArrayBuffer(remaining(), backingArray, offset
-                + position);
+        return new ReadWriteShortArrayBuffer(remaining(), backingArray, offset + position);
     }
 
 }

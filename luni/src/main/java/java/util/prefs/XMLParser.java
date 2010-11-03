@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.security.AccessController;
@@ -40,6 +39,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
+import libcore.io.IoUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -509,7 +509,7 @@ class XMLParser {
             } catch (SAXException e) {
             } finally {
                 releaseQuietly(lock);
-                closeQuietly(in);
+                IoUtils.closeQuietly(in);
             }
         } else {
             file.delete();
@@ -558,7 +558,7 @@ class XMLParser {
             out.flush();
         } finally {
             releaseQuietly(lock);
-            closeQuietly(out);
+            IoUtils.closeQuietly(out);
         }
     }
 
@@ -568,24 +568,6 @@ class XMLParser {
         }
         try {
             lock.release();
-        } catch (IOException e) {}
-    }
-
-    private static void closeQuietly(Writer out) {
-        if (out == null) {
-            return;
-        }
-        try {
-            out.close();
-        } catch (IOException e) {}
-    }
-
-    private static void closeQuietly(InputStream in) {
-        if (in == null) {
-            return;
-        }
-        try {
-            in.close();
         } catch (IOException e) {}
     }
 }

@@ -15,12 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// This implementation is based on an old version of Apache Harmony. The current
-// Harmony uses ICU4J, which makes it much simpler. We should consider updating
-// this implementation to leverage ICU4JNI.
-// END android-note
-
 package java.util;
 
 import java.io.IOException;
@@ -45,16 +39,6 @@ import java.io.ObjectStreamField;
 public class SimpleTimeZone extends TimeZone {
 
     private static final long serialVersionUID = -403250971215465050L;
-
-    // BEGIN android-removed
-    // private static com.ibm.icu.util.TimeZone getICUTimeZone(final String name){
-    //     return AccessController.doPrivileged(new PrivilegedAction<com.ibm.icu.util.TimeZone>(){
-    //         public com.ibm.icu.util.TimeZone run() {
-    //             return com.ibm.icu.util.TimeZone.getTimeZone(name);
-    //         }
-    //     });
-    // }
-    // END android-removed
 
     private int rawOffset;
 
