@@ -41,7 +41,6 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
      *            the key store builder.
      */
     public KeyStoreBuilderParameters(KeyStore.Builder builder) {
-        super();
         ksbuilders = Collections.singletonList(builder);
     }
 
@@ -55,7 +54,6 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
      *             if the specified list is empty.
      */
     public KeyStoreBuilderParameters(List<KeyStore.Builder> parameters) {
-        super();
         if (parameters == null) {
             throw new NullPointerException("Builders list is null");
         }

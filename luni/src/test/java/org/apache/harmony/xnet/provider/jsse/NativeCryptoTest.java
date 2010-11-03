@@ -107,17 +107,13 @@ public class NativeCryptoTest extends TestCase {
     }
 
     private static final PrivateKeyEntry SERVER_PRIVATE_KEY_ENTRY
-            = TestKeyStore.privateKey(TestKeyStore.getServer().keyStore,
-                                      TestKeyStore.getServer().keyPassword,
-                                      "RSA");
+            = TestKeyStore.getServer().getPrivateKey("RSA");
     private static final byte[] SERVER_PRIVATE_KEY
             = SERVER_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
     private static final byte[][] SERVER_CERTIFICATES;
 
     private static final PrivateKeyEntry CLIENT_PRIVATE_KEY_ENTRY
-            = TestKeyStore.privateKey(TestKeyStore.getClientCertificate().keyStore,
-                                      TestKeyStore.getClientCertificate().keyPassword,
-                                      "RSA");
+            = TestKeyStore.getClientCertificate().getPrivateKey("RSA");
     private static final byte[] CLIENT_PRIVATE_KEY
             = CLIENT_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
     private static final byte[][] CLIENT_CERTIFICATES;

@@ -17,20 +17,24 @@
 package libcore.javax.net.ssl;
 
 import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyStore.Builder;
+import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.Security;
-import libcore.java.security.StandardNames;
-import libcore.java.security.TestKeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.KeyStoreBuilderParameters;
+import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
+import libcore.java.security.TestKeyStore;
 
 public class KeyManagerFactoryTest extends TestCase {
 
@@ -48,10 +52,13 @@ public class KeyManagerFactoryTest extends TestCase {
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         assertEquals(StandardNames.KEY_MANAGER_FACTORY_DEFAULT, algorithm);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-        test_KeyManagerFactory(kmf);
+        test_KeyManagerFactory(kmf, false);
     }
 
-    private void test_KeyManagerFactory (KeyManagerFactory kmf) throws Exception {
+    private static class UseslessManagerFactoryParameters implements ManagerFactoryParameters {}
+
+    private void test_KeyManagerFactory(KeyManagerFactory kmf,
+                                        boolean supportsManagerFactoryParameters) throws Exception {
         assertNotNull(kmf);
         assertNotNull(kmf.getAlgorithm());
         assertNotNull(kmf.getProvider());
@@ -59,30 +66,56 @@ public class KeyManagerFactoryTest extends TestCase {
         // before init
         try {
             kmf.getKeyManagers();
+            fail();
         } catch (IllegalStateException expected) {
         }
 
-        // init with ManagerFactoryParameters
+        // init with null ManagerFactoryParameters
         try {
             kmf.init(null);
+            fail();
         } catch (InvalidAlgorithmParameterException expected) {
         }
 
+        // init with useless ManagerFactoryParameters
+        try {
+            kmf.init(new UseslessManagerFactoryParameters());
+            fail();
+        } catch (InvalidAlgorithmParameterException expected) {
+        }
+
+        // init with KeyStoreBuilderParameters ManagerFactoryParameters
+        PasswordProtection pp = new PasswordProtection(TEST_KEY_STORE.storePassword);
+        Builder builder = Builder.newInstance(TEST_KEY_STORE.keyStore, pp);
+        KeyStoreBuilderParameters ksbp = new KeyStoreBuilderParameters(builder);
+        if (supportsManagerFactoryParameters) {
+            kmf.init(ksbp);
+            test_KeyManagerFactory_getKeyManagers(kmf);
+        } else {
+            try {
+                kmf.init(ksbp);
+                fail();
+            } catch (InvalidAlgorithmParameterException expected) {
+            }
+        }
+
+        // init with null for default behavior
         kmf.init(null, null);
         test_KeyManagerFactory_getKeyManagers(kmf);
 
+        // init with specific key store and password
         kmf.init(TEST_KEY_STORE.keyStore, TEST_KEY_STORE.storePassword);
         test_KeyManagerFactory_getKeyManagers(kmf);
     }
 
-    private void test_KeyManagerFactory_getKeyManagers (KeyManagerFactory kmf) {
+    private void test_KeyManagerFactory_getKeyManagers(KeyManagerFactory kmf) {
         KeyManager[] keyManagers = kmf.getKeyManagers();
         assertNotNull(keyManagers);
         assertTrue(keyManagers.length > 0);
         for (KeyManager keyManager : keyManagers) {
             assertNotNull(keyManager);
             if (keyManager instanceof X509KeyManager) {
-                test_X509KeyManager((X509KeyManager)keyManager);
+                test_X509KeyManager((X509KeyManager) keyManager);
             }
         }
     }
@@ -106,7 +139,7 @@ public class KeyManagerFactoryTest extends TestCase {
         }
 
         if (km instanceof X509ExtendedKeyManager) {
-            test_X509ExtendedKeyManager((X509ExtendedKeyManager)km);
+            test_X509ExtendedKeyManager((X509ExtendedKeyManager) km);
         }
     }
 
@@ -136,10 +169,7 @@ public class KeyManagerFactoryTest extends TestCase {
             assertEquals(keyType, privateKey.getAlgorithm());
         }
 
-        PrivateKeyEntry privateKeyEntry
-                = TestKeyStore.privateKey(TEST_KEY_STORE.keyStore,
-                                          TEST_KEY_STORE.storePassword,
-                                          keyType);
+        PrivateKeyEntry privateKeyEntry = TEST_KEY_STORE.getPrivateKey(keyType);
         assertEquals(Arrays.asList(privateKeyEntry.getCertificateChain()),
                      Arrays.asList(certificateChain));
         assertEquals(privateKeyEntry.getPrivateKey(), privateKey);
@@ -155,11 +185,11 @@ public class KeyManagerFactoryTest extends TestCase {
                     continue;
                 }
                 String algorithm = service.getAlgorithm();
-
+                boolean supportsManagerFactoryParameters = algorithm.equals("NewSunX509");
                 {
                     KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
                     assertEquals(algorithm, kmf.getAlgorithm());
-                    test_KeyManagerFactory(kmf);
+                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
                 }
 
                 {
@@ -167,7 +197,7 @@ public class KeyManagerFactoryTest extends TestCase {
                                                                           provider);
                     assertEquals(algorithm, kmf.getAlgorithm());
                     assertEquals(provider, kmf.getProvider());
-                    test_KeyManagerFactory(kmf);
+                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
                 }
 
                 {
@@ -175,7 +205,7 @@ public class KeyManagerFactoryTest extends TestCase {
                                                                           provider.getName());
                     assertEquals(algorithm, kmf.getAlgorithm());
                     assertEquals(provider, kmf.getProvider());
-                    test_KeyManagerFactory(kmf);
+                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
                 }
             }
         }

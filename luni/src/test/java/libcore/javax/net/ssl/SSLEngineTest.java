@@ -16,7 +16,6 @@
 
 package libcore.javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 import java.util.Arrays;
@@ -67,9 +66,8 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
-    @KnownFailure("No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'")
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
-        // note the rare usage of DSA keys here in addition to RSA
+        // note the rare usage of non-RSA keys
         TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
                                                         null,
                                                         null,
@@ -80,22 +78,31 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
-            /*
-             * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-             * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
-             */
-            if (cipherSuite.startsWith("TLS_KRB5_")) {
-                continue;
-            }
-            // System.out.println("Trying to connect cipher suite " + cipherSuite);
-            final String[] cipherSuiteArray = new String[] { cipherSuite };
-            assertConnected(TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
-                @Override
-                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                    client.setEnabledCipherSuites(cipherSuiteArray);
-                    server.setEnabledCipherSuites(cipherSuiteArray);
+            try {
+                /*
+                 * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
+                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
+                 */
+                if (cipherSuite.startsWith("TLS_KRB5_")) {
+                    continue;
                 }
-            }));
+                /*
+                 * Elliptic Curve cipher suites are not supported
+                 */
+                if (cipherSuite.startsWith("TLS_EC")) {
+                    continue;
+                }
+                final String[] cipherSuiteArray = new String[] { cipherSuite };
+                assertConnected(TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
+                        @Override
+                                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                            client.setEnabledCipherSuites(cipherSuiteArray);
+                            server.setEnabledCipherSuites(cipherSuiteArray);
+                        }
+                    }));
+            } catch (Exception e) {
+                throw new Exception("Problem trying to connect cipher suite " + cipherSuite, e);
+            }
         }
         c.close();
     }
@@ -201,7 +208,6 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
-    @KnownFailure("NO SERVER CERTIFICATE FOUND")
     public void test_SSLEngine_beginHandshake_noKeyStore() throws Exception {
         TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
                                                  SSLContext.getDefault(), SSLContext.getDefault());
@@ -229,7 +235,6 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
-    @KnownFailure("SSLHandshakeException instead assertNotConnected")
     public void test_SSLEngine_setUseClientMode() throws Exception {
         // client is client, server is server
         assertConnected(test_SSLEngine_setUseClientMode(true, false));
@@ -279,7 +284,6 @@ public class SSLEngineTest extends TestCase {
         });
     }
 
-    @KnownFailure("init - invalid private key")
     public void test_SSLEngine_clientAuth() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
@@ -329,7 +333,6 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
-    @KnownFailure("SSLException instead assertNotConnected")
     public void test_SSLEngine_setEnableSessionCreation_server() throws Exception {
         TestSSLEnginePair p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
             @Override
@@ -340,7 +343,6 @@ public class SSLEngineTest extends TestCase {
         assertNotConnected(p);
     }
 
-    @KnownFailure("AlertException instead of SSLException")
     public void test_SSLEngine_setEnableSessionCreation_client() throws Exception {
         try {
             TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {

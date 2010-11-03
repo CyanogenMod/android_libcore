@@ -24,6 +24,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore;
+import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -257,9 +258,19 @@ public final class TestKeyStore extends Assert {
             x509c = null;
         } else {
             // 1.) we make the keys
-            int keysize = 1024;
             KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgorithm);
-            kpg.initialize(keysize, new SecureRandom());
+            int keySize;
+            if (keyAlgorithm.equals("RSA")) {
+                keySize = 512;
+            } else if (keyAlgorithm.equals("DSA")) {
+                keySize = 512;
+            } else if (keyAlgorithm.startsWith("EC")) {
+                keySize = 192;
+            } else {
+                throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
+            }
+            kpg.initialize(keySize, new SecureRandom());
+
             KeyPair kp = kpg.generateKeyPair();
             privateKey = (PrivateKey)kp.getPrivate();
             PublicKey publicKey  = (PublicKey)kp.getPublic();
@@ -343,6 +354,15 @@ public final class TestKeyStore extends Assert {
     }
 
     /**
+     * Return the only private key in a TestKeyStore for the given
+     * algorithm. Throws IllegalStateException if there are are more
+     * or less than one.
+     */
+    public PrivateKeyEntry getPrivateKey(String algorithm) {
+        return privateKey(keyStore, keyPassword, algorithm);
+    }
+
+    /**
      * Return the only private key in a keystore for the given
      * algorithm. Throws IllegalStateException if there are are more
      * or less than one.
@@ -380,8 +400,7 @@ public final class TestKeyStore extends Assert {
      */
     public static KeyStore createClient(KeyStore caKeyStore) {
         try {
-            KeyStore clientKeyStore = clientKeyStore = KeyStore.getInstance("BKS");
-            clientKeyStore.load(null, null);
+            KeyStore clientKeyStore = createKeyStore();
             copySelfSignedCertificates(clientKeyStore, caKeyStore);
             return clientKeyStore;
         } catch (RuntimeException e) {
@@ -392,9 +411,11 @@ public final class TestKeyStore extends Assert {
     }
 
     /**
-     * Copy self-signed certifcates from one key store to another
+     * Copy self-signed certifcates from one key store to another.
+     * Returns true if successful, false if no match found.
      */
-    public static void copySelfSignedCertificates(KeyStore dst, KeyStore src) throws Exception {
+    public static boolean copySelfSignedCertificates(KeyStore dst, KeyStore src) throws Exception {
+        boolean copied = false;
         for (String alias: Collections.list(src.aliases())) {
             if (!src.isCertificateEntry(alias)) {
                 continue;
@@ -404,7 +425,29 @@ public final class TestKeyStore extends Assert {
                 continue;
             }
             dst.setCertificateEntry(alias, cert);
+            copied = true;
         }
+        return copied;
+    }
+
+    /**
+     * Copy named certifcates from one key store to another.
+     * Returns true if successful, false if no match found.
+     */
+    public static boolean copyCertificate(Principal subject, KeyStore dst, KeyStore src)
+            throws Exception {
+        for (String alias: Collections.list(src.aliases())) {
+            if (!src.isCertificateEntry(alias)) {
+                continue;
+            }
+            X509Certificate cert = (X509Certificate)src.getCertificate(alias);
+            if (!cert.getSubjectDN().equals(subject)) {
+                continue;
+            }
+            dst.setCertificateEntry(alias, cert);
+            return true;
+        }
+        return false;
     }
 
     /**
