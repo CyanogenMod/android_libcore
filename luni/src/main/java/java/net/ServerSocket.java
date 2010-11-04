@@ -518,11 +518,11 @@ public class ServerSocket {
     }
 
     /**
-     * Gets the related channel if this instance was created by a
-     * {@code ServerSocketChannel}. The current implementation returns always {@code
-     * null}.
-     *
-     * @return the related {@code ServerSocketChannel} if any.
+     * Returns this socket's {@code ServerSocketChannel}, if one exists. A channel is
+     * available only if this socket wraps a channel. (That is, you can go from a
+     * channel to a socket and back again, but you can't go from an arbitrary socket to a channel.)
+     * In practice, this means that the socket must have been created by
+     * {@link java.nio.channels.ServerSocketChannel#open}.
      */
     public ServerSocketChannel getChannel() {
         return null;
