@@ -81,8 +81,8 @@ public class GZIPInputStream extends InflaterInputStream {
         super(is, new Inflater(true), size);
         byte[] header = new byte[10];
         readFully(header, 0, header.length);
-        int magic = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
-        if (magic != GZIP_MAGIC) {
+        short magic = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+        if (magic != (short) GZIP_MAGIC) {
             throw new IOException(String.format("unknown format (magic number %x)", magic));
         }
         int flags = header[3];
@@ -95,7 +95,7 @@ public class GZIPInputStream extends InflaterInputStream {
             if (hcrc) {
                 crc.update(header, 0, 2);
             }
-            int length = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+            int length = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
             while (length > 0) {
                 int max = length > buf.length ? buf.length : length;
                 int result = in.read(buf, 0, max);
@@ -116,8 +116,8 @@ public class GZIPInputStream extends InflaterInputStream {
         }
         if (hcrc) {
             readFully(header, 0, 2);
-            int crc16 = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
-            if ((crc.getValue() & 0xffff) != crc16) {
+            short crc16 = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+            if ((short) crc.getValue() != crc16) {
                 throw new IOException("CRC mismatch");
             }
             crc.reset();
@@ -186,7 +186,7 @@ public class GZIPInputStream extends InflaterInputStream {
         System.arraycopy(buf, len - size, b, 0, copySize);
         readFully(b, copySize, trailerSize - copySize);
 
-        if (OSMemory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != crc.getValue()) {
+        if (OSMemory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != (int) crc.getValue()) {
             throw new IOException("CRC mismatch");
         }
         if (OSMemory.peekInt(b, 4, ByteOrder.LITTLE_ENDIAN) != inf.getTotalOut()) {
@@ -194,8 +194,7 @@ public class GZIPInputStream extends InflaterInputStream {
         }
     }
 
-    private void readFully(byte[] buffer, int offset, int length)
-            throws IOException {
+    private void readFully(byte[] buffer, int offset, int length) throws IOException {
         int result;
         while (length > 0) {
             result = in.read(buffer, offset, length);
