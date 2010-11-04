@@ -92,8 +92,6 @@ import java.io.Reader;
  *         while (eventType != XmlPullParser.END_DOCUMENT) {
  *          if(eventType == XmlPullParser.START_DOCUMENT) {
  *              System.out.println("Start document");
- *          } else if(eventType == XmlPullParser.END_DOCUMENT) {
- *              System.out.println("End document");
  *          } else if(eventType == XmlPullParser.START_TAG) {
  *              System.out.println("Start tag "+xpp.<a href="#getName()">getName()</a>);
  *          } else if(eventType == XmlPullParser.END_TAG) {
@@ -103,6 +101,7 @@ import java.io.Reader;
  *          }
  *          eventType = xpp.next();
  *         }
+ *         System.out.println("End document");
  *     }
  * }
  * </pre>

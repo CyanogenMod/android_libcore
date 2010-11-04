@@ -21,7 +21,6 @@ import org.xmlpull.v1.XmlPullParser;
 public final class ExpatPullParserTest extends PullParserTest {
 
     @Override XmlPullParser newPullParser() {
-        ExpatPullParser parser = new ExpatPullParser();
-        return parser;
+        return new ExpatPullParser();
     }
 }
