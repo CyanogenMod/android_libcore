@@ -763,7 +763,7 @@ public class ExpatPullParser implements XmlPullParser {
             }
 
             if (length == 0) {
-                return;
+                return; // TODO: can't happen?
             }
 
             flush(parser, length);

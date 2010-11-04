@@ -12,6 +12,7 @@
 
 package org.w3c.domts;
 
+import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -120,7 +121,9 @@ public class JAXPDOMTestDocumentBuilderFactory
     try {
       LoadErrorHandler errorHandler = new LoadErrorHandler();
       builder.setErrorHandler(errorHandler);
-      doc = builder.parse(url.openStream(), url.toString());
+      InputStream stream = url.openStream();
+      doc = builder.parse(stream, url.toString());
+      stream.close();
       parseException = errorHandler.getFirstException();
     }
     catch (Exception ex) {
