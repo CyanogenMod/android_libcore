@@ -44,6 +44,7 @@ package org.xml.sax;
  * @see org.xml.sax.Locator
  * @see org.xml.sax.HandlerBase
  */
+@Deprecated
 public interface DocumentHandler {
 
 
