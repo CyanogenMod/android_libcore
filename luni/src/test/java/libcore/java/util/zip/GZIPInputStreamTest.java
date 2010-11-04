@@ -27,23 +27,25 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import junit.framework.TestCase;
 
-public final class GzipTest extends TestCase {
-
-    public void testRoundtripShortMessage() throws IOException {
-        byte[] data = gzip(("Hello World").getBytes("UTF-8"));
-        assertTrue(Arrays.equals(data, gunzip(gzip(data))));
+public final class GZIPInputStreamTest extends TestCase {
+    public void testShortMessage() throws IOException {
+        byte[] data = new byte[] {
+            31, -117, 8, 0, 0, 0, 0, 0, 0, 0, -13, 72, -51, -55, -55, 87, 8, -49,
+            47, -54, 73, 1, 0, 86, -79, 23, 74, 11, 0, 0, 0
+        };
+        assertEquals("Hello World", new String(gunzip(data), "UTF-8"));
     }
 
-    public void testRoundtripLongMessage() throws IOException {
+    public void testLongMessage() throws IOException {
         byte[] data = new byte[1024 * 1024];
         new Random().nextBytes(data);
-        assertTrue(Arrays.equals(data, gunzip(gzip(data))));
+        assertTrue(Arrays.equals(data, gunzip(GZIPOutputStreamTest.gzip(data))));
     }
 
     /** http://b/3042574 GzipInputStream.skip() causing CRC failures */
     public void testSkip() throws IOException {
         byte[] data = new byte[1024 * 1024];
-        byte[] gzipped = gzip(data);
+        byte[] gzipped = GZIPOutputStreamTest.gzip(data);
         GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(gzipped));
         long totalSkipped = 0;
 
@@ -53,19 +55,11 @@ public final class GzipTest extends TestCase {
             totalSkipped += count;
         } while (count > 0);
 
-
         assertEquals(data.length, totalSkipped);
+        in.close();
     }
 
-    public byte[] gzip(byte[] bytes) throws IOException {
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        OutputStream gzippedOut = new GZIPOutputStream(bytesOut);
-        gzippedOut.write(bytes);
-        gzippedOut.close();
-        return bytesOut.toByteArray();
-    }
-
-    public byte[] gunzip(byte[] bytes) throws IOException {
+    public static byte[] gunzip(byte[] bytes) throws IOException {
         InputStream in = new GZIPInputStream(new ByteArrayInputStream(bytes));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -73,6 +67,7 @@ public final class GzipTest extends TestCase {
         while ((count = in.read(buffer)) != -1) {
             out.write(buffer, 0, count);
         }
+        in.close();
         return out.toByteArray();
     }
 }
