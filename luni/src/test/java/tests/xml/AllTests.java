@@ -40,7 +40,6 @@ public class AllTests {
         // suite.addTest(tests.api.org.w3c.dom.AllTests.suite());
         // END android-changed
         suite.addTest(tests.org.w3c.dom.AllTests.suite());
-        suite.addTest(org.apache.harmony.xml.AllTests.suite());
         suite.addTest(org.kxml2.io.AllTests.suite());
 
         return suite;

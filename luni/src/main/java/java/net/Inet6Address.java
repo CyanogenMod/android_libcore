@@ -330,11 +330,6 @@ public final class Inet6Address extends InetAddress {
         return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 8;
     }
 
-    // BEGIN android-removed
-    // public String getHostAddress() {
-    // }
-    // END android-removed
-
     /**
      * Gets the scope id as a number if this address is linked to an interface.
      * Otherwise returns {@code 0}.
@@ -361,14 +356,6 @@ public final class Inet6Address extends InetAddress {
         }
         return null;
     }
-
-    // BEGIN android-removed
-    // public int hashCode() {}
-    // END android-removed
-
-    // BEGIN android-removed
-    // public boolean equals(Object obj) {}
-    // END android-removed
 
     /**
      * Returns whether this address is IPv4 compatible or not. An IPv4

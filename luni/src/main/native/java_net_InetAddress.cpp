@@ -212,25 +212,6 @@ static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
     return env->NewStringUTF(name);
 }
 
-/**
- * Convert a Java string representing an IP address to a Java byte array.
- * The formats accepted are:
- * - IPv4:
- *   - 1.2.3.4
- *   - 1.2.4
- *   - 1.4
- *   - 4
- * - IPv6
- *   - Compressed form (2001:db8::1)
- *   - Uncompressed form (2001:db8:0:0:0:0:0:1)
- *   - IPv4-compatible (::192.0.2.0)
- *   - With an embedded IPv4 address (2001:db8::192.0.2.0).
- * IPv6 addresses may appear in square brackets.
- *
- * @param addressByteArray the byte array to convert.
- * @return a string with the textual representation of the address.
- * @throws UnknownHostException the IP address was invalid.
- */
 static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring javaString) {
     // Convert the String to UTF-8 bytes.
     ScopedUtfChars chars(env, javaString);
@@ -290,7 +271,6 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
 
     if (!result) {
         env->ExceptionClear();
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(ret));
     }
 
     return result;

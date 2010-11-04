@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
 
 package org.apache.harmony.xml;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParser;
 
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(ExpatParserTest.class);
-        return suite;
+public class KxmlPullParserTest extends PullParserTest {
+
+    @Override XmlPullParser newPullParser() {
+        return new KXmlParser();
     }
-
 }
