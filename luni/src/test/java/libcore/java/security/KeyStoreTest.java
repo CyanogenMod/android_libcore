@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStore.Builder;
@@ -1243,7 +1244,9 @@ public class KeyStoreTest extends TestCase {
     public void assertEqualsKeyStores(File expected, char[] storePassword, KeyStore actual)
             throws Exception{
         KeyStore ks = KeyStore.getInstance(actual.getType(), actual.getProvider());
-        ks.load(new FileInputStream(expected), storePassword);
+        InputStream is = new FileInputStream(expected);
+        ks.load(is, storePassword);
+        is.close();
         assertEqualsKeyStores(ks, actual);
     }
 
@@ -1805,7 +1808,9 @@ public class KeyStoreTest extends TestCase {
             populate(keyStore);
             File file = File.createTempFile("keystore", keyStore.getProvider().getName());
             try {
-                keyStore.store(new FileOutputStream(file), PASSWORD_STORE);
+                OutputStream os = new FileOutputStream(file);
+                keyStore.store(os, PASSWORD_STORE);
+                os.close();
                 Builder builder = Builder.newInstance(keyStore.getType(),
                                                       keyStore.getProvider(),
                                                       file,
@@ -1837,12 +1842,14 @@ public class KeyStoreTest extends TestCase {
         InputStream in = new FileInputStream(System.getProperty(
                 "javax.net.ssl.trustStore", "/etc/security/cacerts.bks"));
         ks.load(in, null);
+        in.close();
         for (String alias : Collections.list(ks.aliases())) {
             assert(ks.isCertificateEntry(alias));
             Certificate c = ks.getCertificate(alias);
             assertTrue(c instanceof X509Certificate);
             X509Certificate cert = (X509Certificate) c;
             assertEquals(cert.getSubjectUniqueID(), cert.getIssuerUniqueID());
+            assertNotNull(cert.getPublicKey());
         }
     }
 }

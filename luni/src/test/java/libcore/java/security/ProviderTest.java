@@ -81,7 +81,7 @@ public class ProviderTest extends TestCase {
                     // original source before giving error
                     if (!(StandardNames.PROVIDER_ALGORITHMS.containsKey(type)
                             && StandardNames.PROVIDER_ALGORITHMS.get(type).contains(algorithm))) {
-                        extra.add("Unknown " + type + " " + algorithm + "\n");
+                        extra.add("Unknown " + type + " " + algorithm + " " + providerName + "\n");
                     }
                 }
                 if (algorithms != null && algorithms.isEmpty()) {
@@ -94,21 +94,24 @@ public class ProviderTest extends TestCase {
                                                 true,
                                                 provider.getClass().getClassLoader()));
                 } catch (ClassNotFoundException e) {
-                    missing.add(className);
+                    // Sun forgot their own class
+                    if (!className.equals("sun.security.pkcs11.P11MAC")) {
+                        missing.add(className);
+                    }
                 }
             }
         }
 
         // assert that we don't have any extra in the implementation
         Collections.sort(extra); // sort so that its grouped by type
-        assertEquals(Collections.EMPTY_LIST, extra);
+        assertEquals("Extra algorithms", Collections.EMPTY_LIST, extra);
 
         // assert that we don't have any missing in the implementation
-        assertEquals(Collections.EMPTY_MAP, remaining);
+        assertEquals("Missing algorithms", Collections.EMPTY_MAP, remaining);
 
         // assert that we don't have any missing classes
         Collections.sort(missing); // sort it for readability
-        assertEquals(Collections.EMPTY_LIST, missing);
+        assertEquals("Missing classes", Collections.EMPTY_LIST, missing);
     }
 
     private static final Pattern alias = Pattern.compile("Alg\\.Alias\\.([^.]*)\\.(.*)");
@@ -176,7 +179,10 @@ public class ProviderTest extends TestCase {
                                                 true,
                                                 provider.getClass().getClassLoader()));
                 } catch (ClassNotFoundException e) {
-                    fail("Could not find class " + className + " for " + typeAndAlgorithm);
+                    // Sun forgot their own class
+                    if (!className.equals("sun.security.pkcs11.P11MAC")) {
+                        fail("Could not find class " + className + " for " + typeAndAlgorithm);
+                    }
                 }
             }
 

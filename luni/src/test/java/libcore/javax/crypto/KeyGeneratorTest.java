@@ -96,7 +96,7 @@ public class KeyGeneratorTest extends TestCase {
         putKeySize("ARCFOUR", 41);
         putKeySize("ARCFOUR", 1024);
         putKeySize("Blowfish", 32);
-        putKeySize("Blowfish", 40);
+        putKeySize("Blowfish", 32+8);
         putKeySize("Blowfish", 448);
         putKeySize("DES", 56);
         putKeySize("DESede", 112);
