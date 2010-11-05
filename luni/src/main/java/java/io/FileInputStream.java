@@ -108,7 +108,8 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         this.fd = fd;
         this.shouldCloseFd = false;
-        this.guard.open("close");
+        // Note that we do not call guard.open here because the
+        // FileDescriptor is not owned by the stream.
     }
 
     /**
