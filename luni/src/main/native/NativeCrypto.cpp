@@ -1498,6 +1498,10 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
         JNI_TRACE("ssl=%p client_cert_cb env error => 0", ssl);
         return 0;
     }
+    if (env->ExceptionCheck()) {
+        JNI_TRACE("ssl=%p client_cert_cb already pending exception", ssl);
+        return 0;
+    }
     jobject sslHandshakeCallbacks = appData->sslHandshakeCallbacks;
 
     jclass cls = env->GetObjectClass(sslHandshakeCallbacks);
