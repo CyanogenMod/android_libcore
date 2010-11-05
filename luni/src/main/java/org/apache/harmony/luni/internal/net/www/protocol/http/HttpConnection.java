@@ -275,22 +275,24 @@ public final class HttpConnection {
         }
 
         @Override public boolean equals(Object other) {
-            if (other instanceof Address) {
-                Address that = (Address) other;
-                return Objects.equal(this.proxy, that.proxy)
-                        && this.uri.equals(that.uri)
-                        && this.requiresTunnel == that.requiresTunnel;
-            }
-            return false;
-        }
+           if (other instanceof Address) {
+               Address that = (Address) other;
+               return Objects.equal(this.proxy, that.proxy)
+                       && this.uri.getHost().equals(that.uri.getHost())
+                       && this.uri.getEffectivePort() == that.uri.getEffectivePort()
+                       && this.requiresTunnel == that.requiresTunnel;
+           }
+           return false;
+       }
 
-        @Override public int hashCode() {
-            int result = 17;
-            result = 31 * result + uri.hashCode();
-            result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
-            result = 31 * result + (requiresTunnel ? 1 : 0);
-            return result;
-        }
+       @Override public int hashCode() {
+           int result = 17;
+           result = 31 * result + uri.getHost().hashCode();
+           result = 31 * result + uri.getEffectivePort();
+           result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
+           result = 31 * result + (requiresTunnel ? 1 : 0);
+           return result;
+       }
 
         public HttpConnection connect(int connectTimeout) throws IOException {
             return new HttpConnection(this, connectTimeout);
