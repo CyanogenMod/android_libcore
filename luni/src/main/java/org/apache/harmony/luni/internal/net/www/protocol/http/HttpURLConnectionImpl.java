@@ -522,9 +522,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (responseBodyIn == null) {
-            // probably a reentrant call, such as from ResponseCache.put()
-            throw new IllegalStateException(
-                    "getInputStream() is not available. Is this a reentrant call?");
+            throw new IOException("No response body exists; responseCode=" + responseCode);
         }
 
         return responseBodyIn;
