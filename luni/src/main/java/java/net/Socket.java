@@ -99,7 +99,6 @@ public class Socket {
         this.impl = factory != null ? factory.createSocketImpl() : new PlainSocketImpl(proxy);
     }
 
-    // BEGIN android-added
     /**
      * Tries to connect a socket to all IP addresses of the given hostname.
      *
@@ -146,7 +145,6 @@ public class Socket {
         checkDestination(dstAddress, dstPort);
         startupSocket(dstAddress, dstPort, localAddress, localPort, streaming);
     }
-    // END android-added
 
     /**
      * Creates a new streaming socket connected to the target host specified by
@@ -1121,10 +1119,12 @@ public class Socket {
     }
 
     /**
-     * Gets the SocketChannel of this socket, if one is available. The current
-     * implementation of this method returns always {@code null}.
-     *
-     * @return the related SocketChannel or {@code null} if no channel exists.
+     * Returns this socket's {@code SocketChannel}, if one exists. A channel is
+     * available only if this socket wraps a channel. (That is, you can go from a
+     * channel to a socket and back again, but you can't go from an arbitrary socket to a channel.)
+     * In practice, this means that the socket must have been created by
+     * {@link java.nio.channels.ServerSocketChannel#accept} or
+     * {@link java.nio.channels.SocketChannel#open}.
      */
     public SocketChannel getChannel() {
         return null;

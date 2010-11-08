@@ -134,7 +134,7 @@ public final class HttpCookie implements Cloneable {
          * From the spec: "both host names are IP addresses and their host name strings match
          * exactly; or both host names are FQDN strings and their host name strings match exactly"
          */
-        if (a.equals(b) && (isFullyQualifiedDomainName(a, 0) || !InetAddress.isHostName(a))) {
+        if (a.equals(b) && (isFullyQualifiedDomainName(a, 0) || InetAddress.isNumeric(a))) {
             return true;
         }
         if (!isFullyQualifiedDomainName(a, 0)) {

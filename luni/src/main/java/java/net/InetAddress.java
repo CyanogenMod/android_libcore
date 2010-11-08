@@ -119,6 +119,9 @@ import org.apache.harmony.luni.util.PriviAction;
  * See <a href="https://www.ietf.org/rfc/rfc4007.txt">RFC 4007</a> for more on IPv6's scoped
  * address architecture.
  *
+ * <p>Additionally, for backwards compatibility, IPv6 addresses may be surrounded by square
+ * brackets.
+ *
  * <h4>DNS caching</h4>
  * <p>On Android, addresses are cached for 600 seconds (10 minutes) by default. Failed lookups are
  * cached for 10 seconds. The underlying C library or OS may cache for longer, but you can control
@@ -264,10 +267,10 @@ public class InetAddress implements Serializable {
             return new InetAddress[] { Inet4Address.ANY };
         }
 
-        try {
-            return new InetAddress[] { makeInetAddress(ipStringToByteArray(host), null) };
-        } catch (UnknownHostException e) {
-            // It wasn't a numeric IP address. Carry on...
+        // Is it a numeric address?
+        byte[] bytes = ipStringToByteArray(host);
+        if (bytes != null) {
+            return new InetAddress[] { makeInetAddress(bytes, null) };
         }
 
         SecurityManager security = System.getSecurityManager();
@@ -290,7 +293,7 @@ public class InetAddress implements Serializable {
 
     private static native String byteArrayToIpString(byte[] address);
 
-    static native byte[] ipStringToByteArray(String address) throws UnknownHostException;
+    static native byte[] ipStringToByteArray(String address);
 
     static boolean preferIPv6Addresses() {
         String propertyName = "java.net.preferIPv6Addresses";
@@ -353,7 +356,7 @@ public class InetAddress implements Serializable {
         SecurityManager security = System.getSecurityManager();
         try {
             // Only check host names, not addresses
-            if (security != null && isHostName(hostName)) {
+            if (security != null && !isNumeric(hostName)) {
                 security.checkConnect(hostName, -1);
             }
         } catch (SecurityException e) {
@@ -387,7 +390,7 @@ public class InetAddress implements Serializable {
         SecurityManager security = System.getSecurityManager();
         try {
             // Only check host names, not addresses
-            if (security != null && isHostName(canonicalName)) {
+            if (security != null && !isNumeric(canonicalName)) {
                 security.checkConnect(canonicalName, -1);
             }
         } catch (SecurityException e) {
@@ -530,7 +533,7 @@ public class InetAddress implements Serializable {
         if (host == null || 0 == host.length()) {
             return Inet4Address.LOOPBACK.getHostAddress();
         }
-        if (isHostName(host)) {
+        if (!isNumeric(host)) {
             if (isCheck) {
                 SecurityManager sm = System.getSecurityManager();
                 if (sm != null) {
@@ -554,15 +557,14 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Returns true if the string is a host name, false if it is an IP Address.
+     * Returns true if the string is a valid numeric IPv4 or IPv6 address (such as "192.168.0.1").
+     * This copes with all forms of address that Java supports, detailed in the {@link InetAddress}
+     * class documentation.
+     *
+     * @hide - used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
      */
-    static boolean isHostName(String value) {
-        try {
-            ipStringToByteArray(value);
-            return false;
-        } catch (UnknownHostException e) {
-            return true;
-        }
+    public static boolean isNumeric(String address) {
+        return ipStringToByteArray(address) != null;
     }
 
     /**

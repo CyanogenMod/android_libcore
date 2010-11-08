@@ -543,17 +543,14 @@ public final class URI implements Comparable<URI>, Serializable {
                 throw new URISyntaxException(host,
                         "Expected a closing square bracket for IPv6 address", 0);
             }
-            try {
-                byte[] bytes = InetAddress.ipStringToByteArray(host);
-                /*
-                 * The native IP parser may return 4 bytes for addresses like
-                 * "[::FFFF:127.0.0.1]". This is allowed, but we must not accept
-                 * IPv4-formatted addresses in square braces like "[127.0.0.1]".
-                 */
-                if (bytes.length == 16 || bytes.length == 4 && host.contains(":")) {
-                    return true;
-                }
-            } catch (UnknownHostException e) {
+            byte[] bytes = InetAddress.ipStringToByteArray(host);
+            /*
+             * The native IP parser may return 4 bytes for addresses like
+             * "[::FFFF:127.0.0.1]". This is allowed, but we must not accept
+             * IPv4-formatted addresses in square braces like "[127.0.0.1]".
+             */
+            if (bytes != null && (bytes.length == 16 || bytes.length == 4 && host.contains(":"))) {
+                return true;
             }
             throw new URISyntaxException(host, "Malformed IPv6 address");
         }
@@ -578,11 +575,9 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         // IPv4 address
-        try {
-            if (InetAddress.ipStringToByteArray(host).length == 4) {
-                return true;
-            }
-        } catch (UnknownHostException e) {
+        byte[] bytes = InetAddress.ipStringToByteArray(host);
+        if (bytes != null && bytes.length == 4) {
+            return true;
         }
 
         if (forceServer) {

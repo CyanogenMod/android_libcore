@@ -113,21 +113,29 @@ public final class CloseGuard {
     private static final CloseGuard NOOP = new CloseGuard();
 
     /**
+     * Enabled by default so we can catch issues early in VM startup
+     */
+    private static boolean ENABLED = true;
+
+    /**
      * Returns a CloseGuard instance. If CloseGuard is enabled, {@code
      * #open(String)} can be used to set up the instance to warn on
      * failure to close. If CloseGuard is disabled, a non-null no-op
      * instance is returned.
      */
     public static CloseGuard get() {
-        if (!enabled()) {
+        if (!ENABLED) {
             return NOOP;
         }
         return new CloseGuard();
     }
 
-    private static boolean enabled() {
-        boolean enabled = true;  // TODO replace compile time with runtime check
-        return enabled;
+    /**
+     * Used to enable or disable CloseGuard. Note that CloseGuard only
+     * warns if it is enabled for both allocation and finalization.
+     */
+    public static void setEnabled(boolean enabled) {
+        ENABLED = enabled;
     }
 
     private CloseGuard() {}
@@ -147,7 +155,7 @@ public final class CloseGuard {
             throw new NullPointerException("closer == null");
         }
         // ...but avoid allocating an allocationSite if disabled
-        if (!enabled()) {
+        if (this == NOOP || !ENABLED) {
             return;
         }
         String message = "Explicit termination method '" + closer + "' not called";
@@ -171,7 +179,7 @@ public final class CloseGuard {
      * performed.
      */
     public void warnIfOpen() {
-        if (allocationSite == null) {
+        if (allocationSite == null || !ENABLED) {
             return;
         }
 

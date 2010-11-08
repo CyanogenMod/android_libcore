@@ -818,11 +818,11 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the related DatagramChannel of this socket. This implementation
-     * returns always {@code null}.
-     *
-     * @return the related DatagramChannel or {@code null} if this socket was
-     *         not created by a {@code DatagramChannel} object.
+     * Returns this socket's {@code DatagramChannel}, if one exists. A channel is
+     * available only if this socket wraps a channel. (That is, you can go from a
+     * channel to a socket and back again, but you can't go from an arbitrary socket to a channel.)
+     * In practice, this means that the socket must have been created by
+     * {@link java.nio.channels.DatagramChannel#open}.
      */
     public DatagramChannel getChannel() {
         return null;
