@@ -21,10 +21,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -488,14 +491,14 @@ class XMLParser {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         } else if (file.canRead()) {
-            InputStream in = null;
+            Reader reader = null;
             FileLock lock = null;
             try {
-                FileInputStream istream = new FileInputStream(file);
-                in = new BufferedInputStream(istream);
-                FileChannel channel = istream.getChannel();
+                FileInputStream fileInputStream = new FileInputStream(file);
+                reader = new InputStreamReader(fileInputStream, "UTF-8");
+                FileChannel channel = fileInputStream.getChannel();
                 lock = channel.lock(0L, Long.MAX_VALUE, true);
-                Document doc = builder.parse(in);
+                Document doc = builder.parse(new InputSource(reader));
                 NodeList entries = selectNodeList(doc.getDocumentElement(), "entry");
                 int length = entries.getLength();
                 for (int i = 0; i < length; i++) {
@@ -509,7 +512,7 @@ class XMLParser {
             } catch (SAXException e) {
             } finally {
                 releaseQuietly(lock);
-                IoUtils.closeQuietly(in);
+                IoUtils.closeQuietly(reader);
             }
         } else {
             file.delete();
