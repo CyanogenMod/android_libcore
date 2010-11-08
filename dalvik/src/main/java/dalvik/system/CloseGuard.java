@@ -118,7 +118,7 @@ public final class CloseGuard {
     private static boolean ENABLED = true;
 
     /**
-     * Hook for customing how CloseGuard issues are reported.
+     * Hook for customizing how CloseGuard issues are reported.
      */
     private static Reporter REPORTER = new DefaultReporter();
 
