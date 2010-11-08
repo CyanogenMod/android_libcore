@@ -203,11 +203,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.enqueue(response);
         server.play();
 
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/foo").openConnection());
         assertEquals(0, server.takeRequest().getSequenceNumber());
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/bar?baz=quux").openConnection());
         assertEquals(1, server.takeRequest().getSequenceNumber());
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/z").openConnection());
         assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
@@ -219,11 +219,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.enqueue(response);
         server.play();
 
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/foo").openConnection());
         assertEquals(0, server.takeRequest().getSequenceNumber());
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/bar?baz=quux").openConnection());
         assertEquals(1, server.takeRequest().getSequenceNumber());
-        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/z").openConnection());
         assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
