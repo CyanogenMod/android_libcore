@@ -49,6 +49,7 @@ import java.util.Locale;
  * @see org.xml.sax.HandlerBase
  * @see org.xml.sax.InputSource
  */
+@Deprecated
 public interface Parser
 {
 

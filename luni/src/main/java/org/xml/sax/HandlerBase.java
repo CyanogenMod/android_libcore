@@ -42,6 +42,7 @@ package org.xml.sax;
  * @see org.xml.sax.DocumentHandler
  * @see org.xml.sax.ErrorHandler
  */
+@Deprecated
 public class HandlerBase
     implements EntityResolver, DTDHandler, DocumentHandler, ErrorHandler
 {
