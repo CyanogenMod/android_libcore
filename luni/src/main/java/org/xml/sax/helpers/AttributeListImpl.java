@@ -62,6 +62,7 @@ import org.xml.sax.AttributeList;
  * @see org.xml.sax.AttributeList
  * @see org.xml.sax.DocumentHandler#startElement
  */
+@Deprecated
 public class AttributeListImpl implements AttributeList
 {
 
