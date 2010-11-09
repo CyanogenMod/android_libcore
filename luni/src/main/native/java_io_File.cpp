@@ -60,8 +60,7 @@ static bool doStat(JNIEnv* env, jstring javaPath, struct stat& sb) {
 static jlong File_lengthImpl(JNIEnv* env, jclass, jstring javaPath) {
     struct stat sb;
     if (!doStat(env, javaPath, sb)) {
-        // We must return 0 for files that don't exist.
-        // TODO: shouldn't we throw an IOException for ELOOP or EACCES?
+        // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
         return 0;
     }
 
