@@ -40,6 +40,7 @@ import org.xml.sax.Parser;
  * @author David Megginson
  * @version 2.0.1 (sax2r2)
  */
+@Deprecated
 public class ParserFactory {
 
 
