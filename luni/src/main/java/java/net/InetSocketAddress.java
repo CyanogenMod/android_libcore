@@ -28,10 +28,9 @@ public class InetSocketAddress extends SocketAddress {
 
     private static final long serialVersionUID = 5076001401234631237L;
 
-    private final String hostname;
-
+    // Exactly one of hostname or addr should be set.
     private final InetAddress addr;
-
+    private final String hostname;
     private final int port;
 
     /**
@@ -59,14 +58,10 @@ public class InetSocketAddress extends SocketAddress {
      */
     public InetSocketAddress(InetAddress address, int port) {
         if (port < 0 || port > 65535) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("port=" + port);
         }
-        if (address == null) {
-            addr = Inet4Address.ANY;
-        } else {
-            addr = address;
-        }
-        hostname = addr.getHostName();
+        this.addr = (address == null) ? Inet4Address.ANY : address;
+        this.hostname = null;
         this.port = port;
     }
 
@@ -97,7 +92,6 @@ public class InetSocketAddress extends SocketAddress {
         if (hostname == null || port < 0 || port > 65535) {
             throw new IllegalArgumentException("host=" + hostname + ", port=" + port);
         }
-        this.port = port;
 
         InetAddress addr = null;
         if (needResolved) {
@@ -111,8 +105,9 @@ public class InetSocketAddress extends SocketAddress {
             } catch (UnknownHostException ignored) {
             }
         }
-        this.hostname = hostname;
         this.addr = addr;
+        this.hostname = hostname;
+        this.port = port;
     }
 
     /**
@@ -157,7 +152,7 @@ public class InetSocketAddress extends SocketAddress {
      * @return the socket endpoint hostname.
      */
     public final String getHostName() {
-        return (null != addr) ? addr.getHostName() : hostname;
+        return (addr != null) ? addr.getHostName() : hostname;
     }
 
     /**
@@ -178,13 +173,7 @@ public class InetSocketAddress extends SocketAddress {
      */
     @Override
     public String toString() {
-        String host;
-        if (addr != null) {
-            host = addr.toString();
-        } else {
-            host = hostname;
-        }
-        return host + ":" + port;
+        return ((addr != null) ? addr.toString() : hostname) + ":" + port;
     }
 
     /**
@@ -235,8 +224,7 @@ public class InetSocketAddress extends SocketAddress {
         return addr.hashCode() + port;
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
     }
 }
