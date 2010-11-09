@@ -118,6 +118,11 @@ public final class CloseGuard {
     private static boolean ENABLED = true;
 
     /**
+     * Hook for customizing how CloseGuard issues are reported.
+     */
+    private static Reporter REPORTER = new DefaultReporter();
+
+    /**
      * Returns a CloseGuard instance. If CloseGuard is enabled, {@code
      * #open(String)} can be used to set up the instance to warn on
      * failure to close. If CloseGuard is disabled, a non-null no-op
@@ -136,6 +141,24 @@ public final class CloseGuard {
      */
     public static void setEnabled(boolean enabled) {
         ENABLED = enabled;
+    }
+
+    /**
+     * Used to replace default Reporter used to warn of CloseGuard
+     * violations. Must be non-null.
+     */
+    public static void setReporter(Reporter reporter) {
+        if (reporter == null) {
+            throw new NullPointerException("reporter == null");
+        }
+        REPORTER = reporter;
+    }
+
+    /**
+     * Returns non-null CloseGuard.Reporter.
+     */
+    public static Reporter getReporter() {
+        return REPORTER;
     }
 
     private CloseGuard() {}
@@ -187,7 +210,24 @@ public final class CloseGuard {
                 ("A resource was acquired at attached stack trace but never released. "
                  + "See java.io.Closeable for information on avoiding resource leaks.");
 
-        Logger.getLogger(CloseGuard.class.getName())
-                .log(Level.WARNING, message, allocationSite);
+        REPORTER.report(message, allocationSite);
+    }
+
+    /**
+     * Interface to allow customization of reporting behavior.
+     */
+    public static interface Reporter {
+        public void report (String message, Throwable allocationSite);
+    }
+
+    /**
+     * Default Reporter which uses a Logger to report CloseGuard
+     * violations.
+     */
+    private static final class DefaultReporter implements Reporter {
+        public void report (String message, Throwable allocationSite) {
+            Logger.getLogger(CloseGuard.class.getName())
+                    .log(Level.WARNING, message, allocationSite);
+        }
     }
 }
