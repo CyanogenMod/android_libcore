@@ -170,7 +170,7 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      */
     public void write(String str, int offset, int count) throws IOException {
         if (count < 0) { // other cases tested by getChars()
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException(count);
         }
         char[] buf = new char[count];
         str.getChars(offset, offset + count, buf, 0);
