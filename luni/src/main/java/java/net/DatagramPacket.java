@@ -277,8 +277,7 @@ public final class DatagramPacket {
      * @throws SocketException
      *             if an error in the underlying protocol occurs.
      */
-    public DatagramPacket(byte[] data, int length, SocketAddress sockAddr)
-            throws SocketException {
+    public DatagramPacket(byte[] data, int length, SocketAddress sockAddr) throws SocketException {
         this(data, 0, length);
         setSocketAddress(sockAddr);
     }
@@ -328,6 +327,9 @@ public final class DatagramPacket {
                     (sockAddr == null ? null : sockAddr.getClass()));
         }
         InetSocketAddress inetAddr = (InetSocketAddress) sockAddr;
+        if (inetAddr.isUnresolved()) {
+            throw new IllegalArgumentException("Socket address unresolved: " + sockAddr);
+        }
         port = inetAddr.getPort();
         address = inetAddr.getAddress();
     }
