@@ -25,6 +25,9 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
+#include "readlink.h"
+
+#include <string>
 
 #include <dirent.h>
 #include <errno.h>
@@ -32,8 +35,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/vfs.h>
 #include <sys/types.h>
+#include <sys/vfs.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
@@ -126,24 +129,27 @@ static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
         return NULL;
     }
 
-    // We can't know how big a buffer readlink(2) will need, so we need to
-    // loop until it says "that fit".
-    size_t bufSize = 512;
-    while (true) {
-        LocalArray<512> buf(bufSize);
-        ssize_t len = readlink(path.c_str(), &buf[0], buf.size() - 1);
-        if (len == -1) {
-            // An error occurred.
-            return javaPath;
-        }
-        if (static_cast<size_t>(len) < buf.size() - 1) {
-            // The buffer was big enough.
-            buf[len] = '\0'; // readlink(2) doesn't NUL-terminate.
-            return env->NewStringUTF(&buf[0]);
-        }
-        // Try again with a bigger buffer.
-        bufSize *= 2;
+    std::string result;
+    if (!readlink(path.c_str(), result)) {
+        jniThrowIOException(env, errno);
+        return NULL;
     }
+    return env->NewStringUTF(result.c_str());
+}
+
+static jstring File_realpath(JNIEnv* env, jclass, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return NULL;
+    }
+
+    extern bool realpath(const char* path, std::string& resolved);
+    std::string result;
+    if (!realpath(path.c_str(), result)) {
+        jniThrowIOException(env, errno);
+        return NULL;
+    }
+    return env->NewStringUTF(result.c_str());
 }
 
 static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
@@ -421,6 +427,22 @@ static jboolean File_renameToImpl(JNIEnv* env, jclass, jstring javaOldPath, jstr
     return (rename(oldPath.c_str(), newPath.c_str()) == 0);
 }
 
+static void File_symlink(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
+    ScopedUtfChars oldPath(env, javaOldPath);
+    if (oldPath.c_str() == NULL) {
+        return;
+    }
+
+    ScopedUtfChars newPath(env, javaNewPath);
+    if (newPath.c_str() == NULL) {
+        return;
+    }
+
+    if (symlink(oldPath.c_str(), newPath.c_str()) == -1) {
+        jniThrowIOException(env, errno);
+    }
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, canExecuteImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, canReadImpl, "(Ljava/lang/String;)Z"),
@@ -438,11 +460,13 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, renameToImpl, "(Ljava/lang/String;Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, setExecutableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
     NATIVE_METHOD(File, setReadableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setWritableImpl, "(Ljava/lang/String;ZZ)Z"),
+    NATIVE_METHOD(File, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
 };
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));

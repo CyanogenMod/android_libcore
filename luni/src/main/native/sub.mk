@@ -52,6 +52,8 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
+	readlink.cpp \
+	realpath.cpp \
 	valueOf.cpp
 
 LOCAL_C_INCLUDES += \
