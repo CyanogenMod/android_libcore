@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -43,9 +44,8 @@ import org.apache.harmony.luni.platform.Platform;
  */
 final class SelectorImpl extends AbstractSelector {
 
-    private static final int[] EMPTY_INT_ARRAY = new int[0];
+    static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
 
-    private static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
     private static final SelectionKeyImpl[] EMPTY_SELECTION_KEY_IMPLS_ARRAY
             = new SelectionKeyImpl[0];
 
@@ -121,7 +121,7 @@ final class SelectorImpl extends AbstractSelector {
      * actively selecting, all elements are 0. Corresponds to the ready keys
      * set.
      */
-    private int[] flags = EMPTY_INT_ARRAY;
+    private int[] flags = EmptyArray.INT;
 
     public SelectorImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);

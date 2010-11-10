@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import libcore.base.EmptyArray;
 
 /**
  * Default inoperative implementation of javax.net.ssl.SSLServerSocketFactory
@@ -35,12 +36,12 @@ class DefaultSSLServerSocketFactory extends SSLServerSocketFactory {
 
     @Override
     public String[] getDefaultCipherSuites() {
-        return new String[0];
+        return EmptyArray.STRING;
     }
 
     @Override
     public String[] getSupportedCipherSuites() {
-        return new String[0];
+        return EmptyArray.STRING;
     }
 
     @Override

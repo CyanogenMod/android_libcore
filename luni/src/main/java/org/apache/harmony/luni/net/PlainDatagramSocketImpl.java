@@ -29,6 +29,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -154,8 +155,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     @Override
     protected int peek(InetAddress sender) throws IOException {
         // We don't actually want the data: we just want the DatagramPacket's filled-in address.
-        byte[] bytes = new byte[0];
-        DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
+        DatagramPacket packet = new DatagramPacket(EmptyArray.BYTE, 0);
         int result = peekData(packet);
         Platform.NETWORK.setInetAddress(sender, packet.getAddress().getAddress());
         return result;

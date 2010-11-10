@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import libcore.base.EmptyArray;
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A
@@ -94,8 +95,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public static final Comparator<String> CASE_INSENSITIVE_ORDER = new CaseInsensitiveComparator();
 
-    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
-
     private static final char[] ASCII;
     static {
         ASCII = new char[128];
@@ -116,7 +115,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Creates an empty string.
      */
     public String() {
-        value = EMPTY_CHAR_ARRAY;
+        value = EmptyArray.CHAR;
         offset = 0;
         count = 0;
     }
@@ -184,7 +183,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
             if (count > 0) {
                 value = cb.array();
             } else {
-                value = EMPTY_CHAR_ARRAY;
+                value = EmptyArray.CHAR;
             }
         } else {
             throw new StringIndexOutOfBoundsException("data.length=" + data.length
@@ -449,7 +448,7 @@ outer:
                 this.value = new char[count];
                 System.arraycopy(cb.array(), 0, value, 0, count);
             } else {
-                value = EMPTY_CHAR_ARRAY;
+                value = EmptyArray.CHAR;
             }
         }
     }

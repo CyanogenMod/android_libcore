@@ -19,6 +19,7 @@ package javax.crypto.spec;
 
 import java.security.spec.KeySpec;
 import java.util.Arrays;
+import libcore.base.EmptyArray;
 
 /**
  * The key specification for a <i>password based encryption</i> key.
@@ -41,7 +42,7 @@ public class PBEKeySpec implements KeySpec {
      */
     public PBEKeySpec(char[] password) {
         if (password == null) {
-            this.password = new char[0];
+            this.password = EmptyArray.CHAR;
         } else {
             this.password = new char[password.length];
             System.arraycopy(password, 0, this.password, 0, password.length);
@@ -85,7 +86,7 @@ public class PBEKeySpec implements KeySpec {
         }
 
         if (password == null) {
-            this.password = new char[0];
+            this.password = EmptyArray.CHAR;
         } else {
             this.password = new char[password.length];
             System.arraycopy(password, 0, this.password, 0, password.length);
@@ -123,7 +124,7 @@ public class PBEKeySpec implements KeySpec {
         }
 
         if (password == null) {
-            this.password = new char[0];
+            this.password = EmptyArray.CHAR;
         } else {
             this.password = new char[password.length];
             System.arraycopy(password, 0, this.password, 0, password.length);

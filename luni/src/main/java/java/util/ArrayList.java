@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import libcore.base.EmptyArray;
 
 /**
  * ArrayList is an implementation of {@link List}, backed by an array.
@@ -44,13 +45,7 @@ import java.lang.reflect.Array;
  * @param <E> The element type of this list.
  * @since 1.2
  */
-public class ArrayList<E> extends AbstractList<E>
-        implements Cloneable, Serializable, RandomAccess {
-    /**
-     * An empty array of objects (to be shared among all empty lists).
-     */
-    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-
+public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializable, RandomAccess {
     /**
      * The minimum amount by which the capacity of an ArrayList will increase.
      * This tuning parameter controls a time-space tradeoff. This value (12)
@@ -81,14 +76,14 @@ public class ArrayList<E> extends AbstractList<E>
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
-        array = (capacity == 0 ? EMPTY_OBJECT_ARRAY : new Object[capacity]);
+        array = (capacity == 0 ? EmptyArray.OBJECT : new Object[capacity]);
     }
 
     /**
      * Constructs a new {@code ArrayList} instance with zero initial capacity.
      */
     public ArrayList() {
-        array = EMPTY_OBJECT_ARRAY;
+        array = EmptyArray.OBJECT;
     }
 
     /**
@@ -542,7 +537,7 @@ public class ArrayList<E> extends AbstractList<E>
             return;
         }
         if (s == 0) {
-            array = EMPTY_OBJECT_ARRAY;
+            array = EmptyArray.OBJECT;
         } else {
             Object[] newArray = new Object[s];
             System.arraycopy(array, 0, newArray, 0, s);
@@ -652,15 +647,14 @@ public class ArrayList<E> extends AbstractList<E>
         }
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         int cap = stream.readInt();
         if (cap < size) {
             throw new InvalidObjectException(
                     "Capacity: " + cap + " < size: " + size);
         }
-        array = (cap == 0 ? EMPTY_OBJECT_ARRAY : new Object[cap]);
+        array = (cap == 0 ? EmptyArray.OBJECT : new Object[cap]);
         for (int i = 0; i < size; i++) {
             array[i] = stream.readObject();
         }

@@ -42,6 +42,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
+import libcore.base.EmptyArray;
 import libcore.io.IoUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,11 +87,6 @@ class XMLParser {
      * Constant - the specified DOCTYPE
      */
     static final String DOCTYPE = "<!DOCTYPE preferences SYSTEM";
-
-    /*
-     * empty string array constant
-     */
-    private static final String[] EMPTY_SARRAY = new String[0];
 
     /*
      * Constant - used by FilePreferencesImpl, which is default implementation of Linux platform
@@ -548,7 +544,7 @@ class XMLParser {
             out.write(FILE_PREFS);
             out.newLine();
             if (prefs.size() == 0) {
-                exportEntries(EMPTY_SARRAY, EMPTY_SARRAY, out);
+                exportEntries(EmptyArray.STRING, EmptyArray.STRING, out);
             } else {
                 String[] keys = prefs.keySet().toArray(new String[prefs.size()]);
                 int length = keys.length;

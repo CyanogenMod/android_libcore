@@ -34,6 +34,7 @@ package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
+import libcore.base.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.ListOfTypes;
@@ -378,9 +379,8 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      */
     public Class<?>[] getExceptionTypes() {
         if (exceptionTypes == null) {
-            return new Class[0];
+            return EmptyArray.CLASS;
         }
-
         return exceptionTypes.clone();
     }
 
@@ -501,9 +501,8 @@ public final class Method extends AccessibleObject implements GenericDeclaration
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
         if (args == null) {
-            args = new Object[0];
+            args = EmptyArray.OBJECT;
         }
-
         return invokeNative (receiver, args, declaringClass, parameterTypes, returnType, slot, flag);
     }
 

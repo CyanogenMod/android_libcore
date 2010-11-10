@@ -34,6 +34,7 @@ package java.lang.reflect;
 
 import dalvik.system.VMStack;
 import java.lang.annotation.Annotation;
+import libcore.base.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.ListOfTypes;
@@ -291,8 +292,9 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * @return the declared exception classes
      */
     public Class<?>[] getExceptionTypes() {
-        if (exceptionTypes == null)
-            return new Class[0];
+        if (exceptionTypes == null) {
+            return EmptyArray.CLASS;
+        }
         return exceptionTypes.clone();
     }
 

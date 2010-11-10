@@ -18,6 +18,7 @@
 package java.lang;
 
 import java.lang.reflect.Method;
+import libcore.base.EmptyArray;
 
 /**
  * Placeholder class for the Java keyword {@code void}.
@@ -38,7 +39,7 @@ public final class Void extends Object {
     private static Class<Void> lookupType() {
         Class<?> voidType = null;
         try {
-            Method method = Runnable.class.getMethod("run", new Class[0]);
+            Method method = Runnable.class.getMethod("run", EmptyArray.CLASS);
             voidType = method.getReturnType();
         } catch (Exception e) {
             throw new RuntimeException(e);

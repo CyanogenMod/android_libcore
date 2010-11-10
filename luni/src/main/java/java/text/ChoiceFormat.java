@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import libcore.base.EmptyArray;
 
 /**
  * Returns a fixed string based on a numeric value. The class can be used in
@@ -147,8 +148,8 @@ public class ChoiceFormat extends NumberFormat {
             index = skipWhitespace(template, position.getIndex());
             if (position.getErrorIndex() != -1 || index >= length) {
                 // Fix Harmony 540
-                choiceLimits = new double[0];
-                choiceFormats = new String[0];
+                choiceLimits = EmptyArray.DOUBLE;
+                choiceFormats = EmptyArray.STRING;
                 return;
             }
             char ch = template.charAt(index++);

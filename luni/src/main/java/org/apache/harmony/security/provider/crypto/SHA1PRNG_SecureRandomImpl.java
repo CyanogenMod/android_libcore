@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.SecureRandomSpi;
+import libcore.base.EmptyArray;
 
 /**
  * This class extends the SecureRandomSpi class implementing all its abstract methods. <BR>
@@ -234,13 +235,12 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
             throw new NegativeArraySizeException(Integer.toString(numBytes));
         }
         if (numBytes == 0) {
-            return new byte[0];
+            return EmptyArray.BYTE;
         }
 
         if (myRandom == null) {
             myRandom = new SHA1PRNG_SecureRandomImpl();
-            myRandom.engineSetSeed(RandomBitsSupplier
-                    .getRandomBits(DIGEST_LENGTH));
+            myRandom.engineSetSeed(RandomBitsSupplier.getRandomBits(DIGEST_LENGTH));
         }
 
         myBytes = new byte[numBytes];

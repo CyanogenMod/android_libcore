@@ -35,6 +35,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -53,8 +54,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     // BEGIN android-note
     // this is non-static to avoid sync contention. Would static be faster?
     // END android-note
-    private InputStream emptyStream = new ByteArrayInputStream(
-            new byte[0]);
+    private InputStream emptyStream = new ByteArrayInputStream(EmptyArray.BYTE);
 
     // To put into objectsRead when reading unsharedObject
     private static final Object UNSHARED_OBJ = new Object(); // $NON-LOCK-1$
@@ -392,20 +392,16 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                     .doPrivileged(new PrivilegedAction<Boolean>() {
                         public Boolean run() {
                             try {
-                                Method method = implementationClass
-                                        .getMethod(
-                                                "readFields",
-                                                ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                                Method method = implementationClass.getMethod("readFields",
+                                        EmptyArray.CLASS);
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
                             } catch (NoSuchMethodException ignored) {
                             }
                             try {
-                                Method method = implementationClass
-                                        .getMethod(
-                                                "readUnshared",
-                                                ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                                Method method = implementationClass.getMethod("readUnshared",
+                                        EmptyArray.CLASS);
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
@@ -811,9 +807,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 return readNewClassDesc(false);
             case TC_PROXYCLASSDESC:
                 Class<?> proxyClass = readNewProxyClassDesc();
-                ObjectStreamClass streamClass = ObjectStreamClass
-                        .lookup(proxyClass);
-                streamClass.setLoadFields(new ObjectStreamField[0]);
+                ObjectStreamClass streamClass = ObjectStreamClass.lookup(proxyClass);
+                streamClass.setLoadFields(ObjectStreamClass.NO_FIELDS);
                 registerObjectRead(streamClass, nextHandle(), false);
                 checkedSetSuperClassDesc(streamClass, readClassDesc());
                 return streamClass;
@@ -1966,8 +1961,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             Constructor<?> constructor = null;
             if (constructorClass != null) {
                 try {
-                    constructor = constructorClass
-                            .getDeclaredConstructor(ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                    constructor = constructorClass.getDeclaredConstructor(EmptyArray.CLASS);
                 } catch (NoSuchMethodException nsmEx) {
                     // Ignored
                 }
@@ -2052,15 +2046,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
 
         Object result, registeredResult = null;
         if (objectClass != null) {
-
-            // BEGIN android-changed
-            // long constructor = classDesc.getConstructor();
-            // if (constructor == ObjectStreamClass.CONSTRUCTOR_IS_NOT_RESOLVED) {
-            //     constructor = accessor.getMethodID(resolveConstructorClass(objectClass, wasSerializable, wasExternalizable), null, new Class[0]);
-            //     classDesc.setConstructor(constructor);
-            // }
             Class constructorClass = resolveConstructorClass(objectClass, wasSerializable, wasExternalizable);
-            // END android-changed
 
             // Now we know which class to instantiate and which constructor to
             // run. We are allowed to run the constructor.

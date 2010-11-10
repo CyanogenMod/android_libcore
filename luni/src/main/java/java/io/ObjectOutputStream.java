@@ -23,6 +23,7 @@ import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.IdentityHashMap;
+import libcore.base.EmptyArray;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 
@@ -43,6 +44,8 @@ import org.apache.harmony.luni.platform.OSMemory;
  */
 public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         ObjectStreamConstants {
+
+    private static final Class<?>[] WRITE_UNSHARED_PARAM_TYPES = new Class[] { Object.class };
 
     /*
      * Mask to zero SC_BLOC_DATA bit.
@@ -289,16 +292,14 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         if (implementationClass != thisClass) {
             boolean mustCheck = false;
             try {
-                Method method = implementationClass.getMethod("putFields",
-                        ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                Method method = implementationClass.getMethod("putFields", EmptyArray.CLASS);
                 mustCheck = method.getDeclaringClass() != thisClass;
             } catch (NoSuchMethodException e) {
             }
             if (!mustCheck) {
                 try {
-                    Method method = implementationClass.getMethod(
-                            "writeUnshared",
-                            ObjectStreamClass.UNSHARED_PARAM_TYPES);
+                    Method method = implementationClass.getMethod("writeUnshared",
+                            WRITE_UNSHARED_PARAM_TYPES);
                     mustCheck = method.getDeclaringClass() != thisClass;
                 } catch (NoSuchMethodException e) {
                 }

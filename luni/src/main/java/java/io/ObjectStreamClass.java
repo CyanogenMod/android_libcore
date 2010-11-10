@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -57,42 +58,19 @@ public class ObjectStreamClass implements Serializable {
 
     static final long CONSTRUCTOR_IS_NOT_RESOLVED = -1;
 
-    private static final int CLASS_MODIFIERS_MASK;
+    private static final int CLASS_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.FINAL |
+            Modifier.INTERFACE | Modifier.ABSTRACT;
 
-    private static final int FIELD_MODIFIERS_MASK;
+    private static final int FIELD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE |
+            Modifier.PROTECTED | Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE |
+            Modifier.TRANSIENT;
 
-    private static final int METHOD_MODIFIERS_MASK;
+    private static final int METHOD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE |
+            Modifier.PROTECTED | Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED |
+            Modifier.NATIVE | Modifier.ABSTRACT | Modifier.STRICT;
 
-    private static final Class<?>[] READ_PARAM_TYPES;
-
-    private static final Class<?>[] WRITE_PARAM_TYPES;
-
-    static final Class<?>[] EMPTY_CONSTRUCTOR_PARAM_TYPES;
-
-    private static final Class<Void> VOID_CLASS;
-
-    static final Class<?>[] UNSHARED_PARAM_TYPES;
-
-    static {
-        CLASS_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.FINAL
-                | Modifier.INTERFACE | Modifier.ABSTRACT;
-        FIELD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE
-                | Modifier.PROTECTED | Modifier.STATIC | Modifier.FINAL
-                | Modifier.VOLATILE | Modifier.TRANSIENT;
-        METHOD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE
-                | Modifier.PROTECTED | Modifier.STATIC | Modifier.FINAL
-                | Modifier.SYNCHRONIZED | Modifier.NATIVE | Modifier.ABSTRACT
-                | Modifier.STRICT;
-
-        READ_PARAM_TYPES = new Class[1];
-        WRITE_PARAM_TYPES = new Class[1];
-        READ_PARAM_TYPES[0] = ObjectInputStream.class;
-        WRITE_PARAM_TYPES[0] = ObjectOutputStream.class;
-        EMPTY_CONSTRUCTOR_PARAM_TYPES = new Class[0];
-        VOID_CLASS = Void.TYPE;
-        UNSHARED_PARAM_TYPES = new Class[1];
-        UNSHARED_PARAM_TYPES[0] = Object.class;
-    }
+    private static final Class<?>[] READ_PARAM_TYPES = new Class[] { ObjectInputStream.class };
+    private static final Class<?>[] WRITE_PARAM_TYPES = new Class[] { ObjectOutputStream.class };
 
     /**
      * Constant indicating that the class has no Serializable fields.
@@ -294,12 +272,9 @@ public class ObjectStreamClass implements Serializable {
         }
         result.methodWriteReplace = findMethod(cl, "writeReplace");
         result.methodReadResolve = findMethod(cl, "readResolve");
-        result.methodWriteObject = findPrivateMethod(cl, "writeObject",
-                WRITE_PARAM_TYPES);
-        result.methodReadObject = findPrivateMethod(cl, "readObject",
-                READ_PARAM_TYPES);
-        result.methodReadObjectNoData = findPrivateMethod(cl,
-                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES);
+        result.methodWriteObject = findPrivateMethod(cl, "writeObject", WRITE_PARAM_TYPES);
+        result.methodReadObject = findPrivateMethod(cl, "readObject", READ_PARAM_TYPES);
+        result.methodReadObjectNoData = findPrivateMethod(cl, "readObjectNoData", EmptyArray.CLASS);
         if (result.hasMethodWriteObject()) {
             flags |= ObjectStreamConstants.SC_WRITE_METHOD;
         }
@@ -1031,8 +1006,7 @@ public class ObjectStreamClass implements Serializable {
             Class<?>[] param) {
         try {
             Method method = cl.getDeclaredMethod(methodName, param);
-            if (Modifier.isPrivate(method.getModifiers())
-                    && method.getReturnType() == VOID_CLASS) {
+            if (Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == Void.TYPE) {
                 method.setAccessible(true);
                 return method;
             }

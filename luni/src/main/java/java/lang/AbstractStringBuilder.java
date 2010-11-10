@@ -19,6 +19,7 @@ package java.lang;
 
 import java.io.InvalidObjectException;
 import java.util.Arrays;
+import libcore.base.EmptyArray;
 
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating
@@ -59,7 +60,7 @@ abstract class AbstractStringBuilder {
      */
     final void set(char[] val, int len) throws InvalidObjectException {
         if (val == null) {
-            val = new char[0];
+            val = EmptyArray.CHAR;
         }
         if (val.length < len) {
             throw new InvalidObjectException("count out of range");

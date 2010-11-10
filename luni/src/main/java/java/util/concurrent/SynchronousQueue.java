@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import libcore.base.EmptyArray;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -1011,7 +1012,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * @return a zero-length array
      */
     public Object[] toArray() {
-        return new Object[0];
+        return EmptyArray.OBJECT;
     }
 
     /**

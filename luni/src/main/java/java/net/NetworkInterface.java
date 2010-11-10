@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import libcore.base.EmptyArray;
 
 /**
  * This class is used to represent a network interface of the local device. An
@@ -471,7 +472,7 @@ public final class NetworkInterface extends Object {
      */
     public byte[] getHardwareAddress() throws SocketException {
         if (addresses.isEmpty()) {
-            return new byte[0];
+            return EmptyArray.BYTE;
         }
         return getHardwareAddressImpl(name);
     }
