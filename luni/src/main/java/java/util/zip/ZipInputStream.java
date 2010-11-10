@@ -174,13 +174,13 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
         if (hasDD) {
             in.read(hdrBuf, 0, EXTHDR);
-            long sig = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
-            if (sig != EXTSIG) {
+            int sig = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
+            if (sig != (int) EXTSIG) {
                 throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));
             }
-            currentEntry.crc = OSMemory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN);
-            currentEntry.compressedSize = OSMemory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN);
-            currentEntry.size = OSMemory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN);
+            currentEntry.crc = ((long) OSMemory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            currentEntry.compressedSize = ((long) OSMemory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            currentEntry.size = ((long) OSMemory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
         }
         if (currentEntry.crc != crc.getValue()) {
             throw new ZipException("CRC mismatch");
@@ -205,14 +205,8 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
             return null;
         }
 
-        int x = 0, count = 0;
-        while (count != 4) {
-            count += x = in.read(hdrBuf, count, 4 - count);
-            if (x == -1) {
-                return null;
-            }
-        }
-        long hdr = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
+        Streams.readFully(in, hdrBuf, 0, 4);
+        int hdr = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
         if (hdr == CENSIG) {
             entriesEnd = true;
             return null;
@@ -222,69 +216,51 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
 
         // Read the local header
-        count = 0;
-        while (count != (LOCHDR - LOCVER)) {
-            count += x = in.read(hdrBuf, count, (LOCHDR - LOCVER) - count);
-            if (x == -1) {
-                throw new EOFException();
-            }
-        }
+        Streams.readFully(in, hdrBuf, 0, (LOCHDR - LOCVER));
         int version = OSMemory.peekShort(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN) & 0xff;
         if (version > ZIPLocalHeaderVersionNeeded) {
             throw new ZipException("Cannot read local header version " + version);
         }
-        int flags = OSMemory.peekShort(hdrBuf, LOCFLG - LOCVER, ByteOrder.LITTLE_ENDIAN);
+        short flags = OSMemory.peekShort(hdrBuf, LOCFLG - LOCVER, ByteOrder.LITTLE_ENDIAN);
         hasDD = ((flags & ZipFile.GPBF_DATA_DESCRIPTOR_FLAG) != 0);
-        int cetime = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER, ByteOrder.LITTLE_ENDIAN);
-        int cemodDate = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER + 2, ByteOrder.LITTLE_ENDIAN);
-        int cecompressionMethod = OSMemory.peekShort(hdrBuf, LOCHOW - LOCVER, ByteOrder.LITTLE_ENDIAN);
-        long cecrc = 0, cecompressedSize = 0, cesize = -1;
+        int ceTime = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int ceModDate = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER + 2, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int ceCompressionMethod = OSMemory.peekShort(hdrBuf, LOCHOW - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        long ceCrc = 0, ceCompressedSize = 0, ceSize = -1;
         if (!hasDD) {
-            cecrc = OSMemory.peekInt(hdrBuf, LOCCRC - LOCVER, ByteOrder.LITTLE_ENDIAN);
-            cecompressedSize = OSMemory.peekInt(hdrBuf, LOCSIZ - LOCVER, ByteOrder.LITTLE_ENDIAN);
-            cesize = OSMemory.peekInt(hdrBuf, LOCLEN - LOCVER, ByteOrder.LITTLE_ENDIAN);
+            ceCrc = ((long) OSMemory.peekInt(hdrBuf, LOCCRC - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            ceCompressedSize = ((long) OSMemory.peekInt(hdrBuf, LOCSIZ - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            ceSize = ((long) OSMemory.peekInt(hdrBuf, LOCLEN - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
         }
-        int flen = OSMemory.peekShort(hdrBuf, LOCNAM - LOCVER, ByteOrder.LITTLE_ENDIAN);
-        if (flen == 0) {
+        int nameLength = OSMemory.peekShort(hdrBuf, LOCNAM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        if (nameLength == 0) {
             throw new ZipException("Entry is not named");
         }
-        int elen = OSMemory.peekShort(hdrBuf, LOCEXT - LOCVER, ByteOrder.LITTLE_ENDIAN);
+        int extraLength = OSMemory.peekShort(hdrBuf, LOCEXT - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
 
-        count = 0;
-        if (flen > nameBuf.length) {
-            nameBuf = new byte[flen];
-            charBuf = new char[flen];
+        if (nameLength > nameBuf.length) {
+            nameBuf = new byte[nameLength];
+            // The bytes are modified UTF-8, so the number of chars will always be less than or
+            // equal to the number of bytes. It's fine if this buffer is too long.
+            charBuf = new char[nameLength];
         }
-        while (count != flen) {
-            count += x = in.read(nameBuf, count, flen - count);
-            if (x == -1) {
-                throw new EOFException();
-            }
+        Streams.readFully(in, nameBuf, 0, nameLength);
+        currentEntry = createZipEntry(ModifiedUtf8.decode(nameBuf, charBuf, 0, nameLength));
+        currentEntry.time = ceTime;
+        currentEntry.modDate = ceModDate;
+        currentEntry.setMethod(ceCompressionMethod);
+        if (ceSize != -1) {
+            currentEntry.setCrc(ceCrc);
+            currentEntry.setSize(ceSize);
+            currentEntry.setCompressedSize(ceCompressedSize);
         }
-        currentEntry = createZipEntry(ModifiedUtf8.decode(nameBuf, charBuf, 0, flen));
-        currentEntry.time = cetime;
-        currentEntry.modDate = cemodDate;
-        currentEntry.setMethod(cecompressionMethod);
-        if (cesize != -1) {
-            currentEntry.setCrc(cecrc);
-            currentEntry.setSize(cesize);
-            currentEntry.setCompressedSize(cecompressedSize);
-        }
-        if (elen > 0) {
-            count = 0;
-            byte[] e = new byte[elen];
-            while (count != elen) {
-                count += x = in.read(e, count, elen - count);
-                if (x == -1) {
-                    throw new EOFException();
-                }
-            }
-            currentEntry.setExtra(e);
+        if (extraLength > 0) {
+            byte[] extraData = new byte[extraLength];
+            Streams.readFully(in, extraData, 0, extraLength);
+            currentEntry.setExtra(extraData);
         }
         return currentEntry;
     }
-
-    /* Read 4 bytes from the buffer and store it as an int */
 
     /**
      * Reads up to the specified number of uncompressed bytes into the buffer
