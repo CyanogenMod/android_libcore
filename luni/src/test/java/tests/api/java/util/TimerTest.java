@@ -18,10 +18,10 @@
 package tests.api.java.util;
 
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1274,6 +1274,9 @@ public class TimerTest extends junit.framework.TestCase {
         final AtomicReference<Thread> threadRef = new AtomicReference<Thread>();
         new Timer().schedule(new TimerTask() {
             @Override public void run() {
+                Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread thread, Throwable ex) {}
+                });
                 threadRef.set(Thread.currentThread());
                 throw new RuntimeException("task failure!");
             }
