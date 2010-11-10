@@ -46,6 +46,8 @@
 #include "UniquePtr.h"
 
 #undef WITH_JNI_TRACE
+#undef WITH_JNI_TRACE_DATA
+
 #ifdef WITH_JNI_TRACE
 #define JNI_TRACE(...) \
         ((void)LOG(LOG_INFO, LOG_TAG "-jni", __VA_ARGS__));     \
@@ -57,6 +59,11 @@
 #else
 #define JNI_TRACE(...) ((void)0)
 #endif
+// don't overwhelm logcat
+#define WITH_JNI_TRACE_DATA_SIZE 512
+
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
 
 struct BIO_Delete {
     void operator()(BIO* p) const {
@@ -2496,8 +2503,7 @@ static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, ji
  */
 static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* buf, jint len,
                    int* sslReturnCode, int* sslErrorCode, int timeout) {
-
-    // LOGD("Entering sslRead, caller requests to read %d bytes...", len);
+    JNI_TRACE("ssl=%p sslRead buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
         // Don't bother doing anything in this case.
@@ -2521,7 +2527,6 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
 
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
-        // LOGD("Doing SSL_Read()");
         if (!appData->setCallbackState(env, shc, fdObject)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_SOCKETEXCEPTION;
@@ -2533,7 +2538,13 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
             sslError = SSL_get_error(ssl, result);
             freeSslErrorState();
         }
-        // LOGD("Returned from SSL_Read() with result %d, error code %d", result, sslError);
+        JNI_TRACE("ssl=%p sslRead SSL_read result=%d sslError=%d", ssl, result, sslError);
+#ifdef WITH_JNI_TRACE_DATA
+        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_SIZE) {
+            int n = MIN(result - i, WITH_JNI_TRACE_DATA_SIZE);
+            JNI_TRACE("ssl=%p sslRead data: %d: %*s", ssl, n, n, buf+i);
+        }
+#endif
 
         // If we have been successful in moving data around, check whether it
         // might make sense to wake up other blocked threads, so they can give
@@ -2743,8 +2754,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
  */
 static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const char* buf, jint len,
                     int* sslReturnCode, int* sslErrorCode) {
-
-    // LOGD("Entering sslWrite(), caller requests to write %d bytes...", len);
+    JNI_TRACE("ssl=%p sslWrite buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
         // Don't bother doing anything in this case.
@@ -2780,7 +2790,13 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
             sslError = SSL_get_error(ssl, result);
             freeSslErrorState();
         }
-        // LOGD("Returned from SSL_write() with result %d, error code %d", result, error);
+        JNI_TRACE("ssl=%p sslWrite SSL_write result=%d sslError=%d", ssl, result, sslError);
+#ifdef WITH_JNI_TRACE_DATA
+        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_SIZE) {
+            int n = MIN(result - i, WITH_JNI_TRACE_DATA_SIZE);
+            JNI_TRACE("ssl=%p sslWrite data: %d: %*s", ssl, n, n, buf+i);
+        }
+#endif
 
         // If we have been successful in moving data around, check whether it
         // might make sense to wake up other blocked threads, so they can give
@@ -2858,7 +2874,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
             }
         }
     }
-    // LOGD("Successfully wrote %d bytes", count);
+    JNI_TRACE("ssl=%p sslWrite => count=%d", ssl, count);
 
     return count;
 }
