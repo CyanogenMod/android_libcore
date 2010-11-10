@@ -277,7 +277,7 @@ public class ZipFile implements ZipConstants {
             is.close();
 
             // Skip the name and this "extra" data or whatever it is:
-            rafstrm.skip(entry.nameLen + localExtraLenOrWhatever);
+            rafstrm.skip(entry.nameLength + localExtraLenOrWhatever);
             rafstrm.mLength = rafstrm.mOffset + entry.compressedSize;
             if (entry.compressionMethod == ZipEntry.DEFLATED) {
                 int bufSize = Math.max(1024, (int)Math.min(entry.getSize(), 65535L));
