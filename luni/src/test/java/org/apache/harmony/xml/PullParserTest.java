@@ -24,70 +24,419 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public abstract class PullParserTest extends TestCase {
-    private static final String SNIPPET = "<dagny dad=\"bob\">hello</dagny>";
 
-    public void testPullParser() {
+    public void testAttributeNoValueWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        parser.setInput(new StringReader("<input checked></input>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals("checked", parser.getAttributeName(0));
+        assertEquals("checked", parser.getAttributeValue(0));
+    }
+
+    public void testAttributeUnquotedValueWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        parser.setInput(new StringReader("<input checked=true></input>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals("checked", parser.getAttributeName(0));
+        assertEquals("true", parser.getAttributeValue(0));
+    }
+
+    public void testUnterminatedEntityWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        parser.setInput(new StringReader("<foo bar='A&W'>mac&cheese</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("foo", parser.getName());
+        assertEquals("bar", parser.getAttributeName(0));
+        assertEquals("A&W", parser.getAttributeValue(0));
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("mac&cheese", parser.getText());
+    }
+
+    public void testEntitiesAndNamespaces() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#process-namespaces", true);
+        parser.setInput(new StringReader(
+                "<foo:a xmlns:foo='http://foo' xmlns:bar='http://bar'><bar:b/></foo:a>"));
+        testNamespace(parser);
+    }
+
+    public void testEntitiesAndNamespacesWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#process-namespaces", true);
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        parser.setInput(new StringReader(
+                "<foo:a xmlns:foo='http://foo' xmlns:bar='http://bar'><bar:b/></foo:a>"));
+        testNamespace(parser); // TODO: end tag fails on gingerbread for relaxed mode
+    }
+
+    private void testNamespace(XmlPullParser parser) throws XmlPullParserException, IOException {
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("http://foo", parser.getNamespace());
+        assertEquals("a", parser.getName());
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("http://bar", parser.getNamespace());
+        assertEquals("b", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("http://bar", parser.getNamespace());
+        assertEquals("b", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("http://foo", parser.getNamespace());
+        assertEquals("a", parser.getName());
+    }
+
+    public void testLargeNumericEntities() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<foo>&#2147483647; &#-2147483648;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        // TODO: this can't possibly be what the spec wants; it should refuse too-large characters
+        assertEquals(new String(new char[] { (char) 2147483647, ' ', (char) -2147483648}),
+                parser.getText());
+    }
+
+    public void testVeryLargeNumericEntities() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<foo>&#2147483648;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
         try {
-            XmlPullParser parser = newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-
-            // Test reader.
-            parser.setInput(new StringReader(SNIPPET));
-            validate(parser);
-
-            // Test input stream.
-            parser.setInput(new ByteArrayInputStream(SNIPPET.getBytes()),
-                    "UTF-8");
-            validate(parser);
-        } catch (XmlPullParserException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            // TODO: this can't possibly be what the spec wants; it should throw another type
+            parser.next();
+            fail();
+        } catch (NumberFormatException expected) {
         }
+    }
+
+    public void testOmittedNumericEntities() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&#;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        try {
+            // TODO: this can't possibly be what the spec wants; it should throw another type
+            parser.next();
+            fail();
+        } catch (StringIndexOutOfBoundsException expected) {
+        }
+    }
+
+    /**
+     * Carriage returns followed by line feeds are silently discarded.
+     */
+    public void testCarriageReturnLineFeed() throws Exception {
+        testLineEndings("\r\n<foo\r\na='b\r\nc'\r\n>d\r\ne</foo\r\n>\r\n");
+    }
+
+    /**
+     * Lone carriage returns are treated like newlines.
+     */
+    public void testLoneCarriageReturn() throws Exception {
+        testLineEndings("\r<foo\ra='b\rc'\r>d\re</foo\r>\r");
+    }
+
+    public void testLoneNewLine() throws Exception {
+        testLineEndings("\n<foo\na='b\nc'\n>d\ne</foo\n>\n");
+    }
+
+    private void testLineEndings(String xml) throws XmlPullParserException, IOException {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(xml));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("foo", parser.getName());
+        assertEquals("b c", parser.getAttributeValue(0));
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("d\ne", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("foo", parser.getName());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testXmlDeclaration() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<?xml version='1.0' encoding='UTF-8' standalone='no'?><foo/>"));
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("1.0", parser.getProperty(
+                "http://xmlpull.org/v1/doc/properties.html#xmldecl-version"));
+        assertEquals(Boolean.FALSE, parser.getProperty(
+                "http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone"));
+        assertEquals("UTF-8", parser.getInputEncoding());
+    }
+
+    public void testXmlDeclarationExtraAttributes() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<?xml version='1.0' encoding='UTF-8' standalone='no' a='b'?><foo/>"));
+        try {
+            parser.nextToken();
+            fail();
+        } catch (XmlPullParserException expected) {
+        }
+    }
+
+    public void testCustomEntitiesUsingNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<foo a='cd&aaaaaaaaaa;ef'>wx&aaaaaaaaaa;yz</foo>"));
+        parser.defineEntityReplacementText("aaaaaaaaaa", "b");
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("cdbef", parser.getAttributeValue(0));
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("wxbyz", parser.getText());
+    }
+
+    public void testCustomEntitiesUsingNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<foo a='cd&aaaaaaaaaa;ef'>wx&aaaaaaaaaa;yz</foo>"));
+        parser.defineEntityReplacementText("aaaaaaaaaa", "b");
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("cdbef", parser.getAttributeValue(0));
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("wx", parser.getText());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("aaaaaaaaaa", parser.getName());
+        assertEquals("b", parser.getText());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("yz", parser.getText());
+    }
+
+    public void testGreaterThanInText() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals(">", parser.getText()); // TODO: this should probably fail?
+    }
+
+    public void testGreaterThanInAttribute() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo a='>'></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(">", parser.getAttributeValue(0)); // TODO: this should probably fail?
+    }
+
+    public void testLessThanInText() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        try {
+            parser.next();
+            fail();
+        } catch (XmlPullParserException expected) {
+        }
+    }
+
+    public void testLessThanInAttribute() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo a='<'></foo>"));
+        try {
+            parser.next();
+            fail();
+        } catch (XmlPullParserException expected) {
+        }
+    }
+
+    public void testQuotesInAttribute() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo a='\"' b=\"'\"></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("\"", parser.getAttributeValue(0));
+        assertEquals("'", parser.getAttributeValue(1));
+    }
+
+    public void testQuotesInText() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>\" '</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("\" '", parser.getText());
+    }
+
+    public void testCdataDelimiterInAttribute() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo a=']]>'></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("]]>", parser.getAttributeValue(0));
+    }
+
+    public void testCdataDelimiterInText() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>]]></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        try {
+            parser.next();
+            fail();
+        } catch (XmlPullParserException expected) {
+        }
+    }
+
+    /**
+     * Close braces require lookaheads because we need to defend against "]]>".
+     */
+    public void testManyCloseBraces() throws Exception{
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>]]]]]]]]]]]]]]]]]]]]]]]</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("]]]]]]]]]]]]]]]]]]]]]]]", parser.getText());
+    }
+
+    public void testCommentWithNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<!-- comment! -->cd</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("abcd", parser.getText());
+    }
+
+    public void testCommentWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<!-- comment! -->cd</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("ab", parser.getText());
+        assertEquals(XmlPullParser.COMMENT, parser.nextToken());
+        assertEquals(" comment! ", parser.getText());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("cd", parser.getText());
+    }
+
+    public void testCdataWithNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<![CDATA[cdef]]gh&amp;i]]>jk</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("abcdef]]gh&amp;ijk", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+    }
+
+    public void testCdataWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<![CDATA[cdef]]gh&amp;i]]>jk</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("ab", parser.getText());
+        assertEquals(XmlPullParser.CDSECT, parser.nextToken());
+        assertEquals("cdef]]gh&amp;i", parser.getText());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("jk", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+    }
+
+    public void testEntityLooksLikeCdataClose() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&#93;&#93;></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("]]>", parser.getText());
+    }
+
+    public void testDoctypeWithNext() throws Exception {
+        String s = "<!DOCTYPE foo ["
+            + "  <!ENTITY bb \"bar baz\">"
+            + "  <!NOTATION png SYSTEM \"image/png\">"
+            + "]><foo>a&bb;c</foo>";
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("abar bazc", parser.getText()); // TODO: this fails on gingerbread
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testDoctypeWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>"));
+        assertEquals(XmlPullParser.DOCDECL, parser.nextToken());
+        assertEquals(" foo [<!ENTITY bb \"bar baz\">]", parser.getText());
+        assertNull(parser.getName());
+
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("a", parser.getText());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("bb", parser.getName());
+        assertEquals("bar baz", parser.getText()); // TODO: this fails on gingerbread
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("c", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testProcessingInstructionWithNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<?cd efg hij?>kl</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("abkl", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testProcessingInstructionWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>ab<?cd efg hij?>kl</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("ab", parser.getText());
+        assertEquals(XmlPullParser.PROCESSING_INSTRUCTION, parser.nextToken());
+        assertEquals("cd efg hij", parser.getText());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("kl", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testParseReader() throws Exception {
+        String snippet = "<dagny dad=\"bob\">hello</dagny>";
+        XmlPullParser parser = newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        parser.setInput(new StringReader(snippet));
+        validate(parser);
+    }
+
+    public void testParseInputStream() throws Exception {
+        String snippet = "<dagny dad=\"bob\">hello</dagny>";
+        XmlPullParser parser = newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        parser.setInput(new ByteArrayInputStream(snippet.getBytes()), "UTF-8");
+        validate(parser);
     }
 
     static void validate(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         assertEquals(XmlPullParser.START_DOCUMENT, parser.getEventType());
-
         assertEquals(0, parser.getDepth());
-
         assertEquals(XmlPullParser.START_TAG, parser.next());
-
         assertEquals(1, parser.getDepth());
-
         assertEquals("dagny", parser.getName());
         assertEquals(1, parser.getAttributeCount());
         assertEquals("dad", parser.getAttributeName(0));
         assertEquals("bob", parser.getAttributeValue(0));
         assertEquals("bob", parser.getAttributeValue(null, "dad"));
-
         assertEquals(XmlPullParser.TEXT, parser.next());
-
         assertEquals(1, parser.getDepth());
-
         assertEquals("hello", parser.getText());
-
         assertEquals(XmlPullParser.END_TAG, parser.next());
-
         assertEquals(1, parser.getDepth());
-
         assertEquals("dagny", parser.getName());
-
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
-
         assertEquals(0, parser.getDepth());
     }
 
-    static final String XML =
-        "<one xmlns='ns:default' xmlns:n1='ns:1' a='b'>\n"
-              + "  <n1:two c='d' n1:e='f' xmlns:n2='ns:2'>text</n1:two>\n"
-              + "</one>";
+    public void testNamespaces() throws Exception {
+        String xml = "<one xmlns='ns:default' xmlns:n1='ns:1' a='b'>\n"
+                + "  <n1:two c='d' n1:e='f' xmlns:n2='ns:2'>text</n1:two>\n"
+                + "</one>";
 
-    public void testExpatPullParserNamespaces() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
-        parser.setInput(new StringReader(XML));
+        parser.setInput(new StringReader(xml));
 
         assertEquals(0, parser.getDepth());
         assertEquals(0, parser.getNamespaceCount(0));
