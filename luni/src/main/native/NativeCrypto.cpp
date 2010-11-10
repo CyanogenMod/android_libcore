@@ -20,6 +20,7 @@
 
 #define LOG_TAG "NativeCrypto"
 
+#include <algorithm>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -60,10 +61,7 @@
 #define JNI_TRACE(...) ((void)0)
 #endif
 // don't overwhelm logcat
-#define WITH_JNI_TRACE_DATA_SIZE 512
-
-#define MIN(x,y) (((x) < (y)) ? (x) : (y))
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#define WITH_JNI_TRACE_DATA_CHUNK_SIZE 512
 
 struct BIO_Delete {
     void operator()(BIO* p) const {
@@ -2540,8 +2538,8 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
         }
         JNI_TRACE("ssl=%p sslRead SSL_read result=%d sslError=%d", ssl, result, sslError);
 #ifdef WITH_JNI_TRACE_DATA
-        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_SIZE) {
-            int n = MIN(result - i, WITH_JNI_TRACE_DATA_SIZE);
+        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_CHUNK_SIZE) {
+            int n = std::min(result - i, WITH_JNI_TRACE_DATA_CHUNK_SIZE);
             JNI_TRACE("ssl=%p sslRead data: %d: %*s", ssl, n, n, buf+i);
         }
 #endif
@@ -2792,8 +2790,8 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
         }
         JNI_TRACE("ssl=%p sslWrite SSL_write result=%d sslError=%d", ssl, result, sslError);
 #ifdef WITH_JNI_TRACE_DATA
-        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_SIZE) {
-            int n = MIN(result - i, WITH_JNI_TRACE_DATA_SIZE);
+        for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_CHUNK_SIZE) {
+            int n = std::min(result - i, WITH_JNI_TRACE_DATA_CHUNK_SIZE);
             JNI_TRACE("ssl=%p sslWrite data: %d: %*s", ssl, n, n, buf+i);
         }
 #endif
