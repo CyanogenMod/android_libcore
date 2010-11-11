@@ -19,9 +19,9 @@ package java.util.zip;
 
 /**
  * The CRC32 class is used to compute a CRC32 checksum from data provided as
- * input value.
+ * input value. See also {@link Adler32} which is almost as good, but cheaper.
  */
-public class CRC32 implements java.util.zip.Checksum {
+public class CRC32 implements Checksum {
 
     private long crc = 0L;
 
