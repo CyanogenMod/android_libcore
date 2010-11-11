@@ -36,11 +36,31 @@ import java.util.Vector;
  * href="http://www.pkware.com/documents/casestudies/APPNOTE.TXT">file format
  * specification</a>.
  *
+ * <h3>Example</h3>
+ * <p>Using {@code ZipOutputStream} is a little more complicated than {@link GZIPOutputStream}
+ * because ZIP archives are containers that can contain multiple files. This code creates a ZIP
+ * archive containing several files, similar to the {@code zip(1)} utility.
+ * <pre>
+ * OutputStream os = ...
+ * ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os));
+ * try {
+ *     for (int i = 0; i < fileCount; ++i) {
+ *         String filename = ...
+ *         byte[] bytes = ...
+ *         ZipEntry entry = new ZipEntry(filename);
+ *         zos.putNextEntry(entry);
+ *         zos.write(bytes);
+ *         zos.closeEntry();
+ *     }
+ * } finally {
+ *     zos.close();
+ * }
+ * </pre>
+ *
  * @see ZipEntry
  * @see ZipFile
  */
-public class ZipOutputStream extends DeflaterOutputStream implements
-        ZipConstants {
+public class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
 
     /**
      * Indicates deflated entries.

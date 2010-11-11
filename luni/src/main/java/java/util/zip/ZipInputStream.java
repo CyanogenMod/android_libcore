@@ -42,6 +42,31 @@ import org.apache.harmony.luni.platform.OSMemory;
  * <p>
  * Use {@code ZipFile} if you can access the archive as a file directly.
  *
+ * <h3>Example</h3>
+ * <p>Using {@code ZipInputStream} is a little more complicated than {@link GZIPInputStream}
+ * because ZIP archives are containers that can contain multiple files. This code pulls all the
+ * files out of a ZIP archive, similar to the {@code unzip(1)} utility.
+ * <pre>
+ * InputStream is = ...
+ * ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
+ * try {
+ *     ZipEntry ze;
+ *     while ((ze = zis.getNextEntry()) != null) {
+ *         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+ *         byte[] buffer = new byte[1024];
+ *         int count;
+ *         while ((count = in.read(buffer)) != -1) {
+ *             out.write(buffer, 0, count);
+ *         }
+ *         String filename = ze.getName();
+ *         byte[] bytes = baos.toByteArray();
+ *         // do something with 'filename' and 'bytes'...
+ *     }
+ * } finally {
+ *     zis.close();
+ * }
+ * </pre>
+ *
  * @see ZipEntry
  * @see ZipFile
  */
