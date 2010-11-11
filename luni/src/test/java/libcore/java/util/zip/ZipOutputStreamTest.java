@@ -35,6 +35,13 @@ public final class ZipOutputStreamTest extends TestCase {
         assertEquals(Arrays.toString(data), Arrays.toString(ZipInputStreamTest.unzip("short", zipped)));
     }
 
+    // http://b/3181430 --- a sign-extension bug on CRCs with the top bit set.
+    public void test3181430() throws IOException {
+        byte[] data = new byte[1]; // CRC32({ 0 }) == 0xd202ef8d
+        byte[] zipped = zip("z", data);
+        assertEquals(Arrays.toString(data), Arrays.toString(ZipInputStreamTest.unzip("z", zipped)));
+    }
+
     public void testLongMessage() throws IOException {
         byte[] data = new byte[1024 * 1024];
         new Random().nextBytes(data);
