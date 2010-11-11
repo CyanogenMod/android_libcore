@@ -26,6 +26,7 @@ import java.nio.charset.Charsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import libcore.base.Streams;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
 
@@ -49,7 +50,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     byte[] extra;
 
-    int nameLen = -1;
+    int nameLength = -1;
     long mLocalHeaderRelOffset = -1;
 
     /**
@@ -75,7 +76,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
             throw new NullPointerException();
         }
         if (name.length() > 0xFFFF) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Name too long: " + name.length());
         }
         this.name = name;
     }
@@ -180,12 +181,12 @@ public class ZipEntry implements ZipConstants, Cloneable {
     /**
      * Sets the comment for this {@code ZipEntry}.
      *
-     * @param string
+     * @param comment
      *            the comment for this entry.
      */
-    public void setComment(String string) {
-        if (string == null || string.length() <= 0xFFFF) {
-            comment = string;
+    public void setComment(String comment) {
+        if (comment == null || comment.length() <= 0xFFFF) {
+            this.comment = comment;
         } else {
             throw new IllegalArgumentException();
         }
@@ -213,7 +214,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         if (value >= 0 && value <= 0xFFFFFFFFL) {
             crc = value;
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad CRC32: " + value);
         }
     }
 
@@ -244,7 +245,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      */
     public void setMethod(int value) {
         if (value != STORED && value != DEFLATED) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad method: " + value);
         }
         compressionMethod = value;
     }
@@ -261,7 +262,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         if (value >= 0 && value <= 0xFFFFFFFFL) {
             size = value;
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad size: " + value);
         }
     }
 
@@ -316,7 +317,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         compressionMethod = ze.compressionMethod;
         modDate = ze.modDate;
         extra = ze.extra;
-        nameLen = ze.nameLen;
+        nameLength = ze.nameLength;
         mLocalHeaderRelOffset = ze.mLocalHeaderRelOffset;
     }
 
@@ -351,18 +352,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      * On exit, "in" will be positioned at the start of the next entry.
      */
     ZipEntry(byte[] hdrBuf, InputStream in) throws IOException {
-        /*
-         * We're seeing performance issues when we call readShortLE and
-         * readIntLE, so we're going to read the entire header at once
-         * and then parse the results out without using any function calls.
-         * Uglier, but should be much faster.
-         *
-         * Note that some lines look a bit different, because the corresponding
-         * fields or locals are long and so we need to do & 0xffffffffl to avoid
-         * problems induced by sign extension.
-         */
-
-        myReadFully(in, hdrBuf);
+        Streams.readFully(in, hdrBuf, 0, hdrBuf.length);
 
         BufferIterator it = HeapBufferIterator.iterator(hdrBuf, 0, hdrBuf.length, ByteOrder.LITTLE_ENDIAN);
 
@@ -375,50 +365,35 @@ public class ZipEntry implements ZipConstants, Cloneable {
         compressionMethod = it.readShort();
         time = it.readShort();
         modDate = it.readShort();
-        crc = it.readInt();
-        compressedSize = it.readInt();
-        size = it.readInt();
-        nameLen = it.readShort();
-        int extraLen = it.readShort();
-        int commentLen = it.readShort();
+
+        // These are 32-bit values in the file, but 64-bit fields in this object.
+        crc = ((long) it.readInt()) & 0xffffffffL;
+        compressedSize = ((long) it.readInt()) & 0xffffffffL;
+        size = ((long) it.readInt()) & 0xffffffffL;
+
+        nameLength = it.readShort();
+        int extraLength = it.readShort();
+        int commentLength = it.readShort();
+
+        // This is a 32-bit value in the file, but a 64-bit field in this object.
         it.seek(42);
-        mLocalHeaderRelOffset = it.readInt();
+        mLocalHeaderRelOffset = ((long) it.readInt()) & 0xffffffffL;
 
-        byte[] nameBytes = new byte[nameLen];
-        myReadFully(in, nameBytes);
-
-        byte[] commentBytes = null;
-        if (commentLen > 0) {
-            commentBytes = new byte[commentLen];
-            myReadFully(in, commentBytes);
-        }
-
-        if (extraLen > 0) {
-            extra = new byte[extraLen];
-            myReadFully(in, extra);
-        }
+        byte[] nameBytes = new byte[nameLength];
+        Streams.readFully(in, nameBytes, 0, nameBytes.length);
+        name = new String(nameBytes, 0, nameBytes.length, Charsets.UTF_8);
 
         // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
         // actually IBM-437.)
-        name = new String(nameBytes, 0, nameBytes.length, Charsets.UTF_8);
-        if (commentBytes != null) {
+        if (commentLength > 0) {
+            byte[] commentBytes = new byte[commentLength];
+            Streams.readFully(in, commentBytes, 0, commentLength);
             comment = new String(commentBytes, 0, commentBytes.length, Charsets.UTF_8);
-        } else {
-            comment = null;
         }
-    }
 
-    private void myReadFully(InputStream in, byte[] b) throws IOException {
-        int len = b.length;
-        int off = 0;
-
-        while (len > 0) {
-            int count = in.read(b, off, len);
-            if (count <= 0) {
-                throw new EOFException();
-            }
-            off += count;
-            len -= count;
+        if (extraLength > 0) {
+            extra = new byte[extraLength];
+            Streams.readFully(in, extra, 0, extraLength);
         }
     }
 }
