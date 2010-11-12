@@ -112,8 +112,10 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      */
     @Override
     public void close() throws IOException {
+        // don't call super.close() because that calls finish() conditionally
         if (out != null) {
             finish();
+            def.end();
             out.close();
             out = null;
         }
