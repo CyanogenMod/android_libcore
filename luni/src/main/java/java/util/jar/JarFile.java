@@ -28,7 +28,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import libcore.base.Streams;
 import org.apache.harmony.archive.util.Util;
-import org.apache.harmony.luni.util.InputStreamHelper;
 
 /**
  * {@code JarFile} is used to read jar entries and their associated data from
@@ -291,8 +290,11 @@ public class JarFile extends ZipFile {
         try {
             InputStream is = super.getInputStream(manifestEntry);
             if (verifier != null) {
-                verifier.addMetaEntry(manifestEntry.getName(),
-                        InputStreamHelper.readFullyAndClose(is));
+                try {
+                    verifier.addMetaEntry(manifestEntry.getName(), Streams.readFully(is));
+                } finally {
+                    is.close();
+                }
                 is = super.getInputStream(manifestEntry);
             }
             try {
@@ -329,8 +331,7 @@ public class JarFile extends ZipFile {
         for (ZipEntry entry : metaEntries) {
             String entryName = entry.getName();
             // Is this the entry for META-INF/MANIFEST.MF ?
-            if (manifestEntry == null
-                    && Util.asciiEqualsIgnoreCase(MANIFEST_NAME, entryName)) {
+            if (manifestEntry == null && Util.asciiEqualsIgnoreCase(MANIFEST_NAME, entryName)) {
                 manifestEntry = entry;
                 // If there is no verifier then we don't need to look any further.
                 if (verifier == null) {
@@ -344,8 +345,11 @@ public class JarFile extends ZipFile {
                                 || Util.asciiEndsWithIgnoreCase(entryName, ".RSA"))) {
                     signed = true;
                     InputStream is = super.getInputStream(entry);
-                    byte[] buf = InputStreamHelper.readFullyAndClose(is);
-                    verifier.addMetaEntry(entryName, buf);
+                    try {
+                        verifier.addMetaEntry(entryName, Streams.readFully(is));
+                    } finally {
+                        is.close();
+                    }
                 }
             }
         }

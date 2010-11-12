@@ -16,6 +16,7 @@
 
 package libcore.base;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +51,22 @@ public final class Streams {
             }
             offset += bytesRead;
             byteCount -= bytesRead;
+        }
+    }
+
+    /**
+     * Returns a new byte[] containing the entire contents of the given InputStream.
+     * Useful when you don't know in advance how much data there is to be read.
+     */
+    public static byte[] readFully(InputStream in) throws IOException {
+        byte[] buffer = new byte[1024];
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        while (true) {
+            int byteCount = in.read(buffer);
+            if (byteCount == -1) {
+                return bytes.toByteArray();
+            }
+            bytes.write(buffer, 0, byteCount);
         }
     }
 

@@ -17,10 +17,12 @@
 
 package java.util.jar;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
@@ -30,7 +32,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.harmony.luni.util.InputStreamHelper;
+import libcore.base.Streams;
 
 /**
  * The {@code Manifest} class is used to obtain attribute information for a
@@ -44,6 +46,19 @@ public class Manifest implements Cloneable {
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
     private static final Attributes.Name NAME_ATTRIBUTE = new Attributes.Name("Name");
+
+    private static final Field BAIS_BUF = getByteArrayInputStreamField("buf");
+    private static final Field BAIS_POS = getByteArrayInputStreamField("pos");
+
+    private static Field getByteArrayInputStreamField(String name) {
+        try {
+            Field f = ByteArrayInputStream.class.getDeclaredField(name);
+            f.setAccessible(true);
+            return f;
+        } catch (Exception ex) {
+            throw new AssertionError(ex);
+        }
+    }
 
     private Attributes mainAttributes = new Attributes();
 
@@ -185,11 +200,10 @@ public class Manifest implements Cloneable {
      */
     public void read(InputStream is) throws IOException {
         byte[] buf;
-        // Try to read get a reference to the bytes directly
-        try {
-            buf = InputStreamHelper.expose(is);
-        } catch (UnsupportedOperationException uoe) {
-            buf = readFully(is);
+        if (is instanceof ByteArrayInputStream) {
+            buf = exposeByteArrayInputStreamBytes((ByteArrayInputStream) is);
+        } else {
+            buf = Streams.readFully(is);
         }
 
         if (buf.length == 0) {
@@ -211,53 +225,31 @@ public class Manifest implements Cloneable {
         im.initEntries(entries, chunks);
     }
 
-    /*
-     * Helper to read the entire contents of the manifest from the
-     * given input stream.  Usually we can do this in a single read
-     * but we need to account for 'infinite' streams, by ensuring we
-     * have a line feed within a reasonable number of characters.
+    /**
+     * Returns a byte[] containing all the bytes from a ByteArrayInputStream.
+     * Where possible, this returns the actual array rather than a copy.
      */
-    private byte[] readFully(InputStream is) throws IOException {
-        // Initial read
-        byte[] buffer = new byte[4096];
-        int count = is.read(buffer);
-        int nextByte = is.read();
-
-        // Did we get it all in one read?
-        if (nextByte == -1) {
-            return Arrays.copyOf(buffer, count);
-        }
-
-        // Does it look like a manifest?
-        if (!containsLine(buffer, count)) {
-            throw new IOException("Manifest is too long");
-        }
-
-        // Requires additional reads
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(count * 2);
-        baos.write(buffer, 0, count);
-        baos.write(nextByte);
-        while (true) {
-            count = is.read(buffer);
-            if (count == -1) {
-                return baos.toByteArray();
+    private static byte[] exposeByteArrayInputStreamBytes(ByteArrayInputStream bais) {
+        byte[] buffer;
+        synchronized (bais) {
+            byte[] buf;
+            int pos;
+            try {
+                buf = (byte[]) BAIS_BUF.get(bais);
+                pos = BAIS_POS.getInt(bais);
+            } catch (IllegalAccessException iae) {
+                throw new AssertionError(iae);
             }
-            baos.write(buffer, 0, count);
-        }
-    }
-
-    /*
-     * Check to see if the buffer contains a newline or carriage
-     * return character within the first 'length' bytes.  Used to
-     * check the validity of the manifest input stream.
-     */
-    private boolean containsLine(byte[] buffer, int length) {
-        for (int i = 0; i < length; i++) {
-            if (buffer[i] == 0x0A || buffer[i] == 0x0D) {
-                return true;
+            int available = bais.available();
+            if (pos == 0 && buf.length == available) {
+                buffer = buf;
+            } else {
+                buffer = new byte[available];
+                System.arraycopy(buf, pos, buffer, 0, available);
             }
+            bais.skip(available);
         }
-        return false;
+        return buffer;
     }
 
     /**
