@@ -30,17 +30,18 @@ import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
- * decompresses data from a <i>ZIP-archive</i> input stream.
- * <p>
- * A <i>ZIP-archive</i> is a collection of compressed (or uncompressed) files -
- * the so called ZIP entries. Therefore when reading from a {@code
- * ZipInputStream} first the entry's attributes will be retrieved with {@code
- * getNextEntry} before its data is read.
- * <p>
- * While {@code InflaterInputStream} can read a compressed <i>ZIP-archive</i>
- * entry, this extension can read uncompressed entries as well.
- * <p>
- * Use {@code ZipFile} if you can access the archive as a file directly.
+ * decompresses data from an {@code InputStream} containing a ZIP archive.
+ *
+ * <p>A ZIP archive is a collection of (possibly) compressed files.
+ * When reading from a {@code ZipInputStream}, you retrieve the
+ * entry's metadata with {@code getNextEntry} before you can read the userdata.
+ *
+ * <p>Although {@code InflaterInputStream} can only read compressed ZIP archive
+ * entries, this class can read non-compressed entries as well.
+ *
+ * <p>Use {@code ZipFile} if you can access the archive as a file directly,
+ * especially if you want random access to entries, rather than needing to
+ * iterate over all entries.
  *
  * <h3>Example</h3>
  * <p>Using {@code ZipInputStream} is a little more complicated than {@link GZIPInputStream}
@@ -55,8 +56,8 @@ import org.apache.harmony.luni.platform.OSMemory;
  *         ByteArrayOutputStream baos = new ByteArrayOutputStream();
  *         byte[] buffer = new byte[1024];
  *         int count;
- *         while ((count = in.read(buffer)) != -1) {
- *             out.write(buffer, 0, count);
+ *         while ((count = zis.read(buffer)) != -1) {
+ *             baos.write(buffer, 0, count);
  *         }
  *         String filename = ze.getName();
  *         byte[] bytes = baos.toByteArray();
