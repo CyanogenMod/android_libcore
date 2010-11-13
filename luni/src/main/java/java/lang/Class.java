@@ -658,8 +658,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getField(String)
      */
-    public Field getDeclaredField(String name)
-            throws NoSuchFieldException, SecurityException {
+    public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException {
         checkDeclaredMemberAccess();
 
         Field[] fields = getClassCache().getDeclaredFields();
@@ -868,6 +867,26 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
          * setAccessible() won't alter the private instance.
          */
         return REFLECT.clone(field);
+    }
+
+    /**
+     * Finds and returns a field with a given name and signature. Use
+     * this with one of the field lists returned by instances of ClassCache.
+     *
+     * @param list non-null; the list of fields to search through
+     * @return non-null; the matching field
+     * @throws NoSuchFieldException thrown if the field does not exist
+     */
+    private Field findFieldByName(Field[] list, String name) throws NoSuchFieldException {
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        for (Field field : list) {
+            if (field.getName().equals(name)) {
+                return field;
+            }
+        }
+        throw new NoSuchFieldException("No field '" + name + "' in " + this);
     }
 
     /**
