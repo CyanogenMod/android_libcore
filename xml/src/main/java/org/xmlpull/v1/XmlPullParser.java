@@ -59,7 +59,7 @@ import java.io.Reader;
  *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/properties.html#xmldecl-version">http://xmlpull.org/v1/doc/properties.html#xmldecl-version</a>&quot;)
  *       returns String ("1.0") or null if XMLDecl was not read or if property is not supported
  * <li><b>standalone</b>:
- *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/features.html#xmldecl-standalone">http://xmlpull.org/v1/doc/features.html#xmldecl-standalone</a>&quot;)
+ *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone">http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone</a>&quot;)
  *       returns Boolean: null if there was no standalone declaration
  *  or if property is not supported
  *         otherwise returns Boolean(true) if standalone="yes" and Boolean(false) when standalone="no"

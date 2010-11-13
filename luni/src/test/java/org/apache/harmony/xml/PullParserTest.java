@@ -105,24 +105,16 @@ public abstract class PullParserTest extends TestCase {
         parser.setInput(new StringReader(
                 "<foo>&#2147483648;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        try {
-            // TODO: this can't possibly be what the spec wants; it should throw another type
-            parser.next();
-            fail();
-        } catch (NumberFormatException expected) {
-        }
+        // TODO: this can't possibly be what the spec wants; it should throw another type
+        assertNextFails(parser);
     }
 
     public void testOmittedNumericEntities() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&#;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        try {
-            // TODO: this can't possibly be what the spec wants; it should throw another type
-            parser.next();
-            fail();
-        } catch (StringIndexOutOfBoundsException expected) {
-        }
+        // TODO: this can't possibly be what the spec wants; it should throw another type
+        assertNextFails(parser);
     }
 
     /**
@@ -225,21 +217,13 @@ public abstract class PullParserTest extends TestCase {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo><</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        try {
-            parser.next();
-            fail();
-        } catch (XmlPullParserException expected) {
-        }
+        assertNextFails(parser);
     }
 
     public void testLessThanInAttribute() throws Exception{
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo a='<'></foo>"));
-        try {
-            parser.next();
-            fail();
-        } catch (XmlPullParserException expected) {
-        }
+        assertNextFails(parser);
     }
 
     public void testQuotesInAttribute() throws Exception{
@@ -269,11 +253,44 @@ public abstract class PullParserTest extends TestCase {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>]]></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        try {
-            parser.next();
-            fail();
-        } catch (XmlPullParserException expected) {
-        }
+        assertNextFails(parser);
+    }
+
+    public void testUnexpectedEof() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><![C"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertNextFails(parser);
+    }
+
+    public void testUnexpectedSequence() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><![Cdata[bar]]></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertNextFails(parser);
+    }
+
+    public void testThreeDashCommentDelimiter() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><!--a---></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertNextFails(parser);
+    }
+
+    public void testTwoDashesInComment() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><!-- -- --></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        // TODO: confirm with the spec that this should fail
+        assertNextFails(parser);
+    }
+
+    public void testEmptyComment() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><!----></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.COMMENT, parser.nextToken());
+        assertEquals("", parser.getText());
     }
 
     /**
@@ -389,6 +406,47 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("cd efg hij", parser.getText());
         assertEquals(XmlPullParser.TEXT, parser.nextToken());
         assertEquals("kl", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testLinesAndColumns() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("\n"
+                + "  <foo><bar a='\n"
+                + "' b='cde'></bar\n"
+                + "><!--\n"
+                + "\n"
+                + "--><baz/>fg\n"
+                + "</foo>"));
+        assertEquals("1,1", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.IGNORABLE_WHITESPACE, parser.nextToken());
+        assertEquals("2,3", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("2,8", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("3,11", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals("4,2", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.COMMENT, parser.nextToken());
+        assertEquals("6,4", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("6,10", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals("6,10", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("7,1", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.nextToken());
+        assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
+    }
+
+    public void testEmptyCdata() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><![CDATA[]]></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next()); // TODO: This should probably fail!
+        assertEquals("", parser.getText());
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
@@ -521,6 +579,14 @@ public abstract class PullParserTest extends TestCase {
         // Default ns should still be in the stack
         assertNull(parser.getNamespacePrefix(0));
         assertEquals("ns:default", parser.getNamespaceUri(0));
+    }
+
+    private void assertNextFails(XmlPullParser parser) throws IOException {
+        try {
+            parser.next();
+            fail();
+        } catch (XmlPullParserException expected) {
+        }
     }
 
     /**
