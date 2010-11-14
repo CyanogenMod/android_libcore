@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import libcore.internal.StringPool;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -105,6 +106,8 @@ public class KXmlParser implements XmlPullParser {
 
     private boolean unresolved;
     private boolean token;
+
+    public final StringPool stringPool = new StringPool();
 
     /**
      * Retains namespace attributes like {@code xmlns="http://foo"} or {@code xmlns:foo="http:foo"}
@@ -403,7 +406,7 @@ public class KXmlParser implements XmlPullParser {
         if (!returnText) {
             return null;
         } else if (result == null) {
-            return new String(buffer, start, end - start);
+            return stringPool.get(buffer, start, end - start);
         } else {
             result.append(buffer, start, end - start);
             return result.toString();
@@ -495,7 +498,7 @@ public class KXmlParser implements XmlPullParser {
 
         if (assignText) {
             if (result == null) {
-                text = new String(buffer, start, position - start - 1); // omit the '>'
+                text = stringPool.get(buffer, start, position - start - 1); // omit the '>'
             } else {
                 result.append(buffer, start, position - start - 1); // omit the '>'
                 text = result.toString();
@@ -882,7 +885,7 @@ public class KXmlParser implements XmlPullParser {
         }
 
         if (result == null) {
-            return new String(buffer, start, position - start);
+            return stringPool.get(buffer, start, position - start);
         } else {
             result.append(buffer, start, position - start);
             return result.toString();
@@ -1016,7 +1019,7 @@ public class KXmlParser implements XmlPullParser {
 
             // we encountered a non-name character. done!
             if (result == null) {
-                return new String(buffer, start, position - start);
+                return stringPool.get(buffer, start, position - start);
             } else {
                 result.append(buffer, start, position - start);
                 return result.toString();
