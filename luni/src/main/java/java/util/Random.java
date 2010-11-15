@@ -241,7 +241,7 @@ public class Random implements Serializable {
     }
 
     /**
-     * Modifies the seed a using linear congruential formula presented in <i>The
+     * Modifies the seed using a linear congruential formula presented in <i>The
      * Art of Computer Programming, Volume 2</i>, Section 3.2.1.
      *
      * @param seed
