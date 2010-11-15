@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
 import libcore.base.EmptyArray;
@@ -168,6 +169,11 @@ public class ObjectStreamClass implements Serializable {
     // Array of ObjectStreamField describing the serialized fields of this class
     private transient ObjectStreamField[] loadFields;
 
+    // ObjectStreamField doesn't override hashCode or equals, so this is equivalent to an
+    // IdentityHashMap, which is fine for our purposes.
+    private transient HashMap<ObjectStreamField, Field> reflectionFields =
+            new HashMap<ObjectStreamField, Field>();
+
     // MethodID for deserialization constructor
     private transient long constructor = CONSTRUCTOR_IS_NOT_RESOLVED;
 
@@ -177,6 +183,28 @@ public class ObjectStreamClass implements Serializable {
 
     long getConstructor() {
         return constructor;
+    }
+
+    Field getReflectionField(ObjectStreamField osf) {
+        synchronized (reflectionFields) {
+            Field field = reflectionFields.get(osf);
+            if (field != null) {
+                return field;
+            }
+        }
+
+        try {
+            Class<?> declaringClass = forClass();
+            Field field = declaringClass.getDeclaredField(osf.getName());
+            field.setAccessible(true);
+            synchronized (reflectionFields) {
+                reflectionFields.put(osf, field);
+            }
+            return reflectionFields.get(osf);
+        } catch (NoSuchFieldException ex) {
+            // The caller messed up. We'll return null and won't try to resolve this again.
+            return null;
+        }
     }
 
     /*
@@ -224,13 +252,12 @@ public class ObjectStreamClass implements Serializable {
         Field[] declaredFields = null;
 
         // Compute the SUID
-        if(serializable || externalizable) {
+        if (serializable || externalizable) {
             if (result.isEnum() || result.isProxy()) {
                 result.setSerialVersionUID(0L);
             } else {
                 declaredFields = cl.getDeclaredFields();
-                result.setSerialVersionUID(computeSerialVersionUID(cl,
-                        declaredFields));
+                result.setSerialVersionUID(computeSerialVersionUID(cl, declaredFields));
             }
         }
 
@@ -293,8 +320,7 @@ public class ObjectStreamClass implements Serializable {
     void buildFieldDescriptors(Field[] declaredFields) {
         // We could find the field ourselves in the collection, but calling
         // reflect is easier. Optimize if needed.
-        final Field f = ObjectStreamClass.fieldSerialPersistentFields(this
-                .forClass());
+        final Field f = ObjectStreamClass.fieldSerialPersistentFields(this.forClass());
         // If we could not find the emulated fields, we'll have to compute
         // dumpable fields from reflect fields
         boolean useReflectFields = f == null; // Assume we will compute the
@@ -310,23 +336,18 @@ public class ObjectStreamClass implements Serializable {
                 // static field, pass null
                 _fields = (ObjectStreamField[]) f.get(null);
             } catch (IllegalAccessException ex) {
-                // WARNING - what should we do if we have no access ? This
-                // should not happen.
-                throw new RuntimeException(ex);
+                throw new AssertionError(ex);
             }
         } else {
             // Compute collection of dumpable fields based on reflect fields
-            List<ObjectStreamField> serializableFields = new ArrayList<ObjectStreamField>(
-                    declaredFields.length);
+            List<ObjectStreamField> serializableFields =
+                    new ArrayList<ObjectStreamField>(declaredFields.length);
             // Filter, we are only interested in fields that are serializable
-            for (int i = 0; i < declaredFields.length; i++) {
-                Field declaredField = declaredFields[i];
+            for (Field declaredField : declaredFields) {
                 int modifiers = declaredField.getModifiers();
-                boolean shouldBeSerialized = !(Modifier.isStatic(modifiers) || Modifier
-                        .isTransient(modifiers));
-                if (shouldBeSerialized) {
-                    ObjectStreamField field = new ObjectStreamField(
-                            declaredField.getName(), declaredField.getType());
+                if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    ObjectStreamField field = new ObjectStreamField(declaredField.getName(),
+                            declaredField.getType());
                     serializableFields.add(field);
                 }
             }
@@ -335,12 +356,10 @@ public class ObjectStreamClass implements Serializable {
                 _fields = NO_FIELDS; // If no serializable fields, share the
                 // special value so that users can test
             } else {
-                // Now convert from Vector to array
-                _fields = new ObjectStreamField[serializableFields.size()];
-                _fields = serializableFields.toArray(_fields);
+                _fields = serializableFields.toArray(new ObjectStreamField[serializableFields.size()]);
             }
         }
-        ObjectStreamField.sortFields(_fields);
+        Arrays.sort(_fields);
         // assign offsets
         int primOffset = 0, objectOffset = 0;
         for (int i = 0; i < _fields.length; i++) {
@@ -900,12 +919,7 @@ public class ObjectStreamClass implements Serializable {
      */
     public static ObjectStreamClass lookup(Class<?> cl) {
         ObjectStreamClass osc = lookupStreamClass(cl);
-
-        if (osc.isSerializable() || osc.isExternalizable()) {
-            return osc;
-        }
-
-        return null;
+        return (osc.isSerializable() || osc.isExternalizable()) ? osc : null;
     }
 
     /**
@@ -919,7 +933,7 @@ public class ObjectStreamClass implements Serializable {
      * @since 1.6
      */
     public static ObjectStreamClass lookupAny(Class<?> cl) {
-        return  lookupStreamClass(cl);
+        return lookupStreamClass(cl);
     }
 
     /**
@@ -933,8 +947,7 @@ public class ObjectStreamClass implements Serializable {
      * @return the corresponding descriptor
      */
     static ObjectStreamClass lookupStreamClass(Class<?> cl) {
-        WeakHashMap<Class<?>,ObjectStreamClass> tlc = getCache();
-
+        WeakHashMap<Class<?>, ObjectStreamClass> tlc = getCache();
         ObjectStreamClass cachedValue = tlc.get(cl);
         if (cachedValue == null) {
             cachedValue = createClassDesc(cl);
