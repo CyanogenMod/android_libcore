@@ -994,11 +994,9 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see #writeFields
      * @see #writeObject(Object)
      */
-    private void writeFieldValues(EmulatedFieldsForDumping emulatedFields)
-            throws IOException {
-        EmulatedFields accessibleSimulatedFields = emulatedFields
-                .emulatedFields(); // Access internal fields which we can
-        // set/get. Users can't do this.
+    private void writeFieldValues(EmulatedFieldsForDumping emulatedFields) throws IOException {
+        // Access internal fields which we can set/get. Users can't do this.
+        EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
         EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
         for (int i = 0; i < slots.length; i++) {
             EmulatedFields.ObjectSlot slot = slots[i];
@@ -1006,29 +1004,21 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             Class<?> type = slot.getField().getType();
             // WARNING - default values exist for each primitive type
             if (type == Integer.TYPE) {
-                output.writeInt(fieldValue != null ? ((Integer) fieldValue)
-                        .intValue() : 0);
+                output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
             } else if (type == Byte.TYPE) {
-                output.writeByte(fieldValue != null ? ((Byte) fieldValue)
-                        .byteValue() : (byte) 0);
+                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : (byte) 0);
             } else if (type == Character.TYPE) {
-                output.writeChar(fieldValue != null ? ((Character) fieldValue)
-                        .charValue() : (char) 0);
+                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : (char) 0);
             } else if (type == Short.TYPE) {
-                output.writeShort(fieldValue != null ? ((Short) fieldValue)
-                        .shortValue() : (short) 0);
+                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : (short) 0);
             } else if (type == Boolean.TYPE) {
-                output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue)
-                        .booleanValue() : false);
+                output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
             } else if (type == Long.TYPE) {
-                output.writeLong(fieldValue != null ? ((Long) fieldValue)
-                        .longValue() : (long) 0);
+                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : (long) 0);
             } else if (type == Float.TYPE) {
-                output.writeFloat(fieldValue != null ? ((Float) fieldValue)
-                        .floatValue() : (float) 0);
+                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : (float) 0);
             } else if (type == Double.TYPE) {
-                output.writeDouble(fieldValue != null ? ((Double) fieldValue)
-                        .doubleValue() : (double) 0);
+                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : (double) 0);
             } else {
                 // Either array or Object
                 writeObject(fieldValue);
@@ -1056,7 +1046,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      */
     private void writeFieldValues(Object obj, ObjectStreamClass classDesc) throws IOException {
         Class<?> declaringClass = classDesc.forClass();
-        for(ObjectStreamField fieldDesc : classDesc.fields()) {
+        for (ObjectStreamField fieldDesc : classDesc.fields()) {
             try {
                 Field field = classDesc.getReflectionField(fieldDesc);
                 if (field == null) {
