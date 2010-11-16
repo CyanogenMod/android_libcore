@@ -19,6 +19,7 @@ package libcore.java.security;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore.PasswordProtection;
@@ -30,6 +31,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Date;
@@ -481,17 +483,28 @@ public final class TestKeyStore extends Assert {
                     String key;
                     try {
                         key = ("Key retreived using password\n"
-                               + keyStore.getKey(alias, keyPassword).toString());
+                               + keyStore.getKey(alias, keyPassword));
                     } catch (UnrecoverableKeyException e1) {
                         try {
                             key = ("Key retreived without password\n"
-                                   + keyStore.getKey(alias, null).toString());
+                                   + keyStore.getKey(alias, null));
                         } catch (UnrecoverableKeyException e2) {
                             key = "Key could not be retreived";
                         }
                     }
                     out.println(key);
                     out.println("==========================================");
+                    Certificate[] chain = keyStore.getCertificateChain(alias);
+                    if (chain == null) {
+                        out.println("No certificate chain associated with key");
+                        out.println("==========================================");
+                    } else {
+                        for (int i = 0; i < chain.length; i++) {
+                            out.println("Certificate chain element #" + i);
+                            out.println(chain[i]);
+                            out.println("==========================================");
+                        }
+                    }
                     continue;
                 }
                 out.println("\tunknown entry type");
@@ -511,5 +524,4 @@ public final class TestKeyStore extends Assert {
          */
         assertEquals(3, chain.length);
     }
-
 }
