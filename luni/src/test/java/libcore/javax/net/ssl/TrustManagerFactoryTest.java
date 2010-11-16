@@ -138,7 +138,10 @@ public class TrustManagerFactoryTest extends TestCase {
             X509Certificate[] issuers = tm.getAcceptedIssuers();
             assertNotNull(issuers);
             assertTrue(issuers.length > 1);
-            boolean defaultTrustmanager = (issuers.length > KEY_TYPES.length);
+            assertNotSame(issuers, tm.getAcceptedIssuers());
+            boolean defaultTrustmanager
+                    // RI de-duplicates certs from TrustedCertificateEntry and PrivateKeyEntry
+                    = issuers.length > (StandardNames.IS_RI ? 1 : 2) * KEY_TYPES.length;
 
             PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey(keyType);
             X509Certificate[] chain = (X509Certificate[]) pke.getCertificateChain();
@@ -231,6 +234,20 @@ public class TrustManagerFactoryTest extends TestCase {
                 }
             }
         }
+    }
+
+    public void test_TrustManagerFactory_keyOnly() throws Exception {
+        // create a KeyStore containing only a private key with chain.
+        // unlike PKIXParameters(KeyStore), the cert chain of the key should be trusted.
+        KeyStore ks = TestKeyStore.createKeyStore();
+        KeyStore.PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey("RSA");
+        ks.setKeyEntry("key", pke.getPrivateKey(), "pw".toCharArray(), pke.getCertificateChain());
+
+        String algorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
+        tmf.init(ks);
+        X509TrustManager trustManager = (X509TrustManager) tmf.getTrustManagers()[0];
+        trustManager.checkServerTrusted((X509Certificate[]) pke.getCertificateChain(), "RSA");
     }
 
 }

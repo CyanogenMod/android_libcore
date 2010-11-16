@@ -113,14 +113,16 @@ public final class CloseGuard {
     private static final CloseGuard NOOP = new CloseGuard();
 
     /**
-     * Enabled by default so we can catch issues early in VM startup
+     * Enabled by default so we can catch issues early in VM startup.
+     * Note, however, that Android disables this early in its startup,
+     * but enables it with DropBoxing for system apps on debug builds.
      */
-    private static boolean ENABLED = true;
+    private static volatile boolean ENABLED = true;
 
     /**
      * Hook for customizing how CloseGuard issues are reported.
      */
-    private static Reporter REPORTER = new DefaultReporter();
+    private static volatile Reporter REPORTER = new DefaultReporter();
 
     /**
      * Returns a CloseGuard instance. If CloseGuard is enabled, {@code
