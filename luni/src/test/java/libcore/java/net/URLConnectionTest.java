@@ -18,6 +18,7 @@ package libcore.java.net;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,8 +30,11 @@ import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -515,6 +519,33 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertContent("abc", server.getUrl("/").openConnection());
     }
 
+    public void testConnectViaHttpProxyToHttpsUsingProxyArgWithNoProxy() throws Exception {
+        testConnectViaDirectProxyToHttps(ProxyConfig.NO_PROXY);
+    }
+
+    public void testConnectViaHttpProxyToHttpsUsingHttpProxySystemProperty() throws Exception {
+        // https should not use http proxy
+        testConnectViaDirectProxyToHttps(ProxyConfig.HTTP_PROXY_SYSTEM_PROPERTY);
+    }
+
+    private void testConnectViaDirectProxyToHttps(ProxyConfig proxyConfig) throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("this response comes via HTTPS"));
+        server.play();
+
+        URL url = server.getUrl("/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) proxyConfig.connect(server, url);
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+
+        assertContent("this response comes via HTTPS", connection);
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+    }
+
+
     public void testConnectViaHttpProxyToHttpsUsingProxyArg() throws Exception {
         testConnectViaHttpProxyToHttps(ProxyConfig.CREATE_ARG);
     }
@@ -525,10 +556,6 @@ public class URLConnectionTest extends junit.framework.TestCase {
      */
     public void testConnectViaHttpProxyToHttpsUsingProxySystemProperty() throws Exception {
         testConnectViaHttpProxyToHttps(ProxyConfig.PROXY_SYSTEM_PROPERTY);
-    }
-
-    public void testConnectViaHttpProxyToHttpsUsingHttpProxySystemProperty() throws Exception {
-        testConnectViaHttpProxyToHttps(ProxyConfig.HTTP_PROXY_SYSTEM_PROPERTY);
     }
 
     public void testConnectViaHttpProxyToHttpsUsingHttpsProxySystemProperty() throws Exception {
@@ -1366,13 +1393,27 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     public void testConnectTimeouts() throws IOException {
-        // 10.0.0.0 is non-routable and will time out on every network
-        URLConnection urlConnection = new URL("http://10.0.0.0/").openConnection();
+        // Set a backlog and use it up so that we can expect the
+        // URLConnection to properly timeout. According to Steven's
+        // 4.5 "listen function", linux adds 3 to the specified
+        // backlog, so we need to connect 4 times before it will hang.
+        ServerSocket serverSocket = new ServerSocket(0, 1);
+        int serverPort = serverSocket.getLocalPort();
+        Socket[] sockets = new Socket[4];
+        for (int i = 0; i < sockets.length; i++) {
+            sockets[i] = new Socket("localhost", serverPort);
+        }
+
+        URLConnection urlConnection = new URL("http://localhost:" + serverPort).openConnection();
         urlConnection.setConnectTimeout(1000);
         try {
             urlConnection.getInputStream();
             fail();
         } catch (SocketTimeoutException expected) {
+        }
+
+        for (Socket s : sockets) {
+            s.close();
         }
     }
 
@@ -1553,6 +1594,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
      */
     private void assertContent(String expected, URLConnection connection, int limit)
             throws IOException {
+        connection.connect();
         assertEquals(expected, readAscii(connection.getInputStream(), limit));
         ((HttpURLConnection) connection).disconnect();
     }
@@ -1611,6 +1653,13 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     enum ProxyConfig {
+        NO_PROXY() {
+            @Override public HttpURLConnection connect(MockWebServer server, URL url)
+                    throws IOException {
+                return (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+            }
+        },
+
         CREATE_ARG() {
             @Override public HttpURLConnection connect(MockWebServer server, URL url)
                     throws IOException {
