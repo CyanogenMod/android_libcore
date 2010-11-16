@@ -28,6 +28,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import tests.net.StuckServer;
 
 /**
  * Test that Socket.close called on another thread interrupts a thread that's blocked doing
@@ -47,24 +48,28 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
     }
 
     public void test_connect() throws Exception {
+        StuckServer ss = new StuckServer();
         Socket s = new Socket();
         new Killer(s).start();
         try {
             System.err.println("connect...");
-            s.connect(new InetSocketAddress("10.0.0.1", 7));
+            s.connect(ss.getLocalSocketAddress());
             fail("connect returned!");
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
+        } finally {
+            ss.close();
         }
     }
 
     public void test_connect_nonBlocking() throws Exception {
+        StuckServer ss = new StuckServer();
         SocketChannel s = SocketChannel.open();
         new Killer(s.socket()).start();
         try {
             System.err.println("connect (non-blocking)...");
             s.configureBlocking(false);
-            s.connect(new InetSocketAddress("10.0.0.2", 7));
+            s.connect(ss.getLocalSocketAddress());
             while (!s.finishConnect()) {
                 // Spin like a mad thing!
             }
@@ -76,6 +81,8 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         } catch (ClosedChannelException alsoOkay) {
             // For now, I'm assuming that we're happy as long as we get any reasonable exception.
             // It may be that we're supposed to guarantee only one or the other.
+        } finally {
+            ss.close();
         }
     }
 
