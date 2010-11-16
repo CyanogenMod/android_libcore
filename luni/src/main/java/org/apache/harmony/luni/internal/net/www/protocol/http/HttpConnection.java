@@ -149,29 +149,33 @@ public final class HttpConnection {
      * TLS extensions and SSL deflate compression. If false, use
      * an SSL3 only fallback mode without compression.
      */
-    public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory,
+    public SSLSocket setupSecureSocket(SSLSocketFactory sslSocketFactory,
             HostnameVerifier hostnameVerifier,
             boolean tlsTolerant) throws IOException {
-        if (sslSocket == null) {
-            // create the wrapper over connected socket
-            SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
-                    address.uriHost, address.uriPort, true /* autoClose */);
-            // tlsTolerant mimics Chrome's behavior
-            if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
-                OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
-                openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
-                openSslSocket.setUseSessionTickets(true);
-                openSslSocket.setHostname(address.socketHost);
-                // use SSLSocketFactory default enabled protocols
-            } else {
-                unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
-            }
-            if (!hostnameVerifier.verify(address.uriHost, unverifiedSocket.getSession())) {
-                throw new IOException("Hostname '" + address.uriHost + "' was not verified");
-            }
-            sslSocket = unverifiedSocket;
+        // create the wrapper over connected socket
+        SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
+                address.uriHost, address.uriPort, true /* autoClose */);
+        // tlsTolerant mimics Chrome's behavior
+        if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
+            OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
+            openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
+            openSslSocket.setUseSessionTickets(true);
+            openSslSocket.setHostname(address.socketHost);
+            // use SSLSocketFactory default enabled protocols
+        } else {
+            unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
         }
+        if (!hostnameVerifier.verify(address.uriHost, unverifiedSocket.getSession())) {
+            throw new IOException("Hostname '" + address.uriHost + "' was not verified");
+        }
+        sslSocket = unverifiedSocket;
+        return sslSocket;
+    }
 
+    /**
+     * Return an {@code SSLSocket} if already connected, otherwise null.
+     */
+    public SSLSocket getSecureSocketIfConnected() {
         return sslSocket;
     }
 
@@ -256,8 +260,8 @@ public final class HttpConnection {
 
             SocketAddress proxyAddress = proxy.address();
             if (!(proxyAddress instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException("Proxy.address() is not an InetSocketAddress: " +
-                        proxyAddress.getClass());
+                throw new IllegalArgumentException("Proxy.address() is not an InetSocketAddress: "
+                        + proxyAddress.getClass());
             }
             InetSocketAddress proxySocketAddress = (InetSocketAddress) proxyAddress;
             this.socketHost = proxySocketAddress.getHostName();
