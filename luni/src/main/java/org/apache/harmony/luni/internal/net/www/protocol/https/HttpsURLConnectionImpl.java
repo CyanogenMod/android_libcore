@@ -38,10 +38,19 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  */
 public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
-    // Https engine to be wrapped
+    /**
+     * HttpsEngine that allows reuse of HttpURLConnectionImpl
+     */
     private final HttpsEngine httpsEngine;
 
-    // SSLSocket to be used for connection
+    /**
+     * Local stash of HttpsEngine.connection.sslSocket for answering
+     * queries such as getCipherSuite even after
+     * httpsEngine.Connection has been recycled. It's presense is also
+     * used to tell if the HttpsURLConnection is considered connected,
+     * as opposed to the connected field of URLConnection or the a
+     * non-null connect in HttpURLConnectionImpl
+    */
     private SSLSocket sslSocket;
 
     protected HttpsURLConnectionImpl(URL url, int port) {
@@ -366,6 +375,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 makeSslConnection(true);
             } catch (IOException e) {
                 releaseSocket(false);
+                sslSocket = null;
                 makeSslConnection(false);
             }
         }
@@ -378,7 +388,23 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
          * an SSL3 only fallback mode without compression.
          */
         private void makeSslConnection(boolean tlsTolerant) throws IOException {
+
             super.makeConnection();
+
+            // if super.makeConnection returned a connection from the
+            // pool, sslSocket needs to be initialized here. If it is
+            // a new connection, it will be initialized by
+            // getSecureSocket below.
+            sslSocket = connection.getSecureSocketIfConnected();
+
+            // we already have an SSL connection,
+            if (sslSocket != null) {
+                // ensure requestOut etc are reinitialized. they will
+                // not have been set by super.makeSslConnection's call
+                // to setUpTransportIO because sslSocket was not yet set.
+                setUpTransportIO(connection);
+                return;
+            }
 
             // make SSL Tunnel
             if (requiresTunnel()) {
@@ -394,9 +420,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 }
             }
 
-            sslSocket = connection.getSecureSocket(getSSLSocketFactory(),
-                                                   getHostnameVerifier(),
-                                                   tlsTolerant);
+            sslSocket = connection.setupSecureSocket(getSSLSocketFactory(),
+                                                     getHostnameVerifier(),
+                                                     tlsTolerant);
             setUpTransportIO(connection);
         }
 
