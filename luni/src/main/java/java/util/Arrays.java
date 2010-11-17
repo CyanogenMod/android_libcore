@@ -1012,8 +1012,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Boolean}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Boolean} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1040,8 +1040,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Integer}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Integer} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1068,8 +1068,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Short}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Short} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1096,8 +1096,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Character}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Character} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1124,8 +1124,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Byte}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Byte} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1152,8 +1152,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Long}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Long} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1184,8 +1184,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Float}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Float} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1215,8 +1215,8 @@ public class Arrays {
      * that the return value of {@code Arrays.hashCode(a)} equals {@code Arrays.hashCode(b)}.
      * <p>
      * The value returned by this method is the same value as the
-     * {@link List#hashCode()}} method which is invoked on a {@link List}}
-     * containing a sequence of {@link Double}} instances representing the
+     * {@link List#hashCode()} method which is invoked on a {@link List}
+     * containing a sequence of {@link Double} instances representing the
      * elements of array in the same order. If the array is {@code null}, the return
      * value is 0.
      *
@@ -1292,8 +1292,8 @@ public class Arrays {
      * {@code Arrays.deepHashCode(b)}.
      * <p>
      * The computation of the value returned by this method is similar to that
-     * of the value returned by {@link List#hashCode()}} invoked on a
-     * {@link List}} containing a sequence of instances representing the
+     * of the value returned by {@link List#hashCode()} invoked on a
+     * {@link List} containing a sequence of instances representing the
      * elements of array in the same order. The difference is: If an element e
      * of array is itself an array, its hash code is computed by calling the
      * appropriate overloading of {@code Arrays.hashCode(e)} if e is an array of a
