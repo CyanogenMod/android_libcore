@@ -624,19 +624,19 @@ static jint NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, EVP_MD_CTX* ctx) {
 
     if (ctx == NULL) {
         jniThrowNullPointerException(env, NULL);
-        return NULL;
+        return 0;
     }
     EVP_MD_CTX* copy = EVP_MD_CTX_create();
     if (copy == NULL) {
         jniThrowOutOfMemoryError(env, "Unable to allocate copy of EVP_MD_CTX");
-        return NULL;
+        return 0;
     }
     EVP_MD_CTX_init(copy);
     int result = EVP_MD_CTX_copy_ex(copy, ctx);
     if (result == 0) {
         EVP_MD_CTX_destroy(copy);
         jniThrowRuntimeException(env, "Unable to copy EVP_MD_CTX");
-        return NULL;
+        return 0;
     }
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_copy(%p) => %p", ctx, copy);
     return (jint) copy;
@@ -1658,7 +1658,7 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     Unique_SSL_CTX sslCtx(SSL_CTX_new(SSLv23_method()));
     if (sslCtx.get() == NULL) {
         jniThrowRuntimeException(env, "SSL_CTX_new");
-        return NULL;
+        return 0;
     }
     SSL_CTX_set_options(sslCtx.get(),
                         SSL_OP_ALL
@@ -1724,14 +1724,14 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new", ssl_ctx);
     if (ssl_ctx == NULL) {
-        return NULL;
+        return 0;
     }
     Unique_SSL ssl(SSL_new(ssl_ctx));
     if (ssl.get() == NULL) {
         throwSSLExceptionWithSslErrors(env, NULL, SSL_ERROR_NONE,
                 "Unable to create SSL structure");
         JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => NULL", ssl_ctx);
-        return NULL;
+        return 0;
     }
 
     /* Java code in class OpenSSLSocketImpl does the verification. Meaning of

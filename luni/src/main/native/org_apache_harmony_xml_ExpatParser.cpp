@@ -1277,7 +1277,7 @@ static jint ExpatParser_cloneAttributes(JNIEnv* env, jobject, jint address, jint
     char* buffer = new char[totalSize];
     if (buffer == NULL) {
         throw_OutOfMemoryError(env);
-        return NULL;
+        return 0;
     }
 
     // Array is at the beginning of the buffer.
