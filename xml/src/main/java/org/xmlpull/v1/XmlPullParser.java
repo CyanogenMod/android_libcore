@@ -74,7 +74,7 @@ import java.io.Reader;
  * import java.io.StringReader;
  *
  * import org.xmlpull.v1.XmlPullParser;
- * import org.xmlpull.v1.<a href="XmlPullParserException.html">XmlPullParserException.html</a>;
+ * import org.xmlpull.v1.<a href="XmlPullParserException.html">XmlPullParserException</a>;
  * import org.xmlpull.v1.<a href="XmlPullParserFactory.html">XmlPullParserFactory</a>;
  *
  * public class SimpleXmlPullApp
