@@ -32,13 +32,6 @@ public class AllTests {
         suite.addTestSuite(MessageDigestTestSHA512.class);
 
         suite.addTestSuite(SignatureTestMD2withRSA.class);
-        suite.addTestSuite(SignatureTestMD5withRSA.class);
-        suite.addTestSuite(SignatureTestNONEwithDSA.class);
-        suite.addTestSuite(SignatureTestSHA1withDSA.class);
-        suite.addTestSuite(SignatureTestSHA1withRSA.class);
-        suite.addTestSuite(SignatureTestSHA256withRSA.class);
-        suite.addTestSuite(SignatureTestSHA384withRSA.class);
-        suite.addTestSuite(SignatureTestSHA512withRSA.class);
 
         suite.addTestSuite(KeyStoreTestPKCS12.class);
 

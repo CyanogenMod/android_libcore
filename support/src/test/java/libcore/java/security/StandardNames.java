@@ -16,6 +16,7 @@
 
 package libcore.java.security;
 
+import java.security.Security;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,11 @@ import junit.framework.Assert;
  * See also the
  * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/StandardNames.html">
  * Java &trade; Cryptography Architecture Standard Algorithm Name Documentation
+ * </a>.
+ *
+ * Further updates based on the
+ * <a href=http://java.sun.com/javase/6/docs/technotes/guides/security/p11guide.html">
+ * Java &trade; PKCS#11 Reference Guide
  * </a>.
  */
 public final class StandardNames extends Assert {
@@ -219,6 +225,34 @@ public final class StandardNames extends Assert {
             provide("TrustManagerFactory", "SunX509");
         }
 
+        // Only available with the SunPKCS11-NSS provider,
+        // which seems to be enabled in OpenJDK 6 but not Oracle Java 6
+        if (Security.getProvider("SunPKCS11-NSS") != null) {
+            provide("AlgorithmParameters", "EC");
+            provide("Cipher", "AES/CBC/NOPADDING");
+            provide("Cipher", "DES/CBC/NOPADDING");
+            provide("Cipher", "DESEDE/CBC/NOPADDING");
+            provide("Cipher", "RSA/ECB/PKCS1PADDING");
+            provide("KeyAgreement", "DH");
+            provide("KeyAgreement", "ECDH");
+            provide("KeyFactory", "DH");
+            provide("KeyFactory", "EC");
+            provide("KeyPairGenerator", "DH");
+            provide("KeyPairGenerator", "EC");
+            provide("KeyStore", "PKCS11");
+            provide("MessageDigest", "SHA1");
+            provide("SecretKeyFactory", "AES");
+            provide("SecretKeyFactory", "ARCFOUR");
+            provide("SecureRandom", "PKCS11");
+            provide("Signature", "DSA");
+            provide("Signature", "NONEWITHECDSA");
+            provide("Signature", "RAWDSA");
+            provide("Signature", "SHA1WITHECDSA");
+            provide("Signature", "SHA256WITHECDSA");
+            provide("Signature", "SHA384WITHECDSA");
+            provide("Signature", "SHA512WITHECDSA");
+        }
+
         // Fixups for dalvik
         if (!IS_RI) {
 
@@ -371,6 +405,17 @@ public final class StandardNames extends Assert {
             // TODO add to JDKAlgorithmParameters perhaps as wrapper on PBES2Parameters
             // For now, can use AlgorithmParametersSpec javax.crypto.spec.PBEParameterSpec instead
             unprovide("AlgorithmParameters", "PBEWithMD5AndDES"); // 1.2.840.113549.1.5.3
+
+            // EC support
+            // provide("AlgorithmParameters", "EC");
+            provide("KeyAgreement", "ECDH");
+            provide("KeyFactory", "EC");
+            provide("KeyPairGenerator", "EC");
+            provide("Signature", "NONEWITHECDSA");
+            provide("Signature", "ECDSA"); // as opposed to SHA1WITHECDSA
+            provide("Signature", "SHA256WITHECDSA");
+            provide("Signature", "SHA384WITHECDSA");
+            provide("Signature", "SHA512WITHECDSA");
         }
     }
 
