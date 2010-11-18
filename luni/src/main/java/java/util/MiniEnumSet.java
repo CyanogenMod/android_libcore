@@ -108,10 +108,7 @@ final class MiniEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
     @Override
     public boolean add(E element) {
-        if (!isValidType(element.getDeclaringClass())) {
-            throw new ClassCastException();
-        }
-
+        elementClass.cast(element); // Called to throw ClassCastException.
         long oldBits = bits;
         long newBits = oldBits | (1L << element.ordinal());
         if (oldBits != newBits) {
@@ -129,9 +126,7 @@ final class MiniEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         if (collection instanceof EnumSet) {
             EnumSet<?> set = (EnumSet) collection; // raw type due to javac bug 6548436
-            if (!isValidType(set.elementClass)) {
-                throw new ClassCastException();
-            }
+            set.elementClass.asSubclass(elementClass); // Called to throw ClassCastException.
 
             MiniEnumSet<?> miniSet = (MiniEnumSet<?>) set;
             long oldBits = bits;

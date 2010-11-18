@@ -55,7 +55,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      */
     public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
         if (!elementType.isEnum()) {
-            throw new ClassCastException();
+            throw new ClassCastException(elementType.getClass().getName() + " is not an Enum");
         }
         // BEGIN android-changed
         E[] enums = SpecialAccess.LANG.getEnumValuesInOrder(elementType);

@@ -387,7 +387,7 @@ public class Attributes implements Cloneable, Map<Object, Object> {
      */
     public void putAll(Map<?, ?> attrib) {
         if (attrib == null || !(attrib instanceof Attributes)) {
-            throw new ClassCastException();
+            throw new ClassCastException(attrib.getClass().getName() + " not an Attributes");
         }
         this.map.putAll(attrib);
     }
