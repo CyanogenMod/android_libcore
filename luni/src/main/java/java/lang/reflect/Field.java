@@ -209,23 +209,22 @@ public final class Field extends AccessibleObject implements Member {
     /**
      * Returns the value of the field in the specified object. This reproduces
      * the effect of {@code object.fieldName}
-     * <p>
-     * If the type of this field is a primitive type, the field value is
-     * automatically wrapped.
-     * <p>
-     * If this field is static, the object argument is ignored.
+     *
+     * <p>If the type of this field is a primitive type, the field value is
+     * automatically boxed.
+     *
+     * <p>If this field is static, the object argument is ignored.
      * Otherwise, if the object is null, a NullPointerException is thrown. If
      * the object is not an instance of the declaring class of the method, an
      * IllegalArgumentException is thrown.
-     * <p>
-     * If this Field object is enforcing access control (see AccessibleObject)
+     *
+     * <p>If this Field object is enforcing access control (see AccessibleObject)
      * and this field is not accessible from the current context, an
      * IllegalAccessException is thrown.
-     * <p>
      *
      * @param object
      *            the object to access
-     * @return the field value, possibly wrapped
+     * @return the field value, possibly boxed
      * @throws NullPointerException
      *             if the object is {@code null} and the field is non-static
      * @throws IllegalArgumentException
@@ -527,18 +526,18 @@ public final class Field extends AccessibleObject implements Member {
     /**
      * Sets the value of the field in the specified object to the value. This
      * reproduces the effect of {@code object.fieldName = value}
-     * <p>
-     * If this field is static, the object argument is ignored.
+     *
+     * <p>If this field is static, the object argument is ignored.
      * Otherwise, if the object is {@code null}, a NullPointerException is
      * thrown. If the object is not an instance of the declaring class of the
      * method, an IllegalArgumentException is thrown.
-     * <p>
-     * If this Field object is enforcing access control (see AccessibleObject)
+     *
+     * <p>If this Field object is enforcing access control (see AccessibleObject)
      * and this field is not accessible from the current context, an
      * IllegalAccessException is thrown.
-     * <p>
-     * If the field type is a primitive type, the value is automatically
-     * unwrapped. If the unwrap fails, an IllegalArgumentException is thrown. If
+     *
+     * <p>If the field type is a primitive type, the value is automatically
+     * unboxed. If the unboxing fails, an IllegalArgumentException is thrown. If
      * the value cannot be converted to the field type via a widening
      * conversion, an IllegalArgumentException is thrown.
      *

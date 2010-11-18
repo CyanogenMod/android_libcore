@@ -383,7 +383,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * <li>For each argument passed:
      * <ul>
      * <li>If the corresponding parameter type is a primitive type, the argument
-     * is unwrapped. If the unwrapping fails, an IllegalArgumentException is
+     * is unboxed. If the unboxing fails, an IllegalArgumentException is
      * thrown.</li>
      * <li>If the resulting argument cannot be converted to the parameter type
      * via a widening conversion, an IllegalArgumentException is thrown.</li>
