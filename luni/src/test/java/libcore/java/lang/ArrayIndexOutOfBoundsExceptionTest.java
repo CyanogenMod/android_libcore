@@ -24,7 +24,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             bs[2] = 0;
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
@@ -34,7 +34,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             byte b = bs[2];
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
@@ -44,7 +44,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             ds[2] = 0.0;
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
@@ -54,7 +54,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             double d = ds[2];
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
@@ -64,7 +64,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             os[2] = null;
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
@@ -74,7 +74,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
         try {
             Object o = os[2];
             fail();
-        } catch (Exception ex) {
+        } catch (ArrayIndexOutOfBoundsException ex) {
             assertEquals("index=2 length=1", ex.getMessage());
         }
     }
