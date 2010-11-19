@@ -16,16 +16,108 @@
 
 package libcore.java.lang;
 
+import java.util.EnumMap;
+import java.util.EnumSet;
 import junit.framework.TestCase;
 
 public final class ClassCastExceptionTest extends TestCase {
-    public void testClassCastException() throws Exception {
+    public void testCast() throws Exception {
         Object o = new Exception();
         try {
             String s = (String) o;
             fail();
         } catch (ClassCastException ex) {
             assertEquals("java.lang.Exception cannot be cast to java.lang.String", ex.getMessage());
+        }
+    }
+
+    public void testClassCast() throws Exception {
+        Object o = new Exception();
+        try {
+            String.class.cast(o);
+            fail();
+        } catch (ClassCastException ex) {
+            assertEquals("java.lang.Exception cannot be cast to java.lang.String", ex.getMessage());
+        }
+    }
+
+    public void testClassAsSubclass() throws Exception {
+        try {
+            Exception.class.asSubclass(String.class);
+            fail();
+        } catch (ClassCastException ex) {
+            assertEquals("java.lang.Exception cannot be cast to java.lang.String", ex.getMessage());
+        }
+    }
+
+    enum E { A, B, C };
+    enum F { A, B, C };
+
+    public void testEnumMapPut() throws Exception {
+        EnumMap m = new EnumMap(E.class);
+        try {
+            m.put(F.A, "world");
+            fail();
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            assertNotNull(ex.getMessage());
+        }
+    }
+
+    public void testMiniEnumSetAdd() throws Exception {
+        EnumSet m = EnumSet.noneOf(E.class);
+        try {
+            m.add(F.A);
+            fail();
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            assertNotNull(ex.getMessage());
+        }
+    }
+
+    public void testMiniEnumSetAddAll() throws Exception {
+        EnumSet m = EnumSet.noneOf(E.class);
+        EnumSet n = EnumSet.allOf(F.class);
+        try {
+            m.addAll(n);
+            fail();
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            assertNotNull(ex.getMessage());
+        }
+    }
+
+    enum HugeE {
+        A0, B0, C0, D0, E0, F0, G0, H0, I0, J0, K0, L0, M0, N0, O0, P0, Q0, R0, S0, T0, U0, V0, W0, X0, Y0, Z0,
+        A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1, X1, Y1, Z1,
+        A2, B2, C2, D2, E2, F2, G2, H2, I2, J2, K2, L2, M2, N2, O2, P2, Q2, R2, S2, T2, U2, V2, W2, X2, Y2, Z2,
+    };
+    enum HugeF {
+        A0, B0, C0, D0, E0, F0, G0, H0, I0, J0, K0, L0, M0, N0, O0, P0, Q0, R0, S0, T0, U0, V0, W0, X0, Y0, Z0,
+        A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1, X1, Y1, Z1,
+        A2, B2, C2, D2, E2, F2, G2, H2, I2, J2, K2, L2, M2, N2, O2, P2, Q2, R2, S2, T2, U2, V2, W2, X2, Y2, Z2,
+    };
+
+    public void testHugeEnumSetAdd() throws Exception {
+        EnumSet m = EnumSet.noneOf(HugeE.class);
+        try {
+            m.add(HugeF.A0);
+            fail();
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            assertNotNull(ex.getMessage());
+        }
+    }
+
+    public void testHugeEnumSetAddAll() throws Exception {
+        EnumSet m = EnumSet.noneOf(HugeE.class);
+        EnumSet n = EnumSet.allOf(HugeF.class);
+        try {
+            m.addAll(n);
+            fail();
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            assertNotNull(ex.getMessage());
         }
     }
 }

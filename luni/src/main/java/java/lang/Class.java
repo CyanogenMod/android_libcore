@@ -1486,7 +1486,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (clazz.isAssignableFrom(this)) {
             return (Class<? extends U>)this;
         }
-        throw new ClassCastException();
+        String actualClassName = this.getName();
+        String desiredClassName = clazz.getName();
+        throw new ClassCastException(actualClassName + " cannot be cast to " + desiredClassName);
     }
 
     /**
@@ -1506,7 +1508,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         } else if (this.isInstance(obj)) {
             return (T)obj;
         }
-        throw new ClassCastException();
+        String actualClassName = obj.getClass().getName();
+        String desiredClassName = this.getName();
+        throw new ClassCastException(actualClassName + " cannot be cast to " + desiredClassName);
     }
 
     /**
