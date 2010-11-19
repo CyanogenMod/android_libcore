@@ -25,6 +25,8 @@ import java.net.SocketTimeoutException;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLContext;
@@ -102,7 +104,19 @@ public class SSLSocketTest extends TestCase {
 
         TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore,
                                                  clientProvider, serverProvider);
-        String[] cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
+        String[] cipherSuites;
+        if (clientProvider.equals(serverProvider)) {
+            cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
+        } else {
+            String[] clientCipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
+            String[] serverCipherSuites = c.serverContext.getSocketFactory().getSupportedCipherSuites();
+            Set<String> ccs = new HashSet<String>(Arrays.asList(clientCipherSuites));
+            Set<String> scs = new HashSet<String>(Arrays.asList(serverCipherSuites));
+            Set<String> cs = new HashSet<String>(ccs);
+            cs.retainAll(scs);
+            cipherSuites = cs.toArray(new String[cs.size()]);
+        }
+
         for (String cipherSuite : cipherSuites) {
             try {
                 /*
@@ -119,12 +133,6 @@ public class SSLSocketTest extends TestCase {
                  * #KRBRequire
                  */
                 if (cipherSuite.startsWith("TLS_KRB5_")) {
-                    continue;
-                }
-                /*
-                 * Elliptic Curve cipher suites are not supported on Android
-                 */
-                if (!StandardNames.IS_RI && cipherSuite.startsWith("TLS_EC")) {
                     continue;
                 }
 

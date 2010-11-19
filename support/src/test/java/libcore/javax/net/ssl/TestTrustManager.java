@@ -22,6 +22,7 @@ import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import libcore.java.io.NullPrintStream;
+import libcore.java.security.StandardNames;
 
 /**
  * TestTrustManager is a simple proxy class that wraps an existing
@@ -61,11 +62,18 @@ public final class TestTrustManager implements X509TrustManager {
                   + "chain=" + chain.length + " "
                   + "authType=" + authType + " ");
         try {
+            assertClientAuthType(authType);
             trustManager.checkClientTrusted(chain, authType);
             out.println("OK");
         } catch (CertificateException e) {
             e.printStackTrace(out);
             throw e;
+        }
+    }
+
+    private void assertClientAuthType(String authType) {
+        if (!StandardNames.CLIENT_AUTH_TYPES.contains(authType)) {
+            throw new AssertionError("Unexpected client auth type " + authType);
         }
     }
 
@@ -75,11 +83,18 @@ public final class TestTrustManager implements X509TrustManager {
                   + "chain=" + chain.length + " "
                   + "authType=" + authType + " ");
         try {
+            assertServerAuthType(authType);
             trustManager.checkServerTrusted(chain, authType);
             out.println("OK");
         } catch (CertificateException e) {
             e.printStackTrace(out);
             throw e;
+        }
+    }
+
+    private void assertServerAuthType(String authType) {
+        if (!StandardNames.SERVER_AUTH_TYPES.contains(authType)) {
+            throw new AssertionError("Unexpected server auth type " + authType);
         }
     }
 

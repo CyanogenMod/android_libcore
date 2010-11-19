@@ -61,7 +61,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE, cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
         c.close();
     }
@@ -103,12 +103,6 @@ public class SSLEngineTest extends TestCase {
                  * #KRBRequire
                  */
                 if (cipherSuite.startsWith("TLS_KRB5_")) {
-                    continue;
-                }
-                /*
-                 * Elliptic Curve cipher suites are not supported on Android
-                 */
-                if (!StandardNames.IS_RI && cipherSuite.startsWith("TLS_EC")) {
                     continue;
                 }
 
