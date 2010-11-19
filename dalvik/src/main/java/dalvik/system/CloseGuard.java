@@ -55,11 +55,11 @@ import java.util.logging.Logger;
  * }</pre>
  *
  * In usage where the resource to be explicitly cleaned up are
- * allocated after object construction, CloseGuard can protection can
+ * allocated after object construction, CloseGuard protection can
  * be deferred. For example: <pre>   {@code
  *   class Bar {
  *
- *       private final CloseGuard guard = CloseGuard.getUnopened();
+ *       private final CloseGuard guard = CloseGuard.get();
  *
  *       ...
  *
