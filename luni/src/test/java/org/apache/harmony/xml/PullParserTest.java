@@ -89,31 +89,53 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("a", parser.getName());
     }
 
-    public void testLargeNumericEntities() throws Exception {
+    public void testNumericEntitiesLargerThanChar() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader(
                 "<foo>&#2147483647; &#-2147483648;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        assertEquals(XmlPullParser.TEXT, parser.next());
-        // TODO: this can't possibly be what the spec wants; it should refuse too-large characters
-        assertEquals(new String(new char[] { (char) 2147483647, ' ', (char) -2147483648}),
-                parser.getText());
+        assertNextFails(parser);
     }
 
-    public void testVeryLargeNumericEntities() throws Exception {
+    public void testNumericEntitiesLargerThanInt() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader(
                 "<foo>&#2147483648;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        // TODO: this can't possibly be what the spec wants; it should throw another type
         assertNextFails(parser);
     }
 
-    public void testOmittedNumericEntities() throws Exception {
+    public void testCharacterReferenceOfHexUtf16Surrogates() throws Exception {
+        testCharacterReferenceOfUtf16Surrogates("<foo>&#x10000; &#x10381; &#x10FFF0;</foo>");
+    }
+
+    public void testCharacterReferenceOfDecimalUtf16Surrogates() throws Exception {
+        testCharacterReferenceOfUtf16Surrogates("<foo>&#65536; &#66433; &#1114096;</foo>");
+    }
+
+    private void testCharacterReferenceOfUtf16Surrogates(String xml) throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(xml));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals(new String(new int[] { 65536, ' ', 66433, ' ', 1114096 }, 0, 5),
+                parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testCharacterReferenceOfLastUtf16Surrogate() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&#x10FFFF;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals(new String(new int[] { 0x10FFFF }, 0, 1), parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+        public void testOmittedNumericEntities() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&#;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        // TODO: this can't possibly be what the spec wants; it should throw another type
         assertNextFails(parser);
     }
 
@@ -203,14 +225,14 @@ public abstract class PullParserTest extends TestCase {
         parser.setInput(new StringReader("<foo>></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals(XmlPullParser.TEXT, parser.next());
-        assertEquals(">", parser.getText()); // TODO: this should probably fail?
+        assertEquals(">", parser.getText());
     }
 
     public void testGreaterThanInAttribute() throws Exception{
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo a='>'></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        assertEquals(">", parser.getAttributeValue(0)); // TODO: this should probably fail?
+        assertEquals(">", parser.getAttributeValue(0));
     }
 
     public void testLessThanInText() throws Exception{
@@ -281,7 +303,6 @@ public abstract class PullParserTest extends TestCase {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo><!-- -- --></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        // TODO: confirm with the spec that this should fail
         assertNextFails(parser);
     }
 
@@ -330,7 +351,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals(XmlPullParser.TEXT, parser.next());
         assertEquals("abcdef]]gh&amp;ijk", parser.getText());
-        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
     public void testCdataWithNextToken() throws Exception {
@@ -441,11 +462,18 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
     }
 
-    public void testEmptyCdata() throws Exception {
+    public void testEmptyCdataWithNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo><![CDATA[]]></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
-        assertEquals(XmlPullParser.TEXT, parser.next()); // TODO: This should probably fail!
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testEmptyCdataWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo><![CDATA[]]></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.CDSECT, parser.nextToken());
         assertEquals("", parser.getText());
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
