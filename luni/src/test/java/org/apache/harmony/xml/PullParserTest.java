@@ -89,6 +89,15 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("a", parser.getName());
     }
 
+    public void testRegularNumericEntities() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&#65;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("#65", parser.getName());
+        assertEquals("A", parser.getText());
+    }
+
     public void testNumericEntitiesLargerThanChar() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader(
@@ -132,7 +141,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-        public void testOmittedNumericEntities() throws Exception {
+    public void testOmittedNumericEntities() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&#;</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -218,6 +227,45 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("b", parser.getText());
         assertEquals(XmlPullParser.TEXT, parser.nextToken());
         assertEquals("yz", parser.getText());
+    }
+
+    public void testMissingEntities() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&aaa;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertNextFails(parser);
+    }
+
+    public void testMissingEntitiesWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        parser.setInput(new StringReader("<foo>&aaa;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals(null, parser.getName());
+        assertEquals("&aaa;", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testMissingEntitiesUsingNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        testMissingEntitiesUsingNextToken(parser);
+    }
+
+    public void testMissingEntitiesUsingNextTokenWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        testMissingEntitiesUsingNextToken(parser);
+    }
+
+    private void testMissingEntitiesUsingNextToken(XmlPullParser parser)
+            throws XmlPullParserException, IOException {
+        parser.setInput(new StringReader("<foo>&aaa;</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("aaa", parser.getName());
+        assertEquals(null, parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
     public void testGreaterThanInText() throws Exception {

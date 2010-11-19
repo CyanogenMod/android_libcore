@@ -521,15 +521,13 @@ public class KXmlParser implements XmlPullParser {
             return;
         }
 
-        if (!relaxed) {
-            if (!name.equals(elementStack[sp + 3])) {
-                throw new XmlPullParserException(
-                        "expected: /" + elementStack[sp + 3] + " read: " + name, this, null);
-            }
-
+        if (name.equals(elementStack[sp + 3])) {
             namespace = elementStack[sp];
             prefix = elementStack[sp + 1];
             name = elementStack[sp + 2];
+        } else if (!relaxed) {
+            throw new XmlPullParserException(
+                    "expected: /" + elementStack[sp + 3] + " read: " + name, this, null);
         }
     }
 
@@ -705,6 +703,7 @@ public class KXmlParser implements XmlPullParser {
             int c = peekCharacter();
 
             if (c == ';') {
+                out.append(';');
                 position++;
                 break;
 
@@ -727,35 +726,36 @@ public class KXmlParser implements XmlPullParser {
             }
         }
 
-        String code = out.substring(start + 1);
-        out.delete(start, out.length());
+        String code = out.substring(start + 1, out.length() - 1);
 
         if (token && type == ENTITY_REF) {
             name = code;
         }
 
-        if (code.charAt(0) == '#') {
-            // TODO: check IndexOutOfBoundsException?
-            // TODO: save an intermediate string for 'code' if unneeded?
-            int c = code.charAt(1) == 'x'
-                    ? Integer.parseInt(code.substring(2), 16)
-                    : Integer.parseInt(code.substring(1));
-            // TODO: set unresolved to false?
-            out.append((char) c);
-            return;
-        }
-
-        String resolved = entityMap.get(code);
-        if (resolved != null) {
-            unresolved = false;
+        String resolved;
+        if (code.startsWith("#")) {
+            try {
+                int c = code.startsWith("#x")
+                        ? Integer.parseInt(code.substring(2), 16)
+                        : Integer.parseInt(code.substring(1));
+                out.delete(start, out.length());
+                out.appendCodePoint(c);
+                unresolved = false;
+            } catch (NumberFormatException notANumber) {
+                throw new XmlPullParserException("Invalid character reference: &" + code);
+            } catch (IllegalArgumentException invalidCodePoint) {
+                throw new XmlPullParserException("Invalid character reference: &" + code);
+            }
+        } else if ((resolved = entityMap.get(code)) != null) {
+            out.delete(start, out.length());
             out.append(resolved);
-            return;
-        }
-
-        unresolved = true;
-        if (!token) {
-            checkRelaxed("unresolved: &" + code + ";");
-            // TODO: should the &code; show up in the text in relaxed mode?
+            unresolved = false;
+        } else {
+            // keep the unresolved entity "&code;" in the text for relaxed clients
+            unresolved = true;
+            if (!token) {
+                checkRelaxed("unresolved: &" + code + ";");
+            }
         }
     }
 
