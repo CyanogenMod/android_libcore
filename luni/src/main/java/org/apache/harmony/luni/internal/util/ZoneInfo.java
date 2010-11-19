@@ -17,8 +17,10 @@
 package org.apache.harmony.luni.internal.util;
 
 import java.nio.charset.Charsets;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.TimeZone;
 import libcore.base.Objects;
 
@@ -41,38 +43,38 @@ final class ZoneInfo extends TimeZone {
     private int mRawOffset;
 
     private final int[] mTransitions;
-    private final int[] mGmtOffs;
+    private final int[] mOffsets;
     private final byte[] mTypes;
     private final byte[] mIsDsts;
     private final boolean mUseDst;
 
-    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtoff, byte[] isdst) {
+    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtOffsets, byte[] isDsts) {
         mTransitions = transitions;
         mTypes = type;
-        mGmtOffs = gmtoff;
-        mIsDsts = isdst;
+        mIsDsts = isDsts;
         setID(name);
 
         // Use the latest non-daylight offset (if any) as the raw offset.
-        int laststd;
-        for (laststd = mTransitions.length - 1; laststd >= 0; laststd--) {
-            if (mIsDsts[mTypes[laststd] & 0xFF] == 0) {
+        int lastStd;
+        for (lastStd = mTransitions.length - 1; lastStd >= 0; lastStd--) {
+            if (mIsDsts[mTypes[lastStd] & 0xFF] == 0) {
                 break;
             }
         }
-        if (laststd < 0) {
-            laststd = 0;
+        if (lastStd < 0) {
+            lastStd = 0;
         }
-        if (laststd >= mTypes.length) {
-            mRawOffset = mGmtOffs[0];
+        if (lastStd >= mTypes.length) {
+            mRawOffset = gmtOffsets[0];
         } else {
-            mRawOffset = mGmtOffs[mTypes[laststd] & 0xFF];
+            mRawOffset = gmtOffsets[mTypes[lastStd] & 0xFF];
         }
 
-        // Subtract the raw offset from all offsets so it can be changed
-        // and affect them too.
-        for (int i = 0; i < mGmtOffs.length; i++) {
-            mGmtOffs[i] -= mRawOffset;
+        // Rather than keep offsets from UTC, we use offsets from local time, so the raw offset
+        // can be changed and automatically affect all the offsets.
+        mOffsets = gmtOffsets;
+        for (int i = 0; i < mOffsets.length; i++) {
+            mOffsets[i] -= mRawOffset;
         }
 
         // Is this zone still observing DST?
@@ -109,8 +111,9 @@ final class ZoneInfo extends TimeZone {
         calc += year * (365 * MILLISECONDS_PER_DAY);
         calc += ((year + 3) / 4) * MILLISECONDS_PER_DAY;
 
-        if (year > 0)
+        if (year > 0) {
             calc -= ((year - 1) / 100) * MILLISECONDS_PER_DAY;
+        }
 
         boolean isLeap = (year == 0 || (year % 4 == 0 && year % 100 != 0));
         int[] mlen = isLeap ? LEAP : NORMAL;
@@ -131,13 +134,13 @@ final class ZoneInfo extends TimeZone {
         int trans = Arrays.binarySearch(mTransitions, unix);
 
         if (trans == ~0) {
-            return mGmtOffs[0] * 1000 + mRawOffset;
+            return mRawOffset + mOffsets[0] * 1000;
         }
         if (trans < 0) {
             trans = ~trans - 1;
         }
 
-        return mGmtOffs[mTypes[trans] & 0xFF] * 1000 + mRawOffset;
+        return mRawOffset + mOffsets[mTypes[trans] & 0xFF] * 1000;
     }
 
     @Override
@@ -183,7 +186,7 @@ final class ZoneInfo extends TimeZone {
         }
         return mRawOffset == other.mRawOffset
                 // Arrays.equals returns true if both arrays are null
-                && Arrays.equals(mGmtOffs, other.mGmtOffs)
+                && Arrays.equals(mOffsets, other.mOffsets)
                 && Arrays.equals(mIsDsts, other.mIsDsts)
                 && Arrays.equals(mTypes, other.mTypes)
                 && Arrays.equals(mTransitions, other.mTransitions);
@@ -202,7 +205,7 @@ final class ZoneInfo extends TimeZone {
         final int prime = 31;
         int result = 1;
         result = prime * result + getID().hashCode();
-        result = prime * result + Arrays.hashCode(mGmtOffs);
+        result = prime * result + Arrays.hashCode(mOffsets);
         result = prime * result + Arrays.hashCode(mIsDsts);
         result = prime * result + mRawOffset;
         result = prime * result + Arrays.hashCode(mTransitions);
@@ -213,7 +216,29 @@ final class ZoneInfo extends TimeZone {
 
     @Override
     public String toString() {
-        return getClass().getName() + "[" + getID() + ",mRawOffset=" + mRawOffset +
-                ",mUseDst=" + mUseDst + "]";
+        StringBuilder sb = new StringBuilder();
+        // First the basics...
+        sb.append(getClass().getName() + "[" + getID() + ",mRawOffset=" + mRawOffset +
+                ",mUseDst=" + mUseDst + "]");
+        // ...followed by a zdump(1)-like description of all our transition data.
+        sb.append("\n");
+        Formatter f = new Formatter(sb);
+        for (int i = 0; i < mTransitions.length; ++i) {
+            int type = mTypes[i] & 0xff;
+            String utcTime = formatTime(mTransitions[i], TimeZone.getTimeZone("UTC"));
+            String localTime = formatTime(mTransitions[i], this);
+            int offset = mOffsets[type];
+            int gmtOffset = mRawOffset/1000 + offset;
+            f.format("%4d : time=%10d %s = %s isDst=%d offset=%5d gmtOffset=%d\n",
+                    i, mTransitions[i], utcTime, localTime, mIsDsts[type], offset, gmtOffset);
+        }
+        return sb.toString();
+    }
+
+    private static String formatTime(int s, TimeZone tz) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
+        sdf.setTimeZone(tz);
+        long ms = ((long) s) * 1000L;
+        return sdf.format(new Date(ms));
     }
 }
