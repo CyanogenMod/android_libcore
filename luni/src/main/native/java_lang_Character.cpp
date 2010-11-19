@@ -68,7 +68,7 @@ static jint Character_getNumericValueImpl(JNIEnv*, jclass, jint codePoint){
         return -2;
     }
 
-    return result;
+    return static_cast<jint>(result);
 }
 
 static jboolean Character_isDefinedImpl(JNIEnv*, jclass, jint codePoint) {
