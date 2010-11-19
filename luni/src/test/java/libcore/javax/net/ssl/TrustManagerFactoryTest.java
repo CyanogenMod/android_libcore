@@ -39,15 +39,16 @@ import libcore.java.security.TestKeyStore;
 
 public class TrustManagerFactoryTest extends TestCase {
 
-    private static final String [] KEY_TYPES = new String[] { "RSA", "DSA" };
+    private static final String [] KEY_TYPES = new String[] { "RSA", "DSA", "EC", "EC_RSA" };
     // note the rare usage of DSA keys here in addition to RSA
     private static final TestKeyStore TEST_KEY_STORE
             = TestKeyStore.create(KEY_TYPES,
                                   null,
                                   null,
-                                  "rsa-dsa",
+                                  "rsa-dsa-ec",
                                   TestKeyStore.localhost(),
                                   true,
+                                  null,
                                   null);
 
     public void test_TrustManagerFactory_getDefaultAlgorithm() throws Exception {
@@ -143,7 +144,9 @@ public class TrustManagerFactoryTest extends TestCase {
                     // RI de-duplicates certs from TrustedCertificateEntry and PrivateKeyEntry
                     = issuers.length > (StandardNames.IS_RI ? 1 : 2) * KEY_TYPES.length;
 
-            PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey(keyType);
+            String keyAlgName = TestKeyStore.keyAlgorithm(keyType);
+            String sigAlgName = TestKeyStore.signatureAlgorithm(keyType);
+            PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
             X509Certificate[] chain = (X509Certificate[]) pke.getCertificateChain();
             if (defaultTrustmanager) {
                 try {
@@ -202,7 +205,7 @@ public class TrustManagerFactoryTest extends TestCase {
 
     public void test_TrustManagerFactory_intermediate() throws Exception {
         // chain should be server/intermediate/root
-        PrivateKeyEntry pke = TestKeyStore.getServer().getPrivateKey("RSA");
+        PrivateKeyEntry pke = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
         X509Certificate[] chain = (X509Certificate[])pke.getCertificateChain();
         assertEquals(3, chain.length);
 
@@ -240,7 +243,7 @@ public class TrustManagerFactoryTest extends TestCase {
         // create a KeyStore containing only a private key with chain.
         // unlike PKIXParameters(KeyStore), the cert chain of the key should be trusted.
         KeyStore ks = TestKeyStore.createKeyStore();
-        KeyStore.PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey("RSA");
+        KeyStore.PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey("RSA", "RSA");
         ks.setKeyEntry("key", pke.getPrivateKey(), "pw".toCharArray(), pke.getCertificateChain());
 
         String algorithm = TrustManagerFactory.getDefaultAlgorithm();

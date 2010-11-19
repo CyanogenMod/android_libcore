@@ -61,6 +61,14 @@ public final class StandardNames extends Assert {
     public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "X509";
     public static final String TRUST_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "PKIX" : "X509";
 
+    public static final String KEY_STORE_ALGORITHM = (IS_RI) ? "JKS" : "BKS";
+
+    /**
+     * RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
+     */
+    public static final String CIPHER_SUITE_SECURE_RENEGOTIATION
+            = "TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
+
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
      */
@@ -432,8 +440,12 @@ public final class StandardNames extends Assert {
     public static final Set<String> KEY_TYPES = new HashSet<String>(Arrays.asList(
         "RSA",
         "DSA",
-        "DH_RSA",
-        "DH_DSA"));
+        // DH_* are specified by standard names, but do not seem to be supported by RI
+        // "DH_RSA",
+        // "DH_DSA",
+        "EC",
+        "EC_EC",
+        "EC_RSA"));
 
     public static final Set<String> SSL_SOCKET_PROTOCOLS = new HashSet<String>(Arrays.asList(
         // "SSLv2",
@@ -550,6 +562,9 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
         addRi(     "TLS_ECDH_anon_WITH_NULL_SHA");
+
+        // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
+        addRi(CIPHER_SUITE_SECURE_RENEGOTIATION);
 
         // Android does not have Keberos support
         addRi(     "TLS_KRB5_WITH_RC4_128_SHA");

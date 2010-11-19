@@ -51,36 +51,48 @@ public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of non-RSA keys
-        TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
-                                                        null,
-                                                        null,
-                                                        "rsa-dsa",
-                                                        TestKeyStore.localhost(),
-                                                        true,
-                                                        null);
+        TestKeyStore testKeyStore
+                = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
+                                      null,
+                                      null,
+                                      "rsa-dsa-ec",
+                                      TestKeyStore.localhost(),
+                                      true,
+                                      null,
+                                      null);
         if (StandardNames.IS_RI) {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             StandardNames.JSSE_PROVIDER_NAME,
-                                                            StandardNames.JSSE_PROVIDER_NAME);
+                                                            StandardNames.JSSE_PROVIDER_NAME,
+                                                            false);
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            StandardNames.JSSE_PROVIDER_NAME,
+                                                            StandardNames.JSSE_PROVIDER_NAME,
+                                                            true);
         } else  {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
-                                                            "HarmonyJSSE");
+                                                            "HarmonyJSSE",
+                                                            false);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
-                                                            "AndroidOpenSSL");
+                                                            "AndroidOpenSSL",
+                                                            false);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
-                                                            "AndroidOpenSSL");
+                                                            "AndroidOpenSSL",
+                                                            false);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
-                                                            "HarmonyJSSE");
+                                                            "HarmonyJSSE",
+                                                            false);
         }
 
     }
     private void test_SSLSocket_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  String clientProvider,
-                                                                 String serverProvider)
+                                                                 String serverProvider,
+                                                                 boolean secureRenegotiation)
             throws Exception {
 
         String clientToServerString = "this is sent from the client to the server...";
@@ -94,19 +106,33 @@ public class SSLSocketTest extends TestCase {
         for (String cipherSuite : cipherSuites) {
             try {
                 /*
+                 * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
+                 * its own, but instead in conjunction with other
+                 * cipher suites.
+                 */
+                if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                    continue;
+                }
+                /*
                  * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
+                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html
+                 * #KRBRequire
                  */
                 if (cipherSuite.startsWith("TLS_KRB5_")) {
                     continue;
                 }
                 /*
-                 * Elliptic Curve cipher suites are not supported
+                 * Elliptic Curve cipher suites are not supported on Android
                  */
-                if (cipherSuite.startsWith("TLS_EC")) {
+                if (!StandardNames.IS_RI && cipherSuite.startsWith("TLS_EC")) {
                     continue;
                 }
-                String[] cipherSuiteArray = new String[] { cipherSuite };
+
+                String[] cipherSuiteArray
+                        = (secureRenegotiation
+                           ? new String[] { cipherSuite,
+                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
+                           : new String[] { cipherSuite });
                 SSLSocket[] pair = TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
 
                 SSLSocket server = pair[0];

@@ -295,7 +295,7 @@ public class SSLContextTest extends TestCase {
         assertNotNull(testContext.clientKeyStore);
         assertNull(testContext.clientStorePassword);
         assertNotNull(testContext.serverKeyStore);
-        assertNull(testContext.serverStorePassword);
+        assertEquals(StandardNames.IS_RI, testContext.serverStorePassword != null);
         assertNotNull(testContext.clientKeyManager);
         assertNotNull(testContext.serverKeyManager);
         assertNotNull(testContext.clientTrustManager);
