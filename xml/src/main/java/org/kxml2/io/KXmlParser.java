@@ -39,6 +39,7 @@ public class KXmlParser implements XmlPullParser {
 
     private static final char[] START_COMMENT = { '<', '!', '-', '-' };
     private static final char[] END_COMMENT = { '-', '-', '>' };
+    private static final char[] COMMENT_DOUBLE_DASH = { '-', '-' };
     private static final char[] START_CDATA = { '<', '!', '[', 'C', 'D', 'A', 'T', 'A', '[' };
     private static final char[] END_CDATA = { ']', ']', '>' };
     private static final char[] START_PROCESSING_INSTRUCTION = { '<', '?' };
@@ -105,7 +106,6 @@ public class KXmlParser implements XmlPullParser {
     private String error;
 
     private boolean unresolved;
-    private boolean token;
 
     public final StringPool stringPool = new StringPool();
 
@@ -248,11 +248,15 @@ public class KXmlParser implements XmlPullParser {
         }
     }
 
-    /**
-     * Common base for next() and nextToken(). Clears the state, except from txtPos and whitespace.
-     * Does not set the type variable.
-     */
-    private void nextImpl() throws IOException, XmlPullParserException {
+    public int next() throws XmlPullParserException, IOException {
+        return next(false);
+    }
+
+    public int nextToken() throws XmlPullParserException, IOException {
+        return next(true);
+    }
+
+    private int next(boolean justOneToken) throws IOException, XmlPullParserException {
         if (reader == null) {
             throw new XmlPullParserException("setInput() must be called first.", this, null);
         }
@@ -261,95 +265,124 @@ public class KXmlParser implements XmlPullParser {
             depth--;
         }
 
-        while (true) {
-            attributeCount = -1;
+        // degenerated needs to be handled before error because of possible
+        // processor expectations(!)
 
-            // degenerated needs to be handled before error because of possible
-            // processor expectations(!)
+        if (degenerated) {
+            degenerated = false;
+            type = END_TAG;
+            return type;
+        }
 
-            if (degenerated) {
-                degenerated = false;
-                type = END_TAG;
-                return;
-            }
-
-            if (error != null) {
+        if (error != null) {
+            if (justOneToken) {
                 text = error;
-                error = null;
                 type = COMMENT;
-                return;
+                error = null;
+                return type;
+            } else {
+                error = null;
             }
+        }
 
-            prefix = null;
-            name = null;
-            namespace = null;
+        type = peekType();
 
+        if (type == XML_DECLARATION) {
+            readXmlDeclaration();
             type = peekType();
+        }
 
+        text = null;
+        isWhitespace = true;
+        prefix = null;
+        name = null;
+        namespace = null;
+        attributeCount = -1;
+
+        while (true) {
             switch (type) {
 
+            /*
+             * Return immediately after encountering a start tag, end tag, or
+             * the end of the document.
+             */
+            case START_TAG:
+                parseStartTag(false);
+                return type;
+            case END_TAG:
+                readEndTag();
+                return type;
+            case END_DOCUMENT:
+                return type;
+
+            /*
+             * Return after any text token when we're looking for a single
+             * token. Otherwise concatenate all text between tags.
+             */
             case ENTITY_REF:
-                if (token) {
+                if (justOneToken) {
                     StringBuilder entityTextBuilder = new StringBuilder();
-                    readEntity(entityTextBuilder);
+                    readEntity(entityTextBuilder, true);
                     text = entityTextBuilder.toString();
-                    return;
+                    break;
                 }
                 // fall-through
             case TEXT:
-                text = readValue('<', !token, false);
+                text = readValue('<', !justOneToken, false);
                 if (depth == 0 && isWhitespace) {
                     type = IGNORABLE_WHITESPACE;
                 }
-                return;
-
-            case START_TAG:
-                text = null; // TODO: fix next()/nextToken() so this is handled there
-                parseStartTag(false);
-                return;
-
-            case END_TAG:
-                readEndTag();
-                return;
-
-            case END_DOCUMENT:
-                return;
-
-            case XML_DECLARATION:
-                readXmlDeclaration();
-                continue;
-
-            case PROCESSING_INSTRUCTION:
-                read(START_PROCESSING_INSTRUCTION);
-                if (token) {
-                    text = readUntil(END_PROCESSING_INSTRUCTION, true);
-                } else {
-                    readUntil(END_PROCESSING_INSTRUCTION, false);
-                }
-                return;
-
-            case DOCDECL:
-                readDoctype(token);
-                return;
-
+                break;
             case CDSECT:
-                String oldText = text;
                 read(START_CDATA);
                 text = readUntil(END_CDATA, true);
-                if (oldText != null) {
-                    text = oldText + text; // TODO: fix next()/nextToken() so this is handled there
-                }
-                return;
+                break;
 
+            /*
+             * Comments, processing instructions and declarations are returned
+             * when we're looking for a single token. Otherwise they're skipped.
+             */
             case COMMENT:
-                read(START_COMMENT);
-                if (token) {
-                    text = readUntil(END_COMMENT, true);
-                } else {
-                    readUntil(END_COMMENT, false);
+                String commentText = readComment(justOneToken);
+                if (justOneToken) {
+                    text = commentText;
                 }
-                return;
+                break;
+            case PROCESSING_INSTRUCTION:
+                read(START_PROCESSING_INSTRUCTION);
+                String processingInstruction = readUntil(END_PROCESSING_INSTRUCTION, justOneToken);
+                if (justOneToken) {
+                    text = processingInstruction;
+                }
+                break;
+            case DOCDECL:
+                String doctype = readDoctype(justOneToken);
+                if (justOneToken) {
+                    text = doctype;
+                }
+                break;
             }
+
+            if (justOneToken) {
+                return type;
+            }
+
+            if (type == IGNORABLE_WHITESPACE) {
+                text = null;
+            }
+
+            /*
+             * We've read all that we can of a non-empty text block. Always
+             * report this as text, even if it was a CDATA block or entity
+             * reference.
+             */
+            int peek = peekType();
+            if (text != null && !text.isEmpty() && peek < TEXT) {
+                type = TEXT;
+                return type;
+            }
+
+            type = peek;
         }
     }
 
@@ -362,9 +395,13 @@ public class KXmlParser implements XmlPullParser {
      */
     private String readUntil(char[] delimiter, boolean returnText)
             throws IOException, XmlPullParserException {
-        int previous = -1;
         int start = position;
         StringBuilder result = null;
+
+        if (returnText && text != null) {
+            result = new StringBuilder();
+            result.append(text);
+        }
 
         search:
         while (true) {
@@ -387,17 +424,12 @@ public class KXmlParser implements XmlPullParser {
             // when the VM has better method inlining
             for (int i = 0; i < delimiter.length; i++) {
                 if (buffer[position + i] != delimiter[i]) {
-                    previous = buffer[position];
                     position++;
                     continue search;
                 }
             }
 
             break;
-        }
-
-        if (delimiter == END_COMMENT && previous == '-') {
-            checkRelaxed("illegal comment delimiter: --->");
         }
 
         int end = position;
@@ -416,7 +448,7 @@ public class KXmlParser implements XmlPullParser {
     /**
      * Returns true if an XML declaration was read.
      */
-    private boolean readXmlDeclaration() throws IOException, XmlPullParserException {
+    private void readXmlDeclaration() throws IOException, XmlPullParserException {
         if (bufferStartLine != 0 || bufferStartColumn != 0 || position != 0) {
             checkRelaxed("processing instructions must not start with xml");
         }
@@ -455,10 +487,24 @@ public class KXmlParser implements XmlPullParser {
 
         isWhitespace = true;
         text = null;
-        return true;
     }
 
-    private void readDoctype(boolean assignText) throws IOException, XmlPullParserException {
+    private String readComment(boolean returnText) throws IOException, XmlPullParserException {
+        read(START_COMMENT);
+
+        if (relaxed) {
+            return readUntil(END_COMMENT, returnText);
+        }
+
+        String commentText = readUntil(COMMENT_DOUBLE_DASH, returnText);
+        if (peekCharacter() != '>') {
+            throw new XmlPullParserException("Comments may not contain --", this, null);
+        }
+        position++;
+        return commentText;
+    }
+
+    private String readDoctype(boolean returnText) throws IOException, XmlPullParserException {
         read(START_DOCTYPE);
 
         int start = position;
@@ -468,7 +514,7 @@ public class KXmlParser implements XmlPullParser {
 
         while (true) {
             if (position >= limit) {
-                if (start < position && assignText) {
+                if (start < position && returnText) {
                     if (result == null) {
                         result = new StringBuilder();
                     }
@@ -476,7 +522,7 @@ public class KXmlParser implements XmlPullParser {
                 }
                 if (!fillBuffer(1)) {
                     checkRelaxed(UNEXPECTED_EOF);
-                    return;
+                    return null;
                 }
                 start = position;
             }
@@ -496,13 +542,13 @@ public class KXmlParser implements XmlPullParser {
             }
         }
 
-        if (assignText) {
-            if (result == null) {
-                text = stringPool.get(buffer, start, position - start - 1); // omit the '>'
-            } else {
-                result.append(buffer, start, position - start - 1); // omit the '>'
-                text = result.toString();
-            }
+        if (!returnText) {
+            return null;
+        } else if (result == null) {
+            return stringPool.get(buffer, start, position - start - 1); // omit the '>'
+        } else {
+            result.append(buffer, start, position - start - 1); // omit the '>'
+            return result.toString();
         }
     }
 
@@ -690,7 +736,8 @@ public class KXmlParser implements XmlPullParser {
      * resolved entity to {@code out}. If the entity cannot be read or resolved,
      * {@code out} will contain the partial entity reference.
      */
-    private void readEntity(StringBuilder out) throws IOException, XmlPullParserException {
+    private void readEntity(StringBuilder out, boolean isEntityToken)
+            throws IOException, XmlPullParserException {
         int start = out.length();
 
         if (buffer[position++] != '&') {
@@ -728,7 +775,7 @@ public class KXmlParser implements XmlPullParser {
 
         String code = out.substring(start + 1, out.length() - 1);
 
-        if (token && type == ENTITY_REF) {
+        if (isEntityToken) {
             name = code;
         }
 
@@ -753,7 +800,7 @@ public class KXmlParser implements XmlPullParser {
         } else {
             // keep the unresolved entity "&code;" in the text for relaxed clients
             unresolved = true;
-            if (!token) {
+            if (!isEntityToken) {
                 checkRelaxed("unresolved: &" + code + ";");
             }
         }
@@ -795,7 +842,7 @@ public class KXmlParser implements XmlPullParser {
         StringBuilder result = null;
 
         // if a text section was already started, prefix the start
-        if (text != null) {
+        if (!inAttributeValue && text != null) {
             result = new StringBuilder();
             result.append(text);
         }
@@ -858,7 +905,7 @@ public class KXmlParser implements XmlPullParser {
 
             } else if (c == '&') {
                 isWhitespace = false; // TODO: what if the entity resolves to whitespace?
-                readEntity(result);
+                readEntity(result, false);
                 start = position;
                 continue;
 
@@ -1435,37 +1482,6 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public int getEventType() throws XmlPullParserException {
-        return type;
-    }
-
-    public int next() throws XmlPullParserException, IOException {
-        text = null;
-        isWhitespace = true;
-        int minType = 9999;
-        token = false;
-
-        do {
-            nextImpl();
-            if (type < minType) {
-                minType = type;
-            }
-        } while (minType > ENTITY_REF // ignorable
-                || (minType >= TEXT && peekType() >= TEXT));
-
-        type = minType;
-        if (type > TEXT) {
-            type = TEXT;
-        }
-
-        return type;
-    }
-
-    public int nextToken() throws XmlPullParserException, IOException {
-        isWhitespace = true;
-        text = null;
-
-        token = true;
-        nextImpl();
         return type;
     }
 

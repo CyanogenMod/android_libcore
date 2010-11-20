@@ -71,7 +71,7 @@ public abstract class PullParserTest extends TestCase {
         parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
         parser.setInput(new StringReader(
                 "<foo:a xmlns:foo='http://foo' xmlns:bar='http://bar'><bar:b/></foo:a>"));
-        testNamespace(parser); // TODO: end tag fails on gingerbread for relaxed mode
+        testNamespace(parser);
     }
 
     private void testNamespace(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -266,6 +266,14 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("aaa", parser.getName());
         assertEquals(null, parser.getText());
         assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testEntityInAttributeWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo bar=\"&amp;\"></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("foo", parser.getName());
+        assertEquals("&", parser.getAttributeValue(null, "bar"));
     }
 
     public void testGreaterThanInText() throws Exception {
@@ -478,6 +486,23 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
+    public void testWhitespaceWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("  \n  <foo> \n </foo>   \n   "));
+        assertEquals(XmlPullParser.IGNORABLE_WHITESPACE, parser.nextToken());
+        assertEquals(true, parser.isWhitespace());
+        assertEquals("  \n  ", parser.getText());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals(true, parser.isWhitespace());
+        assertEquals(" \n ", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.IGNORABLE_WHITESPACE, parser.nextToken());
+        assertEquals(true, parser.isWhitespace());
+        assertEquals("   \n   ", parser.getText());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.nextToken());
+    }
+
     public void testLinesAndColumns() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("\n"
@@ -508,6 +533,25 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
         assertEquals(XmlPullParser.END_DOCUMENT, parser.nextToken());
         assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
+    }
+
+    public void testEmptyEntityReferenceWithNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&empty;</foo>"));
+        parser.defineEntityReplacementText("empty", "");
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+    }
+
+    public void testEmptyEntityReferenceWithNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>&empty;</foo>"));
+        parser.defineEntityReplacementText("empty", "");
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("empty", parser.getName());
+        assertEquals("", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
     }
 
     public void testEmptyCdataWithNext() throws Exception {
