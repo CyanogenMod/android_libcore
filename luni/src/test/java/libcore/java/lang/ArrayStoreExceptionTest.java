@@ -27,7 +27,7 @@ public final class ArrayStoreExceptionTest extends TestCase {
             fail();
         } catch (ArrayStoreException ex) {
             ex.printStackTrace();
-            assertEquals("java.lang.Exception cannot be stored in an array of type [Ljava.lang.String;", ex.getMessage());
+            assertEquals("java.lang.Exception cannot be stored in an array of type java.lang.String[]", ex.getMessage());
         }
     }
 }
