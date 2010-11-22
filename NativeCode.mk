@@ -94,7 +94,12 @@ endif
 
 # Define the rules.
 LOCAL_SRC_FILES := $(core_src_files)
-LOCAL_C_INCLUDES := $(core_c_includes) bionic/ bionic/libstdc++/include external/stlport/stlport
+LOCAL_C_INCLUDES := $(core_c_includes) bionic/ bionic/libstdc++/include 
+
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_C_INCLUDES += external/stlport/stlport
+endif
+
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
