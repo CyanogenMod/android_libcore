@@ -94,10 +94,10 @@ endif
 
 # Define the rules.
 LOCAL_SRC_FILES := $(core_src_files)
-LOCAL_C_INCLUDES := $(core_c_includes) bionic/ bionic/libstdc++/include 
+LOCAL_C_INCLUDES := $(core_c_includes)
 
 ifneq ($(TARGET_SIMULATOR),true)
-LOCAL_C_INCLUDES += external/stlport/stlport
+LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
 endif
 
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
