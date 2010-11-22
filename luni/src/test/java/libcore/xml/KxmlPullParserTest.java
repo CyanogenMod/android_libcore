@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+package libcore.xml;
 
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 
-public final class ExpatPullParserTest extends PullParserTest {
+public class KxmlPullParserTest extends PullParserTest {
 
     @Override XmlPullParser newPullParser() {
-        return new ExpatPullParser();
+        return new KXmlParser();
     }
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+package libcore.xml;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.harmony.xml.ExpatReader;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
