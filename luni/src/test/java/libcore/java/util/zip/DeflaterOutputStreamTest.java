@@ -57,8 +57,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      * way demonstrate that data is unavailable. Ie. other techniques will cause
      * the dry read to block indefinitely.
      */
-    private InflaterInputStream createInflaterStream(final boolean flushing)
-            throws Exception {
+    private InflaterInputStream createInflaterStream(final boolean flushing) throws Exception {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final PipedOutputStream pout = new PipedOutputStream();
         PipedInputStream pin = new PipedInputStream(pout);

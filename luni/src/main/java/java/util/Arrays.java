@@ -1729,6 +1729,19 @@ public class Arrays {
         DualPivotQuicksort.sort(array, start, end);
     }
 
+    /**
+     * Checks that the range described by {@code offset} and {@code count} doesn't exceed
+     * {@code arrayLength}.
+     *
+     * @hide
+     */
+    public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
+        if (offset > arrayLength || count < 0 || offset < 0 || arrayLength - offset < count) {
+            throw new ArrayIndexOutOfBoundsException("offset=" + offset + ", count=" + count +
+                    ", array length=" + arrayLength);
+        }
+    }
+
     private static void checkFillBounds(int arrLength, int start, int end) {
         if (start > end) {
             throw new IllegalArgumentException("start < end: " + start + " < " + end);

@@ -168,8 +168,7 @@ public class InflaterInputStream extends FilterInputStream {
         }
 
         // avoid int overflow, check null buffer
-        if (off > buffer.length || nbytes < 0 || off < 0
-                || buffer.length - off < nbytes) {
+        if (off > buffer.length || nbytes < 0 || off < 0 || buffer.length - off < nbytes) {
             throw new ArrayIndexOutOfBoundsException();
         }
 
