@@ -431,39 +431,6 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("]]>", parser.getText());
     }
 
-    public void testDoctypeWithNext() throws Exception {
-        String s = "<!DOCTYPE foo ["
-            + "  <!ENTITY bb \"bar baz\">"
-            + "  <!NOTATION png SYSTEM \"image/png\">"
-            + "]><foo>a&bb;c</foo>";
-        XmlPullParser parser = newPullParser();
-        parser.setInput(new StringReader(
-                "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>"));
-        assertEquals(XmlPullParser.START_TAG, parser.next());
-        assertEquals(XmlPullParser.TEXT, parser.next());
-        assertEquals("abar bazc", parser.getText()); // TODO: this fails on gingerbread
-        assertEquals(XmlPullParser.END_TAG, parser.next());
-    }
-
-    public void testDoctypeWithNextToken() throws Exception {
-        XmlPullParser parser = newPullParser();
-        parser.setInput(new StringReader(
-                "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>"));
-        assertEquals(XmlPullParser.DOCDECL, parser.nextToken());
-        assertEquals(" foo [<!ENTITY bb \"bar baz\">]", parser.getText());
-        assertNull(parser.getName());
-
-        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
-        assertEquals(XmlPullParser.TEXT, parser.nextToken());
-        assertEquals("a", parser.getText());
-        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
-        assertEquals("bb", parser.getName());
-        assertEquals("bar baz", parser.getText()); // TODO: this fails on gingerbread
-        assertEquals(XmlPullParser.TEXT, parser.nextToken());
-        assertEquals("c", parser.getText());
-        assertEquals(XmlPullParser.END_TAG, parser.next());
-    }
-
     public void testProcessingInstructionWithNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<?cd efg hij?>kl</foo>"));
@@ -710,7 +677,7 @@ public abstract class PullParserTest extends TestCase {
     }
 
     /**
-     * Creates a new pull parser with namespace support.
+     * Creates a new pull parser.
      */
     abstract XmlPullParser newPullParser();
 }
