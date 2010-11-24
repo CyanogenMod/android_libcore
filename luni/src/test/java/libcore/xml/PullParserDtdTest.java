@@ -116,6 +116,43 @@ public abstract class PullParserDtdTest extends TestCase {
     }
 
     /**
+     * Test that the output of {@code &#38;} is parsed, but {@code &amp;} isn't.
+     * http://www.w3.org/TR/2008/REC-xml-20081126/#sec-entexpand
+     */
+    public void testExpansionOfEntityAndCharacterReferences() throws Exception {
+        String xml = "<!DOCTYPE foo ["
+                + "<!ENTITY example \"<p>An ampersand (&#38;#38;) may be escaped\n"
+                + "numerically (&#38;#38;#38;) or with a general entity\n"
+                + "(&amp;amp;).</p>\" >"
+                + "]><foo>&example;</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("p", parser.getName());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("An ampersand (&) may be escaped\n"
+                + "numerically (&#38;) or with a general entity\n"
+                + "(&amp;).", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("p", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testGeneralEntitiesAreStoredUnresolved() throws Exception {
+        String xml = "<!DOCTYPE foo ["
+                + "<!ENTITY b \"&a;\" >"
+                + "<!ENTITY a \"android\" >"
+                + "]><foo>&a;</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("android", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    /**
      * Android's Expat replaces external entities with the empty string.
      */
     public void testUsingExternalEntities() throws Exception {
