@@ -18,6 +18,7 @@ package libcore.xml;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 import junit.framework.TestCase;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -26,6 +27,8 @@ import org.xmlpull.v1.XmlPullParserException;
  * Test doctype handling in pull parsers.
  */
 public abstract class PullParserDtdTest extends TestCase {
+
+    private static final int READ_BUFFER_SIZE = 8192;
 
     /**
      * Android's Expat pull parser permits parameter entities to be declared,
@@ -55,6 +58,19 @@ public abstract class PullParserDtdTest extends TestCase {
             + "]><foo>&a;</foo>";
         XmlPullParser parser = newPullParser(xml);
         assertParseFailure(parser);
+    }
+
+    public void testGeneralAndParameterEntityWithTheSameName() throws Exception {
+        String xml = "<!DOCTYPE foo ["
+                + "  <!ENTITY a \"aaa\">"
+                + "  <!ENTITY % a \"bbb\">"
+                + "]><foo>&a;</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("aaa", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }
 
     public void testInternalEntities() throws Exception {
@@ -259,16 +275,82 @@ public abstract class PullParserDtdTest extends TestCase {
 
     public void testAttributeDefaultValues() throws Exception {
         String xml = "<!DOCTYPE foo [\n"
+                + "  <!ATTLIST bar\n"
+                + "    baz (a|b|c)  \"c\">"
+                + "]>"
+                + "<foo>"
+                + "<bar/>"
+                + "<bar baz=\"a\"/>"
+                + "</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("bar", parser.getName());
+        assertEquals("c", parser.getAttributeValue(null, "baz"));
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("bar", parser.getName());
+        assertEquals("a", parser.getAttributeValue(null, "baz"));
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testAttributeDefaultValueEntitiesExpanded() throws Exception {
+        String xml = "<!DOCTYPE foo [\n"
+                + "  <!ENTITY g \"ghi\">"
                 + "  <!ELEMENT foo ANY>\n"
                 + "  <!ATTLIST foo\n"
-                + "    bar (a|b|c)  \"c\">"
+                + "    bar CDATA \"abc &amp; def &g; jk\">"
                 + "]>"
                 + "<foo></foo>";
         XmlPullParser parser = newPullParser(xml);
         assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals("foo", parser.getName());
-        assertEquals("c", parser.getAttributeValue(null, "bar"));
+        assertEquals("abc & def ghi jk", parser.getAttributeValue(null, "bar"));
         assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testAttributeDefaultValuesAndNamespaces() throws Exception {
+        String xml = "<!DOCTYPE foo [\n"
+                + "  <!ATTLIST foo\n"
+                + "    bar:a CDATA \"android\">"
+                + "]>"
+                + "<foo xmlns:bar='http://bar'></foo>";
+        XmlPullParser parser = newPullParser(xml);
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("foo", parser.getName());
+        // In Expat, namespaces don't apply to default attributes
+        int index = indexOfAttributeWithName(parser, "bar:a");
+        assertEquals("", parser.getAttributeNamespace(index));
+        assertEquals("bar:a", parser.getAttributeName(index));
+        assertEquals("android", parser.getAttributeValue(index));
+        assertEquals("CDATA", parser.getAttributeType(index));
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    private int indexOfAttributeWithName(XmlPullParser parser, String name) {
+        for (int i = 0; i < parser.getAttributeCount(); i++) {
+            if (parser.getAttributeName(i).equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void testAttributeEntitiesExpandedEagerly() throws Exception {
+        String xml = "<!DOCTYPE foo [\n"
+                + "  <!ELEMENT foo ANY>\n"
+                + "  <!ATTLIST foo\n"
+                + "    bar CDATA \"abc &amp; def &g; jk\">"
+                + "  <!ENTITY g \"ghi\">"
+                + "]>"
+                + "<foo></foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertParseFailure(parser);
     }
 
     public void testRequiredAttributesOmitted() throws Exception {
@@ -337,6 +419,35 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }
 
+    public void testVeryLongEntities() throws Exception {
+        String a = repeat('a', READ_BUFFER_SIZE + 1);
+        String b = repeat('b', READ_BUFFER_SIZE + 1);
+        String c = repeat('c', READ_BUFFER_SIZE + 1);
+
+        String xml = "<!DOCTYPE foo [\n"
+                + "  <!ENTITY " + a + "  \"d &" + b + "; e\">"
+                + "  <!ENTITY " + b + "  \"f " + c + " g\">"
+                + "]>"
+                + "<foo>h &" + a + "; i</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("h d f " + c + " g e i", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testManuallyRegisteredEntitiesWithDoctypeParsing() throws Exception {
+        String xml = "<foo>&a;</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        try {
+            parser.defineEntityReplacementText("a", "android");
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        } catch (IllegalStateException expected) {
+        }
+    }
+
     public void testDoctypeWithNextToken() throws Exception {
         String xml = "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>";
         XmlPullParser parser = newPullParser(xml);
@@ -364,6 +475,12 @@ public abstract class PullParserDtdTest extends TestCase {
         }
     }
 
+    private String repeat(char c, int length) {
+        char[] chars = new char[length];
+        Arrays.fill(chars, c);
+        return new String(chars);
+    }
+
     private XmlPullParser newPullParser(String xml) throws XmlPullParserException {
         XmlPullParser result = newPullParser();
         result.setInput(new StringReader(xml));
@@ -373,5 +490,5 @@ public abstract class PullParserDtdTest extends TestCase {
     /**
      * Creates a new pull parser.
      */
-    abstract XmlPullParser newPullParser();
+    abstract XmlPullParser newPullParser() throws XmlPullParserException;
 }

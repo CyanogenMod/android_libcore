@@ -229,6 +229,17 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("yz", parser.getText());
     }
 
+    public void testCustomEntitiesAreNotEvaluated() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(
+                "<foo a='&a;'>&a;</foo>"));
+        parser.defineEntityReplacementText("a", "&amp; &a;");
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("&amp; &a;", parser.getAttributeValue(0));
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("&amp; &a;", parser.getText());
+    }
+
     public void testMissingEntities() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&aaa;</foo>"));

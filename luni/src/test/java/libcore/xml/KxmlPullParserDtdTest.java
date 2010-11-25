@@ -18,9 +18,12 @@ package libcore.xml;
 
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class KxmlPullParserDtdTest extends PullParserDtdTest {
-    @Override XmlPullParser newPullParser() {
-        return new KXmlParser();
+    @Override XmlPullParser newPullParser() throws XmlPullParserException {
+        KXmlParser result = new KXmlParser();
+        result.setFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL, true);
+        return result;
     }
 }

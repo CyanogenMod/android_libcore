@@ -33,9 +33,25 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * A pull based XML parser.
+ * An XML pull parser with limited support for parsing internal DTDs.
  */
 public class KXmlParser implements XmlPullParser {
+
+    private final String PROPERTY_XMLDECL_VERSION
+            = "http://xmlpull.org/v1/doc/properties.html#xmldecl-version";
+    private final String PROPERTY_XMLDECL_STANDALONE
+            = "http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone";
+    private final String PROPERTY_LOCATION = "http://xmlpull.org/v1/doc/properties.html#location";
+    private static final String FEATURE_RELAXED = "http://xmlpull.org/v1/doc/features.html#relaxed";
+
+    private static final Map<String, String> DEFAULT_ENTITIES = new HashMap<String, String>();
+    static {
+        DEFAULT_ENTITIES.put("lt", "<");
+        DEFAULT_ENTITIES.put("gt", ">");
+        DEFAULT_ENTITIES.put("amp", "&");
+        DEFAULT_ENTITIES.put("apos", "'");
+        DEFAULT_ENTITIES.put("quot", "\"");
+    }
 
     private static final int ELEMENTDECL = 11;
     private static final int ENTITYDECL = 12;
@@ -74,10 +90,34 @@ public class KXmlParser implements XmlPullParser {
     private String version;
     private Boolean standalone;
 
+    /**
+     * True if the {@code <!DOCTYPE>} contents are handled. The DTD defines
+     * entity values and default attribute values. These values are parsed at
+     * inclusion time and may contain both tags and entity references.
+     *
+     * <p>If this is false, the user must {@link #defineEntityReplacementText
+     * define entity values manually}. Such entity values are literal strings
+     * and will not be parsed. There is no API to define default attributes
+     * manually.
+     */
+    private boolean processDocDecl;
     private boolean processNsp;
     private boolean relaxed;
     private boolean keepNamespaceAttributes;
-    private Map<String, String> entityMap;
+
+    /**
+     * Entities defined in or for this document. This map is created lazily.
+     */
+    private Map<String, char[]> documentEntities;
+
+    /**
+     * Default attributes in this document. The outer map's key is the element
+     * name; the inner map's key is the attribute name. Both keys should be
+     * without namespace adjustments. This map is created lazily.
+     */
+    private Map<String, Map<String, String>> defaultAttributes;
+
+
     private int depth;
     private String[] elementStack = new String[16];
     private String[] nspStack = new String[8];
@@ -87,7 +127,8 @@ public class KXmlParser implements XmlPullParser {
 
     private Reader reader;
     private String encoding;
-    private final char[] buffer = new char[8192];
+    private ContentSource nextContentSource;
+    private char[] buffer = new char[8192];
     private int position = 0;
     private int limit = 0;
 
@@ -134,17 +175,6 @@ public class KXmlParser implements XmlPullParser {
      */
     public void keepNamespaceAttributes() {
         this.keepNamespaceAttributes = true;
-    }
-
-    private boolean isProp(String n1, boolean prop, String n2) {
-        if (!n1.startsWith("http://xmlpull.org/v1/doc/")) {
-            return false;
-        }
-        if (prop) {
-            return n1.substring(42).equals(n2);
-        } else {
-            return n1.substring(40).equals(n2);
-        }
     }
 
     private boolean adjustNsp() throws XmlPullParserException {
@@ -792,7 +822,15 @@ public class KXmlParser implements XmlPullParser {
     }
 
     private void defineAttributeDefault(String elementName, String attributeName, String value) {
-        // TODO: stash this attribute so we can recall it later
+        if (defaultAttributes == null) {
+            defaultAttributes = new HashMap<String, Map<String, String>>();
+        }
+        Map<String, String> elementAttributes = defaultAttributes.get(elementName);
+        if (elementAttributes == null) {
+            elementAttributes = new HashMap<String, String>();
+            defaultAttributes.put(elementName, elementAttributes);
+        }
+        elementAttributes.put(attributeName, value);
     }
 
     /**
@@ -827,8 +865,11 @@ public class KXmlParser implements XmlPullParser {
             position++;
             String value = readValue((char) quote, true, ValueContext.ENTITY_DECLARATION);
             position++;
-            if (generalEntity) {
-                defineEntityReplacementText(name, value); // TODO: test parameter and general entity
+            if (generalEntity && processDocDecl) {
+                if (documentEntities == null) {
+                    documentEntities = new HashMap<String, char[]>();
+                }
+                documentEntities.put(name, value.toCharArray());
             }
         } else if (readExternalId(true)) {
             skip();
@@ -987,9 +1028,9 @@ public class KXmlParser implements XmlPullParser {
 
             int i = (attributeCount++) * 4;
             attributes = ensureCapacity(attributes, i + 4);
-            attributes[i++] = "";
-            attributes[i++] = null;
-            attributes[i++] = attrName;
+            attributes[i] = "";
+            attributes[i + 1] = null;
+            attributes[i + 2] = attrName;
 
             skip();
             if (position >= limit && !fillBuffer(1)) {
@@ -1015,16 +1056,16 @@ public class KXmlParser implements XmlPullParser {
                     throw new XmlPullParserException("attr value delimiter missing!", this, null);
                 }
 
-                attributes[i] = readValue(delimiter, true, ValueContext.ATTRIBUTE);
+                attributes[i + 3] = readValue(delimiter, true, ValueContext.ATTRIBUTE);
 
                 if (delimiter != ' ') {
                     position++; // end quote
                 }
             } else if (relaxed) {
-                attributes[i] = attrName;
+                attributes[i + 3] = attrName;
             } else {
                 checkRelaxed("Attr.value missing f. " + attrName);
-                attributes[i] = attrName;
+                attributes[i + 3] = attrName;
             }
         }
 
@@ -1044,6 +1085,25 @@ public class KXmlParser implements XmlPullParser {
             adjustNsp();
         } else {
             namespace = "";
+        }
+
+        // For consistency with Expat, add default attributes after fixing namespaces.
+        if (defaultAttributes != null) {
+            Map<String, String> elementDefaultAttributes = defaultAttributes.get(name);
+            if (elementDefaultAttributes != null) {
+                for (Map.Entry<String, String> entry : elementDefaultAttributes.entrySet()) {
+                    if (getAttributeValue(null, entry.getKey()) != null) {
+                        continue; // an explicit value overrides the default
+                    }
+
+                    int i = (attributeCount++) * 4;
+                    attributes = ensureCapacity(attributes, i + 4);
+                    attributes[i] = "";
+                    attributes[i + 1] = null;
+                    attributes[i + 2] = entry.getKey();
+                    attributes[i + 3] = entry.getValue();
+                }
+            }
         }
 
         elementStack[sp] = namespace;
@@ -1099,7 +1159,6 @@ public class KXmlParser implements XmlPullParser {
             name = code;
         }
 
-        String resolved;
         if (code.startsWith("#")) {
             try {
                 int c = code.startsWith("#x")
@@ -1108,23 +1167,43 @@ public class KXmlParser implements XmlPullParser {
                 out.delete(start, out.length());
                 out.appendCodePoint(c);
                 unresolved = false;
+                return;
             } catch (NumberFormatException notANumber) {
                 throw new XmlPullParserException("Invalid character reference: &" + code);
             } catch (IllegalArgumentException invalidCodePoint) {
                 throw new XmlPullParserException("Invalid character reference: &" + code);
             }
-        } else if (valueContext == ValueContext.ENTITY_DECLARATION) {
-            // keep the unresolved &code; in the text
-        } else if ((resolved = entityMap.get(code)) != null) {
+        }
+
+        if (valueContext == ValueContext.ENTITY_DECLARATION) {
+            // keep the unresolved &code; in the text to resolve later
+            return;
+        }
+
+        String defaultEntity = DEFAULT_ENTITIES.get(code);
+        if (defaultEntity != null) {
             out.delete(start, out.length());
-            out.append(resolved);
             unresolved = false;
-        } else {
-            // keep the unresolved entity "&code;" in the text for relaxed clients
-            unresolved = true;
-            if (!isEntityToken) {
-                checkRelaxed("unresolved: &" + code + ";");
+            out.append(defaultEntity);
+            return;
+        }
+
+        char[] resolved;
+        if (documentEntities != null && (resolved = documentEntities.get(code)) != null) {
+            out.delete(start, out.length());
+            unresolved = false;
+            if (processDocDecl) {
+                pushContentSource(resolved); // parse the entity as XML
+            } else {
+                out.append(resolved); // include the entity value as text
             }
+            return;
+        }
+
+        // keep the unresolved entity "&code;" in the text for relaxed clients
+        unresolved = true;
+        if (!isEntityToken) {
+            checkRelaxed("unresolved: &" + code + ";");
         }
     }
 
@@ -1311,7 +1390,18 @@ public class KXmlParser implements XmlPullParser {
      * exhausted before that many characters are available, this returns
      * false.
      */
-    private boolean fillBuffer(int minimum) throws IOException {
+    private boolean fillBuffer(int minimum) throws IOException, XmlPullParserException {
+        // If we've exhausted the current content source, remove it
+        while (nextContentSource != null) {
+            if (position < limit) {
+                throw new XmlPullParserException("Unbalanced entity!", this, null);
+            }
+            popContentSource();
+            if (limit - position >= minimum) {
+                return true;
+            }
+        }
+
         // Before clobbering the old characters, update where buffer starts
         for (int i = 0; i < position; i++) {
             if (buffer[i] == '\n') {
@@ -1408,7 +1498,7 @@ public class KXmlParser implements XmlPullParser {
         }
     }
 
-    private void skip() throws IOException {
+    private void skip() throws IOException, XmlPullParserException {
         while (position < limit || fillBuffer(1)) {
             int c = buffer[position];
             if (c > ' ') {
@@ -1441,13 +1531,7 @@ public class KXmlParser implements XmlPullParser {
         bufferStartLine = 0;
         bufferStartColumn = 0;
         depth = 0;
-
-        entityMap = new HashMap<String, String>();
-        entityMap.put("amp", "&");
-        entityMap.put("apos", "'");
-        entityMap.put("gt", ">");
-        entityMap.put("lt", "<");
-        entityMap.put("quot", "\"");
+        documentEntities = null;
     }
 
     public void setInput(InputStream is, String _enc) throws XmlPullParserException {
@@ -1568,8 +1652,10 @@ public class KXmlParser implements XmlPullParser {
     public boolean getFeature(String feature) {
         if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature)) {
             return processNsp;
-        } else if (isProp(feature, false, "relaxed")) {
+        } else if (FEATURE_RELAXED.equals(feature)) {
             return relaxed;
+        } else if (FEATURE_PROCESS_DOCDECL.equals(feature)) {
+            return processDocDecl;
         } else {
             return false;
         }
@@ -1581,23 +1667,30 @@ public class KXmlParser implements XmlPullParser {
 
     public void defineEntityReplacementText(String entity, String value)
             throws XmlPullParserException {
-        if (entityMap == null) {
-            throw new RuntimeException("entity replacement text must be defined after setInput!");
+        if (processDocDecl) {
+            throw new IllegalStateException(
+                    "Entity replacement text may not be defined with DOCTYPE processing enabled.");
         }
-        entityMap.put(entity, value);
+        if (reader == null) {
+            throw new IllegalStateException(
+                    "Entity replacement text must be defined after setInput()");
+        }
+        if (documentEntities == null) {
+            documentEntities = new HashMap<String, char[]>();
+        }
+        documentEntities.put(entity, value.toCharArray());
     }
 
     public Object getProperty(String property) {
-        if (isProp(property, true, "xmldecl-version")) {
+        if (property.equals(PROPERTY_XMLDECL_VERSION)) {
             return version;
-        }
-        if (isProp(property, true, "xmldecl-standalone")) {
+        } else if (property.equals(PROPERTY_XMLDECL_STANDALONE)) {
             return standalone;
-        }
-        if (isProp(property, true, "location")) {
+        } else if (property.equals(PROPERTY_LOCATION)) {
             return location != null ? location : reader.toString();
+        } else {
+            return null;
         }
-        return null;
     }
 
     public int getNamespaceCount(int depth) {
@@ -1870,8 +1963,9 @@ public class KXmlParser implements XmlPullParser {
     public void setFeature(String feature, boolean value) throws XmlPullParserException {
         if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature)) {
             processNsp = value;
-        } else if (isProp(feature, false, "relaxed")) {
-            // "http://xmlpull.org/v1/doc/features.html#relaxed"
+        } else if (XmlPullParser.FEATURE_PROCESS_DOCDECL.equals(feature)) {
+            processDocDecl = value;
+        } else if (FEATURE_RELAXED.equals(feature)) {
             relaxed = value;
         } else {
             throw new XmlPullParserException("unsupported feature: " + feature, this, null);
@@ -1879,10 +1973,75 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public void setProperty(String property, Object value) throws XmlPullParserException {
-        if (isProp(property, true, "location")) {
+        if (property.equals(PROPERTY_LOCATION)) {
             location = String.valueOf(value);
         } else {
             throw new XmlPullParserException("unsupported property: " + property);
         }
+    }
+
+    /**
+     * A chain of buffers containing XML content. Each content source contains
+     * the parser's primary read buffer or the characters of entities actively
+     * being parsed.
+     *
+     * <p>For example, note the buffers needed to parse this document:
+     * <pre>   {@code
+     *   <!DOCTYPE foo [
+     *       <!ENTITY baz "ghi">
+     *       <!ENTITY bar "def &baz; jkl">
+     *   ]>
+     *   <foo>abc &bar; mno</foo>
+     * }</pre>
+     *
+     * <p>Things get interesting when the bar entity is encountered. At that
+     * point two buffers are active:
+     * <ol>
+     * <li>The value for the bar entity, containing {@code "def &baz; jkl"}
+     * <li>The parser's primary read buffer, containing {@code " mno</foo>"}
+     * </ol>
+     * <p>The parser will return the characters {@code "def "} from the bar
+     * entity's buffer, and then it will encounter the baz entity. To handle
+     * that, three buffers will be active:
+     * <ol>
+     * <li>The value for the baz entity, containing {@code "ghi"}
+     * <li>The remaining value for the bar entity, containing {@code " jkl"}
+     * <li>The parser's primary read buffer, containing {@code " mno</foo>"}
+     * </ol>
+     * <p>The parser will then return the characters {@code ghi jkl mno} in that
+     * sequence by reading each buffer in sequence.
+     */
+    static class ContentSource {
+        private final ContentSource next;
+        private final char[] buffer;
+        private final int position;
+        private final int limit;
+        ContentSource(ContentSource next, char[] buffer, int position, int limit) {
+            this.next = next;
+            this.buffer = buffer;
+            this.position = position;
+            this.limit = limit;
+        }
+    }
+
+    /**
+     * Prepends the characters of {@code newBuffer} to be read before the
+     * current buffer.
+     */
+    private void pushContentSource(char[] newBuffer) {
+        nextContentSource = new ContentSource(nextContentSource, buffer, position, limit);
+        buffer = newBuffer;
+        position = 0;
+        limit = newBuffer.length;
+    }
+
+    /**
+     * Replaces the current exhausted buffer with the next buffer in the chain.
+     */
+    private void popContentSource() {
+        buffer = nextContentSource.buffer;
+        position = nextContentSource.position;
+        limit = nextContentSource.limit;
+        nextContentSource = nextContentSource.next;
     }
 }
