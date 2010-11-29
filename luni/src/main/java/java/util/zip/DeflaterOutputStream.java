@@ -150,6 +150,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
      */
     @Override
     public void close() throws IOException {
+        // everything closed here should also be closed in ZipOuputStream.close()
         if (!def.finished()) {
             finish();
         }
