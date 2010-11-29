@@ -26,7 +26,7 @@ public class PKIXParametersTest extends TestCase {
 
     public void testKeyStoreConstructor() throws Exception {
         TestKeyStore server = TestKeyStore.getServer();
-        KeyStore.PrivateKeyEntry pke = server.getPrivateKey("RSA");
+        KeyStore.PrivateKeyEntry pke = server.getPrivateKey("RSA", "RSA");
         char[] password = "password".toCharArray();
 
         // contains CA and server certificates

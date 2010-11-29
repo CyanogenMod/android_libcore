@@ -25,6 +25,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -40,12 +41,13 @@ public class KeyManagerFactoryTest extends TestCase {
 
     // note the rare usage of DSA keys here in addition to RSA
     private static final TestKeyStore TEST_KEY_STORE
-            = TestKeyStore.create(new String[] { "RSA", "DSA" },
+            = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
                                   null,
                                   null,
-                                  "rsa-dsa",
+                                  "rsa-dsa-ec",
                                   TestKeyStore.localhost(),
                                   true,
+                                  null,
                                   null);
 
     public void test_KeyManagerFactory_getDefaultAlgorithm() throws Exception {
@@ -90,7 +92,7 @@ public class KeyManagerFactoryTest extends TestCase {
         KeyStoreBuilderParameters ksbp = new KeyStoreBuilderParameters(builder);
         if (supportsManagerFactoryParameters) {
             kmf.init(ksbp);
-            test_KeyManagerFactory_getKeyManagers(kmf);
+            test_KeyManagerFactory_getKeyManagers(kmf, false);
         } else {
             try {
                 kmf.init(ksbp);
@@ -101,21 +103,21 @@ public class KeyManagerFactoryTest extends TestCase {
 
         // init with null for default behavior
         kmf.init(null, null);
-        test_KeyManagerFactory_getKeyManagers(kmf);
+        test_KeyManagerFactory_getKeyManagers(kmf, true);
 
         // init with specific key store and password
         kmf.init(TEST_KEY_STORE.keyStore, TEST_KEY_STORE.storePassword);
-        test_KeyManagerFactory_getKeyManagers(kmf);
+        test_KeyManagerFactory_getKeyManagers(kmf, false);
     }
 
-    private void test_KeyManagerFactory_getKeyManagers(KeyManagerFactory kmf) {
+    private void test_KeyManagerFactory_getKeyManagers(KeyManagerFactory kmf, boolean empty) {
         KeyManager[] keyManagers = kmf.getKeyManagers();
         assertNotNull(keyManagers);
         assertTrue(keyManagers.length > 0);
         for (KeyManager keyManager : keyManagers) {
             assertNotNull(keyManager);
             if (keyManager instanceof X509KeyManager) {
-                test_X509KeyManager((X509KeyManager) keyManager);
+                test_X509KeyManager((X509KeyManager) keyManager, empty);
             }
         }
     }
@@ -123,56 +125,104 @@ public class KeyManagerFactoryTest extends TestCase {
     String[] KEY_TYPES
             = StandardNames.KEY_TYPES.toArray(new String[StandardNames.KEY_TYPES.size()]);
 
-    private void test_X509KeyManager(X509KeyManager km) {
-        test_X509KeyManager_alias(km, km.chooseClientAlias(KEY_TYPES, null, null), null);
+    private void test_X509KeyManager(X509KeyManager km, boolean empty) {
         for (String keyType : KEY_TYPES) {
-            test_X509KeyManager_alias(km, km.chooseServerAlias(keyType, null, null), keyType);
+            String[] aliases = km.getClientAliases(keyType, null);
+            if (empty) {
+                assertNull(keyType, aliases);
+                continue;
+            }
+            assertNotNull(keyType, aliases);
+            for (String alias : aliases) {
+                test_X509KeyManager_alias(km, alias, keyType, empty);
+            }
         }
         for (String keyType : KEY_TYPES) {
             String[] aliases = km.getServerAliases(keyType, null);
-            if (aliases == null) {
+            if (empty) {
+                assertNull(keyType, aliases);
                 continue;
             }
+            assertNotNull(keyType, aliases);
             for (String alias : aliases) {
-                test_X509KeyManager_alias(km, alias, keyType);
+                test_X509KeyManager_alias(km, alias, keyType, empty);
             }
         }
 
-        if (km instanceof X509ExtendedKeyManager) {
-            test_X509ExtendedKeyManager((X509ExtendedKeyManager) km);
-        }
-    }
-
-    private void test_X509ExtendedKeyManager(X509ExtendedKeyManager km) {
-        test_X509KeyManager_alias(km,
-                                  km.chooseEngineClientAlias(KEY_TYPES, null, null),
-                                  null);
+        String a = km.chooseClientAlias(KEY_TYPES, null, null);
+        test_X509KeyManager_alias(km, a, null, empty);
         for (String keyType : KEY_TYPES) {
-            test_X509KeyManager_alias(km, km.chooseEngineServerAlias(keyType, null, null), keyType);
+            String[] array = new String[] { keyType };
+            String alias = km.chooseClientAlias(array, null, null);
+            test_X509KeyManager_alias(km, alias, keyType, empty);
+        }
+        for (String keyType : KEY_TYPES) {
+            String alias = km.chooseServerAlias(keyType, null, null);
+            test_X509KeyManager_alias(km, alias, keyType, empty);
+        }
+        if (km instanceof X509ExtendedKeyManager) {
+            test_X509ExtendedKeyManager((X509ExtendedKeyManager) km, empty);
         }
     }
 
-    private void test_X509KeyManager_alias(X509KeyManager km, String alias, String keyType) {
-        if (alias == null) {
-            assertNull(km.getCertificateChain(alias));
-            assertNull(km.getPrivateKey(alias));
+    private void test_X509ExtendedKeyManager(X509ExtendedKeyManager km, boolean empty) {
+        String a = km.chooseEngineClientAlias(KEY_TYPES, null, null);
+        test_X509KeyManager_alias(km, a, null, empty);
+        for (String keyType : KEY_TYPES) {
+            String[] array = new String[] { keyType };
+            String alias = km.chooseEngineClientAlias(array, null, null);
+            test_X509KeyManager_alias(km, alias, keyType, empty);
+        }
+        for (String keyType : KEY_TYPES) {
+            String alias = km.chooseEngineServerAlias(keyType, null, null);
+            test_X509KeyManager_alias(km, alias, keyType, empty);
+        }
+    }
+
+    private void test_X509KeyManager_alias(X509KeyManager km,
+                                           String alias,
+                                           String keyType,
+                                           boolean empty) {
+        if (empty) {
+            assertNull(keyType, alias);
+            assertNull(keyType, km.getCertificateChain(alias));
+            assertNull(keyType, km.getPrivateKey(alias));
             return;
         }
+        assertNotNull(keyType, alias);
 
         X509Certificate[] certificateChain = km.getCertificateChain(alias);
         PrivateKey privateKey = km.getPrivateKey(alias);
 
+        String keyAlgName;
+        String sigAlgName;
         if (keyType == null) {
-            keyType = privateKey.getAlgorithm();
+            keyAlgName = privateKey.getAlgorithm();
+            sigAlgName = keyAlgName;
         } else {
-            assertEquals(keyType, certificateChain[0].getPublicKey().getAlgorithm());
-            assertEquals(keyType, privateKey.getAlgorithm());
+            // potentially handle EC_EC or EC_RSA
+            keyAlgName = TestKeyStore.keyAlgorithm(keyType);
+            sigAlgName = TestKeyStore.signatureAlgorithm(keyType);
+            X509Certificate certificate = certificateChain[0];
+            assertEquals(keyType, keyAlgName, certificate.getPublicKey().getAlgorithm());
+            assertEquals(keyType, keyAlgName, privateKey.getAlgorithm());
+            // skip this for EC which could return EC_RSA case instead of EC_EC
+            if (!keyType.equals("EC")) {
+                String expectedSigAlgName = sigAlgName.toUpperCase();
+                String actualSigAlgName = certificate.getSigAlgName().toUpperCase();
+                String expected = actualSigAlgName + " contains " + expectedSigAlgName;
+                assertTrue(expected, actualSigAlgName.contains(expectedSigAlgName));
+            }
         }
 
-        PrivateKeyEntry privateKeyEntry = TEST_KEY_STORE.getPrivateKey(keyType);
-        assertEquals(Arrays.asList(privateKeyEntry.getCertificateChain()),
-                     Arrays.asList(certificateChain));
-        assertEquals(privateKeyEntry.getPrivateKey(), privateKey);
+        PrivateKeyEntry privateKeyEntry = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
+        if (!"EC".equals(keyAlgName)) {
+            assertEquals(keyType,
+                         Arrays.asList(privateKeyEntry.getCertificateChain()),
+                         Arrays.asList(certificateChain));
+            assertEquals(keyType,
+                         privateKeyEntry.getPrivateKey(), privateKey);
+        }
     }
 
     public void test_KeyManagerFactory_getInstance() throws Exception {

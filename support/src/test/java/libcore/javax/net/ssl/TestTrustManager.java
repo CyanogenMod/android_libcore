@@ -21,14 +21,17 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import libcore.java.io.NullPrintStream;
 
 /**
  * TestTrustManager is a simple proxy class that wraps an existing
- * X509TrustManager to provide debug logging
+ * X509TrustManager to provide debug logging and recording of
+ * values.
  */
 public final class TestTrustManager implements X509TrustManager {
 
-    private static final PrintStream out = System.out;
+    private static final boolean LOG = false;
+    private static final PrintStream out = LOG ? System.out : new NullPrintStream();
 
     private final X509TrustManager trustManager;
 
@@ -48,6 +51,7 @@ public final class TestTrustManager implements X509TrustManager {
     }
 
     public TestTrustManager(X509TrustManager trustManager) {
+        out.println("TestTrustManager.<init> trustManager=" + trustManager);
         this.trustManager = trustManager;
     }
 
