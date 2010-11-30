@@ -544,14 +544,6 @@ public class URLConnectionTest extends junit.framework.TestCase {
         testConnectViaHttpProxyToHttps(ProxyConfig.CREATE_ARG);
     }
 
-    /**
-     * We weren't honoring all of the appropriate proxy system properties when
-     * connecting via HTTPS. http://b/3097518
-     */
-    public void testConnectViaHttpProxyToHttpsUsingProxySystemProperty() throws Exception {
-        testConnectViaHttpProxyToHttps(ProxyConfig.PROXY_SYSTEM_PROPERTY);
-    }
-
     public void testConnectViaHttpProxyToHttpsUsingHttpsProxySystemProperty() throws Exception {
         testConnectViaHttpProxyToHttps(ProxyConfig.HTTPS_PROXY_SYSTEM_PROPERTY);
     }

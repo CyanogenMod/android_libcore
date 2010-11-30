@@ -383,6 +383,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * code, message, headers and body.
      */
     protected void discardIntermediateResponse() throws IOException {
+        boolean oldIntermediateResponse = intermediateResponse;
         intermediateResponse = true;
         try {
             if (responseBodyIn != null) {
@@ -399,7 +400,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             responseMessage = null;
             cacheRequest = null;
         } finally {
-            intermediateResponse = false;
+            intermediateResponse = oldIntermediateResponse;
         }
     }
 
@@ -496,7 +497,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public Map<String, List<String>> getRequestProperties() {
         if (connected) {
-            throw new IllegalStateException("Cannot access request header fields after connection is set");
+            throw new IllegalStateException(
+                    "Cannot access request header fields after connection is set");
         }
         return requestHeader.getFieldMap();
     }
@@ -614,7 +616,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         connect();
 
         if (socketOut == null) {
-             // TODO: what should we do if a cached response exists?
+            // TODO: what should we do if a cached response exists?
             throw new IOException("No socket to write to; was a POST cached?");
         }
 

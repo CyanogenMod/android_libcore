@@ -167,29 +167,33 @@ public final class HttpConnection {
      * TLS extensions and SSL deflate compression. If false, use
      * an SSL3 only fallback mode without compression.
      */
-    public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory,
+    public SSLSocket setupSecureSocket(SSLSocketFactory sslSocketFactory,
             HostnameVerifier hostnameVerifier,
             boolean tlsTolerant) throws IOException {
-        if (sslSocket == null) {
-            // create the wrapper over connected socket
-            SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
-                    address.uri.getHost(), address.uri.getEffectivePort(), true /* autoClose */);
-            // tlsTolerant mimics Chrome's behavior
-            if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
-                OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
-                openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
-                openSslSocket.setUseSessionTickets(true);
-                openSslSocket.setHostname(address.hostName);
-                // use SSLSocketFactory default enabled protocols
-            } else {
-                unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
-            }
-            if (!hostnameVerifier.verify(address.uri.getHost(), unverifiedSocket.getSession())) {
-                throw new IOException("Hostname '" + address.uri.getHost() + "' was not verified");
-            }
-            sslSocket = unverifiedSocket;
+        // create the wrapper over connected socket
+        SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
+                address.uri.getHost(), address.uri.getEffectivePort(), true /* autoClose */);
+        // tlsTolerant mimics Chrome's behavior
+        if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
+            OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
+            openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
+            openSslSocket.setUseSessionTickets(true);
+            openSslSocket.setHostname(address.hostName);
+            // use SSLSocketFactory default enabled protocols
+        } else {
+            unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
         }
+        if (!hostnameVerifier.verify(address.uri.getHost(), unverifiedSocket.getSession())) {
+            throw new IOException("Hostname '" + address.uri.getHost() + "' was not verified");
+        }
+        sslSocket = unverifiedSocket;
+        return sslSocket;
+    }
 
+    /**
+     * Return an {@code SSLSocket} if already connected, otherwise null.
+     */
+    public SSLSocket getSecureSocketIfConnected() {
         return sslSocket;
     }
 
@@ -266,8 +270,8 @@ public final class HttpConnection {
 
             SocketAddress proxyAddress = proxy.address();
             if (!(proxyAddress instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException("Proxy.address() is not an InetSocketAddress: " +
-                        proxyAddress.getClass());
+                throw new IllegalArgumentException("Proxy.address() is not an InetSocketAddress: "
+                        + proxyAddress.getClass());
             }
             InetSocketAddress proxySocketAddress = (InetSocketAddress) proxyAddress;
             this.hostName = proxySocketAddress.getHostName();
@@ -275,24 +279,24 @@ public final class HttpConnection {
         }
 
         @Override public boolean equals(Object other) {
-           if (other instanceof Address) {
-               Address that = (Address) other;
-               return Objects.equal(this.proxy, that.proxy)
-                       && this.uri.getHost().equals(that.uri.getHost())
-                       && this.uri.getEffectivePort() == that.uri.getEffectivePort()
-                       && this.requiresTunnel == that.requiresTunnel;
-           }
-           return false;
-       }
+            if (other instanceof Address) {
+                Address that = (Address) other;
+                return Objects.equal(this.proxy, that.proxy)
+                        && this.uri.getHost().equals(that.uri.getHost())
+                        && this.uri.getEffectivePort() == that.uri.getEffectivePort()
+                        && this.requiresTunnel == that.requiresTunnel;
+            }
+            return false;
+        }
 
-       @Override public int hashCode() {
-           int result = 17;
-           result = 31 * result + uri.getHost().hashCode();
-           result = 31 * result + uri.getEffectivePort();
-           result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
-           result = 31 * result + (requiresTunnel ? 1 : 0);
-           return result;
-       }
+        @Override public int hashCode() {
+            int result = 17;
+            result = 31 * result + uri.getHost().hashCode();
+            result = 31 * result + uri.getEffectivePort();
+            result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
+            result = 31 * result + (requiresTunnel ? 1 : 0);
+            return result;
+        }
 
         public HttpConnection connect(int connectTimeout) throws IOException {
             return new HttpConnection(this, connectTimeout);
