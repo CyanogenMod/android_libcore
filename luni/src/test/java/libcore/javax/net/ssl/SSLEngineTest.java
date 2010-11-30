@@ -68,31 +68,55 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of non-RSA keys
-        TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
-                                                        null,
-                                                        null,
-                                                        "rsa-dsa",
-                                                        TestKeyStore.localhost(),
-                                                        true,
-                                                        null);
+        TestKeyStore testKeyStore
+                = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
+                                      null,
+                                      null,
+                                      "rsa-dsa-ec",
+                                      TestKeyStore.localhost(),
+                                      true,
+                                      null,
+                                      null);
+        test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, false);
+        if (StandardNames.IS_RI) {
+            test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
+        }
+    }
+    private void test_SSLEngine_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
+                                                                 boolean secureRenegotiation)
+            throws Exception {
         TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
             try {
                 /*
+                 * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
+                 * its own, but instead in conjunction with other
+                 * cipher suites.
+                 */
+                if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                    continue;
+                }
+                /*
                  * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
+                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html
+                 * #KRBRequire
                  */
                 if (cipherSuite.startsWith("TLS_KRB5_")) {
                     continue;
                 }
                 /*
-                 * Elliptic Curve cipher suites are not supported
+                 * Elliptic Curve cipher suites are not supported on Android
                  */
-                if (cipherSuite.startsWith("TLS_EC")) {
+                if (!StandardNames.IS_RI && cipherSuite.startsWith("TLS_EC")) {
                     continue;
                 }
-                final String[] cipherSuiteArray = new String[] { cipherSuite };
+
+                final String[] cipherSuiteArray
+                        = (secureRenegotiation
+                           ? new String[] { cipherSuite,
+                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
+                           : new String[] { cipherSuite });
                 assertConnected(TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
                         @Override
                                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
