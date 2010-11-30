@@ -49,4 +49,16 @@ public final class OpcodeInfo {
     private OpcodeInfo() {
         // This space intentionally left blank.
     }
+
+    /**
+     * Returns whether the given opcode represents a method invocation
+     * operation. This includes most things that look like method
+     * invocation at the source level, but it notably excludes methods
+     * that are implemented directly in the VM.
+     *
+     * @hide Unclear if this is useful enough to publish as supported API.
+     *
+     * @param opcode one of the values defined in {@link Opcodes}
+     */
+    public static native boolean isInvoke(int opcode);
 }
