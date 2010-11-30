@@ -31,7 +31,7 @@ import java.util.Enumeration;
  * read-only by the VM.
  */
 public final class DexFile {
-    private final int mCookie;
+    private int mCookie;
     private final String mFileName;
     private final CloseGuard guard = CloseGuard.get();
 
@@ -169,6 +169,7 @@ public final class DexFile {
     public void close() throws IOException {
         guard.close();
         closeDexFile(mCookie);
+        mCookie = 0;
     }
 
     /**
