@@ -19,8 +19,8 @@ package org.apache.harmony.xml.parsers;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.StringTokenizer;
 import javax.xml.parsers.DocumentBuilder;
+import libcore.io.IoUtils;
 import org.apache.harmony.xml.dom.CDATASectionImpl;
 import org.apache.harmony.xml.dom.DOMImplementationImpl;
 import org.apache.harmony.xml.dom.DocumentImpl;
@@ -93,7 +93,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
     @Override
     public Document parse(InputSource source) throws SAXException, IOException {
         if (source == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("source == null");
         }
 
         String namespaceURI = null;
@@ -105,8 +105,8 @@ class DocumentBuilderImpl extends DocumentBuilder {
                 dom, namespaceURI, qualifiedName, doctype, inputEncoding);
         document.setDocumentURI(systemId);
 
+        KXmlParser parser = new KXmlParser();
         try {
-            KXmlParser parser = new KXmlParser();
             parser.keepNamespaceAttributes();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, namespaceAware);
 
@@ -121,24 +121,22 @@ class DocumentBuilderImpl extends DocumentBuilder {
                 // TODO: if null, extract the inputEncoding from the Content-Type header?
                 parser.setInput(urlConnection.getInputStream(), inputEncoding);
             } else {
-                throw new SAXParseException(
-                        "InputSource needs a stream, reader or URI", null);
+                throw new SAXParseException("InputSource needs a stream, reader or URI", null);
             }
 
-            if(parser.nextToken() == XmlPullParser.END_DOCUMENT) {
-                throw new SAXParseException(
-                        "Unexpected end of document", null);
+            if (parser.nextToken() == XmlPullParser.END_DOCUMENT) {
+                throw new SAXParseException("Unexpected end of document", null);
             }
 
             parse(parser, document, document, XmlPullParser.END_DOCUMENT);
 
             parser.require(XmlPullParser.END_DOCUMENT, null, null);
         } catch (XmlPullParserException ex) {
-            if(ex.getDetail() instanceof IOException) {
-                throw (IOException)ex.getDetail();
+            if (ex.getDetail() instanceof IOException) {
+                throw (IOException) ex.getDetail();
             }
-            if(ex.getDetail() instanceof RuntimeException) {
-                throw (RuntimeException)ex.getDetail();
+            if (ex.getDetail() instanceof RuntimeException) {
+                throw (RuntimeException) ex.getDetail();
             }
 
             LocatorImpl locator = new LocatorImpl();
@@ -148,14 +146,15 @@ class DocumentBuilderImpl extends DocumentBuilder {
             locator.setLineNumber(ex.getLineNumber());
             locator.setColumnNumber(ex.getColumnNumber());
 
-            SAXParseException newEx = new SAXParseException(ex.getMessage(),
-                    locator);
+            SAXParseException newEx = new SAXParseException(ex.getMessage(), locator);
 
             if (errorHandler != null) {
                 errorHandler.error(newEx);
             }
 
             throw newEx;
+        } finally {
+            IoUtils.closeQuietly(parser);
         }
 
         return document;
@@ -178,7 +177,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
      * @throws XmlPullParserException If a parsing error occurs.
      * @throws IOException If a general IO error occurs.
      */
-    private void parse(XmlPullParser parser, DocumentImpl document, Node node,
+    private void parse(KXmlParser parser, DocumentImpl document, Node node,
             int endToken) throws XmlPullParserException, IOException {
 
         int token = parser.getEventType();
@@ -205,45 +204,10 @@ class DocumentBuilderImpl extends DocumentBuilder {
                 node.appendChild(document.createProcessingInstruction(target,
                         data));
             } else if (token == XmlPullParser.DOCDECL) {
-                /*
-                 * Found a document type declaration. Unfortunately KXML doesn't
-                 * have the necessary details. Do we parse it ourselves, or do
-                 * we silently ignore it, since it isn't mandatory in DOM 2
-                 * anyway?
-                 */
-                StringTokenizer tokenizer = new StringTokenizer(parser.getText());
-                if (tokenizer.hasMoreTokens()) {
-                    String name = tokenizer.nextToken();
-                    String pubid = null;
-                    String sysid = null;
-
-                    if (tokenizer.hasMoreTokens()) {
-                        String text = tokenizer.nextToken();
-
-                        if ("SYSTEM".equals(text)) {
-                            if (tokenizer.hasMoreTokens()) {
-                                sysid = tokenizer.nextToken();
-                            }
-                        } else if ("PUBLIC".equals(text)) {
-                            if (tokenizer.hasMoreTokens()) {
-                                pubid = tokenizer.nextToken();
-                            }
-                            if (tokenizer.hasMoreTokens()) {
-                                sysid = tokenizer.nextToken();
-                            }
-                        }
-                    }
-
-                    if (pubid != null && pubid.length() >= 2 && pubid.startsWith("\"") && pubid.endsWith("\"")) {
-                        pubid = pubid.substring(1, pubid.length() - 1);
-                    }
-
-                    if (sysid != null && sysid.length() >= 2 && sysid.startsWith("\"") && sysid.endsWith("\"")) {
-                        sysid = sysid.substring(1, sysid.length() - 1);
-                    }
-
-                    document.appendChild(new DocumentTypeImpl(document, name, pubid, sysid));
-                }
+                String name = parser.getRootElementName();
+                String publicId = parser.getPublicId();
+                String systemId = parser.getSystemId();
+                document.appendChild(new DocumentTypeImpl(document, name, publicId, systemId));
 
             } else if (token == XmlPullParser.COMMENT) {
                 /*

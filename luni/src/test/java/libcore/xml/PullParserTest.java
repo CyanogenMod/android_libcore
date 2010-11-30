@@ -254,7 +254,8 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals(XmlPullParser.TEXT, parser.next());
         assertEquals(null, parser.getName());
-        assertEquals("&aaa;", parser.getText());
+        assertEquals("Expected unresolved entities to be left in-place. The old parser "
+                + "would resolve these to the empty string.", "&aaa;", parser.getText());
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
@@ -279,12 +280,51 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testEntityInAttributeWithNextToken() throws Exception {
+    public void testEntityInAttributeUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo bar=\"&amp;\"></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.nextToken());
         assertEquals("foo", parser.getName());
         assertEquals("&", parser.getAttributeValue(null, "bar"));
+    }
+
+    public void testMissingEntitiesInAttributesUsingNext() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo b='&aaa;'></foo>"));
+        assertNextFails(parser);
+    }
+
+    public void testMissingEntitiesInAttributesUsingNextWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo b='&aaa;'></foo>"));
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(1, parser.getAttributeCount());
+        assertEquals("b", parser.getAttributeName(0));
+        assertEquals("Expected unresolved entities to be left in-place. The old parser "
+                + "would resolve these to the empty string.", "&aaa;", parser.getAttributeValue(0));
+    }
+
+    public void testMissingEntitiesInAttributesUsingNextToken() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo b='&aaa;'></foo>"));
+        testMissingEntitiesInAttributesUsingNextToken(parser);
+    }
+
+    public void testMissingEntitiesInAttributesUsingNextTokenWithRelaxed() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo b='&aaa;'></foo>"));
+        parser.setFeature("http://xmlpull.org/v1/doc/features.html#relaxed", true);
+        testMissingEntitiesInAttributesUsingNextToken(parser);
+    }
+
+    private void testMissingEntitiesInAttributesUsingNextToken(XmlPullParser parser)
+            throws IOException, XmlPullParserException {
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals(1, parser.getAttributeCount());
+        assertEquals("b", parser.getAttributeName(0));
+        assertEquals("Expected unresolved entities to be left in-place. The old parser "
+                + "would resolve these to the empty string.", "&aaa;", parser.getAttributeValue(0));
     }
 
     public void testGreaterThanInText() throws Exception {
@@ -392,7 +432,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("]]]]]]]]]]]]]]]]]]]]]]]", parser.getText());
     }
 
-    public void testCommentWithNext() throws Exception {
+    public void testCommentUsingNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<!-- comment! -->cd</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -400,7 +440,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("abcd", parser.getText());
     }
 
-    public void testCommentWithNextToken() throws Exception {
+    public void testCommentUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<!-- comment! -->cd</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -412,7 +452,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("cd", parser.getText());
     }
 
-    public void testCdataWithNext() throws Exception {
+    public void testCdataUsingNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<![CDATA[cdef]]gh&amp;i]]>jk</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -421,7 +461,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testCdataWithNextToken() throws Exception {
+    public void testCdataUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<![CDATA[cdef]]gh&amp;i]]>jk</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -442,7 +482,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("]]>", parser.getText());
     }
 
-    public void testProcessingInstructionWithNext() throws Exception {
+    public void testProcessingInstructionUsingNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<?cd efg hij?>kl</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
@@ -451,7 +491,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testProcessingInstructionWithNextToken() throws Exception {
+    public void testProcessingInstructionUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>ab<?cd efg hij?>kl</foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.nextToken());
@@ -464,7 +504,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testWhitespaceWithNextToken() throws Exception {
+    public void testWhitespaceUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("  \n  <foo> \n </foo>   \n   "));
         assertEquals(XmlPullParser.IGNORABLE_WHITESPACE, parser.nextToken());
@@ -513,7 +553,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals("7,7", parser.getLineNumber() + "," + parser.getColumnNumber());
     }
 
-    public void testEmptyEntityReferenceWithNext() throws Exception {
+    public void testEmptyEntityReferenceUsingNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&empty;</foo>"));
         parser.defineEntityReplacementText("empty", "");
@@ -521,7 +561,7 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testEmptyEntityReferenceWithNextToken() throws Exception {
+    public void testEmptyEntityReferenceUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo>&empty;</foo>"));
         parser.defineEntityReplacementText("empty", "");
@@ -532,14 +572,14 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(XmlPullParser.END_TAG, parser.nextToken());
     }
 
-    public void testEmptyCdataWithNext() throws Exception {
+    public void testEmptyCdataUsingNext() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo><![CDATA[]]></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals(XmlPullParser.END_TAG, parser.next());
     }
 
-    public void testEmptyCdataWithNextToken() throws Exception {
+    public void testEmptyCdataUsingNextToken() throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader("<foo><![CDATA[]]></foo>"));
         assertEquals(XmlPullParser.START_TAG, parser.next());

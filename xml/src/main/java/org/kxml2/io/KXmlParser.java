@@ -22,6 +22,7 @@
 
 package org.kxml2.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +36,7 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * An XML pull parser with limited support for parsing internal DTDs.
  */
-public class KXmlParser implements XmlPullParser {
+public class KXmlParser implements XmlPullParser, Closeable {
 
     private final String PROPERTY_XMLDECL_VERSION
             = "http://xmlpull.org/v1/doc/properties.html#xmldecl-version";
@@ -89,6 +90,9 @@ public class KXmlParser implements XmlPullParser {
 
     private String version;
     private Boolean standalone;
+    private String rootElementName;
+    private String systemId;
+    private String publicId;
 
     /**
      * True if the {@code <!DOCTYPE>} contents are handled. The DTD defines
@@ -345,6 +349,7 @@ public class KXmlParser implements XmlPullParser {
         name = null;
         namespace = null;
         attributeCount = -1;
+        boolean throwOnResolveFailure = !justOneToken;
 
         while (true) {
             switch (type) {
@@ -354,7 +359,7 @@ public class KXmlParser implements XmlPullParser {
              * the end of the document.
              */
             case START_TAG:
-                parseStartTag(false);
+                parseStartTag(false, throwOnResolveFailure);
                 return type;
             case END_TAG:
                 readEndTag();
@@ -369,13 +374,13 @@ public class KXmlParser implements XmlPullParser {
             case ENTITY_REF:
                 if (justOneToken) {
                     StringBuilder entityTextBuilder = new StringBuilder();
-                    readEntity(entityTextBuilder, true, ValueContext.TEXT);
+                    readEntity(entityTextBuilder, true, throwOnResolveFailure, ValueContext.TEXT);
                     text = entityTextBuilder.toString();
                     break;
                 }
                 // fall-through
             case TEXT:
-                text = readValue('<', !justOneToken, ValueContext.TEXT);
+                text = readValue('<', !justOneToken, throwOnResolveFailure, ValueContext.TEXT);
                 if (depth == 0 && isWhitespace) {
                     type = IGNORABLE_WHITESPACE;
                 }
@@ -504,7 +509,7 @@ public class KXmlParser implements XmlPullParser {
         }
 
         read(START_PROCESSING_INSTRUCTION);
-        parseStartTag(true);
+        parseStartTag(true, true);
 
         if (attributeCount < 1 || !"version".equals(attributes[2])) {
             checkRelaxed("version expected");
@@ -561,8 +566,8 @@ public class KXmlParser implements XmlPullParser {
     private void readDoctype() throws IOException, XmlPullParserException {
         read(START_DOCTYPE);
         skip();
-        readName();
-        readExternalId(true);
+        rootElementName = readName();
+        readExternalId(true, true);
         skip();
         if (peekCharacter() == '[') {
             readInternalSubset();
@@ -582,7 +587,7 @@ public class KXmlParser implements XmlPullParser {
      *
      * Returns true if any ID was read.
      */
-    private boolean readExternalId(boolean requireSystemName)
+    private boolean readExternalId(boolean requireSystemName, boolean assignFields)
             throws IOException, XmlPullParserException {
         skip();
         int c = peekCharacter();
@@ -592,7 +597,11 @@ public class KXmlParser implements XmlPullParser {
         } else if (c == 'P') {
             read(PUBLIC);
             skip();
-            readQuotedId();
+            if (assignFields) {
+                publicId = readQuotedId(true);
+            } else {
+                readQuotedId(false);
+            }
         } else {
             return false;
         }
@@ -606,23 +615,32 @@ public class KXmlParser implements XmlPullParser {
             }
         }
 
-        readQuotedId();
+        if (assignFields) {
+            systemId = readQuotedId(true);
+        } else {
+            readQuotedId(false);
+        }
         return true;
     }
+
+    private static final char[] SINGLE_QUOTE = new char[] { '\'' };
+    private static final char[] DOUBLE_QUOTE = new char[] { '"' };
 
     /**
      * Reads a quoted string, performing no entity escaping of the contents.
      */
-    private void readQuotedId() throws IOException, XmlPullParserException {
+    private String readQuotedId(boolean returnText) throws IOException, XmlPullParserException {
         int quote = peekCharacter();
-        if (quote != '"' && quote != '\'') {
+        char[] delimiter;
+        if (quote == '"') {
+            delimiter = DOUBLE_QUOTE;
+        } else if (quote == '\'') {
+            delimiter = SINGLE_QUOTE;
+        } else {
             throw new XmlPullParserException("Expected a quoted string", this, null);
         }
         position++;
-        while (peekCharacter() != quote) {
-            position++;
-        }
-        position++;
+        return readUntil(delimiter, returnText);
     }
 
     private void readInternalSubset() throws IOException, XmlPullParserException {
@@ -814,7 +832,7 @@ public class KXmlParser implements XmlPullParser {
             if (c == '"' || c == '\'') {
                 position++;
                 // TODO: does this do escaping correctly?
-                String value = readValue((char) c, true, ValueContext.ATTRIBUTE);
+                String value = readValue((char) c, true, true, ValueContext.ATTRIBUTE);
                 position++;
                 defineAttributeDefault(elementName, attributeName, value);
             }
@@ -863,7 +881,7 @@ public class KXmlParser implements XmlPullParser {
         int quote = peekCharacter();
         if (quote == '"' || quote == '\'') {
             position++;
-            String value = readValue((char) quote, true, ValueContext.ENTITY_DECLARATION);
+            String value = readValue((char) quote, true, false, ValueContext.ENTITY_DECLARATION);
             position++;
             if (generalEntity && processDocDecl) {
                 if (documentEntities == null) {
@@ -871,7 +889,7 @@ public class KXmlParser implements XmlPullParser {
                 }
                 documentEntities.put(name, value.toCharArray());
             }
-        } else if (readExternalId(true)) {
+        } else if (readExternalId(true, false)) {
             skip();
             if (peekCharacter() == NDATA[0]) {
                 read(NDATA);
@@ -890,7 +908,7 @@ public class KXmlParser implements XmlPullParser {
         read(START_NOTATION);
         skip();
         readName();
-        if (!readExternalId(false)) {
+        if (!readExternalId(false, false)) {
             throw new XmlPullParserException(
                     "Expected external ID or public ID for notation", this, null);
         }
@@ -988,7 +1006,8 @@ public class KXmlParser implements XmlPullParser {
     /**
      * Sets name and attributes
      */
-    private void parseStartTag(boolean xmldecl) throws IOException, XmlPullParserException {
+    private void parseStartTag(boolean xmldecl, boolean throwOnResolveFailure)
+            throws IOException, XmlPullParserException {
         if (!xmldecl) {
             read('<');
         }
@@ -1056,7 +1075,8 @@ public class KXmlParser implements XmlPullParser {
                     throw new XmlPullParserException("attr value delimiter missing!", this, null);
                 }
 
-                attributes[i + 3] = readValue(delimiter, true, ValueContext.ATTRIBUTE);
+                attributes[i + 3] = readValue(delimiter, true, throwOnResolveFailure,
+                        ValueContext.ATTRIBUTE);
 
                 if (delimiter != ' ') {
                     position++; // end quote
@@ -1116,8 +1136,8 @@ public class KXmlParser implements XmlPullParser {
      * resolved entity to {@code out}. If the entity cannot be read or resolved,
      * {@code out} will contain the partial entity reference.
      */
-    private void readEntity(StringBuilder out, boolean isEntityToken, ValueContext valueContext)
-            throws IOException, XmlPullParserException {
+    private void readEntity(StringBuilder out, boolean isEntityToken, boolean throwOnResolveFailure,
+            ValueContext valueContext) throws IOException, XmlPullParserException {
         int start = out.length();
 
         if (buffer[position++] != '&') {
@@ -1202,7 +1222,7 @@ public class KXmlParser implements XmlPullParser {
 
         // keep the unresolved entity "&code;" in the text for relaxed clients
         unresolved = true;
-        if (!isEntityToken) {
+        if (throwOnResolveFailure) {
             checkRelaxed("unresolved: &" + code + ";");
         }
     }
@@ -1227,7 +1247,7 @@ public class KXmlParser implements XmlPullParser {
      * @param delimiter {@code <} for text, {@code "} and {@code '} for quoted
      *     attributes, or a space for unquoted attributes.
      */
-    private String readValue(char delimiter, boolean resolveEntities,
+    private String readValue(char delimiter, boolean resolveEntities, boolean throwOnResolveFailure,
             ValueContext valueContext) throws IOException, XmlPullParserException {
 
         /*
@@ -1318,7 +1338,7 @@ public class KXmlParser implements XmlPullParser {
 
             } else if (c == '&') {
                 isWhitespace = false; // TODO: what if the entity resolves to whitespace?
-                readEntity(result, false, valueContext);
+                readEntity(result, false, throwOnResolveFailure, valueContext);
                 start = position;
                 continue;
 
@@ -1649,6 +1669,12 @@ public class KXmlParser implements XmlPullParser {
         }
     }
 
+    public void close() throws IOException {
+        if (reader != null) {
+            reader.close();
+        }
+    }
+
     public boolean getFeature(String feature) {
         if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature)) {
             return processNsp;
@@ -1693,6 +1719,30 @@ public class KXmlParser implements XmlPullParser {
         }
     }
 
+    /**
+     * Returns the root element's name if it was declared in the DTD. This
+     * equals the first tag's name for valid documents.
+     */
+    public String getRootElementName() {
+        return rootElementName;
+    }
+
+    /**
+     * Returns the document's system ID if it was declared. This is typically a
+     * string like {@code http://www.w3.org/TR/html4/strict.dtd}.
+     */
+    public String getSystemId() {
+        return systemId;
+    }
+
+    /**
+     * Returns the document's public ID if it was declared. This is typically a
+     * string like {@code -//W3C//DTD HTML 4.01//EN}.
+     */
+    public String getPublicId() {
+        return publicId;
+    }
+
     public int getNamespaceCount(int depth) {
         if (depth > this.depth) {
             throw new IndexOutOfBoundsException();
@@ -1709,7 +1759,6 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public String getNamespace(String prefix) {
-
         if ("xml".equals(prefix)) {
             return "http://www.w3.org/XML/1998/namespace";
         }
