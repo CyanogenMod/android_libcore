@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class Streams {
@@ -111,5 +112,20 @@ public final class Streams {
         skipBuffer.set(buffer);
 
         return skipped;
+    }
+
+    /**
+     * Copies all of the bytes from {@code in} to {@code out}. Neither stream is closed.
+     * Returns the total number of bytes transferred.
+     */
+    public static int copy(InputStream in, OutputStream out) throws IOException {
+        int total = 0;
+        byte[] buffer = new byte[8192];
+        int c;
+        while ((c = in.read(buffer)) != -1) {
+            total += c;
+            out.write(buffer, 0, c);
+        }
+        return total;
     }
 }

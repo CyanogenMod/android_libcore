@@ -27,6 +27,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import junit.framework.TestCase;
+import libcore.base.Streams;
 import static tests.support.Support_Exec.execAndGetOutput;
 import tests.support.resource.Support_Resources;
 
@@ -113,7 +114,7 @@ public class DalvikExecTest extends TestCase {
 
         // Fill in the classes.dex contents, i.e. the Dalvik executable code:
         // (See below for the detailed source code contents.)
-        Support_Resources.writeResourceToStream("cts_dalvikExecTest_classes.dex", jarOut);
+        Streams.copy(Support_Resources.getResourceStream("cts_dalvikExecTest_classes.dex"), jarOut);
 
         // Now add a resource file:
         //
@@ -168,7 +169,7 @@ public class DalvikExecTest extends TestCase {
 
         // Fill in the classes.dex contents, i.e. the Dalvik executable code:
         // (See below for the detailed source code contents.)
-        Support_Resources.writeResourceToStream("cts_dalvikExecTest_classes.dex", jarOut);
+        Streams.copy(Support_Resources.getResourceStream("cts_dalvikExecTest_classes.dex"), jarOut);
 
         // Now add a resource file:
         //
