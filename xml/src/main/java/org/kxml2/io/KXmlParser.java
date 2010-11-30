@@ -879,17 +879,17 @@ public class KXmlParser implements XmlPullParser, Closeable {
 
         skip();
         int quote = peekCharacter();
+        String entityValue;
         if (quote == '"' || quote == '\'') {
             position++;
-            String value = readValue((char) quote, true, false, ValueContext.ENTITY_DECLARATION);
+            entityValue = readValue((char) quote, true, false, ValueContext.ENTITY_DECLARATION);
             position++;
-            if (generalEntity && processDocDecl) {
-                if (documentEntities == null) {
-                    documentEntities = new HashMap<String, char[]>();
-                }
-                documentEntities.put(name, value.toCharArray());
-            }
         } else if (readExternalId(true, false)) {
+            /*
+             * Map external entities to the empty string. This is dishonest,
+             * but it's consistent with Android's Expat pull parser.
+             */
+            entityValue = "";
             skip();
             if (peekCharacter() == NDATA[0]) {
                 read(NDATA);
@@ -898,6 +898,13 @@ public class KXmlParser implements XmlPullParser, Closeable {
             }
         } else {
             throw new XmlPullParserException("Expected entity value or external ID", this, null);
+        }
+
+        if (generalEntity && processDocDecl) {
+            if (documentEntities == null) {
+                documentEntities = new HashMap<String, char[]>();
+            }
+            documentEntities.put(name, entityValue.toCharArray());
         }
 
         skip();
@@ -1220,6 +1227,17 @@ public class KXmlParser implements XmlPullParser, Closeable {
             return;
         }
 
+        /*
+         * The parser skipped an external DTD, and now we've encountered an
+         * unknown entity that could have been declared there. Map it to the
+         * empty string. This is dishonest, but it's consistent with Android's
+         * old ExpatPullParser.
+         */
+        if (systemId != null) {
+            out.delete(start, out.length());
+            return;
+        }
+
         // keep the unresolved entity "&code;" in the text for relaxed clients
         unresolved = true;
         if (throwOnResolveFailure) {
@@ -1257,8 +1275,9 @@ public class KXmlParser implements XmlPullParser, Closeable {
          * If we're lucky (which we usually are), we'll return a single slice of
          * the buffer. This fast path avoids allocating a string builder.
          *
-         * There are 5 unlucky characters we could encounter:
+         * There are 6 unlucky characters we could encounter:
          *  - "&":  entities must be resolved.
+         *  - "%":  parameter entities are unsupported in entity values.
          *  - "<":  this isn't permitted in attributes unless relaxed.
          *  - "]":  this requires a lookahead to defend against the forbidden
          *          CDATA section delimiter "]]>".
@@ -1312,7 +1331,8 @@ public class KXmlParser implements XmlPullParser, Closeable {
                     && (c != '\n' || valueContext != ValueContext.ATTRIBUTE)
                     && c != '&'
                     && c != '<'
-                    && (c != ']' || valueContext != ValueContext.TEXT)) {
+                    && (c != ']' || valueContext != ValueContext.TEXT)
+                    && (c != '%' || valueContext != ValueContext.ENTITY_DECLARATION)) {
                 isWhitespace &= (c <= ' ');
                 position++;
                 continue;
@@ -1354,6 +1374,10 @@ public class KXmlParser implements XmlPullParser, Closeable {
                     checkRelaxed("Illegal: \"]]>\" outside CDATA section");
                 }
                 isWhitespace = false;
+
+            } else if (c == '%') {
+                throw new XmlPullParserException("This parser doesn't support parameter entities",
+                        this, null);
 
             } else {
                 throw new AssertionError();

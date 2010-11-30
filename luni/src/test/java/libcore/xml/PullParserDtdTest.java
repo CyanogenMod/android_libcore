@@ -182,6 +182,20 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }
 
+    /**
+     * Android's ExpatPullParser replaces missing entities with the empty string
+     * when an external DTD is declared.
+     */
+    public void testExternalDtdAndMissingEntity() throws Exception {
+        String xml = "<!DOCTYPE foo SYSTEM \"http://127.0.0.1:1/no-such-file.dtd\">"
+                + "<foo>&a;</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+
     public void testExternalIdIsCaseSensitive() throws Exception {
         // The spec requires 'SYSTEM' in upper case
         String xml = "<!DOCTYPE foo ["
@@ -448,6 +462,10 @@ public abstract class PullParserDtdTest extends TestCase {
         }
     }
 
+    /**
+     * In honeycomb, KxmlParser's DTD handling was improved but no longer
+     * supports returning the full DTD text. http://b/3241492
+     */
     public void testDoctypeWithNextToken() throws Exception {
         String xml = "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>";
         XmlPullParser parser = newPullParser(xml);
@@ -459,7 +477,7 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals("a", parser.getText());
         assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
         assertEquals("bb", parser.getName());
-        assertEquals("bar baz", parser.getText()); // TODO: this fails on gingerbread
+        assertEquals("bar baz", parser.getText());
         assertEquals(XmlPullParser.TEXT, parser.nextToken());
         assertEquals("c", parser.getText());
         assertEquals(XmlPullParser.END_TAG, parser.next());
