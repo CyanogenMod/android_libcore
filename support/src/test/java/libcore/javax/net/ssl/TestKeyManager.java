@@ -26,6 +26,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 import libcore.java.io.NullPrintStream;
+import libcore.java.security.StandardNames;
 
 /**
  * TestKeyManager is a simple proxy class that wraps an existing
@@ -68,7 +69,20 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         }
         dumpIssuers(issuers);
         dumpSocket(socket);
+        assertKeyTypes(keyTypes);
         return dumpAlias(keyManager.chooseClientAlias(keyTypes, issuers, socket));
+    }
+
+    private void assertKeyTypes(String[] keyTypes) {
+        for (String keyType : keyTypes) {
+            assertKeyType(keyType);
+        }
+    }
+
+    private void assertKeyType(String keyType) {
+        if (!StandardNames.KEY_TYPES.contains(keyType)) {
+            throw new AssertionError("Unexpected key type " + keyType);
+        }
     }
 
     public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
@@ -78,6 +92,7 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         out.print(' ');
         dumpIssuers(issuers);
         dumpSocket(socket);
+        assertKeyType(keyType);
         return dumpAlias(keyManager.chooseServerAlias(keyType, issuers, socket));
     }
 
@@ -126,6 +141,7 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         out.print(" | keyType: ");
         out.print(keyType);
         dumpIssuers(issuers);
+        assertKeyType(keyType);
         return dumpAliases(keyManager.getClientAliases(keyType, issuers));
     }
 
@@ -134,6 +150,7 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         out.print(" | keyType: ");
         out.print(keyType);
         dumpIssuers(issuers);
+        assertKeyType(keyType);
         return dumpAliases(keyManager.getServerAliases(keyType, issuers));
     }
 
@@ -166,6 +183,7 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         }
         dumpIssuers(issuers);
         dumpEngine(e);
+        assertKeyTypes(keyTypes);
         return dumpAlias(keyManager.chooseEngineClientAlias(keyTypes, issuers, e));
     }
 
@@ -176,6 +194,7 @@ public final class TestKeyManager extends X509ExtendedKeyManager {
         out.print(' ');
         dumpIssuers(issuers);
         dumpEngine(e);
+        assertKeyType(keyType);
         return dumpAlias(keyManager.chooseEngineServerAlias(keyType, issuers, e));
     }
 

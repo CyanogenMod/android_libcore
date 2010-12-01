@@ -91,6 +91,13 @@ struct DSA_Delete {
 };
 typedef UniquePtr<DSA, DSA_Delete> Unique_DSA;
 
+struct EC_KEY_Delete {
+    void operator()(EC_KEY* p) const {
+        EC_KEY_free(p);
+    }
+};
+typedef UniquePtr<EC_KEY, EC_KEY_Delete> Unique_EC_KEY;
+
 struct EVP_PKEY_Delete {
     void operator()(EVP_PKEY* p) const {
         EVP_PKEY_free(p);
@@ -1198,10 +1205,13 @@ static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* na
  * the JNIEnv on calls that can read and write to the SSL such as
  * SSL_do_handshake, SSL_read, SSL_write, and SSL_shutdown.
  *
- * Finally, we have one other piece of state setup by OpenSSL callbacks:
+ * Finally, we have two emphemeral keys setup by OpenSSL callbacks:
  *
  * (8) a set of ephemeral RSA keys that is lazily generated if a peer
  * wants to use an exportable RSA cipher suite.
+ *
+ * (9) a set of ephemeral EC keys that is lazily generated if a peer
+ * wants to use an TLS_ECDHE_* cipher suite.
  *
  */
 class AppData {
@@ -1214,6 +1224,7 @@ class AppData {
     jobject sslHandshakeCallbacks;
     jobject fileDescriptor;
     Unique_RSA ephemeralRsa;
+    Unique_EC_KEY ephemeralEc;
 
     /**
      * Creates the application data context for the SSL*.
@@ -1247,7 +1258,8 @@ class AppData {
             waitingThreads(0),
             env(NULL),
             sslHandshakeCallbacks(NULL),
-            ephemeralRsa(NULL) {
+            ephemeralRsa(NULL),
+            ephemeralEc(NULL) {
         fdsEmergency[0] = -1;
         fdsEmergency[1] = -1;
     }
@@ -1651,6 +1663,31 @@ static DH* tmp_dh_callback(SSL* ssl __attribute__ ((unused)),
     return tmp_dh;
 }
 
+static EC_KEY* ecGenerateKey(int keylength __attribute__ ((unused))) {
+    // TODO selected curve based on keylength
+    Unique_EC_KEY ec(EC_KEY_new_by_curve_name(NID_X9_62_prime256v1));
+    if (ec.get() == NULL) {
+        return NULL;
+    }
+    return ec.release();
+}
+
+/**
+ * Call back to ask for an ephemeral EC key for TLS_ECDHE_* cipher suites
+ */
+static EC_KEY* tmp_ecdh_callback(SSL* ssl __attribute__ ((unused)),
+                                 int is_export __attribute__ ((unused)),
+                                 int keylength) {
+    JNI_TRACE("ssl=%p tmp_ecdh_callback is_export=%d keylength=%d", ssl, is_export, keylength);
+    AppData* appData = toAppData(ssl);
+    if (appData->ephemeralEc.get() == NULL) {
+        JNI_TRACE("ssl=%p tmp_ecdh_callback generating ephemeral EC key", ssl);
+        appData->ephemeralEc.reset(ecGenerateKey(keylength));
+    }
+    JNI_TRACE("ssl=%p tmp_ecdh_callback => %p", ssl, appData->ephemeralEc.get());
+    return appData->ephemeralEc.get();
+}
+
 /*
  * public static native int SSL_CTX_new();
  */
@@ -1669,7 +1706,9 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
                         // We also disable compression for better compatibility b/2710492 b/2710497
                         | SSL_OP_NO_COMPRESSION
                         // Because dhGenerateParameters uses DSA_generate_parameters_ex
-                        | SSL_OP_SINGLE_DH_USE);
+                        | SSL_OP_SINGLE_DH_USE
+                        // Because ecGenerateParameters uses a fixed named curve
+                        | SSL_OP_SINGLE_ECDH_USE);
 
     int mode = SSL_CTX_get_mode(sslCtx.get());
     /*
@@ -1697,6 +1736,7 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     SSL_CTX_set_client_cert_cb(sslCtx.get(), client_cert_cb);
     SSL_CTX_set_tmp_rsa_callback(sslCtx.get(), tmp_rsa_callback);
     SSL_CTX_set_tmp_dh_callback(sslCtx.get(), tmp_dh_callback);
+    SSL_CTX_set_tmp_ecdh_callback(sslCtx.get(), tmp_ecdh_callback);
 
     JNI_TRACE("NativeCrypto_SSL_CTX_new => %p", sslCtx.get());
     return (jint) sslCtx.release();
@@ -1783,6 +1823,8 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
         return;
     }
 
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey EVP_PKEY_type=%d",
+              ssl, EVP_PKEY_type(privatekeyevp.get()->type));
     int ret = SSL_use_PrivateKey(ssl, privatekeyevp.get());
     if (ret == 1) {
         privatekeyevp.release();

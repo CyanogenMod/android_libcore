@@ -38,7 +38,7 @@ public class SSLSocketFactoryTest extends TestCase {
     public void test_SSLSocketFactory_getDefaultCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         String[] cipherSuites = sf.getDefaultCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, sf.getDefaultCipherSuites());
     }
 
