@@ -54,7 +54,8 @@ public final class OpcodeInfo {
      * Returns whether the given opcode represents a method invocation
      * operation. This includes most things that look like method
      * invocation at the source level, but it notably excludes methods
-     * that are implemented directly in the VM.
+     * that are implemented directly in the VM as well as ones the VM
+     * knows to have empty implementations.
      *
      * @hide Unclear if this is useful enough to publish as supported API.
      *
