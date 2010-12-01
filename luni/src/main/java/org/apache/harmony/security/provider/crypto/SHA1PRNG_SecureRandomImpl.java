@@ -198,7 +198,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       NullPointerException - if null is passed to the "seed" argument
      */
-    protected void engineSetSeed(byte[] seed) {
+    protected synchronized void engineSetSeed(byte[] seed) {
 
         if (seed == null) {
             throw new NullPointerException("seed == null");
@@ -227,7 +227,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       InvalidParameterException - if numBytes < 0
      */
-    protected byte[] engineGenerateSeed(int numBytes) {
+    protected synchronized byte[] engineGenerateSeed(int numBytes) {
 
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
 
@@ -265,7 +265,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       NullPointerException - if null is passed to the "bytes" argument
      */
-    protected void engineNextBytes(byte[] bytes) {
+    protected synchronized void engineNextBytes(byte[] bytes) {
 
         int i, n;
 
