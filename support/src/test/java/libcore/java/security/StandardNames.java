@@ -583,7 +583,7 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_ECDH_anon_WITH_NULL_SHA");
 
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
-        addRi(CIPHER_SUITE_SECURE_RENEGOTIATION);
+        addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
 
         // Android does not have Keberos support
         addRi(     "TLS_KRB5_WITH_RC4_128_SHA");
@@ -647,12 +647,8 @@ public final class StandardNames extends Assert {
         "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
         "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
         "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
-        "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
-    static {
-        if (IS_RI) {
-            CIPHER_SUITES_DEFAULT.add(CIPHER_SUITE_SECURE_RENEGOTIATION);
-        }
-    }
+        "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
+        CIPHER_SUITE_SECURE_RENEGOTIATION);
 
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
@@ -660,7 +656,8 @@ public final class StandardNames extends Assert {
         if (!IS_RI) {
             Iterator<String> i = CIPHER_SUITES_SSLENGINE.iterator();
             while (i.hasNext()) {
-                if (i.next().startsWith("TLS_EC")) {
+                String cs = i.next();
+                if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
                     i.remove();
                 }
             }

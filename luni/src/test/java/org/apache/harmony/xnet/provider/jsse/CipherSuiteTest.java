@@ -29,7 +29,11 @@ import org.apache.harmony.xnet.provider.jsse.CipherSuite;
 public class CipherSuiteTest extends TestCase {
     public void test_getByName() throws Exception {
         for (String name : StandardNames.CIPHER_SUITES) {
-            test_CipherSuite(name);
+            if (name.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                assertNull(CipherSuite.getByName(name));
+            } else {
+                test_CipherSuite(name);
+            }
         }
 
         assertNull(CipherSuite.getByName("bogus"));

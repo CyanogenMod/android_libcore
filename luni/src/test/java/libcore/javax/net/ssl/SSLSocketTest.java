@@ -66,27 +66,28 @@ public class SSLSocketTest extends TestCase {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             StandardNames.JSSE_PROVIDER_NAME,
                                                             StandardNames.JSSE_PROVIDER_NAME,
-                                                            false);
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            StandardNames.JSSE_PROVIDER_NAME,
-                                                            StandardNames.JSSE_PROVIDER_NAME,
+                                                            true,
                                                             true);
         } else  {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
                                                             "HarmonyJSSE",
+                                                            false,
                                                             false);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
                                                             "AndroidOpenSSL",
-                                                            false);
+                                                            true,
+                                                            true);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
                                                             "AndroidOpenSSL",
-                                                            false);
+                                                            false,
+                                                            true);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
                                                             "HarmonyJSSE",
+                                                            true,
                                                             false);
         }
 
@@ -94,7 +95,8 @@ public class SSLSocketTest extends TestCase {
     private void test_SSLSocket_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  String clientProvider,
                                                                  String serverProvider,
-                                                                 boolean secureRenegotiation)
+                                                                 boolean clientSecureRenegotiation,
+                                                                 boolean serverSecureRenegotiation)
             throws Exception {
 
         String clientToServerString = "this is sent from the client to the server...";
@@ -108,10 +110,10 @@ public class SSLSocketTest extends TestCase {
         if (clientProvider.equals(serverProvider)) {
             cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
         } else {
-            String[] clientCipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
-            String[] serverCipherSuites = c.serverContext.getSocketFactory().getSupportedCipherSuites();
-            Set<String> ccs = new HashSet<String>(Arrays.asList(clientCipherSuites));
-            Set<String> scs = new HashSet<String>(Arrays.asList(serverCipherSuites));
+            String[] clientSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
+            String[] serverSuites = c.serverContext.getSocketFactory().getSupportedCipherSuites();
+            Set<String> ccs = new HashSet<String>(Arrays.asList(clientSuites));
+            Set<String> scs = new HashSet<String>(Arrays.asList(serverSuites));
             Set<String> cs = new HashSet<String>(ccs);
             cs.retainAll(scs);
             cipherSuites = cs.toArray(new String[cs.size()]);
@@ -136,12 +138,19 @@ public class SSLSocketTest extends TestCase {
                     continue;
                 }
 
-                String[] cipherSuiteArray
-                        = (secureRenegotiation
+                String[] clientCipherSuiteArray
+                        = (clientSecureRenegotiation
                            ? new String[] { cipherSuite,
                                             StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
                            : new String[] { cipherSuite });
-                SSLSocket[] pair = TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
+                String[] serverCipherSuiteArray
+                        = (serverSecureRenegotiation
+                           ? new String[] { cipherSuite,
+                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
+                           : new String[] { cipherSuite });
+                SSLSocket[] pair = TestSSLSocketPair.connect(c,
+                                                             clientCipherSuiteArray,
+                                                             serverCipherSuiteArray);
 
                 SSLSocket server = pair[0];
                 SSLSocket client = pair[1];
