@@ -17,20 +17,14 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 import java.security.Security;
-
 import junit.framework.TestCase;
-@TestTargetClass(SecureRandom.class)
+
 public class SecureRandom2Test extends TestCase {
 
     private static final byte[] SEED_BYTES = { (byte) 33, (byte) 15, (byte) -3,
@@ -40,12 +34,6 @@ public class SecureRandom2Test extends TestCase {
 
     private static final long SEED_VALUE = 5335486759L;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void testGetProvider() {
         SecureRandom sr1 = new SecureRandom();
         assertNotNull(sr1.getProvider());
@@ -66,14 +54,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#SecureRandom()
+     * java.security.SecureRandom#SecureRandom()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecureRandom",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.security.SecureRandom()
         try {
@@ -84,14 +66,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#SecureRandom(byte[])
+     * java.security.SecureRandom#SecureRandom(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecureRandom",
-        args = {byte[].class}
-    )
     public void test_Constructor$B() {
         // Test for method java.security.SecureRandom(byte [])
         try {
@@ -109,15 +85,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#SecureRandom(java.security.SecureRandomSpi,
-     *        java.security.Provider)
+     * java.security.SecureRandom#SecureRandom(java.security.SecureRandomSpi, java.security.Provider)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecureRandom",
-        args = {java.security.SecureRandomSpi.class, java.security.Provider.class}
-    )
     public void test_ConstructorLjava_security_SecureRandomSpi_java_security_Provider() {
         try {
             new MySecureRandom(null, null);
@@ -140,14 +109,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#generateSeed(int)
+     * java.security.SecureRandom#generateSeed(int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "generateSeed",
-        args = {int.class}
-    )
     public void test_generateSeedI() {
         // Test for method byte [] java.security.SecureRandom.generateSeed(int)
         byte[] seed = new SecureRandom().generateSeed(SEED_SIZE);
@@ -162,14 +125,8 @@ public class SecureRandom2Test extends TestCase {
 
     }
     /**
-     * @tests java.security.SecureRandom#getInstance(java.lang.String)
+     * java.security.SecureRandom#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() {
         // Test for method java.security.SecureRandom
         // java.security.SecureRandom.getInstance(java.lang.String)
@@ -188,15 +145,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#getInstance(java.lang.String,
-     *        java.lang.String)
+     * java.security.SecureRandom#getInstance(java.lang.String, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException, NoSuchProviderException, IllegalArgumentException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String() {
         // Test for method java.security.SecureRandom
         // java.security.SecureRandom.getInstance(java.lang.String,
@@ -220,14 +170,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#getSeed(int)
+     * java.security.SecureRandom#getSeed(int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification of negative parameter missed",
-        method = "getSeed",
-        args = {int.class}
-    )
     public void test_getSeedI() {
         // Test for method byte [] java.security.SecureRandom.getSeed(int)
         byte[] seed = SecureRandom.getSeed(SEED_SIZE);
@@ -242,14 +186,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#nextBytes(byte[])
+     * java.security.SecureRandom#nextBytes(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Null array checking missed",
-        method = "nextBytes",
-        args = {byte[].class}
-    )
     public void test_nextBytes$B() {
         // Test for method void java.security.SecureRandom.nextBytes(byte [])
         byte[] bytes = new byte[313];
@@ -268,14 +206,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#setSeed(byte[])
+     * java.security.SecureRandom#setSeed(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Null array checking missed",
-        method = "setSeed",
-        args = {byte[].class}
-    )
     public void test_setSeed$B() {
         // Test for method void java.security.SecureRandom.setSeed(byte [])
         try {
@@ -293,14 +225,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#setSeed(long)
+     * java.security.SecureRandom#setSeed(long)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "setSeed",
-        args = {long.class}
-    )
     public void test_setSeedJ() {
         // Test for method void java.security.SecureRandom.setSeed(long)
         try {
@@ -317,14 +243,8 @@ public class SecureRandom2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.SecureRandom#getAlgorithm()
+     * java.security.SecureRandom#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() {
         // Regression for HARMONY-750
 
@@ -350,12 +270,6 @@ public class SecureRandom2Test extends TestCase {
     }
 
     // Regression Test for HARMONY-3552.
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "next",
-        args = {int.class}
-    )
     public void test_nextJ() throws Exception {
         MySecureRandom mySecureRandom = new MySecureRandom(
                 new MySecureRandomSpi(), null);
