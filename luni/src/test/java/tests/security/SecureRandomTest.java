@@ -15,19 +15,20 @@
  */
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import junit.framework.TestCase;
-public abstract class SecureRandomTest extends TestCase {
 
+public abstract class SecureRandomTest extends TestCase {
 
     private final String algorithmName;
 
-    private int counter=0;
+    private int counter = 0;
 
     protected SecureRandomTest(String name) {
         this.algorithmName = name;
@@ -37,28 +38,6 @@ public abstract class SecureRandomTest extends TestCase {
         super.setUp();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="setSeed",
-                args={long.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="nextBytes",
-                args={byte[].class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testSecureRandom() {
         SecureRandom secureRandom1 = null;
         try {
@@ -91,5 +70,27 @@ public abstract class SecureRandomTest extends TestCase {
         random.nextBytes(randomData);
 
         return randomData;
+    }
+
+
+    public void testSecureRandomThreadSafety() throws Exception {
+        final SecureRandom secureRandom = SecureRandom.getInstance(algorithmName);
+        int threads = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        ExecutorCompletionService ecs = new ExecutorCompletionService(executor);
+        for (int t = 0; t < threads; t++) {
+            ecs.submit(new Callable<Void>() {
+                public Void call () {
+                    for (int i = 0; i < 1000; i++) {
+                        secureRandom.generateSeed(1024);
+                    }
+                    return null;
+                }
+            });
+        }
+        executor.shutdown();
+        for (int i = 0; i < threads; i++) {
+            ecs.take().get();
+        }
     }
 }
