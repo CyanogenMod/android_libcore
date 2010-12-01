@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import libcore.base.EmptyArray;
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A
@@ -94,8 +95,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public static final Comparator<String> CASE_INSENSITIVE_ORDER = new CaseInsensitiveComparator();
 
-    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
-
     private static final char[] ASCII;
     static {
         ASCII = new char[128];
@@ -116,7 +115,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Creates an empty string.
      */
     public String() {
-        value = EMPTY_CHAR_ARRAY;
+        value = EmptyArray.CHAR;
         offset = 0;
         count = 0;
     }
@@ -184,10 +183,11 @@ public final class String implements Serializable, Comparable<String>, CharSeque
             if (count > 0) {
                 value = cb.array();
             } else {
-                value = EMPTY_CHAR_ARRAY;
+                value = EmptyArray.CHAR;
             }
         } else {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("data.length=" + data.length
+                    + " start=" + start + " length=" + length);
         }
     }
 
@@ -224,7 +224,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
                     value[i] = (char) (high + (data[start++] & 0xff));
                 }
             } else {
-                throw new StringIndexOutOfBoundsException();
+                throw new StringIndexOutOfBoundsException(
+                        "data.length=" + data.length + " start=" + start + " length=" + length);
             }
         } else {
             throw new NullPointerException();
@@ -314,7 +315,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public String(byte[] data, int start, int length, Charset charset) {
         if (start < 0 || length < 0 || length > data.length - start) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException(
+                    "data.length=" + data.length + " start=" + start + " length=" + length);
         }
 
         // We inline UTF-8, ISO-8859-1, and US-ASCII decoders for speed and because 'count' and
@@ -446,7 +448,7 @@ outer:
                 this.value = new char[count];
                 System.arraycopy(cb.array(), 0, value, 0, count);
             } else {
-                value = EMPTY_CHAR_ARRAY;
+                value = EmptyArray.CHAR;
             }
         }
     }
@@ -514,7 +516,8 @@ outer:
             count = length;
             System.arraycopy(data, start, value, 0, count);
         } else {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException(
+                    "data.length=" + data.length + " start=" + start + " length=" + length);
         }
     }
 
@@ -623,7 +626,8 @@ outer:
             throw new NullPointerException();
         }
         if (offset < 0 || count < 0 || (long) offset + (long) count > codePoints.length) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("codePoints.length=" + codePoints.length
+                    + " offset=" + offset + " count=" + count);
         }
         this.offset = 0;
         this.value = new char[count * 2];
@@ -685,7 +689,7 @@ outer:
         if (0 <= index && index < count) {
             return value[offset + index];
         }
-        throw new StringIndexOutOfBoundsException();
+        throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
     }
 
     // Optimized for ASCII
@@ -940,12 +944,11 @@ outer:
                 for (int i = offset + start; i < end; i++) {
                     data[index++] = (byte) value[i];
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new StringIndexOutOfBoundsException();
+            } catch (ArrayIndexOutOfBoundsException ignored) {
             }
-        } else {
-            throw new StringIndexOutOfBoundsException();
         }
+        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end
+                + " data.length=" + data.length + " index=" + index + " length=" + count);
     }
 
     /**
@@ -1027,7 +1030,8 @@ outer:
         if (0 <= start && start <= end && end <= count) {
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end +
+                    " buffer.length=" + buffer.length + " index=" + index + " length=" + count);
         }
     }
 
@@ -1618,7 +1622,7 @@ outer:
         if (0 <= start && start <= count) {
             return new String(offset + start, count - start, value);
         }
-        throw new StringIndexOutOfBoundsException(start);
+        throw new StringIndexOutOfBoundsException("start=" + start + " length=" + count);
     }
 
     /**
@@ -1644,7 +1648,8 @@ outer:
         if (0 <= start && start <= end && end <= count) {
             return new String(offset + start, end - start, value);
         }
-        throw new StringIndexOutOfBoundsException();
+        throw new StringIndexOutOfBoundsException(
+                "start=" + start + " end=" + end + " length=" + count);
     }
 
     /**
@@ -1894,6 +1899,23 @@ outer:
     }
 
     /**
+     * Equivalent to {@code equals(new String(chars, offset, length))}.
+     *
+     * @hide
+     */
+    public boolean contentEquals(char[] chars, int offset, int length) {
+        if (count != length) {
+            return false;
+        }
+        for (int i = 0; i < length; i++) {
+            if (chars[offset + i] != value[this.offset + i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Compares a {@code CharSequence} to this {@code String} to determine if
      * their contents are equal.
      *
@@ -2045,7 +2067,7 @@ outer:
      */
     public int codePointAt(int index) {
         if (index < 0 || index >= count) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
         }
         return Character.codePointAt(value, offset + index, offset + count);
     }
@@ -2059,7 +2081,7 @@ outer:
      */
     public int codePointBefore(int index) {
         if (index < 1 || index > count) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
         }
         return Character.codePointBefore(value, offset + index, offset);
     }
@@ -2080,7 +2102,8 @@ outer:
      */
     public int codePointCount(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > count || beginIndex > endIndex) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("beginIndex=" + beginIndex
+                    + " endIndex=" + endIndex + " length=" + count);
         }
         return Character.codePointCount(value, offset + beginIndex, endIndex - beginIndex);
     }

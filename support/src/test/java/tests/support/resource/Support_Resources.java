@@ -17,6 +17,7 @@
 
 package tests.support.resource;
 
+import libcore.base.Streams;
 import tests.support.Support_Configuration;
 
 import java.io.File;
@@ -24,9 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 public class Support_Resources {
@@ -116,23 +115,17 @@ public class Support_Resources {
         return File.createTempFile("hyts_", suffix, null);
     }
 
-    public static void copyLocalFileto(File dest, InputStream in)
-            throws FileNotFoundException, IOException {
+    public static void copyLocalFileto(File dest, InputStream in) throws IOException {
         if (!dest.exists()) {
             FileOutputStream out = new FileOutputStream(dest);
-            int result;
-            byte[] buf = new byte[4096];
-            while ((result = in.read(buf)) != -1) {
-                out.write(buf, 0, result);
-            }
-            in.close();
+            Streams.copy(in, out);
             out.close();
             dest.deleteOnExit();
         }
+        in.close();
     }
 
-    public static File getExternalLocalFile(String url) throws IOException,
-            MalformedURLException {
+    public static File getExternalLocalFile(String url) throws IOException {
         File resources = createTempFolder();
         InputStream in = new URL(url).openStream();
         File temp = new File(resources.toString() + "/local.tmp");
@@ -151,7 +144,6 @@ public class Support_Resources {
      * @return - resource input stream
      */
     public static InputStream getResourceStream(String name) {
-
         InputStream is = Support_Resources.class.getResourceAsStream(name);
 
         if (is == null) {
@@ -163,51 +155,6 @@ public class Support_Resources {
         }
 
         return is;
-    }
-
-    /**
-     * Util method to write resource files directly to an OutputStream.
-     *
-     * @param name - name of resource file.
-     * @param out - OutputStream to write to.
-     * @return - number of bytes written to out.
-     */
-    public static int writeResourceToStream(String name, OutputStream out) {
-        InputStream input = getResourceStream(name);
-        byte[] buffer = new byte[512];
-        int total = 0;
-        int count;
-        try {
-            count = input.read(buffer);
-            while (count != -1) {
-                out.write(buffer, 0, count);
-                total = total + count;
-                count = input.read(buffer);
-            }
-            return total;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write to passed stream.", e);
-        }
-    }
-
-    /**
-     * Util method to get absolute path to resource file
-     *
-     * @param name - name of resource file
-     * @return - path to resource
-     */
-    public static String getAbsoluteResourcePath(String name) {
-
-        URL url = ClassLoader.getSystemClassLoader().getResource(name);
-        if (url == null) {
-            throw new RuntimeException("Failed to load resource: " + name);
-        }
-
-        try {
-            return new File(url.toURI()).getAbsolutePath();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to load resource: " + name);
-        }
     }
 
     public static File resourceToTempFile(String path) throws IOException {

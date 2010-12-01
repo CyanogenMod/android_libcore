@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Arrays;
 import java.util.Enumeration;
+import libcore.base.EmptyArray;
 
 /**
  * An IPv6 address. See {@link InetAddress}.
@@ -375,7 +376,7 @@ public final class Inet6Address extends InetAddress {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("ipaddress", new byte[0].getClass()),
+            new ObjectStreamField("ipaddress", EmptyArray.BYTE.getClass()),
             new ObjectStreamField("scope_id", Integer.TYPE),
             new ObjectStreamField("scope_id_set", Boolean.TYPE),
             new ObjectStreamField("scope_ifname_set", Boolean.TYPE),

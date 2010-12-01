@@ -68,6 +68,7 @@ import tests.http.DefaultResponseCache;
 import tests.http.MockResponse;
 import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
+import tests.net.StuckServer;
 
 public class URLConnectionTest extends junit.framework.TestCase {
 
@@ -1393,27 +1394,16 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     public void testConnectTimeouts() throws IOException {
-        // Set a backlog and use it up so that we can expect the
-        // URLConnection to properly timeout. According to Steven's
-        // 4.5 "listen function", linux adds 3 to the specified
-        // backlog, so we need to connect 4 times before it will hang.
-        ServerSocket serverSocket = new ServerSocket(0, 1);
-        int serverPort = serverSocket.getLocalPort();
-        Socket[] sockets = new Socket[4];
-        for (int i = 0; i < sockets.length; i++) {
-            sockets[i] = new Socket("localhost", serverPort);
-        }
-
+        StuckServer ss = new StuckServer();
+        int serverPort = ss.getLocalPort();
         URLConnection urlConnection = new URL("http://localhost:" + serverPort).openConnection();
         urlConnection.setConnectTimeout(1000);
         try {
             urlConnection.getInputStream();
             fail();
         } catch (SocketTimeoutException expected) {
-        }
-
-        for (Socket s : sockets) {
-            s.close();
+        } finally {
+            ss.close();
         }
     }
 

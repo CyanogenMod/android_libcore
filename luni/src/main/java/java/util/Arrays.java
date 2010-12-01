@@ -114,15 +114,9 @@ public class Arrays {
 
         @Override
         public E set(int location, E object) {
-            try {
-                E result = a[location];
-                a[location] = object;
-                return result;
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new IndexOutOfBoundsException();
-            } catch (ArrayStoreException e) {
-                throw new ClassCastException();
-            }
+            E result = a[location];
+            a[location] = object;
+            return result;
         }
 
         @Override

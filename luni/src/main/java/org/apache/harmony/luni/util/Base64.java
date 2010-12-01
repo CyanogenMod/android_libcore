@@ -22,6 +22,7 @@
 package org.apache.harmony.luni.util;
 
 import java.nio.charset.Charset;
+import libcore.base.EmptyArray;
 
 /**
  * This class implements Base64 encoding/decoding functionality
@@ -40,7 +41,7 @@ public class Base64 {
         int length = len / 4 * 3;
         // return an empty array on empty or short input without padding
         if (length == 0) {
-            return new byte[0];
+            return EmptyArray.BYTE;
         }
         // temporary array
         byte[] out = new byte[length];

@@ -7,7 +7,7 @@ package org.xml.sax.ext;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
-
+import libcore.base.EmptyArray;
 
 /**
  * SAX2 extension helper for additional Attributes information,
@@ -46,8 +46,8 @@ public class Attributes2Impl extends AttributesImpl implements Attributes2
      */
     public Attributes2Impl () {
         // BEGIN android-added
-        declared = new boolean[0];
-        specified = new boolean[0];
+        declared = EmptyArray.BOOLEAN;
+        specified = EmptyArray.BOOLEAN;
         // END android-added
     }
 

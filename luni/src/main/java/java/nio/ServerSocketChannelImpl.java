@@ -82,7 +82,7 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                     if (!isBlocking) {
                         int[] tryResult = new int[1];
                         boolean success = Platform.NETWORK.select(new FileDescriptor[] { fd },
-                                new FileDescriptor[0], 1, 0, 0, tryResult);
+                                SelectorImpl.EMPTY_FILE_DESCRIPTORS_ARRAY, 1, 0, 0, tryResult);
                         if (!success || 0 == tryResult[0]) {
                             // no pending connections, returns immediately.
                             return null;

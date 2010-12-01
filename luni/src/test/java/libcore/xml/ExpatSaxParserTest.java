@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+package libcore.xml;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.harmony.xml.ExpatReader;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -44,6 +45,19 @@ import java.net.Socket;
 public class ExpatSaxParserTest extends TestCase {
 
     private static final String SNIPPET = "<dagny dad=\"bob\">hello</dagny>";
+
+    public void testGlobalReferenceTableOverflow() throws Exception {
+        // We used to use a JNI global reference per interned string.
+        // Framework apps have a limit of 2000 JNI global references per VM.
+        StringBuilder xml = new StringBuilder();
+        xml.append("<root>");
+        for (int i = 0; i < 4000; ++i) {
+            xml.append("<tag" + i + ">");
+            xml.append("</tag" + i + ">");
+        }
+        xml.append("</root>");
+        parse(xml.toString(), new DefaultHandler());
+    }
 
     public void testExceptions() {
         // From startElement().
@@ -675,8 +689,7 @@ public class ExpatSaxParserTest extends TestCase {
             XMLReader reader = new ExpatReader();
             reader.setContentHandler(contentHandler);
             reader.parse(new InputSource(new StringReader(xml)));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new AssertionError(e);
         }
     }

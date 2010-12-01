@@ -186,18 +186,6 @@ public class FileTest extends junit.framework.TestCase {
     }
 
     private static void ln_s(String target, String linkName) throws Exception {
-        String[] args = new String[] { "ln", "-s", target, linkName };
-        // System.err.println("ln -s " + target + " " + linkName);
-        Process p = Runtime.getRuntime().exec(args);
-        int result = p.waitFor();
-        if (result != 0) {
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line;
-            while ((line = r.readLine()) != null) {
-                System.err.println(line);
-            }
-            fail("ln -s " + target + " " + linkName + " failed. " +
-                    "Does that file system support symlinks?");
-        }
+        File.symlink(target, linkName);
     }
 }

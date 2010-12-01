@@ -23,6 +23,21 @@ import java.io.OutputStream;
 /**
  * The {@code GZIPOutputStream} class is used to write data to a stream in the
  * GZIP storage format.
+ *
+ * <h3>Example</h3>
+ * <p>Using {@code GZIPOutputStream} is a little easier than {@link ZipOutputStream}
+ * because GZIP is only for compression, and is not a container for multiple files.
+ * This code creates a GZIP stream, similar to the {@code gzip(1)} utility.
+ * <pre>
+ * OutputStream os = ...
+ * byte[] bytes = ...
+ * GZIPOutputStream zos = new GZIPOutputStream(new BufferedOutputStream(os));
+ * try {
+ *     zos.write(bytes);
+ * } finally {
+ *     zos.close();
+ * }
+ * </pre>
  */
 public class GZIPOutputStream extends DeflaterOutputStream {
 

@@ -397,9 +397,15 @@ public final class VMDebug {
     private static void startClassPrep() {}
 
     /**
-      * Returns a count of the extant instances of a class.
+     * Counts the instances of a class.
      *
+     * @param klass the class to be counted.
+     * @param assignable if false, direct instances of klass are
+     *                   counted.  If true, instances that are
+     *                   assignable to klass, as defined by
+     *                   {@link Class#isAssignableFrom} are counted.
+     * @returns the number of matching instances.
      * @hide
      */
-    public static native long countInstancesOfClass(Class cls);
+    public static native long countInstancesOfClass(Class klass, boolean assignable);
 }

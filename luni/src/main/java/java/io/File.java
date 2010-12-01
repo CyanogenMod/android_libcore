@@ -105,7 +105,7 @@ public class File implements Serializable, Comparable<File> {
     /**
      * The path we return from getAbsolutePath, and pass down to native code.
      */
-    private String absolutePath;
+    private transient String absolutePath;
 
     static {
         // The default protection domain grants access to these properties.
@@ -262,8 +262,8 @@ public class File implements Serializable, Comparable<File> {
     /**
      * Lists the file system roots. The Java platform may support zero or more
      * file systems, each with its own platform-dependent root. Further, the
-     * canonical pathname of any file on the system will always begin with one
-     * of the returned file system roots.
+     * {@link #getCanonicalPath canonical} path of any file on the system will
+     * always begin with one of the returned file system roots.
      *
      * @return the array of file system roots.
      */
@@ -436,9 +436,12 @@ public class File implements Serializable, Comparable<File> {
     private static native boolean existsImpl(String path);
 
     /**
-     * Returns the absolute path of this file.
+     * Returns the absolute path of this file. An absolute path is a path that starts at a root
+     * of the file system. On Android, there is only one root: {@code /}.
      *
-     * @return the absolute file path.
+     * <p>A common use for absolute paths is when passing paths to a {@code Process} as
+     * command-line arguments, to remove the requirement implied by relative paths, that the
+     * child must have the same working directory as its parent.
      */
     public String getAbsolutePath() {
         return absolutePath;
@@ -446,191 +449,46 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Returns a new file constructed using the absolute path of this file.
-     *
-     * @return a new file from this file's absolute path.
-     * @see java.lang.SecurityManager#checkPropertyAccess
+     * Equivalent to {@code new File(this.getAbsolutePath())}.
      */
     public File getAbsoluteFile() {
         return new File(this.getAbsolutePath());
     }
 
     /**
-     * Returns the absolute path of this file with all references resolved. An
-     * <em>absolute</em> path is one that begins at the root of the file
-     * system. The canonical path is one in which all references have been
-     * resolved. For the cases of '..' and '.', where the file system supports
-     * parent and working directory respectively, these are removed and replaced
-     * with a direct directory reference. If the file does not exist,
-     * getCanonicalPath() may not resolve any references and simply returns an
-     * absolute path name or throws an IOException.
+     * Returns the canonical path of this file.
+     * An <i>absolute</i> path is one that begins at the root of the file system.
+     * A <i>canonical</i> path is an absolute path with symbolic links
+     * and references to "." or ".." resolved. If a path element does not exist (or
+     * is not searchable), there is a conflict between interpreting canonicalization
+     * as a textual operation (where "a/../b" is "b" even if "a" does not exist) .
+     *
+     * <p>Most callers should use {@link #getAbsolutePath} instead. A canonical path is
+     * significantly more expensive to compute, and not generally useful. The primary
+     * use for canonical paths is determining whether two paths point to the same file by
+     * comparing the canonicalized paths.
+     *
+     * <p>It can be actively harmful to use a canonical path, specifically because
+     * canonicalization removes symbolic links. It's wise to assume that a symbolic link
+     * is present for a reason, and that that reason is because the link may need to change.
+     * Canonicalization removes this layer of indirection. Good code should generally avoid
+     * caching canonical paths.
      *
      * @return the canonical path of this file.
      * @throws IOException
      *             if an I/O error occurs.
      */
     public String getCanonicalPath() throws IOException {
-        // BEGIN android-removed
-        //     Caching the canonical path is bogus. Users facing specific
-        //     performance problems can perform their own caching, with
-        //     eviction strategies that are appropriate for their application.
-        //     A VM-wide cache with no mechanism to evict stale elements is a
-        //     disservice to applications that need up-to-date data.
-        // String canonPath = FileCanonPathCache.get(absPath);
-        // if (canonPath != null) {
-        //     return canonPath;
-        // }
-        // END android-removed
-
-        // TODO: rewrite getCanonicalPath, resolve, and resolveLink.
-
-        String result = absolutePath;
-        if (separatorChar == '/') {
-            // resolve the full path first
-            result = resolveLink(result, result.length(), false);
-            // resolve the parent directories
-            result = resolve(result);
-        }
-        int numSeparators = 1;
-        for (int i = 0; i < result.length(); ++i) {
-            if (result.charAt(i) == separatorChar) {
-                numSeparators++;
-            }
-        }
-        int[] sepLocations = new int[numSeparators];
-        int rootLoc = 0;
-        if (separatorChar != '/') {
-            if (result.charAt(0) == '\\') {
-                rootLoc = (result.length() > 1 && result.charAt(1) == '\\') ? 1 : 0;
-            } else {
-                rootLoc = 2; // skip drive i.e. c:
-            }
-        }
-
-        char[] newResult = new char[result.length() + 1];
-        int newLength = 0, lastSlash = 0, foundDots = 0;
-        sepLocations[lastSlash] = rootLoc;
-        for (int i = 0; i <= result.length(); ++i) {
-            if (i < rootLoc) {
-                newResult[newLength++] = result.charAt(i);
-            } else {
-                if (i == result.length() || result.charAt(i) == separatorChar) {
-                    if (i == result.length() && foundDots == 0) {
-                        break;
-                    }
-                    if (foundDots == 1) {
-                        /* Don't write anything, just reset and continue */
-                        foundDots = 0;
-                        continue;
-                    }
-                    if (foundDots > 1) {
-                        /* Go back N levels */
-                        lastSlash = lastSlash > (foundDots - 1) ? lastSlash - (foundDots - 1) : 0;
-                        newLength = sepLocations[lastSlash] + 1;
-                        foundDots = 0;
-                        continue;
-                    }
-                    sepLocations[++lastSlash] = newLength;
-                    newResult[newLength++] = separatorChar;
-                    continue;
-                }
-                if (result.charAt(i) == '.') {
-                    foundDots++;
-                    continue;
-                }
-                /* Found some dots within text, write them out */
-                if (foundDots > 0) {
-                    for (int j = 0; j < foundDots; j++) {
-                        newResult[newLength++] = '.';
-                    }
-                }
-                newResult[newLength++] = result.charAt(i);
-                foundDots = 0;
-            }
-        }
-        // remove trailing slash
-        if (newLength > (rootLoc + 1) && newResult[newLength - 1] == separatorChar) {
-            newLength--;
-        }
-        return new String(newResult, 0, newLength);
+        return realpath(absolutePath);
     }
 
-    /*
-     * Resolve symbolic links in the parent directories.
+    /**
+     * TODO: move this stuff to libcore.os.
+     * @hide
      */
-    private static String resolve(String path) throws IOException {
-        int last = 1;
-        String linkPath = path;
-        String bytes;
-        boolean done;
-        for (int i = 1; i <= path.length(); i++) {
-            if (i == path.length() || path.charAt(i) == separatorChar) {
-                done = i >= path.length() - 1;
-                // if there is only one segment, do nothing
-                if (done && linkPath.length() == 1) {
-                    return path;
-                }
-                boolean inPlace = false;
-                if (linkPath.equals(path)) {
-                    bytes = path;
-                    // if there are no symbolic links, truncate the path instead of copying
-                    if (!done) {
-                        inPlace = true;
-                        path = path.substring(0, i);
-                    }
-                } else {
-                    int nextSize = i - last + 1;
-                    int linkSize = linkPath.length();
-                    if (linkPath.charAt(linkSize - 1) == separatorChar) {
-                        linkSize--;
-                    }
-                    bytes = linkPath.substring(0, linkSize) +
-                            path.substring(last - 1, last - 1 + nextSize);
-                    // the full path has already been resolved
-                }
-                if (done) {
-                    return bytes;
-                }
-                linkPath = resolveLink(bytes, inPlace ? i : bytes.length(), true);
-                if (inPlace) {
-                    // path[i] = '/';
-                    path = path.substring(0, i) + '/' + (i + 1 < path.length() ? path.substring(i + 1) : "");
-                }
-                last = i + 1;
-            }
-        }
-        throw new InternalError();
-    }
-
-    /*
-     * Resolve a symbolic link. While the path resolves to an existing path,
-     * keep resolving. If an absolute link is found, resolve the parent
-     * directories if resolveAbsolute is true.
-     */
-    private static String resolveLink(String path, int length, boolean resolveAbsolute) throws IOException {
-        boolean restart = false;
-        do {
-            String fragment = path.substring(0, length);
-            String target = readlink(fragment);
-            if (target.equals(fragment)) {
-                break;
-            }
-            if (target.charAt(0) == separatorChar) {
-                // The link target was an absolute path, so we may need to start again.
-                restart = resolveAbsolute;
-                path = target + path.substring(length);
-            } else {
-                path = path.substring(0, path.lastIndexOf(separatorChar, length - 1) + 1) + target;
-            }
-            length = path.length();
-        } while (existsImpl(path));
-        // resolve the parent directories
-        if (restart) {
-            return resolve(path);
-        }
-        return path;
-    }
-
-    private static native String readlink(String filePath);
+    public static native void symlink(String oldPath, String newPath);
+    private static native String realpath(String path);
+    private static native String readlink(String path);
 
     /**
      * Returns a new file created using the canonical path of this file.

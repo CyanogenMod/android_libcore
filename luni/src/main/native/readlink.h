@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+#include <string>
 
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParser;
-
-public class KxmlPullParserTest extends PullParserTest {
-
-    @Override XmlPullParser newPullParser() {
-        return new KXmlParser();
-    }
-}
+/**
+ * Fills 'result' with the contents of the symbolic link 'path'. Sets errno and returns false on
+ * failure, returns true on success. The contents of 'result' on failure are undefined. Possible
+ * errors are those defined for readlink(2), except that this function takes care of sizing the
+ * buffer appropriately.
+ */
+bool readlink(const char* path, std::string& result);

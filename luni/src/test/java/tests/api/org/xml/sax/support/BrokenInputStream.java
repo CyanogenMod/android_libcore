@@ -47,4 +47,8 @@ public class BrokenInputStream extends InputStream {
         return stream.read();
     }
 
+    @Override
+    public void close() throws IOException {
+        stream.close();
+    }
 }

@@ -15,22 +15,22 @@
  */
 package tests.api.javax.xml.parsers;
 
+import dalvik.annotation.KnownFailure;
+import dalvik.annotation.TestLevel;
+import dalvik.annotation.TestTargetClass;
+import dalvik.annotation.TestTargetNew;
+import dalvik.annotation.TestTargets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Vector;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
 import junit.framework.TestCase;
-
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
@@ -40,18 +40,12 @@ import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
-
 import tests.api.javax.xml.parsers.SAXParserTestSupport.MyDefaultHandler;
 import tests.api.javax.xml.parsers.SAXParserTestSupport.MyHandler;
 import tests.api.org.xml.sax.support.BrokenInputStream;
 import tests.api.org.xml.sax.support.MethodLogger;
 import tests.api.org.xml.sax.support.MockHandler;
 import tests.support.resource.Support_Resources;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 @SuppressWarnings("deprecation")
 @TestTargetClass(SAXParser.class)
@@ -454,10 +448,8 @@ public class SAXParserTest extends TestCase {
         args = {org.xml.sax.InputSource.class, org.xml.sax.helpers.DefaultHandler.class}
     )
     public void test_parseLorg_xml_sax_InputSourceLorg_xml_sax_helpers_DefaultHandler()
-    throws Exception {
-
+            throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
-
             HashMap<String, String> hm = new SAXParserTestSupport().readFile(
                     list_out_dh[i].getPath());
             MyDefaultHandler dh = new MyDefaultHandler();
@@ -466,15 +458,13 @@ public class SAXParserTest extends TestCase {
             assertTrue(SAXParserTestSupport.equalsMaps(hm, dh.createData()));
         }
 
-        for(int i = 0; i < list_nwf.length; i++) {
+        for (File file : list_nwf) {
             try {
                 MyDefaultHandler dh = new MyDefaultHandler();
-                InputSource is = new InputSource(
-                        new FileInputStream(list_nwf[i]));
+                InputSource is = new InputSource(new FileInputStream(file));
                 parser.parse(is, dh);
                 fail("SAXException is not thrown");
-            } catch(org.xml.sax.SAXException se) {
-                //expected
+            } catch (SAXException expected) {
             }
         }
 
@@ -482,23 +472,21 @@ public class SAXParserTest extends TestCase {
             MyDefaultHandler dh = new MyDefaultHandler();
             parser.parse((InputSource) null, dh);
             fail("java.lang.IllegalArgumentException is not thrown");
-        } catch(java.lang.IllegalArgumentException iae) {
-            //expected
+        } catch (IllegalArgumentException expected) {
         }
 
-        try {
-            InputSource is = new InputSource(new FileInputStream(list_wf[0]));
-            parser.parse(is, (DefaultHandler) null);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        }
+        InputSource is = new InputSource(new FileInputStream(list_wf[0]));
+        parser.parse(is, (DefaultHandler) null);
 
+        InputStream in = null;
         try {
-            InputSource is = new InputSource(new BrokenInputStream(new FileInputStream(list_wf[0]), 10));
+            in = new BrokenInputStream(new FileInputStream(list_wf[0]), 10);
+            is = new InputSource(in);
             parser.parse(is, (DefaultHandler) null);
             fail("IOException expected");
-        } catch(IOException e) {
-            // Expected
+        } catch(IOException expected) {
+        } finally {
+            in.close();
         }
     }
 
@@ -508,35 +496,22 @@ public class SAXParserTest extends TestCase {
         method = "parse",
         args = {org.xml.sax.InputSource.class, org.xml.sax.HandlerBase.class}
     )
-    public void testParseInputSourceHandlerBase() {
+    public void testParseInputSourceHandlerBase() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
-            try {
-                HashMap<String, String> hm = sp.readFile(
-                        list_out_hb[i].getPath());
-                MyHandler dh = new MyHandler();
-                InputSource is = new InputSource(new FileInputStream(list_wf[i]));
-                parser.parse(is, dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm,
-                        dh.createData()));
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
-            } catch (SAXException sax) {
-                fail("Unexpected SAXException " + sax.toString());
-            }
+            HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
+            MyHandler dh = new MyHandler();
+            InputSource is = new InputSource(new FileInputStream(list_wf[i]));
+            parser.parse(is, dh);
+            assertTrue(SAXParserTestSupport.equalsMaps(hm, dh.createData()));
         }
 
-        for(int i = 0; i < list_nwf.length; i++) {
+        for (File file : list_nwf) {
             try {
                 MyHandler dh = new MyHandler();
-                InputSource is = new InputSource(new FileInputStream(list_nwf[i]));
+                InputSource is = new InputSource(new FileInputStream(file));
                 parser.parse(is, dh);
                 fail("SAXException is not thrown");
-            } catch(org.xml.sax.SAXException se) {
-                //expected
-            } catch (FileNotFoundException fne) {
-                fail("Unexpected FileNotFoundException " + fne.toString());
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
+            } catch (SAXException expected) {
             }
         }
 
@@ -544,67 +519,29 @@ public class SAXParserTest extends TestCase {
             MyHandler dh = new MyHandler();
             parser.parse((InputSource) null, dh);
             fail("java.lang.IllegalArgumentException is not thrown");
-        } catch(java.lang.IllegalArgumentException iae) {
-            //expected
-        } catch (IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
+        } catch(IllegalArgumentException expected) {
         }
 
-        try {
-            InputSource is = new InputSource(new FileInputStream(list_wf[0]));
-            parser.parse(is, (HandlerBase) null);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        } catch (FileNotFoundException fne) {
-            fail("Unexpected FileNotFoundException " + fne.toString());
-        } catch(IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
-        }
+        InputSource is = new InputSource(new FileInputStream(list_wf[0]));
+        parser.parse(is, (HandlerBase) null);
 
         // Reader case
-        try {
-            InputSource is = new InputSource(new InputStreamReader(
-                    new FileInputStream(list_wf[0])));
-            parser.parse(is, (HandlerBase) null);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        } catch (FileNotFoundException fne) {
-            fail("Unexpected FileNotFoundException " + fne.toString());
-        } catch(IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
-        }
+        is = new InputSource(new InputStreamReader(new FileInputStream(list_wf[0])));
+        parser.parse(is, (HandlerBase) null);
 
         // SystemID case
-        try {
-            InputSource is = new InputSource(list_wf[0].toURI().toString());
-            parser.parse(is, (HandlerBase) null);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        } catch (FileNotFoundException fne) {
-            fail("Unexpected FileNotFoundException " + fne.toString());
-        } catch(IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
-        }
+        is = new InputSource(list_wf[0].toURI().toString());
+        parser.parse(is, (HandlerBase) null);
 
         // Inject IOException
+        InputStream in = null;
         try {
-            InputStream is = new BrokenInputStream(
-                    new FileInputStream(list_wf[0]), 10);
-            parser.parse(is, (HandlerBase) null,
-                    SAXParserTestSupport.XML_SYSTEM_ID);
+            in = new BrokenInputStream(new FileInputStream(list_wf[0]), 10);
+            parser.parse(in, (HandlerBase) null, SAXParserTestSupport.XML_SYSTEM_ID);
             fail("IOException expected");
-        } catch(IOException e) {
-            // Expected
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
+        } catch(IOException expected) {
+        } finally {
+            in.close();
         }
     }
 
@@ -784,35 +721,22 @@ public class SAXParserTest extends TestCase {
         method = "parse",
         args = {java.io.InputStream.class, org.xml.sax.HandlerBase.class}
     )
-    public void testParseInputStreamHandlerBase() {
+    public void testParseInputStreamHandlerBase() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
-            try {
-                HashMap<String, String> hm = sp.readFile(
-                        list_out_hb[i].getPath());
-                MyHandler dh = new MyHandler();
-                InputStream is = new FileInputStream(list_wf[i]);
-                parser.parse(is, dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm,
-                        dh.createData()));
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
-            } catch (SAXException sax) {
-                fail("Unexpected SAXException " + sax.toString());
-            }
+            HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
+            MyHandler dh = new MyHandler();
+            InputStream is = new FileInputStream(list_wf[i]);
+            parser.parse(is, dh);
+            assertTrue(SAXParserTestSupport.equalsMaps(hm, dh.createData()));
         }
 
-        for(int i = 0; i < list_nwf.length; i++) {
+        for (File file : list_nwf) {
             try {
                 MyHandler dh = new MyHandler();
-                InputStream is = new FileInputStream(list_nwf[i]);
+                InputStream is = new FileInputStream(file);
                 parser.parse(is, dh);
                 fail("SAXException is not thrown");
-            } catch(org.xml.sax.SAXException se) {
-                //expected
-            } catch (FileNotFoundException fne) {
-                fail("Unexpected FileNotFoundException " + fne.toString());
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
+            } catch (SAXException expected) {
             }
         }
 
@@ -820,37 +744,21 @@ public class SAXParserTest extends TestCase {
             MyHandler dh = new MyHandler();
             parser.parse((InputStream) null, dh);
             fail("java.lang.IllegalArgumentException is not thrown");
-        } catch(java.lang.IllegalArgumentException iae) {
-            //expected
-        } catch (IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
+        } catch (IllegalArgumentException expected) {
         }
 
-        try {
-            InputStream is = new FileInputStream(list_wf[0]);
-            parser.parse(is, (HandlerBase) null);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        } catch (FileNotFoundException fne) {
-            fail("Unexpected FileNotFoundException " + fne.toString());
-        } catch(IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
-        }
+        InputStream is = new FileInputStream(list_wf[0]);
+        parser.parse(is, (HandlerBase) null);
 
         // Inject IOException
         try {
-            InputStream is = new BrokenInputStream(
-                    new FileInputStream(list_wf[0]), 10);
+            is = new BrokenInputStream(new FileInputStream(list_wf[0]), 10);
             parser.parse(is, (HandlerBase) null);
             fail("IOException expected");
         } catch(IOException e) {
             // Expected
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
+        } finally {
+            is.close();
         }
     }
 
@@ -860,76 +768,43 @@ public class SAXParserTest extends TestCase {
         method = "parse",
         args = {java.io.InputStream.class, org.xml.sax.HandlerBase.class, java.lang.String.class}
     )
-    public void testParseInputStreamHandlerBaseString() {
+    public void testParseInputStreamHandlerBaseString() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
-            try {
-                HashMap<String, String> hm = sp.readFile(
-                        list_out_hb[i].getPath());
-                MyHandler dh = new MyHandler();
-                InputStream is = new FileInputStream(list_wf[i]);
-                parser.parse(is, dh, SAXParserTestSupport.XML_SYSTEM_ID);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm,
-                        dh.createData()));
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
-            } catch (SAXException sax) {
-                fail("Unexpected SAXException " + sax.toString());
-            }
+            HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
+            MyHandler dh = new MyHandler();
+            InputStream is = new FileInputStream(list_wf[i]);
+            parser.parse(is, dh, SAXParserTestSupport.XML_SYSTEM_ID);
+            assertTrue(SAXParserTestSupport.equalsMaps(hm, dh.createData()));
         }
 
-        for(int i = 0; i < list_nwf.length; i++) {
+        for (File file : list_nwf) {
             try {
                 MyHandler dh = new MyHandler();
-                InputStream is = new FileInputStream(list_nwf[i]);
+                InputStream is = new FileInputStream(file);
                 parser.parse(is, dh, SAXParserTestSupport.XML_SYSTEM_ID);
                 fail("SAXException is not thrown");
-            } catch(org.xml.sax.SAXException se) {
-                //expected
-            } catch (FileNotFoundException fne) {
-                fail("Unexpected FileNotFoundException " + fne.toString());
-            } catch (IOException ioe) {
-                fail("Unexpected IOException " + ioe.toString());
+            } catch (SAXException expected) {
             }
         }
 
         try {
             MyHandler dh = new MyHandler();
-            parser.parse((InputStream) null, dh,
-                    SAXParserTestSupport.XML_SYSTEM_ID);
+            parser.parse(null, dh, SAXParserTestSupport.XML_SYSTEM_ID);
             fail("java.lang.IllegalArgumentException is not thrown");
-        } catch(java.lang.IllegalArgumentException iae) {
-            //expected
-        } catch (IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
+        } catch(IllegalArgumentException expected) {
         }
 
-        try {
-            InputStream is = new FileInputStream(list_wf[0]);
-            parser.parse(is, (HandlerBase) null,
-                    SAXParserTestSupport.XML_SYSTEM_ID);
-        } catch(java.lang.IllegalArgumentException iae) {
-            fail("java.lang.IllegalArgumentException is thrown");
-        } catch (FileNotFoundException fne) {
-            fail("Unexpected FileNotFoundException " + fne.toString());
-        } catch(IOException ioe) {
-            fail("Unexpected IOException " + ioe.toString());
-        } catch(SAXException sax) {
-            fail("Unexpected SAXException " + sax.toString());
-        }
+        InputStream is = new FileInputStream(list_wf[0]);
+        parser.parse(is, (HandlerBase) null, SAXParserTestSupport.XML_SYSTEM_ID);
 
         // Inject IOException
         try {
-            InputStream is = new BrokenInputStream(
-                    new FileInputStream(list_wf[0]), 10);
-            parser.parse(is, (HandlerBase) null,
-                    SAXParserTestSupport.XML_SYSTEM_ID);
+            is = new BrokenInputStream(new FileInputStream(list_wf[0]), 10);
+            parser.parse(is, (HandlerBase) null, SAXParserTestSupport.XML_SYSTEM_ID);
             fail("IOException expected");
-        } catch(IOException e) {
-            // Expected
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
+        } catch(IOException expected) {
+        } finally {
+            is.close();
         }
     }
 

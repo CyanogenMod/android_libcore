@@ -285,13 +285,14 @@ public class OutputStreamWriter extends Writer {
     public void write(String str, int offset, int count) throws IOException {
         synchronized (lock) {
             if (count < 0) {
-                throw new StringIndexOutOfBoundsException();
+                throw new StringIndexOutOfBoundsException(count);
             }
             if (str == null) {
                 throw new NullPointerException("str == null");
             }
             if (offset < 0 || offset > str.length() - count) {
-                throw new StringIndexOutOfBoundsException();
+                throw new StringIndexOutOfBoundsException("str.length=" + str.length()
+                        + " offset=" + offset + " count=" + count);
             }
             checkStatus();
             CharBuffer chars = CharBuffer.wrap(str, offset, count + offset);

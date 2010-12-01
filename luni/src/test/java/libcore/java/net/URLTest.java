@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+package libcore.java.net;
 
-import org.xmlpull.v1.XmlPullParser;
+import java.net.URL;
+import junit.framework.TestCase;
 
-public final class ExpatPullParserTest extends PullParserTest {
-
-    @Override XmlPullParser newPullParser() {
-        ExpatPullParser parser = new ExpatPullParser();
-        return parser;
+public class URLTest extends TestCase {
+    // http://code.google.com/p/android/issues/detail?id=12724
+    public void testExplicitPort() throws Exception {
+        URL url = new URL("http://www.google.com:80/example?language[id]=2");
+        assertEquals("www.google.com", url.getHost());
+        assertEquals(80, url.getPort());
     }
 }

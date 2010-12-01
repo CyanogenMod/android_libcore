@@ -17,18 +17,9 @@
 
 package java.io;
 
-// BEGIN android-note
-// Harmony uses ObjectAccessors to access fields through JNI. Android has not
-// yet migrated that API.
-// END android-note
-
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Comparator;
-
-// BEGIN android-removed
-// import org.apache.harmony.misc.accessors.ObjectAccessor;
-// END android-removed
 
 /**
  * Describes a field for the purpose of serialization. Classes can define the
@@ -39,9 +30,6 @@ import java.util.Comparator;
  * @see ObjectInputStream#readFields()
  */
 public class ObjectStreamField implements Comparable<Object> {
-
-    static final int FIELD_IS_NOT_RESOLVED = -1;
-    static final int FIELD_IS_ABSENT = -2;
 
     // Declared name of the field
     private String name;
@@ -58,23 +46,6 @@ public class ObjectStreamField implements Comparable<Object> {
     private boolean unshared;
 
     private boolean isDeserialized;
-
-    private long assocFieldID = FIELD_IS_NOT_RESOLVED;
-
-    // BEGIN android-removed
-    // long getFieldID(ObjectAccessor accessor, Class<?> declaringClass) {
-    //     if (assocFieldID != FIELD_IS_NOT_RESOLVED) {
-    //         return assocFieldID;
-    //     } else {
-    //         try {
-    //             assocFieldID = accessor.getFieldID(declaringClass, name);
-    //         } catch(NoSuchFieldError e) {
-    //             assocFieldID = FIELD_IS_ABSENT;
-    //         }
-    //         return assocFieldID;
-    //     }
-    // }
-    // END android-removed
 
     /**
      * Constructs an ObjectStreamField with the specified name and type.
@@ -114,8 +85,7 @@ public class ObjectStreamField implements Comparable<Object> {
             throw new NullPointerException();
         }
         this.name = name;
-        this.type = (cl.getClassLoader() == null) ? cl
-                : new WeakReference<Class<?>>(cl);
+        this.type = (cl.getClassLoader() == null) ? cl : new WeakReference<Class<?>>(cl);
         this.unshared = unshared;
     }
 
@@ -164,19 +134,6 @@ public class ObjectStreamField implements Comparable<Object> {
         // Either both primitives or both not primitives. Compare based on name.
         return this.getName().compareTo(f.getName());
     }
-
-    // BEGIN android-removed
-    // There shouldn't be an implementation of these methods.
-    // @Override
-    // public boolean equals(Object arg0) {
-    //     return (arg0 instanceof ObjectStreamField) && (compareTo(arg0) == 0);
-    // }
-    //
-    // @Override
-    // public int hashCode() {
-    //     return getName().hashCode();
-    // }
-    // END android-removed
 
     /**
      * Gets the name of this field.
@@ -325,27 +282,7 @@ public class ObjectStreamField implements Comparable<Object> {
      */
     @Override
     public String toString() {
-        return this.getClass().getName() + '(' + getName() + ':'
-                + getTypeInternal() + ')';
-    }
-
-    /**
-     * Sorts the fields for dumping. Primitive types come first, then regular
-     * types.
-     *
-     * @param fields
-     *            ObjectStreamField[] fields to be sorted
-     */
-    static void sortFields(ObjectStreamField[] fields) {
-        // Sort if necessary
-        if (fields.length > 1) {
-            Comparator<ObjectStreamField> fieldDescComparator = new Comparator<ObjectStreamField>() {
-                public int compare(ObjectStreamField f1, ObjectStreamField f2) {
-                    return f1.compareTo(f2);
-                }
-            };
-            Arrays.sort(fields, fieldDescComparator);
-        }
+        return this.getClass().getName() + '(' + getName() + ':' + getTypeInternal() + ')';
     }
 
     void resolve(ClassLoader loader) {

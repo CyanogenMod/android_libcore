@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
+import libcore.base.EmptyArray;
 import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.CertificatePolicies;
@@ -1281,8 +1282,7 @@ public class X509CertSelector implements CertSelector {
                 // initialize the check map
                 for (int i=0; i<9; i++) {
                     map[i] = (subjectAltNames[i] == null)
-                                ? new boolean[0]
-                                : new boolean[subjectAltNames[i].size()];
+                            ? EmptyArray.BOOLEAN : new boolean[subjectAltNames[i].size()];
                 }
                 Iterator it = sans.iterator();
                 while (it.hasNext()) {

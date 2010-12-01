@@ -27,9 +27,23 @@ import org.apache.harmony.luni.platform.OSMemory;
  * The {@code GZIPInputStream} class is used to read data stored in the GZIP
  * format, reading and decompressing GZIP data from the underlying stream into
  * its buffer.
+ *
+ * <h3>Example</h3>
+ * <p>Using {@code GZIPInputStream} is easier than {@link ZipInputStream}
+ * because GZIP is only for compression, and is not a container for multiple files.
+ * This code decompresses the data from a GZIP stream, similar to the {@code gunzip(1)} utility.
+ * <pre>
+ * InputStream is = ...
+ * GZIPInputStream zis = new GZIPInputStream(new BufferedInputStream(is));
+ * try {
+ *     // Reading from 'zis' gets you the uncompressed bytes...
+ *     processStream(zis);
+ * } finally {
+ *     zis.close();
+ * }
+ * </pre>
  */
 public class GZIPInputStream extends InflaterInputStream {
-
     private static final int FCOMMENT = 16;
 
     private static final int FEXTRA = 4;

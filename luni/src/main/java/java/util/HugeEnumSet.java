@@ -121,10 +121,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
     @Override
     public boolean add(E element) {
-        if (!isValidType(element.getDeclaringClass())) {
-            throw new ClassCastException();
-        }
-
+        elementClass.cast(element); // Called to throw ClassCastException.
         int ordinal = element.ordinal();
         int index = ordinal / BIT_IN_LONG;
         int inBits = ordinal % BIT_IN_LONG;
@@ -146,9 +143,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
         if (collection instanceof EnumSet) {
             EnumSet<?> set = (EnumSet) collection; // raw type due to javac bug 6548436
-            if (!isValidType(set.elementClass)) {
-                throw new ClassCastException();
-            }
+            set.elementClass.asSubclass(elementClass); // Called to throw ClassCastException.
 
             HugeEnumSet<E> hugeSet = (HugeEnumSet<E>) set;
             boolean changed = false;

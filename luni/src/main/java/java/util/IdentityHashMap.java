@@ -83,8 +83,11 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
     private static final Object NULL_OBJECT = new Object();  //$NON-LOCK-1$
 
     static class IdentityHashMapEntry<K, V> extends MapEntry<K, V> {
-        IdentityHashMapEntry(K theKey, V theValue) {
+        private final IdentityHashMap<K,V> map;
+
+        IdentityHashMapEntry(IdentityHashMap<K,V> map, K theKey, V theValue) {
             super(theKey, theValue);
+            this.map = map;
         }
 
         @Override
@@ -113,6 +116,13 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
         @Override
         public String toString() {
             return key + "=" + value;
+        }
+
+        @Override
+        public V setValue(V object) {
+            V result = super.setValue(object);
+            map.put(key, object);
+            return result;
         }
     }
 
@@ -407,7 +417,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
             value = null;
         }
 
-        return new IdentityHashMapEntry<K, V>((K) key, (V) value);
+        return new IdentityHashMapEntry<K, V>(this, (K) key, (V) value);
     }
 
     /**

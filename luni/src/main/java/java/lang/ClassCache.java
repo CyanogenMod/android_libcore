@@ -235,7 +235,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
     public static Method findMethodByName(Method[] list, String name,
             Class<?>[] parameterTypes) throws NoSuchMethodException {
         if (name == null) {
-            throw new NullPointerException("Method name must not be null.");
+            throw new NullPointerException("name == null");
         }
         for (Method method : list) {
             if (method.getName().equals(name)
@@ -422,28 +422,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
 
             clazz = clazz.getSuperclass();
         }
-    }
-
-    /**
-     * Finds and returns a field with a given name and signature. Use
-     * this with one of the field lists returned by instances of this class.
-     *
-     * @param list non-null; the list of fields to search through
-     * @return non-null; the matching field
-     * @throws NoSuchFieldException thrown if the field does not exist
-     */
-    public static Field findFieldByName(Field[] list, String name)
-            throws NoSuchFieldException {
-        if (name == null) {
-            throw new NullPointerException("Field name must not be null.");
-        }
-        for (Field field : list) {
-            if (field.getName().equals(name)) {
-                return field;
-            }
-        }
-
-        throw new NoSuchFieldException(name);
     }
 
     /**

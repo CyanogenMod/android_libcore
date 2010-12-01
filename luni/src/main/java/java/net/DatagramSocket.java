@@ -429,18 +429,14 @@ public class DatagramSocket {
         } else {
             // not connected so the target address is not allowed to be null
             if (packAddr == null) {
-                if (pack.getPort() == -1) {
-                    throw new NullPointerException("Destination address is null");
-                }
-                return;
+                throw new NullPointerException("Destination address is null");
             }
             SecurityManager security = System.getSecurityManager();
             if (security != null) {
                 if (packAddr.isMulticastAddress()) {
                     security.checkMulticast(packAddr);
                 } else {
-                    security.checkConnect(packAddr.getHostName(), pack
-                            .getPort());
+                    security.checkConnect(packAddr.getHostName(), pack.getPort());
                 }
             }
         }

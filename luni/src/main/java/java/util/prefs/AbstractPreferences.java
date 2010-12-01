@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import org.apache.harmony.luni.util.Base64;
+import libcore.base.EmptyArray;
 
 /**
  * This abstract class is a partial implementation of the abstract class
@@ -439,7 +440,7 @@ public abstract class AbstractPreferences extends Preferences {
             return deflt;
         }
         if (svalue.length() == 0) {
-            return new byte[0];
+            return EmptyArray.BYTE;
         }
         try {
             byte[] bavalue = svalue.getBytes(Charsets.US_ASCII);
