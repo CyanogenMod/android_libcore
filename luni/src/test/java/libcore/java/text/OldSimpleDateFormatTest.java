@@ -408,12 +408,6 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         assertFalse(test.testsFailed);
     }
 
-    public void testDefaultMinimalDaysInFirstWeek() {
-        Locale.setDefault(Locale.US);
-        assertEquals(1, new GregorianCalendar().getMinimalDaysInFirstWeek());
-        assertEquals(1, new GregorianCalendar().getFirstDayOfWeek());
-    }
-
     /**
      * @tests java.text.SimpleDateFormat#format(java.util.Date)
      */

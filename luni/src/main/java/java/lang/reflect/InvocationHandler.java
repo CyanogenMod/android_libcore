@@ -46,10 +46,9 @@ public interface InvocationHandler {
      * @param args
      *            an array of objects containing the parameters passed to the
      *            method, or {@code null} if no arguments are expected.
-     *            Primitive types are wrapped in the appropriate wrapper type
+     *            Primitive types are boxed.
      *
-     * @return the result of executing the method. Primitive types need to be
-     *         wrapped in the appropriate wrapper type
+     * @return the result of executing the method. Primitive types are boxed.
      *
      * @throws Throwable
      *             the exception to throw from the invoked method on the proxy.
@@ -57,6 +56,5 @@ public interface InvocationHandler {
      *             of the invoked method or any unchecked exception type. If not
      *             then an {@code UndeclaredThrowableException} is thrown
      */
-    public Object invoke(Object proxy, Method method, Object[] args)
-            throws Throwable;
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable;
 }

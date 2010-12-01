@@ -101,10 +101,13 @@ public interface SocketOptions {
     public static final int SO_KEEPALIVE = 8;
 
     /**
-     * This option specifies the value for the Type-of-Service (TOS) field of
-     * the IP header. This may be ignored by the underlying OS.
-     * Values must be between 0 and 255 inclusive.
-     * See <a href="http://www.ietf.org/rfc/rfc1349.txt">RFC 1349</a> for more information.
+     * This option specifies the value for the type-of-service field of the IPv4 header, or the
+     * traffic class field of the IPv6 header. These correspond to the IP_TOS and IPV6_TCLASS
+     * socket options. These may be ignored by the underlying OS. Values must be between 0 and 255
+     * inclusive.
+     *
+     * <p>See <a href="http://www.ietf.org/rfc/rfc1349.txt">RFC 1349</a> for more about IPv4
+     * and <a href="http://www.ietf.org/rfc/rfc2460.txt">RFC 2460</a> for more about IPv6.
      */
     public static final int IP_TOS = 3;
 

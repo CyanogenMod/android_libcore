@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
+import libcore.base.EmptyArray;
 import libcore.base.Objects;
 
 /**
@@ -866,7 +867,7 @@ public class MessageFormat extends Format {
      */
     public Object[] parse(String string, ParsePosition position) {
         if (string == null) {
-            return new Object[0];
+            return EmptyArray.OBJECT;
         }
         ParsePosition internalPos = new ParsePosition(0);
         int offset = position.getIndex();

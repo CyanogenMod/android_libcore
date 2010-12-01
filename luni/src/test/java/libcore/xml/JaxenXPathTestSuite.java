@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xml;
+package libcore.xml;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;

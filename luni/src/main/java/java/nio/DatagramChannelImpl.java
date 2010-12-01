@@ -34,6 +34,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
@@ -43,8 +44,6 @@ import org.apache.harmony.luni.platform.Platform;
  * The default implementation class of java.nio.channels.DatagramChannel.
  */
 class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandler {
-    private static final byte[] stubArray = new byte[0];
-
     // The fd to interact with native code
     private final FileDescriptor fd;
 
@@ -255,7 +254,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
     private SocketAddress receiveDirectImpl(ByteBuffer target, boolean loop) throws IOException {
         SocketAddress retAddr = null;
-        DatagramPacket receivePacket = new DatagramPacket(stubArray, 0);
+        DatagramPacket receivePacket = new DatagramPacket(EmptyArray.BYTE, 0);
         int oldposition = target.position();
         int received = 0;
         do {

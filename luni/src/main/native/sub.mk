@@ -26,7 +26,6 @@ LOCAL_SRC_FILES := \
 	java_io_File.cpp \
 	java_io_FileDescriptor.cpp \
 	java_io_ObjectInputStream.cpp \
-	java_io_ObjectOutputStream.cpp \
 	java_io_ObjectStreamClass.cpp \
 	java_lang_Character.cpp \
 	java_lang_Double.cpp \
@@ -52,6 +51,8 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
+	readlink.cpp \
+	realpath.cpp \
 	valueOf.cpp
 
 LOCAL_C_INCLUDES += \

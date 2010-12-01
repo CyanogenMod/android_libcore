@@ -59,7 +59,7 @@ import java.io.Reader;
  *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/properties.html#xmldecl-version">http://xmlpull.org/v1/doc/properties.html#xmldecl-version</a>&quot;)
  *       returns String ("1.0") or null if XMLDecl was not read or if property is not supported
  * <li><b>standalone</b>:
- *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/features.html#xmldecl-standalone">http://xmlpull.org/v1/doc/features.html#xmldecl-standalone</a>&quot;)
+ *  getProperty(&quot;<a href="http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone">http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone</a>&quot;)
  *       returns Boolean: null if there was no standalone declaration
  *  or if property is not supported
  *         otherwise returns Boolean(true) if standalone="yes" and Boolean(false) when standalone="no"
@@ -74,7 +74,7 @@ import java.io.Reader;
  * import java.io.StringReader;
  *
  * import org.xmlpull.v1.XmlPullParser;
- * import org.xmlpull.v1.<a href="XmlPullParserException.html">XmlPullParserException.html</a>;
+ * import org.xmlpull.v1.<a href="XmlPullParserException.html">XmlPullParserException</a>;
  * import org.xmlpull.v1.<a href="XmlPullParserFactory.html">XmlPullParserFactory</a>;
  *
  * public class SimpleXmlPullApp
@@ -92,8 +92,6 @@ import java.io.Reader;
  *         while (eventType != XmlPullParser.END_DOCUMENT) {
  *          if(eventType == XmlPullParser.START_DOCUMENT) {
  *              System.out.println("Start document");
- *          } else if(eventType == XmlPullParser.END_DOCUMENT) {
- *              System.out.println("End document");
  *          } else if(eventType == XmlPullParser.START_TAG) {
  *              System.out.println("Start tag "+xpp.<a href="#getName()">getName()</a>);
  *          } else if(eventType == XmlPullParser.END_TAG) {
@@ -103,6 +101,7 @@ import java.io.Reader;
  *          }
  *          eventType = xpp.next();
  *         }
+ *         System.out.println("End document");
  *     }
  * }
  * </pre>

@@ -769,9 +769,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         if (null == key) {
             throw new NullPointerException();
         }
-        if (!isValidKeyType(key)) {
-            throw new ClassCastException();
-        }
+        keyType.cast(key); // Called to throw ClassCastException.
         int keyOrdinal = key.ordinal();
         if (!hasMapping[keyOrdinal]) {
             hasMapping[keyOrdinal] = true;

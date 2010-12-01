@@ -17,19 +17,16 @@
 
 package java.io;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.IdentityHashMap;
+import libcore.base.EmptyArray;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
-
-// BEGIN android-note
-// Harmony uses ObjectAccessors to access fields through JNI. Android has not
-// yet migrated that API. As a consequence, there's a lot of changes here...
-// END android-note
 
 /**
  * A specialized {@link OutputStream} that is able to write (serialize) Java
@@ -43,6 +40,8 @@ import org.apache.harmony.luni.platform.OSMemory;
  */
 public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         ObjectStreamConstants {
+
+    private static final Class<?>[] WRITE_UNSHARED_PARAM_TYPES = new Class[] { Object.class };
 
     /*
      * Mask to zero SC_BLOC_DATA bit.
@@ -289,16 +288,14 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         if (implementationClass != thisClass) {
             boolean mustCheck = false;
             try {
-                Method method = implementationClass.getMethod("putFields",
-                        ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                Method method = implementationClass.getMethod("putFields", EmptyArray.CLASS);
                 mustCheck = method.getDeclaringClass() != thisClass;
             } catch (NoSuchMethodException e) {
             }
             if (!mustCheck) {
                 try {
-                    Method method = implementationClass.getMethod(
-                            "writeUnshared",
-                            ObjectStreamClass.UNSHARED_PARAM_TYPES);
+                    Method method = implementationClass.getMethod("writeUnshared",
+                            WRITE_UNSHARED_PARAM_TYPES);
                     mustCheck = method.getDeclaringClass() != thisClass;
                 } catch (NoSuchMethodException e) {
                 }
@@ -523,7 +520,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         output.flush();
     }
 
-    // BEGIN android-added
     /*
      * These methods get the value of a field named fieldName of object
      * instance. The field is declared by declaringClass. The field is the same
@@ -536,34 +532,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *
      * @throws NoSuchFieldError If the field does not exist.
      */
-
-    private static native boolean getFieldBool(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native byte getFieldByte(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native char getFieldChar(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native double getFieldDouble(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native float getFieldFloat(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native int getFieldInt(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native long getFieldLong(Object instance,
-            Class<?> declaringClass, String fieldName);
-
-    private static native Object getFieldObj(Object instance,
-            Class<?> declaringClass, String fieldName, String fieldTypeName);
-
-    private static native short getFieldShort(Object instance,
-            Class<?> declaringClass, String fieldName);
-    // END android-added
+    private static native Object getFieldL(Object instance, Class<?> declaringClass, String fieldName, String fieldTypeName);
 
     /**
      * Return the next <code>Integer</code> handle to be used to indicate cyclic
@@ -1025,11 +994,9 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see #writeFields
      * @see #writeObject(Object)
      */
-    private void writeFieldValues(EmulatedFieldsForDumping emulatedFields)
-            throws IOException {
-        EmulatedFields accessibleSimulatedFields = emulatedFields
-                .emulatedFields(); // Access internal fields which we can
-        // set/get. Users can't do this.
+    private void writeFieldValues(EmulatedFieldsForDumping emulatedFields) throws IOException {
+        // Access internal fields which we can set/get. Users can't do this.
+        EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
         EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
         for (int i = 0; i < slots.length; i++) {
             EmulatedFields.ObjectSlot slot = slots[i];
@@ -1037,36 +1004,27 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             Class<?> type = slot.getField().getType();
             // WARNING - default values exist for each primitive type
             if (type == Integer.TYPE) {
-                output.writeInt(fieldValue != null ? ((Integer) fieldValue)
-                        .intValue() : 0);
+                output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
             } else if (type == Byte.TYPE) {
-                output.writeByte(fieldValue != null ? ((Byte) fieldValue)
-                        .byteValue() : (byte) 0);
+                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : (byte) 0);
             } else if (type == Character.TYPE) {
-                output.writeChar(fieldValue != null ? ((Character) fieldValue)
-                        .charValue() : (char) 0);
+                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : (char) 0);
             } else if (type == Short.TYPE) {
-                output.writeShort(fieldValue != null ? ((Short) fieldValue)
-                        .shortValue() : (short) 0);
+                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : (short) 0);
             } else if (type == Boolean.TYPE) {
-                output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue)
-                        .booleanValue() : false);
+                output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
             } else if (type == Long.TYPE) {
-                output.writeLong(fieldValue != null ? ((Long) fieldValue)
-                        .longValue() : (long) 0);
+                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : (long) 0);
             } else if (type == Float.TYPE) {
-                output.writeFloat(fieldValue != null ? ((Float) fieldValue)
-                        .floatValue() : (float) 0);
+                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : (float) 0);
             } else if (type == Double.TYPE) {
-                output.writeDouble(fieldValue != null ? ((Double) fieldValue)
-                        .doubleValue() : (double) 0);
+                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : (double) 0);
             } else {
                 // Either array or Object
                 writeObject(fieldValue);
             }
         }
     }
-
 
     /**
      * Writes a collection of field values for the fields described by class
@@ -1086,72 +1044,59 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *
      * @see #writeObject(Object)
      */
-    private void writeFieldValues(Object obj, ObjectStreamClass classDesc)
-            throws IOException {
-        ObjectStreamField[] fields = classDesc.fields();
+    private void writeFieldValues(Object obj, ObjectStreamClass classDesc) throws IOException {
         Class<?> declaringClass = classDesc.forClass();
-        for(ObjectStreamField fieldDesc : fields) {
+        for (ObjectStreamField fieldDesc : classDesc.fields()) {
             try {
-
-                // BEGIN android-changed
-                // // get associated Field
-                // long fieldID = fieldDesc.getFieldID(accessor, declaringClass);
-
-                // Code duplication starts, just because Java is typed
-                if (fieldDesc.isPrimitive()) {
-                    switch (fieldDesc.getTypeCode()) {
-                        case 'B':
-                            output.writeByte(getFieldByte(obj, declaringClass,
-                                    fieldDesc.getName()));
-                            break;
-                        case 'C':
-                            output.writeChar(getFieldChar(obj, declaringClass,
-                                    fieldDesc.getName()));
-                            break;
-                        case 'D':
-                            output.writeDouble(getFieldDouble(obj,
-                                    declaringClass, fieldDesc.getName()));
-                            break;
-                        case 'F':
-                            output.writeFloat(getFieldFloat(obj,
-                                    declaringClass, fieldDesc.getName()));
-                            break;
-                        case 'I':
-                            output.writeInt(getFieldInt(obj, declaringClass,
-                                    fieldDesc.getName()));
-                            break;
-                        case 'J':
-                            output.writeLong(getFieldLong(obj, declaringClass,
-                                    fieldDesc.getName()));
-                            break;
-                        case 'S':
-                            output.writeShort(getFieldShort(obj,
-                                    declaringClass, fieldDesc.getName()));
-                            break;
-                        case 'Z':
-                            output.writeBoolean(getFieldBool(obj,
-                                    declaringClass, fieldDesc.getName()));
-                            break;
-                        default:
-                            throw new IOException("Invalid typecode: " +
-                                    fieldDesc.getTypeCode());
-                    }
-                } else {
-                    // Object type (array included).
-                    Object objField = getFieldObj(obj, declaringClass, fieldDesc
-                            .getName(), fieldDesc.getTypeString());
+                Field field = classDesc.getReflectionField(fieldDesc);
+                if (field == null) {
+                    throw new InvalidClassException(classDesc.getName() + " doesn't have a field " + fieldDesc.getName() + " of type " + fieldDesc.getTypeCode());
+                }
+                switch (fieldDesc.getTypeCode()) {
+                case 'B':
+                    output.writeByte(field.getByte(obj));
+                    break;
+                case 'C':
+                    output.writeChar(field.getChar(obj));
+                    break;
+                case 'D':
+                    output.writeDouble(field.getDouble(obj));
+                    break;
+                case 'F':
+                    output.writeFloat(field.getFloat(obj));
+                    break;
+                case 'I':
+                    output.writeInt(field.getInt(obj));
+                    break;
+                case 'J':
+                    output.writeLong(field.getLong(obj));
+                    break;
+                case 'S':
+                    output.writeShort(field.getShort(obj));
+                    break;
+                case 'Z':
+                    output.writeBoolean(field.getBoolean(obj));
+                    break;
+                case 'L':
+                case '[':
+                    // Reference types ('L' and '[').
+                    Object objField = field.get(obj);
                     if (fieldDesc.isUnshared()) {
                         writeUnshared(objField);
                     } else {
                         writeObject(objField);
                     }
+                    break;
+                default:
+                    throw new IOException("Invalid typecode: " + fieldDesc.getTypeCode());
                 }
-                // END android-changed
+            } catch (IllegalAccessException iae) {
+                // ObjectStreamField should have called setAccessible(true).
+                throw new AssertionError(iae);
             } catch (NoSuchFieldError nsf) {
                 // The user defined serialPersistentFields but did not provide
-                // the glue to transfer values,
-                // (in writeObject) so we end up using the default mechanism and
-                // fail to set the emulated field
+                // the glue to transfer values in writeObject, so we ended up using
+                // the default mechanism but failed to set the emulated field.
                 throw new InvalidClassException(classDesc.getName());
             }
         }
@@ -1673,40 +1618,39 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         writeObject(object, true);
     }
 
-    private void writeObject(Object object, boolean unshared)
-            throws IOException {
+    private void writeObject(Object object, boolean unshared) throws IOException {
         boolean setOutput = (primitiveTypes == output);
         if (setOutput) {
             primitiveTypes = null;
         }
-        // This is the spec'ed behavior in JDK 1.2. Very bizarre way to allow
+        // This is the specified behavior in JDK 1.2. Very bizarre way to allow
         // behavior overriding.
         if (subclassOverridingImplementation && !unshared) {
             writeObjectOverride(object);
-        } else {
+            return;
+        }
 
-            try {
-                // First we need to flush primitive types if they were written
-                drain();
-                // Actual work, and class-based replacement should be computed
-                // if needed.
-                writeObjectInternal(object, unshared, true, true);
-                if (setOutput) {
-                    primitiveTypes = output;
-                }
-            } catch (IOException ioEx1) {
-                // This will make it pass through until the top caller. It also
-                // lets it pass through the nested exception.
-                if (nestedLevels == 0 && ioEx1 != nestedException) {
-                    try {
-                        writeNewException(ioEx1);
-                    } catch (IOException ioEx2) {
-                        nestedException.fillInStackTrace();
-                        throw nestedException;
-                    }
-                }
-                throw ioEx1; // and then we propagate the original exception
+        try {
+            // First we need to flush primitive types if they were written
+            drain();
+            // Actual work, and class-based replacement should be computed
+            // if needed.
+            writeObjectInternal(object, unshared, true, true);
+            if (setOutput) {
+                primitiveTypes = output;
             }
+        } catch (IOException ioEx1) {
+            // This will make it pass through until the top caller. It also
+            // lets it pass through the nested exception.
+            if (nestedLevels == 0 && ioEx1 != nestedException) {
+                try {
+                    writeNewException(ioEx1);
+                } catch (IOException ioEx2) {
+                    nestedException.fillInStackTrace();
+                    throw nestedException;
+                }
+            }
+            throw ioEx1; // and then we propagate the original exception
         }
     }
 
@@ -1906,8 +1850,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         return classDesc;
     }
 
-    private Integer writeNewEnum(Object object, Class<?> theClass,
-            boolean unshared) throws IOException {
+    private Integer writeNewEnum(Object object, Class<?> theClass, boolean unshared)
+            throws IOException {
         // write new Enum
         EmulatedFieldsForDumping originalCurrentPutField = currentPutField; // save
         // null it, to make sure one will be computed if needed
@@ -1932,18 +1876,22 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         Class<?> declaringClass = classDesc.getSuperclass().forClass();
         // Only write field "name" for enum class, which is the second field of
         // enum, that is fields[1]. Ignore all non-fields and fields.length < 2
-        if (null != fields && fields.length > 1) {
-            // BEGIN android-changed
-            String str = (String) getFieldObj(object, declaringClass, fields[1]
-                    .getName(), fields[1].getTypeString());
-            // END android-changed
-
-            Integer strhandle = null;
-            if (!unshared) {
-                strhandle = dumpCycle(str);
+        if (fields != null && fields.length > 1) {
+            Field field = classDesc.getReflectionField(fields[1]);
+            if (field == null) {
+                throw new NoSuchFieldError();
             }
-            if (null == strhandle) {
-                writeNewString(str, unshared);
+            try {
+                String str = (String) field.get(object);
+                Integer strHandle = null;
+                if (!unshared) {
+                    strHandle = dumpCycle(str);
+                }
+                if (strHandle == null) {
+                    writeNewString(str, unshared);
+                }
+            } catch (IllegalAccessException iae) {
+                throw new AssertionError(iae);
             }
         }
 

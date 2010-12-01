@@ -219,7 +219,14 @@ public final class ZoneInfoDB {
         for (int i = 0; i < tzh_typecnt; ++i) {
             gmtOffsets[i] = data.readInt();
             isDsts[i] = data.readByte();
-            data.skip(1); // Skip abbreviation index.
+            // We skip the abbreviation index. This would let us provide historically-accurate
+            // time zone abbreviations (such as "AHST", "YST", and "AKST" for standard time in
+            // America/Anchorage in 1982, 1983, and 1984 respectively). ICU only knows the current
+            // names, though, so even if we did use this data to provide the correct abbreviations
+            // for en_US, we wouldn't be able to provide correct abbreviations for other locales,
+            // nor would we be able to provide correct long forms (such as "Yukon Standard Time")
+            // for any locale. (The RI doesn't do any better than us here either.)
+            data.skip(1);
         }
 
         return new ZoneInfo(id, transitions, type, gmtOffsets, isDsts);

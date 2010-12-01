@@ -18,6 +18,7 @@
 package java.util.zip;
 
 import dalvik.system.CloseGuard;
+import libcore.base.EmptyArray;
 
 /**
  * This class compresses data using the <i>DEFLATE</i> algorithm (see <a
@@ -108,10 +109,6 @@ public class Deflater {
      * Flush buffers and mark the end of the datastream.
      */
     private static final int FINISH = 4;
-
-    // A stub buffer used when deflate() called while inputBuffer has not been
-    // set.
-    private static final byte[] STUB_INPUT_BUFFER = new byte[0];
 
     private int flushParm = NO_FLUSH;
 
@@ -237,7 +234,7 @@ public class Deflater {
             throw new ArrayIndexOutOfBoundsException();
         }
         if (inputBuffer == null) {
-            setInput(STUB_INPUT_BUFFER);
+            setInput(EmptyArray.BYTE);
         }
         return deflateImpl(buf, off, nbytes, streamHandle, flush);
     }

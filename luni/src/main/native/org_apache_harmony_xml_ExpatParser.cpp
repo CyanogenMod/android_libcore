@@ -1000,9 +1000,11 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
 }
 
 /**
- * Expat decides for itself what character encoding it's looking at. The interface is in terms of
- * bytes, which may point to UTF-8, UTF-16, ISO-8859-1, or US-ASCII. appendBytes, appendCharacters,
- * and appendString thus all call through to this method, strange though that appears.
+ * Decodes the bytes as characters and parse the characters as XML. This
+ * performs character decoding using the charset specified at XML_Parser
+ * creation. For Java chars, that charset must be UTF-16 so that a Java char[]
+ * can be reinterpreted as a UTF-16 encoded byte[]. appendBytes, appendChars
+ * and appendString all call through this method.
  */
 static void append(JNIEnv* env, jobject object, jint pointer,
         const char* bytes, size_t byteOffset, size_t byteCount, jboolean isFinal) {

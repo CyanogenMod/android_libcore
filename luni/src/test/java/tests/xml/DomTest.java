@@ -1385,6 +1385,38 @@ public class DomTest extends TestCase {
         assertEquals(root.getChildNodes().item(0), current);
     }
 
+    public void testPublicIdAndSystemId() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                " <!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\""
+                        + " \"http://www.w3.org/TR/html4/strict.dtd\">"
+                        + "<html></html>")));
+        doctype = document.getDoctype();
+        assertEquals("html", doctype.getName());
+        assertEquals("-//W3C//DTD HTML 4.01//EN", doctype.getPublicId());
+        assertEquals("http://www.w3.org/TR/html4/strict.dtd", doctype.getSystemId());
+    }
+
+    public void testSystemIdOnly() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                " <!DOCTYPE html SYSTEM \"http://www.w3.org/TR/html4/strict.dtd\">"
+                        + "<html></html>")));
+        doctype = document.getDoctype();
+        assertEquals("html", doctype.getName());
+        assertNull(doctype.getPublicId());
+        assertEquals("http://www.w3.org/TR/html4/strict.dtd", doctype.getSystemId());
+    }
+
+    public void testSingleQuotedPublicIdAndSystemId() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                " <!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01//EN'"
+                        + " 'http://www.w3.org/TR/html4/strict.dtd'>"
+                        + "<html></html>")));
+        doctype = document.getDoctype();
+        assertEquals("html", doctype.getName());
+        assertEquals("-//W3C//DTD HTML 4.01//EN", doctype.getPublicId());
+        assertEquals("http://www.w3.org/TR/html4/strict.dtd", doctype.getSystemId());
+    }
+
     private class RecordingHandler implements UserDataHandler {
         final Set<String> calls = new HashSet<String>();
         public void handle(short operation, String key, Object data, Node src, Node dst) {

@@ -22,31 +22,106 @@
 
 package org.kxml2.io;
 
-import java.io.*;
-import java.util.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
+import libcore.internal.StringPool;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
-import org.xmlpull.v1.*;
+/**
+ * An XML pull parser with limited support for parsing internal DTDs.
+ */
+public class KXmlParser implements XmlPullParser, Closeable {
 
-/** A simple, pull based XML parser. This classe replaces the kXML 1
-    XmlParser class and the corresponding event classes. */
+    private final String PROPERTY_XMLDECL_VERSION
+            = "http://xmlpull.org/v1/doc/properties.html#xmldecl-version";
+    private final String PROPERTY_XMLDECL_STANDALONE
+            = "http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone";
+    private final String PROPERTY_LOCATION = "http://xmlpull.org/v1/doc/properties.html#location";
+    private static final String FEATURE_RELAXED = "http://xmlpull.org/v1/doc/features.html#relaxed";
 
-public class KXmlParser implements XmlPullParser {
+    private static final Map<String, String> DEFAULT_ENTITIES = new HashMap<String, String>();
+    static {
+        DEFAULT_ENTITIES.put("lt", "<");
+        DEFAULT_ENTITIES.put("gt", ">");
+        DEFAULT_ENTITIES.put("amp", "&");
+        DEFAULT_ENTITIES.put("apos", "'");
+        DEFAULT_ENTITIES.put("quot", "\"");
+    }
 
-    private Object location;
+    private static final int ELEMENTDECL = 11;
+    private static final int ENTITYDECL = 12;
+    private static final int ATTLISTDECL = 13;
+    private static final int NOTATIONDECL = 14;
+    private static final int PARAMETER_ENTITY_REF = 15;
+    private static final char[] START_COMMENT = { '<', '!', '-', '-' };
+    private static final char[] END_COMMENT = { '-', '-', '>' };
+    private static final char[] COMMENT_DOUBLE_DASH = { '-', '-' };
+    private static final char[] START_CDATA = { '<', '!', '[', 'C', 'D', 'A', 'T', 'A', '[' };
+    private static final char[] END_CDATA = { ']', ']', '>' };
+    private static final char[] START_PROCESSING_INSTRUCTION = { '<', '?' };
+    private static final char[] END_PROCESSING_INSTRUCTION = { '?', '>' };
+    private static final char[] START_DOCTYPE = { '<', '!', 'D', 'O', 'C', 'T', 'Y', 'P', 'E' };
+    private static final char[] SYSTEM = { 'S', 'Y', 'S', 'T', 'E', 'M' };
+    private static final char[] PUBLIC = { 'P', 'U', 'B', 'L', 'I', 'C' };
+    private static final char[] START_ELEMENT = { '<', '!', 'E', 'L', 'E', 'M', 'E', 'N', 'T' };
+    private static final char[] START_ATTLIST = { '<', '!', 'A', 'T', 'T', 'L', 'I', 'S', 'T' };
+    private static final char[] START_ENTITY = { '<', '!', 'E', 'N', 'T', 'I', 'T', 'Y' };
+    private static final char[] START_NOTATION = { '<', '!', 'N', 'O', 'T', 'A', 'T', 'I', 'O', 'N' };
+    private static final char[] EMPTY = new char[] { 'E', 'M', 'P', 'T', 'Y' };
+    private static final char[] ANY = new char[]{ 'A', 'N', 'Y' };
+    private static final char[] NDATA = new char[]{ 'N', 'D', 'A', 'T', 'A' };
+    private static final char[] NOTATION = new char[]{ 'N', 'O', 'T', 'A', 'T', 'I', 'O', 'N' };
+    private static final char[] REQUIRED = new char[] { 'R', 'E', 'Q', 'U', 'I', 'R', 'E', 'D' };
+    private static final char[] IMPLIED = new char[] { 'I', 'M', 'P', 'L', 'I', 'E', 'D' };
+    private static final char[] FIXED = new char[] { 'F', 'I', 'X', 'E', 'D' };
+
     static final private String UNEXPECTED_EOF = "Unexpected EOF";
     static final private String ILLEGAL_TYPE = "Wrong event type";
-    static final private int LEGACY = 999;
-    static final private int XML_DECL = 998;
+    static final private int XML_DECLARATION = 998;
 
     // general
+    private String location;
 
     private String version;
     private Boolean standalone;
+    private String rootElementName;
+    private String systemId;
+    private String publicId;
 
+    /**
+     * True if the {@code <!DOCTYPE>} contents are handled. The DTD defines
+     * entity values and default attribute values. These values are parsed at
+     * inclusion time and may contain both tags and entity references.
+     *
+     * <p>If this is false, the user must {@link #defineEntityReplacementText
+     * define entity values manually}. Such entity values are literal strings
+     * and will not be parsed. There is no API to define default attributes
+     * manually.
+     */
+    private boolean processDocDecl;
     private boolean processNsp;
     private boolean relaxed;
-    private boolean keepNamespaceAttributes; // android-added
-    private Hashtable entityMap;
+    private boolean keepNamespaceAttributes;
+
+    /**
+     * Entities defined in or for this document. This map is created lazily.
+     */
+    private Map<String, char[]> documentEntities;
+
+    /**
+     * Default attributes in this document. The outer map's key is the element
+     * name; the inner map's key is the attribute name. Both keys should be
+     * without namespace adjustments. This map is created lazily.
+     */
+    private Map<String, Map<String, String>> defaultAttributes;
+
+
     private int depth;
     private String[] elementStack = new String[16];
     private String[] nspStack = new String[8];
@@ -56,33 +131,32 @@ public class KXmlParser implements XmlPullParser {
 
     private Reader reader;
     private String encoding;
-    private char[] srcBuf;
+    private ContentSource nextContentSource;
+    private char[] buffer = new char[8192];
+    private int position = 0;
+    private int limit = 0;
 
-    private int srcPos;
-    private int srcCount;
+    /*
+     * Track the number of newlines and columns preceding the current buffer. To
+     * compute the line and column of a position in the buffer, compute the line
+     * and column in the buffer and add the preceding values.
+     */
+    private int bufferStartLine;
+    private int bufferStartColumn;
 
-    private int line;
-    private int column;
-
-    // txtbuffer
-
-    /** Target buffer for storing incoming text (including aggregated resolved entities) */
-    private char[] txtBuf = new char[128];
-    /** Write position  */
-    private int txtPos;
-
-    // Event-related
+    // the current token
 
     private int type;
     private boolean isWhitespace;
     private String namespace;
     private String prefix;
     private String name;
+    private String text;
 
     private boolean degenerated;
     private int attributeCount;
 
-    /**
+    /*
      * The current element's attributes arranged in groups of 4:
      * i + 0 = attribute namespace URI
      * i + 1 = attribute namespace prefix
@@ -90,54 +164,27 @@ public class KXmlParser implements XmlPullParser {
      * i + 3 = attribute value
      */
     private String[] attributes = new String[16];
-//    private int stackMismatch = 0;
+
     private String error;
 
-    /**
-     * A separate peek buffer seems simpler than managing
-     * wrap around in the first level read buffer */
-
-    private int[] peek = new int[2];
-    private int peekCount;
-    private boolean wasCR;
-
     private boolean unresolved;
-    private boolean token;
 
-    public KXmlParser() {
-        srcBuf =
-            new char[Runtime.getRuntime().freeMemory() >= 1048576 ? 8192 : 128];
-    }
+    public final StringPool stringPool = new StringPool();
 
-    // BEGIN android-added
     /**
-     * Retains namespace attributes like {@code xmlns="http://foo"} or {@code
-     * xmlns:foo="http:foo"} in pulled elements. Most applications will only be
-     * interested in the effective namespaces of their elements, so these
-     * attributes aren't useful. But for structure preserving wrappers like DOM,
-     * it is necessary to keep the namespace data around.
+     * Retains namespace attributes like {@code xmlns="http://foo"} or {@code xmlns:foo="http:foo"}
+     * in pulled elements. Most applications will only be interested in the effective namespaces of
+     * their elements, so these attributes aren't useful. But for structure preserving wrappers like
+     * DOM, it is necessary to keep the namespace data around.
      */
     public void keepNamespaceAttributes() {
         this.keepNamespaceAttributes = true;
     }
-    // END android-added
 
-    private final boolean isProp(String n1, boolean prop, String n2) {
-        if (!n1.startsWith("http://xmlpull.org/v1/doc/"))
-            return false;
-        if (prop)
-            return n1.substring(42).equals(n2);
-        else
-            return n1.substring(40).equals(n2);
-    }
-
-    private final boolean adjustNsp() throws XmlPullParserException {
-
+    private boolean adjustNsp() throws XmlPullParserException {
         boolean any = false;
 
         for (int i = 0; i < attributeCount << 2; i += 4) {
-            // * 4 - 4; i >= 0; i -= 4) {
-
             String attrName = attributes[i + 2];
             int cut = attrName.indexOf(':');
             String prefix;
@@ -145,32 +192,26 @@ public class KXmlParser implements XmlPullParser {
             if (cut != -1) {
                 prefix = attrName.substring(0, cut);
                 attrName = attrName.substring(cut + 1);
-            }
-            else if (attrName.equals("xmlns")) {
+            } else if (attrName.equals("xmlns")) {
                 prefix = attrName;
                 attrName = null;
-            }
-            else
+            } else {
                 continue;
+            }
 
             if (!prefix.equals("xmlns")) {
                 any = true;
-            }
-            else {
+            } else {
                 int j = (nspCounts[depth]++) << 1;
 
                 nspStack = ensureCapacity(nspStack, j + 2);
                 nspStack[j] = attrName;
                 nspStack[j + 1] = attributes[i + 3];
 
-                if (attrName != null && attributes[i + 3].isEmpty())
-                    error("illegal empty namespace");
+                if (attrName != null && attributes[i + 3].isEmpty()) {
+                    checkRelaxed("illegal empty namespace");
+                }
 
-                //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
-
-                //System.out.println (prefixMap);
-
-                // BEGIN android-changed
                 if (keepNamespaceAttributes) {
                     // explicitly set the namespace for unprefixed attributes
                     // such as xmlns="http://foo"
@@ -186,7 +227,6 @@ public class KXmlParser implements XmlPullParser {
 
                     i -= 4;
                 }
-                // END android-changed
             }
         }
 
@@ -196,45 +236,33 @@ public class KXmlParser implements XmlPullParser {
                 String attrName = attributes[i + 2];
                 int cut = attrName.indexOf(':');
 
-                if (cut == 0 && !relaxed)
+                if (cut == 0 && !relaxed) {
                     throw new RuntimeException(
-                        "illegal attribute name: " + attrName + " at " + this);
-
-                else if (cut != -1) {
+                            "illegal attribute name: " + attrName + " at " + this);
+                } else if (cut != -1) {
                     String attrPrefix = attrName.substring(0, cut);
 
                     attrName = attrName.substring(cut + 1);
 
                     String attrNs = getNamespace(attrPrefix);
 
-                    if (attrNs == null && !relaxed)
+                    if (attrNs == null && !relaxed) {
                         throw new RuntimeException(
-                            "Undefined Prefix: " + attrPrefix + " in " + this);
+                                "Undefined Prefix: " + attrPrefix + " in " + this);
+                    }
 
                     attributes[i] = attrNs;
                     attributes[i + 1] = attrPrefix;
                     attributes[i + 2] = attrName;
-
-                    /*
-                                        if (!relaxed) {
-                                            for (int j = (attributeCount << 2) - 4; j > i; j -= 4)
-                                                if (attrName.equals(attributes[j + 2])
-                                                    && attrNs.equals(attributes[j]))
-                                                    exception(
-                                                        "Duplicate Attribute: {"
-                                                            + attrNs
-                                                            + "}"
-                                                            + attrName);
-                                        }
-                        */
                 }
             }
         }
 
         int cut = name.indexOf(':');
 
-        if (cut == 0)
-            error("illegal tag name: " + name);
+        if (cut == 0) {
+            checkRelaxed("illegal tag name: " + name);
+        }
 
         if (cut != -1) {
             prefix = name.substring(0, cut);
@@ -244,488 +272,831 @@ public class KXmlParser implements XmlPullParser {
         this.namespace = getNamespace(prefix);
 
         if (this.namespace == null) {
-            if (prefix != null)
-                error("undefined prefix: " + prefix);
+            if (prefix != null) {
+                checkRelaxed("undefined prefix: " + prefix);
+            }
             this.namespace = NO_NAMESPACE;
         }
 
         return any;
     }
 
-    private final String[] ensureCapacity(String[] arr, int required) {
-        if (arr.length >= required)
+    private String[] ensureCapacity(String[] arr, int required) {
+        if (arr.length >= required) {
             return arr;
+        }
         String[] bigger = new String[required + 16];
         System.arraycopy(arr, 0, bigger, 0, arr.length);
         return bigger;
     }
 
-    private final void error(String desc) throws XmlPullParserException {
-        if (relaxed) {
-            if (error == null)
-                error = "ERR: " + desc;
+    private void checkRelaxed(String errorMessage) throws XmlPullParserException {
+        if (!relaxed) {
+            throw new XmlPullParserException(errorMessage, this, null);
         }
-        else
-            exception(desc);
+        if (error == null) {
+            error = "Error: " + errorMessage;
+        }
     }
 
-    private final void exception(String desc) throws XmlPullParserException {
-        throw new XmlPullParserException(
-            desc.length() < 100 ? desc : desc.substring(0, 100) + "\n",
-            this,
-            null);
+    public int next() throws XmlPullParserException, IOException {
+        return next(false);
+    }
+
+    public int nextToken() throws XmlPullParserException, IOException {
+        return next(true);
+    }
+
+    private int next(boolean justOneToken) throws IOException, XmlPullParserException {
+        if (reader == null) {
+            throw new XmlPullParserException("setInput() must be called first.", this, null);
+        }
+
+        if (type == END_TAG) {
+            depth--;
+        }
+
+        // degenerated needs to be handled before error because of possible
+        // processor expectations(!)
+
+        if (degenerated) {
+            degenerated = false;
+            type = END_TAG;
+            return type;
+        }
+
+        if (error != null) {
+            if (justOneToken) {
+                text = error;
+                type = COMMENT;
+                error = null;
+                return type;
+            } else {
+                error = null;
+            }
+        }
+
+        type = peekType(false);
+
+        if (type == XML_DECLARATION) {
+            readXmlDeclaration();
+            type = peekType(false);
+        }
+
+        text = null;
+        isWhitespace = true;
+        prefix = null;
+        name = null;
+        namespace = null;
+        attributeCount = -1;
+        boolean throwOnResolveFailure = !justOneToken;
+
+        while (true) {
+            switch (type) {
+
+            /*
+             * Return immediately after encountering a start tag, end tag, or
+             * the end of the document.
+             */
+            case START_TAG:
+                parseStartTag(false, throwOnResolveFailure);
+                return type;
+            case END_TAG:
+                readEndTag();
+                return type;
+            case END_DOCUMENT:
+                return type;
+
+            /*
+             * Return after any text token when we're looking for a single
+             * token. Otherwise concatenate all text between tags.
+             */
+            case ENTITY_REF:
+                if (justOneToken) {
+                    StringBuilder entityTextBuilder = new StringBuilder();
+                    readEntity(entityTextBuilder, true, throwOnResolveFailure, ValueContext.TEXT);
+                    text = entityTextBuilder.toString();
+                    break;
+                }
+                // fall-through
+            case TEXT:
+                text = readValue('<', !justOneToken, throwOnResolveFailure, ValueContext.TEXT);
+                if (depth == 0 && isWhitespace) {
+                    type = IGNORABLE_WHITESPACE;
+                }
+                break;
+            case CDSECT:
+                read(START_CDATA);
+                text = readUntil(END_CDATA, true);
+                break;
+
+            /*
+             * Comments, processing instructions and declarations are returned
+             * when we're looking for a single token. Otherwise they're skipped.
+             */
+            case COMMENT:
+                String commentText = readComment(justOneToken);
+                if (justOneToken) {
+                    text = commentText;
+                }
+                break;
+            case PROCESSING_INSTRUCTION:
+                read(START_PROCESSING_INSTRUCTION);
+                String processingInstruction = readUntil(END_PROCESSING_INSTRUCTION, justOneToken);
+                if (justOneToken) {
+                    text = processingInstruction;
+                }
+                break;
+            case DOCDECL:
+                readDoctype();
+                if (justOneToken) {
+                    text = ""; // TODO: support capturing the doctype text
+                }
+                break;
+
+            default:
+                throw new XmlPullParserException("Unexpected token", this, null);
+            }
+
+            if (justOneToken) {
+                return type;
+            }
+
+            if (type == IGNORABLE_WHITESPACE) {
+                text = null;
+            }
+
+            /*
+             * We've read all that we can of a non-empty text block. Always
+             * report this as text, even if it was a CDATA block or entity
+             * reference.
+             */
+            int peek = peekType(false);
+            if (text != null && !text.isEmpty() && peek < TEXT) {
+                type = TEXT;
+                return type;
+            }
+
+            type = peek;
+        }
     }
 
     /**
-     * common base for next and nextToken. Clears the state, except from
-     * txtPos and whitespace. Does not set the type variable */
+     * Reads text until the specified delimiter is encountered. Consumes the
+     * text and the delimiter.
+     *
+     * @param returnText true to return the read text excluding the delimiter;
+     *     false to return null.
+     */
+    private String readUntil(char[] delimiter, boolean returnText)
+            throws IOException, XmlPullParserException {
+        int start = position;
+        StringBuilder result = null;
 
-    private final void nextImpl() throws IOException, XmlPullParserException {
+        if (returnText && text != null) {
+            result = new StringBuilder();
+            result.append(text);
+        }
 
-        if (reader == null)
-            exception("No Input specified");
+        search:
+        while (true) {
+            if (position + delimiter.length >= limit) {
+                if (start < position && returnText) {
+                    if (result == null) {
+                        result = new StringBuilder();
+                    }
+                    result.append(buffer, start, position - start);
+                }
+                if (!fillBuffer(delimiter.length)) {
+                    checkRelaxed(UNEXPECTED_EOF);
+                    type = COMMENT;
+                    return null;
+                }
+                start = position;
+            }
 
-        if (type == END_TAG)
-            depth--;
+            // TODO: replace with Arrays.equals(buffer, position, delimiter, 0, delimiter.length)
+            // when the VM has better method inlining
+            for (int i = 0; i < delimiter.length; i++) {
+                if (buffer[position + i] != delimiter[i]) {
+                    position++;
+                    continue search;
+                }
+            }
+
+            break;
+        }
+
+        int end = position;
+        position += delimiter.length;
+
+        if (!returnText) {
+            return null;
+        } else if (result == null) {
+            return stringPool.get(buffer, start, end - start);
+        } else {
+            result.append(buffer, start, end - start);
+            return result.toString();
+        }
+    }
+
+    /**
+     * Returns true if an XML declaration was read.
+     */
+    private void readXmlDeclaration() throws IOException, XmlPullParserException {
+        if (bufferStartLine != 0 || bufferStartColumn != 0 || position != 0) {
+            checkRelaxed("processing instructions must not start with xml");
+        }
+
+        read(START_PROCESSING_INSTRUCTION);
+        parseStartTag(true, true);
+
+        if (attributeCount < 1 || !"version".equals(attributes[2])) {
+            checkRelaxed("version expected");
+        }
+
+        version = attributes[3];
+
+        int pos = 1;
+
+        if (pos < attributeCount && "encoding".equals(attributes[2 + 4])) {
+            encoding = attributes[3 + 4];
+            pos++;
+        }
+
+        if (pos < attributeCount && "standalone".equals(attributes[4 * pos + 2])) {
+            String st = attributes[3 + 4 * pos];
+            if ("yes".equals(st)) {
+                standalone = Boolean.TRUE;
+            } else if ("no".equals(st)) {
+                standalone = Boolean.FALSE;
+            } else {
+                checkRelaxed("illegal standalone value: " + st);
+            }
+            pos++;
+        }
+
+        if (pos != attributeCount) {
+            checkRelaxed("unexpected attributes in XML declaration");
+        }
+
+        isWhitespace = true;
+        text = null;
+    }
+
+    private String readComment(boolean returnText) throws IOException, XmlPullParserException {
+        read(START_COMMENT);
+
+        if (relaxed) {
+            return readUntil(END_COMMENT, returnText);
+        }
+
+        String commentText = readUntil(COMMENT_DOUBLE_DASH, returnText);
+        if (peekCharacter() != '>') {
+            throw new XmlPullParserException("Comments may not contain --", this, null);
+        }
+        position++;
+        return commentText;
+    }
+
+    /**
+     * Read the document's DTD. Although this parser is non-validating, the DTD
+     * must be parsed to capture entity values and default attribute values.
+     */
+    private void readDoctype() throws IOException, XmlPullParserException {
+        read(START_DOCTYPE);
+        skip();
+        rootElementName = readName();
+        readExternalId(true, true);
+        skip();
+        if (peekCharacter() == '[') {
+            readInternalSubset();
+        }
+        skip();
+        read('>');
+    }
+
+    /**
+     * Reads an external ID of one of these two forms:
+     *   SYSTEM "quoted system name"
+     *   PUBLIC "quoted public id" "quoted system name"
+     *
+     * If the system name is not required, this also supports lone public IDs of
+     * this form:
+     *   PUBLIC "quoted public id"
+     *
+     * Returns true if any ID was read.
+     */
+    private boolean readExternalId(boolean requireSystemName, boolean assignFields)
+            throws IOException, XmlPullParserException {
+        skip();
+        int c = peekCharacter();
+
+        if (c == 'S') {
+            read(SYSTEM);
+        } else if (c == 'P') {
+            read(PUBLIC);
+            skip();
+            if (assignFields) {
+                publicId = readQuotedId(true);
+            } else {
+                readQuotedId(false);
+            }
+        } else {
+            return false;
+        }
+
+        skip();
+
+        if (!requireSystemName) {
+            int delimiter = peekCharacter();
+            if (delimiter != '"' && delimiter != '\'') {
+                return true; // no system name!
+            }
+        }
+
+        if (assignFields) {
+            systemId = readQuotedId(true);
+        } else {
+            readQuotedId(false);
+        }
+        return true;
+    }
+
+    private static final char[] SINGLE_QUOTE = new char[] { '\'' };
+    private static final char[] DOUBLE_QUOTE = new char[] { '"' };
+
+    /**
+     * Reads a quoted string, performing no entity escaping of the contents.
+     */
+    private String readQuotedId(boolean returnText) throws IOException, XmlPullParserException {
+        int quote = peekCharacter();
+        char[] delimiter;
+        if (quote == '"') {
+            delimiter = DOUBLE_QUOTE;
+        } else if (quote == '\'') {
+            delimiter = SINGLE_QUOTE;
+        } else {
+            throw new XmlPullParserException("Expected a quoted string", this, null);
+        }
+        position++;
+        return readUntil(delimiter, returnText);
+    }
+
+    private void readInternalSubset() throws IOException, XmlPullParserException {
+        read('[');
 
         while (true) {
-            attributeCount = -1;
-
-            // degenerated needs to be handled before error because of possible
-            // processor expectations(!)
-
-            if (degenerated) {
-                degenerated = false;
-                type = END_TAG;
+            skip();
+            if (peekCharacter() == ']') {
+                position++;
                 return;
             }
 
+            int declarationType = peekType(true);
+            switch (declarationType) {
+            case ELEMENTDECL:
+                readElementDeclaration();
+                break;
 
-            if (error != null) {
-                for (int i = 0; i < error.length(); i++)
-                    push(error.charAt(i));
-                //text = error;
-                error = null;
-                type = COMMENT;
+            case ATTLISTDECL:
+                readAttributeListDeclaration();
+                break;
+
+            case ENTITYDECL:
+                readEntityDeclaration();
+                break;
+
+            case NOTATIONDECL:
+                readNotationDeclaration();
+                break;
+
+            case PROCESSING_INSTRUCTION:
+                read(START_PROCESSING_INSTRUCTION);
+                readUntil(END_PROCESSING_INSTRUCTION, false);
+                break;
+
+            case COMMENT:
+                readComment(false);
+                break;
+
+            case PARAMETER_ENTITY_REF:
+                throw new XmlPullParserException(
+                        "Parameter entity references are not supported", this, null);
+
+            default:
+                throw new XmlPullParserException("Unexpected token", this, null);
+            }
+        }
+    }
+
+    /**
+     * Read an element declaration. This contains a name and a content spec.
+     *   <!ELEMENT foo EMPTY >
+     *   <!ELEMENT foo (bar?,(baz|quux)) >
+     *   <!ELEMENT foo (#PCDATA|bar)* >
+     */
+    private void readElementDeclaration() throws IOException, XmlPullParserException {
+        read(START_ELEMENT);
+        skip();
+        readName();
+        readContentSpec();
+        skip();
+        read('>');
+    }
+
+    /**
+     * Read an element content spec. This is a regular expression-like pattern
+     * of names or other content specs. The following operators are supported:
+     *   sequence:    (a,b,c)
+     *   choice:      (a|b|c)
+     *   optional:    a?
+     *   one or more: a+
+     *   any number:  a*
+     *
+     * The special name '#PCDATA' is permitted but only if it is the first
+     * element of the first group:
+     *   (#PCDATA|a|b)
+     *
+     * The top-level element must be either a choice, a sequence, or one of the
+     * special names EMPTY and ANY.
+     */
+    private void readContentSpec() throws IOException, XmlPullParserException {
+        // this implementation is very lenient; it scans for balanced parens only
+        skip();
+        int c = peekCharacter();
+        if (c == '(') {
+            int depth = 0;
+            do {
+                if (c == '(') {
+                    depth++;
+                } else if (c == ')') {
+                    depth--;
+                }
+                position++;
+                c = peekCharacter();
+            } while (depth > 0);
+
+            if (c == '*' || c == '?' || c == '+') {
+                position++;
+            }
+        } else if (c == EMPTY[0]) {
+            read(EMPTY);
+        } else if (c == ANY[0]) {
+            read(ANY);
+        } else {
+            throw new XmlPullParserException("Expected element content spec", this, null);
+        }
+    }
+
+    /**
+     * Reads an attribute list declaration such as the following:
+     *   <!ATTLIST foo
+     *       bar CDATA #IMPLIED
+     *       quux (a|b|c) "c"
+     *       baz NOTATION (a|b|c) #FIXED "c">
+     *
+     * Each attribute has a name, type and default.
+     *
+     * Types are one of the built-in types (CDATA, ID, IDREF, IDREFS, ENTITY,
+     * ENTITIES, NMTOKEN, or NMTOKENS), an enumerated type "(list|of|options)"
+     * or NOTATION followed by an enumerated type.
+     *
+     * The default is either #REQUIRED, #IMPLIED, #FIXED, a quoted value, or
+     * #FIXED with a quoted value.
+     */
+    private void readAttributeListDeclaration() throws IOException, XmlPullParserException {
+        read(START_ATTLIST);
+        skip();
+        String elementName = readName();
+
+        while (true) {
+            skip();
+            int c = peekCharacter();
+            if (c == '>') {
+                position++;
                 return;
             }
 
+            // attribute name
+            String attributeName = readName();
 
-//            if (relaxed
-//                && (stackMismatch > 0 || (peek(0) == -1 && depth > 0))) {
-//                int sp = (depth - 1) << 2;
-//                type = END_TAG;
-//                namespace = elementStack[sp];
-//                prefix = elementStack[sp + 1];
-//                name = elementStack[sp + 2];
-//                if (stackMismatch != 1)
-//                    error = "missing end tag /" + name + " inserted";
-//                if (stackMismatch > 0)
-//                    stackMismatch--;
-//                return;
-//            }
-
-            prefix = null;
-            name = null;
-            namespace = null;
-            //            text = null;
-
-            type = peekType();
-
-            switch (type) {
-
-                case ENTITY_REF :
-                    pushEntity();
-                    return;
-
-                case START_TAG :
-                    parseStartTag(false);
-                    return;
-
-                case END_TAG :
-                    parseEndTag();
-                    return;
-
-                case END_DOCUMENT :
-                    return;
-
-                case TEXT :
-                    // BEGIN android-changed: distinguish attribute values from normal text.
-                    pushText('<', !token, false);
-                    // END android-changed
-                    if (depth == 0) {
-                        if (isWhitespace)
-                            type = IGNORABLE_WHITESPACE;
-                        // make exception switchable for instances.chg... !!!!
-                        // else
-                        //    exception ("text '"+getText ()+"' not allowed outside root element");
+            // attribute type
+            skip();
+            if (position + 1 >= limit && !fillBuffer(2)) {
+                throw new XmlPullParserException("Malformed attribute list", this, null);
+            }
+            if (buffer[position] == NOTATION[0] && buffer[position + 1] == NOTATION[1]) {
+                read(NOTATION);
+                skip();
+            }
+            c = peekCharacter();
+            if (c == '(') {
+                position++;
+                while (true) {
+                    skip();
+                    readName();
+                    skip();
+                    c = peekCharacter();
+                    if (c == ')') {
+                        position++;
+                        break;
+                    } else if (c == '|') {
+                        position++;
+                    } else {
+                        throw new XmlPullParserException("Malformed attribute type", this, null);
                     }
-                    return;
+                }
+            } else {
+                readName();
+            }
 
-                default :
-                    type = parseLegacy(token);
-                    if (type != XML_DECL)
-                        return;
+            // default value
+            skip();
+            c = peekCharacter();
+            if (c == '#') {
+                position++;
+                c = peekCharacter();
+                if (c == 'R') {
+                    read(REQUIRED);
+                } else if (c == 'I') {
+                    read(IMPLIED);
+                } else if (c == 'F') {
+                    read(FIXED);
+                } else {
+                    throw new XmlPullParserException("Malformed attribute type", this, null);
+                }
+                skip();
+                c = peekCharacter();
+            }
+            if (c == '"' || c == '\'') {
+                position++;
+                // TODO: does this do escaping correctly?
+                String value = readValue((char) c, true, true, ValueContext.ATTRIBUTE);
+                position++;
+                defineAttributeDefault(elementName, attributeName, value);
             }
         }
     }
 
-    private final int parseLegacy(boolean push)
-        throws IOException, XmlPullParserException {
-
-        String req = "";
-        int term;
-        int result;
-        int prev = 0;
-
-        read(); // <
-        int c = read();
-
-        if (c == '?') {
-            if ((peek(0) == 'x' || peek(0) == 'X')
-                && (peek(1) == 'm' || peek(1) == 'M')) {
-
-                if (push) {
-                    push(peek(0));
-                    push(peek(1));
-                }
-                read();
-                read();
-
-                if ((peek(0) == 'l' || peek(0) == 'L') && peek(1) <= ' ') {
-
-                    if (line != 1 || column > 4)
-                        error("PI must not start with xml");
-
-                    parseStartTag(true);
-
-                    if (attributeCount < 1 || !"version".equals(attributes[2]))
-                        error("version expected");
-
-                    version = attributes[3];
-
-                    int pos = 1;
-
-                    if (pos < attributeCount
-                        && "encoding".equals(attributes[2 + 4])) {
-                        encoding = attributes[3 + 4];
-                        pos++;
-                    }
-
-                    if (pos < attributeCount
-                        && "standalone".equals(attributes[4 * pos + 2])) {
-                        String st = attributes[3 + 4 * pos];
-                        if ("yes".equals(st))
-                            standalone = new Boolean(true);
-                        else if ("no".equals(st))
-                            standalone = new Boolean(false);
-                        else
-                            error("illegal standalone value: " + st);
-                        pos++;
-                    }
-
-                    if (pos != attributeCount)
-                        error("illegal xmldecl");
-
-                    isWhitespace = true;
-                    txtPos = 0;
-
-                    return XML_DECL;
-                }
-            }
-
-            /*            int c0 = read ();
-                        int c1 = read ();
-                        int */
-
-            term = '?';
-            result = PROCESSING_INSTRUCTION;
+    private void defineAttributeDefault(String elementName, String attributeName, String value) {
+        if (defaultAttributes == null) {
+            defaultAttributes = new HashMap<String, Map<String, String>>();
         }
-        else if (c == '!') {
-            if (peek(0) == '-') {
-                result = COMMENT;
-                req = "--";
-                term = '-';
-            }
-            else if (peek(0) == '[') {
-                result = CDSECT;
-                req = "[CDATA[";
-                term = ']';
-                push = true;
-            }
-            else {
-                result = DOCDECL;
-                req = "DOCTYPE";
-                term = -1;
-            }
+        Map<String, String> elementAttributes = defaultAttributes.get(elementName);
+        if (elementAttributes == null) {
+            elementAttributes = new HashMap<String, String>();
+            defaultAttributes.put(elementName, elementAttributes);
         }
-        else {
-            error("illegal: <" + c);
-            return COMMENT;
-        }
-
-        for (int i = 0; i < req.length(); i++)
-            read(req.charAt(i));
-
-        if (result == DOCDECL)
-            parseDoctype(push);
-        else {
-            while (true) {
-                c = read();
-                if (c == -1){
-                    error(UNEXPECTED_EOF);
-                    return COMMENT;
-                }
-
-                if (push)
-                    push(c);
-
-                if ((term == '?' || c == term)
-                    && peek(0) == term
-                    && peek(1) == '>')
-                    break;
-
-                prev = c;
-            }
-
-            if (term == '-' && prev == '-' && !relaxed)
-                error("illegal comment delimiter: --->");
-
-            read();
-            read();
-
-            if (push && term != '?')
-                txtPos--;
-
-        }
-        return result;
+        elementAttributes.put(attributeName, value);
     }
 
-    /** precondition: &lt! consumed */
+    /**
+     * Read an entity declaration. The value of internal entities are inline:
+     *   <!ENTITY foo "bar">
+     *
+     * The values of external entities must be retrieved by URL or path:
+     *   <!ENTITY foo SYSTEM "http://host/file">
+     *   <!ENTITY foo PUBLIC "-//Android//Foo//EN" "http://host/file">
+     *   <!ENTITY foo SYSTEM "../file.png" NDATA png>
+     *
+     * Entities may be general or parameterized. Parameterized entities are
+     * marked by a percent sign. Such entities may only be used in the DTD:
+     *   <!ENTITY % foo "bar">
+     */
+    private void readEntityDeclaration() throws IOException, XmlPullParserException {
+        read(START_ENTITY);
+        boolean generalEntity = true;
 
-    private final void parseDoctype(boolean push)
-        throws IOException, XmlPullParserException {
-
-        int nesting = 1;
-        boolean quoted = false;
-
-        // read();
-
-        while (true) {
-            int i = read();
-            switch (i) {
-
-                case -1 :
-                    error(UNEXPECTED_EOF);
-                    return;
-
-                case '\'' :
-                    quoted = !quoted;
-                    break;
-
-                case '<' :
-                    if (!quoted)
-                        nesting++;
-                    break;
-
-                case '>' :
-                    if (!quoted) {
-                        if ((--nesting) == 0)
-                            return;
-                    }
-                    break;
-            }
-            if (push)
-                push(i);
+        skip();
+        if (peekCharacter() == '%') {
+            generalEntity = false;
+            position++;
+            skip();
         }
+
+        String name = readName();
+
+        skip();
+        int quote = peekCharacter();
+        String entityValue;
+        if (quote == '"' || quote == '\'') {
+            position++;
+            entityValue = readValue((char) quote, true, false, ValueContext.ENTITY_DECLARATION);
+            position++;
+        } else if (readExternalId(true, false)) {
+            /*
+             * Map external entities to the empty string. This is dishonest,
+             * but it's consistent with Android's Expat pull parser.
+             */
+            entityValue = "";
+            skip();
+            if (peekCharacter() == NDATA[0]) {
+                read(NDATA);
+                skip();
+                readName();
+            }
+        } else {
+            throw new XmlPullParserException("Expected entity value or external ID", this, null);
+        }
+
+        if (generalEntity && processDocDecl) {
+            if (documentEntities == null) {
+                documentEntities = new HashMap<String, char[]>();
+            }
+            documentEntities.put(name, entityValue.toCharArray());
+        }
+
+        skip();
+        read('>');
     }
 
-    /* precondition: &lt;/ consumed */
+    private void readNotationDeclaration() throws IOException, XmlPullParserException {
+        read(START_NOTATION);
+        skip();
+        readName();
+        if (!readExternalId(false, false)) {
+            throw new XmlPullParserException(
+                    "Expected external ID or public ID for notation", this, null);
+        }
+        skip();
+        read('>');
+    }
 
-    private final void parseEndTag()
-        throws IOException, XmlPullParserException {
-
-        read(); // '<'
-        read(); // '/'
-        name = readName();
+    private void readEndTag() throws IOException, XmlPullParserException {
+        read('<');
+        read('/');
+        name = readName(); // TODO: pass the expected name in as a hint?
         skip();
         read('>');
 
-        int sp = (depth - 1) << 2;
+        int sp = (depth - 1) * 4;
 
         if (depth == 0) {
-            error("element stack empty");
+            checkRelaxed("read end tag " + name + " with no tags open");
             type = COMMENT;
             return;
         }
 
-        if (!relaxed) {
-          if (!name.equals(elementStack[sp + 3])) {
-            error("expected: /" + elementStack[sp + 3] + " read: " + name);
-
-              // become case insensitive in relaxed mode
-
-//            int probe = sp;
-//            while (probe >= 0 && !name.toLowerCase().equals(elementStack[probe + 3].toLowerCase())) {
-//                stackMismatch++;
-//                probe -= 4;
-//            }
-//
-//            if (probe < 0) {
-//                stackMismatch = 0;
-//                // text = "unexpected end tag ignored";
-//                type = COMMENT;
-//                return;
-//            }
-        }
-
-        namespace = elementStack[sp];
-        prefix = elementStack[sp + 1];
-        name = elementStack[sp + 2];
+        if (name.equals(elementStack[sp + 3])) {
+            namespace = elementStack[sp];
+            prefix = elementStack[sp + 1];
+            name = elementStack[sp + 2];
+        } else if (!relaxed) {
+            throw new XmlPullParserException(
+                    "expected: /" + elementStack[sp + 3] + " read: " + name, this, null);
         }
     }
 
-    private final int peekType() throws IOException {
-        switch (peek(0)) {
-            case -1 :
-                return END_DOCUMENT;
-            case '&' :
-                return ENTITY_REF;
-            case '<' :
-                switch (peek(1)) {
-                    case '/' :
-                        return END_TAG;
-                    case '?' :
-                    case '!' :
-                        return LEGACY;
-                    default :
-                        return START_TAG;
+    /**
+     * Returns the type of the next token.
+     */
+    private int peekType(boolean inDeclaration) throws IOException, XmlPullParserException {
+        if (position >= limit && !fillBuffer(1)) {
+            return END_DOCUMENT;
+        }
+
+        switch (buffer[position]) {
+        case '&':
+            return ENTITY_REF; // &
+        case '<':
+            if (position + 3 >= limit && !fillBuffer(4)) {
+                throw new XmlPullParserException("Dangling <", this, null);
+            }
+
+            switch (buffer[position + 1]) {
+            case '/':
+                return END_TAG; // </
+            case '?':
+                // we're looking for "<?xml " with case insensitivity
+                if ((position + 5 < limit || fillBuffer(6))
+                        && (buffer[position + 2] == 'x' || buffer[position + 2] == 'X')
+                        && (buffer[position + 3] == 'm' || buffer[position + 3] == 'M')
+                        && (buffer[position + 4] == 'l' || buffer[position + 4] == 'L')
+                        && (buffer[position + 5] == ' ')) {
+                    return XML_DECLARATION; // <?xml
+                } else {
+                    return PROCESSING_INSTRUCTION; // <?
                 }
-            default :
-                return TEXT;
+            case '!':
+                switch (buffer[position + 2]) {
+                case 'D':
+                    return DOCDECL; // <!D
+                case '[':
+                    return CDSECT; // <![
+                case '-':
+                    return COMMENT; // <!-
+                case 'E':
+                    switch (buffer[position + 3]) {
+                    case 'L':
+                        return ELEMENTDECL; // <!EL
+                    case 'N':
+                        return ENTITYDECL; // <!EN
+                    default:
+                        throw new XmlPullParserException("Unexpected <!", this, null);
+                    }
+                case 'A':
+                    return ATTLISTDECL;  // <!A
+                case 'N':
+                    return NOTATIONDECL; // <!N
+                }
+            default:
+                return START_TAG; // <
+            }
+        case '%':
+            return inDeclaration ? PARAMETER_ENTITY_REF : TEXT;
+        default:
+            return TEXT;
         }
     }
 
-    private final String get(int pos) {
-        return new String(txtBuf, pos, txtPos - pos);
-    }
-
-    /*
-    private final String pop (int pos) {
-    String result = new String (txtBuf, pos, txtPos - pos);
-    txtPos = pos;
-    return result;
-    }
-    */
-
-    private final void push(int c) {
-
-        isWhitespace &= c <= ' ';
-
-        if (txtPos == txtBuf.length) {
-            char[] bigger = new char[txtPos * 4 / 3 + 4];
-            System.arraycopy(txtBuf, 0, bigger, 0, txtPos);
-            txtBuf = bigger;
+    /**
+     * Sets name and attributes
+     */
+    private void parseStartTag(boolean xmldecl, boolean throwOnResolveFailure)
+            throws IOException, XmlPullParserException {
+        if (!xmldecl) {
+            read('<');
         }
-
-        txtBuf[txtPos++] = (char) c;
-    }
-
-    /** Sets name and attributes */
-
-    private final void parseStartTag(boolean xmldecl)
-        throws IOException, XmlPullParserException {
-
-        if (!xmldecl)
-            read();
         name = readName();
         attributeCount = 0;
 
         while (true) {
             skip();
 
-            int c = peek(0);
+            if (position >= limit && !fillBuffer(1)) {
+                checkRelaxed(UNEXPECTED_EOF);
+                return;
+            }
+
+            int c = buffer[position];
 
             if (xmldecl) {
                 if (c == '?') {
-                    read();
+                    position++;
                     read('>');
                     return;
                 }
-            }
-            else {
+            } else {
                 if (c == '/') {
                     degenerated = true;
-                    read();
+                    position++;
                     skip();
                     read('>');
                     break;
-                }
-
-                if (c == '>' && !xmldecl) {
-                    read();
+                } else if (c == '>') {
+                    position++;
                     break;
                 }
-            }
-
-            if (c == -1) {
-                error(UNEXPECTED_EOF);
-                //type = COMMENT;
-                return;
             }
 
             String attrName = readName();
 
-            if (attrName.length() == 0) {
-                error("attr name expected");
-               //type = COMMENT;
-                break;
-            }
-
-            int i = (attributeCount++) << 2;
-
+            int i = (attributeCount++) * 4;
             attributes = ensureCapacity(attributes, i + 4);
-
-            attributes[i++] = "";
-            attributes[i++] = null;
-            attributes[i++] = attrName;
+            attributes[i] = "";
+            attributes[i + 1] = null;
+            attributes[i + 2] = attrName;
 
             skip();
+            if (position >= limit && !fillBuffer(1)) {
+                checkRelaxed(UNEXPECTED_EOF);
+                return;
+            }
 
-            if (peek(0) != '=') {
-                if(!relaxed){
-                    error("Attr.value missing f. "+attrName);
-                }
-                attributes[i] = attrName;
-            } else {
-                read('=');
+            if (buffer[position] == '=') {
+                position++;
+
                 skip();
-                int delimiter = peek(0);
+                if (position >= limit && !fillBuffer(1)) {
+                    checkRelaxed(UNEXPECTED_EOF);
+                    return;
+                }
+                char delimiter = buffer[position];
 
-                if (delimiter != '\'' && delimiter != '"') {
-                    if(!relaxed){
-                        error("attr value delimiter missing!");
-                    }
+                if (delimiter == '\'' || delimiter == '"') {
+                    position++;
+                } else if (relaxed) {
                     delimiter = ' ';
                 } else {
-                    read();
+                    throw new XmlPullParserException("attr value delimiter missing!", this, null);
                 }
 
-                int p = txtPos;
-                // BEGIN android-changed: distinguish attribute values from normal text.
-                pushText(delimiter, true, true);
-                // END android-changed
+                attributes[i + 3] = readValue(delimiter, true, throwOnResolveFailure,
+                        ValueContext.ATTRIBUTE);
 
-                attributes[i] = get(p);
-                txtPos = p;
-
-                if (delimiter != ' ')
-                    read(); // skip endquote
+                if (delimiter != ' ') {
+                    position++; // end quote
+                }
+            } else if (relaxed) {
+                attributes[i + 3] = attrName;
+            } else {
+                checkRelaxed("Attr.value missing f. " + attrName);
+                attributes[i + 3] = attrName;
             }
         }
 
-        int sp = depth++ << 2;
-
+        int sp = depth++ * 4;
         elementStack = ensureCapacity(elementStack, sp + 4);
         elementStack[sp + 3] = name;
 
@@ -737,20 +1108,30 @@ public class KXmlParser implements XmlPullParser {
 
         nspCounts[depth] = nspCounts[depth - 1];
 
-        /*
-            if(!relaxed){
-                for (int i = attributeCount - 1; i > 0; i--) {
-                    for (int j = 0; j < i; j++) {
-                        if (getAttributeName(i).equals(getAttributeName(j)))
-                            exception("Duplicate Attribute: " + getAttributeName(i));
+        if (processNsp) {
+            adjustNsp();
+        } else {
+            namespace = "";
+        }
+
+        // For consistency with Expat, add default attributes after fixing namespaces.
+        if (defaultAttributes != null) {
+            Map<String, String> elementDefaultAttributes = defaultAttributes.get(name);
+            if (elementDefaultAttributes != null) {
+                for (Map.Entry<String, String> entry : elementDefaultAttributes.entrySet()) {
+                    if (getAttributeValue(null, entry.getKey()) != null) {
+                        continue; // an explicit value overrides the default
                     }
+
+                    int i = (attributeCount++) * 4;
+                    attributes = ensureCapacity(attributes, i + 4);
+                    attributes[i] = "";
+                    attributes[i + 1] = null;
+                    attributes[i + 2] = entry.getKey();
+                    attributes[i + 3] = entry.getValue();
                 }
             }
-        */
-        if (processNsp)
-            adjustNsp();
-        else
-            namespace = "";
+        }
 
         elementStack[sp] = namespace;
         elementStack[sp + 1] = prefix;
@@ -758,236 +1139,416 @@ public class KXmlParser implements XmlPullParser {
     }
 
     /**
-     * result: isWhitespace; if the setName parameter is set,
-     * the name of the entity is stored in "name" */
+     * Reads an entity reference from the buffer, resolves it, and writes the
+     * resolved entity to {@code out}. If the entity cannot be read or resolved,
+     * {@code out} will contain the partial entity reference.
+     */
+    private void readEntity(StringBuilder out, boolean isEntityToken, boolean throwOnResolveFailure,
+            ValueContext valueContext) throws IOException, XmlPullParserException {
+        int start = out.length();
 
-    private final void pushEntity()
-        throws IOException, XmlPullParserException {
-
-        push(read()); // &
-
-
-        int pos = txtPos;
-
-        while (true) {
-            int c = peek(0);
-            if (c == ';') {
-              read();
-              break;
-            }
-            if (c < 128 && (c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z')
-                    && c != '_' && c != '-' && c != '#') {
-                if(!relaxed){
-                    error("unterminated entity ref");
-                }
-
-                // BEGIN android-removed: avoid log spam.
-                // System.out.println("broken entitiy: "+get(pos-1));
-                // END android-removed
-
-                //; ends with:"+(char)c);
-//                if (c != -1)
-//                    push(c);
-                return;
-            }
-
-            push(read());
+        if (buffer[position++] != '&') {
+            throw new AssertionError();
         }
 
-        String code = get(pos);
-        txtPos = pos - 1;
-        if (token && type == ENTITY_REF){
+        out.append('&');
+
+        while (true) {
+            int c = peekCharacter();
+
+            if (c == ';') {
+                out.append(';');
+                position++;
+                break;
+
+            } else if (c >= 128
+                    || (c >= '0' && c <= '9')
+                    || (c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || c == '_'
+                    || c == '-'
+                    || c == '#') {
+                position++;
+                out.append((char) c);
+
+            } else if (relaxed) {
+                // intentionally leave the partial reference in 'out'
+                return;
+
+            } else {
+                throw new XmlPullParserException("unterminated entity ref", this, null);
+            }
+        }
+
+        String code = out.substring(start + 1, out.length() - 1);
+
+        if (isEntityToken) {
             name = code;
         }
 
-        if (code.charAt(0) == '#') {
-            int c =
-                (code.charAt(1) == 'x'
-                    ? Integer.parseInt(code.substring(2), 16)
-                    : Integer.parseInt(code.substring(1)));
-            push(c);
+        if (code.startsWith("#")) {
+            try {
+                int c = code.startsWith("#x")
+                        ? Integer.parseInt(code.substring(2), 16)
+                        : Integer.parseInt(code.substring(1));
+                out.delete(start, out.length());
+                out.appendCodePoint(c);
+                unresolved = false;
+                return;
+            } catch (NumberFormatException notANumber) {
+                throw new XmlPullParserException("Invalid character reference: &" + code);
+            } catch (IllegalArgumentException invalidCodePoint) {
+                throw new XmlPullParserException("Invalid character reference: &" + code);
+            }
+        }
+
+        if (valueContext == ValueContext.ENTITY_DECLARATION) {
+            // keep the unresolved &code; in the text to resolve later
             return;
         }
 
-        String result = (String) entityMap.get(code);
-
-        unresolved = result == null;
-
-        if (unresolved) {
-            if (!token)
-                error("unresolved: &" + code + ";");
+        String defaultEntity = DEFAULT_ENTITIES.get(code);
+        if (defaultEntity != null) {
+            out.delete(start, out.length());
+            unresolved = false;
+            out.append(defaultEntity);
+            return;
         }
-        else {
-            for (int i = 0; i < result.length(); i++)
-                push(result.charAt(i));
+
+        char[] resolved;
+        if (documentEntities != null && (resolved = documentEntities.get(code)) != null) {
+            out.delete(start, out.length());
+            unresolved = false;
+            if (processDocDecl) {
+                pushContentSource(resolved); // parse the entity as XML
+            } else {
+                out.append(resolved); // include the entity value as text
+            }
+            return;
         }
-    }
 
-    /** types:
-    '<': parse to any token (for nextToken ())
-    '"': parse to quote
-    ' ': parse to whitespace or '>'
-    */
+        /*
+         * The parser skipped an external DTD, and now we've encountered an
+         * unknown entity that could have been declared there. Map it to the
+         * empty string. This is dishonest, but it's consistent with Android's
+         * old ExpatPullParser.
+         */
+        if (systemId != null) {
+            out.delete(start, out.length());
+            return;
+        }
 
-    private final void pushText(int delimiter, boolean resolveEntities, boolean inAttributeValue)
-        throws IOException, XmlPullParserException {
-
-        int next = peek(0);
-        int cbrCount = 0;
-
-        while (next != -1 && next != delimiter) { // covers eof, '<', '"'
-
-            if (delimiter == ' ')
-                if (next <= ' ' || next == '>')
-                    break;
-
-            // BEGIN android-changed: "<" is not allowed in attribute values.
-            if (next == '&') {
-                if (!resolveEntities)
-                    break;
-
-                pushEntity();
-            }
-            else if (next == '<' && inAttributeValue) {
-                error("Illegal: \"<\" inside attribute value");
-            }
-            else if (next == '\n' && type == START_TAG) {
-                read();
-                push(' ');
-            }
-            else
-                push(read());
-            // END android-changed
-
-            // BEGIN android-changed: "]]>" *is* allowed in attribute values, but
-            // is not allowed in regular text between markup.
-            final boolean allowCloseCdata = inAttributeValue;
-            if (!allowCloseCdata && (next == '>' && cbrCount >= 2 && delimiter != ']')) {
-                error("Illegal: \"]]>\" outside CDATA section");
-            }
-            // END android-changed
-
-            if (next == ']')
-                cbrCount++;
-            else
-                cbrCount = 0;
-
-            next = peek(0);
+        // keep the unresolved entity "&code;" in the text for relaxed clients
+        unresolved = true;
+        if (throwOnResolveFailure) {
+            checkRelaxed("unresolved: &" + code + ";");
         }
     }
 
-    private final void read(char c)
-        throws IOException, XmlPullParserException {
-        int a = read();
-        if (a != c)
-            error("expected: '" + c + "' actual: '" + ((char) a) + "'");
+    /**
+     * Where a value is found impacts how that value is interpreted. For
+     * example, in attributes, "\n" must be replaced with a space character. In
+     * text, "]]>" is forbidden. In entity declarations, named references are
+     * not resolved.
+     */
+    enum ValueContext {
+        ATTRIBUTE,
+        TEXT,
+        ENTITY_DECLARATION
     }
 
-    private final int read() throws IOException {
-        int result;
+    /**
+     * Returns the current text or attribute value. This also has the side
+     * effect of setting isWhitespace to false if a non-whitespace character is
+     * encountered.
+     *
+     * @param delimiter {@code <} for text, {@code "} and {@code '} for quoted
+     *     attributes, or a space for unquoted attributes.
+     */
+    private String readValue(char delimiter, boolean resolveEntities, boolean throwOnResolveFailure,
+            ValueContext valueContext) throws IOException, XmlPullParserException {
 
-        if (peekCount == 0)
-            result = peek(0);
-        else {
-            result = peek[0];
-            peek[0] = peek[1];
+        /*
+         * This method returns all of the characters from the current position
+         * through to an appropriate delimiter.
+         *
+         * If we're lucky (which we usually are), we'll return a single slice of
+         * the buffer. This fast path avoids allocating a string builder.
+         *
+         * There are 6 unlucky characters we could encounter:
+         *  - "&":  entities must be resolved.
+         *  - "%":  parameter entities are unsupported in entity values.
+         *  - "<":  this isn't permitted in attributes unless relaxed.
+         *  - "]":  this requires a lookahead to defend against the forbidden
+         *          CDATA section delimiter "]]>".
+         *  - "\r": If a "\r" is followed by a "\n", we discard the "\r". If it
+         *          isn't followed by "\n", we replace "\r" with either a "\n"
+         *          in text nodes or a space in attribute values.
+         *  - "\n": In attribute values, "\n" must be replaced with a space.
+         *
+         * We could also get unlucky by needing to refill the buffer midway
+         * through the text.
+         */
+
+        int start = position;
+        StringBuilder result = null;
+
+        // if a text section was already started, prefix the start
+        if (valueContext == ValueContext.TEXT && text != null) {
+            result = new StringBuilder();
+            result.append(text);
         }
-        // else {
-        //     result = peek[0];
-        //     System.arraycopy (peek, 1, peek, 0, peekCount-1);
-        // }
-        peekCount--;
-
-        column++;
-
-        if (result == '\n') {
-
-            line++;
-            column = 1;
-        }
-
-        return result;
-    }
-
-    /** Does never read more than needed */
-
-    private final int peek(int pos) throws IOException {
-
-        while (pos >= peekCount) {
-
-            int nw;
-
-            if (srcBuf.length <= 1)
-                nw = reader.read();
-            else if (srcPos < srcCount)
-                nw = srcBuf[srcPos++];
-            else {
-                srcCount = reader.read(srcBuf, 0, srcBuf.length);
-                if (srcCount <= 0)
-                    nw = -1;
-                else
-                    nw = srcBuf[0];
-
-                srcPos = 1;
-            }
-
-            if (nw == '\r') {
-                wasCR = true;
-                peek[peekCount++] = '\n';
-            }
-            else {
-                if (nw == '\n') {
-                    if (!wasCR)
-                        peek[peekCount++] = '\n';
-                }
-                else
-                    peek[peekCount++] = nw;
-
-                wasCR = false;
-            }
-        }
-
-        return peek[pos];
-    }
-
-    private final String readName()
-        throws IOException, XmlPullParserException {
-
-        int pos = txtPos;
-        int c = peek(0);
-        if ((c < 'a' || c > 'z')
-            && (c < 'A' || c > 'Z')
-            && c != '_'
-            && c != ':'
-            && c < 0x0c0
-            && !relaxed)
-            error("name expected");
-
-        do {
-            push(read());
-            c = peek(0);
-        }
-        while ((c >= 'a' && c <= 'z')
-            || (c >= 'A' && c <= 'Z')
-            || (c >= '0' && c <= '9')
-            || c == '_'
-            || c == '-'
-            || c == ':'
-            || c == '.'
-            || c >= 0x0b7);
-
-        String result = get(pos);
-        txtPos = pos;
-        return result;
-    }
-
-    private final void skip() throws IOException {
 
         while (true) {
-            int c = peek(0);
-            if (c > ' ' || c == -1)
+
+            /*
+             * Make sure we have at least a single character to read from the
+             * buffer. This mutates the buffer, so save the partial result
+             * to the slow path string builder first.
+             */
+            if (position >= limit) {
+                if (start < position) {
+                    if (result == null) {
+                        result = new StringBuilder();
+                    }
+                    result.append(buffer, start, position - start);
+                }
+                if (!fillBuffer(1)) {
+                    return result != null ? result.toString() : "";
+                }
+                start = position;
+            }
+
+            char c = buffer[position];
+
+            if (c == delimiter
+                    || (delimiter == ' ' && (c <= ' ' || c == '>'))
+                    || c == '&' && !resolveEntities) {
                 break;
-            read();
+            }
+
+            if (c != '\r'
+                    && (c != '\n' || valueContext != ValueContext.ATTRIBUTE)
+                    && c != '&'
+                    && c != '<'
+                    && (c != ']' || valueContext != ValueContext.TEXT)
+                    && (c != '%' || valueContext != ValueContext.ENTITY_DECLARATION)) {
+                isWhitespace &= (c <= ' ');
+                position++;
+                continue;
+            }
+
+            /*
+             * We've encountered an unlucky character! Convert from fast
+             * path to slow path if we haven't done so already.
+             */
+            if (result == null) {
+                result = new StringBuilder();
+            }
+            result.append(buffer, start, position - start);
+
+            if (c == '\r') {
+                if ((position + 1 < limit || fillBuffer(2)) && buffer[position + 1] == '\n') {
+                    position++;
+                }
+                c = (valueContext == ValueContext.ATTRIBUTE) ? ' ' : '\n';
+
+            } else if (c == '\n') {
+                c = ' ';
+
+            } else if (c == '&') {
+                isWhitespace = false; // TODO: what if the entity resolves to whitespace?
+                readEntity(result, false, throwOnResolveFailure, valueContext);
+                start = position;
+                continue;
+
+            } else if (c == '<') {
+                if (valueContext == ValueContext.ATTRIBUTE) {
+                    checkRelaxed("Illegal: \"<\" inside attribute value");
+                }
+                isWhitespace = false;
+
+            } else if (c == ']') {
+                if ((position + 2 < limit || fillBuffer(3))
+                        && buffer[position + 1] == ']' && buffer[position + 2] == '>') {
+                    checkRelaxed("Illegal: \"]]>\" outside CDATA section");
+                }
+                isWhitespace = false;
+
+            } else if (c == '%') {
+                throw new XmlPullParserException("This parser doesn't support parameter entities",
+                        this, null);
+
+            } else {
+                throw new AssertionError();
+            }
+
+            position++;
+            result.append(c);
+            start = position;
+        }
+
+        if (result == null) {
+            return stringPool.get(buffer, start, position - start);
+        } else {
+            result.append(buffer, start, position - start);
+            return result.toString();
+        }
+    }
+
+    private void read(char expected) throws IOException, XmlPullParserException {
+        int c = peekCharacter();
+        if (c != expected) {
+            checkRelaxed("expected: '" + expected + "' actual: '" + ((char) c) + "'");
+        }
+        position++;
+    }
+
+    private void read(char[] chars) throws IOException, XmlPullParserException {
+        if (position + chars.length >= limit && !fillBuffer(chars.length)) {
+            checkRelaxed("expected: '" + new String(chars) + "' but was EOF");
+            return;
+        }
+
+        // TODO: replace with Arrays.equals(buffer, position, delimiter, 0, delimiter.length)
+        // when the VM has better method inlining
+        for (int i = 0; i < chars.length; i++) {
+            if (buffer[position + i] != chars[i]) {
+                checkRelaxed("expected: \"" + new String(chars) + "\" but was \""
+                        + new String(buffer, position, chars.length) + "...\"");
+            }
+        }
+
+        position += chars.length;
+    }
+
+    private int peekCharacter() throws IOException, XmlPullParserException {
+        if (position < limit || fillBuffer(1)) {
+            return buffer[position];
+        }
+        return -1;
+    }
+
+    /**
+     * Returns true once {@code limit - position >= minimum}. If the data is
+     * exhausted before that many characters are available, this returns
+     * false.
+     */
+    private boolean fillBuffer(int minimum) throws IOException, XmlPullParserException {
+        // If we've exhausted the current content source, remove it
+        while (nextContentSource != null) {
+            if (position < limit) {
+                throw new XmlPullParserException("Unbalanced entity!", this, null);
+            }
+            popContentSource();
+            if (limit - position >= minimum) {
+                return true;
+            }
+        }
+
+        // Before clobbering the old characters, update where buffer starts
+        for (int i = 0; i < position; i++) {
+            if (buffer[i] == '\n') {
+                bufferStartLine++;
+                bufferStartColumn = 0;
+            } else {
+                bufferStartColumn++;
+            }
+        }
+
+        if (limit != position) {
+            limit -= position;
+            System.arraycopy(buffer, position, buffer, 0, limit);
+        } else {
+            limit = 0;
+        }
+
+        position = 0;
+        int total;
+        while ((total = reader.read(buffer, limit, buffer.length - limit)) != -1) {
+            limit += total;
+            if (limit >= minimum) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns an element or attribute name. This is always non-empty for
+     * non-relaxed parsers.
+     */
+    private String readName() throws IOException, XmlPullParserException {
+        if (position >= limit && !fillBuffer(1)) {
+            checkRelaxed("name expected");
+            return "";
+        }
+
+        int start = position;
+        StringBuilder result = null;
+
+        // read the first character
+        char c = buffer[position];
+        if ((c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || c == '_'
+                || c == ':'
+                || c >= '\u00c0' // TODO: check the XML spec
+                || relaxed) {
+            position++;
+        } else {
+            checkRelaxed("name expected");
+            return "";
+        }
+
+        while (true) {
+            /*
+             * Make sure we have at least a single character to read from the
+             * buffer. This mutates the buffer, so save the partial result
+             * to the slow path string builder first.
+             */
+            if (position >= limit) {
+                if (result == null) {
+                    result = new StringBuilder();
+                }
+                result.append(buffer, start, position - start);
+                if (!fillBuffer(1)) {
+                    return result.toString();
+                }
+                start = position;
+            }
+
+            // read another character
+            c = buffer[position];
+            if ((c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_'
+                    || c == '-'
+                    || c == ':'
+                    || c == '.'
+                    || c >= '\u00b7') {  // TODO: check the XML spec
+                position++;
+                continue;
+            }
+
+            // we encountered a non-name character. done!
+            if (result == null) {
+                return stringPool.get(buffer, start, position - start);
+            } else {
+                result.append(buffer, start, position - start);
+                return result.toString();
+            }
+        }
+    }
+
+    private void skip() throws IOException, XmlPullParserException {
+        while (position < limit || fillBuffer(1)) {
+            int c = buffer[position];
+            if (c > ' ') {
+                break;
+            }
+            position++;
         }
     }
 
@@ -996,8 +1557,6 @@ public class KXmlParser implements XmlPullParser {
     public void setInput(Reader reader) throws XmlPullParserException {
         this.reader = reader;
 
-        line = 1;
-        column = 0;
         type = START_DOCUMENT;
         name = null;
         namespace = null;
@@ -1007,98 +1566,93 @@ public class KXmlParser implements XmlPullParser {
         version = null;
         standalone = null;
 
-        if (reader == null)
+        if (reader == null) {
             return;
+        }
 
-        srcPos = 0;
-        srcCount = 0;
-        peekCount = 0;
+        position = 0;
+        limit = 0;
+        bufferStartLine = 0;
+        bufferStartColumn = 0;
         depth = 0;
-
-        entityMap = new Hashtable();
-        entityMap.put("amp", "&");
-        entityMap.put("apos", "'");
-        entityMap.put("gt", ">");
-        entityMap.put("lt", "<");
-        entityMap.put("quot", "\"");
+        documentEntities = null;
     }
 
-    public void setInput(InputStream is, String _enc)
-        throws XmlPullParserException {
-
-        srcPos = 0;
-        srcCount = 0;
+    public void setInput(InputStream is, String _enc) throws XmlPullParserException {
+        position = 0;
+        limit = 0;
         String enc = _enc;
 
-        if (is == null)
+        if (is == null) {
             throw new IllegalArgumentException();
+        }
 
         try {
-
             if (enc == null) {
-                // read four bytes
-
-                int chk = 0;
-
-                while (srcCount < 4) {
+                // read the four bytes looking for an indication of the encoding in use
+                int firstFourBytes = 0;
+                while (limit < 4) {
                     int i = is.read();
-                    if (i == -1)
+                    if (i == -1) {
                         break;
-                    chk = (chk << 8) | i;
-                    srcBuf[srcCount++] = (char) i;
+                    }
+                    firstFourBytes = (firstFourBytes << 8) | i;
+                    buffer[limit++] = (char) i;
                 }
 
-                if (srcCount == 4) {
-                    switch (chk) {
-                        case 0x00000FEFF :
+                if (limit == 4) {
+                    switch (firstFourBytes) {
+                        case 0x00000FEFF: // UTF-32BE BOM
                             enc = "UTF-32BE";
-                            srcCount = 0;
+                            limit = 0;
                             break;
 
-                        case 0x0FFFE0000 :
+                        case 0x0FFFE0000: // UTF-32LE BOM
                             enc = "UTF-32LE";
-                            srcCount = 0;
+                            limit = 0;
                             break;
 
-                        case 0x03c :
+                        case 0x0000003c: // '>' in UTF-32BE
                             enc = "UTF-32BE";
-                            srcBuf[0] = '<';
-                            srcCount = 1;
+                            buffer[0] = '<';
+                            limit = 1;
                             break;
 
-                        case 0x03c000000 :
+                        case 0x03c000000: // '<' in UTF-32LE
                             enc = "UTF-32LE";
-                            srcBuf[0] = '<';
-                            srcCount = 1;
+                            buffer[0] = '<';
+                            limit = 1;
                             break;
 
-                        case 0x0003c003f :
+                        case 0x0003c003f: // "<?" in UTF-16BE
                             enc = "UTF-16BE";
-                            srcBuf[0] = '<';
-                            srcBuf[1] = '?';
-                            srcCount = 2;
+                            buffer[0] = '<';
+                            buffer[1] = '?';
+                            limit = 2;
                             break;
 
-                        case 0x03c003f00 :
+                        case 0x03c003f00: // "<?" in UTF-16LE
                             enc = "UTF-16LE";
-                            srcBuf[0] = '<';
-                            srcBuf[1] = '?';
-                            srcCount = 2;
+                            buffer[0] = '<';
+                            buffer[1] = '?';
+                            limit = 2;
                             break;
 
-                        case 0x03c3f786d :
+                        case 0x03c3f786d: // "<?xm" in ASCII etc.
                             while (true) {
                                 int i = is.read();
-                                if (i == -1)
+                                if (i == -1) {
                                     break;
-                                srcBuf[srcCount++] = (char) i;
+                                }
+                                buffer[limit++] = (char) i;
                                 if (i == '>') {
-                                    String s = new String(srcBuf, 0, srcCount);
+                                    String s = new String(buffer, 0, limit);
                                     int i0 = s.indexOf("encoding");
                                     if (i0 != -1) {
                                         while (s.charAt(i0) != '"'
-                                            && s.charAt(i0) != '\'')
+                                                && s.charAt(i0) != '\'') {
                                             i0++;
+                                        }
                                         char deli = s.charAt(i0++);
                                         int i1 = s.indexOf(deli, i0);
                                         enc = s.substring(i0, i1);
@@ -1107,51 +1661,54 @@ public class KXmlParser implements XmlPullParser {
                                 }
                             }
 
-                        default :
-                            if ((chk & 0x0ffff0000) == 0x0FEFF0000) {
+                        default:
+                            // handle a byte order mark followed by something other than <?
+                            if ((firstFourBytes & 0x0ffff0000) == 0x0FEFF0000) {
                                 enc = "UTF-16BE";
-                                srcBuf[0] =
-                                    (char) ((srcBuf[2] << 8) | srcBuf[3]);
-                                srcCount = 1;
-                            }
-                            else if ((chk & 0x0ffff0000) == 0x0fffe0000) {
+                                buffer[0] = (char) ((buffer[2] << 8) | buffer[3]);
+                                limit = 1;
+                            } else if ((firstFourBytes & 0x0ffff0000) == 0x0fffe0000) {
                                 enc = "UTF-16LE";
-                                srcBuf[0] =
-                                    (char) ((srcBuf[3] << 8) | srcBuf[2]);
-                                srcCount = 1;
-                            }
-                            else if ((chk & 0x0ffffff00) == 0x0EFBBBF00) {
+                                buffer[0] = (char) ((buffer[3] << 8) | buffer[2]);
+                                limit = 1;
+                            } else if ((firstFourBytes & 0x0ffffff00) == 0x0EFBBBF00) {
                                 enc = "UTF-8";
-                                srcBuf[0] = srcBuf[3];
-                                srcCount = 1;
+                                buffer[0] = buffer[3];
+                                limit = 1;
                             }
                     }
                 }
             }
 
-            if (enc == null)
+            if (enc == null) {
                 enc = "UTF-8";
+            }
 
-            int sc = srcCount;
+            int sc = limit;
             setInput(new InputStreamReader(is, enc));
             encoding = _enc;
-            srcCount = sc;
+            limit = sc;
+        } catch (Exception e) {
+            throw new XmlPullParserException("Invalid stream or encoding: " + e, this, e);
         }
-        catch (Exception e) {
-            throw new XmlPullParserException(
-                "Invalid stream or encoding: " + e.toString(),
-                this,
-                e);
+    }
+
+    public void close() throws IOException {
+        if (reader != null) {
+            reader.close();
         }
     }
 
     public boolean getFeature(String feature) {
-        if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature))
+        if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature)) {
             return processNsp;
-        else if (isProp(feature, false, "relaxed"))
+        } else if (FEATURE_RELAXED.equals(feature)) {
             return relaxed;
-        else
+        } else if (FEATURE_PROCESS_DOCDECL.equals(feature)) {
+            return processDocDecl;
+        } else {
             return false;
+        }
     }
 
     public String getInputEncoding() {
@@ -1159,50 +1716,88 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public void defineEntityReplacementText(String entity, String value)
-        throws XmlPullParserException {
-        if (entityMap == null)
-            throw new RuntimeException("entity replacement text must be defined after setInput!");
-        entityMap.put(entity, value);
+            throws XmlPullParserException {
+        if (processDocDecl) {
+            throw new IllegalStateException(
+                    "Entity replacement text may not be defined with DOCTYPE processing enabled.");
+        }
+        if (reader == null) {
+            throw new IllegalStateException(
+                    "Entity replacement text must be defined after setInput()");
+        }
+        if (documentEntities == null) {
+            documentEntities = new HashMap<String, char[]>();
+        }
+        documentEntities.put(entity, value.toCharArray());
     }
 
     public Object getProperty(String property) {
-        if (isProp(property, true, "xmldecl-version"))
+        if (property.equals(PROPERTY_XMLDECL_VERSION)) {
             return version;
-        if (isProp(property, true, "xmldecl-standalone"))
+        } else if (property.equals(PROPERTY_XMLDECL_STANDALONE)) {
             return standalone;
-        if (isProp(property, true, "location"))
+        } else if (property.equals(PROPERTY_LOCATION)) {
             return location != null ? location : reader.toString();
-        return null;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the root element's name if it was declared in the DTD. This
+     * equals the first tag's name for valid documents.
+     */
+    public String getRootElementName() {
+        return rootElementName;
+    }
+
+    /**
+     * Returns the document's system ID if it was declared. This is typically a
+     * string like {@code http://www.w3.org/TR/html4/strict.dtd}.
+     */
+    public String getSystemId() {
+        return systemId;
+    }
+
+    /**
+     * Returns the document's public ID if it was declared. This is typically a
+     * string like {@code -//W3C//DTD HTML 4.01//EN}.
+     */
+    public String getPublicId() {
+        return publicId;
     }
 
     public int getNamespaceCount(int depth) {
-        if (depth > this.depth)
+        if (depth > this.depth) {
             throw new IndexOutOfBoundsException();
+        }
         return nspCounts[depth];
     }
 
     public String getNamespacePrefix(int pos) {
-        return nspStack[pos << 1];
+        return nspStack[pos * 2];
     }
 
     public String getNamespaceUri(int pos) {
-        return nspStack[(pos << 1) + 1];
+        return nspStack[(pos * 2) + 1];
     }
 
     public String getNamespace(String prefix) {
-
-        if ("xml".equals(prefix))
+        if ("xml".equals(prefix)) {
             return "http://www.w3.org/XML/1998/namespace";
-        if ("xmlns".equals(prefix))
+        }
+        if ("xmlns".equals(prefix)) {
             return "http://www.w3.org/2000/xmlns/";
+        }
 
         for (int i = (getNamespaceCount(depth) << 1) - 2; i >= 0; i -= 2) {
             if (prefix == null) {
-                if (nspStack[i] == null)
+                if (nspStack[i] == null) {
                     return nspStack[i + 1];
-            }
-            else if (prefix.equals(nspStack[i]))
+                }
+            } else if (prefix.equals(nspStack[i])) {
                 return nspStack[i + 1];
+            }
         }
         return null;
     }
@@ -1212,50 +1807,52 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public String getPositionDescription() {
-
-        StringBuffer buf =
-            new StringBuffer(type < TYPES.length ? TYPES[type] : "unknown");
+        StringBuilder buf = new StringBuilder(type < TYPES.length ? TYPES[type] : "unknown");
         buf.append(' ');
 
         if (type == START_TAG || type == END_TAG) {
-            if (degenerated)
+            if (degenerated) {
                 buf.append("(empty) ");
+            }
             buf.append('<');
-            if (type == END_TAG)
+            if (type == END_TAG) {
                 buf.append('/');
+            }
 
-            if (prefix != null)
+            if (prefix != null) {
                 buf.append("{" + namespace + "}" + prefix + ":");
+            }
             buf.append(name);
 
-            int cnt = attributeCount << 2;
+            int cnt = attributeCount * 4;
             for (int i = 0; i < cnt; i += 4) {
                 buf.append(' ');
-                if (attributes[i + 1] != null)
-                    buf.append(
-                        "{" + attributes[i] + "}" + attributes[i + 1] + ":");
+                if (attributes[i + 1] != null) {
+                    buf.append("{" + attributes[i] + "}" + attributes[i + 1] + ":");
+                }
                 buf.append(attributes[i + 2] + "='" + attributes[i + 3] + "'");
             }
 
             buf.append('>');
-        }
-        else if (type == IGNORABLE_WHITESPACE);
-        else if (type != TEXT)
+        } else if (type == IGNORABLE_WHITESPACE) {
+            ;
+        } else if (type != TEXT) {
             buf.append(getText());
-        else if (isWhitespace)
+        } else if (isWhitespace) {
             buf.append("(whitespace)");
-        else {
+        } else {
             String text = getText();
-            if (text.length() > 16)
+            if (text.length() > 16) {
                 text = text.substring(0, 16) + "...";
+            }
             buf.append(text);
         }
 
-        buf.append("@"+line + ":" + column);
-        if(location != null){
+        buf.append("@" + getLineNumber() + ":" + getColumnNumber());
+        if (location != null) {
             buf.append(" in ");
             buf.append(location);
-        } else if(reader != null){
+        } else if (reader != null) {
             buf.append(" in ");
             buf.append(reader.toString());
         }
@@ -1263,39 +1860,55 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public int getLineNumber() {
-        return line;
+        int result = bufferStartLine;
+        for (int i = 0; i < position; i++) {
+            if (buffer[i] == '\n') {
+                result++;
+            }
+        }
+        return result + 1; // the first line is '1'
     }
 
     public int getColumnNumber() {
-        return column;
+        int result = bufferStartColumn;
+        for (int i = 0; i < position; i++) {
+            if (buffer[i] == '\n') {
+                result = 0;
+            } else {
+                result++;
+            }
+        }
+        return result + 1; // the first column is '1'
     }
 
     public boolean isWhitespace() throws XmlPullParserException {
-        if (type != TEXT && type != IGNORABLE_WHITESPACE && type != CDSECT)
-            exception(ILLEGAL_TYPE);
+        if (type != TEXT && type != IGNORABLE_WHITESPACE && type != CDSECT) {
+            throw new XmlPullParserException(ILLEGAL_TYPE, this, null);
+        }
         return isWhitespace;
     }
 
     public String getText() {
-        return type < TEXT
-            || (type == ENTITY_REF && unresolved) ? null : get(0);
+        if (type < TEXT || (type == ENTITY_REF && unresolved)) {
+            return null;
+        } else if (text == null) {
+            return "";
+        } else {
+            return text;
+        }
     }
 
     public char[] getTextCharacters(int[] poslen) {
-        if (type >= TEXT) {
-            if (type == ENTITY_REF) {
-                poslen[0] = 0;
-                poslen[1] = name.length();
-                return name.toCharArray();
-            }
-            poslen[0] = 0;
-            poslen[1] = txtPos;
-            return txtBuf;
+        String text = getText();
+        if (text == null) {
+            poslen[0] = -1;
+            poslen[1] = -1;
+            return null;
         }
-
-        poslen[0] = -1;
-        poslen[1] = -1;
-        return null;
+        char[] result = text.toCharArray();
+        poslen[0] = 0;
+        poslen[1] = result.length;
+        return result;
     }
 
     public String getNamespace() {
@@ -1311,8 +1924,9 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public boolean isEmptyElementTag() throws XmlPullParserException {
-        if (type != START_TAG)
-            exception(ILLEGAL_TYPE);
+        if (type != START_TAG) {
+            throw new XmlPullParserException(ILLEGAL_TYPE, this, null);
+        }
         return degenerated;
     }
 
@@ -1329,35 +1943,39 @@ public class KXmlParser implements XmlPullParser {
     }
 
     public String getAttributeNamespace(int index) {
-        if (index >= attributeCount)
+        if (index >= attributeCount) {
             throw new IndexOutOfBoundsException();
-        return attributes[index << 2];
+        }
+        return attributes[index * 4];
     }
 
     public String getAttributeName(int index) {
-        if (index >= attributeCount)
+        if (index >= attributeCount) {
             throw new IndexOutOfBoundsException();
-        return attributes[(index << 2) + 2];
+        }
+        return attributes[(index * 4) + 2];
     }
 
     public String getAttributePrefix(int index) {
-        if (index >= attributeCount)
+        if (index >= attributeCount) {
             throw new IndexOutOfBoundsException();
-        return attributes[(index << 2) + 1];
+        }
+        return attributes[(index * 4) + 1];
     }
 
     public String getAttributeValue(int index) {
-        if (index >= attributeCount)
+        if (index >= attributeCount) {
             throw new IndexOutOfBoundsException();
-        return attributes[(index << 2) + 3];
+        }
+        return attributes[(index * 4) + 3];
     }
 
     public String getAttributeValue(String namespace, String name) {
-
-        for (int i = (attributeCount << 2) - 4; i >= 0; i -= 4) {
+        for (int i = (attributeCount * 4) - 4; i >= 0; i -= 4) {
             if (attributes[i + 2].equals(name)
-                && (namespace == null || attributes[i].equals(namespace)))
+                    && (namespace == null || attributes[i].equals(namespace))) {
                 return attributes[i + 3];
+            }
         }
 
         return null;
@@ -1367,123 +1985,136 @@ public class KXmlParser implements XmlPullParser {
         return type;
     }
 
-    public int next() throws XmlPullParserException, IOException {
-
-        txtPos = 0;
-        isWhitespace = true;
-        int minType = 9999;
-        token = false;
-
-        do {
-            nextImpl();
-            if (type < minType)
-                minType = type;
-            //    if (curr <= TEXT) type = curr;
-        }
-        while (minType > ENTITY_REF // ignorable
-            || (minType >= TEXT && peekType() >= TEXT));
-
-        type = minType;
-        if (type > TEXT)
-            type = TEXT;
-
-        return type;
-    }
-
-    public int nextToken() throws XmlPullParserException, IOException {
-
-        isWhitespace = true;
-        txtPos = 0;
-
-        token = true;
-        nextImpl();
-        return type;
-    }
-
-    //
     // utility methods to make XML parsing easier ...
 
     public int nextTag() throws XmlPullParserException, IOException {
-
         next();
-        if (type == TEXT && isWhitespace)
+        if (type == TEXT && isWhitespace) {
             next();
+        }
 
-        if (type != END_TAG && type != START_TAG)
-            exception("unexpected type");
+        if (type != END_TAG && type != START_TAG) {
+            throw new XmlPullParserException("unexpected type", this, null);
+        }
 
         return type;
     }
 
     public void require(int type, String namespace, String name)
-        throws XmlPullParserException, IOException {
+            throws XmlPullParserException, IOException {
 
         if (type != this.type
-            || (namespace != null && !namespace.equals(getNamespace()))
-            || (name != null && !name.equals(getName())))
-            exception(
-                "expected: " + TYPES[type] + " {" + namespace + "}" + name);
+                || (namespace != null && !namespace.equals(getNamespace()))
+                || (name != null && !name.equals(getName()))) {
+            throw new XmlPullParserException(
+                    "expected: " + TYPES[type] + " {" + namespace + "}" + name, this, null);
+        }
     }
 
     public String nextText() throws XmlPullParserException, IOException {
-        if (type != START_TAG)
-            exception("precondition: START_TAG");
+        if (type != START_TAG) {
+            throw new XmlPullParserException("precondition: START_TAG", this, null);
+        }
 
         next();
 
         String result;
-
         if (type == TEXT) {
             result = getText();
             next();
-        }
-        else
+        } else {
             result = "";
+        }
 
-        if (type != END_TAG)
-            exception("END_TAG expected");
+        if (type != END_TAG) {
+            throw new XmlPullParserException("END_TAG expected", this, null);
+        }
 
         return result;
     }
 
-    public void setFeature(String feature, boolean value)
-        throws XmlPullParserException {
-        if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature))
+    public void setFeature(String feature, boolean value) throws XmlPullParserException {
+        if (XmlPullParser.FEATURE_PROCESS_NAMESPACES.equals(feature)) {
             processNsp = value;
-        else if (isProp(feature, false, "relaxed"))
+        } else if (XmlPullParser.FEATURE_PROCESS_DOCDECL.equals(feature)) {
+            processDocDecl = value;
+        } else if (FEATURE_RELAXED.equals(feature)) {
             relaxed = value;
-        else
-            exception("unsupported feature: " + feature);
+        } else {
+            throw new XmlPullParserException("unsupported feature: " + feature, this, null);
+        }
     }
 
-    public void setProperty(String property, Object value)
-        throws XmlPullParserException {
-        if(isProp(property, true, "location")) {
-            location = value;
+    public void setProperty(String property, Object value) throws XmlPullParserException {
+        if (property.equals(PROPERTY_LOCATION)) {
+            location = String.valueOf(value);
         } else {
             throw new XmlPullParserException("unsupported property: " + property);
         }
     }
 
     /**
-      * Skip sub tree that is currently porser positioned on.
-      * <br>NOTE: parser must be on START_TAG and when funtion returns
-      * parser will be positioned on corresponding END_TAG.
-      */
-
-    // Implementation copied from Alek's mail...
-
-    public void skipSubTree() throws XmlPullParserException, IOException {
-        require(START_TAG, null, null);
-        int level = 1;
-        while (level > 0) {
-            int eventType = next();
-            if (eventType == END_TAG) {
-                --level;
-            }
-            else if (eventType == START_TAG) {
-                ++level;
-            }
+     * A chain of buffers containing XML content. Each content source contains
+     * the parser's primary read buffer or the characters of entities actively
+     * being parsed.
+     *
+     * <p>For example, note the buffers needed to parse this document:
+     * <pre>   {@code
+     *   <!DOCTYPE foo [
+     *       <!ENTITY baz "ghi">
+     *       <!ENTITY bar "def &baz; jkl">
+     *   ]>
+     *   <foo>abc &bar; mno</foo>
+     * }</pre>
+     *
+     * <p>Things get interesting when the bar entity is encountered. At that
+     * point two buffers are active:
+     * <ol>
+     * <li>The value for the bar entity, containing {@code "def &baz; jkl"}
+     * <li>The parser's primary read buffer, containing {@code " mno</foo>"}
+     * </ol>
+     * <p>The parser will return the characters {@code "def "} from the bar
+     * entity's buffer, and then it will encounter the baz entity. To handle
+     * that, three buffers will be active:
+     * <ol>
+     * <li>The value for the baz entity, containing {@code "ghi"}
+     * <li>The remaining value for the bar entity, containing {@code " jkl"}
+     * <li>The parser's primary read buffer, containing {@code " mno</foo>"}
+     * </ol>
+     * <p>The parser will then return the characters {@code ghi jkl mno} in that
+     * sequence by reading each buffer in sequence.
+     */
+    static class ContentSource {
+        private final ContentSource next;
+        private final char[] buffer;
+        private final int position;
+        private final int limit;
+        ContentSource(ContentSource next, char[] buffer, int position, int limit) {
+            this.next = next;
+            this.buffer = buffer;
+            this.position = position;
+            this.limit = limit;
         }
+    }
+
+    /**
+     * Prepends the characters of {@code newBuffer} to be read before the
+     * current buffer.
+     */
+    private void pushContentSource(char[] newBuffer) {
+        nextContentSource = new ContentSource(nextContentSource, buffer, position, limit);
+        buffer = newBuffer;
+        position = 0;
+        limit = newBuffer.length;
+    }
+
+    /**
+     * Replaces the current exhausted buffer with the next buffer in the chain.
+     */
+    private void popContentSource() {
+        buffer = nextContentSource.buffer;
+        position = nextContentSource.position;
+        limit = nextContentSource.limit;
+        nextContentSource = nextContentSource.next;
     }
 }

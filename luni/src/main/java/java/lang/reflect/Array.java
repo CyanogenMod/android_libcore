@@ -47,14 +47,14 @@ public final class Array {
     /**
      * Returns the element of the array at the specified index. This reproduces
      * the effect of {@code array[index]}. If the array component is a primitive
-     * type, the result is automatically wrapped.
+     * type, the result is automatically boxed.
      *
      * @param array
      *            the array
      * @param index
      *            the index
      *
-     * @return the requested element, possibly wrapped
+     * @return the requested element, possibly boxed
      *
      * @throws NullPointerException
      *             if the array is null
@@ -486,7 +486,7 @@ public final class Array {
     /**
      * Sets the element of the array at the specified index to the value. This
      * reproduces the effect of {@code array[index] = value}. If the array
-     * component is a primitive type, the value is automatically unwrapped.
+     * component is a primitive type, the value is automatically unboxed.
      *
      * @param array
      *            the array

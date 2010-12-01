@@ -26,6 +26,7 @@ import dalvik.system.VMStack;
 import java.io.EmulatedFields.ObjectSlot;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -35,6 +36,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import libcore.base.EmptyArray;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -53,8 +55,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     // BEGIN android-note
     // this is non-static to avoid sync contention. Would static be faster?
     // END android-note
-    private InputStream emptyStream = new ByteArrayInputStream(
-            new byte[0]);
+    private InputStream emptyStream = new ByteArrayInputStream(EmptyArray.BYTE);
 
     // To put into objectsRead when reading unsharedObject
     private static final Object UNSHARED_OBJ = new Object(); // $NON-LOCK-1$
@@ -392,20 +393,16 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                     .doPrivileged(new PrivilegedAction<Boolean>() {
                         public Boolean run() {
                             try {
-                                Method method = implementationClass
-                                        .getMethod(
-                                                "readFields",
-                                                ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                                Method method = implementationClass.getMethod("readFields",
+                                        EmptyArray.CLASS);
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
                             } catch (NoSuchMethodException ignored) {
                             }
                             try {
-                                Method method = implementationClass
-                                        .getMethod(
-                                                "readUnshared",
-                                                ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                                Method method = implementationClass.getMethod("readUnshared",
+                                        EmptyArray.CLASS);
                                 if (method.getDeclaringClass() != thisClass) {
                                     return Boolean.TRUE;
                                 }
@@ -471,8 +468,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                     primitiveData = new ByteArrayInputStream(readBlockData());
                     return;
                 case TC_BLOCKDATALONG:
-                    primitiveData = new ByteArrayInputStream(
-                            readBlockDataLong());
+                    primitiveData = new ByteArrayInputStream(readBlockDataLong());
                     return;
                 case TC_RESET:
                     resetState();
@@ -811,9 +807,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 return readNewClassDesc(false);
             case TC_PROXYCLASSDESC:
                 Class<?> proxyClass = readNewProxyClassDesc();
-                ObjectStreamClass streamClass = ObjectStreamClass
-                        .lookup(proxyClass);
-                streamClass.setLoadFields(new ObjectStreamField[0]);
+                ObjectStreamClass streamClass = ObjectStreamClass.lookup(proxyClass);
+                streamClass.setLoadFields(ObjectStreamClass.NO_FIELDS);
                 registerObjectRead(streamClass, nextHandle(), false);
                 checkedSetSuperClassDesc(streamClass, readClassDesc());
                 return streamClass;
@@ -1116,8 +1111,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      * @throws NotActiveException
      *             if this stream is currently not reading an object.
      */
-    public GetField readFields() throws IOException, ClassNotFoundException,
-            NotActiveException {
+    public GetField readFields() throws IOException, ClassNotFoundException, NotActiveException {
         // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
@@ -1150,8 +1144,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      */
     private void readFieldValues(EmulatedFieldsForLoading emulatedFields)
             throws OptionalDataException, InvalidClassException, IOException {
-        EmulatedFields.ObjectSlot[] slots = emulatedFields.emulatedFields()
-                .slots();
+        EmulatedFields.ObjectSlot[] slots = emulatedFields.emulatedFields().slots();
         for (ObjectSlot element : slots) {
             element.defaulted = false;
             Class<?> type = element.field.getType();
@@ -1212,111 +1205,109 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      * @see #readFields
      * @see #readObject()
      */
-    private void readFieldValues(Object obj, ObjectStreamClass classDesc)
-            throws OptionalDataException, ClassNotFoundException, IOException {
+    private void readFieldValues(Object obj, ObjectStreamClass classDesc) throws OptionalDataException, ClassNotFoundException, IOException {
         // Now we must read all fields and assign them to the receiver
         ObjectStreamField[] fields = classDesc.getLoadFields();
-        fields = (null == fields ? new ObjectStreamField[] {} : fields);
+        fields = (null == fields ? ObjectStreamClass.NO_FIELDS : fields);
         Class<?> declaringClass = classDesc.forClass();
         if (declaringClass == null && mustResolve) {
             throw new ClassNotFoundException(classDesc.getName());
         }
 
         for (ObjectStreamField fieldDesc : fields) {
-
-            // BEGIN android-removed
-            // // get associated Field
-            // long fieldID = fieldDesc.getFieldID(accessor, declaringClass);
-            // END android-removed
-
-            // Code duplication starts, just because Java is typed
-            if (fieldDesc.isPrimitive()) {
-                try {
-                    // BEGIN android-changed
-                    switch (fieldDesc.getTypeCode()) {
-                        case 'B':
-                            setFieldByte(obj, declaringClass, fieldDesc.getName(),
-                                    input.readByte());
-                            break;
-                        case 'C':
-                            setFieldChar(obj, declaringClass, fieldDesc.getName(),
-                                    input.readChar());
-                            break;
-                        case 'D':
-                            setFieldDouble(obj, declaringClass, fieldDesc.getName(),
-                                    input.readDouble());
-                            break;
-                        case 'F':
-                            setFieldFloat(obj, declaringClass, fieldDesc.getName(),
-                                    input.readFloat());
-                            break;
-                        case 'I':
-                            setFieldInt(obj, declaringClass, fieldDesc.getName(),
-                                    input.readInt());
-                            break;
-                        case 'J':
-                            setFieldLong(obj, declaringClass, fieldDesc.getName(),
-                                    input.readLong());
-                            break;
-                        case 'S':
-                            setFieldShort(obj, declaringClass, fieldDesc.getName(),
-                                    input.readShort());
-                            break;
-                        case 'Z':
-                            setFieldBool(obj, declaringClass, fieldDesc.getName(),
-                                    input.readBoolean());
-                            break;
-                        default:
-                            throw new StreamCorruptedException("Invalid typecode: " +
-                                    fieldDesc.getTypeCode());
+            Field field = classDesc.getReflectionField(fieldDesc);
+            // We may not have been able to find the field, but we still need to read the value
+            // and do the other checking, so there's no null check on 'field' here.
+            try {
+                switch (fieldDesc.getTypeCode()) {
+                case 'B':
+                    byte b = input.readByte();
+                    if (field != null) {
+                        field.setByte(obj, b);
                     }
-                    // END android-changed
-                } catch (NoSuchFieldError ignored) {
-                }
-            } else {
-                // Object type (array included).
-                String fieldName = fieldDesc.getName();
-                boolean setBack = false;
-                // BEGIN android-added
-                ObjectStreamField field = classDesc.getField(fieldName);
-                // END android-added
-                if (mustResolve && fieldDesc == null) {
-                    setBack = true;
-                    mustResolve = false;
-                }
-                Object toSet;
-                if (fieldDesc != null && fieldDesc.isUnshared()) {
-                    toSet = readUnshared();
-                } else {
-                    toSet = readObject();
-                }
-                if (setBack) {
-                    mustResolve = true;
-                }
-                if (fieldDesc != null) {
-                    if (toSet != null) {
-                        // BEGIN android-changed
-                        // Get the field type from the local field rather than
-                        // from the stream's supplied data. That's the field
-                        // we'll be setting, so that's the one that needs to be
-                        // validated.
-                        Class<?> fieldType = field.getTypeInternal();
-                        // END android-added
-                        Class<?> valueType = toSet.getClass();
-                        if (!fieldType.isAssignableFrom(valueType)) {
-                            throw new ClassCastException(classDesc.getName() + "." + fieldName +
-                                    " - " + fieldType + " not compatible with " + valueType);
-                        }
-                        try {
+                    break;
+                case 'C':
+                    char c = input.readChar();
+                    if (field != null) {
+                        field.setChar(obj, c);
+                    }
+                    break;
+                case 'D':
+                    double d = input.readDouble();
+                    if (field != null) {
+                        field.setDouble(obj, d);
+                    }
+                    break;
+                case 'F':
+                    float f = input.readFloat();
+                    if (field != null) {
+                        field.setFloat(obj, f);
+                    }
+                    break;
+                case 'I':
+                    int i = input.readInt();
+                    if (field != null) {
+                        field.setInt(obj, i);
+                    }
+                    break;
+                case 'J':
+                    long j = input.readLong();
+                    if (field != null) {
+                        field.setLong(obj, j);
+                    }
+                    break;
+                case 'S':
+                    short s = input.readShort();
+                    if (field != null) {
+                        field.setShort(obj, s);
+                    }
+                    break;
+                case 'Z':
+                    boolean z = input.readBoolean();
+                    if (field != null) {
+                        field.setBoolean(obj, z);
+                    }
+                    break;
+                case 'L':
+                case '[':
+                    String fieldName = fieldDesc.getName();
+                    boolean setBack = false;
+                    ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
+                    if (mustResolve && fieldDesc == null) {
+                        setBack = true;
+                        mustResolve = false;
+                    }
+                    boolean unshared = fieldDesc != null && fieldDesc.isUnshared();
+                    Object toSet = unshared ? readUnshared() : readObject();
+                    if (setBack) {
+                        mustResolve = true;
+                    }
+                    if (fieldDesc != null) {
+                        if (toSet != null) {
                             // BEGIN android-changed
-                            setFieldObject(obj, declaringClass, fieldName, field.getTypeString(),
-                                    toSet);
-                            // END android-changed
-                        } catch (NoSuchFieldError e) {
-                            // Ignored
+                            // Get the field type from the local field rather than
+                            // from the stream's supplied data. That's the field
+                            // we'll be setting, so that's the one that needs to be
+                            // validated.
+                            Class<?> fieldType = localFieldDesc.getTypeInternal();
+                            // END android-added
+                            Class<?> valueType = toSet.getClass();
+                            if (!fieldType.isAssignableFrom(valueType)) {
+                                throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
+                            }
+                            if (field != null) {
+                                field.set(obj, toSet);
+                            }
                         }
                     }
+                    break;
+                default:
+                    throw new StreamCorruptedException("Invalid typecode: " + fieldDesc.getTypeCode());
                 }
+            } catch (IllegalAccessException iae) {
+                // ObjectStreamField should have called setAccessible(true).
+                throw new AssertionError(iae);
+            } catch (NoSuchFieldError ignored) {
             }
         }
     }
@@ -1405,8 +1396,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             throw new NotActiveException();
         }
 
-        ArrayList<ObjectStreamClass> streamClassList = new ArrayList<ObjectStreamClass>(
-                32);
+        ArrayList<ObjectStreamClass> streamClassList = new ArrayList<ObjectStreamClass>(32);
         ObjectStreamClass nextStreamClass = classDesc;
         while (nextStreamClass != null) {
             streamClassList.add(0, nextStreamClass);
@@ -1827,7 +1817,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         // Resolve the field signatures using the class loader of the
         // resolved class
         ObjectStreamField[] fields = newClassDesc.getLoadFields();
-        fields = (null == fields ? new ObjectStreamField[] {} : fields);
+        fields = (null == fields ? ObjectStreamClass.NO_FIELDS : fields);
         ClassLoader loader = newClassDesc.forClass() == null ? callerClassLoader
                 : newClassDesc.forClass().getClassLoader();
         for (ObjectStreamField element : fields) {
@@ -1966,8 +1956,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             Constructor<?> constructor = null;
             if (constructorClass != null) {
                 try {
-                    constructor = constructorClass
-                            .getDeclaredConstructor(ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
+                    constructor = constructorClass.getDeclaredConstructor(EmptyArray.CLASS);
                 } catch (NoSuchMethodException nsmEx) {
                     // Ignored
                 }
@@ -2052,15 +2041,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
 
         Object result, registeredResult = null;
         if (objectClass != null) {
-
-            // BEGIN android-changed
-            // long constructor = classDesc.getConstructor();
-            // if (constructor == ObjectStreamClass.CONSTRUCTOR_IS_NOT_RESOLVED) {
-            //     constructor = accessor.getMethodID(resolveConstructorClass(objectClass, wasSerializable, wasExternalizable), null, new Class[0]);
-            //     classDesc.setConstructor(constructor);
-            // }
             Class constructorClass = resolveConstructorClass(objectClass, wasSerializable, wasExternalizable);
-            // END android-changed
 
             // Now we know which class to instantiate and which constructor to
             // run. We are allowed to run the constructor.
@@ -2581,60 +2562,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         // By default no object replacement. Subclasses can override
         return object;
     }
-
-    // BEGIN android-added
-
-    /*
-     * These methods set the value of a field named fieldName of instance. The
-     * field is declared by declaringClass. The field is the same type as the
-     * value parameter.
-     *
-     * these methods could be implemented non-natively on top of
-     * java.lang.reflect at the expense of extra object creation
-     * (java.lang.reflect.Field). Otherwise Serialization could not fetch
-     * private fields, except by the use of a native method like this one.
-     *
-     * @throws NoSuchFieldError If the field does not exist.
-     */
-    private static native void setFieldByte(Object instance,
-            Class<?> declaringClass, String fieldName, byte value)
-            throws NoSuchFieldError;
-
-
-    private static native void setFieldChar(Object instance,
-            Class<?> declaringClass, String fieldName, char value)
-            throws NoSuchFieldError;
-
-
-    private static native void setFieldDouble(Object instance,
-            Class<?> declaringClass, String fieldName, double value)
-            throws NoSuchFieldError;
-
-    private static native void setFieldFloat(Object instance,
-            Class<?> declaringClass, String fieldName, float value)
-            throws NoSuchFieldError;
-
-    private static native void setFieldInt(Object instance,
-            Class<?> declaringClass, String fieldName, int value)
-            throws NoSuchFieldError;
-
-    private static native void setFieldLong(Object instance,
-            Class<?> declaringClass, String fieldName, long value)
-            throws NoSuchFieldError;
-
-    private static native void setFieldObject(Object instance,
-            Class<?> declaringClass, String fieldName, String fieldTypeName,
-            Object value) throws NoSuchFieldError;
-
-    private static native void setFieldShort(Object instance,
-            Class<?> declaringClass, String fieldName, short value)
-            throws NoSuchFieldError;
-
-    private static native void setFieldBool(Object instance,
-            Class<?> declaringClass, String fieldName, boolean value)
-            throws NoSuchFieldError;
-
-    // END android-added
 
     /**
      * Skips {@code length} bytes on the source stream. This method should not

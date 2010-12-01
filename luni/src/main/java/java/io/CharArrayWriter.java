@@ -231,7 +231,8 @@ public class CharArrayWriter extends Writer {
         // removed redundant check, used (offset | len) < 0
         // instead of (offset < 0) || (len < 0) to safe one operation
         if ((offset | len) < 0 || len > str.length() - offset) {
-            throw new StringIndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException("str.length=" + str.length()
+                    + " offset=" + offset + " len=" + len);
         }
         // END android-changed
         synchronized (lock) {

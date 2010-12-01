@@ -22,7 +22,7 @@ package java.util.zip;
  * of data. Compared to {@link CRC32} it trades reliability for speed.
  * Refer to RFC 1950 for the specification.
  */
-public class Adler32 implements java.util.zip.Checksum {
+public class Adler32 implements Checksum {
 
     private long adler = 1;
 

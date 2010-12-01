@@ -69,6 +69,7 @@ import org.apache.harmony.security.fortress.SecurityUtils;
  *
  */
 public class Thread implements Runnable {
+    private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 
     private static final int NANOS_PER_MILLI = 1000000;
 
@@ -735,7 +736,7 @@ public class Thread implements Runnable {
         }
 
         StackTraceElement ste[] = VMStack.getThreadStackTrace(this);
-        return ste != null ? ste : new StackTraceElement[0];
+        return ste != null ? ste : EMPTY_STACK_TRACE;
     }
 
     /**

@@ -3,6 +3,54 @@
  */
 [
 {
+  description: "KxmlParser doesn't expose DTD text",
+  name: "libcore.xml.KxmlPullParserDtdTest#testDoctypeWithNextToken",
+  bug: 3241492
+},
+{
+  description: "Expat relaxed is different from Kxml relaxed",
+  names: [
+    "libcore.xml.ExpatPullParserTest#testAttributeNoValueWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testAttributeUnquotedValueWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testUnterminatedEntityWithRelaxed"
+  ],
+  bug: 3090550
+},
+{
+  description: "ExpatPullParser doesn't support nextToken() or line numbers",
+  names: [
+    "libcore.xml.ExpatPullParserDtdTest#testDoctypeWithNextToken",
+    "libcore.xml.ExpatPullParserTest#testCdataUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testCommentUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testCustomEntitiesAreNotEvaluated",
+    "libcore.xml.ExpatPullParserTest#testCustomEntitiesUsingNext",
+    "libcore.xml.ExpatPullParserTest#testCustomEntitiesUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testEmptyCdataUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testEmptyComment",
+    "libcore.xml.ExpatPullParserTest#testEmptyEntityReferenceUsingNext",
+    "libcore.xml.ExpatPullParserTest#testEmptyEntityReferenceUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testEntityInAttributeUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testLinesAndColumns",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextTokenWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testMissingEntitiesUsingNextTokenWithRelaxed",
+    "libcore.xml.ExpatPullParserTest#testProcessingInstructionUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testRegularNumericEntities",
+    "libcore.xml.ExpatPullParserTest#testWhitespaceUsingNextToken",
+    "libcore.xml.ExpatPullParserTest#testXmlDeclaration",
+    "libcore.xml.ExpatPullParserTest#testXmlDeclarationExtraAttributes"
+  ],
+  bug: 3090550
+},
+{
+  description: "ExpatPullParser doesn't handle surrogates properly",
+  name: "libcore.xml.ExpatPullParserTest#testCharacterReferenceOfLastUtf16Surrogate",
+  bug: 3090550
+},
+{
   description: "RandomAccessFile missing finalizer",
   name: "libcore.java.io.RandomAccessFileTest#testRandomAccessFileHasCleanupFinalizer",
   bug: 3015023
