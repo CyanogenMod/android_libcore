@@ -844,9 +844,9 @@
   description: "These tests expect to be able to load resources from the file system",
   result: EXEC_FAILED,
   names: [
-    "org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceAsStreamLjava_lang_String",
-    "org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceAsStream_withSharpChar",
-    "org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceLjava_lang_String"
+    "libcore.java.lang.OldClassTest#test_getResourceAsStreamLjava_lang_String",
+    "libcore.java.lang.OldClassTest#test_getResourceAsStream_withSharpChar",
+    "libcore.java.lang.OldClassTest#test_getResourceLjava_lang_String"
   ]
 },
 {

@@ -152,7 +152,7 @@
 },
 {
   description: "Double.parseDouble().toString does wrong rounding",
-  name: "org.apache.harmony.luni.tests.java.lang.DoubleTest#test_parseDoubleLjava_lang_String",
+  name: "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
   bug: 1607938
 },
 {
@@ -226,18 +226,18 @@
 {
   description: "Defining classes from byte[] not supported in Android",
   result: EXEC_FAILED,
-  name: "org.apache.harmony.luni.tests.java.lang.ClassTest#test_getClasses_subtest0"
+  name: "libcore.java.lang.OldClassTest#test_getClasses_subtest0"
 },
 {
   description: "There is no protection domain set in Android.",
   result: EXEC_FAILED,
-  name: "org.apache.harmony.luni.tests.java.lang.ClassTest#test_getProtectionDomain"
+  name: "libcore.java.lang.OldClassTest#test_getProtectionDomain"
 },
 {
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   names: [
-    "org.apache.harmony.luni.tests.java.lang.RuntimeTest#test_traceMethodCalls",
+    "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls",
     "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
     "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion"
   ]
