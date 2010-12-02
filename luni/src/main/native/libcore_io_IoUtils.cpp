@@ -25,12 +25,15 @@
 #include <unistd.h>
 
 static void IoUtils_close(JNIEnv* env, jclass, jobject fileDescriptor) {
+    // Get the FileDescriptor's 'fd' field and clear it.
+    // We need to do this before we can throw an IOException (http://b/3222087).
     int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
+    jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
+
     jint rc = TEMP_FAILURE_RETRY(close(fd));
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
-    jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
 }
 
 static jint IoUtils_getFd(JNIEnv* env, jclass, jobject fileDescriptor) {
