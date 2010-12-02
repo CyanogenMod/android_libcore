@@ -18,10 +18,13 @@ package libcore.java.security;
 
 import java.security.Security;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.Assert;
@@ -463,8 +466,21 @@ public final class StandardNames extends Assert {
         }
     }
 
-    public static final Set<String> CLIENT_AUTH_TYPES = new HashSet<String>(KEY_TYPES);
+    /**
+     * Valid values for X509TrustManager.checkClientTrusted authType,
+     * either the algorithm of the public key or UNKNOWN.
+     */
+    public static final Set<String> CLIENT_AUTH_TYPES = new HashSet<String>(Arrays.asList(
+        "RSA",
+        "DSA",
+        "EC",
+        "UNKNOWN"));
 
+    /**
+     * Valid values for X509TrustManager.checkServerTrusted authType,
+     * either key exchange algorithm part of the cipher suite
+     * or UNKNOWN.
+     */
     public static final Set<String> SERVER_AUTH_TYPES = new HashSet<String>(Arrays.asList(
         "DHE_DSS",
         "DHE_DSS_EXPORT",
@@ -479,6 +495,10 @@ public final class StandardNames extends Assert {
         "RSA",
         "RSA_EXPORT",
         "RSA_EXPORT1024",
+        "ECDH_ECDSA",
+        "ECDH_RSA",
+        "ECDHE_ECDSA",
+        "ECDHE_RSA",
         "UNKNOWN"));
 
     public static final String CIPHER_SUITE_INVALID = "SSL_NULL_WITH_NULL_NULL";
@@ -509,32 +529,31 @@ public final class StandardNames extends Assert {
 
     static {
         // Note these are added in priority order as defined by RI 6 documentation.
-        // Android currently does not support Elliptic Curve
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-        addRi(     "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDH_RSA_WITH_RC4_128_SHA");
-        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
-        addRi(     "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
-        addRi(     "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
-        addRi(     "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
-        addRi(     "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addRi(     "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addRi(     "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
@@ -546,25 +565,25 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_NULL_MD5");
         addBoth(   "SSL_RSA_WITH_NULL_SHA");
-        addRi(     "TLS_ECDH_ECDSA_WITH_NULL_SHA");
-        addRi(     "TLS_ECDH_RSA_WITH_NULL_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-        addRi(     "TLS_ECDHE_RSA_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_NULL_SHA");
         addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addRi(     "TLS_ECDH_anon_WITH_RC4_128_SHA");
-        addRi(     "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-        addRi(     "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-        addRi(     "TLS_ECDH_anon_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_NULL_SHA");
 
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
-        addRi(CIPHER_SUITE_SECURE_RENEGOTIATION);
+        addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
 
         // Android does not have Keberos support
         addRi(     "TLS_KRB5_WITH_RC4_128_SHA");
@@ -592,6 +611,57 @@ public final class StandardNames extends Assert {
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
+    }
+
+    public static final List<String> CIPHER_SUITES_DEFAULT = Arrays.asList(
+        "SSL_RSA_WITH_RC4_128_MD5",
+        "SSL_RSA_WITH_RC4_128_SHA",
+        "TLS_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+        "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+        "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+        "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+        "SSL_RSA_WITH_DES_CBC_SHA",
+        "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+        "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+        "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+        "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+        "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+        "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
+        CIPHER_SUITE_SECURE_RENEGOTIATION);
+
+    public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
+    static {
+        // No Elliptic Curve support on SSLEngine based provider
+        if (!IS_RI) {
+            Iterator<String> i = CIPHER_SUITES_SSLENGINE.iterator();
+            while (i.hasNext()) {
+                String cs = i.next();
+                if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                    i.remove();
+                }
+            }
+        }
     }
 
     /**
@@ -625,7 +695,7 @@ public final class StandardNames extends Assert {
      */
     public static void assertSupportedCipherSuites(Set<String> expected, String[] cipherSuites) {
         Set<String> remainingCipherSuites = assertValidCipherSuites(expected, cipherSuites);
-        assertEquals("Extra cipher suites", Collections.EMPTY_SET, remainingCipherSuites);
+        assertEquals("Missing cipher suites", Collections.EMPTY_SET, remainingCipherSuites);
         assertEquals(expected.size(), cipherSuites.length);
     }
 
@@ -659,7 +729,15 @@ public final class StandardNames extends Assert {
      */
     public static void assertSupportedProtocols(Set<String> expected, String[] protocols) {
         Set<String> remainingProtocols = assertValidProtocols(expected, protocols);
-        assertEquals("Extra protocols", Collections.EMPTY_SET, remainingProtocols);
+        assertEquals("Missing protocols", Collections.EMPTY_SET, remainingProtocols);
         assertEquals(expected.size(), protocols.length);
+    }
+
+    /**
+     * Assert cipher suites match the default list in content and priority order.
+     */
+    public static void assertDefaultCipherSuites(String[] cipherSuites) {
+        assertValidCipherSuites(CIPHER_SUITES, cipherSuites);
+        assertEquals(CIPHER_SUITES_DEFAULT, Arrays.asList(cipherSuites));
     }
 }

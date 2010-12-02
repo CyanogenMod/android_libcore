@@ -17,9 +17,11 @@
 package libcore.javax.net.ssl;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocket;
 
 /**
@@ -95,8 +97,30 @@ public final class TestSSLSocketPair {
                 });
             executor.shutdown();
 
-            s.get();
-            c.get();
+            // catch client and server exceptions separately so we can
+            // potentially log both.
+            Exception serverException;
+            try {
+                s.get(30, TimeUnit.SECONDS);
+                serverException = null;
+            } catch (Exception e) {
+                serverException = e;
+                e.printStackTrace();
+            }
+            Exception clientException;
+            try {
+                c.get(30, TimeUnit.SECONDS);
+                clientException = null;
+            } catch (Exception e) {
+                clientException = e;
+                e.printStackTrace();
+            }
+            if (serverException != null) {
+                throw serverException;
+            }
+            if (clientException != null) {
+                throw clientException;
+            }
             return new SSLSocket[] { server, client };
         } catch (RuntimeException e) {
             throw e;

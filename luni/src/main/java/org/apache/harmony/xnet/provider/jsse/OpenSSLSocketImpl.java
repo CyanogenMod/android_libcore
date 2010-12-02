@@ -374,7 +374,10 @@ public class OpenSSLSocketImpl
             if (!client) {
                 Set<String> keyTypes = new HashSet<String>();
                 for (String enabledCipherSuite : enabledCipherSuites) {
-                    String keyType = CipherSuite.getByName(enabledCipherSuite).getKeyType();
+                    if (enabledCipherSuite.equals(NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV)) {
+                        continue;
+                    }
+                    String keyType = CipherSuite.getByName(enabledCipherSuite).getServerKeyType();
                     if (keyType != null) {
                         keyTypes.add(keyType);
                     }
@@ -585,7 +588,7 @@ public class OpenSSLSocketImpl
 
         String[] keyTypes = new String[keyTypeBytes.length];
         for (int i = 0; i < keyTypeBytes.length; i++) {
-            keyTypes[i] = NativeCrypto.keyType(keyTypeBytes[i]);
+            keyTypes[i] = CipherSuite.getClientKeyType(keyTypeBytes[i]);
         }
 
         X500Principal[] issuers;
@@ -675,8 +678,9 @@ public class OpenSSLSocketImpl
                 sslParameters.getTrustManager().checkServerTrusted(peerCertificateChain,
                                                                    authMethod);
             } else {
+                String authType = peerCertificateChain[0].getPublicKey().getAlgorithm();
                 sslParameters.getTrustManager().checkClientTrusted(peerCertificateChain,
-                                                                   authMethod);
+                                                                   authType);
             }
 
         } catch (CertificateException e) {

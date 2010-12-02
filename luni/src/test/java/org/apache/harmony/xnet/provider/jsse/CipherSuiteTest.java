@@ -29,7 +29,11 @@ import org.apache.harmony.xnet.provider.jsse.CipherSuite;
 public class CipherSuiteTest extends TestCase {
     public void test_getByName() throws Exception {
         for (String name : StandardNames.CIPHER_SUITES) {
-            test_CipherSuite(name);
+            if (name.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                assertNull(CipherSuite.getByName(name));
+            } else {
+                test_CipherSuite(name);
+            }
         }
 
         assertNull(CipherSuite.getByName("bogus"));
@@ -61,9 +65,9 @@ public class CipherSuiteTest extends TestCase {
         byte[] bytes = cs.toBytes();
         assertNotNull(name, bytes);
         assertEquals(name, 2, bytes.length);
-        assertEquals(name, 0, bytes[0]);
-        assertSame(name, cs, CipherSuite.getByCode((byte) 0, bytes[1]));
-        assertSame(name, cs, CipherSuite.getByCode((byte) 0, (byte) 0, bytes[1]));
+        assertTrue(name + bytes[0], bytes[0] == (byte) 0x00 || bytes[0] == (byte) 0xc0);
+        assertSame(name, cs, CipherSuite.getByCode(bytes[0], bytes[1]));
+        assertSame(name, cs, CipherSuite.getByCode((byte) 0, bytes[0], bytes[1]));
 
         assertTrue(name, cs.toString().contains(name));
 
@@ -92,7 +96,7 @@ public class CipherSuiteTest extends TestCase {
                    cs.isExportable() == name.contains("_EXPORT_")
                    || cs.isExportable() == name.contains("_NULL_"));
 
-        String keyType = cs.getKeyType();
+        String keyType = cs.getServerKeyType();
         assertEquals(name, cs.isAnonymous(), keyType == null);
         assertTrue(name, keyType == null || StandardNames.KEY_TYPES.contains(keyType));
     }
@@ -121,9 +125,43 @@ public class CipherSuiteTest extends TestCase {
 
     public void test_getSupportedCipherSuiteNames() throws Exception {
         String[] names = CipherSuite.getSupportedCipherSuiteNames();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, names);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE, names);
         for (String name : names) {
             test_CipherSuite(name);
         }
+    }
+
+    public void test_getClientKeyType() throws Exception {
+        byte b = Byte.MIN_VALUE;
+        do {
+            String byteString = Byte.toString(b);
+            String keyType = CipherSuite.getClientKeyType(b);
+            switch (b) {
+                case 1:
+                    assertEquals(byteString, "RSA", keyType);
+                    break;
+                case 2:
+                    assertEquals(byteString, "DSA", keyType);
+                    break;
+                case 3:
+                    assertEquals(byteString, "DH_RSA", keyType);
+                    break;
+                case 4:
+                    assertEquals(byteString, "DH_DSA", keyType);
+                    break;
+                case 64:
+                    assertEquals(byteString, "EC", keyType);
+                    break;
+                case 65:
+                    assertEquals(byteString, "EC_RSA", keyType);
+                    break;
+                case 66:
+                    assertEquals(byteString, "EC_EC", keyType);
+                    break;
+                default:
+                    assertNull(byteString, keyType);
+            }
+            b++;
+        } while (b != Byte.MIN_VALUE);
     }
 }

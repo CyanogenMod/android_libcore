@@ -17,53 +17,19 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.SecureRandomSpi;
-
 import junit.framework.TestCase;
 
 /**
  * Tests for <code>SecureRandomSpi</code> class constructors
  * and methods.
- *
  */
-@TestTargetClass(SecureRandomSpi.class)
 public class SecureRandomSpiTest extends TestCase {
 
     /**
      * Test for <code>SecureRandomSpi</code> constructor
      * Assertion: constructs SecureRandomSpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "SecureRandomSpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGenerateSeed",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineNextBytes",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineSetSeed",
-            args = {byte[].class}
-        )
-    })
     public void testSecureRandomSpi() {
         try {
             MySecureRandomSpi srs = new MySecureRandomSpi();

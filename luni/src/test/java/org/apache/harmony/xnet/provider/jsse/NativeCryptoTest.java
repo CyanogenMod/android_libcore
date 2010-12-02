@@ -42,6 +42,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLProtocolException;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
+import org.apache.harmony.xnet.provider.jsse.CipherSuite;
 import org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSLHandshakeCallbacks;
 
 public class NativeCryptoTest extends TestCase {
@@ -691,9 +692,9 @@ public class NativeCryptoTest extends TestCase {
         // this depends on the SSL_set_cipher_lists call in beforeHandshake
         // the three returned are the non-ephemeral cases.
         assertEquals(3, clientCallback.keyTypes.length);
-        assertEquals("RSA", NativeCrypto.keyType(clientCallback.keyTypes[0]));
-        assertEquals("DSA", NativeCrypto.keyType(clientCallback.keyTypes[1]));
-        assertEquals("EC", NativeCrypto.keyType(clientCallback.keyTypes[2]));
+        assertEquals("RSA", CipherSuite.getClientKeyType(clientCallback.keyTypes[0]));
+        assertEquals("DSA", CipherSuite.getClientKeyType(clientCallback.keyTypes[1]));
+        assertEquals("EC", CipherSuite.getClientKeyType(clientCallback.keyTypes[2]));
         assertEqualPrincipals(CA_PRINCIPALS,
                               clientCallback.asn1DerEncodedX500Principals);
         assertFalse(serverCallback.clientCertificateRequestedCalled);
