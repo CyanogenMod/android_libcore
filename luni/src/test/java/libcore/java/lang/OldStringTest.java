@@ -93,24 +93,21 @@ public class OldStringTest extends junit.framework.TestCase {
         try {
             "Hello World".getBytes(-1, 1, null, 0);
             fail("Expected IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
-        } catch (NullPointerException e) {
-            fail("Threw wrong exception");
+        } catch (IndexOutOfBoundsException expected) {
+        } catch (NullPointerException expected) {
         }
 
         try {
             "Hello World".getBytes(6, 2, null, 0);
             fail("IndexOutOfBoundsException was not thrown.");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
+        } catch (IndexOutOfBoundsException expected) {
+        } catch (NullPointerException expected) {
         }
 
         try {
             "Hello World".getBytes(2, 10, new byte[10], 4);
             fail("IndexOutOfBoundsException was not thrown.");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
+        } catch (IndexOutOfBoundsException expected) {
         }
     }
 
@@ -118,24 +115,21 @@ public class OldStringTest extends junit.framework.TestCase {
         try {
             "Hello World".getChars(-1, 1, null, 0);
             fail("Expected IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
-        } catch (NullPointerException e) {
-            fail("Threw wrong exception");
+        } catch (IndexOutOfBoundsException expected) {
+        } catch (NullPointerException expected) {
         }
 
         try {
             "Hello World".getChars(6, 2, null, 0);
             fail("IndexOutOfBoundsException was not thrown.");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
+        } catch (IndexOutOfBoundsException expected) {
+        } catch (NullPointerException expected) {
         }
 
         try {
             "Hello World".getChars(2, 10, new char[10], 4);
             fail("IndexOutOfBoundsException was not thrown.");
-        } catch (IndexOutOfBoundsException e) {
-            //expected
+        } catch (IndexOutOfBoundsException expected) {
         }
     }
 

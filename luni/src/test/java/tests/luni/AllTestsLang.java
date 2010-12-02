@@ -33,8 +33,6 @@ public class AllTestsLang
     public static final Test suite() {
         TestSuite suite = new TestSuite("Tests for java.lang");
 
-        suite.addTest(org.apache.harmony.luni.tests.java.lang.AllTests.suite());
-
         suite.addTest(tests.api.java.lang.AllTests.suite());
 
         suite.addTest(tests.api.java.lang.ref.AllTests.suite());
