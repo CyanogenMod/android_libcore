@@ -1045,7 +1045,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see #writeObject(Object)
      */
     private void writeFieldValues(Object obj, ObjectStreamClass classDesc) throws IOException {
-        Class<?> declaringClass = classDesc.forClass();
         for (ObjectStreamField fieldDesc : classDesc.fields()) {
             try {
                 Field field = classDesc.getReflectionField(fieldDesc);
@@ -1873,11 +1872,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         objectsWritten.put(object, handle);
 
         ObjectStreamField[] fields = classDesc.getSuperclass().fields();
-        Class<?> declaringClass = classDesc.getSuperclass().forClass();
         // Only write field "name" for enum class, which is the second field of
         // enum, that is fields[1]. Ignore all non-fields and fields.length < 2
         if (fields != null && fields.length > 1) {
-            Field field = classDesc.getReflectionField(fields[1]);
+            Field field = classDesc.getSuperclass().getReflectionField(fields[1]);
             if (field == null) {
                 throw new NoSuchFieldError();
             }
