@@ -1148,7 +1148,7 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                 return null;
             }
         }
-        InetSocketAddress sa = InetSocketAddress.createUnresolved("localhost", 0);
+        InetSocketAddress sa = new InetSocketAddress(InetAddress.getLocalHost(), 0);
         //no exception expected for next line
         new testDatagramSocket(new testDatagramSocketImpl()).send(new DatagramPacket(new byte[272], 3, sa));
 
