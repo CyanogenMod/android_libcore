@@ -18,7 +18,6 @@ package libcore.java.net;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,8 +32,6 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -1170,6 +1167,48 @@ public class URLConnectionTest extends junit.framework.TestCase {
         // no authorization header for the request...
         RecordedRequest request = server.takeRequest();
         assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+        assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
+    }
+
+    public void testSecureFixedLengthStreaming() throws Exception {
+        testSecureStreamingPost(StreamingMode.FIXED_LENGTH);
+    }
+
+    public void testSecureChunkedStreaming() throws Exception {
+        testSecureStreamingPost(StreamingMode.CHUNKED);
+    }
+
+    /**
+     * Users have reported problems using HTTPS with streaming request bodies.
+     * http://code.google.com/p/android/issues/detail?id=12860
+     */
+    private void testSecureStreamingPost(StreamingMode streamingMode) throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("Success!"));
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setDoOutput(true);
+        byte[] requestBody = { 'A', 'B', 'C', 'D' };
+        if (streamingMode == StreamingMode.FIXED_LENGTH) {
+            connection.setFixedLengthStreamingMode(requestBody.length);
+        } else if (streamingMode == StreamingMode.CHUNKED) {
+            connection.setChunkedStreamingMode(0);
+        }
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody);
+        outputStream.close();
+        assertEquals("Success!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("POST / HTTP/1.1", request.getRequestLine());
+        if (streamingMode == StreamingMode.FIXED_LENGTH) {
+            assertEquals(Collections.<Integer>emptyList(), request.getChunkSizes());
+        } else if (streamingMode == StreamingMode.CHUNKED) {
+            assertEquals(Arrays.asList(4), request.getChunkSizes());
+        }
         assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
     }
 

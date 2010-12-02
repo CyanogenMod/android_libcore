@@ -371,6 +371,16 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         return httpsEngine.toString();
     }
 
+    @Override
+    public void setFixedLengthStreamingMode(int contentLength) {
+        httpsEngine.setFixedLengthStreamingMode(contentLength);
+    }
+
+    @Override
+    public void setChunkedStreamingMode(int chunkLength) {
+        httpsEngine.setChunkedStreamingMode(chunkLength);
+    }
+
     private final class HttpsEngine extends HttpURLConnectionImpl {
 
         protected HttpsEngine(URL url, int port) {
@@ -382,6 +392,12 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
 
         @Override public void makeConnection() throws IOException {
+            connected = true;
+
+            if (connection != null || responseBodyIn != null) {
+                return;
+            }
+
             /*
              * Short-circuit a reentrant call. The first step in doing SSL with
              * an HTTP proxy requires calling retrieveResponse() which calls
