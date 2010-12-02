@@ -406,7 +406,9 @@ public final class SamplingProfiler {
             this.objectId = objectId;
             this.threadId = threadId;
             this.threadName = thread.getName();
-            this.groupName = thread.getThreadGroup().getName();
+            // group will become null when thread is terminated
+            ThreadGroup group = thread.getThreadGroup();
+            this.groupName = group == null ? null : group.getName();
         }
 
         private ThreadEvent(ThreadEventType type, int threadId) {
