@@ -134,7 +134,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private AbstractHttpOutputStream requestBodyOut;
 
-    private InputStream responseBodyIn;
+    protected InputStream responseBodyIn;
 
     private ResponseCache responseCache;
 
