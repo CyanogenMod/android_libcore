@@ -5,7 +5,7 @@ import junit.framework.*;
 /**
  * A Decorator for Tests. Use TestDecorator as the base class
  * for defining new test decorators. Test decorator subclasses
- * can be introduced to add behaviour before or after a test
+ * can be introduced to add behavior before or after a test
  * is run.
  *
  */
@@ -16,7 +16,7 @@ public class TestDecorator extends Assert implements Test {
         fTest= test;
     }
     /**
-     * The basic run behaviour.
+     * The basic run behavior.
      */
     public void basicRun(TestResult result) {
         fTest.run(result);

@@ -148,7 +148,7 @@ public class JSONTokener {
                 case '#':
                     /*
                      * Skip a # hash end-of-line comment. The JSON RFC doesn't
-                     * specify this behaviour, but it's required to parse
+                     * specify this behavior, but it's required to parse
                      * existing documents. See http://b/2571423.
                      */
                     skipToEndOfLine();

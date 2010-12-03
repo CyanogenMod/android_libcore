@@ -199,9 +199,9 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     /**
-     * Encodes one or more chars. The default behaviour of the
+     * Encodes one or more chars. The default behavior of the
      * converter is stop and report if an error in input stream is encountered.
-     * To set different behaviour use @see CharsetEncoder.onMalformedInput()
+     * To set different behavior use @see CharsetEncoder.onMalformedInput()
      * @param in buffer to decode
      * @param out buffer to populate with decoded result
      * @return result of decoding action. Returns CoderResult.UNDERFLOW if the decoding

@@ -1117,7 +1117,7 @@ public class DecimalFormat extends NumberFormat {
     }
 
     /**
-     * Sets the behaviour of the parse method. If set to {@code true} then all
+     * Sets the behavior of the parse method. If set to {@code true} then all
      * the returned objects will be of type {@code BigDecimal}.
      *
      * @param newValue
