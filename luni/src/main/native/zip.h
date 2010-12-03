@@ -23,6 +23,7 @@
 #include "UniquePtr.h"
 #include "jni.h"
 #include "zlib.h"
+#include "zutil.h"
 
 static void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error) {
     if (error == Z_MEM_ERROR) {

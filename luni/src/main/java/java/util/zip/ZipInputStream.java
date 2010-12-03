@@ -72,11 +72,7 @@ import org.apache.harmony.luni.platform.OSMemory;
  * @see ZipFile
  */
 public class ZipInputStream extends InflaterInputStream implements ZipConstants {
-    static final int DEFLATED = 8;
-
-    static final int STORED = 0;
-
-    static final int ZIPLocalHeaderVersionNeeded = 20;
+    private static final int ZIPLocalHeaderVersionNeeded = 20;
 
     private boolean entriesEnd = false;
 
@@ -86,7 +82,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
 
     private int inRead, lastRead = 0;
 
-    ZipEntry currentEntry;
+    private ZipEntry currentEntry;
 
     private final byte[] hdrBuf = new byte[LOCHDR - LOCVER];
 
@@ -159,7 +155,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
 
         int inB, out;
-        if (currentEntry.compressionMethod == DEFLATED) {
+        if (currentEntry.compressionMethod == ZipEntry.DEFLATED) {
             inB = inf.getTotalIn();
             out = inf.getTotalOut();
         } else {
@@ -313,7 +309,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
             return -1;
         }
 
-        if (currentEntry.compressionMethod == STORED) {
+        if (currentEntry.compressionMethod == ZipEntry.STORED) {
             int csize = (int) currentEntry.size;
             if (inRead >= csize) {
                 return -1;

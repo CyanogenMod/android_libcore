@@ -132,10 +132,9 @@ public class DeflaterOutputStream extends FilterOutputStream {
      *             If an error occurs during deflation.
      */
     protected void deflate() throws IOException {
-        int x = 0;
         do {
-            x = def.deflate(buf);
-            out.write(buf, 0, x);
+            int byteCount = def.deflate(buf);
+            out.write(buf, 0, byteCount);
         } while (!def.needsInput());
     }
 
@@ -150,7 +149,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
      */
     @Override
     public void close() throws IOException {
-        // everything closed here should also be closed in ZipOuputStream.close()
+        // everything closed here should also be closed in ZipOutputStream.close()
         if (!def.finished()) {
             finish();
         }
@@ -207,8 +206,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
             throw new IOException("attempt to write after finish");
         }
         // avoid int overflow, check null buf
-        if (off <= buffer.length && nbytes >= 0 && off >= 0
-                && buffer.length - off >= nbytes) {
+        if (off <= buffer.length && nbytes >= 0 && off >= 0 && buffer.length - off >= nbytes) {
             if (!def.needsInput()) {
                 throw new IOException();
             }

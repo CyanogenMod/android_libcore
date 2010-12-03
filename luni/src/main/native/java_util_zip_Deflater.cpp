@@ -21,11 +21,6 @@
 #include "ScopedPrimitiveArray.h"
 #include "zip.h"
 
-static struct {
-    jfieldID inRead;
-    jfieldID finished;
-} gCachedFields;
-
 static void Deflater_setDictionaryImpl(JNIEnv* env, jobject, jbyteArray dict, int off, int len, jlong handle) {
     toNativeZipStream(handle)->setDictionary(env, dict, off, len, false);
 }
@@ -42,7 +37,6 @@ static jint Deflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.adler;
 }
 
-/* Create a new stream . This stream cannot be used until it has been properly initialized. */
 static jlong Deflater_createStream(JNIEnv * env, jobject, jint level, jint strategy, jboolean noHeader) {
     UniquePtr<NativeZipStream> jstream(new NativeZipStream);
     if (jstream.get() == NULL) {
@@ -50,17 +44,19 @@ static jlong Deflater_createStream(JNIEnv * env, jobject, jint level, jint strat
         return -1;
     }
 
-    int wbits = 12; // Was 15, made it 12 to reduce memory consumption. Use MAX for fastest.
-    int mlevel = 5; // Was 9, made it 5 to reduce memory consumption. Might result
-                  // in out-of-memory problems according to some web pages. The
-                  // ZLIB docs are a bit vague, unfortunately. The default
-                  // results in 2 x 128K being allocated per Deflater, which is
-                  // not acceptable.
-    /*Unable to find official doc that this is the way to avoid zlib header use. However doc in zipsup.c claims it is so */
-    if (noHeader) {
-        wbits = wbits / -1;
-    }
-    int err = deflateInit2(&jstream->stream, level, Z_DEFLATED, wbits, mlevel, strategy);
+    /*
+     * See zlib.h for documentation of the deflateInit2 windowBits and memLevel parameters.
+     *
+     * zconf.h says the "requirements for deflate are (in bytes):
+     *         (1 << (windowBits+2)) +  (1 << (memLevel+9))
+     * that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
+     * plus a few kilobytes for small objects."
+     */
+    // TODO: should we just use DEF_WBITS (15) and DEF_MEM_LEVEL (8) now?
+    int windowBits = noHeader ? -12 : 12; // Was 15, made it 12 to reduce memory consumption. Use MAX_WBITS for fastest.
+    int memLevel = 5; // Was 9 (MAX_MEM_LEVEL), made it 5 to reduce memory consumption. Might result
+                      // in out-of-memory problems according to some web pages.
+    int err = deflateInit2(&jstream->stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err);
         return -1;
@@ -72,35 +68,45 @@ static void Deflater_setInputImpl(JNIEnv* env, jobject, jbyteArray buf, jint off
     toNativeZipStream(handle)->setInput(env, buf, off, len);
 }
 
-static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int off, int len, jlong handle, int flushParm) {
-    /* We need to get the number of bytes already read */
-    jint inBytes = env->GetIntField(recv, gCachedFields.inRead);
-
+static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int off, int len, jlong handle, int flushStyle) {
     NativeZipStream* stream = toNativeZipStream(handle);
-    stream->stream.avail_out = len;
-    jint sin = stream->stream.total_in;
-    jint sout = stream->stream.total_out;
     ScopedByteArrayRW out(env, buf);
     if (out.get() == NULL) {
         return -1;
     }
     stream->stream.next_out = reinterpret_cast<Bytef*>(out.get() + off);
-    int err = deflate(&stream->stream, flushParm);
-    if (err != Z_OK) {
-        if (err == Z_MEM_ERROR) {
-            jniThrowOutOfMemoryError(env, NULL);
-            return 0;
+    stream->stream.avail_out = len;
+
+    // TODO: make this a bit more like Inflater.cpp, using the pointers rather than the ints.
+    jint initialTotalIn = stream->stream.total_in;
+    jint initialTotalOut = stream->stream.total_out;
+
+    int err = deflate(&stream->stream, flushStyle);
+    switch (err) {
+    case Z_OK:
+        // TODO: does this really have to be conditional and in here? can we be more like Inflater?
+        if (flushStyle != Z_FINISH) {
+            static jfieldID inReadField = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
+            jint inReadValue = env->GetIntField(recv, inReadField);
+            inReadValue += (stream->stream.total_in - initialTotalIn);
+            env->SetIntField(recv, inReadField, inReadValue);
         }
-        if (err == Z_STREAM_END) {
-            env->SetBooleanField(recv, gCachedFields.finished, JNI_TRUE);
-            return stream->stream.total_out - sout;
-        }
+        break;
+    case Z_STREAM_END:
+        static jfieldID finished = env->GetFieldID(JniConstants::deflaterClass, "finished", "Z");
+        env->SetBooleanField(recv, finished, JNI_TRUE);
+        break;
+    case Z_BUF_ERROR:
+        // zlib reports this "if no progress is possible (for example avail_in or avail_out was
+        // zero) ... Z_BUF_ERROR is not fatal, and deflate() can be called again with more
+        // input and more output space to continue compressing".
+        break;
+    default:
+        throwExceptionForZlibError(env, "java/util/zip/DataFormatException", err);
+        return -1;
     }
-    if (flushParm != Z_FINISH) {
-        /* Need to update the number of input bytes read. */
-        env->SetIntField(recv, gCachedFields.inRead, (jint) stream->stream.total_in - sin + inBytes);
-    }
-    return stream->stream.total_out - sout;
+
+    return stream->stream.total_out - initialTotalOut;
 }
 
 static void Deflater_endImpl(JNIEnv*, jobject, jlong handle) {
@@ -144,7 +150,5 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Deflater, setLevelsImpl, "(IIJ)V"),
 };
 int register_java_util_zip_Deflater(JNIEnv* env) {
-    gCachedFields.finished = env->GetFieldID(JniConstants::deflaterClass, "finished", "Z");
-    gCachedFields.inRead = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
     return jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
 }

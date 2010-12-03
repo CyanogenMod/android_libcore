@@ -19,30 +19,42 @@ package java.util.zip;
 
 import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
+import java.util.Arrays;
 
 /**
- * This class uncompresses data that was compressed using the <i>DEFLATE</i>
+ * This class decompresses data that was compressed using the <i>DEFLATE</i>
  * algorithm (see <a href="http://www.gzip.org/algorithm.txt">specification</a>).
- * <p>
- * Basically this class is part of the API to the stream based ZLIB compression
- * library and is used as such by {@code InflaterInputStream} and its
- * descendants.
- * <p>
- * The typical usage of a {@code Inflater} outside this package consists of a
- * specific call to one of its constructors before being passed to an instance
- * of {@code InflaterInputStream}.
  *
- * @see InflaterInputStream
- * @see Deflater
+ * <p>It is usually more convenient to use {@link InflaterInputStream}.
+ *
+ * <p>To decompress an in-memory {@code byte[]} to another in-memory {@code byte[]} manually:
+ * <pre>
+ *     byte[] compressedBytes = ...
+ *     int decompressedByteCount = ... // From your format's metadata.
+ *     Inflater inflater = new Inflater();
+ *     inflater.setInput(compressedBytes, 0, compressedBytes.length);
+ *     byte[] decompressedBytes = new byte[decompressedByteCount];
+ *     if (inflater.inflate(decompressedBytes) != decompressedByteCount) {
+ *         throw new AssertionError();
+ *     }
+ *     inflater.end();
+ * </pre>
+ * <p>In situations where you don't have all the input in one array (or have so much
+ * input that you want to feed it to the inflater in chunks), it's possible to call
+ * {@link #setInput} repeatedly, but you're much better off using {@link InflaterInputStream}
+ * to handle all this for you.
+ *
+ * <p>If you don't know how big the decompressed data will be, you can call {@link #inflate}
+ * repeatedly on a temporary buffer, copying the bytes to a {@link java.io.ByteArrayOutputStream},
+ * but this is probably another sign you'd be better off using {@link InflaterInputStream}.
  */
 public class Inflater {
-    private boolean finished; // Set by the inflateImpl native
 
-    int inLength;
+    private int inLength;
 
-    int inRead;
-
-    private boolean needsDictionary; // Set by the inflateImpl native
+    private int inRead; // Set by inflateImpl.
+    private boolean finished; // Set by inflateImpl.
+    private boolean needsDictionary; // Set by inflateImpl.
 
     private long streamHandle = -1;
 
@@ -50,7 +62,7 @@ public class Inflater {
 
     /**
      * This constructor creates an inflater that expects a header from the input
-     * stream. Use {@code Inflater(boolean)} if the input comes without a ZLIB
+     * stream. Use {@link #Inflater(boolean)} if the input comes without a ZLIB
      * header.
      */
     public Inflater() {
@@ -73,8 +85,10 @@ public class Inflater {
     private native long createStream(boolean noHeader1);
 
     /**
-     * Release any resources associated with this {@code Inflater}. Any unused
-     * input/output is discarded. This is also called by the finalize method.
+     * Releases resources associated with this {@code Inflater}. Any unused
+     * input or output is discarded. This method should be called explicitly in
+     * order to free native resources as soon as possible. After {@code end()} is
+     * called, other methods will typically throw {@code IllegalStateException}.
      */
     public synchronized void end() {
         guard.close();
@@ -86,7 +100,7 @@ public class Inflater {
         }
     }
 
-    private native synchronized void endImpl(long handle);
+    private native void endImpl(long handle);
 
     @Override protected void finalize() {
         try {
@@ -105,7 +119,7 @@ public class Inflater {
 
     /**
      * Indicates if the {@code Inflater} has inflated the entire deflated
-     * stream. If deflated bytes remain and {@code needsInput()} returns {@code
+     * stream. If deflated bytes remain and {@link #needsInput} returns {@code
      * true} this method will return {@code false}. This method should be
      * called after all deflated input is supplied to the {@code Inflater}.
      *
@@ -117,11 +131,8 @@ public class Inflater {
     }
 
     /**
-     * Returns the <i>Adler32</i> checksum of either all bytes inflated, or the
-     * checksum of the preset dictionary if one has been supplied.
-     *
-     * @return The <i>Adler32</i> checksum associated with this
-     *         {@code Inflater}.
+     * Returns the {@link Adler32} checksum of the bytes inflated so far, or the
+     * checksum of the preset dictionary if {@link #needsDictionary} returns true.
      */
     public synchronized int getAdler() {
         if (streamHandle == -1) {
@@ -130,14 +141,12 @@ public class Inflater {
         return getAdlerImpl(streamHandle);
     }
 
-    private native synchronized int getAdlerImpl(long handle);
+    private native int getAdlerImpl(long handle);
 
     /**
      * Returns the total number of bytes read by the {@code Inflater}. This
-     * method performs the same as {@code getTotalIn()} except that it returns a
+     * method is the same as {@link #getTotalIn} except that it returns a
      * {@code long} value instead of an integer.
-     *
-     * @return the total number of bytes read.
      */
     public synchronized long getBytesRead() {
         // Throw NPE here
@@ -148,11 +157,9 @@ public class Inflater {
     }
 
     /**
-     * Returns a the total number of bytes read by the {@code Inflater}. This
-     * method performs the same as {@code getTotalOut} except it returns a
+     * Returns a the total number of bytes written by this {@code Inflater}. This
+     * method is the same as {@code getTotalOut} except it returns a
      * {@code long} value instead of an integer.
-     *
-     * @return the total bytes written to the output buffer.
      */
     public synchronized long getBytesWritten() {
         // Throw NPE here
@@ -163,51 +170,41 @@ public class Inflater {
     }
 
     /**
-     * Returns the number of bytes of current input remaining to be read by the
+     * Returns the number of bytes of current input remaining to be read by this
      * inflater.
-     *
-     * @return the number of bytes of unread input.
      */
     public synchronized int getRemaining() {
         return inLength - inRead;
     }
 
     /**
-     * Returns total number of bytes of input read by the {@code Inflater}. The
-     * result value is limited by {@code Integer.MAX_VALUE}.
-     *
-     * @return the total number of bytes read.
+     * Returns the total number of bytes of input read by this {@code Inflater}. This
+     * method is limited to 32 bits; use {@link #getBytesRead} instead.
      */
     public synchronized int getTotalIn() {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        long totalIn = getTotalInImpl(streamHandle);
-        return (totalIn <= Integer.MAX_VALUE ? (int) totalIn
-                : Integer.MAX_VALUE);
+        return (int) Math.min(getTotalInImpl(streamHandle), (long) Integer.MAX_VALUE);
     }
 
-    private synchronized native long getTotalInImpl(long handle);
+    private native long getTotalInImpl(long handle);
 
     /**
-     * Returns total number of bytes written to the output buffer by the {@code
-     * Inflater}. The result value is limited by {@code Integer.MAX_VALUE}.
-     *
-     * @return the total bytes of output data written.
+     * Returns the total number of bytes written to the output buffer by this {@code
+     * Inflater}. The method is limited to 32 bits; use {@link #getBytesWritten} instead.
      */
     public synchronized int getTotalOut() {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        long totalOut = getTotalOutImpl(streamHandle);
-        return (totalOut <= Integer.MAX_VALUE ? (int) totalOut
-                : Integer.MAX_VALUE);
+        return (int) Math.min(getTotalOutImpl(streamHandle), (long) Integer.MAX_VALUE);
     }
 
-    private native synchronized long getTotalOutImpl(long handle);
+    private native long getTotalOutImpl(long handle);
 
     /**
-     * Inflates bytes from current input and stores them in {@code buf}.
+     * Inflates bytes from the current input and stores them in {@code buf}.
      *
      * @param buf
      *            the buffer where decompressed data bytes are written.
@@ -221,29 +218,18 @@ public class Inflater {
     }
 
     /**
-     * Inflates up to n bytes from the current input and stores them in {@code
-     * buf} starting at {@code off}.
+     * Inflates up to {@code byteCount} bytes from the current input and stores them in
+     * {@code buf} starting at {@code offset}.
      *
-     * @param buf
-     *            the buffer to write inflated bytes to.
-     * @param off
-     *            the offset in buffer where to start writing decompressed data.
-     * @param nbytes
-     *            the number of inflated bytes to write to {@code buf}.
      * @throws DataFormatException
      *             if the underlying stream is corrupted or was not compressed
      *             using a {@code Deflater}.
      * @return the number of bytes inflated.
      */
-    public synchronized int inflate(byte[] buf, int off, int nbytes)
-            throws DataFormatException {
-        // avoid int overflow, check null buf
-        if (off > buf.length || nbytes < 0 || off < 0
-                || buf.length - off < nbytes) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+    public synchronized int inflate(byte[] buf, int offset, int byteCount) throws DataFormatException {
+        Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
 
-        if (nbytes == 0) {
+        if (byteCount == 0) {
             return 0;
         }
 
@@ -257,45 +243,35 @@ public class Inflater {
 
         boolean neededDict = needsDictionary;
         needsDictionary = false;
-        int result = inflateImpl(buf, off, nbytes, streamHandle);
+        int result = inflateImpl(buf, offset, byteCount, streamHandle);
         if (needsDictionary && neededDict) {
             throw new DataFormatException("Needs dictionary");
         }
-
         return result;
     }
 
-    private native synchronized int inflateImpl(byte[] buf, int off,
-            int nbytes, long handle);
+    private native int inflateImpl(byte[] buf, int offset, int byteCount, long handle);
 
     /**
-     * Indicates whether the input bytes were compressed with a preset
-     * dictionary. This method should be called prior to {@code inflate()} to
-     * determine whether a dictionary is required. If so {@code setDictionary()}
-     * should be called with the appropriate dictionary prior to calling {@code
-     * inflate()}.
-     *
-     * @return {@code true} if a preset dictionary is required for inflation.
-     * @see #setDictionary(byte[])
-     * @see #setDictionary(byte[], int, int)
+     * Returns true if the input bytes were compressed with a preset
+     * dictionary. This method should be called if the first call to {@link #inflate} returns 0,
+     * to determine whether a dictionary is required. If so, {@link #setDictionary}
+     * should be called with the appropriate dictionary before calling {@code
+     * inflate} again. Use {@link #getAdler} to determine which dictionary is required.
      */
     public synchronized boolean needsDictionary() {
         return needsDictionary;
     }
 
     /**
-     * Indicates that input has to be passed to the inflater.
-     *
-     * @return {@code true} if {@code setInput} has to be called before
-     *         inflation can proceed.
-     * @see #setInput(byte[])
+     * Returns true if {@link #setInput} must be called before inflation can continue.
      */
     public synchronized boolean needsInput() {
         return inRead == inLength;
     }
 
     /**
-     * Resets the {@code Inflater}. Should be called prior to inflating a new
+     * Resets this {@code Inflater}. Should be called prior to inflating a new
      * set of data.
      */
     public synchronized void reset() {
@@ -308,123 +284,65 @@ public class Inflater {
         resetImpl(streamHandle);
     }
 
-    private native synchronized void resetImpl(long handle);
+    private native void resetImpl(long handle);
 
     /**
-     * Sets the preset dictionary to be used for inflation to {@code buf}.
-     * {@code needsDictionary()} can be called to determine whether the current
-     * input was deflated using a preset dictionary.
-     *
-     * @param buf
-     *            The buffer containing the dictionary bytes.
-     * @see #needsDictionary
+     * Sets the preset dictionary to be used for inflation to {@code dictionary}.
+     * See {@link #needsDictionary} for details.
      */
-    public synchronized void setDictionary(byte[] buf) {
-        setDictionary(buf, 0, buf.length);
+    public synchronized void setDictionary(byte[] dictionary) {
+        setDictionary(dictionary, 0, dictionary.length);
     }
 
     /**
-     * Like {@code setDictionary(byte[])}, allowing to define a specific region
-     * inside {@code buf} to be used as a dictionary.
-     * <p>
-     * The dictionary should be set if the {@link #inflate(byte[])} returned
-     * zero bytes inflated and {@link #needsDictionary()} returns
-     * <code>true</code>.
-     *
-     * @param buf
-     *            the buffer containing the dictionary data bytes.
-     * @param off
-     *            the offset of the data.
-     * @param nbytes
-     *            the length of the data.
-     * @see #needsDictionary
+     * Sets the preset dictionary to be used for inflation to a subsequence of {@code dictionary}
+     * starting at {@code offset} and continuing for {@code byteCount} bytes. See {@link
+     * #needsDictionary} for details.
      */
-    public synchronized void setDictionary(byte[] buf, int off, int nbytes) {
+    public synchronized void setDictionary(byte[] dictionary, int offset, int byteCount) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        // avoid int overflow, check null buf
-        if (off <= buf.length && nbytes >= 0 && off >= 0
-                && buf.length - off >= nbytes) {
-            setDictionaryImpl(buf, off, nbytes, streamHandle);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dictionary.length, offset, byteCount);
+        setDictionaryImpl(dictionary, offset, byteCount, streamHandle);
     }
 
-    private native synchronized void setDictionaryImpl(byte[] buf, int off,
-            int nbytes, long handle);
+    private native void setDictionaryImpl(byte[] dictionary, int offset, int byteCount, long handle);
 
     /**
-     * Sets the current input to to be decrompressed. This method should only be
-     * called if {@code needsInput()} returns {@code true}.
-     *
-     * @param buf
-     *            the input buffer.
-     * @see #needsInput
+     * Sets the current input to to be decompressed. This method should only be
+     * called if {@link #needsInput} returns {@code true}.
      */
     public synchronized void setInput(byte[] buf) {
         setInput(buf, 0, buf.length);
     }
 
     /**
-     * Sets the current input to the region of the input buffer starting at
-     * {@code off} and ending at {@code nbytes - 1} where data is written after
-     * decompression. This method should only be called if {@code needsInput()}
-     * returns {@code true}.
-     *
-     * @param buf
-     *            the input buffer.
-     * @param off
-     *            the offset to read from the input buffer.
-     * @param nbytes
-     *            the number of bytes to read.
-     * @see #needsInput
+     * Sets the current input to to be decompressed. This method should only be
+     * called if {@link #needsInput} returns {@code true}.
      */
-    public synchronized void setInput(byte[] buf, int off, int nbytes) {
+    public synchronized void setInput(byte[] buf, int offset, int byteCount) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        // avoid int overflow, check null buf
-        if (off <= buf.length && nbytes >= 0 && off >= 0
-                && buf.length - off >= nbytes) {
-            inRead = 0;
-            inLength = nbytes;
-            setInputImpl(buf, off, nbytes, streamHandle);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
+        inRead = 0;
+        inLength = byteCount;
+        setInputImpl(buf, offset, byteCount, streamHandle);
     }
 
+    private native void setInputImpl(byte[] buf, int offset, int byteCount, long handle);
+
     // BEGIN android-only
-    /**
-     * Sets the current input to the region within a file starting at {@code
-     * off} and ending at {@code nbytes - 1}. This method should only be called
-     * if {@code needsInput()} returns {@code true}.
-     *
-     * @param fd
-     *            the input file.
-     * @param off
-     *            the offset to read from in buffer.
-     * @param nbytes
-     *            the number of bytes to read.
-     * @see #needsInput
-     */
-    synchronized int setFileInput(FileDescriptor fd, long off, int nbytes) {
+    synchronized int setFileInput(FileDescriptor fd, long offset, int byteCount) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
         inRead = 0;
-        inLength = setFileInputImpl(fd, off, nbytes, streamHandle);
+        inLength = setFileInputImpl(fd, offset, byteCount, streamHandle);
         return inLength;
     }
-    // END android-only
 
-    private native synchronized void setInputImpl(byte[] buf, int off,
-            int nbytes, long handle);
-
-    // BEGIN android-only
-    private native synchronized int setFileInputImpl(FileDescriptor fd, long off,
-            int nbytes, long handle);
+    private native int setFileInputImpl(FileDescriptor fd, long offset, int byteCount, long handle);
     // END android-only
 }
