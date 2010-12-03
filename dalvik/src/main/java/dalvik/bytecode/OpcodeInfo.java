@@ -29,6 +29,21 @@ public final class OpcodeInfo {
      */
     public static final int MAXIMUM_VALUE;
 
+    /**
+     * The maximum possible "packed value" of a Dalvik opcode. The
+     * packed value of an opcode is a denser representation that is
+     * only used when reporting usage statistics. The mapping between
+     * packed opcode values and regular opcode values is
+     * implementation-specific and may vary over time.
+     *
+     * <p><b>Note:</b>: This is constant in any given VM incarnation,
+     * but it is subject to change over time, so it is not appropriate
+     * to represent as a compile-time constant value.</p>
+     *
+     * @see dalvik.system.VMDebug.getInstructionCount()
+     */
+    public static final int MAXIMUM_PACKED_VALUE;
+
     static {
         /*
          * See note on the definition of MAXIMUM_VALUE, above, for
@@ -38,9 +53,10 @@ public final class OpcodeInfo {
          * by the opcode-gen tool. Any edits will get wiped out the
          * next time the tool is run.
          */
-        // BEGIN(libcore-maximum-value); GENERATED AUTOMATICALLY BY opcode-gen
+        // BEGIN(libcore-maximum-values); GENERATED AUTOMATICALLY BY opcode-gen
         MAXIMUM_VALUE = 255;
-        // END(libcore-maximum-value)
+        MAXIMUM_PACKED_VALUE = 255;
+        // END(libcore-maximum-values)
     }
 
     /**
@@ -51,15 +67,15 @@ public final class OpcodeInfo {
     }
 
     /**
-     * Returns whether the given opcode represents a method invocation
-     * operation. This includes most things that look like method
-     * invocation at the source level, but it notably excludes methods
-     * that are implemented directly in the VM as well as ones the VM
-     * knows to have empty implementations.
+     * Returns whether the given packed opcode value represents a
+     * method invocation operation. This includes most things that
+     * look like method invocation at the source level, but it notably
+     * excludes methods that are implemented directly in the VM as
+     * well as ones the VM knows to have empty implementations.
      *
      * @hide Unclear if this is useful enough to publish as supported API.
      *
      * @param opcode one of the values defined in {@link Opcodes}
      */
-    public static native boolean isInvoke(int opcode);
+    public static native boolean isInvoke(int packedOpcode);
 }
