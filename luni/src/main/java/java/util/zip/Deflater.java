@@ -298,7 +298,7 @@ public class Deflater {
     }
 
     /**
-     * Returns the {@link #Adler32} checksum of the uncompressed data read so far.
+     * Returns the {@link Adler32} checksum of the uncompressed data read so far.
      */
     public synchronized int getAdler() {
         if (streamHandle == -1) {
