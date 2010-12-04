@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketImpl;
+import java.util.Arrays;
 
 /**
  * The SocketInputStream supports the streamed reading of bytes from a socket.
@@ -66,22 +67,11 @@ class SocketInputStream extends InputStream {
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int count) throws IOException {
-        if (buffer == null) {
-            throw new IOException("buffer == null");
-        }
-
-        if (count == 0) {
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+        if (byteCount == 0) {
             return 0;
         }
-
-        if (0 > offset || offset >= buffer.length) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (0 > count || offset + count > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-
-        return socket.read(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        return socket.read(buffer, offset, byteCount);
     }
 }

@@ -697,7 +697,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(byte[] array, int start, int end, byte value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -734,7 +734,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(short[] array, int start, int end, short value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -771,7 +771,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(char[] array, int start, int end, char value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -808,7 +808,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(int[] array, int start, int end, int value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -845,7 +845,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(long[] array, int start, int end, long value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -882,7 +882,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(float[] array, int start, int end, float value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -919,7 +919,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(double[] array, int start, int end, double value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -956,7 +956,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(boolean[] array, int start, int end, boolean value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -993,7 +993,7 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void fill(Object[] array, int start, int end, Object value) {
-        checkFillBounds(array.length, start, end);
+        Arrays.checkStartAndEnd(array.length, start, end);
         for (int i = start; i < end; i++) {
             array[i] = value;
         }
@@ -1742,16 +1742,22 @@ public class Arrays {
         }
     }
 
-    private static void checkFillBounds(int arrLength, int start, int end) {
+    /**
+     * Checks that the range described by {@code start} and {@code end} doesn't exceed
+     * {@code arrayLength}.
+     *
+     * @hide
+     */
+    public static void checkStartAndEnd(int arrayLength, int start, int end) {
         if (start > end) {
-            throw new IllegalArgumentException("start < end: " + start + " < " + end);
+            throw new IllegalArgumentException("start > end: " + start + " > " + end);
         }
         if (start < 0) {
             throw new ArrayIndexOutOfBoundsException("start < 0: " + start);
         }
-        if (end > arrLength) {
+        if (end > arrayLength) {
             throw new ArrayIndexOutOfBoundsException("end > array length: " +
-                    end + " > " + arrLength);
+                    end + " > " + arrayLength);
         }
     }
 

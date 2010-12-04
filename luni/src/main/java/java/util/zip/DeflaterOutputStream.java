@@ -20,6 +20,7 @@ package java.util.zip;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * This class provides an implementation of {@code FilterOutputStream} that
@@ -188,33 +189,22 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Compresses {@code nbytes} of data from {@code buf} starting at
-     * {@code off} and writes it to the underlying stream.
-     *
-     * @param buffer
-     *            the buffer of data to compress.
-     * @param off
-     *            offset in buffer to extract data from.
-     * @param nbytes
-     *            the number of bytes of data to read from the buffer.
+     * Compresses {@code byteCount} bytes of data from {@code buf} starting at
+     * {@code offset} and writes it to the underlying stream.
      * @throws IOException
      *             If an error occurs during writing.
      */
     @Override
-    public void write(byte[] buffer, int off, int nbytes) throws IOException {
+    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
         if (done) {
             throw new IOException("attempt to write after finish");
         }
-        // avoid int overflow, check null buf
-        if (off <= buffer.length && nbytes >= 0 && off >= 0 && buffer.length - off >= nbytes) {
-            if (!def.needsInput()) {
-                throw new IOException();
-            }
-            def.setInput(buffer, off, nbytes);
-            deflate();
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        if (!def.needsInput()) {
+            throw new IOException();
         }
+        def.setInput(buffer, offset, byteCount);
+        deflate();
     }
 
     /**

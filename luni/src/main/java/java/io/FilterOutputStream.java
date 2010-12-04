@@ -17,6 +17,7 @@
 
 package java.io;
 
+import java.util.Arrays;
 import org.apache.harmony.luni.util.SneakyThrow;
 
 /**
@@ -124,16 +125,7 @@ public class FilterOutputStream extends OutputStream {
      */
     @Override
     public void write(byte[] buffer, int offset, int length) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        // Force null buffer check first!
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         for (int i = 0; i < length; i++) {
             // Call write() instead of out.write() since subclasses could
             // override the write() method.

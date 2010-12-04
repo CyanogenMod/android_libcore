@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link Reader} for reading the contents of a char array.
  *
@@ -205,15 +207,7 @@ public class CharArrayReader extends Reader {
      */
     @Override
     public int read(char[] buffer, int offset, int len) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        if (offset < 0 || offset > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (len < 0 || len > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + len);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, len);
         synchronized (lock) {
             checkNotClosed();
             if (pos < this.count) {

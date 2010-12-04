@@ -120,14 +120,7 @@ abstract class AbstractStringBuilder {
     }
 
     final void append0(char[] chars, int offset, int length) {
-        // Force null check of chars first!
-        if (offset > chars.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || chars.length - offset < length) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
-
+        Arrays.checkOffsetAndCount(chars.length, offset, length);
         int newCount = count + length;
         if (newCount > value.length) {
             enlargeBuffer(newCount);
@@ -344,7 +337,7 @@ abstract class AbstractStringBuilder {
     final void insert0(int index, char ch) {
         if (0 > index || index > count) {
             // RI compatible exception type
-            throw new ArrayIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException("index=" + index + ", length=" + count);
         }
         move(1, index);
         value[index] = ch;

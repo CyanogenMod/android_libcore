@@ -114,7 +114,7 @@ public class RC5ParameterSpec implements AlgorithmParameterSpec {
             throw new IllegalArgumentException("iv == null");
         }
         if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("offset < 0");
+            throw new ArrayIndexOutOfBoundsException("offset < 0: " + offset);
         }
         if (iv.length - offset < 2 * (wordSize / 8)) {
             throw new IllegalArgumentException("iv.length - offset < 2 * (wordSize / 8)");

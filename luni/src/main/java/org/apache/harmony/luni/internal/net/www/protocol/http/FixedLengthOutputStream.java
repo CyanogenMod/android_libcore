@@ -18,6 +18,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * An HTTP body with a fixed length known in advance.
@@ -33,7 +34,7 @@ final class FixedLengthOutputStream extends AbstractHttpOutputStream {
 
     @Override public void write(byte[] buffer, int offset, int count) throws IOException {
         checkNotClosed();
-        checkBounds(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         if (count > bytesRemaining) {
             throw new IOException("expected " + bytesRemaining + " bytes but received " + count);
         }

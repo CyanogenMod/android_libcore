@@ -20,6 +20,7 @@ package java.io;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.security.AccessController;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
@@ -33,8 +34,7 @@ import org.apache.harmony.luni.util.PriviAction;
  * class. Instead, callers should use {@link #checkError()} to see if a problem
  * has occurred in this stream.
  */
-public class PrintStream extends FilterOutputStream implements Appendable,
-        Closeable {
+public class PrintStream extends FilterOutputStream implements Appendable, Closeable {
 
     private static final String TOKEN_NULL = "null";
 
@@ -662,13 +662,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      */
     @Override
     public void write(byte[] buffer, int offset, int length) {
-        // Force buffer null check first!
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         synchronized (this) {
             if (out == null) {
                 setError();

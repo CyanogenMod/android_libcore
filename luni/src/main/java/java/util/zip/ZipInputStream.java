@@ -25,6 +25,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
+import java.util.Arrays;
 import libcore.base.Streams;
 import org.apache.harmony.luni.platform.OSMemory;
 
@@ -288,22 +289,12 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
      * Reads up to the specified number of uncompressed bytes into the buffer
      * starting at the offset.
      *
-     * @param buffer
-     *            a byte array
-     * @param start
-     *            the starting offset into the buffer
-     * @param length
-     *            the number of bytes to read
      * @return the number of bytes read
      */
     @Override
-    public int read(byte[] buffer, int start, int length) throws IOException {
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         checkClosed();
-        // avoid int overflow, check null buffer
-        if (start > buffer.length || length < 0 || start < 0
-                || buffer.length - start < length) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
 
         if (inf.finished() || currentEntry == null) {
             return -1;
@@ -322,14 +313,14 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
                 }
                 entryIn += len;
             }
-            int toRead = length > (len - lastRead) ? len - lastRead : length;
+            int toRead = byteCount > (len - lastRead) ? len - lastRead : byteCount;
             if ((csize - inRead) < toRead) {
                 toRead = csize - inRead;
             }
-            System.arraycopy(buf, lastRead, buffer, start, toRead);
+            System.arraycopy(buf, lastRead, buffer, offset, toRead);
             lastRead += toRead;
             inRead += toRead;
-            crc.update(buffer, start, toRead);
+            crc.update(buffer, offset, toRead);
             return toRead;
         }
         if (inf.needsInput()) {
@@ -340,14 +331,14 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int read;
         try {
-            read = inf.inflate(buffer, start, length);
+            read = inf.inflate(buffer, offset, byteCount);
         } catch (DataFormatException e) {
             throw new ZipException(e.getMessage());
         }
         if (read == 0 && inf.finished()) {
             return -1;
         }
-        crc.update(buffer, start, read);
+        crc.update(buffer, offset, read);
         return read;
     }
 

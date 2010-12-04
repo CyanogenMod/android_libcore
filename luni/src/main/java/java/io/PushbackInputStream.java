@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Wraps an existing {@link InputStream} and adds functionality to "push back"
  * bytes that have been read, so that they can be read again. Parsers may find
@@ -175,14 +177,7 @@ public class PushbackInputStream extends FilterInputStream {
         if (buf == null) {
             throw streamClosed();
         }
-        // Force buffer null check first!
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
-
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         int copiedBytes = 0, copyLength = 0, newOffset = offset;
         // Are there pushback bytes available?
         if (pos < buf.length) {
@@ -291,12 +286,7 @@ public class PushbackInputStream extends FilterInputStream {
         if (length > pos) {
             throw new IOException("Pushback buffer full");
         }
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         if (buf == null) {
             throw streamClosed();
         }

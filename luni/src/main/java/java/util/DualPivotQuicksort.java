@@ -86,7 +86,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(int[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         doSort(a, fromIndex, toIndex - 1);
     }
 
@@ -364,7 +364,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(long[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         doSort(a, fromIndex, toIndex - 1);
     }
 
@@ -642,7 +642,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(short[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         doSort(a, fromIndex, toIndex - 1);
     }
 
@@ -937,7 +937,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(char[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         doSort(a, fromIndex, toIndex - 1);
     }
 
@@ -1230,7 +1230,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(byte[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         doSort(a, fromIndex, toIndex - 1);
     }
 
@@ -1541,7 +1541,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(float[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         sortNegZeroAndNaN(a, fromIndex, toIndex - 1);
     }
 
@@ -1914,7 +1914,7 @@ final class DualPivotQuicksort {
      *     if {@code fromIndex < 0} or {@code toIndex > a.length}
      */
     public static void sort(double[] a, int fromIndex, int toIndex) {
-        rangeCheck(a.length, fromIndex, toIndex);
+        Arrays.checkStartAndEnd(a.length, fromIndex, toIndex);
         sortNegZeroAndNaN(a, fromIndex, toIndex - 1);
     }
 
@@ -2246,22 +2246,5 @@ final class DualPivotQuicksort {
 
         // Sort center part recursively, excluding known pivot values
         doSort(a, less, great);
-    }
-
-    /**
-     * Checks that {@code fromIndex} and {@code toIndex} are in
-     * the range and throws an appropriate exception, if they aren't.
-     */
-    private static void rangeCheck(int length, int fromIndex, int toIndex) {
-        if (fromIndex > toIndex) {
-            throw new IllegalArgumentException(
-                "fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
-        }
-        if (fromIndex < 0) {
-            throw new ArrayIndexOutOfBoundsException(fromIndex);
-        }
-        if (toIndex > length) {
-            throw new ArrayIndexOutOfBoundsException(toIndex);
-        }
     }
 }

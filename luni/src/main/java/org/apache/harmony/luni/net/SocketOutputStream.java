@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketImpl;
+import java.util.Arrays;
 
 class SocketOutputStream extends OutputStream {
 
@@ -49,22 +50,15 @@ class SocketOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] buffer, int offset, int count) throws IOException {
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if (0 <= offset && offset <= buffer.length && 0 <= count && count <= buffer.length - offset) {
-            socket.write(buffer, offset, count);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        socket.write(buffer, offset, byteCount);
     }
 
     @Override
     public void write(int oneByte) throws IOException {
         byte[] buffer = new byte[1];
         buffer[0] = (byte) (oneByte & 0xFF);
-
         socket.write(buffer, 0, 1);
     }
 }
