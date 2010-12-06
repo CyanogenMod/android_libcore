@@ -450,7 +450,7 @@ public final class URI implements Comparable<URI>, Serializable {
      *
      * @param forceServer true to always throw if the authority cannot be
      *     parsed. If false, this method may still throw for some kinds of
-     *     errors; this unpredictable behaviour is consistent with the RI.
+     *     errors; this unpredictable behavior is consistent with the RI.
      */
     private void parseAuthority(boolean forceServer) throws URISyntaxException {
         if (authority == null) {
@@ -534,7 +534,7 @@ public final class URI implements Comparable<URI>, Serializable {
      *
      * @param forceServer true to always throw if the host cannot be parsed. If
      *     false, this method may still throw for some kinds of errors; this
-     *     unpredictable behaviour is consistent with the RI.
+     *     unpredictable behavior is consistent with the RI.
      */
     private boolean isValidHost(boolean forceServer, String host) throws URISyntaxException {
         if (host.startsWith("[")) {

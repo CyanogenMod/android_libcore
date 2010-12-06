@@ -34,6 +34,7 @@ import java.lang.reflect.Proxy;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import libcore.base.EmptyArray;
@@ -675,13 +676,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      */
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
-        // Force buffer null check first!
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         if (length == 0) {
             return 0;
         }

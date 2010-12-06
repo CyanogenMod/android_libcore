@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Wraps an existing {@link Reader} and adds functionality to "push back"
  * characters that have been read, so that they can be read again. Parsers may
@@ -317,14 +319,7 @@ public class PushbackReader extends FilterReader {
             if (length > pos) {
                 throw new IOException("Pushback buffer full");
             }
-            // Force buffer null check first!
-            if (offset > buffer.length - length || offset < 0) {
-                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-            }
-            if (length < 0) {
-                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-            }
-
+            Arrays.checkOffsetAndCount(buffer.length, offset, length);
             for (int i = offset + length - 1; i >= offset; i--) {
                 unread(buffer[i]);
             }

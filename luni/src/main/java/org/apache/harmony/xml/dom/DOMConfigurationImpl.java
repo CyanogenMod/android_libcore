@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 
 /**
  * A minimal implementation of DOMConfiguration. This implementation uses inner
- * parameter instances to centralize each parameter's behaviour.
+ * parameter instances to centralize each parameter's behavior.
  */
 public final class DOMConfigurationImpl implements DOMConfiguration {
 

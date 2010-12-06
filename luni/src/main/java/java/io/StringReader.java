@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link Reader} that reads characters from a {@code String} in
  * a sequential manner.
@@ -152,17 +154,9 @@ public class StringReader extends Reader {
      */
     @Override
     public int read(char[] buf, int offset, int len) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         synchronized (lock) {
             checkNotClosed();
-            if (offset < 0 || offset > buf.length) {
-                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-            }
-            if (len < 0 || len > buf.length - offset) {
-                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + len);
-            }
+            Arrays.checkOffsetAndCount(buf.length, offset, len);
             if (len == 0) {
                 return 0;
             }

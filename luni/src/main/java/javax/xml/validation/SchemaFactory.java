@@ -586,7 +586,7 @@ public abstract class SchemaFactory {
      * in the same order as the sources.  Section 4.2.3 of the XML Schema
      * recommendation describes the options processors have in this
      * regard.  While a processor should be consistent in its treatment of
-     * JAXP schema sources and XML Schema imports, the behaviour between
+     * JAXP schema sources and XML Schema imports, the behavior between
      * JAXP-compliant parsers may vary; in particular, parsers may choose
      * to ignore all but the first &lt;import> for a given namespace,
      * regardless of information provided in schemaLocation.

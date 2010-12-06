@@ -178,9 +178,9 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     }
 
     /**
-     * Decodes one or more bytes. The default behaviour of the converter
+     * Decodes one or more bytes. The default behavior of the converter
      * is stop and report if an error in input stream is encountered.
-     * To set different behaviour use @see CharsetDecoder.onMalformedInput()
+     * To set different behavior use @see CharsetDecoder.onMalformedInput()
      * This  method allows a buffer by buffer conversion of a data stream.
      * The state of the conversion is saved between calls to convert.
      * Among other things, this means multibyte input sequences can be

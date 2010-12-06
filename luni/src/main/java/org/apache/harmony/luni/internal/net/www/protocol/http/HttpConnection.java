@@ -60,7 +60,7 @@ public final class HttpConnection {
         this.address = config;
 
         /*
-         * Try each of the host's addresses for best behaviour in mixed IPv4/IPv6
+         * Try each of the host's addresses for best behavior in mixed IPv4/IPv6
          * environments. See http://b/2876927
          * TODO: add a hidden method so that Socket.tryAllAddresses can does this for us
          */

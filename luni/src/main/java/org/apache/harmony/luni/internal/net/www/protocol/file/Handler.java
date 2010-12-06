@@ -44,7 +44,7 @@ public class Handler extends URLStreamHandler {
     }
 
     /**
-     * The behaviour of this method is the same as openConnection(URL).
+     * The behavior of this method is the same as openConnection(URL).
      * <code>proxy</code> is not used in FileURLConnection.
      *
      * @param url

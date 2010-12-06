@@ -17,6 +17,7 @@
 
 package java.io;
 
+import java.util.Arrays;
 import libcore.base.Streams;
 
 /**
@@ -167,14 +168,7 @@ public class LineNumberInputStream extends FilterInputStream {
      */
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
-        // Force buffer null check first!
-        if (offset > buffer.length || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
-
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         for (int i = 0; i < length; i++) {
             int currentChar;
             try {

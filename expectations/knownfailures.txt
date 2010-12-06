@@ -179,16 +179,16 @@
   description: "UTF-16 and UTF-32 encoders don't write big-endian output on little-endian devices",
   names: [
     "libcore.java.nio.charset.CharsetEncoderTest#test_defaultReplacementBytesUtf_16",
-    "libcore.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16BE",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_16LE",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32BE",
-    "libcore.java.nio.charset.OldCharsetTest#test_UTF_32LE",
-    "libcore.java.nio.charset.OldCharsetTest#test_x_UTF_16LE_BOM",
-    "libcore.java.nio.charset.OldCharsetTest#test_X_UTF_32BE_BOM",
-    "libcore.java.nio.charset.OldCharsetTest#test_X_UTF_32LE_BOM"
+    "libcore.java.nio.charset.CharsetTest#test_UTF_16",
+    "libcore.java.nio.charset.CharsetTest#test_UTF_32",
+    "libcore.java.nio.charset.CharsetTest#test_UTF_16BE",
+    "libcore.java.nio.charset.CharsetTest#test_UTF_16LE",
+    "libcore.java.nio.charset.CharsetTest#test_UTF_32BE",
+    "libcore.java.nio.charset.CharsetTest#test_UTF_32LE",
+    "libcore.java.nio.charset.CharsetTest#test_x_UTF_16LE_BOM",
+    "libcore.java.nio.charset.CharsetTest#test_X_UTF_32BE_BOM",
+    "libcore.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM",
+    "libcore.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode"
   ],
   bug: 2702411
 },

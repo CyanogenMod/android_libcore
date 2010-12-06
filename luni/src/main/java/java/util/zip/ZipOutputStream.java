@@ -20,6 +20,7 @@ package java.util.zip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charsets;
 import java.util.Vector;
 
 /**
@@ -72,7 +73,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      */
     public static final int STORED = 0;
 
-    static final int ZIPLocalHeaderVersionNeeded = 20;
+    private static final int ZIPLocalHeaderVersionNeeded = 20;
 
     private String comment;
 
@@ -245,7 +246,6 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // Write the central dir
         out.write(cDir.toByteArray());
         cDir = null;
-
     }
 
     /**
@@ -260,7 +260,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      *             If an error occurs storing the entry.
      * @see #write
      */
-    public void putNextEntry(ZipEntry ze) throws java.io.IOException {
+    public void putNextEntry(ZipEntry ze) throws IOException {
         if (currentEntry != null) {
             closeEntry();
         }
@@ -279,7 +279,8 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         if (entries.contains(ze.name)) {
             throw new ZipException("Entry already exists: " + ze.name);
         }
-        nameLength = utf8Count(ze.name);
+        nameBytes = ze.name.getBytes(Charsets.UTF_8);
+        nameLength = nameBytes.length;
         if (nameLength > 0xffff) {
             throw new IllegalArgumentException("Name too long: " + nameLength + " UTF-8 bytes");
         }
@@ -328,7 +329,6 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         } else {
             writeShort(out, 0);
         }
-        nameBytes = toUTF8Bytes(currentEntry.name, nameLength);
         out.write(nameBytes);
         if (currentEntry.extra != null) {
             out.write(currentEntry.extra);
@@ -358,8 +358,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      * @see Deflater
      */
     public void setLevel(int level) {
-        if (level < Deflater.DEFAULT_COMPRESSION
-                || level > Deflater.BEST_COMPRESSION) {
+        if (level < Deflater.DEFAULT_COMPRESSION || level > Deflater.BEST_COMPRESSION) {
             throw new IllegalArgumentException();
         }
         compressLevel = level;
@@ -378,10 +377,9 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
             throw new IllegalArgumentException();
         }
         compressMethod = method;
-
     }
 
-    private long writeLong(OutputStream os, long i) throws java.io.IOException {
+    private long writeLong(OutputStream os, long i) throws IOException {
         // Write out the long value as an unsigned int
         os.write((int) (i & 0xFF));
         os.write((int) (i >> 8) & 0xFF);
@@ -390,11 +388,10 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         return i;
     }
 
-    private int writeShort(OutputStream os, int i) throws java.io.IOException {
+    private int writeShort(OutputStream os, int i) throws IOException {
         os.write(i & 0xFF);
         os.write((i >> 8) & 0xFF);
         return i;
-
     }
 
     /**
@@ -404,8 +401,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      *                If an error occurs writing to the stream
      */
     @Override
-    public void write(byte[] buffer, int off, int nbytes)
-            throws java.io.IOException {
+    public void write(byte[] buffer, int off, int nbytes) throws IOException {
         // avoid int overflow, check null buf
         if ((off < 0 || (nbytes < 0) || off > buffer.length)
                 || (buffer.length - off < nbytes)) {
@@ -422,40 +418,6 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
             super.write(buffer, off, nbytes);
         }
         crc.update(buffer, off, nbytes);
-    }
-
-    static int utf8Count(String value) {
-        int total = 0;
-        for (int i = value.length(); --i >= 0;) {
-            char ch = value.charAt(i);
-            if (ch < 0x80) {
-                total++;
-            } else if (ch < 0x800) {
-                total += 2;
-            } else {
-                total += 3;
-            }
-        }
-        return total;
-    }
-
-    static byte[] toUTF8Bytes(String value, int length) {
-        byte[] result = new byte[length];
-        int pos = result.length;
-        for (int i = value.length(); --i >= 0;) {
-            char ch = value.charAt(i);
-            if (ch < 0x80) {
-                result[--pos] = (byte) ch;
-            } else if (ch < 0x800) {
-                result[--pos] = (byte) (0x80 | (ch & 0x3f));
-                result[--pos] = (byte) (0xc0 | (ch >> 6));
-            } else {
-                result[--pos] = (byte) (0x80 | (ch & 0x3f));
-                result[--pos] = (byte) (0x80 | ((ch >> 6) & 0x3f));
-                result[--pos] = (byte) (0xe0 | (ch >> 12));
-            }
-        }
-        return result;
     }
 
     private void checkClosed() throws IOException {

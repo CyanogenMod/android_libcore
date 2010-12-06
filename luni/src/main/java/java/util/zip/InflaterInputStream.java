@@ -21,6 +21,7 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import libcore.base.Streams;
 
 /**
@@ -135,42 +136,22 @@ public class InflaterInputStream extends FilterInputStream {
     }
 
     /**
-     * Reads up to {@code nbytes} of decompressed data and stores it in
-     * {@code buffer} starting at {@code off}.
+     * Reads up to {@code byteCount} bytes of decompressed data and stores it in
+     * {@code buffer} starting at {@code offset}.
      *
-     * @param buffer
-     *            the buffer to write data to.
-     * @param off
-     *            offset in buffer to start writing.
-     * @param nbytes
-     *            number of bytes to read.
      * @return Number of uncompressed bytes read
-     * @throws IOException
-     *             if an IOException occurs.
      */
     @Override
-    public int read(byte[] buffer, int off, int nbytes) throws IOException {
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         checkClosed();
-        if (buffer == null) {
-            throw new NullPointerException();
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
 
-        if (off < 0 || nbytes < 0 || off + nbytes > buffer.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        if (nbytes == 0) {
+        if (byteCount == 0) {
             return 0;
         }
 
         if (eof) {
             return -1;
-        }
-
-        // avoid int overflow, check null buffer
-        if (off > buffer.length || nbytes < 0 || off < 0
-                || buffer.length - off < nbytes) {
-            throw new ArrayIndexOutOfBoundsException();
         }
 
         do {
@@ -180,7 +161,7 @@ public class InflaterInputStream extends FilterInputStream {
             // Invariant: if reading returns -1 or throws, eof must be true.
             // It may also be true if the next read() should return -1.
             try {
-                int result = inf.inflate(buffer, off, nbytes);
+                int result = inf.inflate(buffer, offset, byteCount);
                 eof = inf.finished();
                 if (result > 0) {
                     return result;
