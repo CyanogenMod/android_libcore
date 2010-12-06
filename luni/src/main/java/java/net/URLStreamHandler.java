@@ -113,12 +113,11 @@ public abstract class URLStreamHandler {
 
         int refIdx = parseString.indexOf('#', 0);
         if (parseString.startsWith("//")) {
-            int hostIdx = 2, portIdx = -1;
+            int hostIdx = 2;
             port = -1;
             fileIdx = parseString.indexOf('/', hostIdx);
             int questionMarkIndex = parseString.indexOf('?', hostIdx);
-            if ((questionMarkIndex != -1)
-                    && ((fileIdx == -1) || (fileIdx > questionMarkIndex))) {
+            if (questionMarkIndex != -1 && (fileIdx == -1 || fileIdx > questionMarkIndex)) {
                 fileIdx = questionMarkIndex;
             }
             if (fileIdx == -1) {
@@ -129,36 +128,33 @@ public abstract class URLStreamHandler {
             int hostEnd = fileIdx;
             if (refIdx != -1 && refIdx < fileIdx) {
                 hostEnd = refIdx;
+                fileIdx = refIdx;
+                file = "";
             }
             int userIdx = parseString.lastIndexOf('@', hostEnd);
             authority = parseString.substring(hostIdx, hostEnd);
-            if (userIdx > -1) {
+            if (userIdx != -1) {
                 userInfo = parseString.substring(hostIdx, userIdx);
                 hostIdx = userIdx + 1;
             }
 
-            portIdx = parseString.indexOf(':', userIdx == -1 ? hostIdx
-                    : userIdx);
-            int endOfIPv6Addr = parseString.indexOf(']');
-            // if there are square braces, ie. IPv6 address, use last ':'
-            if (endOfIPv6Addr != -1) {
-                try {
-                    if (parseString.length() > endOfIPv6Addr + 1) {
-                        char c = parseString.charAt(endOfIPv6Addr + 1);
-                        if (c == ':') {
-                            portIdx = endOfIPv6Addr + 1;
-                        } else {
-                            portIdx = -1;
-                        }
-                    } else {
-                        portIdx = -1;
-                    }
-                } catch (Exception e) {
-                    // Ignored
-                }
+            int endOfIPv6Addr = parseString.indexOf(']', hostIdx);
+            if (endOfIPv6Addr >= hostEnd) {
+                endOfIPv6Addr = -1;
             }
 
-            if (portIdx == -1 || portIdx > fileIdx) {
+            // the port separator must be immediately after an IPv6 address "http://[::1]:80/"
+            int portIdx = -1;
+            if (endOfIPv6Addr != -1) {
+                int maybeColon = endOfIPv6Addr + 1;
+                if (maybeColon < hostEnd && parseString.charAt(maybeColon) == ':') {
+                    portIdx = maybeColon;
+                }
+            } else {
+                portIdx = parseString.indexOf(':', hostIdx);
+            }
+
+            if (portIdx == -1 || portIdx > hostEnd) {
                 host = parseString.substring(hostIdx, hostEnd);
             } else {
                 host = parseString.substring(hostIdx, portIdx);

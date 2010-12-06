@@ -26,4 +26,18 @@ public class URLTest extends TestCase {
         assertEquals("www.google.com", url.getHost());
         assertEquals(80, url.getPort());
     }
+
+    public void testHostWithSlashInFragment() throws Exception {
+        URL url = new URL("http://www.google.com#foo/bar");
+        assertEquals("www.google.com", url.getHost());
+        assertEquals("foo/bar", url.getRef());
+        assertEquals(-1, url.getPort());
+    }
+
+    public void testHostWithColonAndSlashInFragment() throws Exception {
+        URL url = new URL("http://www.google.com#foo:bar/baz");
+        assertEquals("www.google.com", url.getHost());
+        assertEquals("foo:bar/baz", url.getRef());
+        assertEquals(-1, url.getPort());
+    }
 }
