@@ -40,6 +40,18 @@ public class MethodTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException iae) {
             assertEquals("argument 1 should have type int, got null", iae.getMessage());
         }
+        try {
+            m.invoke(new Integer(5)); // Wrong type for 'this'.
+            fail();
+        } catch (IllegalArgumentException iae) {
+            assertEquals("expected receiver of type java.lang.String, not java.lang.Integer", iae.getMessage());
+        }
+        try {
+            m.invoke(null); // Null for 'this'.
+            fail();
+        } catch (NullPointerException npe) {
+            assertEquals("expected receiver of type java.lang.String, not null", npe.getMessage());
+        }
     }
 
     public void test_getExceptionTypes() throws Exception {
