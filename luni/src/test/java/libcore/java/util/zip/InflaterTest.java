@@ -28,7 +28,7 @@ public class InflaterTest extends TestCase {
     }
 
     public void testPresetCustomDictionary() throws Exception {
-        assertRoundTrip("expected".getBytes("UTF-8"));
+        assertRoundTrip("dictionary".getBytes("UTF-8"));
     }
 
     private static void assertRoundTrip(byte[] dictionary) throws Exception {
@@ -39,7 +39,7 @@ public class InflaterTest extends TestCase {
         // Compress the bytes, using the passed-in dictionary (or no dictionary).
         byte[] deflatedBytes = deflate(expectedBytes, dictionary);
 
-        // Get ready to decompress the bytes again...
+        // Get ready to decompress deflatedBytes back to the original bytes ...
         Inflater inflater = new Inflater();
         // We'll only supply the input a little bit at a time, so that zlib has to ask for more.
         final int CHUNK_SIZE = 16;
@@ -81,6 +81,8 @@ public class InflaterTest extends TestCase {
     private static String makeString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1024; ++i) {
+            // This is arbitrary but convenient in that it gives our string
+            // an easily-recognizable beginning and end.
             sb.append(i + 1024);
         }
         return sb.toString();
