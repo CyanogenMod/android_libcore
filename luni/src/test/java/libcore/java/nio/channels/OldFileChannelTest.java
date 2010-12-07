@@ -34,6 +34,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
@@ -262,25 +263,28 @@ public final class OldFileChannelTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
+    }
 
-        // BEGIN android-added
-        // Android uses 32-bit off_t, so anything larger than a signed 32-bit int won't work...
-        // ...except for the special case of length == Long.MAX_VALUE, which is used to mean "the
-        // whole file". The special case is tested elsewhere.
-        long tooBig = ((long) Integer.MAX_VALUE) + 1;
-        try {
-            readWriteFileChannel.tryLock(tooBig, 1, false);
-            fail("should throw IOException");
-        } catch (IOException e) {
-            // expected
-        }
-        try {
-            readWriteFileChannel.tryLock(0, tooBig, false);
-            fail("should throw IOException");
-        } catch (IOException e) {
-            // expected
-        }
-        // END android-added
+    public void testTryLockVeryLarge() throws IOException {
+        long tooBig = Integer.MAX_VALUE + 1L;
+        FileLock lock = readWriteFileChannel.tryLock(tooBig, 1, false);
+        assertLockFails(tooBig, 1);
+        lock.release();
+
+        lock = readWriteFileChannel.tryLock(0, tooBig, false);
+        assertLockFails(0, 1);
+        lock.release();
+    }
+
+    public void testTryLockOverlapping() throws IOException {
+        FileLock lockOne = readWriteFileChannel.tryLock(0, 10, false);
+        FileLock lockTwo = readWriteFileChannel.tryLock(10, 20, false);
+        assertLockFails(0, 10);
+        lockOne.release();
+        assertLockFails(5, 10);
+        lockOne = readWriteFileChannel.tryLock(0, 10, false);
+        lockTwo.release();
+        lockOne.release();
     }
 
     /**
@@ -1491,6 +1495,13 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
+    private void assertLockFails(long position, long size) throws IOException {
+        try {
+            readWriteFileChannel.tryLock(position, size, false);
+            fail();
+        } catch (OverlappingFileLockException expected) {
+        }
+    }
 
     private class MockFileChannel extends FileChannel {
 
