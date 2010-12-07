@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Wraps an existing {@link OutputStream} and <em>buffers</em> the output.
  * Expensive interaction with the underlying input stream is minimized, since
@@ -130,13 +132,7 @@ public class BufferedOutputStream extends FilterOutputStream {
             return;
         }
 
-        if (offset < 0 || offset > buffer.length - length) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-
-        }
-        if (length < 0) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
 
         // flush the internal buffer first if we have not enough space left
         if (length > (internalBuffer.length - count)) {

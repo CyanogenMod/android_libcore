@@ -21,6 +21,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import org.apache.harmony.luni.platform.OSMemory;
 
 /**
@@ -150,37 +151,26 @@ public class GZIPInputStream extends InflaterInputStream {
     /**
      * Reads and decompresses GZIP data from the underlying stream into the
      * given buffer.
-     *
-     * @param buffer
-     *            Buffer to receive data
-     * @param off
-     *            Offset in buffer to store data
-     * @param nbytes
-     *            Number of bytes to read
      */
     @Override
-    public int read(byte[] buffer, int off, int nbytes) throws IOException {
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         if (closed) {
             throw new IOException("Stream is closed");
         }
         if (eos) {
             return -1;
         }
-        // avoid int overflow, check null buffer
-        if (off > buffer.length || nbytes < 0 || off < 0
-                || buffer.length - off < nbytes) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
 
         int bytesRead;
         try {
-            bytesRead = super.read(buffer, off, nbytes);
+            bytesRead = super.read(buffer, offset, byteCount);
         } finally {
             eos = eof; // update eos after every read(), even when it throws
         }
 
         if (bytesRead != -1) {
-            crc.update(buffer, off, bytesRead);
+            crc.update(buffer, offset, bytesRead);
         }
 
         if (eos) {

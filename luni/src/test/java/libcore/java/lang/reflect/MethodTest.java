@@ -19,6 +19,29 @@ package libcore.java.lang.reflect;
 import java.lang.reflect.Method;
 
 public class MethodTest extends junit.framework.TestCase {
+    // Check that the VM gives useful detail messages.
+    public void test_invokeExceptions() throws Exception {
+        Method m = String.class.getMethod("charAt", int.class);
+        try {
+            m.invoke("hello"); // Wrong number of arguments.
+            fail();
+        } catch (IllegalArgumentException iae) {
+            assertEquals("wrong number of arguments; expected 1, got 0", iae.getMessage());
+        }
+        try {
+            m.invoke("hello", "world"); // Wrong type.
+            fail();
+        } catch (IllegalArgumentException iae) {
+            assertEquals("argument 1 should have type int, got java.lang.String", iae.getMessage());
+        }
+        try {
+            m.invoke("hello", (Object) null); // Null for a primitive argument.
+            fail();
+        } catch (IllegalArgumentException iae) {
+            assertEquals("argument 1 should have type int, got null", iae.getMessage());
+        }
+    }
+
     public void test_getExceptionTypes() throws Exception {
         Method method = MethodTestHelper.class.getMethod("m1", new Class[0]);
         Class[] exceptions = method.getExceptionTypes();

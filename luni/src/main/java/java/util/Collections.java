@@ -1590,8 +1590,8 @@ public class Collections {
      */
     public static <T> void copy(List<? super T> destination, List<? extends T> source) {
         if (destination.size() < source.size()) {
-            throw new ArrayIndexOutOfBoundsException("Source size " + source.size() +
-                    " does not fit into destination");
+            throw new IndexOutOfBoundsException("Source size " + source.size() +
+                    " < destination size " + destination.size());
         }
         Iterator<? extends T> srcIt = source.iterator();
         ListIterator<? super T> destIt = destination.listIterator();
@@ -1600,7 +1600,7 @@ public class Collections {
                 destIt.next();
             } catch (NoSuchElementException e) {
                 // TODO: AssertionError?
-                throw new ArrayIndexOutOfBoundsException("Source size " + source.size() +
+                throw new IndexOutOfBoundsException("Source size " + source.size() +
                         " does not fit into destination");
             }
             destIt.set(srcIt.next());

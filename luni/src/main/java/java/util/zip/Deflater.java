@@ -18,22 +18,38 @@
 package java.util.zip;
 
 import dalvik.system.CloseGuard;
+import java.util.Arrays;
 import libcore.base.EmptyArray;
 
 /**
  * This class compresses data using the <i>DEFLATE</i> algorithm (see <a
  * href="http://www.gzip.org/algorithm.txt">specification</a>).
- * <p>
- * Basically this class is part of the API to the stream based ZLIB compression
- * library and is used as such by {@code DeflaterOutputStream} and its
- * descendants.
- * <p>
- * The typical usage of a {@code Deflater} instance outside this package
- * consists of a specific call to one of its constructors before being passed to
- * an instance of {@code DeflaterOutputStream}.
  *
- * @see DeflaterOutputStream
- * @see Inflater
+ * <p>It is usually more convenient to use {@link DeflaterOutputStream}.
+ *
+ * <p>To compress an in-memory {@code byte[]} to another in-memory {@code byte[]} manually:
+ * <pre>
+ *     byte[] originalBytes = ...
+ *
+ *     Deflater deflater = new Deflater();
+ *     deflater.setInput(originalBytes);
+ *     deflater.finish();
+ *
+ *     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+ *     byte[] buf = new byte[8192];
+ *     while (!deflater.finished()) {
+ *         int byteCount = deflater.deflate(buf);
+ *         baos.write(buf, 0, byteCount);
+ *     }
+ *     deflater.end();
+ *
+ *     byte[] compressedBytes = baos.toByteArray();
+ * </pre>
+ * <p>In situations where you don't have all the input in one array (or have so much
+ * input that you want to feed it to the deflater in chunks), it's possible to call
+ * {@link #setInput} repeatedly, but you're much better off using {@link DeflaterOutputStream}
+ * to handle all this for you. {@link DeflaterOutputStream} also helps minimize memory
+ * requirements&nbsp;&mdash; the sample code above is very expensive.
  */
 public class Deflater {
 
@@ -48,32 +64,32 @@ public class Deflater {
     public static final int BEST_SPEED = 1;
 
     /**
-     * Usage of the default compression level.
+     * The default compression level.
      */
     public static final int DEFAULT_COMPRESSION = -1;
 
     /**
-     * Default value for compression strategy.
+     * The default compression strategy.
      */
     public static final int DEFAULT_STRATEGY = 0;
 
     /**
-     * Default value for compression method.
+     * The default compression method.
      */
     public static final int DEFLATED = 8;
 
     /**
-     * Possible value for compression strategy.
+     * A compression strategy.
      */
     public static final int FILTERED = 1;
 
     /**
-     * Possible value for compression strategy.
+     * A compression strategy.
      */
     public static final int HUFFMAN_ONLY = 2;
 
     /**
-     * Possible value for compression level.
+     * A compression level.
      */
     public static final int NO_COMPRESSION = 0;
 
@@ -106,11 +122,11 @@ public class Deflater {
     public static final int FULL_FLUSH = 3;
 
     /**
-     * Flush buffers and mark the end of the datastream.
+     * Flush buffers and mark the end of the data stream.
      */
     private static final int FINISH = 4;
 
-    private int flushParm = NO_FLUSH;
+    private int flushStyle = NO_FLUSH;
 
     private boolean finished;
 
@@ -129,20 +145,20 @@ public class Deflater {
     private final CloseGuard guard = CloseGuard.get();
 
     /**
-     * Constructs a new {@code Deflater} instance with default compression
-     * level. The strategy can be specified with {@link #setStrategy}, only. A
-     * header is added to the output by default; use constructor {@code
-     * Deflater(level, boolean)} if you need to omit the header.
+     * Constructs a new {@code Deflater} instance using the default compression
+     * level. The strategy can be specified with {@link #setStrategy}. A
+     * header is added to the output by default; use {@link
+     * #Deflater(int, boolean)} if you need to omit the header.
      */
     public Deflater() {
         this(DEFAULT_COMPRESSION, false);
     }
 
     /**
-     * Constructs a new {@code Deflater} instance with a specific compression
-     * level. The strategy can be specified with {@code setStrategy}, only. A
-     * header is added to the output by default; use
-     * {@code Deflater(level, boolean)} if you need to omit the header.
+     * Constructs a new {@code Deflater} instance using compression
+     * level {@code level}. The strategy can be specified with {@link #setStrategy}.
+     * A header is added to the output by default; use
+     * {@link #Deflater(int, boolean)} if you need to omit the header.
      *
      * @param level
      *            the compression level in the range between 0 and 9.
@@ -153,9 +169,9 @@ public class Deflater {
 
     /**
      * Constructs a new {@code Deflater} instance with a specific compression
-     * level. If noHeader is passed as true no ZLib header is added to the
+     * level. If {@code noHeader} is true, no ZLIB header is added to the
      * output. In a ZIP archive every entry (compressed file) comes with such a
-     * header. The strategy can be specified with the setStrategy method, only.
+     * header. The strategy can be specified using {@link #setStrategy}.
      *
      * @param level
      *            the compression level in the range between 0 and 9.
@@ -173,83 +189,63 @@ public class Deflater {
     }
 
     /**
-     * Deflates the data (previously passed to {@code setInput}) into the
+     * Deflates the data (previously passed to {@link #setInput}) into the
      * supplied buffer.
      *
-     * @param buf
-     *            buffer to write compressed data to.
      * @return number of bytes of compressed data written to {@code buf}.
-     * @see #deflate(byte[], int, int)
      */
     public int deflate(byte[] buf) {
         return deflate(buf, 0, buf.length);
     }
 
     /**
-     * Deflates data (previously passed to {@code setInput}) into a specific
+     * Deflates data (previously passed to {@link #setInput}) into a specific
      * region within the supplied buffer.
      *
-     * @param buf
-     *            the buffer to write compressed data to.
-     * @param off
-     *            the offset within {@code buf} at which to start writing to.
-     * @param nbytes
-     *            maximum number of bytes of compressed data to be written.
      * @return the number of bytes of compressed data written to {@code buf}.
      */
-    public synchronized int deflate(byte[] buf, int off, int nbytes) {
-        return deflateImpl(buf, off, nbytes, flushParm);
+    public synchronized int deflate(byte[] buf, int offset, int byteCount) {
+        return deflateImpl(buf, offset, byteCount, flushStyle);
     }
 
     /**
-     * Deflates data (previously passed to {@code setInput}) into a specific
+     * Deflates data (previously passed to {@link #setInput}) into a specific
      * region within the supplied buffer, optionally flushing the input buffer.
      *
-     * @param buf the buffer to write compressed data to.
-     * @param off the offset within {@code buf} at which to start writing to.
-     * @param nbytes maximum number of bytes of compressed data to be written.
-     * @param flush one of {@link #NO_FLUSH}, {@link #SYNC_FLUSH} or
-     *      {@link #FULL_FLUSH}.
+     * @param flush one of {@link #NO_FLUSH}, {@link #SYNC_FLUSH} or {@link #FULL_FLUSH}.
      * @return the number of compressed bytes written to {@code buf}. If this
-     *      equals {@code nbytes}, the number of bytes of input to be flushed
+     *      equals {@code byteCount}, the number of bytes of input to be flushed
      *      may have exceeded the output buffer's capacity. In this case,
      *      finishing a flush will require the output buffer to be drained
      *      and additional calls to {@link #deflate} to be made.
      * @hide
      * @since 1.7
      */
-    public synchronized int deflate(byte[] buf, int off, int nbytes, int flush) {
+    public synchronized int deflate(byte[] buf, int offset, int byteCount, int flush) {
         if (flush != NO_FLUSH && flush != SYNC_FLUSH && flush != FULL_FLUSH) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad flush value: " + flush);
         }
-        return deflateImpl(buf, off, nbytes, flush);
+        return deflateImpl(buf, offset, byteCount, flush);
     }
 
-    private synchronized int deflateImpl(
-            byte[] buf, int off, int nbytes, int flush) {
+    private synchronized int deflateImpl(byte[] buf, int offset, int byteCount, int flush) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        if (off > buf.length || nbytes < 0 || off < 0 || buf.length - off < nbytes) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
         if (inputBuffer == null) {
             setInput(EmptyArray.BYTE);
         }
-        return deflateImpl(buf, off, nbytes, streamHandle, flush);
+        return deflateImpl(buf, offset, byteCount, streamHandle, flush);
     }
 
-    private synchronized native int deflateImpl(byte[] buf, int off,
-            int nbytes, long handle, int flushParm1);
-
-    private synchronized native void endImpl(long handle);
+    private native int deflateImpl(byte[] buf, int offset, int byteCount, long handle, int flushStyle);
 
     /**
      * Frees all resources held onto by this deflating algorithm. Any unused
-     * input or output is discarded. While this method is used by {@code
-     * finalize()}, it can be called explicitly in order to free native
-     * resources before the next GC cycle. After {@code end()} was called other
-     * methods will typically throw an {@code IllegalStateException}.
+     * input or output is discarded. This method should be called explicitly in
+     * order to free native resources as soon as possible. After {@code end()} is
+     * called, other methods will typically throw {@code IllegalStateException}.
      */
     public synchronized void end() {
         guard.close();
@@ -263,6 +259,8 @@ public class Deflater {
             streamHandle = -1;
         }
     }
+
+    private native void endImpl(long handle);
 
     @Override protected void finalize() {
         try {
@@ -289,28 +287,18 @@ public class Deflater {
      * @see #finished
      */
     public synchronized void finish() {
-        flushParm = FINISH;
+        flushStyle = FINISH;
     }
 
     /**
-     * Returns whether or not all provided data has been successfully
-     * compressed.
-     *
-     * @return true if all data has been compressed, false otherwise.
+     * Returns true if all provided data has been successfully compressed.
      */
     public synchronized boolean finished() {
         return finished;
     }
 
     /**
-     * Returns the Adler32 checksum of uncompressed data currently read. If a
-     * preset dictionary is used getAdler() will return the Adler32 checksum of
-     * the dictionary used.
-     *
-     * @return the Adler32 checksum of uncompressed data or preset dictionary if
-     *         used.
-     * @see #setDictionary(byte[])
-     * @see #setDictionary(byte[], int, int)
+     * Returns the {@link Adler32} checksum of the uncompressed data read so far.
      */
     public synchronized int getAdler() {
         if (streamHandle == -1) {
@@ -320,50 +308,38 @@ public class Deflater {
         return getAdlerImpl(streamHandle);
     }
 
-    private synchronized native int getAdlerImpl(long handle);
+    private native int getAdlerImpl(long handle);
 
     /**
-     * Returns the total number of bytes of input consumed by the {@code Deflater}.
-     *
-     * @return number of bytes of input read.
+     * Returns the total number of bytes of input read by this {@code Deflater}. This
+     * method is limited to 32 bits; use {@link #getBytesRead} instead.
      */
     public synchronized int getTotalIn() {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-
         return (int) getTotalInImpl(streamHandle);
     }
 
-    private synchronized native long getTotalInImpl(long handle);
+    private native long getTotalInImpl(long handle);
 
     /**
-     * Returns the total number of compressed bytes output by this {@code Deflater}.
-     *
-     * @return number of compressed bytes output.
+     * Returns the total number of bytes written to the output buffer by this {@code
+     * Deflater}. The method is limited to 32 bits; use {@link #getBytesWritten} instead.
      */
     public synchronized int getTotalOut() {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-
         return (int) getTotalOutImpl(streamHandle);
     }
 
-    private synchronized native long getTotalOutImpl(long handle);
+    private native long getTotalOutImpl(long handle);
 
     /**
-     * Counterpart to setInput(). Indicates whether or not all bytes of
-     * uncompressed input have been consumed by the {@code Deflater}. If needsInput()
-     * returns true setInput() must be called before deflation can continue. If
-     * all bytes of uncompressed data have been provided to the {@code Deflater}
-     * finish() must be called to ensure the compressed data is output.
-     *
-     * @return {@code true} if input is required for deflation to continue,
-     *         {@code false} otherwise.
-     * @see #finished()
-     * @see #setInput(byte[])
-     * @see #setInput(byte[], int, int)
+     * Returns true if {@link #setInput} must be called before deflation can continue.
+     * If all uncompressed data has been provided to the {@code Deflater},
+     * {@link #finish} must be called to ensure the compressed data is output.
      */
     public synchronized boolean needsInput() {
         if (inputBuffer == null) {
@@ -375,74 +351,50 @@ public class Deflater {
     /**
      * Resets the {@code Deflater} to accept new input without affecting any
      * previously made settings for the compression strategy or level. This
-     * operation <i>must</i> be called after {@code finished()} returns
-     * {@code true} if the {@code Deflater} is to be reused.
-     *
-     * @see #finished
+     * operation <i>must</i> be called after {@link #finished} returns
+     * true if the {@code Deflater} is to be reused.
      */
     public synchronized void reset() {
         if (streamHandle == -1) {
             throw new NullPointerException();
         }
-
-        flushParm = NO_FLUSH;
+        flushStyle = NO_FLUSH;
         finished = false;
         resetImpl(streamHandle);
         inputBuffer = null;
     }
 
-    private synchronized native void resetImpl(long handle);
+    private native void resetImpl(long handle);
 
     /**
      * Sets the dictionary to be used for compression by this {@code Deflater}.
-     * setDictionary() can only be called if this {@code Deflater} supports the writing
-     * of ZLIB headers. This is the default behaviour but can be overridden
-     * using {@code Deflater(int, boolean)}.
-     *
-     * @param buf
-     *            the buffer containing the dictionary data bytes.
-     * @see Deflater#Deflater(int, boolean)
+     * This method can only be called if this {@code Deflater} supports the writing
+     * of ZLIB headers. This is the default, but can be overridden
+     * using {@link #Deflater(int, boolean)}.
      */
-    public void setDictionary(byte[] buf) {
-        setDictionary(buf, 0, buf.length);
+    public void setDictionary(byte[] dictionary) {
+        setDictionary(dictionary, 0, dictionary.length);
     }
 
     /**
      * Sets the dictionary to be used for compression by this {@code Deflater}.
-     * setDictionary() can only be called if this {@code Deflater} supports the writing
-     * of ZLIB headers. This is the default behaviour but can be overridden
-     * using {@code Deflater(int, boolean)}.
-     *
-     * @param buf
-     *            the buffer containing the dictionary data bytes.
-     * @param off
-     *            the offset of the data.
-     * @param nbytes
-     *            the length of the data.
-     * @see Deflater#Deflater(int, boolean)
+     * This method can only be called if this {@code Deflater} supports the writing
+     * of ZLIB headers. This is the default, but can be overridden
+     * using {@link #Deflater(int, boolean)}.
      */
-    public synchronized void setDictionary(byte[] buf, int off, int nbytes) {
+    public synchronized void setDictionary(byte[] buf, int offset, int byteCount) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        // avoid int overflow, check null buf
-        if (off <= buf.length && nbytes >= 0 && off >= 0
-                && buf.length - off >= nbytes) {
-            setDictionaryImpl(buf, off, nbytes, streamHandle);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
+        setDictionaryImpl(buf, offset, byteCount, streamHandle);
     }
 
-    private synchronized native void setDictionaryImpl(byte[] buf, int off,
-            int nbytes, long handle);
+    private native void setDictionaryImpl(byte[] buf, int offset, int byteCount, long handle);
 
     /**
      * Sets the input buffer the {@code Deflater} will use to extract uncompressed bytes
      * for later compression.
-     *
-     * @param buf
-     *            the buffer.
      */
     public void setInput(byte[] buf) {
         setInput(buf, 0, buf.length);
@@ -450,89 +402,66 @@ public class Deflater {
 
     /**
      * Sets the input buffer the {@code Deflater} will use to extract uncompressed bytes
-     * for later compression. Input will be taken from the buffer region
-     * starting at off and ending at nbytes - 1.
-     *
-     * @param buf
-     *            the buffer containing the input data bytes.
-     * @param off
-     *            the offset of the data.
-     * @param nbytes
-     *            the length of the data.
+     * for later compression.
      */
-    public synchronized void setInput(byte[] buf, int off, int nbytes) {
+    public synchronized void setInput(byte[] buf, int offset, int byteCount) {
         if (streamHandle == -1) {
             throw new IllegalStateException();
         }
-        // avoid int overflow, check null buf
-        if (off <= buf.length && nbytes >= 0 && off >= 0
-                && buf.length - off >= nbytes) {
-            inLength = nbytes;
-            inRead = 0;
-            if (inputBuffer == null) {
-                setLevelsImpl(compressLevel, strategy, streamHandle);
-            }
-            inputBuffer = buf;
-            setInputImpl(buf, off, nbytes, streamHandle);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
+        Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
+        inLength = byteCount;
+        inRead = 0;
+        if (inputBuffer == null) {
+            setLevelsImpl(compressLevel, strategy, streamHandle);
         }
+        inputBuffer = buf;
+        setInputImpl(buf, offset, byteCount, streamHandle);
     }
 
-    private synchronized native void setLevelsImpl(int level, int strategy,
-            long handle);
+    private native void setLevelsImpl(int level, int strategy, long handle);
 
-    private synchronized native void setInputImpl(byte[] buf, int off,
-            int nbytes, long handle);
+    private native void setInputImpl(byte[] buf, int offset, int byteCount, long handle);
 
     /**
      * Sets the compression level to be used when compressing data. The
      * compression level must be a value between 0 and 9. This value must be set
-     * prior to calling setInput().
-     *
-     * @param level
-     *            compression level to use
+     * prior to calling {@link #setInput}.
      * @exception IllegalArgumentException
      *                If the compression level is invalid.
      */
     public synchronized void setLevel(int level) {
         if (level < DEFAULT_COMPRESSION || level > BEST_COMPRESSION) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad level: " + level);
         }
         if (inputBuffer != null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("setLevel cannot be called after setInput");
         }
         compressLevel = level;
     }
 
     /**
      * Sets the compression strategy to be used. The strategy must be one of
-     * FILTERED, HUFFMAN_ONLY or DEFAULT_STRATEGY.This value must be set prior
-     * to calling setInput().
+     * FILTERED, HUFFMAN_ONLY or DEFAULT_STRATEGY. This value must be set prior
+     * to calling {@link #setInput}.
      *
-     * @param strategy
-     *            compression strategy to use
      * @exception IllegalArgumentException
      *                If the strategy specified is not one of FILTERED,
      *                HUFFMAN_ONLY or DEFAULT_STRATEGY.
      */
     public synchronized void setStrategy(int strategy) {
         if (strategy < DEFAULT_STRATEGY || strategy > HUFFMAN_ONLY) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad strategy: " + strategy);
         }
         if (inputBuffer != null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("setStrategy cannot be called after setInput");
         }
         this.strategy = strategy;
     }
 
     /**
-     * Returns a long int of total number of bytes read by the {@code Deflater}. This
-     * method performs the same as {@code getTotalIn} except it returns a long value
-     * instead of an integer
-     *
-     * @see #getTotalIn()
-     * @return total number of bytes read by {@code Deflater}.
+     * Returns the total number of bytes read by the {@code Deflater}. This
+     * method is the same as {@link #getTotalIn} except that it returns a
+     * {@code long} value instead of an integer.
      */
     public synchronized long getBytesRead() {
         // Throw NPE here
@@ -543,12 +472,9 @@ public class Deflater {
     }
 
     /**
-     * Returns a long int of total number of bytes of read by the {@code Deflater}. This
-     * method performs the same as {@code getTotalOut} except it returns a long
-     * value instead of an integer
-     *
-     * @see #getTotalOut()
-     * @return bytes exactly write by {@code Deflater}
+     * Returns a the total number of bytes written by this {@code Deflater}. This
+     * method is the same as {@code getTotalOut} except it returns a
+     * {@code long} value instead of an integer.
      */
     public synchronized long getBytesWritten() {
         // Throw NPE here

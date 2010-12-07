@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link InputStream} that reads bytes from a {@code String} in
  * a sequential manner.
@@ -101,14 +103,7 @@ public class StringBufferInputStream extends InputStream {
         if (buffer == null) {
             throw new NullPointerException("buffer == null");
         }
-        // avoid int overflow
-        if (offset < 0 || offset > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || length > buffer.length - offset) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-        }
-
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
         if (length == 0) {
             return 0;
         }

@@ -19,6 +19,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CacheRequest;
+import java.util.Arrays;
 
 /**
  * An HTTP body with a fixed length specified in advance.
@@ -36,7 +37,7 @@ final class FixedLengthInputStream extends AbstractHttpInputStream {
     }
 
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {
-        checkBounds(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         checkNotClosed();
         if (bytesRemaining == 0) {
             return -1;

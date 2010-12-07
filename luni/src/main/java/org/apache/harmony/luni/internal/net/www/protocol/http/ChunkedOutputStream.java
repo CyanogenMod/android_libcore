@@ -19,6 +19,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * An HTTP body with alternating chunk sizes and chunk bodies. Chunks are
@@ -62,7 +63,7 @@ final class ChunkedOutputStream extends AbstractHttpOutputStream {
     @Override public synchronized void write(byte[] buffer, int offset, int count)
             throws IOException {
         checkNotClosed();
-        checkBounds(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
 
         while (count > 0) {
             int numBytesWritten;

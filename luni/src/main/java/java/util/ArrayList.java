@@ -247,10 +247,12 @@ public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializ
         return true;
     }
 
-    /** This method was extracted to encourage VM to inline callers. */
+    /**
+     * This method was extracted to encourage VM to inline callers.
+     * TODO: when we have a VM that can actually inline, move the test in here too!
+     */
     private static void throwIndexOutOfBoundsException(int index, int size) {
-        throw new IndexOutOfBoundsException("Invalid index " + index
-                + ", size is " + size);
+        throw new IndexOutOfBoundsException("Invalid index " + index + ", size is " + size);
     }
 
     /**

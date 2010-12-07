@@ -240,7 +240,7 @@ public abstract class Transformer {
      *
      * <p>If any of the argument keys are not recognized and are not
      * namespace qualified, the property will be ignored and not returned.
-     * In other words the behaviour is not orthogonal with
+     * In other words the behavior is not orthogonal with
      * {@link #setOutputProperties setOutputProperties}.</p>
      *
      * @return A copy of the set of output properties in effect for

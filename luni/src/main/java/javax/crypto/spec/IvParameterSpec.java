@@ -22,6 +22,7 @@
 package javax.crypto.spec;
 
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
 
 /**
  * The algorithm parameter specification for an <i>initialization vector</i>.
@@ -48,32 +49,24 @@ public class IvParameterSpec implements AlgorithmParameterSpec {
     }
 
     /**
-     * Creates a new <code>IvParameterSpec</code> instance with <code>len</code>
+     * Creates a new <code>IvParameterSpec</code> instance with <code>byteCount</code>
      * bytes from the specified buffer <code>iv</code> starting at
      * <code>offset</code>.
      *
-     * @param iv
-     *            the buffer used as initialization vector.
-     * @param offset
-     *            the offset to start in the buffer.
-     * @param len
-     *            the length of the data.
      * @throws IllegalArgumentException
      *             if the specified buffer is null or <code>offset</code> and
-     *             <code>len</code> do not specify a valid chunk in the
+     *             <code>byteCount</code> do not specify a valid chunk in the
      *             specified buffer.
      * @throws ArrayIndexOutOfBoundsException
-     *             if <code>offset</code> or <code>len</code> are negative.
+     *             if <code>offset</code> or <code>byteCount</code> are negative.
      */
-    public IvParameterSpec(byte[] iv, int offset, int len) {
-        if ((iv == null) || (iv.length - offset < len)) {
+    public IvParameterSpec(byte[] iv, int offset, int byteCount) {
+        if ((iv == null) || (iv.length - offset < byteCount)) {
             throw new IllegalArgumentException();
         }
-        if (offset < 0 || len < 0) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        this.iv = new byte[len];
-        System.arraycopy(iv, offset, this.iv, 0, len);
+        Arrays.checkOffsetAndCount(iv.length, offset, byteCount);
+        this.iv = new byte[byteCount];
+        System.arraycopy(iv, offset, this.iv, 0, byteCount);
     }
 
     /**

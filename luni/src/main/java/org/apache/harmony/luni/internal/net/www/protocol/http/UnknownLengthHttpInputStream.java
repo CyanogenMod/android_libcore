@@ -19,6 +19,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CacheRequest;
+import java.util.Arrays;
 
 /**
  * An HTTP payload terminated by the end of the socket stream.
@@ -32,7 +33,7 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
     }
 
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {
-        checkBounds(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         checkNotClosed();
         if (in == null) {
             return -1;

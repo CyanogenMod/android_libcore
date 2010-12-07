@@ -435,7 +435,7 @@ abstract class FileChannelImpl extends FileChannel {
                 /*
                  * FIXME: currently the port library always modifies the
                  * position to given size. not sure it is a bug or intended
-                 * behaviour, so I always reset the position to proper value as
+                 * behavior, so I always reset the position to proper value as
                  * Java Spec.
                  */
                 position(position > size ? size : position);

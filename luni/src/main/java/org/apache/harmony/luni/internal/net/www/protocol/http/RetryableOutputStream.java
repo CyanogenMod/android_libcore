@@ -19,6 +19,7 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * An HTTP request body that's completely buffered in memory. This allows
@@ -53,7 +54,7 @@ final class RetryableOutputStream extends AbstractHttpOutputStream {
     @Override public synchronized void write(byte[] buffer, int offset, int count)
             throws IOException {
         checkNotClosed();
-        checkBounds(buffer, offset, count);
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         if (limit != -1 && content.size() > limit - count) {
             throw new IOException("exceeded content-length limit of " + limit + " bytes");
         }

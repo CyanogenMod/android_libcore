@@ -56,13 +56,6 @@ abstract class AbstractHttpInputStream extends InputStream {
         return count == -1 ? -1 : buffer[0] & 0xff;
     }
 
-    protected final void checkBounds(byte[] buffer, int offset, int count) {
-        if (offset < 0 || offset > buffer.length || count < 0 || buffer.length - offset < count) {
-            throw new ArrayIndexOutOfBoundsException(
-                    "offset=" + offset + ", buffer.length=" + buffer.length + ", count=" + count);
-        }
-    }
-
     protected final void checkNotClosed() throws IOException {
         if (closed) {
             throw new IOException("stream closed");

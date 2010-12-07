@@ -98,7 +98,7 @@ public class ByteArrayInputStream extends InputStream {
      */
     @Override
     public void close() throws IOException {
-        // Do nothing on close, this matches JDK behaviour.
+        // Do nothing on close, this matches JDK behavior.
     }
 
     /**
