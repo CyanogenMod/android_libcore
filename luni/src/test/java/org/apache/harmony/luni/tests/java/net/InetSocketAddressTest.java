@@ -297,10 +297,10 @@ public class InetSocketAddressTest extends TestCase {
         args = {}
     )
     public void testSerializationCompatibility() throws Exception {
-
+        InetAddress localhost = InetAddress.getByAddress("Localhost", new byte[]{127, 0, 0, 1});
         Object[] testCases = {
                 InetSocketAddress.createUnresolved("badhost", 1000), // unresolved
-                new InetSocketAddress("Localhost", 1000) };
+                new InetSocketAddress(localhost, 1000) };
 
         SerializationTest.verifyGolden(this, testCases, COMPARATOR);
     }
@@ -311,15 +311,16 @@ public class InetSocketAddressTest extends TestCase {
         method = "equals",
         args = {java.lang.Object.class}
     )
-    public void test_equals() {
+    public void test_equals() throws Exception {
         InetSocketAddress isa1 = new InetSocketAddress(1);
         InetSocketAddress isa2 = new InetSocketAddress(2);
         assertFalse(isa1.equals(isa2));
         InetSocketAddress isa3 = new InetSocketAddress(1);
         assertTrue(isa1.equals(isa3));
 
-        isa1 = new InetSocketAddress("localhost", 80);
-        isa2 = new InetSocketAddress("127.0.0.1", 80);
+        InetAddress localhost = InetAddress.getByName("localhost");
+        isa1 = new InetSocketAddress(localhost.getHostName(), 80);
+        isa2 = new InetSocketAddress(localhost.getHostAddress(), 80);
         assertTrue(isa1.equals(isa2));
     }
 
@@ -358,9 +359,10 @@ public class InetSocketAddressTest extends TestCase {
         method = "hashCode",
         args = {}
     )
-    public void test_hashCode() {
-        InetSocketAddress isa1 = new InetSocketAddress("localhost", 8080);
-        InetSocketAddress isa2 = new InetSocketAddress("127.0.0.1", 8080);
+    public void test_hashCode() throws Exception {
+        InetAddress localhost = InetAddress.getByName("localhost");
+        InetSocketAddress isa1 = new InetSocketAddress(localhost.getHostName(), 8080);
+        InetSocketAddress isa2 = new InetSocketAddress(localhost.getHostAddress(), 8080);
         assertTrue(isa1.hashCode() == isa2.hashCode());
 
         InetSocketAddress isa3 = new InetSocketAddress("0.0.0.0", 8080);
