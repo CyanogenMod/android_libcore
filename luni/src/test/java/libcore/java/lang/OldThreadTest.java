@@ -301,7 +301,7 @@ public class OldThreadTest extends junit.framework.TestCase {
     }
 
 
-    public void test_getState() {
+    public void test_getState() throws InterruptedException {
         Thread.State state = Thread.currentThread().getState();
         assertNotNull(state);
         assertEquals(Thread.State.RUNNABLE, state);
@@ -344,15 +344,11 @@ public class OldThreadTest extends junit.framework.TestCase {
         };
         assertEquals(Thread.State.NEW, th.getState());
         th.start();
-        try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            fail("InterruptedException was thrown.");
-        }
+        sem.acquire();
         assertEquals(Thread.State.RUNNABLE, th.getState());
         run = false;
 
-        while (!sem.hasQueuedThreads()){}
+        Thread.sleep(200);
 
         assertEquals(Thread.State.WAITING, th.getState());
         synchronized (lock) {
@@ -362,22 +358,14 @@ public class OldThreadTest extends junit.framework.TestCase {
             assertEquals(Thread.State.BLOCKED, th.getState());
         }
 
-        try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            fail("InterruptedException was thrown.");
-        }
+        sem.acquire();
 
         synchronized (lock) {
             assertEquals(Thread.State.TIMED_WAITING, th.getState());
             th.interrupt();
         }
 
-        try {
-            th.join(1000);
-        } catch(InterruptedException ie) {
-            fail("InterruptedException was thrown.");
-        }
+        th.join(1000);
         assertEquals(Thread.State.TERMINATED, th.getState());
     }
     volatile boolean run = true;
