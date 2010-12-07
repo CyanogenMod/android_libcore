@@ -95,46 +95,39 @@ static jint Inflater_setFileInputImpl(JNIEnv* env, jobject, jobject javaFileDesc
 }
 
 static jint Inflater_inflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int off, int len, jlong handle) {
-    jfieldID fid2 = 0;
-
-    /* We need to get the number of bytes already read */
-    jfieldID fid = gCachedFields.inRead;
-    jint inBytes = env->GetIntField(recv, fid);
-
     NativeZipStream* stream = toNativeZipStream(handle);
-    stream->stream.avail_out = len;
-    jint sin = stream->stream.total_in;
-    jint sout = stream->stream.total_out;
     ScopedByteArrayRW out(env, buf);
     if (out.get() == NULL) {
         return -1;
     }
     stream->stream.next_out = reinterpret_cast<Bytef*>(out.get() + off);
+    stream->stream.avail_out = len;
+
+    Bytef* initialNextIn = stream->stream.next_in;
+    Bytef* initialNextOut = stream->stream.next_out;
+
     int err = inflate(&stream->stream, Z_SYNC_FLUSH);
     if (err != Z_OK) {
         if (err == Z_STREAM_ERROR) {
             return 0;
         }
-        if (err == Z_STREAM_END || err == Z_NEED_DICT) {
-            env->SetIntField(recv, fid, (jint) stream->stream.total_in - sin + inBytes);
-            if (err == Z_STREAM_END) {
-                fid2 = gCachedFields.finished;
-            } else {
-                fid2 = gCachedFields.needsDictionary;
-            }
-            env->SetBooleanField(recv, fid2, JNI_TRUE);
-            return stream->stream.total_out - sout;
+        if (err == Z_STREAM_END) {
+            env->SetBooleanField(recv, gCachedFields.finished, JNI_TRUE);
+        } else if (err == Z_NEED_DICT) {
+            env->SetBooleanField(recv, gCachedFields.needsDictionary, JNI_TRUE);
         } else {
             throwExceptionForZlibError(env, "java/util/zip/DataFormatException", err);
             return -1;
         }
     }
 
-    /* Need to update the number of input bytes read. Is there a better way
-     * (Maybe global the fid then delete when end is called)?
-     */
-    env->SetIntField(recv, fid, (jint) stream->stream.total_in - sin + inBytes);
-    return stream->stream.total_out - sout;
+    jint bytesRead = stream->stream.next_in - initialNextIn;
+    jint bytesWritten = stream->stream.next_out - initialNextOut;
+
+    jint inReadValue = env->GetIntField(recv, gCachedFields.inRead);
+    inReadValue += bytesRead;
+    env->SetIntField(recv, gCachedFields.inRead, inReadValue);
+    return bytesWritten;
 }
 
 static jint Inflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
