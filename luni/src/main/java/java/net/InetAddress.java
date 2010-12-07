@@ -999,15 +999,15 @@ public class InetAddress implements Serializable {
             throw new UnknownHostException("ipAddress == null");
         }
         if (ipAddress.length == 4) {
-            return new Inet4Address(ipAddress.clone(), null);
+            return new Inet4Address(ipAddress.clone(), hostName);
         } else if (ipAddress.length == 16) {
             // First check to see if the address is an IPv6-mapped
             // IPv4 address. If it is, then we can make it a IPv4
             // address, otherwise, we'll create an IPv6 address.
             if (isIPv4MappedAddress(ipAddress)) {
-                return new Inet4Address(ipv4MappedToIPv4(ipAddress), null);
+                return new Inet4Address(ipv4MappedToIPv4(ipAddress), hostName);
             } else {
-                return new Inet6Address(ipAddress.clone(), null, scope_id);
+                return new Inet6Address(ipAddress.clone(), hostName, scope_id);
             }
         } else {
             throw badAddressLength(ipAddress);

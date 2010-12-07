@@ -17,20 +17,27 @@
 
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-
 import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
 @TestTargetClass(Inet4Address.class)
 public class Inet4AddressTest extends junit.framework.TestCase {
+
+    private Inet4Address ipv4Localhost;
+    private Inet4Address ipv4LoopbackIp;
+
+    @Override protected void setUp() throws Exception {
+        super.setUp();
+        byte[] ipv4Loopback = { 127, 0, 0, 1 };
+        ipv4LoopbackIp = (Inet4Address) InetAddress.getByAddress(ipv4Loopback);
+        ipv4Localhost = (Inet4Address) InetAddress.getByAddress("localhost", ipv4Loopback);
+    }
 
     /**
      * @tests java.net.Inet4Address#isMulticastAddress()
@@ -50,17 +57,17 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "224.0.0.0"; // a multicast addr 1110 = 224-239
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("Multicast address " + addrName + " not detected.", addr
                     .isMulticastAddress());
 
             addrName = "239.255.255.255"; // a multicast addr 1110 = 224-239
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("Multicast address " + addrName + " not detected.", addr
                     .isMulticastAddress());
 
             addrName = "42.42.42.42"; // a non-multicast address
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("Non multicast address " + addrName
                     + " reporting as a multicast address.", !addr
                     .isMulticastAddress());
@@ -83,7 +90,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "0.0.0.0";
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("ANY address " + addrName + " not detected.", addr
                     .isAnyLocalAddress());
         } catch (Exception e) {
@@ -106,19 +113,19 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "127.0.0.0"; // a loopback address should be 127.d.d.d
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = ipv4LoopbackIp;
             assertTrue("Loopback address " + addrName + " not detected.", addr
                     .isLoopbackAddress());
 
             addrName = "127.42.42.42"; // a loopback address should be
             // 127.d.d.d
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("Loopback address " + addrName + " not detected.", addr
                     .isLoopbackAddress());
 
             addrName = "42.42.42.42"; // a loopback address should be
             // 127.d.d.d
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("Address incorrectly " + addrName
                     + " detected as a loopback address.", !addr
                     .isLoopbackAddress());
@@ -146,7 +153,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
             // We'll test one to ensure we get "false"
 
             addrName = "42.42.42.42";
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 address " + addrName
                     + " incorrectly reporting as a link local address.", !addr
                     .isLinkLocalAddress());
@@ -171,7 +178,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
             // We'll test one to ensure we get "false"
 
             addrName = "42.42.42.42";
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 address " + addrName
                     + " incorrectly reporting as a site local address.", !addr
                     .isSiteLocalAddress());
@@ -198,37 +205,37 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "224.0.0.0"; // a multicast addr 1110
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 link-local multicast address " + addrName
                     + " incorrectly identified as a global multicast address.",
                     !addr.isMCGlobal());
 
             addrName = "224.0.0.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 link-local multicast address " + addrName
                     + " incorrectly identified as a global multicast address.",
                     !addr.isMCGlobal());
 
             addrName = "224.0.1.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 global multicast address " + addrName
                     + " not identified as a global multicast address.", addr
                     .isMCGlobal());
 
             addrName = "238.255.255.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 global multicast address " + addrName
                     + " not identified as a global multicast address.", addr
                     .isMCGlobal());
 
             addrName = "239.0.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 reserved multicast address " + addrName
                     + " incorrectly identified as a global multicast address.",
                     !addr.isMCGlobal());
 
             addrName = "239.191.255.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 reserved multicast address " + addrName
                     + " incorrectly identified as a global multicast address.",
                     !addr.isMCGlobal());
@@ -255,7 +262,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "224.42.42.42"; // a multicast addr 1110 = 224
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 multicast address "
                             + addrName
@@ -263,7 +270,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCNodeLocal());
 
             addrName = "239.0.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 reserved multicast address "
                             + addrName
@@ -292,19 +299,19 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "224.0.0.0"; // a multicast addr 1110
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 link-local multicast address " + addrName
                     + " not identified as a link-local multicast address.",
                     addr.isMCLinkLocal());
 
             addrName = "224.0.0.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 link-local multicast address " + addrName
                     + " not identified as a link-local multicast address.",
                     addr.isMCLinkLocal());
 
             addrName = "224.0.1.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 global multicast address "
                             + addrName
@@ -312,7 +319,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCLinkLocal());
 
             addrName = "239.0.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 reserved multicast address "
                             + addrName
@@ -341,7 +348,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         String addrName = "";
         try {
             addrName = "240.0.0.0"; // a multicast addr 1110 = 224
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 multicast address "
                             + addrName
@@ -349,7 +356,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCSiteLocal());
 
             addrName = "239.0.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 reserved multicast address "
                             + addrName
@@ -357,19 +364,19 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCSiteLocal());
 
             addrName = "239.255.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 site-local multicast address " + addrName
                     + " not identified as a site-local multicast address.",
                     addr.isMCSiteLocal());
 
             addrName = "239.255.255.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 site-local multicast address " + addrName
                     + " not identified as a site-local multicast address.",
                     addr.isMCSiteLocal());
 
             addrName = "239.255.2.2"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 site-local multicast address " + addrName
                     + " not identified as a site-local multicast address.",
                     addr.isMCSiteLocal());
@@ -397,7 +404,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         try {
 
             addrName = "239.191.255.255"; // a multicast addr 1110
-            InetAddress addr = Inet4Address.getByName(addrName);
+            InetAddress addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 reserved multicast address "
                             + addrName
@@ -405,7 +412,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCOrgLocal());
 
             addrName = "239.252.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue(
                     "IPv4 site-local multicast address "
                             + addrName
@@ -413,13 +420,13 @@ public class Inet4AddressTest extends junit.framework.TestCase {
                     !addr.isMCOrgLocal());
 
             addrName = "239.192.0.0"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 org-local multicast address " + addrName
                     + " not identified as a org-local multicast address.", addr
                     .isMCOrgLocal());
 
             addrName = "239.195.255.255"; // a multicast addr 1110
-            addr = Inet4Address.getByName(addrName);
+            addr = InetAddress.getByName(addrName);
             assertTrue("IPv4 org-local multicast address " + addrName
                     + " not identified as a org-local multicast address.", addr
                     .isMCOrgLocal());
@@ -457,9 +464,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void testSerializationSelf() throws Exception {
-
-        SerializationTest.verifySelf(Inet4Address.getByName("localhost"),
-                COMPARATOR);
+        SerializationTest.verifySelf(ipv4LoopbackIp, COMPARATOR);
     }
 
     /**
@@ -472,9 +477,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void testSerializationCompatibility() throws Exception {
-
-        SerializationTest.verifyGolden(this, Inet4Address
-                .getByName("localhost"), COMPARATOR);
+        SerializationTest.verifyGolden(this, ipv4Localhost, COMPARATOR);
     }
 
     @TestTargetNew(
@@ -484,15 +487,13 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         args = {java.lang.Object.class}
     )
     public void test_equals() throws Exception {
-        InetAddress addr = Inet4Address.getByName("239.191.255.255");
+        InetAddress addr = InetAddress.getByName("239.191.255.255");
         assertTrue(addr.equals(addr));
-        InetAddress addr1 = Inet4Address.getByName("127.0.0.1");
-        InetAddress addr2 = Inet4Address.getByName("localhost");
-        assertTrue(addr1.equals(addr2));
-        assertFalse(addr.equals(addr1));
+        assertTrue(ipv4LoopbackIp.equals(ipv4Localhost));
+        assertFalse(addr.equals(ipv4LoopbackIp));
 
-        InetAddress addr3 = Inet4Address.getByName("127.0.0");
-        assertFalse(addr1.equals(addr3));
+        InetAddress addr3 = InetAddress.getByName("127.0.0");
+        assertFalse(ipv4LoopbackIp.equals(addr3));
     }
 
     @TestTargetNew(
@@ -502,22 +503,19 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_getHostAddress() throws Exception {
-        InetAddress addr = Inet4Address.getByName("localhost");
-        assertEquals("127.0.0.1", addr.getHostAddress());
+        assertEquals("127.0.0.1", ipv4Localhost.getHostAddress());
+        assertEquals("127.0.0.1", ipv4LoopbackIp.getHostAddress());
 
-        addr = Inet4Address.getByName("127.0.0.1");
-        assertEquals("127.0.0.1", addr.getHostAddress());
-
-        addr = Inet4Address.getByName("224.0.0.0");
+        InetAddress addr = InetAddress.getByName("224.0.0.0");
         assertEquals("224.0.0.0", addr.getHostAddress());
 
-        addr = Inet4Address.getByName("1");
+        addr = InetAddress.getByName("1");
         assertEquals("0.0.0.1", addr.getHostAddress());
 
-        addr = Inet4Address.getByName("1.1");
+        addr = InetAddress.getByName("1.1");
         assertEquals("1.0.0.1", addr.getHostAddress());
 
-        addr = Inet4Address.getByName("1.1.1");
+        addr = InetAddress.getByName("1.1.1");
         assertEquals("1.1.0.1", addr.getHostAddress());
     }
 
@@ -528,15 +526,13 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_hashCode() throws Exception {
-        InetAddress addr1 = Inet4Address.getByName("1.1");
-        InetAddress addr2 = Inet4Address.getByName("1.1.1");
+        InetAddress addr1 = InetAddress.getByName("1.1");
+        InetAddress addr2 = InetAddress.getByName("1.1.1");
         assertFalse(addr1.hashCode() == addr2.hashCode());
 
         addr2 = InetAddress.getByName("1.0.0.1");
         assertTrue(addr1.hashCode() == addr2.hashCode());
 
-        addr1 = Inet4Address.getByName("127.0.0.1");
-        addr2 = Inet4Address.getByName("localhost");
-        assertTrue(addr1.hashCode() == addr2.hashCode());
+        assertTrue(ipv4LoopbackIp.hashCode() == ipv4Localhost.hashCode());
     }
 }
