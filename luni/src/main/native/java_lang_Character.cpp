@@ -39,35 +39,13 @@ static jboolean Character_isMirroredImpl(JNIEnv*, jclass, jint codePoint) {
     return u_isMirrored(codePoint);
 }
 
-static jint Character_getNumericValueImpl(JNIEnv*, jclass, jint codePoint){
-    // The letters A-Z in their uppercase ('\u0041' through '\u005A'),
-    //                          lowercase ('\u0061' through '\u007A'),
-    //             and full width variant ('\uFF21' through '\uFF3A'
-    //                                 and '\uFF41' through '\uFF5A') forms
-    // have numeric values from 10 through 35. This is independent of the
-    // Unicode specification, which does not assign numeric values to these
-    // char values.
-    if (codePoint >= 0x41 && codePoint <= 0x5A) {
-        return codePoint - 0x37;
-    }
-    if (codePoint >= 0x61 && codePoint <= 0x7A) {
-        return codePoint - 0x57;
-    }
-    if (codePoint >= 0xFF21 && codePoint <= 0xFF3A) {
-        return codePoint - 0xFF17;
-    }
-    if (codePoint >= 0xFF41 && codePoint <= 0xFF5A) {
-        return codePoint - 0xFF37;
-    }
-
+static jint Character_getNumericValueImpl(JNIEnv*, jclass, jint codePoint) {
     double result = u_getNumericValue(codePoint);
-
     if (result == U_NO_NUMERIC_VALUE) {
         return -1;
     } else if (result < 0 || floor(result + 0.5) != result) {
         return -2;
     }
-
     return static_cast<jint>(result);
 }
 
@@ -80,10 +58,6 @@ static jboolean Character_isDigitImpl(JNIEnv*, jclass, jint codePoint) {
 }
 
 static jboolean Character_isIdentifierIgnorableImpl(JNIEnv*, jclass, jint codePoint) {
-    // Java also returns true for U+0085 Next Line (it omits U+0085 from whitespace ISO controls).
-    if(codePoint == 0x0085) {
-        return JNI_TRUE;
-    }
     return u_isIDIgnorable(codePoint);
 }
 
@@ -112,10 +86,6 @@ static jboolean Character_isUnicodeIdentifierStartImpl(JNIEnv*, jclass, jint cod
 }
 
 static jboolean Character_isWhitespaceImpl(JNIEnv*, jclass, jint codePoint) {
-    // Java omits U+0085
-    if(codePoint == 0x0085) {
-        return JNI_FALSE;
-    }
     return u_isWhitespace(codePoint);
 }
 
