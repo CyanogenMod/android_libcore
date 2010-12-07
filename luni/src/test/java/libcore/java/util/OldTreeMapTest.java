@@ -419,10 +419,20 @@ public class OldTreeMapTest extends junit.framework.TestCase {
 
         tm = new TreeMap();
         assertNull(tm.put(new Integer(1), new Object()));
+    }
 
-        // regression for Harmony-2474
+     /**
+      * Android's TreeMap requires every element to be comparable, even if
+      * there's no other element to compare it to. This is more strict than the
+      * RI. See Harmony-2474.
+      */
+    public void testRemoveNonComparableFromEmptyMap() {
         tm = new TreeMap();
-        tm.remove(o);
+        try {
+            tm.remove(new Object()); // succeeds on RI
+        } catch (ClassCastException expected) {
+            // expected on libcore only
+        }
     }
 
     /**
