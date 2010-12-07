@@ -126,7 +126,12 @@ public class Deflater {
      */
     private static final int FINISH = 4;
 
-    private int flushStyle = NO_FLUSH;
+    /**
+     * This ugly name is for RI compatibility, should code need to access this
+     * field via reflection if it's not able to use public API to choose what
+     * kind of flushing it gets.
+     */
+    private int flushParm = NO_FLUSH;
 
     private boolean finished;
 
@@ -205,7 +210,7 @@ public class Deflater {
      * @return the number of bytes of compressed data written to {@code buf}.
      */
     public synchronized int deflate(byte[] buf, int offset, int byteCount) {
-        return deflateImpl(buf, offset, byteCount, flushStyle);
+        return deflateImpl(buf, offset, byteCount, flushParm);
     }
 
     /**
@@ -237,7 +242,7 @@ public class Deflater {
         return deflateImpl(buf, offset, byteCount, streamHandle, flush);
     }
 
-    private native int deflateImpl(byte[] buf, int offset, int byteCount, long handle, int flushStyle);
+    private native int deflateImpl(byte[] buf, int offset, int byteCount, long handle, int flushParm);
 
     /**
      * Frees all resources held onto by this deflating algorithm. Any unused
@@ -285,7 +290,7 @@ public class Deflater {
      * @see #finished
      */
     public synchronized void finish() {
-        flushStyle = FINISH;
+        flushParm = FINISH;
     }
 
     /**
@@ -347,7 +352,7 @@ public class Deflater {
      */
     public synchronized void reset() {
         checkOpen();
-        flushStyle = NO_FLUSH;
+        flushParm = NO_FLUSH;
         finished = false;
         resetImpl(streamHandle);
         inputBuffer = null;
