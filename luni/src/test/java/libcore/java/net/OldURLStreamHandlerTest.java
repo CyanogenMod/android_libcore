@@ -17,6 +17,7 @@
 package libcore.java.net;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
@@ -76,9 +77,11 @@ public class OldURLStreamHandlerTest extends TestCase {
         }
     }
 
-    public void test_hostsEqualLjava_net_URLLjava_net_URL() throws MalformedURLException {
+    public void test_hostsEqualLjava_net_URLLjava_net_URL() throws Exception {
+        String loopback = getLoopbackAddressAsHost();
+
         URL url1 = new URL("ftp://localhost:21/*test");
-        URL url2 = new URL("http://127.0.0.1/_test");
+        URL url2 = new URL("http://" + loopback + "/_test");
         assertTrue(handler.hostsEqual(url1, url2));
 
         URL url3 = new URL("http://foo/_test_goo");
@@ -114,12 +117,14 @@ public class OldURLStreamHandlerTest extends TestCase {
         }
     }
 
-    public void test_sameFile() throws MalformedURLException {
+    public void test_sameFile() throws Exception {
+        String loopback = getLoopbackAddressAsHost();
+
         URL url1  = new URL("http://test:pwd@localhost:80/foo/foo1.c");
-        URL url2  = new URL("http://test:pwd@127.0.01:80/foo/foo1.c");
-        URL url3  = new URL("http://test:pwd@127.0.01:80/foo/foo2.c");
-        URL url4  = new URL("ftp://test:pwd@127.0.01:21/foo/foo2.c");
-        URL url5  = new URL("ftp://test:pwd@127.0.01:21/foo/foo1/foo2.c");
+        URL url2  = new URL("http://test:pwd@" + loopback + ":80/foo/foo1.c");
+        URL url3  = new URL("http://test:pwd@" + loopback + ":80/foo/foo2.c");
+        URL url4  = new URL("ftp://test:pwd@" + loopback + ":21/foo/foo2.c");
+        URL url5  = new URL("ftp://test:pwd@" + loopback + ":21/foo/foo1/foo2.c");
         URL url6  = new URL("http://test/foo/foo1.c");
 
         assertTrue("Test case 1", handler.sameFile(url1, url2));
@@ -168,6 +173,13 @@ public class OldURLStreamHandlerTest extends TestCase {
 
     public void setUp() {
         handler = new MockURLStreamHandler();
+    }
+
+    private String getLoopbackAddressAsHost() throws UnknownHostException {
+        InetAddress localhost = InetAddress.getByName("localhost");
+        return localhost instanceof Inet6Address
+                ? "[" + localhost.getHostAddress() + "]"
+                : localhost.getHostAddress();
     }
 
     class MockURLStreamHandler extends URLStreamHandler {
