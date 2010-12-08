@@ -127,7 +127,7 @@ public class Deflater {
     private static final int FINISH = 4;
 
     /**
-     * This ugly name is for RI compatibility, should code need to access this
+     * The ugly name flushParm is for RI compatibility, should code need to access this
      * field via reflection if it's not able to use public API to choose what
      * kind of flushing it gets.
      */
