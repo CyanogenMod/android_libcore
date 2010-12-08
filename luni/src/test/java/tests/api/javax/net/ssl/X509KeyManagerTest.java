@@ -9,32 +9,27 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509KeyManager;
-
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 /**
  * Tests for <code>X509KeyManager</code> class constructors and methods.
  */
-@TestTargetClass(X509KeyManager.class)
 public class X509KeyManagerTest extends TestCase {
 
     private X509KeyManager manager;
     private KeyManagerFactory factory;
 
+    private static final String CLIENT = "CLIENT";
+    private static final String SERVER = "SERVER";
+    private static final String TYPE_RSA = "RSA";
+    private static final char[] PASSWORD = "1234".toCharArray();
+
     private String keyType;
-    private String client = "CLIENT";
-    private String server = "SERVER";
-    private String type = "RSA";
     private KeyStore keyTest;
-    private X509Certificate[] cert = null;
-    private PrivateKey[] keys = null;
-    private String password = "1234";
+    private X509Certificate[] cert;
+    private PrivateKey[] keys;
 
 
     /*
@@ -632,7 +627,7 @@ public class X509KeyManagerTest extends TestCase {
           KeyFactory kf = KeyFactory.getInstance("RSA");
           keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
           keyTest.load(null, "1234".toCharArray());
-          if (keyType.equals(client)) {
+          if (keyType.equals(CLIENT)) {
               keys = new PrivateKey[3];
               keys[0] = kf.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
               keys[1] = kf.generatePrivate(new PKCS8EncodedKeySpec(key2Bytes));
@@ -641,18 +636,18 @@ public class X509KeyManagerTest extends TestCase {
               cert[0] = (X509Certificate) cf.generateCertificate(certArray);
               cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
               cert[2] = (X509Certificate) cf.generateCertificate(certArray3);
-              keyTest.setKeyEntry("clientKey_01", keys[0], password.toCharArray(), new X509Certificate[] {cert[0]});
-              keyTest.setKeyEntry("clientKey_02", keys[1], password.toCharArray(), new X509Certificate[] {cert[0], cert[1]});
-              keyTest.setKeyEntry("clientKey_03", keys[2], password.toCharArray(), new X509Certificate[] {cert[0], cert[2]});
+              keyTest.setKeyEntry("clientKey_01", keys[0], PASSWORD, new X509Certificate[] {cert[0]});
+              keyTest.setKeyEntry("clientKey_02", keys[1], PASSWORD, new X509Certificate[] {cert[0], cert[1]});
+              keyTest.setKeyEntry("clientKey_03", keys[2], PASSWORD, new X509Certificate[] {cert[0], cert[2]});
               keyTest.setCertificateEntry("clientAlias_01", cert[0]);
               keyTest.setCertificateEntry("clientAlias_02", cert[0]);
               keyTest.setCertificateEntry("clientAlias_03", cert[1]);
-          } else if (keyType.equals(server)) {
+          } else if (keyType.equals(SERVER)) {
               keys = new PrivateKey[1];
               keys[0] = kf.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
               cert = new X509Certificate[1];
               cert[0] = (X509Certificate) cf.generateCertificate(certArray3);
-              keyTest.setKeyEntry("serverKey_00", keys[0], password.toCharArray(), new X509Certificate[] {cert[0]});
+              keyTest.setKeyEntry("serverKey_00", keys[0], PASSWORD, new X509Certificate[] {cert[0]});
               keyTest.setCertificateEntry("serverAlias_00", cert[0]);
           }
       } catch (Exception ex) {
@@ -668,94 +663,64 @@ public class X509KeyManagerTest extends TestCase {
     }
 
     /**
-     * @tests X509KeyManager#getClientAliases(String keyType, Principal[] issuers)
+     * X509KeyManager#getClientAliases(String keyType, Principal[] issuers)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getClientAliases",
-        args = {java.lang.String.class, java.security.Principal[].class}
-    )
     public void test_getClientAliases() {
-        init(client);
+        init(CLIENT);
         assertNull(manager.getClientAliases(null, null));
         assertNull(manager.getClientAliases("", null));
-        String[] resArray = manager.getClientAliases(type, null);
+        String[] resArray = manager.getClientAliases(TYPE_RSA, null);
         assertNotNull(resArray);
-        assertTrue("Incorrect result", compareC(resArray));
+        assertEquals(3, resArray.length);
+        assertKnownAliases(resArray);
     }
 
     /**
-     * @tests X509KeyManager#chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket)
+     * X509KeyManager#chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "chooseClientAlias",
-        args = {java.lang.String[].class, java.security.Principal[].class, java.net.Socket.class}
-    )
     public void test_chooseClientAlias() {
-        String[] ar = {client};
-        init(client);
+        init(CLIENT);
         assertNull(manager.chooseClientAlias(null, null, new Socket()));
         assertNull(manager.chooseClientAlias(new String[0], null, new Socket()));
-        assertNull(manager.chooseClientAlias(ar, null, new Socket()));
-        String res = manager.chooseClientAlias(new String[]{type}, null, null);
+        assertNull(manager.chooseClientAlias(new String[]{"BOGUS"}, null, new Socket()));
+        String res = manager.chooseClientAlias(new String[]{TYPE_RSA}, null, null);
         assertNotNull(res);
-        assertEquals("clientkey_03", res.toLowerCase().toLowerCase());
+        assertKnownAlias(res);
     }
 
     /**
-     * @tests X509KeyManager#getServerAliases(String keyType, Principal[] issuers)
+     * X509KeyManager#getServerAliases(String keyType, Principal[] issuers)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getServerAliases",
-        args = {java.lang.String.class, java.security.Principal[].class}
-    )
     public void test_getServerAliases() {
-        init(server);
+        init(SERVER);
         assertNull(manager.getServerAliases(null, null));
         assertNull(manager.getServerAliases("", null));
-        String[] resArray = manager.getServerAliases(type, null);
+        String[] resArray = manager.getServerAliases(TYPE_RSA, null);
         assertNotNull(resArray);
         assertEquals("Incorrect length", 1, resArray.length);
         assertEquals("Incorrect aliase", "serverkey_00", resArray[0].toLowerCase());
     }
 
     /**
-     * @tests X509KeyManager#chooseServerAlias(String keyType, Principal[] issuers, Socket socket)
+     * X509KeyManager#chooseServerAlias(String keyType, Principal[] issuers, Socket socket)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "chooseServerAlias",
-        args = {java.lang.String.class, java.security.Principal[].class, java.net.Socket.class}
-    )
     public void test_chooseServerAlias() {
-        init(server);
+        init(SERVER);
         assertNull(manager.chooseServerAlias(null, null, new Socket()));
         assertNull(manager.chooseServerAlias("", null, new Socket()));
-        String res = manager.chooseServerAlias(type, null, null);
+        String res = manager.chooseServerAlias(TYPE_RSA, null, null);
         assertNotNull(res);
         assertEquals("serverkey_00", res.toLowerCase());
-        res = manager.chooseServerAlias(type, null, new Socket());
+        res = manager.chooseServerAlias(TYPE_RSA, null, new Socket());
         assertNotNull(res);
         assertEquals("serverkey_00", res.toLowerCase());
     }
 
     /**
-     * @tests X509KeyManager#getCertificateChain(String alias)
+     * X509KeyManager#getCertificateChain(String alias)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificateChain",
-        args = {java.lang.String.class}
-    )
     public void test_getCertificateChain() {
-        init(server);
+        init(SERVER);
         assertNull("Not NULL for NULL parameter", manager.getCertificateChain(null));
         assertNull("Not NULL for empty parameter",manager.getCertificateChain(""));
         assertNull("Not NULL for clientAlias_01 parameter", manager.getCertificateChain("clientAlias_01"));
@@ -763,32 +728,26 @@ public class X509KeyManagerTest extends TestCase {
     }
 
     /**
-     * @tests X509KeyManager#getPrivateKey(String alias)
+     * X509KeyManager#getPrivateKey(String alias)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrivateKey",
-        args = {java.lang.String.class}
-    )
     public void test_getPrivateKey() {
-        init(client);
+        init(CLIENT);
         assertNull("Not NULL for NULL parameter", manager.getPrivateKey(null));
         assertNull("Not NULL for serverAlias_00 parameter", manager.getPrivateKey("serverAlias_00"));
         assertNull("Not NULL for clientAlias_02 parameter", manager.getPrivateKey("clientAlias_02"));
     }
 
 
-    private boolean compareC(String[] ar) {
-        if (ar.length != 3) {
-            return false;
+    private void assertKnownAliases(String[] aliases) {
+        for (String alias : aliases) {
+            assertKnownAlias(alias);
         }
-        for (int i = 0; i < ar.length; i++) {
-            if (!ar[i].toLowerCase().equals("clientkey_01") && !ar[i].toLowerCase().equals("clientkey_02") && !ar[i].toLowerCase().equals("clientkey_03")) {
-                return false;
-            }
-        }
-        return true;
+    }
+
+    private void assertKnownAlias(String alias) {
+        String a = alias.toLowerCase();
+        boolean okay = a.equals("clientkey_01") || a.equals("clientkey_02") || a.equals("clientkey_03");
+        assertTrue("Expected one of clientkey_01, clientkey_02, clientkey_03. Received: " + alias, okay);
     }
 }
 

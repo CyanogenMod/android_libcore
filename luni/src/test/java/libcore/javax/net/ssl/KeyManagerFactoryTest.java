@@ -54,13 +54,25 @@ public class KeyManagerFactoryTest extends TestCase {
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         assertEquals(StandardNames.KEY_MANAGER_FACTORY_DEFAULT, algorithm);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-        test_KeyManagerFactory(kmf, false);
+        test_KeyManagerFactory(kmf);
     }
 
     private static class UseslessManagerFactoryParameters implements ManagerFactoryParameters {}
 
-    private void test_KeyManagerFactory(KeyManagerFactory kmf,
-                                        boolean supportsManagerFactoryParameters) throws Exception {
+    private static boolean supportsManagerFactoryParameters(String algorithm) {
+        // Only the "New" one supports ManagerFactoryParameters
+        return algorithm.equals("NewSunX509");
+    }
+
+    private static String[] keyTypes(String algorithm) {
+        // Although the "New" one supports ManagerFactoryParameters,
+        // it can't handle nulls in the key types array.
+        return (algorithm.equals("NewSunX509")
+                ? KEY_TYPES_WITH_EMPTY
+                : KEY_TYPES_WITH_EMPTY_AND_NULL);
+    }
+
+    private void test_KeyManagerFactory(KeyManagerFactory kmf) throws Exception {
         assertNotNull(kmf);
         assertNotNull(kmf.getAlgorithm());
         assertNotNull(kmf.getProvider());
@@ -90,7 +102,7 @@ public class KeyManagerFactoryTest extends TestCase {
         PasswordProtection pp = new PasswordProtection(TEST_KEY_STORE.storePassword);
         Builder builder = Builder.newInstance(TEST_KEY_STORE.keyStore, pp);
         KeyStoreBuilderParameters ksbp = new KeyStoreBuilderParameters(builder);
-        if (supportsManagerFactoryParameters) {
+        if (supportsManagerFactoryParameters(kmf.getAlgorithm())) {
             kmf.init(ksbp);
             test_KeyManagerFactory_getKeyManagers(kmf, false);
         } else {
@@ -117,73 +129,93 @@ public class KeyManagerFactoryTest extends TestCase {
         for (KeyManager keyManager : keyManagers) {
             assertNotNull(keyManager);
             if (keyManager instanceof X509KeyManager) {
-                test_X509KeyManager((X509KeyManager) keyManager, empty);
+                test_X509KeyManager((X509KeyManager) keyManager, empty, kmf.getAlgorithm());
             }
         }
     }
 
-    String[] KEY_TYPES
+    private static final String[] KEY_TYPES_ONLY
             = StandardNames.KEY_TYPES.toArray(new String[StandardNames.KEY_TYPES.size()]);
+    private static final String[] KEY_TYPES_WITH_EMPTY
+            = new String[KEY_TYPES_ONLY.length + 1];
+    private static final String[] KEY_TYPES_WITH_EMPTY_AND_NULL
+            = new String[KEY_TYPES_ONLY.length + 2];
+    static {
+        System.arraycopy(KEY_TYPES_ONLY, 0,
+                         KEY_TYPES_WITH_EMPTY, 0,
+                         KEY_TYPES_ONLY.length);
+        KEY_TYPES_WITH_EMPTY[KEY_TYPES_WITH_EMPTY.length-1] = "";
 
-    private void test_X509KeyManager(X509KeyManager km, boolean empty) {
-        for (String keyType : KEY_TYPES) {
+        System.arraycopy(KEY_TYPES_WITH_EMPTY, 0,
+                         KEY_TYPES_WITH_EMPTY_AND_NULL, 0,
+                         KEY_TYPES_WITH_EMPTY.length);
+        // extra null at end requires no initialization
+    }
+
+    private void test_X509KeyManager(X509KeyManager km, boolean empty, String algorithm) {
+        String[] keyTypes = keyTypes(algorithm);
+        for (String keyType : keyTypes) {
             String[] aliases = km.getClientAliases(keyType, null);
-            if (empty) {
+            if (empty || keyType == null || keyType.isEmpty()) {
                 assertNull(keyType, aliases);
                 continue;
             }
             assertNotNull(keyType, aliases);
             for (String alias : aliases) {
-                test_X509KeyManager_alias(km, alias, keyType, empty);
+                test_X509KeyManager_alias(km, alias, keyType, false, empty);
             }
         }
-        for (String keyType : KEY_TYPES) {
+        for (String keyType : keyTypes) {
             String[] aliases = km.getServerAliases(keyType, null);
-            if (empty) {
+            if (empty || keyType == null || keyType.isEmpty()) {
                 assertNull(keyType, aliases);
                 continue;
             }
             assertNotNull(keyType, aliases);
             for (String alias : aliases) {
-                test_X509KeyManager_alias(km, alias, keyType, empty);
+                test_X509KeyManager_alias(km, alias, keyType, false, empty);
             }
         }
 
-        String a = km.chooseClientAlias(KEY_TYPES, null, null);
-        test_X509KeyManager_alias(km, a, null, empty);
-        for (String keyType : KEY_TYPES) {
+        String a = km.chooseClientAlias(keyTypes, null, null);
+        test_X509KeyManager_alias(km, a, null, true, empty);
+
+        for (String keyType : keyTypes) {
             String[] array = new String[] { keyType };
             String alias = km.chooseClientAlias(array, null, null);
-            test_X509KeyManager_alias(km, alias, keyType, empty);
+            test_X509KeyManager_alias(km, alias, keyType, false, empty);
         }
-        for (String keyType : KEY_TYPES) {
+        for (String keyType : keyTypes) {
             String alias = km.chooseServerAlias(keyType, null, null);
-            test_X509KeyManager_alias(km, alias, keyType, empty);
+            test_X509KeyManager_alias(km, alias, keyType, false, empty);
         }
         if (km instanceof X509ExtendedKeyManager) {
-            test_X509ExtendedKeyManager((X509ExtendedKeyManager) km, empty);
+            test_X509ExtendedKeyManager((X509ExtendedKeyManager) km, empty, algorithm);
         }
     }
 
-    private void test_X509ExtendedKeyManager(X509ExtendedKeyManager km, boolean empty) {
-        String a = km.chooseEngineClientAlias(KEY_TYPES, null, null);
-        test_X509KeyManager_alias(km, a, null, empty);
-        for (String keyType : KEY_TYPES) {
+    private void test_X509ExtendedKeyManager(X509ExtendedKeyManager km,
+                                             boolean empty, String algorithm) {
+        String[] keyTypes = keyTypes(algorithm);
+        String a = km.chooseEngineClientAlias(keyTypes, null, null);
+        test_X509KeyManager_alias(km, a, null, true, empty);
+        for (String keyType : keyTypes) {
             String[] array = new String[] { keyType };
             String alias = km.chooseEngineClientAlias(array, null, null);
-            test_X509KeyManager_alias(km, alias, keyType, empty);
+            test_X509KeyManager_alias(km, alias, keyType, false, empty);
         }
-        for (String keyType : KEY_TYPES) {
+        for (String keyType : keyTypes) {
             String alias = km.chooseEngineServerAlias(keyType, null, null);
-            test_X509KeyManager_alias(km, alias, keyType, empty);
+            test_X509KeyManager_alias(km, alias, keyType, false, empty);
         }
     }
 
     private void test_X509KeyManager_alias(X509KeyManager km,
                                            String alias,
                                            String keyType,
+                                           boolean many,
                                            boolean empty) {
-        if (empty) {
+        if (empty || (!many && (keyType == null || keyType.isEmpty()))) {
             assertNull(keyType, alias);
             assertNull(keyType, km.getCertificateChain(alias));
             assertNull(keyType, km.getPrivateKey(alias));
@@ -235,27 +267,30 @@ public class KeyManagerFactoryTest extends TestCase {
                     continue;
                 }
                 String algorithm = service.getAlgorithm();
-                boolean supportsManagerFactoryParameters = algorithm.equals("NewSunX509");
-                {
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                    assertEquals(algorithm, kmf.getAlgorithm());
-                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
-                }
+                try {
+                    {
+                        KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+                        assertEquals(algorithm, kmf.getAlgorithm());
+                        test_KeyManagerFactory(kmf);
+                    }
 
-                {
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm,
-                                                                          provider);
-                    assertEquals(algorithm, kmf.getAlgorithm());
-                    assertEquals(provider, kmf.getProvider());
-                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
-                }
+                    {
+                        KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm,
+                                                                              provider);
+                        assertEquals(algorithm, kmf.getAlgorithm());
+                        assertEquals(provider, kmf.getProvider());
+                        test_KeyManagerFactory(kmf);
+                    }
 
-                {
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm,
-                                                                          provider.getName());
-                    assertEquals(algorithm, kmf.getAlgorithm());
-                    assertEquals(provider, kmf.getProvider());
-                    test_KeyManagerFactory(kmf, supportsManagerFactoryParameters);
+                    {
+                        KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm,
+                                                                              provider.getName());
+                        assertEquals(algorithm, kmf.getAlgorithm());
+                        assertEquals(provider, kmf.getProvider());
+                        test_KeyManagerFactory(kmf);
+                    }
+                } catch (Exception e) {
+                    throw new Exception("Problem with algorithm " + algorithm, e);
                 }
             }
         }
