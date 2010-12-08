@@ -208,22 +208,20 @@ public class ByteArrayInputStream extends InputStream {
     }
 
     /**
-     * Skips {@code count} number of bytes in this InputStream. Subsequent
-     * {@code read()}s will not return these bytes unless {@code reset()} is
-     * used. This implementation skips {@code count} number of bytes in the
-     * target stream. It does nothing and returns 0 if {@code n} is negative.
+     * Skips {@code byteCount} bytes in this InputStream. Subsequent
+     * calls to {@code read} will not return these bytes unless {@code reset} is
+     * used. This implementation skips {@code byteCount} number of bytes in the
+     * target stream. It does nothing and returns 0 if {@code byteCount} is negative.
      *
-     * @param n
-     *            the number of bytes to skip.
      * @return the number of bytes actually skipped.
      */
     @Override
-    public synchronized long skip(long n) {
-        if (n <= 0) {
+    public synchronized long skip(long byteCount) {
+        if (byteCount <= 0) {
             return 0;
         }
         int temp = pos;
-        pos = this.count - pos < n ? this.count : (int) (pos + n);
+        pos = this.count - pos < byteCount ? this.count : (int) (pos + byteCount);
         return pos - temp;
     }
 }

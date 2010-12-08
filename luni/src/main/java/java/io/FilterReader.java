@@ -179,8 +179,8 @@ public abstract class FilterReader extends Reader {
     }
 
     /**
-     * Skips {@code count} characters in this reader. Subsequent {@code read()}'s
-     * will not return these characters unless {@code reset()} is used. The
+     * Skips {@code charCount} characters in this reader. Subsequent calls to {@code read}
+     * will not return these characters unless {@code reset} is used. The
      * default implementation is to skip characters in the filtered reader.
      *
      * @param count
@@ -194,9 +194,9 @@ public abstract class FilterReader extends Reader {
      * @see #reset()
      */
     @Override
-    public long skip(long count) throws IOException {
+    public long skip(long charCount) throws IOException {
         synchronized (lock) {
-            return in.skip(count);
+            return in.skip(charCount);
         }
     }
 }

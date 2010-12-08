@@ -208,30 +208,28 @@ public class PushbackInputStream extends FilterInputStream {
     }
 
     /**
-     * Skips {@code count} bytes in this stream. This implementation skips bytes
+     * Skips {@code byteCount} bytes in this stream. This implementation skips bytes
      * in the pushback buffer first and then in the source stream if necessary.
      *
-     * @param count
-     *            the number of bytes to skip.
      * @return the number of bytes actually skipped.
      * @throws IOException
      *             if this stream is closed or another I/O error occurs.
      */
     @Override
-    public long skip(long count) throws IOException {
+    public long skip(long byteCount) throws IOException {
         if (in == null) {
             throw streamClosed();
         }
-        if (count <= 0) {
+        if (byteCount <= 0) {
             return 0;
         }
         int numSkipped = 0;
         if (pos < buf.length) {
-            numSkipped += (count < buf.length - pos) ? count : buf.length - pos;
+            numSkipped += (byteCount < buf.length - pos) ? byteCount : buf.length - pos;
             pos += numSkipped;
         }
-        if (numSkipped < count) {
-            numSkipped += in.skip(count - numSkipped);
+        if (numSkipped < byteCount) {
+            numSkipped += in.skip(byteCount - numSkipped);
         }
         return numSkipped;
     }
