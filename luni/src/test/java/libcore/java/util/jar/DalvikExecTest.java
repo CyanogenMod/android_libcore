@@ -36,28 +36,19 @@ public class DalvikExecTest extends TestCase {
 
     String execDalvik1(String classpath, String mainClass, String arg1)
             throws IOException, InterruptedException {
-
         ProcessBuilder builder = new ProcessBuilder();
 
-        String base = System.getenv("OUT");
-        if (base == null) {
-            base = "";
+        File dalvikvm = new File("/system/bin/dalvikvm");
+        if (dalvikvm.exists()) {
+            builder.command().add(dalvikvm.getPath());
+        } else {
+            builder.command().add("dalvikvm"); // for host mode, assume dalvikvm is on the path
         }
-        builder.command().add(base + "/system/bin/dalvikvm");
 
         builder.command().add("-Djava.io.tmpdir=/tmp/mc");
         builder.command().add("-Duser.language=en");
         builder.command().add("-Duser.region=US");
-
-        if ("true".equals(System.getenv("TARGET_SIMULATOR"))) {
-            // Test against SIMULATOR:
-//            cmdLine.add("-Xmx512M");
-//            cmdLine.add("-Xcheck:jni");
-            builder.command().add("-Xbootclasspath:" + System.getProperty("java.boot.class.path"));
-        } else {
-            // Test against EMULATOR:
-        }
-
+        builder.command().add("-Xbootclasspath:" + System.getProperty("java.boot.class.path"));
         builder.command().add("-classpath");
         builder.command().add(classpath);
         builder.command().add(mainClass);
