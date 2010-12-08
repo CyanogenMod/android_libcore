@@ -14,41 +14,25 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.prefs.tests.java.util.prefs;
+package libcore.java.util.prefs;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import junit.framework.TestCase;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.InvalidPreferencesFormatException;
+import java.util.prefs.NodeChangeEvent;
 import java.util.prefs.NodeChangeListener;
+import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import junit.framework.TestCase;
 
-/**
- *
- */
-@TestTargetClass(Preferences.class)
-public class PreferencesTest extends TestCase {
-
-    MockInputStream stream = null;
+public final class OldPreferencesTest extends TestCase {
 
     final static String longKey;
-
     final static String longValue;
 
-    InputStream in;
     static {
         StringBuffer key = new StringBuffer(Preferences.MAX_KEY_LENGTH);
         for (int i = 0; i < Preferences.MAX_KEY_LENGTH; i++) {
@@ -63,466 +47,6 @@ public class PreferencesTest extends TestCase {
         longValue = value.toString();
     }
 
-    /*
-     * @see TestCase#setUp()
-     */
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        in = new ByteArrayInputStream(
-                "<!DOCTYPE preferences SYSTEM \"http://java.sun.com/dtd/preferences.dtd\"><preferences><root type=\"user\"><map></map></root></preferences>"
-                        .getBytes("UTF-8"));
-        stream = new MockInputStream(in);
-    }
-
-    /*
-     * @see TestCase#tearDown()
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        stream.close();
-        super.tearDown();
-    }
-
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "systemNodeForPackage",
-        args = {java.lang.Class.class}
-    )
-    public void testSystemNodeForPackage() {
-        Preferences p = null;
-        try {
-            p = Preferences.systemNodeForPackage(Object.class);
-        } catch (SecurityException e) {
-            // may be caused by absence of privileges on the underlying OS
-            return;
-        }
-        assertEquals("/java/lang", p.absolutePath());
-        assertTrue(p instanceof AbstractPreferences);
-        Preferences root = Preferences.systemRoot();
-        Preferences parent = root.node("java");
-        assertSame(parent, p.parent());
-        assertFalse(p.isUserNode());
-        assertEquals("lang", p.name());
-        assertEquals("System Preference Node: " + p.absolutePath(), p
-                .toString());
-        try {
-            assertEquals(0, p.childrenNames().length);
-        } catch (BackingStoreException e) {
-            // could be thrown according to specification
-        }
-        try {
-            assertEquals(0, p.keys().length);
-        } catch (BackingStoreException e) {
-            // could be thrown according to specification
-        }
-
-        try {
-            p = Preferences.systemNodeForPackage(null);
-            fail("NullPointerException has not been thrown");
-        } catch (NullPointerException e) {
-            // expected
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed.",
-        method = "systemRoot",
-        args = {}
-    )
-    public void testSystemRoot() {
-        Preferences p = Preferences.systemRoot();
-        assertTrue(p instanceof AbstractPreferences);
-        assertEquals("/", p.absolutePath());
-        assertSame(null, p.parent());
-        assertFalse(p.isUserNode());
-        assertEquals("", p.name());
-        assertEquals("System Preference Node: " + p.absolutePath(), p
-                .toString());
-        // assertEquals(0, p.childrenNames().length);
-        // assertEquals(0, p.keys().length);
-    }
-
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks constant values",
-        method = "!Constants",
-        args = {}
-    )
-    public void testConsts() {
-        assertEquals(80, Preferences.MAX_KEY_LENGTH);
-        assertEquals(80, Preferences.MAX_NAME_LENGTH);
-        assertEquals(8192, Preferences.MAX_VALUE_LENGTH);
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed.",
-        method = "userNodeForPackage",
-        args = {java.lang.Class.class}
-    )
-    public void testUserNodeForPackage() throws BackingStoreException {
-        Preferences p = Preferences.userNodeForPackage(Object.class);
-        assertEquals("/java/lang", p.absolutePath());
-        assertTrue(p instanceof AbstractPreferences);
-        Preferences root = Preferences.userRoot();
-        Preferences parent = root.node("java");
-        assertSame(parent, p.parent());
-        assertTrue(p.isUserNode());
-        assertEquals("lang", p.name());
-        assertEquals("User Preference Node: " + p.absolutePath(), p.toString());
-        assertEquals(0, p.childrenNames().length);
-        assertEquals(0, p.keys().length);
-
-        try {
-            p = Preferences.userNodeForPackage(null);
-            fail();
-        } catch (NullPointerException e) {
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed.",
-        method = "userRoot",
-        args = {}
-    )
-    public void testUserRoot() {
-        Preferences p = Preferences.userRoot();
-        assertTrue(p instanceof AbstractPreferences);
-        assertEquals("/", p.absolutePath());
-        assertSame(null, p.parent());
-        assertTrue(p.isUserNode());
-        assertEquals("", p.name());
-        assertEquals("User Preference Node: " + p.absolutePath(), p.toString());
-        // assertEquals(0, p.childrenNames().length);
-        // assertEquals(p.keys().length, 0);
-    }
-
-
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "SecurityException & IOException checking missed.",
-            method = "importPreferences",
-            args = {java.io.InputStream.class}
-        )
-    public void testImportPreferences2() throws Exception {
-        InputStream in = PreferencesTest.class
-                .getResourceAsStream("/prefs/java/util/prefs/userprefs-badtype.xml");
-        try {
-            Preferences.importPreferences(in);
-            fail();
-        } catch (InvalidPreferencesFormatException e) {
-        }
-
-        in = PreferencesTest.class
-                .getResourceAsStream("/prefs/java/util/prefs/userprefs-badencoding.xml");
-        try {
-            Preferences.importPreferences(in);
-            fail();
-        } catch (InvalidPreferencesFormatException e) {
-        } catch (UnsupportedEncodingException e) {
-        }
-
-    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException & IOException checking missed.",
-        method = "importPreferences",
-        args = {java.io.InputStream.class}
-    )
-    public void testImportPreferences() throws Exception {
-        Preferences prefs = null;
-        try {
-            prefs = Preferences.userNodeForPackage(PreferencesTest.class);
-            // assertEquals(0, prefs.childrenNames().length);
-            // assertFalse(prefs.nodeExists("mock/child/grandson"));
-
-            prefs.put("prefskey", "oldvalue");
-            prefs.put("prefskey2", "oldvalue2");
-            in = getClass().getResourceAsStream("/prefs/java/util/prefs/userprefs.xml");
-            Preferences.importPreferences(in);
-
-            prefs = Preferences.userNodeForPackage(PreferencesTest.class);
-            assertEquals(1, prefs.childrenNames().length);
-            assertTrue(prefs.nodeExists("mock/child/grandson"));
-            assertEquals("newvalue", prefs.get("prefskey", null));
-            assertEquals("oldvalue2", prefs.get("prefskey2", null));
-            assertEquals("newvalue3", prefs.get("prefskey3", null));
-
-            in = PreferencesTest.class
-                    .getResourceAsStream("/prefs/java/util/prefs/userprefs-badform.xml");
-            try {
-                Preferences.importPreferences(in);
-                fail();
-            } catch (InvalidPreferencesFormatException e) {
-            }
-
-            in = PreferencesTest.class
-                    .getResourceAsStream("/prefs/java/util/prefs/userprefs-higherversion.xml");
-            try {
-                Preferences.importPreferences(in);
-                fail();
-            } catch (InvalidPreferencesFormatException e) {
-            }
-
-            in = PreferencesTest.class
-                    .getResourceAsStream("/prefs/java/util/prefs/userprefs-ascii.xml");
-            Preferences.importPreferences(in);
-            prefs = Preferences.userNodeForPackage(PreferencesTest.class);
-        } finally {
-            try {
-                prefs = Preferences.userRoot().node("tests");
-                prefs.removeNode();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Test for Exceptions only.",
-        method = "importPreferences",
-        args = {java.io.InputStream.class}
-    )
-    public void testImportPreferencesException() throws Exception {
-        try {
-            Preferences.importPreferences(null);
-            fail();
-        } catch (MalformedURLException e) {
-        }
-
-        byte[] source = new byte[0];
-        InputStream in = new ByteArrayInputStream(source);
-        try {
-            Preferences.importPreferences(in);
-            fail();
-        } catch (InvalidPreferencesFormatException e) {
-        }
-
-        stream.setResult(MockInputStream.exception);
-        try {
-            Preferences.importPreferences(stream);
-            fail();
-        } catch (IOException e) {
-        }
-
-        stream.setResult(MockInputStream.runtimeException);
-        try {
-            Preferences.importPreferences(stream);
-            fail();
-        } catch (RuntimeException e) {
-        }
-    }
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "absolutePath",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "childrenNames",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "clear",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "exportNode",
-            args = {java.io.OutputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "exportSubtree",
-            args = {java.io.OutputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "flush",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "get",
-            args = {java.lang.String.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getBoolean",
-            args = {java.lang.String.class, boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getByteArray",
-            args = {java.lang.String.class, byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getFloat",
-            args = {java.lang.String.class, float.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getDouble",
-            args = {java.lang.String.class, double.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getInt",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "getLong",
-            args = {java.lang.String.class, long.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "isUserNode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "keys",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "name",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "node",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "nodeExists",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "parent",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "put",
-            args = {java.lang.String.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putBoolean",
-            args = {java.lang.String.class, boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putByteArray",
-            args = {java.lang.String.class, byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putDouble",
-            args = {java.lang.String.class, double.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putFloat",
-            args = {java.lang.String.class, float.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putInt",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "putLong",
-            args = {java.lang.String.class, long.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "remove",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "removeNode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "addNodeChangeListener",
-            args = {java.util.prefs.NodeChangeListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "addPreferenceChangeListener",
-            args = {java.util.prefs.PreferenceChangeListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "removeNodeChangeListener",
-            args = {java.util.prefs.NodeChangeListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "removePreferenceChangeListener",
-            args = {java.util.prefs.PreferenceChangeListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "sync",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for abstract methods.",
-            method = "toString",
-            args = {}
-        )
-    })
     public void testAbstractMethods() {
         Preferences p = new MockPreferences();
         p.absolutePath();
@@ -590,23 +114,11 @@ public class PreferencesTest extends TestCase {
         p.toString();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Preferences",
-        args = {}
-    )
     public void testConstructor() {
         MockPreferences mp = new MockPreferences();
         assertEquals(mp.getClass(), MockPreferences.class);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Check existed implementation",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         Preferences p1 = Preferences.userNodeForPackage(Preferences.class);
         assertNotNull(p1.toString());
@@ -617,32 +129,13 @@ public class PreferencesTest extends TestCase {
         Preferences p3 = Preferences.userRoot();
         assertNotNull(p3.toString());
     }
-    /**
-     * @test java.util.prefs.Preferences#absolutePath()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "absolutePath",
-        args = {}
-    )
+
     public void testAbsolutePath() {
         Preferences p = Preferences.userNodeForPackage(Preferences.class);
         assertEquals("/java/util/prefs", p.absolutePath());
 
     }
 
-    /**
-     * @test java.util.prefs.Preferences#childrenNames()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "childrenNames",
-        args = {}
-    )
     public void testChildrenNames() throws BackingStoreException {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
 
@@ -659,16 +152,6 @@ public class PreferencesTest extends TestCase {
         assertEquals("subchild1", child1.childrenNames()[0]);
     }
 
-    /**
-     * @test java.util.prefs.Preferences#clear()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "clear",
-        args = {}
-    )
     public void testClear() throws BackingStoreException {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         pref.put("testClearKey", "testClearValue");
@@ -680,16 +163,6 @@ public class PreferencesTest extends TestCase {
         assertNull(pref.get("testClearKey1", null));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#get(String key, String def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGet() throws BackingStoreException {
         Preferences root = Preferences.userNodeForPackage(Preferences.class);
         Preferences pref = root.node("mock");
@@ -724,16 +197,6 @@ public class PreferencesTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getBoolean(String key, boolean def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getBoolean",
-        args = {java.lang.String.class, boolean.class}
-    )
     public void testGetBoolean() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -748,16 +211,6 @@ public class PreferencesTest extends TestCase {
         assertTrue(pref.getBoolean("testGetBooleanKey2", true));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getByteArray(String key, byte[] def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getByteArray",
-        args = {java.lang.String.class, byte[].class}
-    )
     public void testGetByteArray() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -785,16 +238,6 @@ public class PreferencesTest extends TestCase {
                 "testGetByteArrayKey4", new byte[0])));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getDouble(String key, double def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getDouble",
-        args = {java.lang.String.class, double.class}
-    )
     public void testGetDouble() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -813,16 +256,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(1.0, pref.getDouble("testGetDoubleKey4", 0.0), 0);
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getFloat(String key, float def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getFloat",
-        args = {java.lang.String.class, float.class}
-    )
     public void testGetFloat() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -836,16 +269,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(0f, pref.getFloat("testGetFloatKey2", 0f), 0);
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getInt(String key, int def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getInt",
-        args = {java.lang.String.class, int.class}
-    )
     public void testGetInt() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -860,16 +283,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(0, pref.getInt("testGetIntKey2", 0));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#getLong(String key, long def)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "getLong",
-        args = {java.lang.String.class, long.class}
-    )
     public void testGetLong() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -884,16 +297,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(0, pref.getInt("testGetLongKey2", 0));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#isUserNode()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isUserNode",
-        args = {}
-    )
     public void testIsUserNode() {
         Preferences pref1 = Preferences.userNodeForPackage(Preferences.class);
         assertTrue(pref1.isUserNode());
@@ -902,16 +305,6 @@ public class PreferencesTest extends TestCase {
         assertFalse(pref2.isUserNode());
     }
 
-    /**
-     * @test java.util.prefs.Preferences#keys()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Exceptions checking missed, but method is abstract, probably it is OK",
-        method = "keys",
-        args = {}
-    )
     public void testKeys() throws BackingStoreException {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         pref.clear();
@@ -929,32 +322,12 @@ public class PreferencesTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.util.prefs.Preferences#name()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "name",
-        args = {}
-    )
     public void testName() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         Preferences child = pref.node("mock");
         assertEquals("mock", child.name());
     }
 
-    /**
-     * @test java.util.prefs.Preferences#node(String pathName)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "node",
-        args = {java.lang.String.class}
-    )
     public void testNode() throws BackingStoreException {
         StringBuffer name = new StringBuffer(Preferences.MAX_NAME_LENGTH);
         for (int i = 0; i < Preferences.MAX_NAME_LENGTH; i++) {
@@ -995,47 +368,8 @@ public class PreferencesTest extends TestCase {
         assertSame(prefs, parent);
 
         assertSame(pref, pref.node(""));
-
-        if (!(pref instanceof MockAbstractPreferences)) {
-            return;
-        }
-        MockAbstractPreferences child = (MockAbstractPreferences) ((MockAbstractPreferences) pref)
-                .publicChildSpi("child");
-        assertSame(child, pref.node("child"));
-
-        Preferences child2 = pref.node("child2");
-        assertSame(child2, ((MockAbstractPreferences) pref)
-                .publicChildSpi("child2"));
-
-        Preferences grandchild = pref.node("child/grandchild");
-        assertSame(grandchild, child.childSpi("grandchild"));
-        assertSame(grandchild, child.cachedChildrenImpl()[0]);
-        grandchild.removeNode();
-        assertNotSame(grandchild, pref.node("child/grandchild"));
-
-        grandchild = pref.node("child3/grandchild");
-        AbstractPreferences[] childs = ((MockAbstractPreferences) pref)
-                .cachedChildrenImpl();
-        Preferences child3 = child;
-        for (int i = 0; i < childs.length; i++) {
-            if (childs[i].name().equals("child3")) {
-                child3 = childs[i];
-                break;
-            }
-        }
-        assertSame(child3, grandchild.parent());
     }
 
-    /**
-     * @test java.util.prefs.Preferences#nodeExists(String pathName)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException & BackingStoreException checking missed, but method is abstract, probably it is OK",
-        method = "nodeExists",
-        args = {java.lang.String.class}
-    )
     public void testNodeExists() throws BackingStoreException {
 
         Preferences parent = Preferences
@@ -1078,35 +412,14 @@ public class PreferencesTest extends TestCase {
         assertTrue(pref.nodeExists("child2/grandchild"));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#parent()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "parent",
-        args = {}
-    )
     public void testParent() {
         Preferences parent = Preferences
                 .userNodeForPackage(Preferences.class);
         Preferences pref = parent.node("mock");
 
         assertSame(parent, pref.parent());
-
     }
 
-    /**
-     * @test java.util.prefs.Preferences#put(String key, String value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testPut() throws BackingStoreException {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1156,16 +469,6 @@ public class PreferencesTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putBoolean(String key, boolean value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putBoolean",
-        args = {java.lang.String.class, boolean.class}
-    )
     public void testPutBoolean() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1185,16 +488,6 @@ public class PreferencesTest extends TestCase {
         assertFalse(pref.getBoolean("testPutBooleanKey", true));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putDouble(String key, double value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putDouble",
-        args = {java.lang.String.class, double.class}
-    )
     public void testPutDouble() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1214,16 +507,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(3, pref.getDouble("testPutDoubleKey", 0), 0);
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putFloat(String key, float value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putFloat",
-        args = {java.lang.String.class, float.class}
-    )
     public void testPutFloat() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1243,16 +526,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(3f, pref.getFloat("testPutFloatKey", 0), 0);
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putInt(String key, int value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putInt",
-        args = {java.lang.String.class, int.class}
-    )
     public void testPutInt() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1272,16 +545,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(3, pref.getInt("testPutIntKey", 0));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putLong(String key, long value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putLong",
-        args = {java.lang.String.class, long.class}
-    )
     public void testPutLong() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1301,16 +564,6 @@ public class PreferencesTest extends TestCase {
         assertEquals(3L, pref.getLong("testPutLongKey", 0));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#putByteArray(String key, byte[] value)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "putByteArray",
-        args = {java.lang.String.class, byte[].class}
-    )
     public void testPutByteArray() {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1351,16 +604,6 @@ public class PreferencesTest extends TestCase {
                 .getByteArray("testPutByteArrayKey3", null)));
     }
 
-    /**
-     * @test java.util.prefs.Preferences#remove(String key)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.String.class}
-    )
     public void testRemove() throws BackingStoreException {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1387,16 +630,6 @@ public class PreferencesTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.util.prefs.Preferences#removeNode()
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Exceptions checking missed, but method is abstract, probably it is OK",
-        method = "removeNode",
-        args = {}
-    )
     public void testRemoveNode() throws BackingStoreException {
         Preferences pref = Preferences
         .userNodeForPackage(Preferences.class);
@@ -1412,17 +645,6 @@ public class PreferencesTest extends TestCase {
         assertFalse(pref.nodeExists(""));
     }
 
-
-    /**
-     * @test java.util.prefs.Preferences#addNodeChangeListener(NodeChangeListener ncl)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Only NullPointerException checked, but method is abstract, probably it is OK",
-        method = "addNodeChangeListener",
-        args = {java.util.prefs.NodeChangeListener.class}
-    )
     public void testAddNodeChangeListener() throws BackingStoreException {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -1530,18 +752,7 @@ public class PreferencesTest extends TestCase {
 
     }
 
-    /**
-     * @test java.util.prefs.Preferences#addPreferenceChangeListener(PreferenceChangeListener pcl)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Only NullPointerException checked, but method is abstract, probably it is OK",
-        method = "addPreferenceChangeListener",
-        args = {java.util.prefs.PreferenceChangeListener.class}
-    )
     public void testAddPreferenceChangeListener() {
-
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         MockPreferenceChangeListener pl = null;
 
@@ -1556,7 +767,7 @@ public class PreferencesTest extends TestCase {
             pl = new MockPreferenceChangeListener();
             pref.addPreferenceChangeListener(pl);
             pref.putInt("mock1", 123);
-            pl.waitForEvent();
+            pl.waitForEvent(1);
             assertEquals(1, pl.getChanged());
             pref.putLong("long_key", Long.MAX_VALUE);
             pl.waitForEvent(2);
@@ -1595,7 +806,7 @@ public class PreferencesTest extends TestCase {
             pl = new MockPreferenceChangeListener();
             pref.addPreferenceChangeListener(pl);
             pref.putDouble("double_key", Double.MAX_VALUE);
-            pl.waitForEvent();
+            pl.waitForEvent(1);
             assertEquals(1, pl.getChanged());
             try {
                 pref.clear();
@@ -1629,16 +840,6 @@ public class PreferencesTest extends TestCase {
 
     }
 
-    /**
-     * @test java.util.prefs.Preferences#removeNodeChangeListener(NodeChangeListener ncl)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "removeNodeChangeListener",
-        args = {java.util.prefs.NodeChangeListener.class}
-    )
     public void testRemoveNodeChangeListener() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -1665,16 +866,6 @@ public class PreferencesTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.util.prefs.Preferences#removePreferenceChangeListener(PreferenceChangeListener pcl)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed, but method is abstract, probably it is OK",
-        method = "removePreferenceChangeListener",
-        args = {java.util.prefs.PreferenceChangeListener.class}
-    )
     public void testRemovePreferenceChangeListener() {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
@@ -1739,12 +930,97 @@ public class PreferencesTest extends TestCase {
         }
     }
 
+    static class MockNodeChangeListener implements NodeChangeListener {
+        private int added = 0;
+        private int removed = 0;
+
+        public synchronized void waitForEvent() {
+            try {
+                wait(500);
+            } catch (InterruptedException ignored) {
+            }
+        }
+
+        public synchronized void childAdded(NodeChangeEvent e) {
+            ++added;
+            notifyAll();
+        }
+
+        public synchronized void childRemoved(NodeChangeEvent e) {
+            removed++;
+            notifyAll();
+        }
+
+        public synchronized  int getAdded() {
+            return added;
+        }
+
+        public synchronized int getRemoved() {
+            return removed;
+        }
+
+        public void reset() {
+            added = 0;
+            removed = 0;
+        }
+    }
+
+    private static class MockPreferenceChangeListener implements PreferenceChangeListener {
+        private int changed = 0;
+        private boolean addDispatched = false;
+        private boolean result = false;
+
+        public void waitForEvent(int count) {
+            for (int i = 0; i < count; i++) {
+                try {
+                    synchronized (this) {
+                        this.wait(500);
+                    }
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+
+        public synchronized void preferenceChange(PreferenceChangeEvent pce) {
+            changed++;
+            addDispatched = true;
+            notifyAll();
+        }
+
+        public boolean getResult() {
+            if (!addDispatched) {
+                try {
+                    // TODO: don't know why must add limitation
+                    this.wait(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            addDispatched = false;
+            return result;
+        }
+
+        public synchronized int getChanged() {
+            if (!addDispatched) {
+                try {
+                    // TODO: don't know why must add limitation
+                    this.wait(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            addDispatched = false;
+            return changed;
+        }
+
+        public void reset() {
+            changed = 0;
+            result = false;
+        }
+    }
+
     @SuppressWarnings("unused")
     static class MockPreferences extends Preferences {
-
-        public MockPreferences() {
-            super();
-        }
 
         @Override
         public String absolutePath() {
@@ -1761,13 +1037,11 @@ public class PreferencesTest extends TestCase {
         }
 
         @Override
-        public void exportNode(OutputStream ostream) throws IOException,
-                BackingStoreException {
+        public void exportNode(OutputStream ostream) throws IOException, BackingStoreException {
         }
 
         @Override
-        public void exportSubtree(OutputStream ostream) throws IOException,
-                BackingStoreException {
+        public void exportSubtree(OutputStream ostream) throws IOException, BackingStoreException {
         }
 
         @Override
@@ -1841,79 +1115,63 @@ public class PreferencesTest extends TestCase {
 
         @Override
         public void put(String key, String value) {
-
         }
 
         @Override
         public void putBoolean(String key, boolean value) {
-
         }
 
         @Override
         public void putByteArray(String key, byte[] value) {
-
         }
 
         @Override
         public void putDouble(String key, double value) {
-
         }
 
         @Override
         public void putFloat(String key, float value) {
-
         }
 
         @Override
         public void putInt(String key, int value) {
-
         }
 
         @Override
         public void putLong(String key, long value) {
-
         }
 
         @Override
         public void remove(String key) {
-
         }
 
         @Override
         public void removeNode() throws BackingStoreException {
-
         }
 
         @Override
         public void addNodeChangeListener(NodeChangeListener ncl) {
-
         }
 
         @Override
         public void addPreferenceChangeListener(PreferenceChangeListener pcl) {
-
         }
 
         @Override
         public void removeNodeChangeListener(NodeChangeListener ncl) {
-
         }
 
         @Override
         public void removePreferenceChangeListener(PreferenceChangeListener pcl) {
-
         }
 
         @Override
         public void sync() throws BackingStoreException {
-
         }
 
         @Override
         public String toString() {
             return null;
         }
-
     }
-
 }

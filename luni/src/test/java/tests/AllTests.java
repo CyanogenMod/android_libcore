@@ -29,7 +29,7 @@ public class AllTests
         TestRunner.main(new String[] { AllTests.class.getName() });
     }
 
-    public static final Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         // Harmony-written test suites (often with Android tests added in).
@@ -42,7 +42,6 @@ public class AllTests
         suite.addTest(tests.luni.AllTestsUtil.suite());
         suite.addTest(tests.math.AllTests.suite());
         suite.addTest(tests.nio_char.AllTests.suite());
-        suite.addTest(tests.prefs.AllTests.suite());
         suite.addTest(tests.regex.AllTests.suite());
         suite.addTest(tests.security.AllTests.suite());
         suite.addTest(tests.sql.AllTests.suite());
