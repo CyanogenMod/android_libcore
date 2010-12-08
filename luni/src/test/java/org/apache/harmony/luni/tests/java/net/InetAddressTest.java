@@ -48,8 +48,14 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     protected static String threadedTestErrorString;
 
+    private Inet4Address ipv4Localhost;
+    private Inet4Address ipv4LoopbackIp;
+
     @Override protected void setUp() throws Exception {
         super.setUp();
+        byte[] ipv4Loopback = { 127, 0, 0, 1 };
+        ipv4LoopbackIp = (Inet4Address) InetAddress.getByAddress(ipv4Loopback);
+        ipv4Localhost = (Inet4Address) InetAddress.getByAddress("localhost", ipv4Loopback);
     }
 
     @Override protected void tearDown() throws Exception {
@@ -156,16 +162,7 @@ public class InetAddressTest extends junit.framework.TestCase {
     )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.net.InetAddress.equals(java.lang.Object)
-        try {
-            InetAddress ia1 = InetAddress
-                    .getByName(Support_Configuration.InetTestAddress);
-            InetAddress ia2 = InetAddress
-                    .getByName(Support_Configuration.InetTestIP);
-            assertTrue("Equals returned incorrect result - " + ia1 + " != "
-                    + ia2, ia1.equals(ia2));
-        } catch (Exception e) {
-            fail("Exception during equals test : " + e.getMessage());
-        }
+        assertTrue(ipv4Localhost.equals(ipv4LoopbackIp));
     }
 
     /**
@@ -310,18 +307,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_getHostAddress() {
-        // Test for method java.lang.String
-        // java.net.InetAddress.getHostAddress()
-        try {
-            InetAddress ia2 = InetAddress
-                    .getByName(Support_Configuration.InetTestAddress);
-            assertTrue("getHostAddress returned incorrect result: "
-                    + ia2.getHostAddress() + " != "
-                    + Support_Configuration.InetTestIP, ia2.getHostAddress()
-                    .equals(Support_Configuration.InetTestIP));
-        } catch (Exception e) {
-            fail("Exception during getHostAddress test : " + e.getMessage());
-        }
+        assertTrue(ipv4Localhost.getHostAddress().equals("127.0.0.1"));
     }
 
     /**
@@ -351,26 +337,16 @@ public class InetAddressTest extends junit.framework.TestCase {
         System.setProperty("networkaddress.cache.ttl", "0");
 
         // Test for threadsafety
-        InetAddress lookup1 = InetAddress
-                .getByName(Support_Configuration.InetTestAddress);
-        assertTrue(lookup1 + " expected "
-                + Support_Configuration.InetTestIP,
-                Support_Configuration.InetTestIP.equals(lookup1
-                        .getHostAddress()));
-        InetAddress lookup2 = InetAddress
-                .getByName(Support_Configuration.InetTestAddress2);
-        assertTrue(lookup2 + " expected "
-                + Support_Configuration.InetTestIP2,
-                Support_Configuration.InetTestIP2.equals(lookup2
-                        .getHostAddress()));
+        assertTrue("127.0.0.1".equals(ipv4LoopbackIp.getHostAddress()));
+        assertTrue("127.0.0.1".equals(ipv4Localhost.getHostAddress()));
         threadsafeTestThread thread1 = new threadsafeTestThread("1",
-                lookup1.getHostName(), lookup1, 0);
+                ipv4LoopbackIp.getHostName(), ipv4LoopbackIp, 0);
         threadsafeTestThread thread2 = new threadsafeTestThread("2",
-                lookup2.getHostName(), lookup2, 0);
+                ipv4Localhost.getHostName(), ipv4Localhost, 0);
         threadsafeTestThread thread3 = new threadsafeTestThread("3",
-                lookup1.getHostAddress(), lookup1, 1);
+                ipv4LoopbackIp.getHostAddress(), ipv4LoopbackIp, 1);
         threadsafeTestThread thread4 = new threadsafeTestThread("4",
-                lookup2.getHostAddress(), lookup2, 1);
+                ipv4Localhost.getHostAddress(), ipv4Localhost, 1);
 
         // initialize the flags
         threadedTestSucceeded = true;
@@ -406,8 +382,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         try {
             // We don't know the host name or ip of the machine
             // running the test, so we can't build our own address
-            DatagramSocket dg = new DatagramSocket(0, InetAddress
-                    .getLocalHost());
+            DatagramSocket dg = new DatagramSocket(0, InetAddress.getLocalHost());
             assertTrue("Incorrect host returned", InetAddress.getLocalHost()
                     .equals(dg.getLocalAddress()));
             dg.close();
@@ -486,14 +461,11 @@ public class InetAddressTest extends junit.framework.TestCase {
     )
     public void test_toString() throws Exception {
         // Test for method java.lang.String java.net.InetAddress.toString()
-        InetAddress ia2 = InetAddress
-                .getByName(Support_Configuration.InetTestIP);
+        InetAddress ia2 = InetAddress.getByName(Support_Configuration.InetTestIP);
         assertEquals("/" + Support_Configuration.InetTestIP, ia2.toString());
         // Regression for HARMONY-84
-        InetAddress addr = InetAddress.getByName("localhost");
-        assertEquals("Assert 0: wrong string from name", "localhost/127.0.0.1", addr.toString());
-        InetAddress addr2 = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-        assertEquals("Assert 1: wrong string from address", "/127.0.0.1", addr2.toString());
+        assertEquals("localhost/127.0.0.1", ipv4Localhost.toString());
+        assertEquals("/127.0.0.1", ipv4LoopbackIp.toString());
     }
 
     /**
@@ -547,12 +519,10 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_getCanonicalHostName() throws Exception {
-        InetAddress theAddress = null;
-        theAddress = InetAddress.getLocalHost();
         assertTrue("getCanonicalHostName returned a zero length string ",
-                theAddress.getCanonicalHostName().length() != 0);
+                ipv4Localhost.getCanonicalHostName().length() != 0);
         assertTrue("getCanonicalHostName returned an empty string ",
-                !theAddress.equals(""));
+                !ipv4Localhost.equals(""));
 
         // test against an expected value
         InetAddress ia = InetAddress
@@ -578,11 +548,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {int.class}
     )
     public void test_isReachableI() throws Exception {
-        InetAddress ia = Inet4Address.getByName("127.0.0.1");
-        assertTrue(ia.isReachable(10000));
-        ia = Inet4Address.getByName("127.0.0.1");
+        assertTrue(ipv4LoopbackIp.isReachable(10000));
         try {
-            ia.isReachable(-1);
+            ipv4LoopbackIp.isReachable(-1);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
@@ -602,23 +570,22 @@ public class InetAddressTest extends junit.framework.TestCase {
             "behavior with WLAN and 3G networks")
     public void test_isReachableLjava_net_NetworkInterfaceII() throws Exception {
         // tests local address
-        InetAddress ia = Inet4Address.getByName("127.0.0.1");
-        assertTrue(ia.isReachable(null, 0, 10000));
-        ia = Inet4Address.getByName("127.0.0.1");
+        assertTrue(ipv4LoopbackIp.isReachable(null, 0, 10000));
+        InetAddress ia;
         try {
-            ia.isReachable(null, -1, 10000);
+            ipv4LoopbackIp.isReachable(null, -1, 10000);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
         }
         try {
-            ia.isReachable(null, 0, -1);
+            ipv4LoopbackIp.isReachable(null, 0, -1);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
         }
         try {
-            ia.isReachable(null, -1, -1);
+            ipv4LoopbackIp.isReachable(null, -1, -1);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
@@ -629,12 +596,11 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertFalse(ia.isReachable(null, 0, 1000));
 
         // Regression test for HARMONY-1842.
-        ia = InetAddress.getByName("localhost");
         Enumeration<NetworkInterface> nif = NetworkInterface.getNetworkInterfaces();
         NetworkInterface netif;
         while(nif.hasMoreElements()) {
             netif = nif.nextElement();
-            ia.isReachable(netif, 10, 1000);
+            ipv4Localhost.isReachable(netif, 10, 1000);
         }
     }
 
@@ -706,9 +672,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void testSerializationSelf() throws Exception {
-
-        SerializationTest.verifySelf(InetAddress.getByName("localhost"),
-                COMPARATOR);
+        SerializationTest.verifySelf(ipv4Localhost, COMPARATOR);
     }
 
     /**
@@ -721,9 +685,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void testSerializationCompatibility() throws Exception {
-
-        SerializationTest.verifyGolden(this,
-                InetAddress.getByName("localhost"), COMPARATOR);
+        SerializationTest.verifyGolden(this, ipv4Localhost, COMPARATOR);
     }
 
     /**
@@ -826,12 +788,11 @@ public class InetAddressTest extends junit.framework.TestCase {
     )
     public void test_isLoopbackAddress() throws Exception {
         String addrName = "127.0.0.0";
-        InetAddress addr = InetAddress.getByName(addrName);
-        assertTrue("Loopback address " + addrName + " not detected.", addr
-                .isLoopbackAddress());
+        assertTrue("Loopback address " + addrName + " not detected.",
+                ipv4LoopbackIp.isLoopbackAddress());
 
         addrName = "127.42.42.42";
-        addr = InetAddress.getByName(addrName);
+        InetAddress addr = InetAddress.getByName(addrName);
         assertTrue("Loopback address " + addrName + " not detected.", addr
                 .isLoopbackAddress());
 

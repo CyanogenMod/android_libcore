@@ -2484,13 +2484,13 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Gets the numeric value of the specified Unicode character.
+     * Returns the numeric value of the specified Unicode character.
+     * See {@link #getNumericValue(int)}.
      *
-     * @param c
-     *            the Unicode character to get the numeric value of.
+     * @param c the character
      * @return a non-negative numeric integer value if a numeric value for
      *         {@code c} exists, -1 if there is no numeric value for {@code c},
-     *         -2 if the numeric value can not be represented with an integer.
+     *         -2 if the numeric value can not be represented as an integer.
      */
     public static int getNumericValue(char c) {
         return getNumericValue((int) c);
@@ -2501,16 +2501,22 @@ public final class Character implements Serializable, Comparable<Character> {
      * the code point '\u216B' stands for the Roman number XII, which has the
      * numeric value 12.
      *
-     * @param codePoint
-     *            the Unicode code point to get the numeric value of.
+     * <p>There are two points of divergence between this method and the Unicode
+     * specification. This method treats the letters a-z (in both upper and lower
+     * cases, and their full-width variants) as numbers from 10 to 35. The
+     * Unicode specification also supports the idea of code points with non-integer
+     * numeric values; this method does not (except to the extent of returning -2
+     * for such code points).
+     *
+     * @param codePoint the code point
      * @return a non-negative numeric integer value if a numeric value for
      *         {@code codePoint} exists, -1 if there is no numeric value for
      *         {@code codePoint}, -2 if the numeric value can not be
      *         represented with an integer.
      */
     public static int getNumericValue(int codePoint) {
+        // This is both an optimization and papers over differences between Java and ICU.
         if (codePoint < 128) {
-            // Optimized for ASCII
             if (codePoint >= '0' && codePoint <= '9') {
                 return codePoint - '0';
             }
@@ -2521,6 +2527,14 @@ public final class Character implements Serializable, Comparable<Character> {
                 return codePoint - ('A' - 10);
             }
             return -1;
+        }
+        // Full-width uppercase A-Z.
+        if (codePoint >= 0xff21 && codePoint <= 0xff3a) {
+            return codePoint - 0xff17;
+        }
+        // Full-width lowercase a-z.
+        if (codePoint >= 0xff41 && codePoint <= 0xff5a) {
+            return codePoint - 0xff37;
         }
         return getNumericValueImpl(codePoint);
     }
@@ -2702,6 +2716,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isIdentifierIgnorable(int codePoint) {
+        // This is both an optimization and papers over differences between Java and ICU.
         if (codePoint < 0x600) {
             return (codePoint >= 0 && codePoint <= 8) || (codePoint >= 0xe && codePoint <= 0x1b) ||
                     (codePoint >= 0x7f && codePoint <= 0x9f) || (codePoint == 0xad);
@@ -3136,7 +3151,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         in Java; {@code false} otherwise.
      */
     public static boolean isWhitespace(int codePoint) {
-        // Optimized case for ASCII
+        // This is both an optimization and papers over differences between Java and ICU.
         if ((codePoint >= 0x1c && codePoint <= 0x20) || (codePoint >= 0x9 && codePoint <= 0xd)) {
             return true;
         }

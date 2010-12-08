@@ -135,9 +135,7 @@ public class Inflater {
      * checksum of the preset dictionary if {@link #needsDictionary} returns true.
      */
     public synchronized int getAdler() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         return getAdlerImpl(streamHandle);
     }
 
@@ -149,10 +147,7 @@ public class Inflater {
      * {@code long} value instead of an integer.
      */
     public synchronized long getBytesRead() {
-        // Throw NPE here
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
+        checkOpen();
         return getTotalInImpl(streamHandle);
     }
 
@@ -162,10 +157,7 @@ public class Inflater {
      * {@code long} value instead of an integer.
      */
     public synchronized long getBytesWritten() {
-        // Throw NPE here
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
+        checkOpen();
         return getTotalOutImpl(streamHandle);
     }
 
@@ -182,9 +174,7 @@ public class Inflater {
      * method is limited to 32 bits; use {@link #getBytesRead} instead.
      */
     public synchronized int getTotalIn() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         return (int) Math.min(getTotalInImpl(streamHandle), (long) Integer.MAX_VALUE);
     }
 
@@ -195,9 +185,7 @@ public class Inflater {
      * Inflater}. The method is limited to 32 bits; use {@link #getBytesWritten} instead.
      */
     public synchronized int getTotalOut() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         return (int) Math.min(getTotalOutImpl(streamHandle), (long) Integer.MAX_VALUE);
     }
 
@@ -233,9 +221,7 @@ public class Inflater {
             return 0;
         }
 
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
 
         if (needsInput()) {
             return 0;
@@ -275,9 +261,7 @@ public class Inflater {
      * set of data.
      */
     public synchronized void reset() {
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
+        checkOpen();
         finished = false;
         needsDictionary = false;
         inLength = inRead = 0;
@@ -300,9 +284,7 @@ public class Inflater {
      * #needsDictionary} for details.
      */
     public synchronized void setDictionary(byte[] dictionary, int offset, int byteCount) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         Arrays.checkOffsetAndCount(dictionary.length, offset, byteCount);
         setDictionaryImpl(dictionary, offset, byteCount, streamHandle);
     }
@@ -322,9 +304,7 @@ public class Inflater {
      * called if {@link #needsInput} returns {@code true}.
      */
     public synchronized void setInput(byte[] buf, int offset, int byteCount) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
         inRead = 0;
         inLength = byteCount;
@@ -335,9 +315,7 @@ public class Inflater {
 
     // BEGIN android-only
     synchronized int setFileInput(FileDescriptor fd, long offset, int byteCount) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         inRead = 0;
         inLength = setFileInputImpl(fd, offset, byteCount, streamHandle);
         return inLength;
@@ -345,4 +323,10 @@ public class Inflater {
 
     private native int setFileInputImpl(FileDescriptor fd, long offset, int byteCount, long handle);
     // END android-only
+
+    private void checkOpen() {
+        if (streamHandle == -1) {
+            throw new IllegalStateException("attempt to use Inflater after calling end");
+        }
+    }
 }

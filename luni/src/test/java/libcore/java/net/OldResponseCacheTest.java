@@ -35,6 +35,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.Permission;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 import tests.support.Support_PortManager;
@@ -219,9 +221,9 @@ public class OldResponseCacheTest extends TestCase {
         }
 
         @Override
-         public Map getHeaders() {
-           return null;
-         }
+        public Map<String, List<String>> getHeaders() throws IOException {
+            return new HashMap<String, List<String>>();
+        }
     }
 
     class TestCacheRequest extends CacheRequest {

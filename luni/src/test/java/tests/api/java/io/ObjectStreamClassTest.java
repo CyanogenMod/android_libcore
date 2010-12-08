@@ -17,19 +17,19 @@
 
 package tests.api.java.io;
 
-import java.io.File;
+import dalvik.system.DexClassLoader;
 import java.io.Externalizable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.lang.reflect.Proxy;
-
 import junit.framework.TestCase;
+import libcore.base.Streams;
 
 public class ObjectStreamClassTest extends TestCase {
 
@@ -119,25 +119,18 @@ public class ObjectStreamClassTest extends TestCase {
      */
     public void test_getSerialVersionUID_inner_private_class() {
         ObjectStreamClass osc1 = ObjectStreamClass.lookup(SyntheticTest.class);
-        assertEquals("SyntheticTest unexpected UID: "
-                + osc1.getSerialVersionUID(), -7784078941584535183L, osc1
-                .getSerialVersionUID());
+        assertEquals(4405770616475181267L, osc1.getSerialVersionUID());
 
-        ObjectStreamClass osc2 = ObjectStreamClass
-                .lookup(SyntheticTest.X.class);
-        assertEquals("SyntheticTest.X unexpected UID: "
-                + osc2.getSerialVersionUID(), -7703000075736397332L, osc2
-                .getSerialVersionUID());
+        ObjectStreamClass osc2 = ObjectStreamClass.lookup(SyntheticTest.X.class);
+        assertEquals(676101599466902119L, osc2.getSerialVersionUID());
     }
 
     /**
      * @tests java.io.ObjectStreamClass#getSerialVersionUID()
      */
     public void test_getSerialVersionUID_classloader() throws Exception {
-        File file = new File(
-                "resources/org/apache/harmony/luni/tests/ObjectStreamClassTest.jar");
-        ClassLoader loader = new URLClassLoader(new URL[] { file.toURL() },
-                null);
+        ClassLoader loader = newClassLoaderForJar(
+                "/org/apache/harmony/luni/tests/ObjectStreamClassTest.jar");
         Class cl1 = Class.forName("Test1$TestVarArgs", false, loader);
         ObjectStreamClass osc1 = ObjectStreamClass.lookup(cl1);
         assertEquals("Test1$TestVarArgs unexpected UID: "
@@ -149,6 +142,13 @@ public class ObjectStreamClassTest extends TestCase {
         assertEquals("Test1$TestBridge unexpected UID: "
                 + osc2.getSerialVersionUID(), 568585976855071180L, osc2
                 .getSerialVersionUID());
+    }
+
+    private ClassLoader newClassLoaderForJar(String resourceJar) throws IOException {
+        File dex = File.createTempFile("dex", "jar");
+        Streams.copy(getClass().getResourceAsStream(resourceJar), new FileOutputStream(dex));
+        return new DexClassLoader(dex.getPath(), dex.getParentFile().getPath(), null,
+                getClass().getClassLoader());
     }
 
     /**

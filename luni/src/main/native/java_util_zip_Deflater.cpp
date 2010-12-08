@@ -124,13 +124,13 @@ static void Deflater_resetImpl(JNIEnv* env, jobject, jlong handle) {
 }
 
 static void Deflater_setLevelsImpl(JNIEnv* env, jobject, int level, int strategy, jlong handle) {
-    if (handle == -1) {
-        jniThrowException(env, "java/lang/IllegalStateException", NULL);
-        return;
-    }
     NativeZipStream* stream = toNativeZipStream(handle);
-    jbyte b = 0;
-    stream->stream.next_out = reinterpret_cast<Bytef*>(&b);
+    // The deflateParams documentation says that avail_out must never be 0 because it may be
+    // necessary to flush, but the Java API ensures that we only get here if there's nothing
+    // to flush. To be on the safe side, make sure that we're not pointing to a no longer valid
+    // buffer.
+    stream->stream.next_out = reinterpret_cast<Bytef*>(NULL);
+    stream->stream.avail_out = 0;
     int err = deflateParams(&stream->stream, level, strategy);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalStateException", err);

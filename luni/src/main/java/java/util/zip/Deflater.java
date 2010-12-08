@@ -126,7 +126,12 @@ public class Deflater {
      */
     private static final int FINISH = 4;
 
-    private int flushStyle = NO_FLUSH;
+    /**
+     * The ugly name flushParm is for RI compatibility, should code need to access this
+     * field via reflection if it's not able to use public API to choose what
+     * kind of flushing it gets.
+     */
+    private int flushParm = NO_FLUSH;
 
     private boolean finished;
 
@@ -205,7 +210,7 @@ public class Deflater {
      * @return the number of bytes of compressed data written to {@code buf}.
      */
     public synchronized int deflate(byte[] buf, int offset, int byteCount) {
-        return deflateImpl(buf, offset, byteCount, flushStyle);
+        return deflateImpl(buf, offset, byteCount, flushParm);
     }
 
     /**
@@ -229,9 +234,7 @@ public class Deflater {
     }
 
     private synchronized int deflateImpl(byte[] buf, int offset, int byteCount, int flush) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
         if (inputBuffer == null) {
             setInput(EmptyArray.BYTE);
@@ -239,7 +242,7 @@ public class Deflater {
         return deflateImpl(buf, offset, byteCount, streamHandle, flush);
     }
 
-    private native int deflateImpl(byte[] buf, int offset, int byteCount, long handle, int flushStyle);
+    private native int deflateImpl(byte[] buf, int offset, int byteCount, long handle, int flushParm);
 
     /**
      * Frees all resources held onto by this deflating algorithm. Any unused
@@ -287,7 +290,7 @@ public class Deflater {
      * @see #finished
      */
     public synchronized void finish() {
-        flushStyle = FINISH;
+        flushParm = FINISH;
     }
 
     /**
@@ -301,10 +304,7 @@ public class Deflater {
      * Returns the {@link Adler32} checksum of the uncompressed data read so far.
      */
     public synchronized int getAdler() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
-
+        checkOpen();
         return getAdlerImpl(streamHandle);
     }
 
@@ -315,9 +315,7 @@ public class Deflater {
      * method is limited to 32 bits; use {@link #getBytesRead} instead.
      */
     public synchronized int getTotalIn() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         return (int) getTotalInImpl(streamHandle);
     }
 
@@ -328,9 +326,7 @@ public class Deflater {
      * Deflater}. The method is limited to 32 bits; use {@link #getBytesWritten} instead.
      */
     public synchronized int getTotalOut() {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         return (int) getTotalOutImpl(streamHandle);
     }
 
@@ -355,10 +351,8 @@ public class Deflater {
      * true if the {@code Deflater} is to be reused.
      */
     public synchronized void reset() {
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
-        flushStyle = NO_FLUSH;
+        checkOpen();
+        flushParm = NO_FLUSH;
         finished = false;
         resetImpl(streamHandle);
         inputBuffer = null;
@@ -383,9 +377,7 @@ public class Deflater {
      * using {@link #Deflater(int, boolean)}.
      */
     public synchronized void setDictionary(byte[] buf, int offset, int byteCount) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
         setDictionaryImpl(buf, offset, byteCount, streamHandle);
     }
@@ -405,9 +397,7 @@ public class Deflater {
      * for later compression.
      */
     public synchronized void setInput(byte[] buf, int offset, int byteCount) {
-        if (streamHandle == -1) {
-            throw new IllegalStateException();
-        }
+        checkOpen();
         Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
         inLength = byteCount;
         inRead = 0;
@@ -464,10 +454,7 @@ public class Deflater {
      * {@code long} value instead of an integer.
      */
     public synchronized long getBytesRead() {
-        // Throw NPE here
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
+        checkOpen();
         return getTotalInImpl(streamHandle);
     }
 
@@ -477,12 +464,15 @@ public class Deflater {
      * {@code long} value instead of an integer.
      */
     public synchronized long getBytesWritten() {
-        // Throw NPE here
-        if (streamHandle == -1) {
-            throw new NullPointerException();
-        }
+        checkOpen();
         return getTotalOutImpl(streamHandle);
     }
 
     private native long createStream(int level, int strategy1, boolean noHeader1);
+
+    private void checkOpen() {
+        if (streamHandle == -1) {
+            throw new IllegalStateException("attempt to use Deflater after calling end");
+        }
+    }
 }

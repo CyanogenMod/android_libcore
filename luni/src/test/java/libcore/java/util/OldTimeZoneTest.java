@@ -204,8 +204,8 @@ public class OldTimeZoneTest extends TestCase {
         // Arizona doesn't observe DST. See http://phoenix.about.com/cs/weather/qt/timezone.htm
         assertFalse(tz1.hasSameRules(tz2));
         assertFalse(tz1.hasSameRules(null));
-        tz1 = TimeZone.getTimeZone("America/Montreal");
-        tz2 = TimeZone.getTimeZone("America/New_York");
+        tz1 = TimeZone.getTimeZone("America/New_York");
+        tz2 = TimeZone.getTimeZone("US/Eastern");
         assertEquals(tz1.getDisplayName(), tz2.getDisplayName());
         assertFalse(tz1.getID().equals(tz2.getID()));
         assertTrue(tz2.hasSameRules(tz1));
