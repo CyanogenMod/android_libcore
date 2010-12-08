@@ -215,10 +215,14 @@ public class InflaterInputStream extends FilterInputStream {
      *
      * @param byteCount the number of bytes to skip.
      * @return the number of uncompressed bytes skipped.
+     * @throws IllegalArgumentException if {@code byteCount < 0}.
      * @throws IOException if an error occurs skipping.
      */
     @Override
     public long skip(long byteCount) throws IOException {
+        if (byteCount < 0) {
+            throw new IllegalArgumentException("byteCount < 0");
+        }
         return Streams.skipByReading(this, byteCount);
     }
 

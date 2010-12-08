@@ -470,16 +470,17 @@ public class BufferedReader extends Reader {
     }
 
     /**
-     * Skips {@code amount} characters in this reader. Subsequent
-     * {@code read()}s will not return these characters unless {@code reset()}
-     * is used. Skipping characters may invalidate a mark if {@code markLimit}
+     * Skips {@code byteCount} bytes in this stream. Subsequent calls to
+     * {@code read} will not return these bytes unless {@code reset} is
+     * used.
+     * Skipping characters may invalidate a mark if {@code markLimit}
      * is surpassed.
      *
-     * @param amount
+     * @param byteCount
      *            the maximum number of characters to skip.
      * @return the number of characters actually skipped.
      * @throws IllegalArgumentException
-     *             if {@code amount < 0}.
+     *             if {@code byteCount < 0}.
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      * @see #mark(int)
@@ -487,35 +488,35 @@ public class BufferedReader extends Reader {
      * @see #reset()
      */
     @Override
-    public long skip(long amount) throws IOException {
-        if (amount < 0) {
-            throw new IllegalArgumentException();
+    public long skip(long byteCount) throws IOException {
+        if (byteCount < 0) {
+            throw new IllegalArgumentException("byteCount < 0");
         }
         synchronized (lock) {
             checkNotClosed();
-            if (amount < 1) {
+            if (byteCount < 1) {
                 return 0;
             }
-            if (end - pos >= amount) {
-                pos += amount;
-                return amount;
+            if (end - pos >= byteCount) {
+                pos += byteCount;
+                return byteCount;
             }
 
             long read = end - pos;
             pos = end;
-            while (read < amount) {
+            while (read < byteCount) {
                 if (fillBuf() == -1) {
                     return read;
                 }
-                if (end - pos >= amount - read) {
-                    pos += amount - read;
-                    return amount;
+                if (end - pos >= byteCount - read) {
+                    pos += byteCount - read;
+                    return byteCount;
                 }
                 // Couldn't get all the characters, skip what we read
                 read += (end - pos);
                 pos = end;
             }
-            return amount;
+            return byteCount;
         }
     }
 }

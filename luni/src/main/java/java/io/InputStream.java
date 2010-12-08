@@ -215,7 +215,7 @@ public abstract class InputStream extends Object implements Closeable {
 
     /**
      * Skips at most {@code n} bytes in this stream. This method does nothing and returns
-     * 0 if {@code n} is negative.
+     * 0 if {@code n} is negative, but some subclasses may throw.
      *
      * <p>Note the "at most" in the description of this method: this method may choose to skip
      * fewer bytes than requested. Callers should <i>always</i> check the return value.

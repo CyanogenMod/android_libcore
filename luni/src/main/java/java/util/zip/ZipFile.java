@@ -434,12 +434,12 @@ public class ZipFile implements ZipConstants {
         }
 
         @Override
-        public long skip(long n) throws IOException {
-            if (n > mLength - mOffset) {
-                n = mLength - mOffset;
+        public long skip(long byteCount) throws IOException {
+            if (byteCount > mLength - mOffset) {
+                byteCount = mLength - mOffset;
             }
-            mOffset += n;
-            return n;
+            mOffset += byteCount;
+            return byteCount;
         }
     }
 
