@@ -183,8 +183,6 @@ public abstract class FilterReader extends Reader {
      * will not return these characters unless {@code reset} is used. The
      * default implementation is to skip characters in the filtered reader.
      *
-     * @param count
-     *            the maximum number of characters to skip.
      * @return the number of characters actually skipped.
      * @throws IOException
      *             if the filtered reader is closed or some other I/O error
