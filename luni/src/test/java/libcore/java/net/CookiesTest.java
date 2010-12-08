@@ -482,7 +482,7 @@ public class CookiesTest extends TestCase {
 
     private void assertContains(Collection<String> collection, String element) {
         for (String c : collection) {
-            if (c.equalsIgnoreCase(element)) {
+            if (c != null && c.equalsIgnoreCase(element)) {
                 return;
             }
         }
