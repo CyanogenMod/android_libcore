@@ -1590,8 +1590,8 @@ public class Collections {
      */
     public static <T> void copy(List<? super T> destination, List<? extends T> source) {
         if (destination.size() < source.size()) {
-            throw new IndexOutOfBoundsException("Source size " + source.size() +
-                    " < destination size " + destination.size());
+            throw new IndexOutOfBoundsException("destination.size() < source.size(): " +
+                    destination.size() + " < " + source.size());
         }
         Iterator<? extends T> srcIt = source.iterator();
         ListIterator<? super T> destIt = destination.listIterator();
