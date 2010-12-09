@@ -203,24 +203,18 @@ public class CharArrayWriter extends Writer {
     }
 
     /**
-     * Writes {@code count} number of characters starting at {@code offset} from
+     * Writes {@code count} characters starting at {@code offset} from
      * the string {@code str} to this CharArrayWriter.
      *
-     * @param str
-     *            the non-null string containing the characters to write.
-     * @param offset
-     *            the index of the first character in {@code str} to write.
-     * @param len
-     *            the number of characters to retrieve and write.
      * @throws NullPointerException
      *             if {@code str} is {@code null}.
      * @throws StringIndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code len < 0}, or if
-     *             {@code offset + len} is bigger than the length of
+     *             if {@code offset < 0} or {@code count < 0}, or if
+     *             {@code offset + count} is bigger than the length of
      *             {@code str}.
      */
     @Override
-    public void write(String str, int offset, int len) {
+    public void write(String str, int offset, int count) {
         if (str == null) {
             throw new NullPointerException("str == null");
         }
@@ -228,17 +222,16 @@ public class CharArrayWriter extends Writer {
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
         // RI, but are spec-compliant.
-        // removed redundant check, used (offset | len) < 0
-        // instead of (offset < 0) || (len < 0) to safe one operation
-        if ((offset | len) < 0 || len > str.length() - offset) {
-            throw new StringIndexOutOfBoundsException("str.length=" + str.length()
-                    + " offset=" + offset + " len=" + len);
+        // removed redundant check, used (offset | count) < 0
+        // instead of (offset < 0) || (count < 0) to safe one operation
+        if ((offset | count) < 0 || offset > str.length() - count) {
+            throw new StringIndexOutOfBoundsException(str, offset, count);
         }
         // END android-changed
         synchronized (lock) {
-            expand(len);
-            str.getChars(offset, offset + len, buf, this.count);
-            this.count += len;
+            expand(count);
+            str.getChars(offset, offset + count, buf, this.count);
+            this.count += count;
         }
     }
 
