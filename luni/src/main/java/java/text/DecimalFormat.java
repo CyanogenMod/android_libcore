@@ -881,7 +881,7 @@ public class DecimalFormat extends NumberFormat {
     @Override
     public Number parse(String string, ParsePosition position) {
         Number number = dform.parse(string, position);
-        if (null == number) {
+        if (number == null) {
             return null;
         }
         // BEGIN android-removed

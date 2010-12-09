@@ -202,13 +202,13 @@ public class DriverManager {
      *             if there is an error while attempting to connect to the
      *             database identified by the URL.
      */
-    public static Connection getConnection(String url, String user,
-            String password) throws SQLException {
+    public static Connection getConnection(String url, String user, String password)
+            throws SQLException {
         Properties theProperties = new Properties();
-        if (null != user) {
+        if (user != null) {
             theProperties.setProperty("user", user);
         }
-        if (null != password) {
+        if (password != null) {
             theProperties.setProperty("password", password);
         }
         return getConnection(url, theProperties);

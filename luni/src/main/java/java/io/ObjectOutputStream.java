@@ -1834,7 +1834,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             output.writeByte(TC_ENDBLOCKDATA);
             // write super class
             ObjectStreamClass superClassDesc = classDesc.getSuperclass();
-            if (null != superClassDesc) {
+            if (superClassDesc != null) {
                 // super class is also enum
                 superClassDesc.setFlags((byte) (SC_SERIALIZABLE | SC_ENUM));
                 writeEnumDesc(superClassDesc.forClass(), superClassDesc, unshared);

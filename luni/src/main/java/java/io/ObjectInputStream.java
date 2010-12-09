@@ -1203,7 +1203,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
     private void readFieldValues(Object obj, ObjectStreamClass classDesc) throws OptionalDataException, ClassNotFoundException, IOException {
         // Now we must read all fields and assign them to the receiver
         ObjectStreamField[] fields = classDesc.getLoadFields();
-        fields = (null == fields ? ObjectStreamClass.NO_FIELDS : fields);
+        fields = (fields == null) ? ObjectStreamClass.NO_FIELDS : fields;
         Class<?> declaringClass = classDesc.forClass();
         if (declaringClass == null && mustResolve) {
             throw new ClassNotFoundException(classDesc.getName());
@@ -1812,7 +1812,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         // Resolve the field signatures using the class loader of the
         // resolved class
         ObjectStreamField[] fields = newClassDesc.getLoadFields();
-        fields = (null == fields ? ObjectStreamClass.NO_FIELDS : fields);
+        fields = (fields == null) ? ObjectStreamClass.NO_FIELDS : fields;
         ClassLoader loader = newClassDesc.forClass() == null ? callerClassLoader
                 : newClassDesc.forClass().getClassLoader();
         for (ObjectStreamField element : fields) {
@@ -1875,7 +1875,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
          * descriptors. If called outside of readObject, the descriptorHandle
          * might be null.
          */
-        descriptorHandle = (null == descriptorHandle ? nextHandle() : descriptorHandle);
+        descriptorHandle = (descriptorHandle == null) ? nextHandle() : descriptorHandle;
         registerObjectRead(newClassDesc, descriptorHandle, false);
 
         readFieldDescriptors(newClassDesc);
@@ -2520,14 +2520,14 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             throws IOException, ClassNotFoundException {
         // fastpath: obtain cached value
         Class<?> cls = osClass.forClass();
-        if (null == cls) {
+        if (cls == null) {
             // slowpath: resolve the class
             String className = osClass.getName();
 
             // if it is primitive class, for example, long.class
             cls = PRIMITIVE_CLASSES.get(className);
 
-            if (null == cls) {
+            if (cls == null) {
                 // not primitive class
                 // Use the first non-null ClassLoader on the stack. If null, use
                 // the system class loader

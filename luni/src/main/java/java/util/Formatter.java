@@ -2159,7 +2159,9 @@ public final class Formatter implements Closeable, Flushable {
 
     private void transform_g(StringBuilder result) {
         int precision = formatToken.getPrecision();
-        precision = (0 == precision ? 1 : precision);
+        if (precision == 0) {
+            precision = 1;
+        }
         formatToken.setPrecision(precision);
 
         double d = ((Number) arg).doubleValue();
@@ -2268,7 +2270,9 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         int precision = formatToken.getPrecision();
-        precision = (0 == precision ? 1 : precision);
+        if (precision == 0) {
+            precision = 1;
+        }
         int indexOfFirstFractionalDigit = result.indexOf(".") + 1;
         int indexOfP = result.indexOf("p");
         int fractionalLength = indexOfP - indexOfFirstFractionalDigit;

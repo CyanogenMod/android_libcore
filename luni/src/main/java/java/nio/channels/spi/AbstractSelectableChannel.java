@@ -91,7 +91,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
     synchronized public final SelectionKey keyFor(Selector selector) {
         for (int i = 0; i < keyList.size(); i++) {
             SelectionKey key = keyList.get(i);
-            if (null != key && key.selector() == selector) {
+            if (key != null && key.selector() == selector) {
                 return key;
             }
         }
@@ -140,7 +140,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
                 throw new IllegalBlockingModeException();
             }
             if (!selector.isOpen()) {
-                if (0 == interestSet) {
+                if (interestSet == 0) {
                     // throw ISE exactly to keep consistency
                     throw new IllegalSelectorException();
                 }
@@ -148,9 +148,8 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
                 throw new NullPointerException();
             }
             SelectionKey key = keyFor(selector);
-            if (null == key) {
-                key = ((AbstractSelector) selector).register(this, interestSet,
-                        attachment);
+            if (key == null) {
+                key = ((AbstractSelector) selector).register(this, interestSet, attachment);
                 keyList.add(key);
             } else {
                 if (!key.isValid()) {
@@ -177,7 +176,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
         implCloseSelectableChannel();
         for (int i = 0; i < keyList.size(); i++) {
             SelectionKey key = keyList.get(i);
-            if (null != key) {
+            if (key != null) {
                 key.cancel();
             }
         }
@@ -269,7 +268,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * package private for deregister method in AbstractSelector.
      */
     synchronized void deregister(SelectionKey k) {
-        if (null != keyList) {
+        if (keyList != null) {
             keyList.remove(k);
         }
     }

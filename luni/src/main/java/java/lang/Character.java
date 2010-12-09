@@ -2422,7 +2422,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static char forDigit(int digit, int radix) {
         if (MIN_RADIX <= radix && radix <= MAX_RADIX) {
-            if (0 <= digit && digit < radix) {
+            if (digit >= 0 && digit < radix) {
                 return (char) (digit < 10 ? digit + '0' : digit + 'a' - 10);
             }
         }

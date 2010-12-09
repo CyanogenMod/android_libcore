@@ -109,7 +109,7 @@ public class MemoryHandler extends Handler {
         }
         // init size
         String sizeString = manager.getProperty(className + ".size");
-        if (null != sizeString) {
+        if (sizeString != null) {
             try {
                 size = Integer.parseInt(sizeString);
                 if (size <= 0) {
@@ -121,7 +121,7 @@ public class MemoryHandler extends Handler {
         }
         // init push level
         String pushName = manager.getProperty(className + ".push");
-        if (null != pushName) {
+        if (pushName != null) {
             try {
                 push = Level.parse(pushName);
             } catch (Exception e) {
@@ -246,13 +246,13 @@ public class MemoryHandler extends Handler {
      */
     public void push() {
         for (int i = cursor; i < size; i++) {
-            if (null != buffer[i]) {
+            if (buffer[i] != null) {
                 target.publish(buffer[i]);
             }
             buffer[i] = null;
         }
         for (int i = 0; i < cursor; i++) {
-            if (null != buffer[i]) {
+            if (buffer[i] != null) {
                 target.publish(buffer[i]);
             }
             buffer[i] = null;

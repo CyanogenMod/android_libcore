@@ -147,7 +147,7 @@ public class Proxy {
     public final int hashCode() {
         int ret = 0;
         ret += type.hashCode();
-        if (null != address) {
+        if (address != null) {
             ret += address.hashCode();
         }
         return ret;

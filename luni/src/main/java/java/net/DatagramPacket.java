@@ -188,8 +188,7 @@ public final class DatagramPacket {
      *            store the received data.
      */
     public synchronized void setData(byte[] buf, int anOffset, int aLength) {
-        if (0 > anOffset || anOffset > buf.length || 0 > aLength
-                || aLength > buf.length - anOffset) {
+        if (anOffset < 0 || anOffset > buf.length || aLength < 0 || aLength > buf.length - anOffset) {
             throw new IllegalArgumentException();
         }
         data = buf;
@@ -229,7 +228,7 @@ public final class DatagramPacket {
      *            the length of this datagram packet.
      */
     public synchronized void setLength(int len) {
-        if (0 > len || offset + len > data.length) {
+        if (len < 0 || offset + len > data.length) {
             throw new IndexOutOfBoundsException();
         }
         length = len;
@@ -243,7 +242,7 @@ public final class DatagramPacket {
      * @param len the length of this datagram packet
      */
     synchronized void setLengthOnly(int len) {
-        if (0 > len || offset + len > data.length) {
+        if (len < 0 || offset + len > data.length) {
             throw new IndexOutOfBoundsException();
         }
         length = len;

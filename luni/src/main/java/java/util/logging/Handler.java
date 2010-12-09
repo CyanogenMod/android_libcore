@@ -66,7 +66,7 @@ public abstract class Handler {
     // get a instance from given class name, using Class.forName()
     private Object getDefaultInstance(String className) {
         Object result = null;
-        if (null == className) {
+        if (className == null) {
             return result;
         }
         try {
@@ -83,9 +83,8 @@ public abstract class Handler {
         Class<?> c = AccessController
                 .doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
                     public Class<?> run() throws Exception {
-                        ClassLoader loader = Thread.currentThread()
-                                .getContextClassLoader();
-                        if (null == loader) {
+                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                        if (loader == null) {
                             loader = ClassLoader.getSystemClassLoader();
                         }
                         return loader.loadClass(className);
@@ -110,7 +109,7 @@ public abstract class Handler {
 
         // set filter
         final String filterName = manager.getProperty(prefix + ".filter");
-        if (null != filterName) {
+        if (filterName != null) {
             try {
                 filter = (Filter) getCustomizeInstance(filterName);
             } catch (Exception e1) {
@@ -123,7 +122,7 @@ public abstract class Handler {
 
         // set level
         String levelName = manager.getProperty(prefix + ".level");
-        if (null != levelName) {
+        if (levelName != null) {
             try {
                 level = Level.parse(levelName);
             } catch (Exception e) {
@@ -136,7 +135,7 @@ public abstract class Handler {
 
         // set formatter
         final String formatterName = manager.getProperty(prefix + ".formatter");
-        if (null != formatterName) {
+        if (formatterName != null) {
             try {
                 formatter = (Formatter) getCustomizeInstance(formatterName);
             } catch (Exception e) {
@@ -242,13 +241,13 @@ public abstract class Handler {
      *         otherwise {@code false}.
      */
     public boolean isLoggable(LogRecord record) {
-        if (null == record) {
+        if (record == null) {
             throw new NullPointerException();
         }
         if (this.level.intValue() == Level.OFF.intValue()) {
             return false;
         } else if (record.getLevel().intValue() >= this.level.intValue()) {
-            return null == this.filter || this.filter.isLoggable(record);
+            return this.filter == null || this.filter.isLoggable(record);
         }
         return false;
     }
@@ -324,7 +323,7 @@ public abstract class Handler {
      */
     public void setErrorManager(ErrorManager em) {
         LogManager.getLogManager().checkAccess();
-        if (null == em) {
+        if (em == null) {
             throw new NullPointerException();
         }
         this.errorMan = em;
@@ -352,7 +351,7 @@ public abstract class Handler {
      *            the formatter to set.
      */
     void internalSetFormatter(Formatter newFormatter) {
-        if (null == newFormatter) {
+        if (newFormatter == null) {
             throw new NullPointerException();
         }
         this.formatter = newFormatter;
@@ -387,7 +386,7 @@ public abstract class Handler {
      *             have the required permission.
      */
     public void setLevel(Level newLevel) {
-        if (null == newLevel) {
+        if (newLevel == null) {
             throw new NullPointerException();
         }
         LogManager.getLogManager().checkAccess();

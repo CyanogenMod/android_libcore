@@ -263,9 +263,6 @@ public abstract class Reader implements Readable, Closeable {
      *             if {@code target} is read-only.
      */
     public int read(CharBuffer target) throws IOException {
-        if (null == target) {
-            throw new NullPointerException();
-        }
         int length = target.length();
         char[] buf = new char[length];
         length = Math.min(length, read(buf));

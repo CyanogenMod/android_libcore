@@ -280,7 +280,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      */
     public E pollFirst() {
         Map.Entry<E, Object> entry = backingMap.pollFirstEntry();
-        return (null == entry) ? null : entry.getKey();
+        return (entry == null) ? null : entry.getKey();
     }
 
     /**
@@ -291,7 +291,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      */
     public E pollLast() {
         Map.Entry<E, Object> entry = backingMap.pollLastEntry();
-        return (null == entry) ? null : entry.getKey();
+        return (entry == null) ? null : entry.getKey();
     }
 
     /**
@@ -341,7 +341,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      * @since 1.6
      */
     public NavigableSet<E> descendingSet() {
-        return (null != descendingSet) ? descendingSet
+        return (descendingSet != null) ? descendingSet
                 : (descendingSet = new TreeSet<E>(backingMap.descendingMap()));
     }
 

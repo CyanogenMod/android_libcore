@@ -205,7 +205,7 @@ public class StreamTokenizer {
      *            the character to be considered a comment character.
      */
     public void commentChar(int ch) {
-        if (0 <= ch && ch < tokenTypes.length) {
+        if (ch >= 0 && ch < tokenTypes.length) {
             tokenTypes[ch] = TOKEN_COMMENT;
         }
     }
@@ -486,7 +486,7 @@ public class StreamTokenizer {
      *            the character to be considered an ordinary character.
      */
     public void ordinaryChar(int ch) {
-        if (0 <= ch && ch < tokenTypes.length) {
+        if (ch >= 0 && ch < tokenTypes.length) {
             tokenTypes[ch] = 0;
         }
     }
@@ -541,7 +541,7 @@ public class StreamTokenizer {
      *            the character to be considered a quote character.
      */
     public void quoteChar(int ch) {
-        if (0 <= ch && ch < tokenTypes.length) {
+        if (ch >= 0 && ch < tokenTypes.length) {
             tokenTypes[ch] = TOKEN_QUOTE;
         }
     }

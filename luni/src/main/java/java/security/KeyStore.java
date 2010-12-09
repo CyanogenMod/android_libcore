@@ -350,7 +350,7 @@ public class KeyStore {
         }
 
         // Certificate chain is required for PrivateKey
-        if (null != key && key instanceof PrivateKey && (chain == null || chain.length == 0)) {
+        if (key != null && key instanceof PrivateKey && (chain == null || chain.length == 0)) {
             throw new IllegalArgumentException("Certificate chain is not defined for Private key");
         }
         implSpi.engineSetKeyEntry(alias, key, password, chain);

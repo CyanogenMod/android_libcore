@@ -162,7 +162,7 @@ public class LogRecord implements Serializable {
         synchronized (LogRecord.class) {
             this.sequenceNumber = currentSequenceNumber++;
             Integer id = currentThreadId.get();
-            if (null == id) {
+            if (id == null) {
                 this.threadID = initThreadId;
                 currentThreadId.set(Integer.valueOf(initThreadId++));
             } else {
@@ -465,12 +465,12 @@ public class LogRecord implements Serializable {
         out.defaultWriteObject();
         out.writeByte(MAJOR);
         out.writeByte(MINOR);
-        if (null == parameters) {
+        if (parameters == null) {
             out.writeInt(-1);
         } else {
             out.writeInt(parameters.length);
             for (Object element : parameters) {
-                out.writeObject(null == element ? null : element.toString());
+                out.writeObject((element == null) ? null : element.toString());
             }
         }
     }
@@ -495,7 +495,7 @@ public class LogRecord implements Serializable {
                 parameters[i] = in.readObject();
             }
         }
-        if (null != resourceBundleName) {
+        if (resourceBundleName != null) {
             try {
                 resourceBundle = Logger.loadResourceBundle(resourceBundleName);
             } catch (MissingResourceException e) {

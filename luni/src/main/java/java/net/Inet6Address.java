@@ -122,7 +122,7 @@ public final class Inet6Address extends InetAddress {
         Inet6Address address = Inet6Address.getByAddress(host, addr, 0);
 
         // if nif is null, nothing needs to be set.
-        if (null == nif) {
+        if (nif == null) {
             return address;
         }
 
@@ -405,7 +405,7 @@ public final class Inet6Address extends InetAddress {
         scope_id_set = fields.get("scope_id_set", false);
         ifname = (String) fields.get("ifname", null);
         scope_ifname_set = fields.get("scope_ifname_set", false);
-        if (scope_ifname_set && null != ifname) {
+        if (scope_ifname_set && ifname != null) {
             scopedIf = NetworkInterface.getByName(ifname);
         }
     }

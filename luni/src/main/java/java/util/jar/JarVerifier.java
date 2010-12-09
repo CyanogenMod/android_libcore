@@ -300,7 +300,7 @@ class JarVerifier {
              * Recursive call in loading security provider related class which
              * is in a signed JAR.
              */
-            if (null == metaEntries) {
+            if (metaEntries == null) {
                 return;
             }
             if (signerCertChain != null) {

@@ -83,7 +83,7 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                         int[] tryResult = new int[1];
                         boolean success = Platform.NETWORK.select(new FileDescriptor[] { fd },
                                 SelectorImpl.EMPTY_FILE_DESCRIPTORS_ARRAY, 1, 0, 0, tryResult);
-                        if (!success || 0 == tryResult[0]) {
+                        if (!success || tryResult[0] == 0) {
                             // no pending connections, returns immediately.
                             return null;
                         }
@@ -140,7 +140,7 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                 throw new IllegalBlockingModeException();
             }
             SocketChannel sc = channelImpl.accept();
-            if (null == sc) {
+            if (sc == null) {
                 throw new IllegalBlockingModeException();
             }
             return sc.socket();

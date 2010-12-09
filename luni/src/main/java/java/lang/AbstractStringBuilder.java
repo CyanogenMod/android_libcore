@@ -311,7 +311,7 @@ abstract class AbstractStringBuilder {
     }
 
     final void insert0(int index, char[] chars) {
-        if (0 > index || index > count) {
+        if (index < 0 || index > count) {
             throw indexAndLength(index);
         }
         if (chars.length != 0) {
@@ -322,9 +322,9 @@ abstract class AbstractStringBuilder {
     }
 
     final void insert0(int index, char[] chars, int start, int length) {
-        if (0 <= index && index <= count) {
+        if (index >= 0 && index <= count) {
             // start + length could overflow, start/length maybe MaxInt
-            if (start >= 0 && 0 <= length && length <= chars.length - start) {
+            if (start >= 0 && length >= 0 && length <= chars.length - start) {
                 if (length != 0) {
                     move(length, index);
                     System.arraycopy(chars, start, value, index, length);
@@ -338,7 +338,7 @@ abstract class AbstractStringBuilder {
     }
 
     final void insert0(int index, char ch) {
-        if (0 > index || index > count) {
+        if (index < 0 || index > count) {
             // RI compatible exception type
             throw new ArrayIndexOutOfBoundsException("index=" + index + ", length=" + count);
         }
@@ -348,7 +348,7 @@ abstract class AbstractStringBuilder {
     }
 
     final void insert0(int index, String string) {
-        if (0 <= index && index <= count) {
+        if (index >= 0 && index <= count) {
             if (string == null) {
                 string = "null";
             }
@@ -540,7 +540,7 @@ abstract class AbstractStringBuilder {
      *             current {@link #length()}.
      */
     public void setCharAt(int index, char ch) {
-        if (0 > index || index >= count) {
+        if (index < 0 || index >= count) {
             throw indexAndLength(index);
         }
         if (shared) {
@@ -594,7 +594,7 @@ abstract class AbstractStringBuilder {
      *             {@link #length()}.
      */
     public String substring(int start) {
-        if (0 <= start && start <= count) {
+        if (start >= 0 && start <= count) {
             if (start == count) {
                 return "";
             }
@@ -619,7 +619,7 @@ abstract class AbstractStringBuilder {
      *             {@code end} is greater than the current {@link #length()}.
      */
     public String substring(int start, int end) {
-        if (0 <= start && start <= end && end <= count) {
+        if (start >= 0 && start <= end && end <= count) {
             if (start == end) {
                 return "";
             }

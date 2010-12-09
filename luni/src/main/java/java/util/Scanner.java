@@ -250,7 +250,7 @@ public final class Scanner implements Iterator<String> {
      *            the {@code Readable} to be scanned.
      */
     public Scanner(Readable src) {
-        if (null == src) {
+        if (src == null) {
             throw new NullPointerException();
         }
         input = src;
@@ -513,7 +513,7 @@ public final class Scanner implements Iterator<String> {
                 resetMatcher();
             }
         }
-        if (null != result) {
+        if (result != null) {
             findStartIndex = matcher.end();
             matchSuccessful = true;
         } else {
@@ -1420,7 +1420,7 @@ public final class Scanner implements Iterator<String> {
             }
         }
         // Find text without line terminator here.
-        if (null != result) {
+        if (result != null) {
             Matcher terminatorMatcher = LINE_TERMINATOR.matcher(result);
             if (terminatorMatcher.find()) {
                 result = result.substring(0, terminatorMatcher.start());
@@ -1673,7 +1673,7 @@ public final class Scanner implements Iterator<String> {
      * @return this {@code Scanner}.
      */
     public Scanner useLocale(Locale l) {
-        if (null == l) {
+        if (l == null) {
             throw new NullPointerException();
         }
         this.locale = l;
@@ -1733,7 +1733,7 @@ public final class Scanner implements Iterator<String> {
      * will be thrown out.
      */
     private void checkNull(Pattern pattern) {
-        if (null == pattern) {
+        if (pattern == null) {
             throw new NullPointerException();
         }
     }
@@ -1742,7 +1742,7 @@ public final class Scanner implements Iterator<String> {
      * Change the matcher's string after reading input
      */
     private void resetMatcher() {
-        if (null == matcher) {
+        if (matcher == null) {
             matcher = delimiter.matcher(buffer);
         } else {
             matcher.reset(buffer);
@@ -1952,7 +1952,7 @@ public final class Scanner implements Iterator<String> {
             }
         }
         // Token is NaN or Infinity
-        if (0 == result.length()) {
+        if (result.length() == 0) {
             result = tokenBuilder;
         }
         if (-1 != separatorIndex) {
@@ -1975,10 +1975,10 @@ public final class Scanner implements Iterator<String> {
         String negativePrefix = decimalFormat.getNegativePrefix();
         String negativeSuffix = decimalFormat.getNegativeSuffix();
 
-        if (0 == tokenBuilder.indexOf("+")) {
+        if (tokenBuilder.indexOf("+") == 0) {
             tokenBuilder.delete(0, 1);
         }
-        if (!positivePrefix.isEmpty() && 0 == tokenBuilder.indexOf(positivePrefix)) {
+        if (!positivePrefix.isEmpty() && tokenBuilder.indexOf(positivePrefix) == 0) {
             tokenBuilder.delete(0, positivePrefix.length());
         }
         if (!positiveSuffix.isEmpty()
@@ -1988,12 +1988,11 @@ public final class Scanner implements Iterator<String> {
                     tokenBuilder.length());
         }
         boolean negative = false;
-        if (0 == tokenBuilder.indexOf("-")) {
+        if (tokenBuilder.indexOf("-") == 0) {
             tokenBuilder.delete(0, 1);
             negative = true;
         }
-        if (!negativePrefix.isEmpty()
-                && 0 == tokenBuilder.indexOf(negativePrefix)) {
+        if (!negativePrefix.isEmpty() && tokenBuilder.indexOf(negativePrefix) == 0) {
             tokenBuilder.delete(0, negativePrefix.length());
             negative = true;
         }

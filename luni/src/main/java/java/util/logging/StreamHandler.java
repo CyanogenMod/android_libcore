@@ -119,7 +119,7 @@ public class StreamHandler extends Handler {
     // initialize the writer
     private void initializeWriter() {
         this.writerNotInitialized = false;
-        if (null == getEncoding()) {
+        if (getEncoding() == null) {
             this.writer = new OutputStreamWriter(this.os);
         } else {
             try {
@@ -169,7 +169,7 @@ public class StreamHandler extends Handler {
      *             if {@code os} is {@code null}.
      */
     protected void setOutputStream(OutputStream os) {
-        if (null == os) {
+        if (os == null) {
             throw new NullPointerException();
         }
         LogManager.getLogManager().checkAccess();
@@ -198,8 +198,8 @@ public class StreamHandler extends Handler {
         this.flush();
         super.setEncoding(encoding);
         // renew writer only if the writer exists
-        if (null != this.writer) {
-            if (null == getEncoding()) {
+        if (this.writer != null) {
+            if (getEncoding() == null) {
                 this.writer = new OutputStreamWriter(this.os);
             } else {
                 try {
@@ -223,7 +223,7 @@ public class StreamHandler extends Handler {
      *            whether to close the underlying output stream.
      */
     void close(boolean closeStream) {
-        if (null != this.os) {
+        if (this.os != null) {
             if (this.writerNotInitialized) {
                 initializeWriter();
             }
@@ -263,9 +263,9 @@ public class StreamHandler extends Handler {
      */
     @Override
     public void flush() {
-        if (null != this.os) {
+        if (this.os != null) {
             try {
-                if (null != this.writer) {
+                if (this.writer != null) {
                     this.writer.flush();
                 } else {
                     this.os.flush();
@@ -329,10 +329,10 @@ public class StreamHandler extends Handler {
      */
     @Override
     public boolean isLoggable(LogRecord record) {
-        if (null == record) {
+        if (record == null) {
             return false;
         }
-        if (null != this.os && super.isLoggable(record)) {
+        if (this.os != null && super.isLoggable(record)) {
             return true;
         }
         return false;

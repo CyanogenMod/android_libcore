@@ -68,18 +68,18 @@ public class XMLFormatter extends Formatter {
                 ("</millis>")).append(lineSeperator);
         sb.append(indent).append(("<sequence>")).append(r.getSequenceNumber())
                 .append(("</sequence>")).append(lineSeperator);
-        if (null != r.getLoggerName()) {
+        if (r.getLoggerName() != null) {
             sb.append(indent).append(("<logger>")).append(r.getLoggerName())
                     .append(("</logger>")).append(lineSeperator);
         }
         sb.append(indent).append(("<level>")).append(r.getLevel().getName())
                 .append(("</level>")).append(lineSeperator);
-        if (null != r.getSourceClassName()) {
+        if (r.getSourceClassName() != null) {
             sb.append(indent).append(("<class>"))
                     .append(r.getSourceClassName()).append(("</class>"))
                     .append(lineSeperator);
         }
-        if (null != r.getSourceMethodName()) {
+        if (r.getSourceMethodName() != null) {
             sb.append(indent).append(("<method>")).append(
                     r.getSourceMethodName()).append(("</method>")).append(
                     lineSeperator);
@@ -105,7 +105,7 @@ public class XMLFormatter extends Formatter {
         // to parse pattern string
         ResourceBundle rb = r.getResourceBundle();
         String pattern = r.getMessage();
-        if (null != rb && null != pattern) {
+        if (rb != null && pattern != null) {
             String message;
             try {
                 message = rb.getString(pattern);
@@ -126,7 +126,7 @@ public class XMLFormatter extends Formatter {
                         r.getResourceBundleName()).append(("</catalog>"))
                         .append(lineSeperator);
             }
-        } else if (null != pattern) {
+        } else if (pattern != null) {
             sb.append(indent).append(("<message>")).append(pattern).append(
                     ("</message>")).append(lineSeperator);
         } else {
@@ -175,10 +175,10 @@ public class XMLFormatter extends Formatter {
     @Override
     public String getHead(Handler h) {
         String encoding = null;
-        if (null != h) {
+        if (h != null) {
             encoding = h.getEncoding();
         }
-        if (null == encoding) {
+        if (encoding == null) {
             encoding = getSystemProperty("file.encoding");
         }
         StringBuilder sb = new StringBuilder();
