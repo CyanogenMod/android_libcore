@@ -125,7 +125,7 @@ public final class ZoneInfoDB {
         final int SIZEOF_TZINT = 4;
 
         byte[] idBytes = new byte[SIZEOF_TZNAME];
-        int numEntries = (int) (mappedFile.size() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT));
+        int numEntries = mappedFile.size() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT);
 
         char[] idChars = new char[numEntries * SIZEOF_TZNAME];
         int[] idEnd = new int[numEntries];
@@ -233,7 +233,7 @@ public final class ZoneInfoDB {
     }
 
     public static String[] getAvailableIDs() {
-        return (String[]) ids.clone();
+        return ids.clone();
     }
 
     public static String[] getAvailableIDs(int rawOffset) {

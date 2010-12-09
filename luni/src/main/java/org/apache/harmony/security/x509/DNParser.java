@@ -273,10 +273,12 @@ public class DNParser {
             throw new IOException("Invalid distinguished name string");
         }
 
-        switch (chars[pos]) {
+        char ch = chars[pos];
+        switch (ch) {
         case '"':
         case '\\':
             hasQE = true;
+            return ch;
         case ',':
         case '=':
         case '+':
@@ -289,7 +291,7 @@ public class DNParser {
         case '%':
         case '_':
             //FIXME: escaping is allowed only for leading or trailing space char
-            return chars[pos];
+            return ch;
         default:
             // RFC doesn't explicitly say that escaped hex pair is
             // interpreted as UTF-8 char. It only contains an example of such DN.

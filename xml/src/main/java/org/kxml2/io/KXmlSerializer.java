@@ -91,9 +91,7 @@ public class KXmlSerializer implements XmlSerializer {
         writer.write(close ? " />" : ">");
     }
 
-    private final void writeEscaped(String s, int quot)
-        throws IOException {
-
+    private final void writeEscaped(String s, int quot) throws IOException {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
@@ -114,14 +112,11 @@ public class KXmlSerializer implements XmlSerializer {
                 case '<' :
                     writer.write("&lt;");
                     break;
-                case '"' :
-                case '\'' :
+                default:
                     if (c == quot) {
-                        writer.write(
-                            c == '"' ? "&quot;" : "&apos;");
+                        writer.write(c == '"' ? "&quot;" : "&apos;");
                         break;
                     }
-                default :
                     // BEGIN android-changed: refuse to output invalid characters
                     // See http://www.w3.org/TR/REC-xml/#charsets for definition.
                     // No other Java XML writer we know of does this, but no Java
@@ -164,9 +159,7 @@ public class KXmlSerializer implements XmlSerializer {
 
     public void endDocument() throws IOException {
         while (depth > 0) {
-            endTag(
-                elementStack[depth * 3 - 3],
-                elementStack[depth * 3 - 1]);
+            endTag(elementStack[depth * 3 - 3], elementStack[depth * 3 - 1]);
         }
         flush();
     }

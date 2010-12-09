@@ -185,8 +185,7 @@ public class Name {
 
             if (X500Principal.CANONICAL == format) {
                 List sortedList = new LinkedList(atavList);
-                Collections.sort(sortedList,
-                        new AttributeTypeAndValueComparator());
+                Collections.sort(sortedList, new AttributeTypeAndValueComparator());
                 atavList = sortedList;
             }
 

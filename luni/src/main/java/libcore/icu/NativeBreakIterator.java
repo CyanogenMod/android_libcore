@@ -27,19 +27,19 @@ public final class NativeBreakIterator implements Cloneable {
     private static final int BI_LINE_INSTANCE = 3;
     private static final int BI_SENT_INSTANCE = 4;
 
-    private final int addr;
+    private final int address;
     private final int type;
     private CharacterIterator charIter;
 
-    private NativeBreakIterator(int iterAddr, int type) {
-        this.addr = iterAddr;
+    private NativeBreakIterator(int address, int type) {
+        this.address = address;
         this.type = type;
         this.charIter = new StringCharacterIterator("");
     }
 
     @Override
     public Object clone() {
-        int cloneAddr = cloneImpl(this.addr);
+        int cloneAddr = cloneImpl(this.address);
         NativeBreakIterator clone = new NativeBreakIterator(cloneAddr, this.type);
         // The RI doesn't clone the CharacterIterator.
         clone.charIter = this.charIter;
@@ -66,44 +66,44 @@ public final class NativeBreakIterator implements Cloneable {
 
     @Override protected void finalize() throws Throwable {
         try {
-            closeBreakIteratorImpl(this.addr);
+            closeBreakIteratorImpl(this.address);
         } finally {
             super.finalize();
         }
     }
 
     public int current() {
-        return currentImpl(this.addr);
+        return currentImpl(this.address);
     }
 
     public int first() {
-        return firstImpl(this.addr);
+        return firstImpl(this.address);
     }
 
     public int following(int offset) {
-        return followingImpl(this.addr, offset);
+        return followingImpl(this.address, offset);
     }
 
     public CharacterIterator getText() {
-        int newLoc = currentImpl(this.addr);
+        int newLoc = currentImpl(this.address);
         this.charIter.setIndex(newLoc);
         return this.charIter;
     }
 
     public int last() {
-        return lastImpl(this.addr);
+        return lastImpl(this.address);
     }
 
     public int next(int n) {
-        return nextImpl(this.addr, n);
+        return nextImpl(this.address, n);
     }
 
     public int next() {
-        return nextImpl(this.addr, 1);
+        return nextImpl(this.address, 1);
     }
 
     public int previous() {
-        return previousImpl(this.addr);
+        return previousImpl(this.address);
     }
 
     public void setText(CharacterIterator newText) {
@@ -112,7 +112,7 @@ public final class NativeBreakIterator implements Cloneable {
         for (char c = newText.first(); c != CharacterIterator.DONE; c = newText.next()) {
             sb.append(c);
         }
-        setTextImpl(this.addr, sb.toString());
+        setTextImpl(this.address, sb.toString());
     }
 
     public void setText(String newText) {
@@ -120,11 +120,11 @@ public final class NativeBreakIterator implements Cloneable {
     }
 
     public boolean isBoundary(int offset) {
-        return isBoundaryImpl(this.addr, offset);
+        return isBoundaryImpl(this.address, offset);
     }
 
     public int preceding(int offset) {
-        return precedingImpl(this.addr, offset);
+        return precedingImpl(this.address, offset);
     }
 
     public static NativeBreakIterator getCharacterInstance(Locale where) {
@@ -147,15 +147,15 @@ public final class NativeBreakIterator implements Cloneable {
     private static native int getWordInstanceImpl(String locale);
     private static native int getLineInstanceImpl(String locale);
     private static native int getSentenceInstanceImpl(String locale);
-    private static native void closeBreakIteratorImpl(int addr);
-    private static native void setTextImpl(int addr, String text);
-    private static native int cloneImpl(int addr);
-    private static native int precedingImpl(int addr, int offset);
-    private static native boolean isBoundaryImpl(int addr, int offset);
-    private static native int nextImpl(int addr, int n);
-    private static native int previousImpl(int addr);
-    private static native int currentImpl(int addr);
-    private static native int firstImpl(int addr);
-    private static native int followingImpl(int addr, int offset);
-    private static native int lastImpl(int addr);
+    private static native void closeBreakIteratorImpl(int address);
+    private static native void setTextImpl(int address, String text);
+    private static native int cloneImpl(int address);
+    private static native int precedingImpl(int address, int offset);
+    private static native boolean isBoundaryImpl(int address, int offset);
+    private static native int nextImpl(int address, int n);
+    private static native int previousImpl(int address);
+    private static native int currentImpl(int address);
+    private static native int firstImpl(int address);
+    private static native int followingImpl(int address, int offset);
+    private static native int lastImpl(int address);
 }
