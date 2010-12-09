@@ -234,7 +234,7 @@ public class Object {
      *
      * @return this object's {@code Class} instance.
      */
-    public final native Class<?> getClass();
+    public final native Class<? extends Object> getClass();
 
     /**
      * Returns an integer hash code for this object. By contract, any two
