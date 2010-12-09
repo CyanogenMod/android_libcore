@@ -280,9 +280,8 @@ public class BufferedWriter extends Writer {
             if (count <= 0) {
                 return;
             }
-            if (offset > str.length() - count || offset < 0) {
-                throw new StringIndexOutOfBoundsException("str.length=" + str.length()
-                        + " offset=" + offset + " count=" + count);
+            if (offset < 0 || offset > str.length() - count) {
+                throw new StringIndexOutOfBoundsException(str, offset, count);
             }
             if (pos == 0 && count >= buf.length) {
                 char[] chars = new char[count];

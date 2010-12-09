@@ -67,15 +67,14 @@ final class ProcessManager {
      * Map from pid to Process. We keep weak references to the Process objects
      * and clean up the entries when no more external references are left. The
      * process objects themselves don't require much memory, but file
-     * descriptors (associated with stdin/out/err in this case) can be
+     * descriptors (associated with stdin/stdout/stderr in this case) can be
      * a scarce resource.
      */
     private final Map<Integer, ProcessReference> processReferences
             = new HashMap<Integer, ProcessReference>();
 
     /** Keeps track of garbage-collected Processes. */
-    private final ProcessReferenceQueue referenceQueue
-            = new ProcessReferenceQueue();
+    private final ProcessReferenceQueue referenceQueue = new ProcessReferenceQueue();
 
     private ProcessManager() {
         // Spawn a thread to listen for signals from child processes.

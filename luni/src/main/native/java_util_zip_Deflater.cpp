@@ -77,20 +77,12 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     stream->stream.next_out = reinterpret_cast<Bytef*>(out.get() + off);
     stream->stream.avail_out = len;
 
-    // TODO: make this a bit more like Inflater.cpp, using the pointers rather than the ints.
-    jint initialTotalIn = stream->stream.total_in;
-    jint initialTotalOut = stream->stream.total_out;
+    Bytef* initialNextIn = stream->stream.next_in;
+    Bytef* initialNextOut = stream->stream.next_out;
 
     int err = deflate(&stream->stream, flushStyle);
     switch (err) {
     case Z_OK:
-        // TODO: does this really have to be conditional and in here? can we be more like Inflater?
-        if (flushStyle != Z_FINISH) {
-            static jfieldID inReadField = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
-            jint inReadValue = env->GetIntField(recv, inReadField);
-            inReadValue += (stream->stream.total_in - initialTotalIn);
-            env->SetIntField(recv, inReadField, inReadValue);
-        }
         break;
     case Z_STREAM_END:
         static jfieldID finished = env->GetFieldID(JniConstants::deflaterClass, "finished", "Z");
@@ -106,7 +98,14 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
         return -1;
     }
 
-    return stream->stream.total_out - initialTotalOut;
+    jint bytesRead = stream->stream.next_in - initialNextIn;
+    jint bytesWritten = stream->stream.next_out - initialNextOut;
+
+    static jfieldID inReadField = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
+    jint inReadValue = env->GetIntField(recv, inReadField);
+    inReadValue += bytesRead;
+    env->SetIntField(recv, inReadField, inReadValue);
+    return bytesWritten;
 }
 
 static void Deflater_endImpl(JNIEnv*, jobject, jlong handle) {

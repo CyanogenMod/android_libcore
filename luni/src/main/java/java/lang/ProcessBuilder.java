@@ -19,6 +19,7 @@ package java.lang;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public final class ProcessBuilder {
      *            the requested operating system program and its arguments.
      */
     public ProcessBuilder(String... command) {
-        this(toList(command));
+        this(new ArrayList<String>(Arrays.asList(command)));
     }
 
     /**
@@ -86,7 +87,7 @@ public final class ProcessBuilder {
      * @return this process builder instance.
      */
     public ProcessBuilder command(String... command) {
-        return command(toList(command));
+        return command(new ArrayList<String>(Arrays.asList(command)));
     }
 
     /**
@@ -199,11 +200,4 @@ public final class ProcessBuilder {
         // END android-changed
     }
 
-    private static List<String> toList(String[] strings) {
-        ArrayList<String> arrayList = new ArrayList<String>(strings.length);
-        for (String string : strings) {
-            arrayList.add(string);
-        }
-        return arrayList;
-    }
 }

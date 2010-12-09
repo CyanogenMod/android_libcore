@@ -79,14 +79,11 @@ public final class Compiler {
      * Disables the JIT compiler. Does nothing on Android.
      */
     public static void disable() {
-        return;
     }
 
     /**
      * Enables the JIT compiler. Does nothing on Android.
      */
     public static void enable() {
-        return;
     }
-
 }

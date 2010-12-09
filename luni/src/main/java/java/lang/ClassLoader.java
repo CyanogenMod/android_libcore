@@ -40,6 +40,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -434,14 +435,10 @@ public abstract class ClassLoader {
      * @see Class#getResource
      */
     public URL getResource(String resName) {
-        URL resource = null;
-
-        resource = parent.getResource(resName);
-
+        URL resource = parent.getResource(resName);
         if (resource == null) {
             resource = findResource(resName);
         }
-
         return resource;
     }
 
@@ -647,7 +644,7 @@ public abstract class ClassLoader {
             "unchecked", "unused"
     })
     protected Enumeration<URL> findResources(String resName) throws IOException {
-        return EmptyEnumeration.getInstance();
+        return Collections.enumeration(Collections.<URL>emptyList());
     }
 
     /**
@@ -678,8 +675,7 @@ public abstract class ClassLoader {
      */
     protected Package getPackage(String name) {
         synchronized (packages) {
-            Package p = packages.get(name);
-            return p;
+            return packages.get(name);
         }
     }
 
@@ -1028,14 +1024,7 @@ class BootClassLoader extends ClassLoader {
     @SuppressWarnings("unused")
     @Override
     protected Enumeration<URL> findResources(String resName) throws IOException {
-        Enumeration<URL> result = VMClassLoader.getResources(resName);
-
-        // VMClassLoader doesn't keep the contract for getResources()
-        if (result == null) {
-            result = EmptyEnumeration.getInstance();
-        }
-
-        return result;
+        return Collections.enumeration(VMClassLoader.getResources(resName));
     }
 
     /**

@@ -15,32 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.sql.tests.javax.sql;
+package libcore.java.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.sql.ConnectionEventListener;
-import javax.sql.PooledConnection;
-import javax.sql.StatementEventListener;
+import java.sql.Timestamp;
+import java.util.TimeZone;
+import junit.framework.TestCase;
 
-class Impl_PooledConnection implements PooledConnection {
-    public void addConnectionEventListener(ConnectionEventListener theListener) {
+public class OldTimestampTest extends TestCase {
+
+    public void test_toString() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
+        Timestamp t1 = new Timestamp(Long.MIN_VALUE);
+        assertEquals("292278994-08-17 07:12:55.192", t1.toString());
+
+        Timestamp t2 = new Timestamp(Long.MIN_VALUE + 1);
+        assertEquals("292278994-08-17 07:12:55.193", t2.toString());
+
+        Timestamp t3 = new Timestamp(Long.MIN_VALUE + 807);
+        assertEquals("292278994-08-17 07:12:55.999", t3.toString());
+
+        Timestamp t4 = new Timestamp(Long.MIN_VALUE + 808);
+        assertEquals("292269055-12-02 16:47:05.0", t4.toString());
     }
-
-    public void close() throws SQLException {
-    }
-
-    public Connection getConnection() throws SQLException {
-        return null;
-    }
-
-    public void removeConnectionEventListener(
-            ConnectionEventListener theListener) {
-    }
-
-    public void addStatementEventListener(StatementEventListener listener) {
-    }
-
-    public void removeStatementEventListener(StatementEventListener listener) {
-    }    
 }

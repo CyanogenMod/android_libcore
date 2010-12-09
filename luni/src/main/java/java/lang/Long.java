@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// Reimiplemented toString, bit-twiddling, etc. Faster and cleaner.
-// BEGIN android-note
-
 package java.lang;
 
 /**

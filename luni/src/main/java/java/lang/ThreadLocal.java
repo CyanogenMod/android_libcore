@@ -16,12 +16,6 @@
 
 package java.lang;
 
-/*
- * Android's thread local is not derived from Harmony's classlib. It is used in
- * Harmony's DRLVM, however, whose source is here:
- * http://svn.apache.org/viewvc/harmony/enhanced/drlvm/trunk/vm/vmcore/src/kernel_classes/
- */
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;

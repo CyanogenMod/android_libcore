@@ -55,4 +55,12 @@ public class StringIndexOutOfBoundsException extends IndexOutOfBoundsException {
     public StringIndexOutOfBoundsException(String detailMessage) {
         super(detailMessage);
     }
+
+    /**
+     * Used internally for consistent high-quality error reporting.
+     * @hide
+     */
+    public StringIndexOutOfBoundsException(String s, int offset, int count) {
+        super("s.length()=" + s.length() + ", offset=" + offset + ", count=" + count);
+    }
 }

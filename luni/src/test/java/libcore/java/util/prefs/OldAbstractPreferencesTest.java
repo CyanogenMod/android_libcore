@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.prefs.tests.java.util.prefs;
-
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import junit.framework.TestCase;
+package libcore.java.util.prefs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,20 +27,15 @@ import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import junit.framework.TestCase;
 
-@TestTargetClass(AbstractPreferences.class)
-public class AbstractPreferencesTest extends TestCase {
-
-    AbstractPreferences pref;
-
-    static AbstractPreferences root;
+public final class OldAbstractPreferencesTest extends TestCase {
 
     static final String nodeName = "mock";
 
-    static AbstractPreferences parent = null;
-
-    String oldUserHome = System.getProperty("user.home");
-    String oldJavaHome = System.getProperty("java.home");
+    AbstractPreferences pref;
+    AbstractPreferences root;
+    AbstractPreferences parent = null;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -57,34 +46,10 @@ public class AbstractPreferencesTest extends TestCase {
         pref = (AbstractPreferences) parent.node(nodeName);
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         assertTrue(pref.toString().contains(nodeName));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tests putSpi indirectly",
-            method = "put",
-            args = {java.lang.String.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tests putSpi indirectly",
-            method = "putSpi",
-            args = {java.lang.String.class, java.lang.String.class}
-        )
-    })
     public void testPut() throws BackingStoreException {
         pref.put("Value", "String");
         pref.flush();
@@ -135,20 +100,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "getSpi tested indirectly.",
-            method = "get",
-            args = {java.lang.String.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "getSpi tested indirectly.",
-            method = "getSpi",
-            args = {java.lang.String.class}
-        )
-    })
     public void testGet() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -176,20 +127,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirectly checks removeSpi",
-            method = "remove",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirectly checks removeSpi",
-            method = "removeSpi",
-            args = {java.lang.String.class}
-        )
-    })
     public void testRemove() throws BackingStoreException {
         String[] keyArray = new String[]{"Value", "DoubleValue", "LongValue", "IntValue"};
         pref.put(keyArray[0], "String");
@@ -220,12 +157,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void testClear() throws BackingStoreException {
         AbstractPreferences ap = (AbstractPreferences) pref.node("New node");
         pref.putInt("IntValue", 33);
@@ -256,12 +187,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putInt",
-        args = {java.lang.String.class, int.class}
-    )
     public void testPutInt() throws BackingStoreException {
         pref.putInt("IntValue", 299792458);
         pref.flush();
@@ -299,12 +224,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInt",
-        args = {java.lang.String.class, int.class}
-    )
     public void testGetInt() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -334,12 +253,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putLong",
-        args = {java.lang.String.class, long.class}
-    )
     public void testPutLong() throws BackingStoreException {
         pref.putLong("LongValue", new Long(299792458));
         pref.flush();
@@ -377,12 +290,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLong",
-        args = {java.lang.String.class, long.class}
-    )
     public void testGetLong() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -412,12 +319,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putBoolean",
-        args = {java.lang.String.class, boolean.class}
-    )
     public void testPutBoolean() throws BackingStoreException {
         pref.putBoolean("BoolValue", true);
         pref.flush();
@@ -455,12 +356,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBoolean",
-        args = {java.lang.String.class, boolean.class}
-    )
     public void testGetBoolean() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -488,12 +383,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putFloat",
-        args = {java.lang.String.class, float.class}
-    )
     public void testPutFloat() throws BackingStoreException {
         pref.putFloat("FloatValue", new Float(1.602e-19));
         pref.flush();
@@ -531,12 +420,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFloat",
-        args = {java.lang.String.class, float.class}
-    )
     public void testGetFloat() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -566,12 +449,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putDouble",
-        args = {java.lang.String.class, double.class}
-    )
     public void testPutDouble() throws BackingStoreException {
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
         pref.flush();
@@ -609,12 +486,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDouble",
-        args = {java.lang.String.class, double.class}
-    )
     public void testGetDouble() throws BackingStoreException {
         pref.put("Value", "String");
         pref.putDouble("DoubleValue", new Double(9.10938188e-31));
@@ -644,12 +515,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putByteArray",
-        args = {java.lang.String.class, byte[].class}
-    )
     public void testPutByteArray() throws BackingStoreException {
         byte[] bArray = new byte[]{1, 2, 3, 4, 5};
         byte[] array  = null;
@@ -702,12 +567,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getByteArray",
-        args = {java.lang.String.class, byte[].class}
-    )
     public void testGetByteArray() throws BackingStoreException {
         byte[] bArray = new byte[]{1, 2, 3, 4, 5};
         byte[] tmp    = new byte[]{5};
@@ -753,20 +612,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "keysSpi tested indirectly",
-            method = "keys",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "keysSpi tested indirectly",
-            method = "keysSpi",
-            args = {}
-        )
-    })
     public void testKeys() throws BackingStoreException {
         String[] keyArray = new String[]{"Value", "DoubleValue", "BoolValue", "IntValue"};
         String nodeStr = "New node";
@@ -801,20 +646,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException can not be checked. childrenNamesSpi checked indirectly.",
-            method = "childrenNames",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException can not be checked. childrenNamesSpi checked indirectly.",
-            method = "childrenNamesSpi",
-            args = {}
-        )
-    })
     public void testChildrenNames() throws BackingStoreException {
         AbstractPreferences first = (AbstractPreferences) pref.node("First node");
         AbstractPreferences second = (AbstractPreferences) pref.node("Second node");
@@ -842,12 +673,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "nodeExists",
-            args = {String.class}
-    )
     public void test_nodeExists() throws BackingStoreException {
         AbstractPreferences test = (AbstractPreferences) Preferences.userRoot()
                 .node("test");
@@ -867,12 +692,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parent",
-        args = {}
-    )
     public void testParent() throws BackingStoreException {
         AbstractPreferences node = (AbstractPreferences) pref.node("First node/sub node");
 
@@ -888,20 +707,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirecly checks childSpi",
-            method = "node",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirecly checks childSpi",
-            method = "childSpi",
-            args = {java.lang.String.class}
-        )
-    })
     public void testNode() throws BackingStoreException {
         AbstractPreferences first = (AbstractPreferences) pref.node("First node");
         AbstractPreferences second = (AbstractPreferences) pref.node("Second node");
@@ -952,20 +757,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "getChild tested indirectly",
-            method = "nodeExists",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "getChild tested indirectly",
-            method = "getChild",
-            args = {java.lang.String.class}
-        )
-    })
     public void testNodeExists() throws BackingStoreException {
         AbstractPreferences ap1 = (AbstractPreferences) pref.node("First node");
         AbstractPreferences ap2 = (AbstractPreferences) pref.node("Second node");
@@ -997,20 +788,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "removeNode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "removeNodeSpi",
-            args = {}
-        )
-    })
     public void testRemoveNode() throws BackingStoreException {
         String[] nodeArray = new String[]{"First node", "Second node", "Last node"};
         int i;
@@ -1048,12 +825,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "name",
-        args = {}
-    )
     public void testName() {
         AbstractPreferences first = (AbstractPreferences) pref.node("First node");
         AbstractPreferences second = (AbstractPreferences) pref.node("Second node/sub node");
@@ -1063,42 +834,16 @@ public class AbstractPreferencesTest extends TestCase {
         assertTrue(second.name().compareTo("sub node") == 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "absolutePath",
-        args = {}
-    )
     public void testAbsolutePath() {
         assertEquals(parent.absolutePath() + "/" + nodeName, pref.absolutePath());
         assertEquals(parent.absolutePath() + "/" + "new node", parent.node("new node").absolutePath());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isUserNode",
-        args = {}
-    )
     public void testIsUserNode() {
         assertTrue(parent.isUserNode());
         assertFalse(Preferences.systemRoot().isUserNode());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirectly checks syncSpi",
-            method = "sync",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Indirectly checks syncSpi",
-            method = "syncSpi",
-            args = {}
-        )
-    })
     public void testSync() throws BackingStoreException {
         pref.node("new node/sub node");
         pref.sync();
@@ -1127,12 +872,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addPreferenceChangeListener",
-        args = {java.util.prefs.PreferenceChangeListener.class}
-    )
     public void testAddPreferenceChangeListener() throws BackingStoreException {
         MockPreferenceChangeListener mpcl = new MockPreferenceChangeListener();
         parent.addPreferenceChangeListener(mpcl);
@@ -1156,12 +895,6 @@ public class AbstractPreferencesTest extends TestCase {
         assertFalse(mpcl.isChanged());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removePreferenceChangeListener",
-        args = {java.util.prefs.PreferenceChangeListener.class}
-    )
     public void testRemovePreferenceChangeListener() throws BackingStoreException {
         MockPreferenceChangeListener mpcl = new MockPreferenceChangeListener();
         parent.addPreferenceChangeListener(mpcl);
@@ -1196,12 +929,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addNodeChangeListener",
-        args = {java.util.prefs.NodeChangeListener.class}
-    )
     public void testAddNodeChangeListener() throws BackingStoreException {
         MockNodeChangeListener mncl = new MockNodeChangeListener();
         parent.addNodeChangeListener(mncl);
@@ -1220,12 +947,6 @@ public class AbstractPreferencesTest extends TestCase {
         assertTrue(mncl.isRemoved());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeNodeChangeListener",
-        args = {java.util.prefs.NodeChangeListener.class}
-    )
     public void testRemoveNodeChangeListener() throws BackingStoreException {
         MockNodeChangeListener mncl = new MockNodeChangeListener();
         parent.addNodeChangeListener(mncl);
@@ -1245,26 +966,6 @@ public class AbstractPreferencesTest extends TestCase {
         assertFalse(mncl.isRemoved());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "exportNode",
-            args = {java.io.OutputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "flush",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "flushSpi",
-            args = {}
-        )
-    })
     public void testExportNode() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
         AbstractPreferences ap = (AbstractPreferences) pref.node("New node");
         pref.putInt("IntValue", 33);
@@ -1311,26 +1012,6 @@ public class AbstractPreferencesTest extends TestCase {
         assertEquals(0, pref.childrenNames().length);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "exportSubtree",
-            args = {java.io.OutputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "flush",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "BackingStoreException, IOException can not be checked.",
-            method = "flushSpi",
-            args = {}
-        )
-    })
     public void testExportSubtree() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
         AbstractPreferences ap1 = (AbstractPreferences) pref.node("First node");
         AbstractPreferences ap2 = (AbstractPreferences) pref.node("Second node");
@@ -1437,12 +1118,6 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "AbstractPreferences",
-        args = {java.util.prefs.AbstractPreferences.class, java.lang.String.class}
-    )
     public void testAbstractPreferences() {
         assertNotNull(new MockAbstractPreferences(pref, "node name"));
         try {
@@ -1460,25 +1135,10 @@ public class AbstractPreferencesTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tested indirectly",
-        method = "cachedChildren",
-        args = {}
-    )
     public void testCachedChildren() throws BackingStoreException {
         pref.node("First node");
         pref.node("Second node");
 
         assertEquals(2, pref.childrenNames().length);
-    }
-
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "No reason to check dummy implementation",
-        method = "isRemoved",
-        args = {}
-    )
-    public void testIsRemoved() {
     }
 }

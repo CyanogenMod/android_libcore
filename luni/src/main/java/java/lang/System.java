@@ -634,7 +634,7 @@ public final class System {
 
 
     /**
-     * The unmodifiable environment variables map. The System.getenv() specifies
+     * The unmodifiable environment variables map. System.getenv() specifies
      * that this map must throw when queried with non-String keys values.
      */
     static class SystemEnvironment extends AbstractMap<String, String> {
