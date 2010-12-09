@@ -170,9 +170,9 @@ public final class TextAttribute extends Attribute {
     public static final TextAttribute TRACKING = new TextAttribute("tracking");
 
     /** @since 1.6 */
-    public static final Float TRACKING_LOOSE = -1f;
+    public static final Float TRACKING_LOOSE = 0.04f;
     /** @since 1.6 */
-    public static final Float TRACKING_TIGHT = -1f;
+    public static final Float TRACKING_TIGHT = -0.04f;
 
     /** The TRANSFORM text attribute. */
     public static final TextAttribute TRANSFORM = new TextAttribute("transform");
