@@ -26,8 +26,6 @@ public class AllTests {
     public static Test suite() {
         TestSuite suite = new TestSuite("All SQL test suites");
         // $JUnit-BEGIN$
-        suite.addTest(org.apache.harmony.sql.tests.java.sql.AllTests.suite());
-        suite.addTest(org.apache.harmony.sql.tests.javax.sql.AllTests.suite());
         suite.addTest(tests.java.sql.AllTests.suite());
 
         // These don't do blackbox testing *and* crash JUnit on the RI
