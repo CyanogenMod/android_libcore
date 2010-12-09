@@ -121,7 +121,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      *             if {@code string} cannot be parsed as a byte value.
      */
     public static Byte decode(String string) throws NumberFormatException {
-        int intValue = Integer.decode(string).intValue();
+        int intValue = Integer.decode(string);
         byte result = (byte) intValue;
         if (result == intValue) {
             return valueOf(result);

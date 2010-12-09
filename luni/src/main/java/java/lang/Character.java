@@ -499,44 +499,6 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static final int SIZE = 16;
 
-    // BEGIN android-removed
-    // Unicode 3.0.1 (same as Unicode 3.0.0)
-    // private static final String bidiKeys = ...
-
-    // private static final char[] bidiValues = ...
-
-    // private static final char[] mirrored = ...
-
-    // Unicode 3.0.1 (same as Unicode 3.0.0)
-    // private static final String typeKeys = ...
-
-    // private static final char[] typeValues = ...
-
-    // private static final int[] typeValuesCache = ...
-
-    // Unicode 3.0.1 (same as Unicode 3.0.0)
-    // private static final String uppercaseKeys = ...
-
-    // private static final char[] uppercaseValues = ...
-
-    // private static final int[] uppercaseValuesCache = ...
-
-    // private static final String lowercaseKeys = ...
-
-    // private static final char[] lowercaseValues = ...
-
-    // private static final int[] lowercaseValuesCache = ...
-
-    // private static final String digitKeys = ...
-
-    // private static final char[] digitValues = ...
-
-    // private static final char[] typeTags = ...
-    // END android-removed
-
-    // BEGIN android-note
-    // put this in a helper class so that it's only initialized on demand?
-    // END android-note
     private static final byte[] DIRECTIONALITY = new byte[] {
             DIRECTIONALITY_LEFT_TO_RIGHT, DIRECTIONALITY_RIGHT_TO_LEFT,
             DIRECTIONALITY_EUROPEAN_NUMBER,
@@ -554,22 +516,6 @@ public final class Character implements Serializable, Comparable<Character> {
             DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE,
             DIRECTIONALITY_POP_DIRECTIONAL_FORMAT,
             DIRECTIONALITY_NONSPACING_MARK, DIRECTIONALITY_BOUNDARY_NEUTRAL };
-
-    // BEGIN android-removed
-    // private static final int ISJAVASTART = 1;
-
-    // private static final int ISJAVAPART = 2;
-
-    // Unicode 3.0.1 (same as Unicode 3.0.0)
-    // private static final String titlecaseKeys = ...
-
-    // private static final char[] titlecaseValues = ...
-
-    // Unicode 3.0.0 (NOT the same as Unicode 3.0.1)
-    // private static final String numericKeys = ...
-
-    // private static final char[] numericValues = ...
-    // END android-removed
 
     /*
      * Represents a subset of the Unicode character set.
@@ -1553,13 +1499,13 @@ public final class Character implements Serializable, Comparable<Character> {
          *             if {@code blockName} is not a valid block name.
          * @since 1.5
          */
-        public static final UnicodeBlock forName(String blockName) {
+        public static UnicodeBlock forName(String blockName) {
             if (blockName == null) {
                 throw new NullPointerException();
             }
             int block = forNameImpl(blockName);
             if (block == -1) {
-                if(blockName.equals("SURROGATES_AREA")) {
+                if (blockName.equals("SURROGATES_AREA")) {
                     return SURROGATES_AREA;
                 } else if(blockName.equalsIgnoreCase("greek")) {
                     return GREEK;
@@ -1607,7 +1553,7 @@ public final class Character implements Serializable, Comparable<Character> {
                 throw new IllegalArgumentException();
             }
             int block = ofImpl(codePoint);
-            if(block == -1 || block >= BLOCKS.length) {
+            if (block == -1 || block >= BLOCKS.length) {
                 return null;
             }
             return BLOCKS[block];

@@ -181,9 +181,9 @@ public final class IntegralToString {
                     // If -n is still negative, n is Integer.MIN_VALUE
                     quickResult = "-2147483648";
                 } else {
-                    String result = SMALL_NEGATIVE_VALUES[i];
-                    if (result == null) {
-                        SMALL_NEGATIVE_VALUES[i] = result =
+                    quickResult = SMALL_NEGATIVE_VALUES[i];
+                    if (quickResult == null) {
+                        SMALL_NEGATIVE_VALUES[i] = quickResult =
                                 i < 10 ? stringOf('-', ONES[i]) : stringOf('-', TENS[i], ONES[i]);
                     }
                 }

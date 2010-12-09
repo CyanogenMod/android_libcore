@@ -213,9 +213,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      */
     private static void getMethodsRecursive(Class<?> clazz, List<Method> result) {
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
-            for (Method method : c.getClassCache().getDeclaredPublicMethods()) {
-                result.add(method);
-            }
+            result.addAll(Arrays.asList(c.getClassCache().getDeclaredPublicMethods()));
         }
 
         for (Class<?> ifc : clazz.getInterfaces()) {
@@ -382,7 +380,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         ArrayList<Field> fields = new ArrayList<Field>();
         HashSet<String> seen = new HashSet<String>();
 
-        findAllfields(clazz, fields, seen, publicOnly);
+        findAllFields(clazz, fields, seen, publicOnly);
 
         return fields.toArray(new Field[fields.size()]);
     }
@@ -400,7 +398,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      * @param publicOnly reflects whether we want only public fields
      * or all of them
      */
-    private static void findAllfields(Class<?> clazz,
+    private static void findAllFields(Class<?> clazz,
             ArrayList<Field> fields, HashSet<String> seen,
             boolean publicOnly) {
 
@@ -415,9 +413,8 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
             }
 
             // Traverse all interfaces, and do the same recursively.
-            Class<?>[] interfaces = clazz.getInterfaces();
-            for (Class<?> intf : interfaces) {
-                findAllfields(intf, fields, seen, publicOnly);
+            for (Class<?> interfaceClass : clazz.getInterfaces()) {
+                findAllFields(interfaceClass, fields, seen, publicOnly);
             }
 
             clazz = clazz.getSuperclass();
@@ -501,7 +498,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
             T[] values = getEnumValuesInOrder();
 
             if (values != null) {
-                values = (T[]) values.clone();
+                values = values.clone();
                 Arrays.sort((Enum<?>[]) values, ENUM_COMPARATOR);
 
                 /*
@@ -544,7 +541,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
 
         try {
             Method[] methods = getDeclaredPublicMethods();
-            method = findMethodByName(methods, "values", (Class[]) null);
+            method = findMethodByName(methods, "values", null);
             method = REFLECT.accessibleClone(method);
         } catch (NoSuchMethodException ex) {
             // This shouldn't happen if the class is a well-formed enum.
@@ -581,12 +578,10 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
          * initialization. So instead, we do a direct call into the
          * native side.
          */
-        Method[] methods =
-            Class.getDeclaredMethods(AccessibleObject.class, false);
+        Method[] methods = Class.getDeclaredMethods(AccessibleObject.class, false);
 
         try {
-            Method method = findMethodByName(methods, "getReflectionAccess",
-                    (Class[]) null);
+            Method method = findMethodByName(methods, "getReflectionAccess", null);
             Class.setAccessibleNoCheck(method, true);
             return (ReflectionAccess) method.invoke((Object[]) null);
         } catch (NoSuchMethodException ex) {

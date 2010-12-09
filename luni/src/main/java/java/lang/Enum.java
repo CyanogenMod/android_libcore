@@ -188,26 +188,4 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
     @SuppressWarnings("FinalizeDoesntCallSuperFinalize")
     protected final void finalize() {
     }
-
-    /*
-     * Helper to invoke the values() static method on T and answer the result.
-     * Returns null if there is a problem.
-     */
-    @SuppressWarnings("unchecked")
-    static <T extends Enum<T>> T[] getValues(final Class<T> enumType) {
-        try {
-            Method values = AccessController
-                    .doPrivileged(new PrivilegedExceptionAction<Method>() {
-                        public Method run() throws Exception {
-                            Method valsMethod = enumType.getMethod("values",
-                                    (Class[]) null);
-                            valsMethod.setAccessible(true);
-                            return valsMethod;
-                        }
-                    });
-            return (T[]) values.invoke(enumType, (Object[])null);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }

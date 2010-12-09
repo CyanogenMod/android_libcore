@@ -46,8 +46,6 @@ public final class StrictMath {
      */
     public final static double PI = Math.PI;
 
-    private static java.util.Random random;
-
     /**
      * Prevents this class from being instantiated.
      */
@@ -1210,14 +1208,14 @@ public final class StrictMath {
             return bits << digits;
         }
         // change it to positive
-        int absdigits = -digits;
-        if (Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK) <= (32 - absdigits)) {
+        int absDigits = -digits;
+        if (Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK) <= (32 - absDigits)) {
             // some bits will remain after shifting, calculates its carry
-            if ((((bits >> (absdigits - 1)) & 0x1) == 0)
-                    || Integer.numberOfTrailingZeros(bits) == (absdigits - 1)) {
-                return bits >> absdigits;
+            if ((((bits >> (absDigits - 1)) & 0x1) == 0)
+                    || Integer.numberOfTrailingZeros(bits) == (absDigits - 1)) {
+                return bits >> absDigits;
             }
-            return ((bits >> absdigits) + 1);
+            return ((bits >> absDigits) + 1);
         }
         return 0;
     }
@@ -1229,14 +1227,14 @@ public final class StrictMath {
             return bits << digits;
         }
         // change it to positive
-        long absdigits = -digits;
-        if (Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK) <= (64 - absdigits)) {
+        long absDigits = -digits;
+        if (Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK) <= (64 - absDigits)) {
             // some bits will remain after shifting, calculates its carry
-            if ((((bits >> (absdigits - 1)) & 0x1) == 0)
-                    || Long.numberOfTrailingZeros(bits) == (absdigits - 1)) {
-                return bits >> absdigits;
+            if ((((bits >> (absDigits - 1)) & 0x1) == 0)
+                    || Long.numberOfTrailingZeros(bits) == (absDigits - 1)) {
+                return bits >> absDigits;
             }
-            return ((bits >> absdigits) + 1);
+            return ((bits >> absDigits) + 1);
         }
         return 0;
     }

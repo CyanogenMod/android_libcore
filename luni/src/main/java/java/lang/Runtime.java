@@ -109,10 +109,6 @@ public class Runtime {
                 mLibPaths[i] += fileSep;
             }
         }
-
-        if (false) {
-            System.out.println("Runtime paths: " + Arrays.toString(mLibPaths));
-        }
     }
 
     /**
@@ -309,8 +305,8 @@ public class Runtime {
                 }
 
                 // Start all shutdown hooks concurrently
-                for (int i = 0; i < hooks.length; i++) {
-                    hooks[i].start();
+                for (Thread hook : hooks) {
+                    hook.start();
                 }
 
                 // Wait for all shutdown hooks to finish

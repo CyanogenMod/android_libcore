@@ -284,13 +284,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-        Annotation[] list = getAnnotations();
-        for (int i = 0; i < list.length; i++) {
-            if (annotationClass.isInstance(list[i])) {
-                return (A)list[i];
+        for (Annotation annotation : getAnnotations()) {
+            if (annotationClass.isInstance(annotation)) {
+                return (A) annotation;
             }
         }
-
         return null;
     }
 
@@ -314,19 +312,17 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
          * HashMap might be overkill here.
          */
         HashMap<Class, Annotation> map = new HashMap<Class, Annotation>();
-        Annotation[] annos = getDeclaredAnnotations();
+        Annotation[] declaredAnnotations = getDeclaredAnnotations();
 
-        for (int i = annos.length-1; i >= 0; --i)
-            map.put(annos[i].annotationType(), annos[i]);
-
-        for (Class sup = getSuperclass(); sup != null;
-                sup = sup.getSuperclass()) {
-            annos = sup.getDeclaredAnnotations();
-            for (int i = annos.length-1; i >= 0; --i) {
-                Class clazz = annos[i].annotationType();
-                if (!map.containsKey(clazz) &&
-                        clazz.isAnnotationPresent(Inherited.class)) {
-                    map.put(clazz, annos[i]);
+        for (int i = declaredAnnotations.length-1; i >= 0; --i) {
+            map.put(declaredAnnotations[i].annotationType(), declaredAnnotations[i]);
+        }
+        for (Class sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+            declaredAnnotations = sup.getDeclaredAnnotations();
+            for (int i = declaredAnnotations.length-1; i >= 0; --i) {
+                Class clazz = declaredAnnotations[i].annotationType();
+                if (!map.containsKey(clazz) && clazz.isAnnotationPresent(Inherited.class)) {
+                    map.put(clazz, declaredAnnotations[i]);
                 }
             }
         }
@@ -617,11 +613,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws NoSuchMethodException if the constructor does not exist.
      */
     private Constructor<T> getMatchingConstructor(
-            Constructor<T>[] list, Class<?>[] parameterTypes)
+            Constructor<T>[] constructors, Class<?>[] parameterTypes)
             throws NoSuchMethodException {
-        for (int i = 0; i < list.length; i++) {
-            if (compareClassLists(list[i].getParameterTypes(), parameterTypes)) {
-                return list[i];
+        for (Constructor<T> constructor : constructors) {
+            if (compareClassLists(constructor.getParameterTypes(), parameterTypes)) {
+                return constructor;
             }
         }
 
@@ -834,7 +830,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             T[] values = getClassCache().getEnumValuesInOrder();
 
             // Copy the private (to the package) array.
-            return (T[]) values.clone();
+            return values.clone();
         }
 
         return null;
@@ -1576,7 +1572,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *            stop at privileged classes
      * @return the array of the most recent classes on the stack
      */
-    static final Class<?>[] getStackClasses(int maxDepth, boolean stopAtPrivileged) {
+    static Class<?>[] getStackClasses(int maxDepth, boolean stopAtPrivileged) {
         return VMStack.getClasses(maxDepth, stopAtPrivileged);
     }
 

@@ -25,7 +25,7 @@ import libcore.base.EmptyArray;
  *
  * @since 1.1
  */
-public final class Void extends Object {
+public final class Void {
 
     /**
      * The {@link Class} object that represents the primitive type {@code void}.
@@ -37,14 +37,12 @@ public final class Void extends Object {
 
     @SuppressWarnings("unchecked")
     private static Class<Void> lookupType() {
-        Class<?> voidType = null;
         try {
             Method method = Runnable.class.getMethod("run", EmptyArray.CLASS);
-            voidType = method.getReturnType();
+            return (Class<Void>) method.getReturnType();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
-        return (Class<Void>) voidType;
     }
 
     private Void() {
