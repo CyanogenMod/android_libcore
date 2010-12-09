@@ -182,7 +182,7 @@ final class SelectorImpl extends AbstractSelector {
         if (timeout < 0) {
             throw new IllegalArgumentException();
         }
-        return selectInternal((0 == timeout) ? SELECT_BLOCK : timeout);
+        return selectInternal((timeout == 0) ? SELECT_BLOCK : timeout);
     }
 
     @Override public int selectNow() throws IOException {

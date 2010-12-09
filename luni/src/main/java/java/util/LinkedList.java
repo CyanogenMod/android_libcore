@@ -67,7 +67,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
         LinkIterator(LinkedList<ET> object, int location) {
             list = object;
             expectedModCount = list.modCount;
-            if (0 <= location && location <= list.size) {
+            if (location >= 0 && location <= list.size) {
                 // pos ends up as -1 if list is empty, it ranges from -1 to
                 // list.size - 1
                 // if link == voidLink then pos must == -1
@@ -277,7 +277,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
      */
     @Override
     public void add(int location, E object) {
-        if (0 <= location && location <= size) {
+        if (location >= 0 && location <= size) {
             Link<E> link = voidLink;
             if (location < (size / 2)) {
                 for (int i = 0; i <= location; i++) {
@@ -504,7 +504,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
 
     @Override
     public E get(int location) {
-        if (0 <= location && location < size) {
+        if (location >= 0 && location < size) {
             Link<E> link = voidLink;
             if (location < (size / 2)) {
                 for (int i = 0; i <= location; i++) {
@@ -639,7 +639,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
      */
     @Override
     public E remove(int location) {
-        if (0 <= location && location < size) {
+        if (location >= 0 && location < size) {
             Link<E> link = voidLink;
             if (location < (size / 2)) {
                 for (int i = 0; i <= location; i++) {
@@ -860,7 +860,7 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
      */
     @Override
     public E set(int location, E object) {
-        if (0 <= location && location < size) {
+        if (location >= 0 && location < size) {
             Link<E> link = voidLink;
             if (location < (size / 2)) {
                 for (int i = 0; i <= location; i++) {

@@ -182,7 +182,7 @@ public class FileHandler extends StreamHandler {
                  * if current process has held lock for this fileName continue
                  * to find next file
                  */
-                if (null != allLocks.get(fileName)) {
+                if (allLocks.get(fileName) != null) {
                     continue;
                 }
                 if (files[0].exists()
@@ -221,16 +221,16 @@ public class FileHandler extends StreamHandler {
         super.initProperties("ALL", null, "java.util.logging.XMLFormatter",
                 null);
         String className = this.getClass().getName();
-        pattern = (null == p) ? getStringProperty(className + ".pattern",
+        pattern = (p == null) ? getStringProperty(className + ".pattern",
                 DEFAULT_PATTERN) : p;
         if (pattern == null || pattern.isEmpty()) {
             throw new NullPointerException("Pattern cannot be empty or null");
         }
-        append = (null == a) ? getBooleanProperty(className + ".append",
+        append = (a == null) ? getBooleanProperty(className + ".append",
                 DEFAULT_APPEND) : a.booleanValue();
-        count = (null == c) ? getIntProperty(className + ".count",
+        count = (c == null) ? getIntProperty(className + ".count",
                 DEFAULT_COUNT) : c.intValue();
-        limit = (null == l) ? getIntProperty(className + ".limit",
+        limit = (l == null) ? getIntProperty(className + ".limit",
                 DEFAULT_LIMIT) : l.intValue();
         count = count < 1 ? DEFAULT_COUNT : count;
         limit = limit < 0 ? DEFAULT_LIMIT : limit;
@@ -338,7 +338,7 @@ public class FileHandler extends StreamHandler {
     // value
     private boolean getBooleanProperty(String key, boolean defaultValue) {
         String property = manager.getProperty(key);
-        if (null == property) {
+        if (property == null) {
             return defaultValue;
         }
         boolean result = defaultValue;
@@ -360,7 +360,7 @@ public class FileHandler extends StreamHandler {
     private int getIntProperty(String key, int defaultValue) {
         String property = manager.getProperty(key);
         int result = defaultValue;
-        if (null != property) {
+        if (property != null) {
             try {
                 result = Integer.parseInt(property);
             } catch (Exception e) {

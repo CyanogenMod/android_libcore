@@ -65,21 +65,20 @@ public abstract class Formatter {
         String pattern = r.getMessage();
         ResourceBundle rb = null;
         // try to localize the message string first
-        if (null != (rb = r.getResourceBundle())) {
+        if ((rb = r.getResourceBundle()) != null) {
             try {
                 pattern = rb.getString(pattern);
             } catch (Exception e) {
                 pattern = r.getMessage();
             }
         }
-        if (null != pattern) {
+        if (pattern != null) {
             Object[] params = r.getParameters();
             /*
              * if the message contains "{0", use java.text.MessageFormat to
              * format the string
              */
-            if (pattern.indexOf("{0") >= 0 && null != params
-                    && params.length > 0) {
+            if (pattern.indexOf("{0") >= 0 && params != null && params.length > 0) {
                 try {
                     pattern = MessageFormat.format(pattern, params);
                 } catch (IllegalArgumentException e) {

@@ -285,7 +285,7 @@ public class PlainSocketImpl extends SocketImpl {
         // determined by ProxySelector.
         InetSocketAddress addr = (InetSocketAddress) proxy.address();
         proxyName = addr.getHostName();
-        if (null == proxyName) {
+        if (proxyName == null) {
             proxyName = addr.getAddress().getHostAddress();
         }
         return InetAddress.getByName(proxyName);

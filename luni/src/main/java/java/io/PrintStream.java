@@ -35,9 +35,6 @@ import org.apache.harmony.luni.util.PriviAction;
  * has occurred in this stream.
  */
 public class PrintStream extends FilterOutputStream implements Appendable, Closeable {
-
-    private static final String TOKEN_NULL = "null";
-
     /**
      * indicates whether or not this PrintStream has incurred an error.
      */
@@ -734,8 +731,8 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * @return this stream.
      */
     public PrintStream append(CharSequence csq) {
-        if (null == csq) {
-            print(TOKEN_NULL);
+        if (csq == null) {
+            print("null");
         } else {
             print(csq.toString());
         }
@@ -764,11 +761,10 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      *             the length of {@code csq}.
      */
     public PrintStream append(CharSequence csq, int start, int end) {
-        if (null == csq) {
-            print(TOKEN_NULL.substring(start, end));
-        } else {
-            print(csq.subSequence(start, end).toString());
+        if (csq == null) {
+            csq = "null";
         }
+        print(csq.subSequence(start, end).toString());
         return this;
     }
 }

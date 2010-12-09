@@ -475,9 +475,6 @@ public class MulticastSocket extends DatagramSocket {
      * Sets the time-to-live (TTL) for multicast packets sent on this socket.
      * Valid TTL values are between 0 and 255 inclusive.
      *
-     * @param ttl
-     *            the default time-to-live field value for packets sent on this
-     *            socket. {@code 0 <= ttl <= 255}.
      * @throws IOException
      *                if an error occurs while setting the TTL option value.
      */
@@ -493,9 +490,6 @@ public class MulticastSocket extends DatagramSocket {
      * Sets the time-to-live (TTL) for multicast packets sent on this socket.
      * Valid TTL values are between 0 and 255 inclusive.
      *
-     * @param ttl
-     *            the default time-to-live field value for packets sent on this
-     *            socket: {@code 0 <= ttl <= 255}.
      * @throws IOException
      *                if an error occurs while setting the TTL option value.
      * @deprecated Replaced by {@link #setTimeToLive}

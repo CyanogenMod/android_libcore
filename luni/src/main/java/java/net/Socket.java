@@ -85,10 +85,10 @@ public class Socket {
             throw new IllegalArgumentException("Proxy is null or invalid type");
         }
         InetSocketAddress address = (InetSocketAddress) proxy.address();
-        if (null != address) {
+        if (address != null) {
             InetAddress addr = address.getAddress();
             String host;
-            if (null != addr) {
+            if (addr != null) {
                 host = addr.getHostAddress();
             } else {
                 host = address.getHostName();

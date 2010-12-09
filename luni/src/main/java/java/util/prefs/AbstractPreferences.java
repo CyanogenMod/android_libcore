@@ -144,10 +144,10 @@ public abstract class AbstractPreferences extends Preferences {
      *             parent} is not {@code null}.
      */
     protected AbstractPreferences(AbstractPreferences parent, String name) {
-        if ((null == parent ^ name.length() == 0) || name.indexOf("/") >= 0) {
+        if ((parent == null ^ name.length() == 0) || name.indexOf("/") >= 0) {
             throw new IllegalArgumentException();
         }
-        root = null == parent ? this : parent.root;
+        root = (parent == null) ? this : parent.root;
         nodeChangeListeners = new LinkedList<EventListener>();
         preferenceChangeListeners = new LinkedList<EventListener>();
         isRemoved = false;
@@ -563,7 +563,7 @@ public abstract class AbstractPreferences extends Preferences {
         String[] names = path.split("/");
         AbstractPreferences currentNode = this;
         AbstractPreferences temp = null;
-        if (null != currentNode) {
+        if (currentNode != null) {
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
                 synchronized (currentNode.lock) {
@@ -573,7 +573,7 @@ public abstract class AbstractPreferences extends Preferences {
                     }
                 }
                 currentNode = temp;
-                if (null == currentNode) {
+                if (currentNode == null) {
                     break;
                 }
             }
@@ -601,7 +601,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public boolean nodeExists(String name) throws BackingStoreException {
-        if (null == name) {
+        if (name == null) {
             throw new NullPointerException();
         }
         AbstractPreferences startNode = null;
@@ -625,7 +625,7 @@ public abstract class AbstractPreferences extends Preferences {
         }
         try {
             Preferences result = startNode.nodeImpl(name, false);
-            return null == result ? false : true;
+            return (result != null);
         } catch(IllegalArgumentException e) {
             return false;
         }
@@ -645,7 +645,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public void put(String key, String value) {
-        if (null == key || null == value) {
+        if (key == null || value == null) {
             throw new NullPointerException();
         }
         if (key.length() > MAX_KEY_LENGTH || value.length() > MAX_VALUE_LENGTH) {
@@ -717,7 +717,7 @@ public abstract class AbstractPreferences extends Preferences {
             checkState();
             String[] childrenNames = childrenNamesSpi();
             for (int i = 0; i < childrenNames.length; i++) {
-                if (null == cachedNode.get(childrenNames[i])) {
+                if (cachedNode.get(childrenNames[i]) == null) {
                     AbstractPreferences child = childSpi(childrenNames[i]);
                     cachedNode.put(childrenNames[i], child);
                 }
@@ -739,7 +739,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public void addNodeChangeListener(NodeChangeListener ncl) {
-        if (null == ncl) {
+        if (ncl == null) {
             throw new NullPointerException();
         }
         checkState();
@@ -750,7 +750,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public void addPreferenceChangeListener(PreferenceChangeListener pcl) {
-        if (null == pcl) {
+        if (pcl == null) {
             throw new NullPointerException();
         }
         checkState();

@@ -30,7 +30,7 @@ final class ReadOnlyFileChannel extends FileChannelImpl {
     }
 
     public final int write(ByteBuffer buffer, long position) throws IOException {
-        if (null == buffer) {
+        if (buffer == null) {
             throw new NullPointerException();
         }
         if (position < 0) {

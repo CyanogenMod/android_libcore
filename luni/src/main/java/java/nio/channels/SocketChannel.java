@@ -109,7 +109,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      */
     public static SocketChannel open(SocketAddress address) throws IOException {
         SocketChannel socketChannel = open();
-        if (null != socketChannel) {
+        if (socketChannel != null) {
             socketChannel.connect(address);
         }
         return socketChannel;

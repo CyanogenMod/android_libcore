@@ -530,7 +530,7 @@ public class InetAddress implements Serializable {
     private static native String getnameinfo(byte[] addr);
 
     static String getHostNameInternal(String host, boolean isCheck) throws UnknownHostException {
-        if (host == null || 0 == host.length()) {
+        if (host == null || host.isEmpty()) {
             return Inet4Address.LOOPBACK.getHostAddress();
         }
         if (!isNumeric(host)) {
@@ -826,7 +826,7 @@ public class InetAddress implements Serializable {
                             waitReachable.notifyAll();
                         } else {
                             addrCount--;
-                            if (0 == addrCount) {
+                            if (addrCount == 0) {
                                 // if count equals zero, all thread
                                 // expired,notifies main thread
                                 waitReachable.notifyAll();
@@ -860,7 +860,7 @@ public class InetAddress implements Serializable {
         boolean reached = false;
         Platform.NETWORK.socket(fd, true);
         try {
-            if (null != source) {
+            if (source != null) {
                 Platform.NETWORK.bind(fd, source, 0);
             }
             Platform.NETWORK.connect(fd, destination, 7, timeout);

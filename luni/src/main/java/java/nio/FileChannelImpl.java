@@ -445,7 +445,7 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public int write(ByteBuffer buffer, long position) throws IOException {
-        if (null == buffer) {
+        if (buffer == null) {
             throw new NullPointerException();
         }
         if (position < 0) {

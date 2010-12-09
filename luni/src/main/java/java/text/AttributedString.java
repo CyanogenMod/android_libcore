@@ -579,9 +579,8 @@ public class AttributedString {
      * @throws NullPointerException
      *             if {@code attribute} is {@code null}.
      */
-    public void addAttribute(AttributedCharacterIterator.Attribute attribute,
-            Object value) {
-        if (null == attribute) {
+    public void addAttribute(AttributedCharacterIterator.Attribute attribute, Object value) {
+        if (attribute == null) {
             throw new NullPointerException();
         }
         if (text.length() == 0) {
@@ -618,7 +617,7 @@ public class AttributedString {
      */
     public void addAttribute(AttributedCharacterIterator.Attribute attribute,
             Object value, int start, int end) {
-        if (null == attribute) {
+        if (attribute == null) {
             throw new NullPointerException();
         }
         if (start < 0 || end > text.length() || start >= end) {

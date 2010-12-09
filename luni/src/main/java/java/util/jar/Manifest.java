@@ -214,7 +214,7 @@ public class Manifest implements Cloneable {
         // replace EOF and NUL with another new line
         // which does not trigger an error
         byte b = buf[buf.length - 1];
-        if (0 == b || 26 == b) {
+        if (b == 0 || b == 26) {
             buf[buf.length - 1] = '\n';
         }
 

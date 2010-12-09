@@ -53,7 +53,7 @@ public class SimpleFormatter extends Formatter {
                 LogManager.getSystemLineSeparator());
         sb.append(r.getLevel().getName()).append(": ");
         sb.append(formatMessage(r)).append(LogManager.getSystemLineSeparator());
-        if (null != r.getThrown()) {
+        if (r.getThrown() != null) {
             sb.append("Throwable occurred: ");
             Throwable t = r.getThrown();
             PrintWriter pw = null;
