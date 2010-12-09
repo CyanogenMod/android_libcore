@@ -3,75 +3,64 @@
  */
 [
 {
-  description: "Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DomTest#testEntityDeclarations",
   substring: "This implementation does not parse entity declarations"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DomTest#testGetWholeTextWithEntityReference",
   substring: "This implementation doesn't resolve entity references in getWholeText"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DomTest#testIsElementContentWhitespaceWithDeclaration",
   substring: "This implementation does not recognize element content whitespace"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DomTest#testNotations",
   substring: "This implementation does not parse notations"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DeclarationTest#testGetXmlEncoding",
   substring: "This implementation doesn't parse the encoding from the XML declaration expected:<ISO-8859-1> but was:<null>"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DeclarationTest#testGetXmlStandalone",
   substring: "This implementation doesn't parse standalone from the XML declaration expected:<true> but was:<false>"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.DeclarationTest#testGetXmlVersion",
   substring: "This implementation doesn't parse the version from the XML declaration expected:<...1> but was:<...0>"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.xml.NormalizeTest#testSchemaTypeDtd",
   substring: "This implementation's setParameter() supports an unexpected value: schema-type=http://www.w3.org/TR/REC-xml"
 },
 {
-  description: "This file contains expectations for tests that we'd like to eventually fix, but aren't urgent.
-                Dalvik doesn't support XML Schemas, DTDs or validation
-                http://code.google.com/p/android/issues/detail?id=7395",
-  result: EXEC_FAILED,
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "tests.api.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver",
   substring: "java.lang.ClassCastException: org.apache.harmony.xml.dom.EntityReferenceImpl"
+},
+{
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
+  name: "tests.xml.DeclarationTest.testGetXmlVersion",
+  substring: "This implementation doesn't parse the version from the XML declaration"
 },
 {
   description: "the lack of schema parsing also extends to XML parsing in prefs",
