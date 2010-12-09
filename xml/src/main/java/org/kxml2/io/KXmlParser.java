@@ -992,14 +992,14 @@ public class KXmlParser implements XmlPullParser, Closeable {
                         return ELEMENTDECL; // <!EL
                     case 'N':
                         return ENTITYDECL; // <!EN
-                    default:
-                        throw new XmlPullParserException("Unexpected <!", this, null);
                     }
+                    break;
                 case 'A':
                     return ATTLISTDECL;  // <!A
                 case 'N':
                     return NOTATIONDECL; // <!N
                 }
+                throw new XmlPullParserException("Unexpected <!", this, null);
             default:
                 return START_TAG; // <
             }
@@ -1660,6 +1660,7 @@ public class KXmlParser implements XmlPullParser, Closeable {
                                     break;
                                 }
                             }
+                            break;
 
                         default:
                             // handle a byte order mark followed by something other than <?

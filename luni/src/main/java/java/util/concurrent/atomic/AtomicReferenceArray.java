@@ -114,7 +114,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     public final E getAndSet(int i, E newValue) {
         long offset = checkedByteOffset(i);
         while (true) {
-            E current = (E) getRaw(offset);
+            E current = getRaw(offset);
             if (compareAndSetRaw(offset, current, newValue))
                 return current;
         }

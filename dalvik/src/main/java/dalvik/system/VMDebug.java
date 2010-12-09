@@ -36,6 +36,7 @@ public final class VMDebug {
      *
      * @deprecated only used in one place, which is unused and deprecated
      */
+    @Deprecated
     static public final String DEFAULT_METHOD_TRACE_FILE_NAME = "/sdcard/dmtrace.trace";
 
     /**
@@ -145,6 +146,7 @@ public final class VMDebug {
      *
      * @deprecated not used, not needed
      */
+    @Deprecated
     public static void startMethodTracing() {
         startMethodTracing(DEFAULT_METHOD_TRACE_FILE_NAME, 0, 0);
     }

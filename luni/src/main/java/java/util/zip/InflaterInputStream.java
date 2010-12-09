@@ -199,7 +199,7 @@ public class InflaterInputStream extends FilterInputStream {
             synchronized (is.mSharedRaf) {
                 long len = is.mLength - is.mOffset;
                 if (len > nativeEndBufSize) len = nativeEndBufSize;
-                int cnt = inf.setFileInput(is.mSharedRaf.getFD(), is.mOffset, (int)nativeEndBufSize);
+                int cnt = inf.setFileInput(is.mSharedRaf.getFD(), is.mOffset, nativeEndBufSize);
                 is.skip(cnt);
             }
         } else {

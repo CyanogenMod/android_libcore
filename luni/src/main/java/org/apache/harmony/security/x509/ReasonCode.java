@@ -78,7 +78,7 @@ public class ReasonCode extends ExtensionValue {
      */
     public byte[] getEncoded() {
         if (encoding == null) {
-            encoding = ASN1.encode(new byte[] {(byte) code});
+            encoding = ASN1.encode(new byte[] { code });
         }
         return encoding;
     }
@@ -129,4 +129,3 @@ public class ReasonCode extends ExtensionValue {
      */
     public static final ASN1Type ASN1 = ASN1Enumerated.getInstance();
 }
-

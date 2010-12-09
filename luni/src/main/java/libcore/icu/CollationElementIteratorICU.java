@@ -52,7 +52,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public void reset() {
-        NativeCollation.reset(m_collelemiterator_);
+        NativeCollation.reset(address);
     }
 
     /**
@@ -63,7 +63,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public int next() {
-        return NativeCollation.next(m_collelemiterator_);
+        return NativeCollation.next(address);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public int previous() {
-        return NativeCollation.previous(m_collelemiterator_);
+        return NativeCollation.previous(address);
     }
 
     /**
@@ -87,7 +87,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public int getMaxExpansion(int order) {
-        return NativeCollation.getMaxExpansion(m_collelemiterator_, order);
+        return NativeCollation.getMaxExpansion(address, order);
     }
 
     /**
@@ -96,12 +96,12 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public void setText(String source) {
-        NativeCollation.setText(m_collelemiterator_, source);
+        NativeCollation.setText(address, source);
     }
 
     // BEGIN android-added
     public void setText(CharacterIterator source) {
-        NativeCollation.setText(m_collelemiterator_, source.toString());
+        NativeCollation.setText(address, source.toString());
     }
     // END android-added
 
@@ -113,7 +113,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public int getOffset() {
-        return NativeCollation.getOffset(m_collelemiterator_);
+        return NativeCollation.getOffset(address);
     }
 
     /**
@@ -123,7 +123,7 @@ public final class CollationElementIteratorICU {
      * @stable ICU 2.4
      */
     public void setOffset(int offset) {
-        NativeCollation.setOffset(m_collelemiterator_, offset);
+        NativeCollation.setOffset(address, offset);
     }
 
     /**
@@ -163,7 +163,7 @@ public final class CollationElementIteratorICU {
     }
 
     private CollationElementIteratorICU(int address) {
-        m_collelemiterator_ = address;
+        this.address = address;
     }
 
     // protected methods --------------------------------------------
@@ -175,7 +175,7 @@ public final class CollationElementIteratorICU {
      */
     @Override protected void finalize() throws Throwable {
         try {
-            NativeCollation.closeElements(m_collelemiterator_);
+            NativeCollation.closeElements(address);
         } finally {
             super.finalize();
         }
@@ -186,7 +186,7 @@ public final class CollationElementIteratorICU {
     /**
      * C collator
      */
-    private int m_collelemiterator_;
+    private int address;
 
     /**
      * ICU constant primary order mask for collation elements

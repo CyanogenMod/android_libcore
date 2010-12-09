@@ -182,11 +182,8 @@ public class AttributeValue {
         StringBuilder buf = new StringBuilder(length * 2);
 
         for (int index = 0; index < length; index++) {
-
             char ch = name.charAt(index);
-
             switch (ch) {
-
             case ' ':
                 if (index == 0 || index == (length - 1)) {
                     // escape first or last space
@@ -198,6 +195,9 @@ public class AttributeValue {
             case '"':
             case '\\':
                 hasQE = true;
+                buf.append('\\');
+                buf.append(ch);
+                break;
 
             case ',':
             case '+':
@@ -207,9 +207,12 @@ public class AttributeValue {
             case '#': // required by RFC 1779
             case '=': // required by RFC 1779
                 buf.append('\\');
+                buf.append(ch);
+                break;
 
             default:
                 buf.append(ch);
+                break;
             }
         }
 

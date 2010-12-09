@@ -209,7 +209,7 @@ public class DefaultPolicy extends Policy {
                     pc = new HashSet<Permission>();
                     Iterator<PolicyEntry> it = grants.iterator();
                     while (it.hasNext()) {
-                        PolicyEntry ge = (PolicyEntry)it.next();
+                        PolicyEntry ge = it.next();
                         if (ge.impliesPrincipals(pd == null ? null : pd.getPrincipals())
                             && ge.impliesCodeSource(pd == null ? null : pd.getCodeSource())) {
                             pc.addAll(ge.getPermissions());
@@ -248,9 +248,8 @@ public class DefaultPolicy extends Policy {
                     pc = new HashSet<Permission>();
                     Iterator<PolicyEntry> it = grants.iterator();
                     while (it.hasNext()) {
-                        PolicyEntry ge = (PolicyEntry)it.next();
-                        if (ge.impliesPrincipals(null)
-                            && ge.impliesCodeSource(cs)) {
+                        PolicyEntry ge = it.next();
+                        if (ge.impliesPrincipals(null) && ge.impliesCodeSource(cs)) {
                             pc.addAll(ge.getPermissions());
                         }
                     }

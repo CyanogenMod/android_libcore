@@ -193,10 +193,12 @@ public class AccessibleObject implements AnnotatedElement {
         if (annotationType == null) {
             throw new NullPointerException();
         }
-        Annotation[] annos = getAnnotations();
-        for (int i = annos.length-1; i >= 0; --i) {
-            if (annos[i].annotationType() == annotationType) {
-                return (T) annos[i];
+        Annotation[] annotations = getAnnotations();
+        for (int i = annotations.length-1; i >= 0; --i) {
+            if (annotations[i].annotationType() == annotationType) {
+                @SuppressWarnings("unchecked")
+                T result = (T) annotations[i];
+                return result;
             }
         }
         return null;

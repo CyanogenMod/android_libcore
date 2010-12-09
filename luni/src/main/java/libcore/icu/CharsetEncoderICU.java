@@ -61,12 +61,8 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private byte[] allocatedOutput = null;
     // END android-added
 
-    // These instance variables are
-    // always assigned in the methods
-    // before being used. This class
-    // inhrently multithread unsafe
-    // so we dont have to worry about
-    // synchronization
+    // These instance variables are always assigned in the methods before being used. This class
+    // is inherently thread-unsafe so we don't have to worry about synchronization.
     private int inEnd;
     private int outEnd;
     private int ec;
@@ -249,60 +245,12 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         }
     }
 
-    /**
-     * Ascertains if a given Unicode character can
-     * be converted to the target encoding
-     *
-     * @param  c the character to be converted
-     * @return true if a character can be converted
-     * @stable ICU 2.4
-     *
-     */
     public boolean canEncode(char c) {
         return canEncode((int) c);
     }
 
-    /**
-     * Ascertains if a given Unicode code point (32bit value for handling surrogates)
-     * can be converted to the target encoding. If the caller wants to test if a
-     * surrogate pair can be converted to target encoding then the
-     * responsibility of assembling the int value lies with the caller.
-     * For assembling a code point the caller can use UTF16 class of ICU4J and do something like:
-     * <pre>
-     * while(i<mySource.length){
-     *      if(UTF16.isLeadSurrogate(mySource[i])&& i+1< mySource.length){
-     *          if(UTF16.isTrailSurrogate(mySource[i+1])){
-     *              int temp = UTF16.charAt(mySource,i,i+1,0);
-     *              if(!((CharsetEncoderICU) myConv).canEncode(temp)){
-     *          passed=false;
-     *              }
-     *              i++;
-     *              i++;
-     *          }
-     *     }
-     * }
-     * </pre>
-     * or
-     * <pre>
-     * String src = new String(mySource);
-     * int i,codepoint;
-     * boolean passed = false;
-     * while(i<src.length()){
-     *    codepoint = UTF16.charAt(src,i);
-     *    i+= (codepoint>0xfff)? 2:1;
-     *    if(!(CharsetEncoderICU) myConv).canEncode(codepoint)){
-     *        passed = false;
-     *    }
-     * }
-     * </pre>
-     *
-     * @param codepoint Unicode code point as int value
-     * @return true if a character can be converted
-     * @obsolete ICU 2.4
-     * @deprecated ICU 3.4
-     */
-    public boolean canEncode(int codepoint) {
-        return NativeConverter.canEncode(converterHandle, codepoint);
+    public boolean canEncode(int codePoint) {
+        return NativeConverter.canEncode(converterHandle, codePoint);
     }
 
     /**
@@ -322,14 +270,14 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     //------------------------------------------
     // private utility methods
     //------------------------------------------
-    private final int getArray(ByteBuffer out) {
-        if(out.hasArray()){
+    private int getArray(ByteBuffer out) {
+        if (out.hasArray()) {
             // BEGIN android-changed: take arrayOffset into account
             output = out.array();
             outEnd = out.arrayOffset() + out.limit();
             return out.arrayOffset() + out.position();
             // END android-changed
-        }else{
+        } else {
             outEnd = out.remaining();
             // BEGIN android-added
             if (allocatedOutput == null || (outEnd > allocatedOutput.length)) {
@@ -344,14 +292,14 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         }
     }
 
-    private final int getArray(CharBuffer in) {
-        if(in.hasArray()){
+    private int getArray(CharBuffer in) {
+        if (in.hasArray()) {
             // BEGIN android-changed: take arrayOffset into account
             input = in.array();
             inEnd = in.arrayOffset() + in.limit();
             return in.arrayOffset() + in.position() + savedInputHeldLen;/*exclude the number fo bytes held in previous conversion*/
             // END android-changed
-        }else{
+        } else {
             inEnd = in.remaining();
             // BEGIN android-added
             if (allocatedInput == null || (inEnd > allocatedInput.length)) {
@@ -371,7 +319,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         }
 
     }
-    private final void setPosition(ByteBuffer out) {
+    private void setPosition(ByteBuffer out) {
 
         if (out.hasArray()) {
             // in getArray method we accessed the
@@ -389,7 +337,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         output = null;
         // END android-added
     }
-    private final void setPosition(CharBuffer in){
+    private void setPosition(CharBuffer in){
 
 // BEGIN android-removed
 //        // was there input held in the previous invocation of encodeLoop
@@ -407,7 +355,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
 
 // BEGIN android-added
         // Slightly rewired original code to make it cleaner. Also
-        // added a fix for the problem where input charatcers got
+        // added a fix for the problem where input characters got
         // lost when invalid characters were encountered. Not sure
         // what happens when data[INVALID_CHARS] is > 1, though,
         // since we never saw that happening.

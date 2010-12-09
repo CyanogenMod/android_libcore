@@ -57,7 +57,7 @@ public class PolicyEntry {
             Collection<? extends Permission> permissions) {
         this.cs = (cs != null) ? normalizeCodeSource(cs) : null;
         this.principals = (prs == null || prs.isEmpty()) ? null
-                : (Principal[]) prs.toArray(new Principal[prs.size()]);
+                : prs.toArray(new Principal[prs.size()]);
         this.permissions = (permissions == null || permissions.isEmpty()) ? null
                 : Collections.unmodifiableCollection(permissions);
     }
