@@ -125,28 +125,26 @@ public class StringBufferInputStream extends InputStream {
     }
 
     /**
-     * Skips {@code n} characters in the source string. It does nothing and
-     * returns 0 if {@code n} is negative. Less than {@code n} characters are
+     * Skips {@code charCount} characters in the source string. It does nothing and
+     * returns 0 if {@code charCount} is negative. Less than {@code charCount} characters are
      * skipped if the end of the source string is reached before the operation
      * completes.
      *
-     * @param n
-     *            the number of characters to skip.
      * @return the number of characters actually skipped.
      */
     @Override
-    public synchronized long skip(long n) {
-        if (n <= 0) {
+    public synchronized long skip(long charCount) {
+        if (charCount <= 0) {
             return 0;
         }
 
         int numskipped;
-        if (this.count - pos < n) {
+        if (this.count - pos < charCount) {
             numskipped = this.count - pos;
             pos = this.count;
         } else {
-            numskipped = (int) n;
-            pos += n;
+            numskipped = (int) charCount;
+            pos += charCount;
         }
         return numskipped;
     }

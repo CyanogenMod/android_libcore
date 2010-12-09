@@ -375,19 +375,19 @@ public class BufferedInputStream extends FilterInputStream {
     }
 
     /**
-     * Skips {@code amount} number of bytes in this stream. Subsequent
-     * {@code read()}'s will not return these bytes unless {@code reset()} is
+     * Skips {@code byteCount} bytes in this stream. Subsequent calls to
+     * {@code read} will not return these bytes unless {@code reset} is
      * used.
      *
-     * @param amount
+     * @param byteCount
      *            the number of bytes to skip. {@code skip} does nothing and
-     *            returns 0 if {@code amount} is less than zero.
+     *            returns 0 if {@code byteCount} is less than zero.
      * @return the number of bytes actually skipped.
      * @throws IOException
      *             if this stream is closed or another IOException occurs.
      */
     @Override
-    public synchronized long skip(long amount) throws IOException {
+    public synchronized long skip(long byteCount) throws IOException {
         // Use local refs since buf and in may be invalidated by an
         // unsynchronized close()
         byte[] localBuf = buf;
@@ -395,28 +395,28 @@ public class BufferedInputStream extends FilterInputStream {
         if (localBuf == null) {
             throw streamClosed();
         }
-        if (amount < 1) {
+        if (byteCount < 1) {
             return 0;
         }
         if (localIn == null) {
             throw streamClosed();
         }
 
-        if (count - pos >= amount) {
-            pos += amount;
-            return amount;
+        if (count - pos >= byteCount) {
+            pos += byteCount;
+            return byteCount;
         }
         long read = count - pos;
         pos = count;
 
         if (markpos != -1) {
-            if (amount <= marklimit) {
+            if (byteCount <= marklimit) {
                 if (fillbuf(localIn, localBuf) == -1) {
                     return read;
                 }
-                if (count - pos >= amount - read) {
-                    pos += amount - read;
-                    return amount;
+                if (count - pos >= byteCount - read) {
+                    pos += byteCount - read;
+                    return byteCount;
                 }
                 // Couldn't get all the bytes, skip what we read
                 read += (count - pos);
@@ -424,6 +424,6 @@ public class BufferedInputStream extends FilterInputStream {
                 return read;
             }
         }
-        return read + localIn.skip(amount - read);
+        return read + localIn.skip(byteCount - read);
     }
 }

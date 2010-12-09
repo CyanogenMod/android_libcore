@@ -74,8 +74,8 @@ class FtpURLInputStream extends InputStream {
     }
 
     @Override
-    public long skip(long sbytes) throws IOException {
-        return is.skip(sbytes);
+    public long skip(long byteCount) throws IOException {
+        return is.skip(byteCount);
     }
 
 }

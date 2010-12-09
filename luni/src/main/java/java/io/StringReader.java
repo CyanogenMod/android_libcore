@@ -209,13 +209,13 @@ public class StringReader extends Reader {
     }
 
     /**
-     * Moves {@code ns} characters in the source string. Unlike the {@link
+     * Moves {@code charCount} characters in the source string. Unlike the {@link
      * Reader#skip(long) overridden method}, this method may skip negative skip
      * distances: this rewinds the input so that characters may be read again.
      * When the end of the source string has been reached, the input cannot be
      * rewound.
      *
-     * @param ns
+     * @param charCount
      *            the maximum number of characters to skip. Positive values skip
      *            forward; negative values skip backward.
      * @return the number of characters actually skipped. This is bounded below
@@ -229,21 +229,21 @@ public class StringReader extends Reader {
      * @see #reset()
      */
     @Override
-    public long skip(long ns) throws IOException {
+    public long skip(long charCount) throws IOException {
         synchronized (lock) {
             checkNotClosed();
 
             int minSkip = -pos;
             int maxSkip = count - pos;
 
-            if (maxSkip == 0 || ns > maxSkip) {
-                ns = maxSkip; // no rewinding if we're at the end
-            } else if (ns < minSkip) {
-                ns = minSkip;
+            if (maxSkip == 0 || charCount > maxSkip) {
+                charCount = maxSkip; // no rewinding if we're at the end
+            } else if (charCount < minSkip) {
+                charCount = minSkip;
             }
 
-            pos += ns;
-            return ns;
+            pos += charCount;
+            return charCount;
         }
     }
 }

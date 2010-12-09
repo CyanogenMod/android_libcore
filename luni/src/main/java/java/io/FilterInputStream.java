@@ -174,13 +174,11 @@ public class FilterInputStream extends InputStream {
     }
 
     /**
-     * Skips {@code count} number of bytes in this stream. Subsequent
-     * {@code read()}'s will not return these bytes unless {@code reset()} is
-     * used. This implementation skips {@code count} number of bytes in the
+     * Skips {@code byteCount} bytes in this stream. Subsequent
+     * calls to {@code read} will not return these bytes unless {@code reset} is
+     * used. This implementation skips {@code byteCount} bytes in the
      * filtered stream.
      *
-     * @param byteCount
-     *            the number of bytes to skip.
      * @return the number of bytes actually skipped.
      * @throws IOException
      *             if this stream is closed or another IOException occurs.
