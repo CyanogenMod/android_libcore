@@ -207,20 +207,20 @@ public final class FloatingPointParser {
         }
 
         boolean negative = false;
-        int cmpstart = 0;
-        switch (namedDouble.charAt(0)) {
-        case '-':
-            negative = true; // fall through
-        case '+':
-            cmpstart = 1;
-        default:
+        int i = 0;
+        char firstChar = namedDouble.charAt(i);
+        if (firstChar == '-') {
+            negative = true;
+            ++i;
+        } else if (firstChar == '+') {
+            ++i;
         }
 
-        if (namedDouble.regionMatches(false, cmpstart, "Infinity", 0, 8)) {
+        if (namedDouble.regionMatches(false, i, "Infinity", 0, 8)) {
             return negative ? Double.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
         }
 
-        if (namedDouble.regionMatches(false, cmpstart, "NaN", 0, 3)) {
+        if (namedDouble.regionMatches(false, i, "NaN", 0, 3)) {
             return Double.NaN;
         }
 
@@ -238,20 +238,20 @@ public final class FloatingPointParser {
         }
 
         boolean negative = false;
-        int cmpstart = 0;
-        switch (namedFloat.charAt(0)) {
-        case '-':
-            negative = true; // fall through
-        case '+':
-            cmpstart = 1;
-        default:
+        int i = 0;
+        char firstChar = namedFloat.charAt(i);
+        if (firstChar == '-') {
+            negative = true;
+            ++i;
+        } else if (firstChar == '+') {
+            ++i;
         }
 
-        if (namedFloat.regionMatches(false, cmpstart, "Infinity", 0, 8)) {
+        if (namedFloat.regionMatches(false, i, "Infinity", 0, 8)) {
             return negative ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
         }
 
-        if (namedFloat.regionMatches(false, cmpstart, "NaN", 0, 3)) {
+        if (namedFloat.regionMatches(false, i, "NaN", 0, 3)) {
             return Float.NaN;
         }
 

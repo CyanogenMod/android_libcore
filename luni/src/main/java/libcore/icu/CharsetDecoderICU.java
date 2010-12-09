@@ -47,12 +47,8 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     private char[] allocatedOutput = null;
     // END android-added
 
-    // These instance variables are
-    // always assigned in the methods
-    // before being used. This class
-    // inhrently multithread unsafe
-    // so we dont have to worry about
-    // synchronization
+    // These instance variables are always assigned in the methods before being used. This class
+    // is inherently thread-unsafe so we don't have to worry about synchronization.
     private int inEnd;
     private int outEnd;
     private int ec;
@@ -247,7 +243,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     // private utility methods
     //------------------------------------------
 
-    private final int getArray(CharBuffer out){
+    private int getArray(CharBuffer out) {
         if (out.hasArray()) {
             // BEGIN android-changed: take arrayOffset into account
             output = out.array();
@@ -269,7 +265,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         }
     }
 
-    private  final int getArray(ByteBuffer in){
+    private  int getArray(ByteBuffer in) {
         if (in.hasArray()) {
             // BEGIN android-changed: take arrayOffset into account
             input = in.array();
@@ -296,7 +292,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         }
     }
 
-    private final void setPosition(CharBuffer out) {
+    private void setPosition(CharBuffer out) {
         if (out.hasArray()) {
             out.position(out.position() + data[OUTPUT_OFFSET] - out.arrayOffset());
         } else {
@@ -306,7 +302,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         output = null;
     }
 
-    private final void setPosition(ByteBuffer in) {
+    private void setPosition(ByteBuffer in) {
         // ok was there input held in the previous invocation of decodeLoop
         // that resulted in output in this invocation?
         in.position(in.position() + data[INPUT_OFFSET] + savedInputHeldLen - data[INPUT_HELD]);

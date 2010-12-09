@@ -317,10 +317,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         for (int i = declaredAnnotations.length-1; i >= 0; --i) {
             map.put(declaredAnnotations[i].annotationType(), declaredAnnotations[i]);
         }
-        for (Class sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+        for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
             declaredAnnotations = sup.getDeclaredAnnotations();
             for (int i = declaredAnnotations.length-1; i >= 0; --i) {
-                Class clazz = declaredAnnotations[i].annotationType();
+                Class<?> clazz = declaredAnnotations[i].annotationType();
                 if (!map.containsKey(clazz) && clazz.isAnnotationPresent(Inherited.class)) {
                     map.put(clazz, declaredAnnotations[i]);
                 }
