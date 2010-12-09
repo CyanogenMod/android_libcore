@@ -90,7 +90,8 @@ final class RealToString {
         }
 
         int p = Double.EXPONENT_BIAS + Double.MANTISSA_BITS; // the power offset (precision)
-        int pow = 0, numBits = Double.MANTISSA_BITS;
+        int pow;
+        int numBits = Double.MANTISSA_BITS;
         if (e == 0) {
             pow = 1 - p; // a denormalized number
             long ff = f;
@@ -151,7 +152,8 @@ final class RealToString {
         }
 
         int p = Float.EXPONENT_BIAS + Float.MANTISSA_BITS; // the power offset (precision)
-        int pow = 0, numBits = Float.MANTISSA_BITS;
+        int pow;
+        int numBits = Float.MANTISSA_BITS;
         if (e == 0) {
             pow = 1 - p; // a denormalized number
             if (f < 8) { // want more precision with smallest values

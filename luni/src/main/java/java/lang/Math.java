@@ -767,8 +767,8 @@ public final class Math {
      * <li>{@code round(-0.0) = +0.0}</li>
      * <li>{@code round((anything > Integer.MAX_VALUE) = Integer.MAX_VALUE}</li>
      * <li>{@code round((anything < Integer.MIN_VALUE) = Integer.MIN_VALUE}</li>
-     * <li>{@code round(+infintiy) = Integer.MAX_VALUE}</li>
-     * <li>{@code round(-infintiy) = Integer.MIN_VALUE}</li>
+     * <li>{@code round(+infinity) = Integer.MAX_VALUE}</li>
+     * <li>{@code round(-infinity) = Integer.MIN_VALUE}</li>
      * <li>{@code round(NaN) = +0.0}</li>
      * </ul>
      *
@@ -1017,8 +1017,8 @@ public final class Math {
      * <ul>
      * <li>{@code ulp(+0.0) = Double.MIN_VALUE}</li>
      * <li>{@code ulp(-0.0) = Double.MIN_VALUE}</li>
-     * <li>{@code ulp(+infintiy) = infinity}</li>
-     * <li>{@code ulp(-infintiy) = infinity}</li>
+     * <li>{@code ulp(+infinity) = infinity}</li>
+     * <li>{@code ulp(-infinity) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
      *
@@ -1047,8 +1047,8 @@ public final class Math {
      * <ul>
      * <li>{@code ulp(+0.0) = Float.MIN_VALUE}</li>
      * <li>{@code ulp(-0.0) = Float.MIN_VALUE}</li>
-     * <li>{@code ulp(+infintiy) = infinity}</li>
-     * <li>{@code ulp(-infintiy) = infinity}</li>
+     * <li>{@code ulp(+infinity) = infinity}</li>
+     * <li>{@code ulp(-infinity) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
      *
@@ -1281,7 +1281,7 @@ public final class Math {
         int sign = bits & Float.SIGN_MASK;
         int factor = ((bits & Float.EXPONENT_MASK) >> Float.MANTISSA_BITS)
                 - Float.EXPONENT_BIAS + scaleFactor;
-        // calcutes the factor of sub-normal values
+        // calculates the factor of sub-normal values
         int subNormalFactor = Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK)
                 - Float.NON_MANTISSA_BITS;
         if (subNormalFactor < 0) {
@@ -1327,17 +1327,17 @@ public final class Math {
             return bits << digits;
         }
         // change it to positive
-        int absdigits = -digits;
-        if (!(Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK) <= (32 - absdigits))) {
+        int absDigits = -digits;
+        if (!(Integer.numberOfLeadingZeros(bits & ~Float.SIGN_MASK) <= (32 - absDigits))) {
             return 0;
         }
-        int ret = bits >> absdigits;
-        boolean halfbit = ((bits >> (absdigits - 1)) & 0x1) == 1;
-        if (halfbit) {
-            if (Integer.numberOfTrailingZeros(bits) < (absdigits - 1)) {
+        int ret = bits >> absDigits;
+        boolean halfBit = ((bits >> (absDigits - 1)) & 0x1) == 1;
+        if (halfBit) {
+            if (Integer.numberOfTrailingZeros(bits) < (absDigits - 1)) {
                 ret = ret + 1;
             }
-            if (Integer.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+            if (Integer.numberOfTrailingZeros(bits) == (absDigits - 1)) {
                 if ((ret & 0x1) == 1) {
                     ret = ret + 1;
                 }
@@ -1353,19 +1353,19 @@ public final class Math {
             return bits << digits;
         }
         // change it to positive
-        long absdigits = -digits;
-        if (!(Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK) <= (64 - absdigits))) {
+        long absDigits = -digits;
+        if (!(Long.numberOfLeadingZeros(bits & ~Double.SIGN_MASK) <= (64 - absDigits))) {
             return 0;
         }
-        long ret = bits >> absdigits;
-        boolean halfbit = ((bits >> (absdigits - 1)) & 0x1) == 1;
-        if (halfbit) {
+        long ret = bits >> absDigits;
+        boolean halfBit = ((bits >> (absDigits - 1)) & 0x1) == 1;
+        if (halfBit) {
             // some bits will remain after shifting, calculates its carry
             // subnormal
-            if (Long.numberOfTrailingZeros(bits) < (absdigits - 1)) {
+            if (Long.numberOfTrailingZeros(bits) < (absDigits - 1)) {
                 ret = ret + 1;
             }
-            if (Long.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+            if (Long.numberOfTrailingZeros(bits) == (absDigits - 1)) {
                 if ((ret & 0x1) == 1) {
                     ret = ret + 1;
                 }

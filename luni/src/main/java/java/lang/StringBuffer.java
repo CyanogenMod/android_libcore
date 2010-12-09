@@ -39,7 +39,7 @@ import java.io.Serializable;
  * @see Appendable
  * @see StringBuilder
  * @see String
- * @see String.format
+ * @see String#format
  * @since 1.0
  */
 public final class StringBuffer extends AbstractStringBuilder implements

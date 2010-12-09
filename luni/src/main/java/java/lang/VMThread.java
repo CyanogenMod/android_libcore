@@ -19,8 +19,7 @@ package java.lang;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class VMThread
-{
+class VMThread {
     Thread thread;
     int vmData;
 
@@ -28,7 +27,7 @@ class VMThread
         thread = t;
     }
 
-    native static void create(Thread t, long stacksize);
+    native static void create(Thread t, long stackSize);
 
     static native Thread currentThread();
     static native boolean interrupted();
@@ -41,13 +40,10 @@ class VMThread
 
     /**
      *  Starts the VMThread (and thus the Java Thread) with the given
-     *  stacksize.
-     *
-     * @param stacksize
-     *                 The desired stacksize.
+     *  stack size.
      */
-    void start(long stacksize) {
-        VMThread.create(thread, stacksize);
+    void start(long stackSize) {
+        VMThread.create(thread, stackSize);
     }
 
     private static final String UNSUPPORTED_THREAD_METHOD
@@ -90,7 +86,7 @@ class VMThread
     native int getStatus();
 
     /**
-     * Holds a mapping from native Thread statii to Java one. Required for
+     * Holds a mapping from native Thread statuses to Java one. Required for
      * translating back the result of getStatus().
      */
     static final Thread.State[] STATE_MAP = new Thread.State[] {

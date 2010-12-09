@@ -20,8 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
+import java.util.List;
 
 class VMClassLoader {
 
@@ -36,74 +35,51 @@ class VMClassLoader {
      */
     static URL getResource(String name) {
         int numEntries = getBootClassPathSize();
-        int i;
-
-        for (i = 0; i < numEntries; i++) {
+        for (int i = 0; i < numEntries; i++) {
             String urlStr = getBootClassPathResource(name, i);
             if (urlStr != null) {
                 try {
                     return new URL(urlStr);
-                }
-                catch (MalformedURLException mue) {
+                } catch (MalformedURLException mue) {
                     mue.printStackTrace();
                     // unexpected; keep going
                 }
             }
         }
-
         return null;
     }
 
     /*
      * Get an enumeration with all matching resources.
      */
-    static Enumeration<URL> getResources(String name) {
-        ArrayList<URL> list = null;
+    static List<URL> getResources(String name) {
+        ArrayList<URL> list = new ArrayList<URL>();
         int numEntries = getBootClassPathSize();
-        int i;
-
-        for (i = 0; i < numEntries; i++) {
+        for (int i = 0; i < numEntries; i++) {
             String urlStr = getBootClassPathResource(name, i);
             if (urlStr != null) {
-                if (list == null)
-                    list = new ArrayList<URL>();
-
                 try {
                     list.add(new URL(urlStr));
-                }
-                catch (MalformedURLException mue) {
+                } catch (MalformedURLException mue) {
                     mue.printStackTrace();
                     // unexpected; keep going
                 }
             }
         }
-
-        if (list == null)
-            return null;
-        else
-            return new EnumerateListArray<URL>(list);
+        return list;
     }
 
     /**
      * Load class with bootstrap class loader.
      */
-    native static Class loadClass(String name, boolean resolve)
-        throws ClassNotFoundException;
+    native static Class loadClass(String name, boolean resolve) throws ClassNotFoundException;
 
     native static Class getPrimitiveClass(char type);
 
-    /*
-     * TODO(Google) Ticket 156: Native implementation does nothing, just throws
-     * OperationNotSupportedException.
-     */
     native static Class defineClass(ClassLoader cl, String name,
         byte[] data, int offset, int len, ProtectionDomain pd)
         throws ClassFormatError;
 
-    /*
-     * TODO(Google) Ticket 156: Native implementation does nothing, just throws
-     * OperationNotSupportedException.
-     */
     native static Class defineClass(ClassLoader cl,
             byte[] data, int offset, int len, ProtectionDomain pd)
             throws ClassFormatError;
@@ -114,29 +90,6 @@ class VMClassLoader {
      * Boot class path manipulation, for getResources().
      */
     native private static int getBootClassPathSize();
-    native private static String getBootClassPathResource(String name,
-            int index);
-
-    /*
-     * Create an Enumeration for an ArrayList.
-     */
-    private static class EnumerateListArray<T> implements Enumeration<T> {
-        private final ArrayList mList;
-        private int i = 0;
-
-        EnumerateListArray(ArrayList list) {
-            mList = list;
-        }
-
-        public boolean hasMoreElements() {
-            return i < mList.size();
-        }
-
-        public T nextElement() {
-            if (i >= mList.size())
-                throw new NoSuchElementException();
-            return (T) mList.get(i++);
-        }
-    };
+    native private static String getBootClassPathResource(String name, int index);
 }
 

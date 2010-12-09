@@ -77,13 +77,11 @@ public class Package implements AnnotatedElement {
      */
     @SuppressWarnings("unchecked")
     public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
-        Annotation[] list = getAnnotations();
-        for (int i = 0; i < list.length; i++) {
-            if (annotationType.isInstance(list[i])) {
-                return (A) list[i];
+        for (Annotation annotation : getAnnotations()) {
+            if (annotationType.isInstance(annotation)) {
+                return (A) annotation;
             }
         }
-
         return null;
     }
 
@@ -117,8 +115,7 @@ public class Package implements AnnotatedElement {
      * @return the list of annotations
      */
     // TODO(Google) Provide proper (native) implementation.
-    private static native Annotation[] getDeclaredAnnotations(Package pkg,
-            boolean publicOnly);
+    private static native Annotation[] getDeclaredAnnotations(Package pkg, boolean publicOnly);
 
     /**
      * Indicates whether the specified annotation is present.
@@ -129,8 +126,7 @@ public class Package implements AnnotatedElement {
      *         otherwise.
      * @see java.lang.reflect.AnnotatedElement#isAnnotationPresent(java.lang.Class)
      */
-    public boolean isAnnotationPresent(
-            Class<? extends Annotation> annotationType) {
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         return getAnnotation(annotationType) != null;
     }
 
@@ -250,8 +246,7 @@ public class Package implements AnnotatedElement {
      *             if this package's version string or the one provided are not
      *             in the correct format.
      */
-    public boolean isCompatibleWith(String version)
-            throws NumberFormatException {
+    public boolean isCompatibleWith(String version) throws NumberFormatException {
         String[] requested = version.split("\\.");
         String[] provided = specVersion.split("\\.");
 
