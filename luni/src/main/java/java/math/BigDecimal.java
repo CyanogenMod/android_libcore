@@ -989,10 +989,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         /* Let be: this = [u1,s1] and multiplicand = [u2,s2] so:
          * this x multiplicand = [ s1 * s2 , s1 + s2 ] */
         if(this.bitLength + multiplicand.bitLength < 64) {
-            return valueOf(this.smallValue*multiplicand.smallValue,toIntScale(newScale));
+            return valueOf(this.smallValue*multiplicand.smallValue, safeLongToInt(newScale));
         }
         return new BigDecimal(this.getUnscaledValue().multiply(
-                multiplicand.getUnscaledValue()), toIntScale(newScale));
+                multiplicand.getUnscaledValue()), safeLongToInt(newScale));
     }
 
     /**
@@ -1284,7 +1284,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             p = p.negate();
         }
         // Checking if the new scale is out of range
-        newScale = toIntScale(diffScale + Math.max(k, l));
+        newScale = safeLongToInt(diffScale + Math.max(k, l));
         // k >= 0  and  l >= 0  implies that  k - l  is in the 32-bit range
         i = k - l;
 
@@ -1364,7 +1364,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             }
         }
         // To perform rounding
-        return new BigDecimal(integerQuot, toIntScale(newScale), mc);
+        return new BigDecimal(integerQuot, safeLongToInt(newScale), mc);
     }
 
     /**
@@ -1427,7 +1427,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         return ((integralValue.signum() == 0)
         ? zeroScaledBy(newScale)
-                : new BigDecimal(integralValue, toIntScale(newScale)));
+                : new BigDecimal(integralValue, safeLongToInt(newScale)));
     }
 
     /**
@@ -1534,7 +1534,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (resultPrecision > mcPrecision) {
             throw new ArithmeticException("Division impossible");
         }
-        integralValue.scale = toIntScale(newScale);
+        integralValue.scale = safeLongToInt(newScale);
         integralValue.setUnscaledValue(strippedBI);
         return integralValue;
     }
@@ -1663,7 +1663,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         long newScale = scale * (long)n;
         // Let be: this = [u,s]   so:  this^n = [u^n, s*n]
         return isZero() ? zeroScaledBy(newScale)
-                : new BigDecimal(getUnscaledValue().pow(n), toIntScale(newScale));
+                : new BigDecimal(getUnscaledValue().pow(n), safeLongToInt(newScale));
     }
 
     /**
@@ -2029,15 +2029,16 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
          */
         if(newScale >= 0) {
             if(bitLength < 64) {
-                return valueOf(smallValue,toIntScale(newScale));
+                return valueOf(smallValue, safeLongToInt(newScale));
             }
-            return new BigDecimal(getUnscaledValue(), toIntScale(newScale));
+            return new BigDecimal(getUnscaledValue(), safeLongToInt(newScale));
         }
         if(-newScale < MathUtils.LONG_POWERS_OF_TEN.length &&
                 bitLength + LONG_POWERS_OF_TEN_BIT_LENGTH[(int)-newScale] < 64 ) {
             return valueOf(smallValue*MathUtils.LONG_POWERS_OF_TEN[(int)-newScale],0);
         }
-        return new BigDecimal(Multiplication.multiplyByTenPow(getUnscaledValue(),(int)-newScale), 0);
+        return new BigDecimal(Multiplication.multiplyByTenPow(
+                getUnscaledValue(), safeLongToInt(-newScale)), 0);
     }
 
     /**
@@ -2079,9 +2080,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             if( smallValue==0  ){
                 return zeroScaledBy( newScale );
             }
-            return valueOf(smallValue,toIntScale(newScale));
+            return valueOf(smallValue, safeLongToInt(newScale));
         }
-        return new BigDecimal(getUnscaledValue(), toIntScale(newScale));
+        return new BigDecimal(getUnscaledValue(), safeLongToInt(newScale));
     }
 
     /**
@@ -2129,7 +2130,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 i = 1;
             }
         }
-        return new BigDecimal(strippedBI, toIntScale(newScale));
+        return new BigDecimal(strippedBI, safeLongToInt(newScale));
     }
 
     /**
@@ -2790,7 +2791,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             }
         }
         // To update all internal fields
-        scale = toIntScale(newScale);
+        scale = safeLongToInt(newScale);
         precision = mcPrecision;
         setUnscaledValue(integerAndFraction[0]);
     }
@@ -2831,7 +2832,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             }
         }
         // To update all internal fields
-        scale = toIntScale(newScale);
+        scale = safeLongToInt(newScale);
         precision = mc.getPrecision();
         smallValue = integer;
         bitLength = bitLength(integer);
@@ -2931,26 +2932,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         // END android-changed
     }
 
-    /**
-     * It tests if a scale of type {@code long} fits in 32 bits. It
-     * returns the same scale being casted to {@code int} type when is
-     * possible, otherwise throws an exception.
-     *
-     * @param longScale
-     *            a 64 bit scale
-     * @return a 32 bit scale when is possible
-     * @throws ArithmeticException when {@code scale} doesn't
-     *             fit in {@code int} type
-     * @see #scale
-     */
-    private static int toIntScale(long longScale) {
-        if (longScale < Integer.MIN_VALUE) {
-            throw new ArithmeticException("Overflow");
-        } else if (longScale > Integer.MAX_VALUE) {
-            throw new ArithmeticException("Underflow");
-        } else {
-            return (int)longScale;
+    private static int safeLongToInt(long longValue) {
+        if (longValue < Integer.MIN_VALUE || longValue > Integer.MAX_VALUE) {
+            throw new ArithmeticException("Out of int range: " + longValue);
         }
+        return (int) longValue;
     }
 
     /**
