@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -56,6 +57,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
      * Creates a new, empty instance of CopyOnWriteArrayList.
      */
     public CopyOnWriteArrayList() {
+        arr = newElementArray(0);
     }
 
     /**
@@ -138,7 +140,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
         } finally {
             lock.unlock();
         }
-        return true;
+        return ssize > 0;
     }
 
     public boolean addAll(int index, Collection<? extends E> c) {
@@ -164,7 +166,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
         } finally {
             lock.unlock();
         }
-        return true;
+        return ssize > 0;
     }
 
     /**
@@ -188,7 +190,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
             int i = 0;
             for (Iterator it = c.iterator(); it.hasNext();) {
                 E o = (E) it.next();
-                if (indexOf(o) < 0) {
+                if (indexOf(o) < 0 && indexOf(o, toAdd, 0, i) == -1) {
                     toAdd[i++] = o;
                 }
             }
@@ -567,8 +569,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
         lock.lock();
         try {
             int sizeArr = size();
-            checkIndexExlusive(start, sizeArr);
-            checkIndexInclusive(start + size, sizeArr);
+            checkRange(start, start + size, sizeArr);
             E[] data;
             data = newElementArray(sizeArr - size);
             E[] oldArr = getData();
@@ -628,7 +629,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
     static final boolean containsAll(Collection c, Object[] data, int start,
                                      int size) {
         if (size == 0) {
-            return false;
+            return c.isEmpty();
         }
         Iterator it = c.iterator();
         while (it.hasNext()) {
@@ -721,6 +722,13 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
     static final void checkIndexExlusive(int index, int size) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index is " + index + ", size is " + size);
+        }
+    }
+
+    static void checkRange(int start, int end, int listSize) {
+        if (start < 0 || start > end || end > listSize) {
+            throw new IndexOutOfBoundsException("start=" + start + ", end=" + end +
+                    ", list size=" + listSize);
         }
     }
 
@@ -821,7 +829,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
     /**
      * Represents a list returned by <code>sublist()</code>.
      */
-    static class SubList implements List {
+    static class SubList extends AbstractList {
         private final CopyOnWriteArrayList list;
 
         private volatile SubListReadData read;
@@ -839,8 +847,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
             this.list = list;
             Object[] data = list.getData();
             int size = toIdx - fromIdx;
-            checkIndexExlusive(fromIdx, data.length);
-            checkIndexInclusive(toIdx, data.length);
+            checkRange(fromIdx, toIdx, data.length);
             read = new SubListReadData(size, list.getData());
             start = fromIdx;
         }
