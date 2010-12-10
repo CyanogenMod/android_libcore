@@ -46,6 +46,7 @@ LOCAL_SRC_FILES := \
 	java_util_zip_Deflater.cpp \
 	java_util_zip_Inflater.cpp \
 	libcore_io_IoUtils.cpp \
+	libcore_net_RawSocket.cpp \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
