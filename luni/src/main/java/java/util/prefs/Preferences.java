@@ -828,10 +828,9 @@ public abstract class Preferences {
     //check the RuntimePermission("preferences")
     private static void checkSecurity() {
         SecurityManager manager = System.getSecurityManager();
-        if(null != manager){
+        if (manager != null){
             manager.checkPermission(PREFS_PERM);
         }
-
     }
 
     /**
@@ -862,7 +861,7 @@ public abstract class Preferences {
     //parse node's absolute path from class instance
     private static String getNodeName(Class<?> c){
         Package p = c.getPackage();
-        if(null == p){
+        if (p == null){
             return "/<unnamed>";
         }
         return "/"+p.getName().replace('.', '/');

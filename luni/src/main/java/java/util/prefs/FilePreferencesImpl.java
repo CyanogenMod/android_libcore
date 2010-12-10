@@ -139,7 +139,7 @@ class FilePreferencesImpl extends AbstractPreferences {
 
             }
         });
-        if (null == names) {// file is not a directory, exception case
+        if (names == null) {// file is not a directory, exception case
             throw new BackingStoreException("Cannot get child names for " + toString()
                     + " (path is " + path + ")");
         }
@@ -184,7 +184,7 @@ class FilePreferencesImpl extends AbstractPreferences {
     @Override
     protected String getSpi(String key) {
         try {
-            if (null == prefs) {
+            if (prefs == null) {
                 prefs = XMLParser.loadFilePrefs(prefsFile);
             }
             return prefs.getProperty(key);

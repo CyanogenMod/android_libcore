@@ -584,7 +584,7 @@ outer:
      *             if {@code index < 0} or {@code index >= length()}.
      */
     public char charAt(int index) {
-        if (0 <= index && index < count) {
+        if (index >= 0 && index < count) {
             return value[offset + index];
         }
         throw indexAndLength(index);
@@ -848,7 +848,7 @@ outer:
      */
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {
-        if (0 <= start && start <= end && end <= count) {
+        if (start >= 0 && start <= end && end <= count) {
             end += offset;
             try {
                 for (int i = offset + start; i < end; i++) {
@@ -936,7 +936,7 @@ outer:
      */
     public void getChars(int start, int end, char[] buffer, int index) {
         // NOTE last character not copied!
-        if (0 <= start && start <= end && end <= count) {
+        if (start >= 0 && start <= end && end <= count) {
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
             // We throw StringIndexOutOfBoundsException rather than System.arraycopy's AIOOBE.
@@ -948,7 +948,7 @@ outer:
     /**
      * Version of getChars without bounds checks, for use by other classes
      * within the java.lang package only.  The caller is responsible for
-     * ensuring that 0 <= start && start <= end && end <= count.
+     * ensuring that start >= 0 && start <= end && end <= count.
      */
     void _getChars(int start, int end, char[] buffer, int index) {
         // NOTE last character not copied!
@@ -1529,7 +1529,7 @@ outer:
         if (start == 0) {
             return this;
         }
-        if (0 <= start && start <= count) {
+        if (start >= 0 && start <= count) {
             return new String(offset + start, count - start, value);
         }
         throw new StringIndexOutOfBoundsException("start=" + start + " length=" + count);
@@ -1555,7 +1555,7 @@ outer:
         }
         // NOTE last character not copied!
         // Fast range check.
-        if (0 <= start && start <= end && end <= count) {
+        if (start >= 0 && start <= end && end <= count) {
             return new String(offset + start, end - start, value);
         }
         throw startEndAndLength(start, end);

@@ -207,31 +207,29 @@ public abstract class Reader implements Readable, Closeable {
     }
 
     /**
-     * Skips {@code amount} characters in this reader. Subsequent calls of
+     * Skips {@code charCount} characters in this reader. Subsequent calls of
      * {@code read} methods will not return these characters unless {@code
-     * reset()} is used. This method may perform multiple reads to read {@code
-     * count} characters.
+     * reset} is used. This method may perform multiple reads to read {@code
+     * charCount} characters.
      *
-     * @param count
-     *            the maximum number of characters to skip.
      * @return the number of characters actually skipped.
      * @throws IllegalArgumentException
-     *             if {@code amount < 0}.
+     *             if {@code charCount < 0}.
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      * @see #mark(int)
      * @see #markSupported()
      * @see #reset()
      */
-    public long skip(long count) throws IOException {
-        if (count < 0) {
-            throw new IllegalArgumentException();
+    public long skip(long charCount) throws IOException {
+        if (charCount < 0) {
+            throw new IllegalArgumentException("charCount < 0");
         }
         synchronized (lock) {
             long skipped = 0;
-            int toRead = count < 512 ? (int) count : 512;
+            int toRead = charCount < 512 ? (int) charCount : 512;
             char[] charsSkipped = new char[toRead];
-            while (skipped < count) {
+            while (skipped < charCount) {
                 int read = read(charsSkipped, 0, toRead);
                 if (read == -1) {
                     return skipped;
@@ -240,8 +238,8 @@ public abstract class Reader implements Readable, Closeable {
                 if (read < toRead) {
                     return skipped;
                 }
-                if (count - skipped < toRead) {
-                    toRead = (int) (count - skipped);
+                if (charCount - skipped < toRead) {
+                    toRead = (int) (charCount - skipped);
                 }
             }
             return skipped;
@@ -263,9 +261,6 @@ public abstract class Reader implements Readable, Closeable {
      *             if {@code target} is read-only.
      */
     public int read(CharBuffer target) throws IOException {
-        if (null == target) {
-            throw new NullPointerException();
-        }
         int length = target.length();
         char[] buf = new char[length];
         length = Math.min(length, read(buf));

@@ -380,7 +380,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     @Override
     public int write(ByteBuffer source) throws IOException {
-        if (null == source) {
+        if (source == null) {
             throw new NullPointerException();
         }
         checkOpenConnected();
@@ -490,7 +490,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      * and check.
      */
     static InetSocketAddress validateAddress(SocketAddress socketAddress) {
-        if (null == socketAddress) {
+        if (socketAddress == null) {
             throw new IllegalArgumentException();
         }
         if (!(socketAddress instanceof InetSocketAddress)) {
@@ -680,7 +680,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
         @Override
         public void write(byte[] buffer, int offset, int count) throws IOException {
-            if (0 > offset || 0 > count || count + offset > buffer.length) {
+            if (offset < 0 || count < 0 || count + offset > buffer.length) {
                 throw new IndexOutOfBoundsException();
             }
             ByteBuffer buf = ByteBuffer.wrap(buffer, offset, count);
@@ -735,7 +735,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
         @Override
         public int read(byte[] buffer, int offset, int count) throws IOException {
-            if (0 > offset || 0 > count || count + offset > buffer.length) {
+            if (offset < 0 || count < 0 || count + offset > buffer.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (!channel.isBlocking()) {

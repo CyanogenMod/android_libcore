@@ -143,7 +143,7 @@ public class SocketHandler extends StreamHandler {
     public void close() {
         try {
             super.close();
-            if (null != this.socket) {
+            if (this.socket != null) {
                 this.socket.close();
                 this.socket = null;
             }

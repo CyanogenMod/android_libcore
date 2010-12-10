@@ -90,7 +90,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      */
     @Override
     synchronized public DatagramSocket socket() {
-        if (null == socket) {
+        if (socket == null) {
             socket = new DatagramSocketAdapter(new PlainDatagramSocketImpl(fd, localPort), this);
         }
         return socket;
@@ -132,7 +132,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         // security check
         SecurityManager sm = System.getSecurityManager();
-        if (null != sm) {
+        if (sm != null) {
             if (inetSocketAddress.getAddress().isMulticastAddress()) {
                 sm.checkMulticast(inetSocketAddress.getAddress());
             } else {
@@ -169,7 +169,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         connected = false;
         connectAddress = null;
         Platform.NETWORK.disconnectDatagram(fd);
-        if (null != socket) {
+        if (socket != null) {
             socket.disconnect();
         }
         return this;
@@ -201,7 +201,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             // this line used in Linux
             return null;
         } finally {
-            end(null != retAddr);
+            end(retAddr != null);
         }
         return retAddr;
     }
@@ -226,7 +226,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
             // security check
             SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && null != sm) {
+            if (!isConnected() && sm != null) {
                 try {
                     sm.checkAccept(receivePacket.getAddress().getHostAddress(),
                             receivePacket.getPort());
@@ -235,7 +235,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     receivePacket = null;
                 }
             }
-            if (null != receivePacket && null != receivePacket.getAddress()) {
+            if (receivePacket != null && receivePacket.getAddress() != null) {
 
                 if (received > 0) {
                     if (target.hasArray()) {
@@ -264,7 +264,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
             // security check
             SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && null != sm) {
+            if (!isConnected() && sm != null) {
                 try {
                     sm.checkAccept(receivePacket.getAddress().getHostAddress(),
                             receivePacket.getPort());
@@ -273,7 +273,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     receivePacket = null;
                 }
             }
-            if (null != receivePacket && null != receivePacket.getAddress()) {
+            if (receivePacket != null && receivePacket.getAddress() != null) {
                 // copy the data of received packet
                 if (received > 0) {
                     target.position(oldposition + received);
@@ -298,7 +298,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         // transfer socketAddress
         InetSocketAddress isa = (InetSocketAddress) socketAddress;
-        if (null == isa.getAddress()) {
+        if (isa.getAddress() == null) {
             throw new IOException();
         }
 
@@ -581,7 +581,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      * Buffer check, must not null
      */
     private void checkNotNull(ByteBuffer source) {
-        if (null == source) {
+        if (source == null) {
             throw new NullPointerException();
         }
     }
@@ -641,7 +641,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
          */
         @Override
         public InetAddress getInetAddress() {
-            if (null == channelImpl.connectAddress) {
+            if (channelImpl.connectAddress == null) {
                 return null;
             }
             return channelImpl.connectAddress.getAddress();
@@ -660,7 +660,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
          */
         @Override
         public int getPort() {
-            if (null == channelImpl.connectAddress) {
+            if (channelImpl.connectAddress == null) {
                 return -1;
             }
             return channelImpl.connectAddress.getPort();

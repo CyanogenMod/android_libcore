@@ -35,9 +35,6 @@ package java.io;
  * @see Reader
  */
 public abstract class Writer implements Appendable, Closeable, Flushable {
-
-    static final String TOKEN_NULL = "null";
-
     /**
      * The object used to synchronize access to the writer.
      */
@@ -207,11 +204,10 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      *             if this writer is closed or another I/O error occurs.
      */
     public Writer append(CharSequence csq) throws IOException {
-        if (null == csq) {
-            write(TOKEN_NULL);
-        } else {
-            write(csq.toString());
+        if (csq == null) {
+            csq = "null";
         }
+        write(csq.toString());
         return this;
     }
 
@@ -238,13 +234,11 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      *             either {@code start} or {@code end} are greater or equal than
      *             the length of {@code csq}.
      */
-    public Writer append(CharSequence csq, int start, int end)
-            throws IOException {
-        if (null == csq) {
-            write(TOKEN_NULL.substring(start, end));
-        } else {
-            write(csq.subSequence(start, end).toString());
+    public Writer append(CharSequence csq, int start, int end) throws IOException {
+        if (csq == null) {
+            csq = "null";
         }
+        write(csq.subSequence(start, end).toString());
         return this;
     }
 

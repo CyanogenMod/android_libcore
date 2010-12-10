@@ -53,8 +53,8 @@ public class Extensions {
 
     // Supported critical extensions oids:
     private static List SUPPORTED_CRITICAL = Arrays.asList(
-            new String[] {"2.5.29.15", "2.5.29.19", "2.5.29.32", "2.5.29.17",
-                "2.5.29.30", "2.5.29.36", "2.5.29.37", "2.5.29.54"});
+            "2.5.29.15", "2.5.29.19", "2.5.29.32", "2.5.29.17",
+            "2.5.29.30", "2.5.29.36", "2.5.29.37", "2.5.29.54");
 
     // the values of extensions of the structure
     private List<Extension> extensions;
@@ -82,18 +82,8 @@ public class Extensions {
         this.extensions = extensions;
     }
 
-    /**
-     * Returns the values of extensions.
-     * @return  extensions
-     */
-    public List getExtensions() {
-        return extensions;
-    }
-
     public int size() {
-        return (extensions == null)
-                        ? 0
-                        : extensions.size();
+        return (extensions == null) ? 0 : extensions.size();
     }
 
     /**
@@ -137,7 +127,7 @@ public class Extensions {
         critical = new HashSet(size);
         noncritical = new HashSet(size);
         for (int i=0; i<size; i++) {
-            Extension extn = (Extension) extensions.get(i);
+            Extension extn = extensions.get(i);
             String oid = extn.getExtnID();
             if (extn.getCritical()) {
                 if (!SUPPORTED_CRITICAL.contains(oid)) {

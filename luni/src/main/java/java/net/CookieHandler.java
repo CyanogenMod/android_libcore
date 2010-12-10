@@ -40,7 +40,7 @@ public abstract class CookieHandler {
      */
     public static CookieHandler getDefault() {
         SecurityManager sm = System.getSecurityManager();
-        if (null != sm) {
+        if (sm != null) {
             sm.checkPermission(getCookieHandlerPermission);
         }
         return systemWideCookieHandler;
@@ -54,7 +54,7 @@ public abstract class CookieHandler {
      */
     public static void setDefault(CookieHandler cHandler) {
         SecurityManager sm = System.getSecurityManager();
-        if (null != sm) {
+        if (sm != null) {
             sm.checkPermission(setCookieHandlerPermission);
         }
         systemWideCookieHandler = cHandler;

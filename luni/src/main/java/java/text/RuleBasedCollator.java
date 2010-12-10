@@ -316,7 +316,7 @@ public class RuleBasedCollator extends Collator {
         if (source == null) {
             throw new NullPointerException();
         }
-        return new CollationElementIterator(((RuleBasedCollatorICU) icuColl).getCollationElementIterator(source));
+        return new CollationElementIterator(icuColl.getCollationElementIterator(source));
     }
 
     /**
@@ -330,7 +330,7 @@ public class RuleBasedCollator extends Collator {
         if (source == null) {
             throw new NullPointerException();
         }
-        return new CollationElementIterator(((RuleBasedCollatorICU) icuColl).getCollationElementIterator(source));
+        return new CollationElementIterator(icuColl.getCollationElementIterator(source));
     }
 
     /**
@@ -346,7 +346,7 @@ public class RuleBasedCollator extends Collator {
      * @return the collation rules.
      */
     public String getRules() {
-        return ((RuleBasedCollatorICU) icuColl).getRules();
+        return icuColl.getRules();
     }
 
     /**
@@ -405,7 +405,7 @@ public class RuleBasedCollator extends Collator {
 
     @Override
     public int hashCode() {
-        return ((RuleBasedCollatorICU) icuColl).getRules().hashCode();
+        return icuColl.getRules().hashCode();
     }
 
     /**

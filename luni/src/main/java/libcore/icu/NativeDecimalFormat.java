@@ -28,7 +28,6 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Currency;
 import java.util.NoSuchElementException;
-import libcore.icu.LocaleData;
 
 public final class NativeDecimalFormat {
     /**
@@ -95,7 +94,7 @@ public final class NativeDecimalFormat {
     /**
      * The address of the ICU DecimalFormat* on the native heap.
      */
-    private int addr;
+    private int address;
 
     /**
      * The last pattern we gave to ICU, so we can make repeated applications cheap.
@@ -121,7 +120,7 @@ public final class NativeDecimalFormat {
 
     public NativeDecimalFormat(String pattern, DecimalFormatSymbols dfs) {
         try {
-            this.addr = open(pattern, dfs.getCurrencySymbol(),
+            this.address = open(pattern, dfs.getCurrencySymbol(),
                     dfs.getDecimalSeparator(), dfs.getDigit(), dfs.getExponentSeparator(),
                     dfs.getGroupingSeparator(), dfs.getInfinity(),
                     dfs.getInternationalCurrencySymbol(), dfs.getMinusSign(),
@@ -137,7 +136,7 @@ public final class NativeDecimalFormat {
 
     // Used so java.util.Formatter doesn't need to allocate DecimalFormatSymbols instances.
     public NativeDecimalFormat(String pattern, LocaleData data) {
-        this.addr = open(pattern, data.currencySymbol,
+        this.address = open(pattern, data.currencySymbol,
                 data.decimalSeparator, data.digit, data.exponentSeparator, data.groupingSeparator,
                 data.infinity, data.internationalCurrencySymbol, data.minusSign,
                 data.monetarySeparator, data.NaN, data.patternSeparator,
@@ -147,7 +146,7 @@ public final class NativeDecimalFormat {
 
     // Used to implement clone.
     private NativeDecimalFormat(NativeDecimalFormat other) {
-        this.addr = cloneImpl(other.addr);
+        this.address = cloneImpl(other.address);
         this.lastPattern = other.lastPattern;
         this.negPrefNull = other.negPrefNull;
         this.negSuffNull = other.negSuffNull;
@@ -162,9 +161,9 @@ public final class NativeDecimalFormat {
     }
 
     public synchronized void close() {
-        if (addr != 0) {
-            close(addr);
-            addr = 0;
+        if (address != 0) {
+            close(address);
+            address = 0;
         }
     }
 
@@ -192,7 +191,7 @@ public final class NativeDecimalFormat {
             return false;
         }
         NativeDecimalFormat obj = (NativeDecimalFormat) object;
-        if (obj.addr == this.addr) {
+        if (obj.address == this.address) {
             return true;
         }
         return obj.toPattern().equals(this.toPattern()) &&
@@ -214,7 +213,7 @@ public final class NativeDecimalFormat {
      * Copies the DecimalFormatSymbols settings into our native peer in bulk.
      */
     public void setDecimalFormatSymbols(final DecimalFormatSymbols dfs) {
-        setDecimalFormatSymbols(this.addr, dfs.getCurrencySymbol(), dfs.getDecimalSeparator(),
+        setDecimalFormatSymbols(this.address, dfs.getCurrencySymbol(), dfs.getDecimalSeparator(),
                 dfs.getDigit(), dfs.getExponentSeparator(), dfs.getGroupingSeparator(),
                 dfs.getInfinity(), dfs.getInternationalCurrencySymbol(), dfs.getMinusSign(),
                 dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
@@ -222,7 +221,7 @@ public final class NativeDecimalFormat {
     }
 
     public void setDecimalFormatSymbols(final LocaleData localeData) {
-        setDecimalFormatSymbols(this.addr, localeData.currencySymbol, localeData.decimalSeparator,
+        setDecimalFormatSymbols(this.address, localeData.currencySymbol, localeData.decimalSeparator,
                 localeData.digit, localeData.exponentSeparator, localeData.groupingSeparator,
                 localeData.infinity, localeData.internationalCurrencySymbol, localeData.minusSign,
                 localeData.monetarySeparator, localeData.NaN, localeData.patternSeparator,
@@ -231,7 +230,7 @@ public final class NativeDecimalFormat {
 
     public char[] formatBigDecimal(BigDecimal value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        char[] result = formatDigitList(this.addr, value.toString(), fpi);
+        char[] result = formatDigitList(this.address, value.toString(), fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
@@ -240,7 +239,7 @@ public final class NativeDecimalFormat {
 
     public char[] formatBigInteger(BigInteger value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        char[] result = formatDigitList(this.addr, value.toString(10), fpi);
+        char[] result = formatDigitList(this.address, value.toString(10), fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
@@ -249,7 +248,7 @@ public final class NativeDecimalFormat {
 
     public char[] formatLong(long value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        char[] result = formatLong(this.addr, value, fpi);
+        char[] result = formatLong(this.address, value, fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
@@ -258,7 +257,7 @@ public final class NativeDecimalFormat {
 
     public char[] formatDouble(double value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
-        char[] result = formatDouble(this.addr, value, fpi);
+        char[] result = formatDouble(this.address, value, fpi);
         if (fpi != null) {
             FieldPositionIterator.setFieldPosition(fpi, field);
         }
@@ -266,7 +265,7 @@ public final class NativeDecimalFormat {
     }
 
     public void applyLocalizedPattern(String pattern) {
-        applyPattern(this.addr, true, pattern);
+        applyPattern(this.address, true, pattern);
         lastPattern = null;
     }
 
@@ -274,7 +273,7 @@ public final class NativeDecimalFormat {
         if (lastPattern != null && pattern.equals(lastPattern)) {
             return;
         }
-        applyPattern(this.addr, false, pattern);
+        applyPattern(this.address, false, pattern);
         lastPattern = pattern;
     }
 
@@ -286,13 +285,13 @@ public final class NativeDecimalFormat {
         FieldPositionIterator fpIter = new FieldPositionIterator();
         String text;
         if (number instanceof BigInteger || number instanceof BigDecimal) {
-            text = new String(formatDigitList(this.addr, number.toString(), fpIter));
+            text = new String(formatDigitList(this.address, number.toString(), fpIter));
         } else if (number instanceof Double || number instanceof Float) {
             double dv = number.doubleValue();
-            text = new String(formatDouble(this.addr, dv, fpIter));
+            text = new String(formatDouble(this.address, dv, fpIter));
         } else {
             long lv = number.longValue();
-            text = new String(formatLong(this.addr, lv, fpIter));
+            text = new String(formatLong(this.address, lv, fpIter));
         }
 
         AttributedString as = new AttributedString(text);
@@ -318,73 +317,73 @@ public final class NativeDecimalFormat {
     }
 
     public String toLocalizedPattern() {
-        return toPatternImpl(this.addr, true);
+        return toPatternImpl(this.address, true);
     }
 
     public String toPattern() {
-        return toPatternImpl(this.addr, false);
+        return toPatternImpl(this.address, false);
     }
 
     public Number parse(String string, ParsePosition position) {
-        return parse(addr, string, position, parseBigDecimal);
+        return parse(address, string, position, parseBigDecimal);
     }
 
     // start getter and setter
 
     public int getMaximumFractionDigits() {
-        return getAttribute(this.addr, UNUM_MAX_FRACTION_DIGITS);
+        return getAttribute(this.address, UNUM_MAX_FRACTION_DIGITS);
     }
 
     public int getMaximumIntegerDigits() {
-        return getAttribute(this.addr, UNUM_MAX_INTEGER_DIGITS);
+        return getAttribute(this.address, UNUM_MAX_INTEGER_DIGITS);
     }
 
     public int getMinimumFractionDigits() {
-        return getAttribute(this.addr, UNUM_MIN_FRACTION_DIGITS);
+        return getAttribute(this.address, UNUM_MIN_FRACTION_DIGITS);
     }
 
     public int getMinimumIntegerDigits() {
-        return getAttribute(this.addr, UNUM_MIN_INTEGER_DIGITS);
+        return getAttribute(this.address, UNUM_MIN_INTEGER_DIGITS);
     }
 
     public int getGroupingSize() {
-        return getAttribute(this.addr, UNUM_GROUPING_SIZE);
+        return getAttribute(this.address, UNUM_GROUPING_SIZE);
     }
 
     public int getMultiplier() {
-        return getAttribute(this.addr, UNUM_MULTIPLIER);
+        return getAttribute(this.address, UNUM_MULTIPLIER);
     }
 
     public String getNegativePrefix() {
         if (negPrefNull) {
             return null;
         }
-        return getTextAttribute(this.addr, UNUM_NEGATIVE_PREFIX);
+        return getTextAttribute(this.address, UNUM_NEGATIVE_PREFIX);
     }
 
     public String getNegativeSuffix() {
         if (negSuffNull) {
             return null;
         }
-        return getTextAttribute(this.addr, UNUM_NEGATIVE_SUFFIX);
+        return getTextAttribute(this.address, UNUM_NEGATIVE_SUFFIX);
     }
 
     public String getPositivePrefix() {
         if (posPrefNull) {
             return null;
         }
-        return getTextAttribute(this.addr, UNUM_POSITIVE_PREFIX);
+        return getTextAttribute(this.address, UNUM_POSITIVE_PREFIX);
     }
 
     public String getPositiveSuffix() {
         if (posSuffNull) {
             return null;
         }
-        return getTextAttribute(this.addr, UNUM_POSITIVE_SUFFIX);
+        return getTextAttribute(this.address, UNUM_POSITIVE_SUFFIX);
     }
 
     public boolean isDecimalSeparatorAlwaysShown() {
-        return getAttribute(this.addr, UNUM_DECIMAL_ALWAYS_SHOWN) != 0;
+        return getAttribute(this.address, UNUM_DECIMAL_ALWAYS_SHOWN) != 0;
     }
 
     public boolean isParseBigDecimal() {
@@ -392,50 +391,50 @@ public final class NativeDecimalFormat {
     }
 
     public boolean isParseIntegerOnly() {
-        return getAttribute(this.addr, UNUM_PARSE_INT_ONLY) != 0;
+        return getAttribute(this.address, UNUM_PARSE_INT_ONLY) != 0;
     }
 
     public boolean isGroupingUsed() {
-        return getAttribute(this.addr, UNUM_GROUPING_USED) != 0;
+        return getAttribute(this.address, UNUM_GROUPING_USED) != 0;
     }
 
     public void setDecimalSeparatorAlwaysShown(boolean value) {
         int i = value ? -1 : 0;
-        setAttribute(this.addr, UNUM_DECIMAL_ALWAYS_SHOWN, i);
+        setAttribute(this.address, UNUM_DECIMAL_ALWAYS_SHOWN, i);
     }
 
     public void setCurrency(Currency currency) {
-        setSymbol(this.addr, UNUM_CURRENCY_SYMBOL, currency.getSymbol());
-        setSymbol(this.addr, UNUM_INTL_CURRENCY_SYMBOL, currency.getCurrencyCode());
+        setSymbol(this.address, UNUM_CURRENCY_SYMBOL, currency.getSymbol());
+        setSymbol(this.address, UNUM_INTL_CURRENCY_SYMBOL, currency.getCurrencyCode());
     }
 
     public void setGroupingSize(int value) {
-        setAttribute(this.addr, UNUM_GROUPING_SIZE, value);
+        setAttribute(this.address, UNUM_GROUPING_SIZE, value);
     }
 
     public void setGroupingUsed(boolean value) {
         int i = value ? -1 : 0;
-        setAttribute(this.addr, UNUM_GROUPING_USED, i);
+        setAttribute(this.address, UNUM_GROUPING_USED, i);
     }
 
     public void setMaximumFractionDigits(int value) {
-        setAttribute(this.addr, UNUM_MAX_FRACTION_DIGITS, value);
+        setAttribute(this.address, UNUM_MAX_FRACTION_DIGITS, value);
     }
 
     public void setMaximumIntegerDigits(int value) {
-        setAttribute(this.addr, UNUM_MAX_INTEGER_DIGITS, value);
+        setAttribute(this.address, UNUM_MAX_INTEGER_DIGITS, value);
     }
 
     public void setMinimumFractionDigits(int value) {
-        setAttribute(this.addr, UNUM_MIN_FRACTION_DIGITS, value);
+        setAttribute(this.address, UNUM_MIN_FRACTION_DIGITS, value);
     }
 
     public void setMinimumIntegerDigits(int value) {
-        setAttribute(this.addr, UNUM_MIN_INTEGER_DIGITS, value);
+        setAttribute(this.address, UNUM_MIN_INTEGER_DIGITS, value);
     }
 
     public void setMultiplier(int value) {
-        setAttribute(this.addr, UNUM_MULTIPLIER, value);
+        setAttribute(this.address, UNUM_MULTIPLIER, value);
         // Update the cached BigDecimal for multiplier.
         multiplierBigDecimal = BigDecimal.valueOf(value);
     }
@@ -443,28 +442,28 @@ public final class NativeDecimalFormat {
     public void setNegativePrefix(String value) {
         negPrefNull = value == null;
         if (!negPrefNull) {
-            setTextAttribute(this.addr, UNUM_NEGATIVE_PREFIX, value);
+            setTextAttribute(this.address, UNUM_NEGATIVE_PREFIX, value);
         }
     }
 
     public void setNegativeSuffix(String value) {
         negSuffNull = value == null;
         if (!negSuffNull) {
-            setTextAttribute(this.addr, UNUM_NEGATIVE_SUFFIX, value);
+            setTextAttribute(this.address, UNUM_NEGATIVE_SUFFIX, value);
         }
     }
 
     public void setPositivePrefix(String value) {
         posPrefNull = value == null;
         if (!posPrefNull) {
-            setTextAttribute(this.addr, UNUM_POSITIVE_PREFIX, value);
+            setTextAttribute(this.address, UNUM_POSITIVE_PREFIX, value);
         }
     }
 
     public void setPositiveSuffix(String value) {
         posSuffNull = value == null;
         if (!posSuffNull) {
-            setTextAttribute(this.addr, UNUM_POSITIVE_SUFFIX, value);
+            setTextAttribute(this.address, UNUM_POSITIVE_SUFFIX, value);
         }
     }
 
@@ -474,7 +473,7 @@ public final class NativeDecimalFormat {
 
     public void setParseIntegerOnly(boolean value) {
         int i = value ? -1 : 0;
-        setAttribute(this.addr, UNUM_PARSE_INT_ONLY, i);
+        setAttribute(this.address, UNUM_PARSE_INT_ONLY, i);
     }
 
     private static void applyPattern(int addr, boolean localized, String pattern) {
@@ -499,7 +498,7 @@ public final class NativeDecimalFormat {
         case HALF_UP: nativeRoundingMode = 6; break;
         default: throw new AssertionError();
         }
-        setRoundingMode(addr, nativeRoundingMode, roundingIncrement);
+        setRoundingMode(address, nativeRoundingMode, roundingIncrement);
     }
 
     // Utility to get information about field positions from native (ICU) code.

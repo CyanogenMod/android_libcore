@@ -471,31 +471,25 @@ public class Properties extends Hashtable<Object, Object> {
      * @since 1.6
      */
     public Set<String> stringPropertyNames() {
-        Hashtable<String, String> stringProperties = new Hashtable<String, String>();
+        Hashtable<String, Object> stringProperties = new Hashtable<String, Object>();
         selectProperties(stringProperties, true);
         return Collections.unmodifiableSet(stringProperties.keySet());
     }
 
-    private void selectProperties(Hashtable selectProperties, final boolean isStringOnly) {
+    private <K> void selectProperties(Hashtable<K, Object> selectProperties, final boolean isStringOnly) {
         if (defaults != null) {
             defaults.selectProperties(selectProperties, isStringOnly);
         }
-        Enumeration<?> keys = keys();
-        Object key, value;
+        Enumeration<Object> keys = keys();
         while (keys.hasMoreElements()) {
-            key = keys.nextElement();
-            if (isStringOnly) {
+            @SuppressWarnings("unchecked")
+            K key = (K) keys.nextElement();
+            if (isStringOnly && !(key instanceof String)) {
                 // Only select property with string key and value
-                if (key instanceof String) {
-                    value = get(key);
-                    if (value instanceof String) {
-                        selectProperties.put(key, value);
-                    }
-                }
-            } else {
-                value = get(key);
-                selectProperties.put(key, value);
+                continue;
             }
+            Object value = get(key);
+            selectProperties.put(key, value);
         }
     }
 

@@ -142,12 +142,9 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneabl
      *       a clone of this object
      */
     public Object clone() throws CloneNotSupportedException {
-
         SHA1_MessageDigestImpl cloneObj = (SHA1_MessageDigestImpl) super.clone();
-
-        cloneObj.buffer  = ( int[])buffer.clone();
-        cloneObj.oneByte = (byte[])oneByte.clone();
-
+        cloneObj.buffer = buffer.clone();
+        cloneObj.oneByte = oneByte.clone();
         return cloneObj;
     }
 
@@ -163,9 +160,7 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneabl
      *       byte array containing message digest value
      */
     protected byte[] engineDigest() {
-
         byte[] hash = new byte[DIGEST_LENGTH];
-
         processDigest(hash, 0);
         return hash;
     }

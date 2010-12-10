@@ -33,10 +33,10 @@ public interface SocketOptions {
      * is still some buffered data to be sent while closing the socket. If the
      * value of this option is set to {@code 0} the method closes the TCP socket
      * forcefully and returns immediately. Is this value greater than {@code 0}
-     * the method blocks this time in milliseconds. If all data could be sent
+     * the method blocks this time in seconds. If all data could be sent
      * during this timeout the socket is closed normally otherwise forcefully.
-     * Valid values for this option are in the range {@code 0 <= SO_LINGER <=
-     * 65535}. (Larger timeouts will be treated as 65535s timeouts; roughly 18 hours.)
+     * Valid values for this option are in the range 0 to 65535 inclusive. (Larger
+     * timeouts will be treated as 65535s timeouts; roughly 18 hours.)
      */
     public static final int SO_LINGER = 128;
 

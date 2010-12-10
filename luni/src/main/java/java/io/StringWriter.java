@@ -204,11 +204,10 @@ public class StringWriter extends Writer {
      */
     @Override
     public StringWriter append(CharSequence csq) {
-        if (null == csq) {
-            write(TOKEN_NULL);
-        } else {
-            write(csq.toString());
+        if (csq == null) {
+            csq = "null";
         }
+        write(csq.toString());
         return this;
     }
 
@@ -235,8 +234,8 @@ public class StringWriter extends Writer {
      */
     @Override
     public StringWriter append(CharSequence csq, int start, int end) {
-        if (null == csq) {
-            csq = TOKEN_NULL;
+        if (csq == null) {
+            csq = "null";
         }
         String output = csq.subSequence(start, end).toString();
         write(output, 0, output.length());

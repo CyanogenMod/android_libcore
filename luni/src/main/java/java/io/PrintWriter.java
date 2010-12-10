@@ -752,11 +752,10 @@ public class PrintWriter extends Writer {
      */
     @Override
     public PrintWriter append(CharSequence csq) {
-        if (null == csq) {
-            append(TOKEN_NULL, 0, TOKEN_NULL.length());
-        } else {
-            append(csq, 0, csq.length());
+        if (csq == null) {
+            csq = "null";
         }
+        append(csq, 0, csq.length());
         return this;
     }
 
@@ -783,8 +782,8 @@ public class PrintWriter extends Writer {
      */
     @Override
     public PrintWriter append(CharSequence csq, int start, int end) {
-        if (null == csq) {
-            csq = TOKEN_NULL;
+        if (csq == null) {
+            csq = "null";
         }
         String output = csq.subSequence(start, end).toString();
         write(output, 0, output.length());

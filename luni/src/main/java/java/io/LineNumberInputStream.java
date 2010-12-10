@@ -221,8 +221,8 @@ public class LineNumberInputStream extends FilterInputStream {
 
     /**
      * Skips {@code count} number of bytes in this stream. Subsequent
-     * {@code read()}'s will not return these bytes unless {@code reset()} is
-     * used. This implementation skips {@code count} number of bytes in the
+     * calls to {@code read} will not return these bytes unless {@code reset} is
+     * used. This implementation skips {@code byteCount} bytes in the
      * filtered stream and increments the line number count whenever line
      * terminator sequences are skipped.
      *

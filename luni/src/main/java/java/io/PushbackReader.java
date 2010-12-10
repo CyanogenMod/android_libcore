@@ -351,39 +351,37 @@ public class PushbackReader extends FilterReader {
     }
 
     /**
-     * Skips {@code count} characters in this reader. This implementation skips
+     * Skips {@code charCount} characters in this reader. This implementation skips
      * characters in the pushback buffer first and then in the source reader if
      * necessary.
      *
-     * @param count
-     *            the number of characters to skip.
      * @return the number of characters actually skipped.
-     * @throws IllegalArgumentException if {@code count < 0}.
+     * @throws IllegalArgumentException if {@code charCount < 0}.
      * @throws IOException
      *             if this reader is closed or another I/O error occurs.
      */
     @Override
-    public long skip(long count) throws IOException {
-        if (count < 0) {
-            throw new IllegalArgumentException();
+    public long skip(long charCount) throws IOException {
+        if (charCount < 0) {
+            throw new IllegalArgumentException("charCount < 0");
         }
         synchronized (lock) {
             checkNotClosed();
-            if (count == 0) {
+            if (charCount == 0) {
                 return 0;
             }
             long inSkipped;
             int availableFromBuffer = buf.length - pos;
             if (availableFromBuffer > 0) {
-                long requiredFromIn = count - availableFromBuffer;
+                long requiredFromIn = charCount - availableFromBuffer;
                 if (requiredFromIn <= 0) {
-                    pos += count;
-                    return count;
+                    pos += charCount;
+                    return charCount;
                 }
                 pos += availableFromBuffer;
                 inSkipped = in.skip(requiredFromIn);
             } else {
-                inSkipped = in.skip(count);
+                inSkipped = in.skip(charCount);
             }
             return inSkipped + availableFromBuffer;
         }

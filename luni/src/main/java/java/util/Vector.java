@@ -174,7 +174,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
      */
     @Override
     public synchronized boolean addAll(int location, Collection<? extends E> collection) {
-        if (0 <= location && location <= elementCount) {
+        if (location >= 0 && location <= elementCount) {
             int size = collection.size();
             if (size == 0) {
                 return false;
@@ -574,7 +574,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
      * @see #size
      */
     public synchronized void insertElementAt(E object, int location) {
-        if (0 <= location && location <= elementCount) {
+        if (location >= 0 && location <= elementCount) {
             if (elementCount == elementData.length) {
                 growByOne();
             }
@@ -792,7 +792,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
      * @see #size
      */
     public synchronized void removeElementAt(int location) {
-        if (0 <= location && location < elementCount) {
+        if (location >= 0 && location < elementCount) {
             elementCount--;
             int size = elementCount - location;
             if (size > 0) {

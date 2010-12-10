@@ -89,7 +89,7 @@ public class DatagramSocket {
     public DatagramSocket(int aPort, InetAddress addr) throws SocketException {
         super();
         checkListen(aPort);
-        createSocket(aPort, null == addr ? Inet4Address.ANY : addr);
+        createSocket(aPort, (addr == null) ? Inet4Address.ANY : addr);
     }
 
     /**

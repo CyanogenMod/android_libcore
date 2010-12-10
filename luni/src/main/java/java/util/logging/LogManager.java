@@ -163,10 +163,10 @@ public class LogManager {
             public Object run() {
                 String className = System.getProperty("java.util.logging.manager");
 
-                if (null != className) {
+                if (className != null) {
                     manager = (LogManager) getInstanceByClass(className);
                 }
-                if (null == manager) {
+                if (manager == null) {
                     manager = new LogManager();
                 }
 
@@ -234,7 +234,7 @@ public class LogManager {
      *             {@code LoggingPermission("control")}
      */
     public void checkAccess() {
-        if (null != System.getSecurityManager()) {
+        if (System.getSecurityManager() != null) {
             System.getSecurityManager().checkPermission(perm);
         }
     }
@@ -258,7 +258,7 @@ public class LogManager {
      */
     public synchronized boolean addLogger(Logger logger) {
         String name = logger.getName();
-        if (null != loggers.get(name)) {
+        if (loggers.get(name) != null) {
             return false;
         }
         addToFamilyTree(logger, name);
@@ -285,7 +285,7 @@ public class LogManager {
                 break;
             }
         }
-        if (parent == null && null != (parent = loggers.get(""))) {
+        if (parent == null && (parent = loggers.get("")) != null) {
             setParent(logger, parent);
         }
 
@@ -305,7 +305,7 @@ public class LogManager {
                         return null;
                     }
                 });
-                if (null != oldParent) {
+                if (oldParent != null) {
                     // -- remove from old parent as the parent has been changed
                     oldParent.children.remove(child);
                 }
@@ -439,7 +439,7 @@ public class LogManager {
 
         // parse property "config" and apply setting
         String configs = props.getProperty("config");
-        if (null != configs) {
+        if (configs != null) {
             StringTokenizer st = new StringTokenizer(configs, " ");
             while (st.hasMoreTokens()) {
                 String configerName = st.nextToken();
@@ -451,7 +451,7 @@ public class LogManager {
         Collection<Logger> allLoggers = loggers.values();
         for (Logger logger : allLoggers) {
             String property = props.getProperty(logger.getName() + ".level");
-            if (null != property) {
+            if (property != null) {
                 logger.setLevel(Level.parse(property));
             }
         }
@@ -502,7 +502,7 @@ public class LogManager {
             }
         }
         Logger root = loggers.get("");
-        if (null != root) {
+        if (root != null) {
             root.setLevel(Level.INFO);
         }
     }

@@ -272,10 +272,10 @@ public abstract class Authenticator {
             String rPrompt, String rScheme, URL rURL,
             Authenticator.RequestorType reqType) {
         SecurityManager sm = System.getSecurityManager();
-        if (null != sm) {
+        if (sm != null) {
             sm.checkPermission(requestPasswordAuthenticationPermission);
         }
-        if (null == thisAuthenticator) {
+        if (thisAuthenticator == null) {
             return null;
         }
         // sets the requester info so it knows what it is requesting

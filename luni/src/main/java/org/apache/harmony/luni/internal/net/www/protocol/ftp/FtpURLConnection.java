@@ -168,7 +168,7 @@ public class FtpURLConnection extends URLConnection {
         // Use system-wide ProxySelect to select proxy list,
         // then try to connect via elements in the proxy list.
         List<Proxy> proxyList = null;
-        if (null != proxy) {
+        if (proxy != null) {
             proxyList = new ArrayList<Proxy>(1);
             proxyList.add(proxy);
         } else {
@@ -177,7 +177,7 @@ public class FtpURLConnection extends URLConnection {
                 proxyList = selector.select(uri);
             }
         }
-        if (null == proxyList) {
+        if (proxyList == null) {
             currentProxy = null;
             connectInternal();
         } else {
@@ -194,7 +194,7 @@ public class FtpURLConnection extends URLConnection {
                     failureReason = ioe.getLocalizedMessage();
                     // If connect failed, callback "connectFailed"
                     // should be invoked.
-                    if (null != selector && Proxy.NO_PROXY != currentProxy) {
+                    if (selector != null && Proxy.NO_PROXY != currentProxy) {
                         selector.connectFailed(uri, currentProxy.address(), ioe);
                     }
                 }
@@ -211,7 +211,7 @@ public class FtpURLConnection extends URLConnection {
         if (port <= 0) {
             port = FTP_PORT;
         }
-        if (null == currentProxy || Proxy.Type.HTTP == currentProxy.type()) {
+        if (currentProxy == null || Proxy.Type.HTTP == currentProxy.type()) {
             controlSocket = new Socket();
         } else {
             controlSocket = new Socket(currentProxy);

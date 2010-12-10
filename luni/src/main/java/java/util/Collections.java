@@ -60,7 +60,7 @@ public class Collections {
 
         @Override
         public E get(int location) {
-            if (0 <= location && location < n) {
+            if (location >= 0 && location < n) {
                 return element;
             }
             throw new IndexOutOfBoundsException();
@@ -593,15 +593,15 @@ public class Collections {
                 array = new Object[size];
                 list.toArray(array);
             }
-            if (null != object)
+            if (object != null) {
                 for (int i = 0; i < size; i++) {
                     if (object.equals(array[i])) {
                         return i;
                     }
                 }
-            else {
+            } else {
                 for (int i = 0; i < size; i++) {
-                    if (null == array[i]) {
+                    if (array[i] == null) {
                         return i;
                     }
                 }
@@ -617,15 +617,15 @@ public class Collections {
                 array = new Object[size];
                 list.toArray(array);
             }
-            if (null != object)
+            if (object != null) {
                 for (int i = size - 1; i >= 0; i--) {
                     if (object.equals(array[i])) {
                         return i;
                     }
                 }
-            else {
+            } else {
                 for (int i = size - 1; i >= 0; i--) {
-                    if (null == array[i]) {
+                    if (array[i] == null) {
                         return i;
                     }
                 }

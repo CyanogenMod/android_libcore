@@ -25,6 +25,7 @@ import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -278,14 +279,13 @@ public class PathClassLoader extends ClassLoader {
     protected Enumeration<URL> findResources(String resName) {
         int length = mPaths.length;
         ArrayList<URL> results = new ArrayList<URL>();
-
         for (int i = 0; i < length; i++) {
             URL result = findResource(resName, i);
             if(result != null) {
                 results.add(result);
             }
         }
-        return new EnumerateListArray<URL>(results);
+        return Collections.enumeration(results);
     }
 
     private URL findResource(String name, int i) {
@@ -446,31 +446,8 @@ public class PathClassLoader extends ClassLoader {
                 return pack;
             }
         }
-
         return null;
     }
-
-    /*
-     * Create an Enumeration for an ArrayList.
-     */
-    private static class EnumerateListArray<T> implements Enumeration<T> {
-        private final ArrayList mList;
-        private int i = 0;
-
-        EnumerateListArray(ArrayList list) {
-            mList = list;
-        }
-
-        public boolean hasMoreElements() {
-            return i < mList.size();
-        }
-
-        public T nextElement() {
-            if (i >= mList.size())
-                throw new NoSuchElementException();
-            return (T) mList.get(i++);
-        }
-    };
 
     public String toString () {
         return getClass().getName() + "[" + path + "]";

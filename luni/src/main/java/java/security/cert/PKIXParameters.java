@@ -114,9 +114,9 @@ public class PKIXParameters implements CertPathParameters {
             String alias = (String) i.nextElement();
             if (keyStore.isCertificateEntry(alias)) {
                 // this is trusted certificate entry
-                // check if it is X509Cerificate
+                // check if it is X509Certificate
                 Certificate c = keyStore.getCertificate(alias);
-                // add only X509Cerificate
+                // add only X509Certificate
                 // ignore all other types
                 if (c instanceof X509Certificate) {
                     trustAnchors.add(new TrustAnchor((X509Certificate)c, null));
@@ -195,11 +195,9 @@ public class PKIXParameters implements CertPathParameters {
             return Collections.unmodifiableList(certPathCheckers);
         }
         // List is not empty - do deep copy
-        ArrayList<PKIXCertPathChecker> modifiableList =
-            new ArrayList<PKIXCertPathChecker>();
-        for (Iterator<PKIXCertPathChecker> i
-                = certPathCheckers.iterator(); i.hasNext();) {
-            modifiableList.add((PKIXCertPathChecker)i.next().clone());
+        ArrayList<PKIXCertPathChecker> modifiableList = new ArrayList<PKIXCertPathChecker>();
+        for (PKIXCertPathChecker certPathChecker : certPathCheckers) {
+            modifiableList.add((PKIXCertPathChecker) certPathChecker.clone());
         }
         return Collections.unmodifiableList(modifiableList);
     }
@@ -225,9 +223,8 @@ public class PKIXParameters implements CertPathParameters {
         }
         // non-empty list provided - do deep copy
         this.certPathCheckers = new ArrayList<PKIXCertPathChecker>();
-        for (Iterator<PKIXCertPathChecker> i
-                = certPathCheckers.iterator(); i.hasNext();) {
-            this.certPathCheckers.add((PKIXCertPathChecker)i.next().clone());
+        for (PKIXCertPathChecker certPathChecker : certPathCheckers) {
+            this.certPathCheckers.add((PKIXCertPathChecker) certPathChecker.clone());
         }
     }
 
@@ -291,13 +288,7 @@ public class PKIXParameters implements CertPathParameters {
             return;
         }
         // non-empty list provided - do shallow copy
-        this.certStores = new ArrayList(certStores);
-        // check that all elements are CertStore
-        for (Iterator i = this.certStores.iterator(); i.hasNext();) {
-            if (!(i.next() instanceof CertStore)) {
-                throw new ClassCastException("all list elements must be of type java.security.cert.CertStore");
-            }
-        }
+        this.certStores = new ArrayList<CertStore>(certStores);
     }
 
     /**
@@ -314,7 +305,7 @@ public class PKIXParameters implements CertPathParameters {
         }
         if (certStores == null) {
             // set to empty List if has not been set yet
-            certStores = new ArrayList();
+            certStores = new ArrayList<CertStore>();
         }
         // add store
         certStores.add(store);
@@ -332,7 +323,7 @@ public class PKIXParameters implements CertPathParameters {
     }
 
     /**
-     * Sets the time for which the validation of the certification path sould be
+     * Sets the time for which the validation of the certification path should be
      * evaluated.
      *
      * @param date
@@ -376,7 +367,7 @@ public class PKIXParameters implements CertPathParameters {
     public Set<String> getInitialPolicies() {
         if (initialPolicies == null) {
             // set to empty Set if has not been set yet
-            initialPolicies = new HashSet();
+            initialPolicies = new HashSet<String>();
         }
         if (initialPolicies.isEmpty()) {
             // no content - no need to copy,
@@ -385,7 +376,7 @@ public class PKIXParameters implements CertPathParameters {
             return Collections.unmodifiableSet(initialPolicies);
         }
         // List is not empty - do shallow copy
-        HashSet modifiableSet = new HashSet(initialPolicies);
+        HashSet<String> modifiableSet = new HashSet<String>(initialPolicies);
         return Collections.unmodifiableSet(modifiableSet);
     }
 
@@ -400,21 +391,14 @@ public class PKIXParameters implements CertPathParameters {
     public void setInitialPolicies(Set<String> initialPolicies) {
         if (initialPolicies == null || initialPolicies.isEmpty()) {
             // empty list or null provided
-            if (this.initialPolicies != null &&
-               !this.initialPolicies.isEmpty()) {
+            if (this.initialPolicies != null && !this.initialPolicies.isEmpty()) {
                 // discard non-empty list
                 this.initialPolicies = null;
             }
             return;
         }
         // non-empty list provided - do shallow copy
-        this.initialPolicies = new HashSet(initialPolicies);
-        // check that all elements are String
-        for (Iterator i = this.initialPolicies.iterator(); i.hasNext();) {
-            if (!(i.next() instanceof String)) {
-                throw new ClassCastException("all set elements must be of type java.lang.String");
-            }
-        }
+        this.initialPolicies = new HashSet<String>(initialPolicies);
     }
 
     /**
@@ -543,10 +527,10 @@ public class PKIXParameters implements CertPathParameters {
             PKIXParameters ret = (PKIXParameters)super.clone();
             // copy fields containing references to mutable objects
             if (this.certStores != null) {
-                ret.certStores = new ArrayList(this.certStores);
+                ret.certStores = new ArrayList<CertStore>(this.certStores);
             }
             if (this.certPathCheckers != null) {
-                ret.certPathCheckers = new ArrayList(this.certPathCheckers);
+                ret.certPathCheckers = new ArrayList<PKIXCertPathChecker>(this.certPathCheckers);
             }
             return ret;
         } catch (CloneNotSupportedException e) {
@@ -601,15 +585,9 @@ public class PKIXParameters implements CertPathParameters {
     // only TrustAnchor instances.
     // Throws InvalidAlgorithmParameterException if trustAnchors set is empty.
     //
-    private void checkTrustAnchors(Set trustAnchors)
-        throws InvalidAlgorithmParameterException {
+    private void checkTrustAnchors(Set<TrustAnchor> trustAnchors) throws InvalidAlgorithmParameterException {
         if (trustAnchors.isEmpty()) {
             throw new InvalidAlgorithmParameterException("trustAnchors.isEmpty()");
-        }
-        for (Iterator i = trustAnchors.iterator(); i.hasNext();) {
-            if (!(i.next() instanceof TrustAnchor)) {
-                throw new ClassCastException("all set elements must be of type java.security.cert.TrustAnchor");
-            }
         }
     }
 }

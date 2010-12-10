@@ -66,7 +66,7 @@ public class X509CertSelector implements CertSelector {
     private int pathLen = -1;
     private List[] subjectAltNames;
     private NameConstraints nameConstraints;
-    private Set policies;
+    private Set<String> policies;
     private ArrayList pathToNames;
 
     // needed to avoid needless encoding/decoding work
@@ -876,10 +876,10 @@ public class X509CertSelector implements CertSelector {
             this.policies = null;
             return;
         }
-        HashSet pols = new HashSet(policies.size());
-        Iterator it = policies.iterator();
+        HashSet<String> pols = new HashSet<String>(policies.size());
+        Iterator<String> it = policies.iterator();
         while (it.hasNext()) {
-            String certPolicyId = (String) it.next();
+            String certPolicyId = it.next();
             checkOID(certPolicyId);
             pols.add(certPolicyId);
         }
@@ -918,8 +918,7 @@ public class X509CertSelector implements CertSelector {
      * @throws IOException
      *             if decoding fails.
      */
-    public void setPathToNames(Collection<List<?>> names)
-                                                        throws IOException {
+    public void setPathToNames(Collection<List<?>> names) throws IOException {
         pathToNames = null;
         if ((names == null) || (names.size() == 0)) {
             return;
@@ -1417,9 +1416,7 @@ public class X509CertSelector implements CertSelector {
                 }
             }
         }
-        result.policies = (this.policies == null)
-            ? null
-            : new HashSet(this.policies);
+        result.policies = (this.policies == null) ? null : new HashSet<String>(this.policies);
         result.pathToNames = (this.pathToNames == null)
             ? null
             : new ArrayList(this.pathToNames);

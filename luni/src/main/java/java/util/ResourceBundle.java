@@ -263,7 +263,7 @@ public abstract class ResourceBundle {
                 .doPrivileged(new PrivilegedAction<ClassLoader>() {
                     public ClassLoader run() {
                         ClassLoader cl = this.getClass().getClassLoader();
-                        if (null == cl) {
+                        if (cl == null) {
                             cl = ClassLoader.getSystemClassLoader();
                         }
                         return cl;
@@ -318,7 +318,7 @@ public abstract class ResourceBundle {
         ResourceBundle ret = processGetBundle(baseName, targetLocale, loader,
                 control, expired, result);
 
-        if (null != ret) {
+        if (ret != null) {
             loaderCache.put(bundleName, ret);
             ret.lastLoadTime = System.currentTimeMillis();
             return ret;
@@ -332,9 +332,8 @@ public abstract class ResourceBundle {
             Locale targetLocale, ClassLoader loader,
             ResourceBundle.Control control, boolean expired,
             ResourceBundle result) {
-        List<Locale> locales = control.getCandidateLocales(baseName,
-                targetLocale);
-        if (null == locales) {
+        List<Locale> locales = control.getCandidateLocales(baseName, targetLocale);
+        if (locales == null) {
             throw new IllegalArgumentException();
         }
         List<String> formats = control.getFormats(baseName);
@@ -370,29 +369,28 @@ public abstract class ResourceBundle {
                 } catch (IOException e) {
                     // do nothing
                 }
-                if (null != bundle) {
-                    if (null != currentBundle) {
+                if (bundle != null) {
+                    if (currentBundle != null) {
                         currentBundle.setParent(bundle);
                         currentBundle = bundle;
                     } else {
-                        if (null == ret) {
+                        if (ret == null) {
                             ret = bundle;
                             currentBundle = ret;
                         }
                     }
                 }
-                if (null != bundle) {
+                if (bundle != null) {
                     break;
                 }
             }
         }
 
-        if ((null == ret)
+        if ((ret == null)
                 || (Locale.ROOT.equals(ret.getLocale()) && (!(locales.size() == 1 && locales
                         .contains(Locale.ROOT))))) {
-            Locale nextLocale = control.getFallbackLocale(baseName,
-                    targetLocale);
-            if (null != nextLocale) {
+            Locale nextLocale = control.getFallbackLocale(baseName, targetLocale);
+            if (nextLocale != null) {
                 ret = processGetBundle(baseName, nextLocale, loader, control,
                         expired, result);
             }
@@ -637,14 +635,14 @@ public abstract class ResourceBundle {
     }
 
     public static final void clearCache(ClassLoader loader) {
-        if (null == loader) {
+        if (loader == null) {
             throw new NullPointerException();
         }
         cache.remove(loader);
     }
 
     public boolean containsKey(String key) {
-        if (null == key) {
+        if (key == null) {
             throw new NullPointerException();
         }
         return keySet().contains(key);
@@ -663,7 +661,7 @@ public abstract class ResourceBundle {
         Set<String> set = keySet();
         Set<String> ret = new HashSet<String>();
         for (String key : set) {
-            if (null != handleGetObject(key)) {
+            if (handleGetObject(key) != null) {
                 ret.add(key);
             }
         }
@@ -695,7 +693,7 @@ public abstract class ResourceBundle {
 
         @Override
         public Locale getFallbackLocale(String baseName, Locale locale) {
-            if (null == baseName || null == locale) {
+            if (baseName == null || locale == null) {
                 throw new NullPointerException();
             }
             return null;
@@ -837,7 +835,7 @@ public abstract class ResourceBundle {
          * {@code locale}.
          */
         public List<Locale> getCandidateLocales(String baseName, Locale locale) {
-            if (null == baseName || null == locale) {
+            if (baseName == null || locale == null) {
                 throw new NullPointerException();
             }
             List<Locale> retList = new ArrayList<Locale>();
@@ -861,7 +859,7 @@ public abstract class ResourceBundle {
          * Returns a list of strings of formats according to {@code baseName}.
          */
         public List<String> getFormats(String baseName) {
-            if (null == baseName) {
+            if (baseName == null) {
                 throw new NullPointerException();
             }
             return format;
@@ -871,7 +869,7 @@ public abstract class ResourceBundle {
          * Returns the fallback locale for {@code baseName} in {@code locale}.
          */
         public Locale getFallbackLocale(String baseName, Locale locale) {
-            if (null == baseName || null == locale) {
+            if (baseName == null || locale == null) {
                 throw new NullPointerException();
             }
             if (Locale.getDefault() != locale) {
@@ -905,7 +903,7 @@ public abstract class ResourceBundle {
                 String format, ClassLoader loader, boolean reload)
                 throws IllegalAccessException, InstantiationException,
                 IOException {
-            if (null == format || null == loader) {
+            if (format == null || loader == null) {
                 throw new NullPointerException();
             }
             InputStream streams = null;
@@ -926,7 +924,7 @@ public abstract class ResourceBundle {
                                 }
                             }
                         });
-                if (null == cls) {
+                if (cls == null) {
                     return null;
                 }
                 try {
@@ -947,7 +945,7 @@ public abstract class ResourceBundle {
                     } catch (NullPointerException e) {
                         // do nothing
                     }
-                    if (null != url) {
+                    if (url != null) {
                         URLConnection con = url.openConnection();
                         con.setUseCaches(false);
                         streams = con.getInputStream();
@@ -985,7 +983,7 @@ public abstract class ResourceBundle {
          * default is TTL_NO_EXPIRATION_CONTROL.
          */
         public long getTimeToLive(String baseName, Locale locale) {
-            if (null == baseName || null == locale) {
+            if (baseName == null || locale == null) {
                 throw new NullPointerException();
             }
             return TTL_NO_EXPIRATION_CONTROL;
@@ -1011,7 +1009,7 @@ public abstract class ResourceBundle {
         public boolean needsReload(String baseName, Locale locale,
                 String format, ClassLoader loader, ResourceBundle bundle,
                 long loadTime) {
-            if (null == bundle) {
+            if (bundle == null) {
                 // FIXME what's the use of bundle?
                 throw new NullPointerException();
             }
@@ -1025,7 +1023,7 @@ public abstract class ResourceBundle {
             }
             String urlname = toResourceName(bundleName, suffix);
             URL url = loader.getResource(urlname);
-            if (null != url) {
+            if (url != null) {
                 String fileName = url.getFile();
                 long lastModified = new File(fileName).lastModified();
                 if (lastModified > loadTime) {
@@ -1050,7 +1048,7 @@ public abstract class ResourceBundle {
             final String emptyString = EMPTY_STRING;
             final String preString = UNDER_SCORE;
             final String underline = UNDER_SCORE;
-            if (null == baseName) {
+            if (baseName == null) {
                 throw new NullPointerException();
             }
             StringBuilder ret = new StringBuilder();
@@ -1090,7 +1088,7 @@ public abstract class ResourceBundle {
          *         suffix
          */
         public final String toResourceName(String bundleName, String suffix) {
-            if (null == suffix) {
+            if (suffix == null) {
                 throw new NullPointerException();
             }
             StringBuilder ret = new StringBuilder(bundleName.replace('.', '/'));

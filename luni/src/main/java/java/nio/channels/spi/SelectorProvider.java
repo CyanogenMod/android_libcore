@@ -51,7 +51,7 @@ public abstract class SelectorProvider {
      */
     protected SelectorProvider() {
         super();
-        if (null != System.getSecurityManager()) {
+        if (System.getSecurityManager() != null) {
             System.getSecurityManager().checkPermission(
                     new RuntimePermission("selectorProvider"));
         }
