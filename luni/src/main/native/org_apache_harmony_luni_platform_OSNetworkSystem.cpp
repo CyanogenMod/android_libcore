@@ -29,6 +29,7 @@
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -73,6 +74,7 @@
 #define JAVASOCKOPT_SO_TIMEOUT  4102
 #define JAVASOCKOPT_SO_REUSEADDR 4
 #define JAVASOCKOPT_SO_SNDBUF 4097
+#define JAVASOCKOPT_SO_BINDTODEVICE 8192
 #define JAVASOCKOPT_TCP_NODELAY 1
 
 /* constants for OSNetworkSystem_selectImpl */
@@ -1236,6 +1238,22 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     case JAVASOCKOPT_SO_SNDBUF:
         setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
         return;
+    case JAVASOCKOPT_SO_BINDTODEVICE: {
+          // intVal contains the interface index
+          char ifname[IF_NAMESIZE];
+
+          if (if_indextoname(intVal, ifname) == NULL) {
+              jniThrowSocketException(env, ENODEV);
+          } else {
+              ifreq ifr;
+
+              memset(&ifr, 0, sizeof(ifr));
+              strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
+              ifr.ifr_name[sizeof(ifr.ifr_name) - 1] = '\0';
+              setSocketOption(env, fd, SOL_SOCKET, SO_BINDTODEVICE, &ifr);
+          }
+          return;
+        }
     case JAVASOCKOPT_SO_TIMEOUT:
         {
             timeval timeout(toTimeval(intVal));

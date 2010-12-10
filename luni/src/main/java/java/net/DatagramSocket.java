@@ -444,6 +444,24 @@ public class DatagramSocket {
     }
 
     /**
+     * Sets the network interface used by this socket.  Any packets sent
+     * via this socket are transmitted via the specified interface.  Any
+     * packets received by this socket will come from the specified
+     * interface.  Broadcast datagrams received on this interface will
+     * be processed by this socket. {@see SocketOptions#SO_BINDTODEVICE}
+     *
+     * @hide
+     */
+    public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
+        if (netInterface == null) {
+            throw new NullPointerException("networkInterface == null");
+        }
+
+        impl.setOption(SocketOptions.SO_BINDTODEVICE,
+            Integer.valueOf(netInterface.getIndex()));
+    }
+
+    /**
      * Sets the socket send buffer size. This buffer size determines which the
      * maximum packet size is that can be sent over this socket. It depends on
      * the network implementation what will happen if the packet is bigger than

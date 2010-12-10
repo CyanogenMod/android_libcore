@@ -92,6 +92,17 @@ public interface SocketOptions {
      */
     public static final int SO_RCVBUF = 4098;
 
+    /**
+     * This option can be used to bind a datagram socket to a
+     * particular network interface.  When this is done, only packets
+     * received on the specified interface will be processed by the
+     * socket.  Packets sent via this socket will be transmitted by
+     * the specified interface.  The argument to this operation is the
+     * network-interface index.
+     * @hide
+     */
+    public static final int SO_BINDTODEVICE = 8192;
+
     // For 13, see DatagramSocket
 
     /**
