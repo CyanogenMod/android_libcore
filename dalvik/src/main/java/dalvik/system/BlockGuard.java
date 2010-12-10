@@ -79,10 +79,16 @@ public final class BlockGuard {
         // bitmask of DISALLOW_*, PENALTY_*, etc flags
         private final int mPolicyState;
         private final int mPolicyViolated;
+        private final String mMessage;   // may be null
 
         public BlockGuardPolicyException(int policyState, int policyViolated) {
+            this(policyState, policyViolated, null);
+        }
+
+        public BlockGuardPolicyException(int policyState, int policyViolated, String message) {
             mPolicyState = policyState;
             mPolicyViolated = policyViolated;
+            mMessage = message;
             fillInStackTrace();
         }
 
@@ -101,7 +107,8 @@ public final class BlockGuard {
             // Android's StrictMode.  This was the least invasive
             // option and avoided a gross mix of Java Serialization
             // combined with Parcels.
-            return "policy=" + mPolicyState + " violation=" + mPolicyViolated;
+            return "policy=" + mPolicyState + " violation=" + mPolicyViolated +
+                    (mMessage == null ? "" : (" msg=" + mMessage));
         }
     }
 
