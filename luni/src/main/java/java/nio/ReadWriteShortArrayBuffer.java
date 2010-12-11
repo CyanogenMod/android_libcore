@@ -103,19 +103,13 @@ final class ReadWriteShortArrayBuffer extends ShortArrayBuffer {
 
     @Override
     public ShortBuffer put(int index, short c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
-        int length = src.length;
-        if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (shortCount > remaining()) {
             throw new BufferOverflowException();
         }

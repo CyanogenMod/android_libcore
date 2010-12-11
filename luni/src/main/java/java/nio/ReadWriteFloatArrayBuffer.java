@@ -102,19 +102,13 @@ final class ReadWriteFloatArrayBuffer extends FloatArrayBuffer {
 
     @Override
     public FloatBuffer put(int index, float c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
-        int length = src.length;
-        if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (floatCount > remaining()) {
             throw new BufferOverflowException();
         }

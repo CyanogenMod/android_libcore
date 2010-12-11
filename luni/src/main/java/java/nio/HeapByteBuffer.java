@@ -50,9 +50,9 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
         super(capacity, null);
         this.backingArray = backingArray;
         this.offset = offset;
-
         if (offset + capacity > backingArray.length) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("backingArray.length=" + backingArray.length +
+                    ", capacity=" + capacity + ", offset=" + offset);
         }
     }
 
@@ -110,9 +110,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final byte get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
@@ -129,9 +127,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final char getChar(int index) {
-        if (index < 0 || index + SizeOf.CHAR > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.CHAR);
         return (char) OSMemory.peekShort(backingArray, offset + index, order);
     }
 
@@ -168,9 +164,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final int getInt(int index) {
-        if (index < 0 || index + SizeOf.INT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.INT);
         return OSMemory.peekInt(backingArray, offset + index, order);
     }
 
@@ -187,9 +181,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final long getLong(int index) {
-        if (index < 0 || index + SizeOf.LONG > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.LONG);
         return OSMemory.peekLong(backingArray, offset + index, order);
     }
 
@@ -206,9 +198,7 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     @Override
     public final short getShort(int index) {
-        if (index < 0 || index + SizeOf.SHORT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.SHORT);
         return OSMemory.peekShort(backingArray, offset + index, order);
     }
 

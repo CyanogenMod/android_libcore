@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link InputStream } for reading the contents of a byte array.
  *
@@ -165,22 +167,8 @@ public class ByteArrayInputStream extends InputStream {
      */
     @Override
     public synchronized int read(byte[] buffer, int offset, int length) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        // BEGIN android-changed
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        // avoid int overflow
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, used (offset | length) < 0 instead of
-        // (offset < 0) || (length < 0) to safe one operation
-        if ((offset | length) < 0 || length > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, length);
+
         // Are there any bytes available?
         if (this.pos >= this.count) {
             return -1;

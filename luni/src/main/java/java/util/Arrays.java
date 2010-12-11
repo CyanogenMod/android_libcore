@@ -1736,7 +1736,7 @@ public class Arrays {
      * @hide
      */
     public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
-        if (offset > arrayLength || count < 0 || offset < 0 || arrayLength - offset < count) {
+        if ((offset | count) < 0 || offset > arrayLength || arrayLength - offset < count) {
             throw new ArrayIndexOutOfBoundsException("offset=" + offset + ", count=" + count +
                     ", array length=" + arrayLength);
         }

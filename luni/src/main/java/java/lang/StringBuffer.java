@@ -597,8 +597,7 @@ public final class StringBuffer extends AbstractStringBuilder implements
      *             length > chars.length}, {@code index < 0} or {@code index >
      *             length()}
      */
-    public synchronized StringBuffer insert(int index, char[] chars, int start,
-            int length) {
+    public synchronized StringBuffer insert(int index, char[] chars, int start, int length) {
         insert0(index, chars, start, length);
         return this;
     }

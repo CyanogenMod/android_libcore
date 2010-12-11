@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer of doubles.
  * <p>
@@ -83,15 +85,10 @@ public abstract class DoubleBuffer extends Buffer implements
      *                if either {@code start} or {@code doubleCount} is invalid.
      */
     public static DoubleBuffer wrap(double[] array, int start, int doubleCount) {
-        int length = array.length;
-        if (start < 0 || doubleCount < 0 || (long) start + (long) doubleCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(array.length, start, doubleCount);
         DoubleBuffer buf = new ReadWriteDoubleArrayBuffer(array);
         buf.position = start;
         buf.limit = start + doubleCount;
-
         return buf;
     }
 
@@ -270,11 +267,7 @@ public abstract class DoubleBuffer extends Buffer implements
      *                if {@code doubleCount} is greater than {@code remaining()}.
      */
     public DoubleBuffer get(double[] dst, int dstOffset, int doubleCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || doubleCount < 0 || (long) dstOffset + (long) doubleCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, doubleCount);
         if (doubleCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -417,10 +410,7 @@ public abstract class DoubleBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
-        int length = src.length;
-        if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, doubleCount);
         if (doubleCount > remaining()) {
             throw new BufferOverflowException();
         }

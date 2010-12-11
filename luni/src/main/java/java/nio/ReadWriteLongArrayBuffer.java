@@ -101,19 +101,13 @@ final class ReadWriteLongArrayBuffer extends LongArrayBuffer {
 
     @Override
     public LongBuffer put(int index, long c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public LongBuffer put(long[] src, int srcOffset, int longCount) {
-        int length = src.length;
-        if (srcOffset < 0 || longCount < 0 || (long) srcOffset + (long) longCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (longCount > remaining()) {
             throw new BufferOverflowException();
         }

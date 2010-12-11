@@ -59,18 +59,12 @@ abstract class LongArrayBuffer extends LongBuffer {
 
     @Override
     public final long get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final LongBuffer get(long[] dst, int dstOffset, int longCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || longCount < 0 || (long) longCount + (long) dstOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (longCount > remaining()) {
             throw new BufferUnderflowException();
         }

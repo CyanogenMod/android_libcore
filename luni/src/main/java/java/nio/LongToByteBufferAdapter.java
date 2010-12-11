@@ -91,9 +91,7 @@ final class LongToByteBufferAdapter extends LongBuffer {
 
     @Override
     public long get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getLong(index * SizeOf.LONG);
     }
 
@@ -151,9 +149,7 @@ final class LongToByteBufferAdapter extends LongBuffer {
 
     @Override
     public LongBuffer put(int index, long c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putLong(index * SizeOf.LONG, c);
         return this;
     }

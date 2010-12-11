@@ -22,6 +22,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
 
 final class WriteOnlyFileChannel extends FileChannelImpl {
 
@@ -49,11 +50,8 @@ final class WriteOnlyFileChannel extends FileChannelImpl {
         throw new NonReadableChannelException();
     }
 
-    public long read(ByteBuffer[] buffers, int offset, int length)
-            throws IOException {
-        if (offset < 0 || length < 0 || offset + length > buffers.length) {
-            throw new IndexOutOfBoundsException();
-        }
+    public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
+        Arrays.checkOffsetAndCount(buffers.length, offset, length);
         openCheck();
         throw new NonReadableChannelException();
     }

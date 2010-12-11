@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer of floats.
  * <p>
@@ -84,17 +86,10 @@ public abstract class FloatBuffer extends Buffer implements
      *                if {@code array} is null.
      */
     public static FloatBuffer wrap(float[] array, int start, int floatCount) {
-        if (array == null) {
-            throw new NullPointerException();
-        }
-        if (start < 0 || floatCount < 0 || (long) start + (long) floatCount > array.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(array.length, start, floatCount);
         FloatBuffer buf = new ReadWriteFloatArrayBuffer(array);
         buf.position = start;
         buf.limit = start + floatCount;
-
         return buf;
     }
 
@@ -273,11 +268,7 @@ public abstract class FloatBuffer extends Buffer implements
      *                if {@code floatCount} is greater than {@code remaining()}.
      */
     public FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || floatCount < 0 || (long) dstOffset + (long) floatCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, floatCount);
         if (floatCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -418,10 +409,7 @@ public abstract class FloatBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
-        int length = src.length;
-        if (srcOffset < 0 || floatCount < 0 || (long) srcOffset + (long) floatCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, floatCount);
         if (floatCount > remaining()) {
             throw new BufferOverflowException();
         }

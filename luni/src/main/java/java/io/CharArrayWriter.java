@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link Writer} for class for writing content to an (internal)
  * char array. As bytes are written to this writer, the char array may be
@@ -164,21 +166,7 @@ public class CharArrayWriter extends Writer {
      */
     @Override
     public void write(char[] buffer, int offset, int len) {
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // made implicit null check explicit,
-        // removed redundant check,
-        // added null check, used (offset | len) < 0 instead of
-        // (offset < 0) || (len < 0) to safe one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | len) < 0 || len > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, len);
         synchronized (lock) {
             expand(len);
             System.arraycopy(buffer, offset, this.buf, this.count, len);

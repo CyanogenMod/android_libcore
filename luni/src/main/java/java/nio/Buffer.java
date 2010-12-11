@@ -148,10 +148,30 @@ public abstract class Buffer {
         return capacity;
     }
 
+    /**
+     * Used for the scalar get/put operations.
+     */
+    void checkIndex(int index) {
+        if (index < 0 || index >= limit) {
+            throw new IndexOutOfBoundsException("index=" + index + ", limit=" + limit);
+        }
+    }
+
+    /**
+     * Used for the ByteBuffer operations that get types larger than a byte.
+     */
+    void checkIndex(int index, int sizeOfType) {
+        if (index < 0 || index > limit - sizeOfType) {
+            throw new IndexOutOfBoundsException("index=" + index + ", limit=" + limit +
+                    ", size of type=" + sizeOfType);
+        }
+    }
+
     int checkGetBounds(int bytesPerElement, int length, int offset, int count) {
         int byteCount = bytesPerElement * count;
-        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
-            throw new IndexOutOfBoundsException();
+        if ((offset | count) < 0 || offset > length || length - offset < count) {
+            throw new IndexOutOfBoundsException("offset=" + offset +
+                    ", count=" + count + ", length=" + length);
         }
         if (byteCount > remaining()) {
             throw new BufferUnderflowException();
@@ -161,8 +181,9 @@ public abstract class Buffer {
 
     int checkPutBounds(int bytesPerElement, int length, int offset, int count) {
         int byteCount = bytesPerElement * count;
-        if (offset < 0 || count < 0 || (long) offset + (long) count > length) {
-            throw new IndexOutOfBoundsException();
+        if ((offset | count) < 0 || offset > length || length - offset < count) {
+            throw new IndexOutOfBoundsException("offset=" + offset +
+                    ", count=" + count + ", length=" + length);
         }
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
@@ -171,6 +192,13 @@ public abstract class Buffer {
             throw new ReadOnlyBufferException();
         }
         return byteCount;
+    }
+
+    void checkStartEndRemaining(int start, int end) {
+        if (end < start || start < 0 || end > remaining()) {
+            throw new IndexOutOfBoundsException("start=" + start + ", end=" + end +
+                    ", remaining()=" + remaining());
+        }
     }
 
     /**

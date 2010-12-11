@@ -20,6 +20,7 @@ package java.io;
 import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
@@ -204,18 +205,13 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     @Override
-    public void write(byte[] buffer, int offset, int count) throws IOException {
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (count == 0) {
+    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        if (byteCount == 0) {
             return;
         }
         checkOpen();
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, count);
+        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, byteCount);
     }
 
     @Override

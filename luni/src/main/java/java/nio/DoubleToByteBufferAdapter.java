@@ -91,9 +91,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public double get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getDouble(index * SizeOf.DOUBLE);
     }
 
@@ -151,9 +149,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public DoubleBuffer put(int index, double c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putDouble(index * SizeOf.DOUBLE, c);
         return this;
     }

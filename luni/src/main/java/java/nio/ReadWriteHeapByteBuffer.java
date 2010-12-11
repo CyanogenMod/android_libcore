@@ -103,9 +103,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer put(int index, byte b) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = b;
         return this;
     }
@@ -156,9 +154,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putChar(int index, char value) {
-        if (index < 0 || (long) index + SizeOf.CHAR > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.CHAR);
         OSMemory.pokeShort(backingArray, offset + index, (short) value, order);
         return this;
     }
@@ -207,18 +203,14 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + SizeOf.INT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.INT);
         OSMemory.pokeInt(backingArray, offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + SizeOf.LONG > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.LONG);
         OSMemory.pokeLong(backingArray, offset + index, value, order);
         return this;
     }
@@ -236,9 +228,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + SizeOf.SHORT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.SHORT);
         OSMemory.pokeShort(backingArray, offset + index, value, order);
         return this;
     }

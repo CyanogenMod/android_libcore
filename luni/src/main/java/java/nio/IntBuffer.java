@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer of ints.
  * <p>
@@ -80,17 +82,10 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *                if either {@code start} or {@code intCount} is invalid.
      */
     public static IntBuffer wrap(int[] array, int start, int intCount) {
-        if (array == null) {
-            throw new NullPointerException();
-        }
-        if (start < 0 || intCount < 0 || (long) intCount + (long) start > array.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(array.length, start, intCount);
         IntBuffer buf = new ReadWriteIntArrayBuffer(array);
         buf.position = start;
         buf.limit = start + intCount;
-
         return buf;
     }
 
@@ -261,10 +256,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *                if {@code intCount} is greater than {@code remaining()}.
      */
     public IntBuffer get(int[] dst, int dstOffset, int intCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || intCount < 0 || (long) intCount + (long) dstOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, intCount);
         if (intCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -405,10 +397,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *                if no changes may be made to the contents of this buffer.
      */
     public IntBuffer put(int[] src, int srcOffset, int intCount) {
-        int length = src.length;
-        if (srcOffset < 0 || intCount < 0 || (long) intCount + (long) srcOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, intCount);
         if (intCount > remaining()) {
             throw new BufferOverflowException();
         }

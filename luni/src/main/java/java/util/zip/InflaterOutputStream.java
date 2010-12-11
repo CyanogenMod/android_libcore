@@ -20,6 +20,7 @@ package java.util.zip;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * An {@code OutputStream} filter to decompress data. Callers write
@@ -125,29 +126,20 @@ public class InflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Writes bytes to the decompressing output stream. {@code b} should be an array of
+     * Writes to the decompressing output stream. The {@code bytes} array should contain
      * compressed input. The corresponding uncompressed data will be written to the underlying
      * stream.
      *
-     * @param b the byte array
-     * @param off the start offset in the byte array
-     * @param len the number of the bytes to take from the byte array
      * @throws IOException if an I/O error occurs, or the stream has been closed
      * @throws ZipException if a zip exception occurs.
      * @throws NullPointerException if {@code b == null}.
      * @throws IndexOutOfBoundsException if {@code off < 0 || len < 0 || off + len > b.length}
      */
     @Override
-    public void write(byte[] b, int off, int len) throws IOException, ZipException {
+    public void write(byte[] bytes, int offset, int byteCount) throws IOException, ZipException {
         checkClosed();
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        if (off < 0 || len < 0 || len > b.length - off) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        inf.setInput(b, off, len);
+        Arrays.checkOffsetAndCount(bytes.length, offset, byteCount);
+        inf.setInput(bytes, offset, byteCount);
         write();
     }
 
