@@ -208,7 +208,7 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneabl
             throw new DigestException("len < DIGEST_LENGTH");
         }
         if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(Integer.toString(offset));
+            throw new ArrayIndexOutOfBoundsException(offset);
         }
 
         processDigest(buf, offset);
@@ -295,7 +295,7 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneabl
             return;
         }
         if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(Integer.toString(offset));
+            throw new ArrayIndexOutOfBoundsException(offset);
         }
         if (offset > input.length || len > input.length || (len + offset) > input.length) {
             throw new IllegalArgumentException();

@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charsets;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -401,23 +402,18 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      *                If an error occurs writing to the stream
      */
     @Override
-    public void write(byte[] buffer, int off, int nbytes) throws IOException {
-        // avoid int overflow, check null buf
-        if ((off < 0 || (nbytes < 0) || off > buffer.length)
-                || (buffer.length - off < nbytes)) {
-            throw new IndexOutOfBoundsException();
-        }
-
+    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (currentEntry == null) {
             throw new ZipException("No active entry");
         }
 
         if (currentEntry.getMethod() == STORED) {
-            out.write(buffer, off, nbytes);
+            out.write(buffer, offset, byteCount);
         } else {
-            super.write(buffer, off, nbytes);
+            super.write(buffer, offset, byteCount);
         }
-        crc.update(buffer, off, nbytes);
+        crc.update(buffer, offset, byteCount);
     }
 
     private void checkClosed() throws IOException {

@@ -22,6 +22,7 @@ import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
+import java.util.Arrays;
 import libcore.base.Streams;
 import libcore.io.IoUtils;
 import libcore.io.SizeOf;
@@ -326,19 +327,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public int read(byte[] buffer, int offset, int count) throws IOException {
-        // have to have four comparisons to not miss integer overflow cases
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // made implicit null check explicit, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         if (count == 0) {
             return 0;
         }
@@ -468,19 +457,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if {@code dst} is null.
      */
     public final void readFully(byte[] dst, int offset, int byteCount) throws IOException {
-        if (dst == null) {
-            throw new NullPointerException("dst == null");
-        }
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
-        if ((offset | byteCount) < 0 || byteCount > dst.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(dst.length, offset, byteCount);
         while (byteCount > 0) {
             int result = read(dst, offset, byteCount);
             if (result < 0) {
@@ -667,7 +644,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public void seek(long offset) throws IOException {
         if (offset < 0) {
             // seek position is negative
-            throw new IOException("offset < 0");
+            throw new IOException("offset < 0: " + offset);
         }
         openCheck();
         Platform.FILE_SYSTEM.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
@@ -758,19 +735,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if an I/O error occurs while writing to this file.
      */
     public void write(byte[] buffer, int offset, int count) throws IOException {
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // made implicit null check explicit,
-        // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to save one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         if (count == 0) {
             return;
         }

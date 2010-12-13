@@ -91,9 +91,7 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public int get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getInt(index * SizeOf.INT);
     }
 
@@ -151,9 +149,7 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public IntBuffer put(int index, int c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putInt(index * SizeOf.INT, c);
         return this;
     }

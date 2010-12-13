@@ -18,6 +18,7 @@
 package java.lang;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * The wrapper for the primitive type {@code char}. This class also provides a
@@ -2156,15 +2157,8 @@ public final class Character implements Serializable, Comparable<Character> {
      * @since 1.5
      */
     public static int codePointCount(char[] seq, int offset, int count) {
-        if (seq == null) {
-            throw new NullPointerException();
-        }
-        int len = seq.length;
+        Arrays.checkOffsetAndCount(seq.length, offset, count);
         int endIndex = offset + count;
-        if (offset < 0 || count < 0 || endIndex > len) {
-            throw new IndexOutOfBoundsException();
-        }
-
         int result = 0;
         for (int i = offset; i < endIndex; i++) {
             char c = seq[i];
@@ -2204,8 +2198,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *             negative) from {@code index}.
      * @since 1.5
      */
-    public static int offsetByCodePoints(CharSequence seq, int index,
-            int codePointOffset) {
+    public static int offsetByCodePoints(CharSequence seq, int index, int codePointOffset) {
         if (seq == null) {
             throw new NullPointerException();
         }
@@ -2237,7 +2230,6 @@ public final class Character implements Serializable, Comparable<Character> {
             return i;
         }
 
-        assert codePointOffset < 0;
         int codePoints = -codePointOffset;
         int i = index;
         while (codePoints > 0) {
@@ -2290,12 +2282,9 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int offsetByCodePoints(char[] seq, int start, int count,
             int index, int codePointOffset) {
-        if (seq == null) {
-            throw new NullPointerException();
-        }
+        Arrays.checkOffsetAndCount(seq.length, start, count);
         int end = start + count;
-        if (start < 0 || count < 0 || end > seq.length || index < start
-                || index > end) {
+        if (index < start || index > end) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -2322,7 +2311,6 @@ public final class Character implements Serializable, Comparable<Character> {
             return i;
         }
 
-        assert codePointOffset < 0;
         int codePoints = -codePointOffset;
         int i = index;
         while (codePoints > 0) {

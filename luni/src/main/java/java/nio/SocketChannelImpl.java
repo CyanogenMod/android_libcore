@@ -39,6 +39,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Arrays;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
@@ -308,10 +309,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     @Override
     public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
-        if (!isIndexValid(targets, offset, length)) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(targets.length, offset, length);
         checkOpenConnected();
         int totalCount = FileChannelImpl.calculateTotalRemaining(targets, offset, length, true);
         if (totalCount == 0) {
@@ -335,11 +333,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             }
         }
         return readCount;
-    }
-
-    private boolean isIndexValid(ByteBuffer[] targets, int offset, int length) {
-        return (length >= 0) && (offset >= 0)
-                && ((long) length + (long) offset <= targets.length);
     }
 
     /**
@@ -392,10 +385,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     @Override
     public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
-        if (!isIndexValid(sources, offset, length)) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(sources.length, offset, length);
         checkOpenConnected();
         int count = FileChannelImpl.calculateTotalRemaining(sources, offset, length, false);
         if (count == 0) {
@@ -679,11 +669,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         @Override
-        public void write(byte[] buffer, int offset, int count) throws IOException {
-            if (offset < 0 || count < 0 || count + offset > buffer.length) {
-                throw new IndexOutOfBoundsException();
-            }
-            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, count);
+        public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+            Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, byteCount);
             if (!channel.isBlocking()) {
                 throw new IllegalBlockingModeException();
             }
@@ -734,14 +722,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         @Override
-        public int read(byte[] buffer, int offset, int count) throws IOException {
-            if (offset < 0 || count < 0 || count + offset > buffer.length) {
-                throw new IndexOutOfBoundsException();
-            }
+        public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+            Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
             if (!channel.isBlocking()) {
                 throw new IllegalBlockingModeException();
             }
-            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, count);
+            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, byteCount);
             return channel.read(buf);
         }
     }

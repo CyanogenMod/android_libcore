@@ -59,18 +59,12 @@ abstract class CharArrayBuffer extends CharBuffer {
 
     @Override
     public final char get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final CharBuffer get(char[] dst, int srcOffset, int charCount) {
-        int length = dst.length;
-        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -91,10 +85,7 @@ abstract class CharArrayBuffer extends CharBuffer {
 
     @Override
     public final CharSequence subSequence(int start, int end) {
-        if (start < 0 || end < start || end > remaining()) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        checkStartEndRemaining(start, end);
         CharBuffer result = duplicate();
         result.limit(position + end);
         result.position(position + start);

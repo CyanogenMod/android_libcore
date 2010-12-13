@@ -91,9 +91,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer put(int index, byte value) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         this.block.pokeByte(offset + index, value);
         return this;
     }
@@ -155,9 +153,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putChar(int index, char value) {
-        if (index < 0 || (long) index + SizeOf.CHAR > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.CHAR);
         this.block.pokeShort(offset + index, (short) value, order);
         return this;
     }
@@ -175,9 +171,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putDouble(int index, double value) {
-        if (index < 0 || (long) index + SizeOf.DOUBLE > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.DOUBLE);
         this.block.pokeLong(offset + index, Double.doubleToRawLongBits(value), order);
         return this;
     }
@@ -195,9 +189,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putFloat(int index, float value) {
-        if (index < 0 || (long) index + SizeOf.FLOAT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.FLOAT);
         this.block.pokeInt(offset + index, Float.floatToRawIntBits(value), order);
         return this;
     }
@@ -215,9 +207,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putInt(int index, int value) {
-        if (index < 0 || (long) index + SizeOf.INT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.INT);
         this.block.pokeInt(offset + index, value, order);
         return this;
     }
@@ -235,9 +225,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putLong(int index, long value) {
-        if (index < 0 || (long) index + SizeOf.LONG > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.LONG);
         this.block.pokeLong(offset + index, value, order);
         return this;
     }
@@ -255,9 +243,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer putShort(int index, short value) {
-        if (index < 0 || (long) index + SizeOf.SHORT > limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index, SizeOf.SHORT);
         this.block.pokeShort(offset + index, value, order);
         return this;
     }

@@ -90,9 +90,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public short get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getShort(index * SizeOf.SHORT);
     }
 
@@ -150,9 +148,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public ShortBuffer put(int index, short c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putShort(index * SizeOf.SHORT, c);
         return this;
     }

@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Wraps an existing {@link Reader} and <em>buffers</em> the input. Expensive
  * interaction with the underlying reader is minimized, since most (smaller)
@@ -270,9 +272,7 @@ public class BufferedReader extends Reader {
     public int read(char[] buffer, int offset, int length) throws IOException {
         synchronized (lock) {
             checkNotClosed();
-            if (offset < 0 || offset > buffer.length - length || length < 0) {
-                throw new IndexOutOfBoundsException();
-            }
+            Arrays.checkOffsetAndCount(buffer.length, offset, length);
             int outstanding = length;
             while (outstanding > 0) {
 
@@ -490,7 +490,7 @@ public class BufferedReader extends Reader {
     @Override
     public long skip(long byteCount) throws IOException {
         if (byteCount < 0) {
-            throw new IllegalArgumentException("byteCount < 0");
+            throw new IllegalArgumentException("byteCount < 0: " + byteCount);
         }
         synchronized (lock) {
             checkNotClosed();

@@ -18,6 +18,7 @@
 package java.nio;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A buffer of chars.
@@ -86,10 +87,7 @@ public abstract class CharBuffer extends Buffer implements
      *                if either {@code start} or {@code charCount} is invalid.
      */
     public static CharBuffer wrap(char[] array, int start, int charCount) {
-        int length = array.length;
-        if (start < 0 || charCount < 0 || (long) start + (long) charCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(array.length, start, charCount);
         CharBuffer buf = new ReadWriteCharArrayBuffer(array);
         buf.position = start;
         buf.limit = start + charCount;
@@ -117,27 +115,23 @@ public abstract class CharBuffer extends Buffer implements
      * {@code end}, capacity will be the length of the char sequence. The new
      * buffer is read-only.
      *
-     * @param chseq
+     * @param cs
      *            the char sequence which the new buffer will be based on.
      * @param start
      *            the start index, must not be negative and not greater than
-     *            {@code chseq.length()}.
+     *            {@code cs.length()}.
      * @param end
      *            the end index, must be no less than {@code start} and no
-     *            greater than {@code chseq.length()}.
+     *            greater than {@code cs.length()}.
      * @return the created char buffer.
      * @exception IndexOutOfBoundsException
      *                if either {@code start} or {@code end} is invalid.
      */
-    public static CharBuffer wrap(CharSequence chseq, int start, int end) {
-        if (chseq == null) {
-            throw new NullPointerException();
+    public static CharBuffer wrap(CharSequence cs, int start, int end) {
+        if (start < 0 || end < start || end > cs.length()) {
+            throw new IndexOutOfBoundsException("cs.length()=" + cs.length() + ", start=" + start + ", end=" + end);
         }
-        if (start < 0 || end < start || end > chseq.length()) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        CharBuffer result = new CharSequenceAdapter(chseq);
+        CharBuffer result = new CharSequenceAdapter(cs);
         result.position = start;
         result.limit = end;
         return result;
@@ -185,7 +179,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public final char charAt(int index) {
         if (index < 0 || index >= remaining()) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("index=" + index + ", remaining()=" + remaining());
         }
         return get(position + index);
     }
@@ -328,10 +322,7 @@ public abstract class CharBuffer extends Buffer implements
      *                if {@code charCount} is greater than {@code remaining()}.
      */
     public CharBuffer get(char[] dst, int dstOffset, int charCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || charCount < 0 || (long) dstOffset + (long) charCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, charCount);
         if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -481,11 +472,7 @@ public abstract class CharBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public CharBuffer put(char[] src, int srcOffset, int charCount) {
-        int length = src.length;
-        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(src.length, srcOffset, charCount);
         if (charCount > remaining()) {
             throw new BufferOverflowException();
         }
@@ -581,11 +568,10 @@ public abstract class CharBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public CharBuffer put(String str, int start, int end) {
-        int length = str.length();
-        if (start < 0 || end < start || end > length) {
-            throw new IndexOutOfBoundsException();
+        if (start < 0 || end < start || end > str.length()) {
+            throw new IndexOutOfBoundsException("str.length()=" + str.length() +
+                    ", start=" + start + ", end=" + end);
         }
-
         if (end - start > remaining()) {
             throw new BufferOverflowException();
         }

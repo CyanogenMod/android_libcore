@@ -59,18 +59,12 @@ abstract class IntArrayBuffer extends IntBuffer {
 
     @Override
     public final int get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final IntBuffer get(int[] dst, int dstOffset, int intCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || intCount < 0 || (long) intCount + (long) dstOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (intCount > remaining()) {
             throw new BufferUnderflowException();
         }

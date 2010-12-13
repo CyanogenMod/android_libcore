@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link OutputStream} for class for writing content to an
  * (internal) byte array. As bytes are written to this stream, the byte array
@@ -194,25 +196,10 @@ public class ByteArrayOutputStream extends OutputStream {
      */
     @Override
     public synchronized void write(byte[] buffer, int offset, int len) {
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, made implicit null check explicit,
-        // used (offset | len) < 0 instead of (offset < 0) || (len < 0)
-        // to safe one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | len) < 0 || len > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, len);
         if (len == 0) {
             return;
         }
-
-        /* Expand if necessary */
         expand(len);
         System.arraycopy(buffer, offset, buf, this.count, len);
         this.count += len;

@@ -101,19 +101,13 @@ final class ReadWriteIntArrayBuffer extends IntArrayBuffer {
 
     @Override
     public IntBuffer put(int index, int c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public IntBuffer put(int[] src, int srcOffset, int intCount) {
-        int length = src.length;
-        if (srcOffset < 0 || intCount < 0 || (long) srcOffset + (long) intCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (intCount > remaining()) {
             throw new BufferOverflowException();
         }

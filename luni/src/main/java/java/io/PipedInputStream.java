@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Receives information from a communications pipe. When two threads want to
  * pass data back and forth, one creates a piped output stream and the other one
@@ -253,7 +255,7 @@ public class PipedInputStream extends InputStream {
     }
 
     /**
-     * Reads at most {@code count} bytes from this stream and stores them in the
+     * Reads at most {@code byteCount} bytes from this stream and stores them in the
      * byte array {@code bytes} starting at {@code offset}. Blocks until at
      * least one byte has been read, the end of the stream is detected or an
      * exception is thrown.
@@ -262,18 +264,11 @@ public class PipedInputStream extends InputStream {
      * and to write to the connected {@link PipedOutputStream}. If the same
      * thread is used, a deadlock may occur.
      *
-     * @param bytes
-     *            the array in which to store the bytes read.
-     * @param offset
-     *            the initial position in {@code bytes} to store the bytes
-     *            read from this stream.
-     * @param count
-     *            the maximum number of bytes to store in {@code bytes}.
      * @return the number of bytes actually read or -1 if the end of the stream
      *         has been reached.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code count < 0}, or if {@code
-     *             offset + count} is greater than the size of {@code bytes}.
+     *             if {@code offset < 0} or {@code byteCount < 0}, or if {@code
+     *             offset + byteCount} is greater than the size of {@code bytes}.
      * @throws InterruptedIOException
      *             if the thread reading from this stream is interrupted.
      * @throws IOException
@@ -284,17 +279,9 @@ public class PipedInputStream extends InputStream {
      *             if {@code bytes} is {@code null}.
      */
     @Override
-    public synchronized int read(byte[] bytes, int offset, int count)
-            throws IOException {
-        if (bytes == null) {
-            throw new NullPointerException("bytes == null");
-        }
-
-        if ((offset | count) < 0 || count > bytes.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        if (count == 0) {
+    public synchronized int read(byte[] bytes, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(bytes.length, offset, byteCount);
+        if (byteCount == 0) {
             return 0;
         }
 
@@ -335,7 +322,7 @@ public class PipedInputStream extends InputStream {
         // copy bytes from out thru the end of buffer
         if (out >= in) {
             int leftInBuffer = buffer.length - out;
-            int length = leftInBuffer < count ? leftInBuffer : count;
+            int length = leftInBuffer < byteCount ? leftInBuffer : byteCount;
             System.arraycopy(buffer, out, bytes, offset, length);
             out += length;
             if (out == buffer.length) {
@@ -350,9 +337,9 @@ public class PipedInputStream extends InputStream {
         }
 
         // copy bytes from out thru in
-        if (totalCopied < count && in != -1) {
+        if (totalCopied < byteCount && in != -1) {
             int leftInBuffer = in - out;
-            int leftToCopy = count - totalCopied;
+            int leftToCopy = byteCount - totalCopied;
             int length = leftToCopy < leftInBuffer ? leftToCopy : leftInBuffer;
             System.arraycopy(buffer, out, bytes, offset + totalCopied, length);
             out += length;

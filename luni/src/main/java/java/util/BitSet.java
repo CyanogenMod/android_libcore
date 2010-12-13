@@ -245,12 +245,12 @@ public class BitSet implements Serializable, Cloneable {
 
     private void checkIndex(int index) {
         if (index < 0) {
-            throw new IndexOutOfBoundsException("index < 0");
+            throw new IndexOutOfBoundsException("index < 0: " + index);
         }
     }
 
     private void checkRange(int fromIndex, int toIndex) {
-        if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+        if ((fromIndex | toIndex) < 0 || toIndex < fromIndex) {
             throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + " toIndex=" + toIndex);
         }
     }

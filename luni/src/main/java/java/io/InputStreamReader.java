@@ -25,6 +25,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
+import java.util.Arrays;
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
@@ -217,16 +218,8 @@ public class InputStreamReader extends Reader {
             if (!isOpen()) {
                 throw new IOException("InputStreamReader is closed");
             }
-            // RI exception compatibility so we can run more tests.
-            if (offset < 0) {
-                throw new IndexOutOfBoundsException();
-            }
-            if (buffer == null) {
-                throw new NullPointerException("buffer == null");
-            }
-            if (length < 0 || offset > buffer.length - length) {
-                throw new IndexOutOfBoundsException();
-            }
+
+            Arrays.checkOffsetAndCount(buffer.length, offset, length);
             if (length == 0) {
                 return 0;
             }

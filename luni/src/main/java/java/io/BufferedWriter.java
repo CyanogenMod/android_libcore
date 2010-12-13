@@ -18,6 +18,7 @@
 package java.io;
 
 import java.security.AccessController;
+import java.util.Arrays;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.SneakyThrow;
 
@@ -189,18 +190,10 @@ public class BufferedWriter extends Writer {
     public void write(char[] cbuf, int offset, int count) throws IOException {
         synchronized (lock) {
             checkNotClosed();
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from
-            // RI, but are spec-compliant.
-            // made implicit null check explicit, used (offset | count) < 0
-            // instead of (offset < 0) || (count < 0) to safe one operation
             if (cbuf == null) {
                 throw new NullPointerException("buffer == null");
             }
-            if ((offset | count) < 0 || offset > cbuf.length - count) {
-                throw new IndexOutOfBoundsException();
-            }
-            // END android-changed
+            Arrays.checkOffsetAndCount(cbuf.length, offset, count);
             if (pos == 0 && count >= this.buf.length) {
                 out.write(cbuf, offset, count);
                 return;
