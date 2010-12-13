@@ -194,7 +194,7 @@
 },
 {
   description: "Pre-NIO aliases not implemented",
-  name: "libcore.java.nio.charset.OldCharsetTest#test_preNioAliases",
+  name: "libcore.java.nio.charset.CharsetTest#test_preNioAliases",
   bug: 3032697
 },
 {
