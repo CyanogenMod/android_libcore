@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import libcore.base.EmptyArray;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -1344,12 +1345,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw new NotActiveException();
         }
 
-        ArrayList<ObjectStreamClass> streamClassList = new ArrayList<ObjectStreamClass>(32);
-        ObjectStreamClass nextStreamClass = classDesc;
-        while (nextStreamClass != null) {
-            streamClassList.add(0, nextStreamClass);
-            nextStreamClass = nextStreamClass.getSuperclass();
-        }
+        List<ObjectStreamClass> streamClassList = classDesc.getHierarchy();
         if (object == null) {
             for (ObjectStreamClass objectStreamClass : streamClassList) {
                 readObjectForClass(null, objectStreamClass);
@@ -1380,14 +1376,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    private int findStreamSuperclass(Class<?> cl,
-            ArrayList<ObjectStreamClass> classList, int lastIndex) {
-        ObjectStreamClass objCl;
-        String forName;
-
-        for (int i = lastIndex; i < classList.size(); i++) {
-            objCl = classList.get(i);
-            forName = objCl.forClass().getName();
+    private int findStreamSuperclass(Class<?> cl, List<ObjectStreamClass> classList, int lastIndex) {
+        final int end = classList.size();
+        for (int i = lastIndex; i < end; i++) {
+            ObjectStreamClass objCl = classList.get(i);
+            String forName = objCl.forClass().getName();
 
             if (objCl.getName().equals(forName)) {
                 if (cl.getName().equals(objCl.getName())) {
