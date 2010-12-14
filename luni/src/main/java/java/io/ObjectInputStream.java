@@ -85,8 +85,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     // Resolve object is a mechanism for replacement
     private boolean enableResolve;
 
-    // Table mapping Integer (handle) -> Object
-    private HashMap<Integer, Object> objectsRead;
+    /**
+     * All the objects we've read, indexed by their serialization handle (minus the base offset).
+     */
+    private ArrayList<Object> objectsRead;
 
     // Used by defaultReadObject
     private Object currentObject;
@@ -108,7 +110,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     private boolean mustResolve = true;
 
     // Handle for the current class descriptor
-    private Integer descriptorHandle;
+    private int descriptorHandle = -1;
 
     private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES =
         new HashMap<String, Class<?>>();
@@ -547,34 +549,13 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         return originalValue;
     }
 
-    // BEGIN android-added
-    /**
-     * Create and return a new instance of class {@code instantiationClass}
-     * but running the constructor defined in class
-     * {@code constructorClass} (same as {@code instantiationClass}
-     * or a superclass).
-     *
-     * Has to be native to avoid visibility rules and to be able to have
-     * {@code instantiationClass} not the same as
-     * {@code constructorClass} (no such API in java.lang.reflect).
-     *
-     * @param instantiationClass
-     *            The new object will be an instance of this class
-     * @param constructorClass
-     *            The empty constructor to run will be in this class
-     * @return the object created from {@code instantiationClass}
-     */
-    private static native Object newInstance(Class<?> instantiationClass,
-            Class<?> constructorClass);
-    // END android-added
-
     /**
      * Return the next {@code int} handle to be used to indicate cyclic
      * references being loaded from the stream.
      *
      * @return the next handle to represent the next cyclic reference
      */
-    private Integer nextHandle() {
+    private int nextHandle() {
         return nextHandle++;
     }
 
@@ -921,8 +902,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @throws InvalidObjectException
      *             If the cyclic reference is not valid.
      */
-    private Object readCyclicReference() throws InvalidObjectException,
-            IOException {
+    private Object readCyclicReference() throws InvalidObjectException, IOException {
         return registeredObjectRead(readNewHandle());
     }
 
@@ -1563,7 +1543,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw missingClassDescriptor();
         }
 
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
 
         // Array size
         int size = input.readInt();
@@ -1681,11 +1661,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    private ObjectStreamClass readEnumDescInternal() throws IOException,
-            ClassNotFoundException {
+    private ObjectStreamClass readEnumDescInternal() throws IOException, ClassNotFoundException {
         ObjectStreamClass classDesc;
         primitiveData = input;
-        Integer oldHandle = descriptorHandle;
+        int oldHandle = descriptorHandle;
         descriptorHandle = nextHandle();
         classDesc = readClassDescriptor();
         registerObjectRead(classDesc, descriptorHandle, false);
@@ -1718,7 +1697,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             ClassNotFoundException, IOException {
         // read classdesc for Enum first
         ObjectStreamClass classDesc = readEnumDesc();
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
         // read name after class desc
         String name;
         byte tc = nextTC();
@@ -1763,7 +1742,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // So read...() methods can be used by
         // subclasses during readClassDescriptor()
         primitiveData = input;
-        Integer oldHandle = descriptorHandle;
+        int oldHandle = descriptorHandle;
         descriptorHandle = nextHandle();
         ObjectStreamClass newClassDesc = readClassDescriptor();
         registerObjectRead(newClassDesc, descriptorHandle, unshared);
@@ -1846,9 +1825,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         /*
          * We must register the class descriptor before reading field
          * descriptors. If called outside of readObject, the descriptorHandle
-         * might be null.
+         * might be unset.
          */
-        descriptorHandle = (descriptorHandle == null) ? nextHandle() : descriptorHandle;
+        if (descriptorHandle == -1) {
+            descriptorHandle = nextHandle();
+        }
         registerObjectRead(newClassDesc, descriptorHandle, false);
 
         readFieldDescriptors(newClassDesc);
@@ -1888,14 +1869,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    /**
-     * Write a new handle describing a cyclic reference from the stream.
-     *
-     * @return the handle read
-     *
-     * @throws IOException
-     *             If an IO exception happened when reading the handle
-     */
     private int readNewHandle() throws IOException {
         return input.readInt();
     }
@@ -1930,15 +1903,14 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw missingClassDescriptor();
         }
 
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
         Class<?> objectClass = classDesc.forClass();
         Object result = null;
         Object registeredResult = null;
         if (objectClass != null) {
             // Now we know which class to instantiate and which constructor to
             // run. We are allowed to run the constructor.
-            Class constructorClass = classDesc.resolveConstructorClass(objectClass);
-            result = newInstance(objectClass, constructorClass);
+            result = classDesc.newInstance(objectClass);
             registerObjectRead(result, newHandle, unshared);
             registeredResult = result;
         } else {
@@ -2284,17 +2256,12 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     }
 
     /**
-     * Return the object previously read tagged with handle {@code handle}.
-     *
-     * @param handle
-     *            The handle that this object was assigned when it was read.
-     * @return the object previously read.
-     *
+     * Returns the previously-read object corresponding to the given serialization handle.
      * @throws InvalidObjectException
-     *             If there is no previously read object with this handle
+     *             If there is no previously-read object with this handle
      */
-    private Object registeredObjectRead(Integer handle) throws InvalidObjectException {
-        Object res = objectsRead.get(handle);
+    private Object registeredObjectRead(int handle) throws InvalidObjectException {
+        Object res = objectsRead.get(handle - ObjectStreamConstants.baseWireHandle);
         if (res == UNSHARED_OBJ) {
             throw new InvalidObjectException("Cannot read back reference to unshared object");
         }
@@ -2302,20 +2269,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     }
 
     /**
-     * Assume object {@code obj} has been read, and assign a handle to
-     * it, {@code handle}.
-     *
-     * @param obj
-     *            Non-null object being loaded.
-     * @param handle
-     *            An Integer, the handle to this object
-     * @param unshared
-     *            Boolean, indicates that caller is reading in unshared mode
-     *
-     * @see #nextHandle
+     * Associates a read object with the its serialization handle.
      */
-    private void registerObjectRead(Object obj, Integer handle, boolean unshared) {
-        objectsRead.put(handle, unshared ? UNSHARED_OBJ : obj);
+    private void registerObjectRead(Object obj, int handle, boolean unshared) throws IOException {
+        if (unshared) {
+            obj = UNSHARED_OBJ;
+        }
+        int index = handle - ObjectStreamConstants.baseWireHandle;
+        if (index < objectsRead.size()) {
+            objectsRead.set(index, obj);
+        } else if (index == objectsRead.size()) {
+            objectsRead.add(obj);
+        } else {
+            throw new StreamCorruptedException("non-dense use of serialization handles; " +
+                    "objectsRead.size()=" + objectsRead.size() + " index=" + index);
+        }
     }
 
     /**
@@ -2384,7 +2352,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * Reset the collection of objects already loaded by the receiver.
      */
     private void resetSeenObjects() {
-        objectsRead = new HashMap<Integer, Object>();
+        objectsRead = new ArrayList<Object>();
         nextHandle = baseWireHandle;
         primitiveData = emptyStream;
     }

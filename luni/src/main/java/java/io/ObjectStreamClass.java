@@ -149,6 +149,7 @@ public class ObjectStreamClass implements Serializable {
     private transient Class<?> resolvedClass;
 
     private transient Class<?> resolvedConstructorClass;
+    private transient int resolvedConstructorMethodId;
 
     // Serial version UID of the class the descriptor represents
     private transient long svUID;
@@ -648,7 +649,19 @@ public class ObjectStreamClass implements Serializable {
         return resolvedClass;
     }
 
-    Class<?> resolveConstructorClass(Class<?> objectClass) throws OptionalDataException, ClassNotFoundException, IOException {
+    /**
+     * Create and return a new instance of class 'instantiationClass'
+     * using JNI to call the constructor chosen by resolveConstructorClass.
+     *
+     * The returned instance may have uninitialized fields, including final fields.
+     */
+    Object newInstance(Class<?> instantiationClass) throws InvalidClassException {
+        resolveConstructorClass(instantiationClass);
+        return newInstance(instantiationClass, resolvedConstructorMethodId);
+    }
+    private static native Object newInstance(Class<?> instantiationClass, int methodId);
+
+    private Class<?> resolveConstructorClass(Class<?> objectClass) throws InvalidClassException {
         if (resolvedConstructorClass != null) {
             return resolvedConstructorClass;
         }
@@ -710,8 +723,10 @@ public class ObjectStreamClass implements Serializable {
         }
 
         resolvedConstructorClass = constructorClass;
+        resolvedConstructorMethodId = getConstructorId(resolvedConstructorClass);
         return constructorClass;
     }
+    private static native int getConstructorId(Class<?> c);
 
     /**
      * Checks if two classes belong to the same package.
