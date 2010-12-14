@@ -51,9 +51,9 @@ import libcore.base.Objects;
  * UnsupportedOperationException}.
  *
  * <p>This class offers extended API beyond the {@link List} interface. It
- * includes additional overloads for indexed search ({@link
- * #indexOf(Object, int)} and {@link #indexOf(Object, int)}) and methods for
- * conditional adds ({@link #addIfAbsent} and {@link #addAllAbsent}).
+ * includes additional overloads for indexed search ({@link #indexOf} and {@link
+ * #lastIndexOf}) and methods for conditional adds ({@link #addIfAbsent} and
+ * {@link #addAllAbsent}).
  */
 public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable, Serializable {
 
