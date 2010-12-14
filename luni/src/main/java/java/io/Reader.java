@@ -223,7 +223,7 @@ public abstract class Reader implements Readable, Closeable {
      */
     public long skip(long charCount) throws IOException {
         if (charCount < 0) {
-            throw new IllegalArgumentException("charCount < 0");
+            throw new IllegalArgumentException("charCount < 0: " + charCount);
         }
         synchronized (lock) {
             long skipped = 0;

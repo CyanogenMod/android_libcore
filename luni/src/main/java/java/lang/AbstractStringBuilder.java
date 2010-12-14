@@ -154,7 +154,7 @@ abstract class AbstractStringBuilder {
         if (s == null) {
             s = "null";
         }
-        if (start < 0 || end < 0 || start > end || end > s.length()) {
+        if ((start | end) < 0 || start > end || end > s.length()) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -369,7 +369,7 @@ abstract class AbstractStringBuilder {
         if (s == null) {
             s = "null";
         }
-        if (index < 0 || index > count || start < 0 || end < 0 || start > end || end > s.length()) {
+        if ((index | start | end) < 0 || index > count || start > end || end > s.length()) {
             throw new IndexOutOfBoundsException();
         }
         insert0(index, s.subSequence(start, end).toString());

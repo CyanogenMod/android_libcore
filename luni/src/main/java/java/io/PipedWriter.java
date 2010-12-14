@@ -15,15 +15,9 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've made several changes including:
-//  - move checks into the synchronized method in PipedReader
-//  - reply on PipedReader's isClosed field (rather than having 2 flags)
-//  - avoid shallow concurrency problems
-//  - improved consistency with PipedOutputStream
-// END android-note
-
 package java.io;
+
+import java.util.Arrays;
 
 /**
  * Places information on a communications pipe. When two threads want to pass

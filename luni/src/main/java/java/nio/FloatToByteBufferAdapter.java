@@ -90,9 +90,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public float get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getFloat(index * SizeOf.FLOAT);
     }
 
@@ -150,9 +148,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public FloatBuffer put(int index, float c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putFloat(index * SizeOf.FLOAT, c);
         return this;
     }

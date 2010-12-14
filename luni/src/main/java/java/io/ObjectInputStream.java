@@ -50,8 +50,7 @@ import org.apache.harmony.luni.util.PriviAction;
  * @see Serializable
  * @see Externalizable
  */
-public class ObjectInputStream extends InputStream implements ObjectInput,
-        ObjectStreamConstants {
+public class ObjectInputStream extends InputStream implements ObjectInput, ObjectStreamConstants {
 
     // BEGIN android-note
     // this is non-static to avoid sync contention. Would static be faster?
@@ -546,32 +545,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         boolean originalValue = enableResolve;
         enableResolve = enable;
         return originalValue;
-    }
-
-    /**
-     * Checks if two classes belong to the same package.
-     *
-     * @param c1
-     *            one of the classes to test.
-     * @param c2
-     *            the other class to test.
-     * @return {@code true} if the two classes belong to the same package,
-     *         {@code false} otherwise.
-     */
-    private boolean inSamePackage(Class<?> c1, Class<?> c2) {
-        String nameC1 = c1.getName();
-        String nameC2 = c2.getName();
-        int indexDotC1 = nameC1.lastIndexOf('.');
-        int indexDotC2 = nameC2.lastIndexOf('.');
-        if (indexDotC1 != indexDotC2) {
-            return false; // cannot be in the same package if indices are not
-        }
-        // the same
-        if (indexDotC1 < 0) {
-            return true; // both of them are in default package
-        }
-        return nameC1.substring(0, indexDotC1).equals(
-                nameC2.substring(0, indexDotC2));
     }
 
     // BEGIN android-added
@@ -1481,7 +1454,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         currentObject = object;
         currentClass = classDesc;
 
-        boolean hadWriteMethod = (classDesc.getFlags() & SC_WRITE_METHOD) > 0;
+        boolean hadWriteMethod = (classDesc.getFlags() & SC_WRITE_METHOD) != 0;
         Class<?> targetClass = classDesc.forClass();
 
         final Method readMethod;
@@ -1927,69 +1900,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         return input.readInt();
     }
 
-    private Class<?> resolveConstructorClass(Class<?> objectClass, boolean wasSerializable, boolean wasExternalizable)
-        throws OptionalDataException, ClassNotFoundException, IOException {
-
-            // The class of the instance may not be the same as the class of the
-            // constructor to run
-            // This is the constructor to run if Externalizable
-            Class<?> constructorClass = objectClass;
-
-            // WARNING - What if the object is serializable and externalizable ?
-            // Is that possible ?
-            if (wasSerializable) {
-                // Now we must run the constructor of the class just above the
-                // one that implements Serializable so that slots that were not
-                // dumped can be initialized properly
-                while (constructorClass != null
-                        && ObjectStreamClass.isSerializable(constructorClass)) {
-                    constructorClass = constructorClass.getSuperclass();
-                }
-            }
-
-            // Fetch the empty constructor, or null if none.
-            Constructor<?> constructor = null;
-            if (constructorClass != null) {
-                try {
-                    constructor = constructorClass.getDeclaredConstructor(EmptyArray.CLASS);
-                } catch (NoSuchMethodException nsmEx) {
-                    // Ignored
-                }
-            }
-
-            // Has to have an empty constructor
-            if (constructor == null) {
-                String className = constructorClass != null ? constructorClass.getName() : null;
-                throw new InvalidClassException(className, "IllegalAccessException");
-            }
-
-            int constructorModifiers = constructor.getModifiers();
-
-            // Now we must check if the empty constructor is visible to the
-            // instantiation class
-            if (Modifier.isPrivate(constructorModifiers)
-                    || (wasExternalizable && !Modifier.isPublic(constructorModifiers))) {
-                throw new InvalidClassException(constructorClass.getName(),
-                        "IllegalAccessException");
-            }
-
-            // We know we are testing from a subclass, so the only other case
-            // where the visibility is not allowed is when the constructor has
-            // default visibility and the instantiation class is in a different
-            // package than the constructor class
-            if (!Modifier.isPublic(constructorModifiers)
-                    && !Modifier.isProtected(constructorModifiers)) {
-                // Not public, not private and not protected...means default
-                // visibility. Check if same package
-                if (!inSamePackage(constructorClass, objectClass)) {
-                    throw new InvalidClassException(constructorClass.getName(),
-                            "IllegalAccessException");
-                }
-            }
-
-            return constructorClass;
-    }
-
     /**
      * Read a new object from the stream. It is assumed the object has not been
      * loaded yet (not a cyclic reference). Return the object read.
@@ -2021,31 +1931,15 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         }
 
         Integer newHandle = nextHandle();
-
-        // Note that these values come from the Stream, and in fact it could be
-        // that the classes have been changed so that the info below now
-        // conflicts with the newer class
-        boolean wasExternalizable = (classDesc.getFlags() & SC_EXTERNALIZABLE) > 0;
-        boolean wasSerializable = (classDesc.getFlags() & SC_SERIALIZABLE) > 0;
-
-
-        // Maybe we should cache the values above in classDesc ? It may be the
-        // case that when reading classDesc we may need to read more stuff
-        // depending on the values above
         Class<?> objectClass = classDesc.forClass();
-
-        Object result, registeredResult = null;
+        Object result = null;
+        Object registeredResult = null;
         if (objectClass != null) {
-            Class constructorClass = resolveConstructorClass(objectClass, wasSerializable, wasExternalizable);
-
             // Now we know which class to instantiate and which constructor to
             // run. We are allowed to run the constructor.
-            // BEGIN android-changed
-            // result = accessor.newInstance(objectClass, constructor, null);
+            Class constructorClass = classDesc.resolveConstructorClass(objectClass);
             result = newInstance(objectClass, constructorClass);
-            // END android-changed
             registerObjectRead(result, newHandle, unshared);
-
             registeredResult = result;
         } else {
             result = null;
@@ -2060,8 +1954,12 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
             currentClass = classDesc;
 
             // If Externalizable, just let the object read itself
+            // Note that this value comes from the Stream, and in fact it could be
+            // that the classes have been changed so that the info below now
+            // conflicts with the newer class
+            boolean wasExternalizable = (classDesc.getFlags() & SC_EXTERNALIZABLE) != 0;
             if (wasExternalizable) {
-                boolean blockData = (classDesc.getFlags() & SC_BLOCK_DATA) > 0;
+                boolean blockData = (classDesc.getFlags() & SC_BLOCK_DATA) != 0;
                 if (!blockData) {
                     primitiveData = input;
                 }

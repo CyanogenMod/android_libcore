@@ -34,6 +34,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Arrays;
 import libcore.base.EmptyArray;
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
@@ -382,9 +383,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
     @Override
     public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
-        if (length < 0 || offset < 0 || (long) length + (long) offset > targets.length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(targets.length, offset, length);
 
         // status must be open and connected
         checkOpenConnected();
@@ -480,10 +479,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      */
     @Override
     public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
-        if (length < 0 || offset < 0
-                || (long) length + (long) offset > sources.length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(sources.length, offset, length);
 
         // status must be open and connected
         checkOpenConnected();

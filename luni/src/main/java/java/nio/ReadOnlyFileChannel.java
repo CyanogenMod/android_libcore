@@ -23,6 +23,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Arrays;
 
 final class ReadOnlyFileChannel extends FileChannelImpl {
     public ReadOnlyFileChannel(Object stream, int handle) {
@@ -44,11 +45,8 @@ final class ReadOnlyFileChannel extends FileChannelImpl {
         throw new NonWritableChannelException();
     }
 
-    public final long write(ByteBuffer[] buffers, int offset, int length)
-            throws IOException {
-        if (offset < 0 || length < 0 || (offset + length) > buffers.length) {
-            throw new IndexOutOfBoundsException();
-        }
+    public final long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
+        Arrays.checkOffsetAndCount(buffers.length, offset, length);
         openCheck();
         throw new NonWritableChannelException();
     }

@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * The base class for all output streams. An output stream is a means of writing
  * data to a target in a byte-wise manner. Most output streams expect the
@@ -99,23 +101,7 @@ public abstract class OutputStream implements Closeable, Flushable {
      *             {@code buffer}.
      */
     public void write(byte[] buffer, int offset, int count) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        // avoid int overflow, check null buffer
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, made implicit null check explicit,
-        // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
-        // to safe one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         for (int i = offset; i < offset + count; i++) {
             write(buffer[i]);
         }

@@ -59,18 +59,12 @@ abstract class ShortArrayBuffer extends ShortBuffer {
 
     @Override
     public final short get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || shortCount < 0 || (long) dstOffset + (long) shortCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (shortCount > remaining()) {
             throw new BufferUnderflowException();
         }

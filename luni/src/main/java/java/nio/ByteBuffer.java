@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer for bytes.
  * <p>
@@ -98,10 +100,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *                if either {@code start} or {@code byteCount} is invalid.
      */
     public static ByteBuffer wrap(byte[] array, int start, int byteCount) {
-        int length = array.length;
-        if (start < 0 || byteCount < 0 || (long) start + (long) byteCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(array.length, start, byteCount);
         ByteBuffer buf = new ReadWriteHeapByteBuffer(array);
         buf.position = start;
         buf.limit = start + byteCount;
@@ -402,10 +401,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @exception BufferUnderflowException if {@code byteCount > remaining()}
      */
     public ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || byteCount < 0 || (long) dstOffset + (long) byteCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, byteCount);
         if (byteCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -737,10 +733,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *                if no changes may be made to the contents of this buffer.
      */
     public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
-        int length = src.length;
-        if (srcOffset < 0 || byteCount < 0 || (long) srcOffset + (long) byteCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, byteCount);
         if (byteCount > remaining()) {
             throw new BufferOverflowException();
         }

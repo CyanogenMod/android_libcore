@@ -21,6 +21,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class Streams {
@@ -41,10 +42,7 @@ public final class Streams {
         if (dst == null) {
             throw new NullPointerException("dst == null");
         }
-        if ((offset | byteCount) < 0 || offset > dst.length - byteCount) {
-            throw new IndexOutOfBoundsException("offset=" + offset + " byteCount=" + byteCount +
-                    " dst.length=" + dst.length);
-        }
+        Arrays.checkOffsetAndCount(dst.length, offset, byteCount);
         while (byteCount > 0) {
             int bytesRead = in.read(dst, offset, byteCount);
             if (bytesRead < 0) {

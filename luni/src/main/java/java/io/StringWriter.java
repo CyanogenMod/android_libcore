@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * A specialized {@link Writer} that writes characters to a {@code StringBuffer}
  * in a sequential manner, appending them in the process. The result can later
@@ -115,19 +117,7 @@ public class StringWriter extends Writer {
      */
     @Override
     public void write(char[] chars, int offset, int count) {
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, added null check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
-        if (chars == null) {
-            throw new NullPointerException("chars == null");
-        }
-        if ((offset | count) < 0 || count > chars.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
+        Arrays.checkOffsetAndCount(chars.length, offset, count);
         if (count == 0) {
             return;
         }

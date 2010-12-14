@@ -178,23 +178,15 @@ public final class DatagramPacket {
 
     /**
      * Sets the data buffer for this datagram packet.
-     *
-     * @param buf
-     *            the buffer to store the data.
-     * @param anOffset
-     *            the buffer offset where the data is stored.
-     * @param aLength
-     *            the length of the data to be sent or the length of buffer to
-     *            store the received data.
      */
-    public synchronized void setData(byte[] buf, int anOffset, int aLength) {
-        if (anOffset < 0 || anOffset > buf.length || aLength < 0 || aLength > buf.length - anOffset) {
+    public synchronized void setData(byte[] data, int offset, int byteCount) {
+        if ((offset | byteCount) < 0 || offset > data.length || byteCount > data.length - offset) {
             throw new IllegalArgumentException();
         }
-        data = buf;
-        offset = anOffset;
-        length = aLength;
-        capacity = aLength;
+        this.data = data;
+        this.offset = offset;
+        this.length = byteCount;
+        this.capacity = byteCount;
     }
 
     /**
@@ -224,15 +216,12 @@ public final class DatagramPacket {
      * Sets the length of the datagram packet. This length plus the offset must
      * be lesser than or equal to the buffer size.
      *
-     * @param len
+     * @param length
      *            the length of this datagram packet.
      */
-    public synchronized void setLength(int len) {
-        if (len < 0 || offset + len > data.length) {
-            throw new IndexOutOfBoundsException();
-        }
-        length = len;
-        capacity = len;
+    public synchronized void setLength(int length) {
+        setLengthOnly(length);
+        this.capacity = length;
     }
 
     /**
@@ -241,11 +230,12 @@ public final class DatagramPacket {
      *
      * @param len the length of this datagram packet
      */
-    synchronized void setLengthOnly(int len) {
-        if (len < 0 || offset + len > data.length) {
-            throw new IndexOutOfBoundsException();
+    synchronized void setLengthOnly(int length) {
+        if (length < 0 || offset + length > data.length) {
+            throw new IndexOutOfBoundsException("length=" + length + ", offset=" + offset +
+                    ", buffer size=" + data.length);
         }
-        length = len;
+        this.length = length;
     }
 
     /**

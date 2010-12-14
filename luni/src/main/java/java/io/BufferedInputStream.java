@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Wraps an existing {@link InputStream} and <em>buffers</em> the input.
  * Expensive interaction with the underlying input stream is minimized, since
@@ -241,7 +243,7 @@ public class BufferedInputStream extends FilterInputStream {
     }
 
     /**
-     * Reads at most {@code length} bytes from this stream and stores them in
+     * Reads at most {@code byteCount} bytes from this stream and stores them in
      * byte array {@code buffer} starting at offset {@code offset}. Returns the
      * number of bytes actually read or -1 if no bytes were read and the end of
      * the stream was encountered. If all the buffered bytes have been used, a
@@ -251,42 +253,25 @@ public class BufferedInputStream extends FilterInputStream {
      *
      * @param buffer
      *            the byte array in which to store the bytes read.
-     * @param offset
-     *            the initial position in {@code buffer} to store the bytes read
-     *            from this stream.
-     * @param length
-     *            the maximum number of bytes to store in {@code buffer}.
      * @return the number of bytes actually read or -1 if end of stream.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code length < 0}, or if
-     *             {@code offset + length} is greater than the size of
+     *             if {@code offset < 0} or {@code byteCount < 0}, or if
+     *             {@code offset + byteCount} is greater than the size of
      *             {@code buffer}.
      * @throws IOException
      *             if the stream is already closed or another IOException
      *             occurs.
      */
     @Override
-    public synchronized int read(byte[] buffer, int offset, int length) throws IOException {
+    public synchronized int read(byte[] buffer, int offset, int byteCount) throws IOException {
         // Use local ref since buf may be invalidated by an unsynchronized
         // close()
         byte[] localBuf = buf;
         if (localBuf == null) {
             throw streamClosed();
         }
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // made implicit null check explicit, used (offset | length) < 0
-        // instead of (offset < 0) || (length < 0) to safe one operation
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException();
-        }
-        // END android-changed
-        if (length == 0) {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        if (byteCount == 0) {
             return 0;
         }
         InputStream localIn = in;
@@ -297,16 +282,16 @@ public class BufferedInputStream extends FilterInputStream {
         int required;
         if (pos < count) {
             /* There are bytes available in the buffer. */
-            int copylength = count - pos >= length ? length : count - pos;
+            int copylength = count - pos >= byteCount ? byteCount : count - pos;
             System.arraycopy(localBuf, pos, buffer, offset, copylength);
             pos += copylength;
-            if (copylength == length || localIn.available() == 0) {
+            if (copylength == byteCount || localIn.available() == 0) {
                 return copylength;
             }
             offset += copylength;
-            required = length - copylength;
+            required = byteCount - copylength;
         } else {
-            required = length;
+            required = byteCount;
         }
 
         while (true) {
@@ -318,11 +303,11 @@ public class BufferedInputStream extends FilterInputStream {
             if (markpos == -1 && required >= localBuf.length) {
                 read = localIn.read(buffer, offset, required);
                 if (read == -1) {
-                    return required == length ? -1 : length - required;
+                    return required == byteCount ? -1 : byteCount - required;
                 }
             } else {
                 if (fillbuf(localIn, localBuf) == -1) {
-                    return required == length ? -1 : length - required;
+                    return required == byteCount ? -1 : byteCount - required;
                 }
                 // localBuf may have been invalidated by fillbuf
                 if (localBuf != buf) {
@@ -338,10 +323,10 @@ public class BufferedInputStream extends FilterInputStream {
             }
             required -= read;
             if (required == 0) {
-                return length;
+                return byteCount;
             }
             if (localIn.available() == 0) {
-                return length - required;
+                return byteCount - required;
             }
             offset += read;
         }

@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer of longs.
  * <p>
@@ -82,17 +84,10 @@ public abstract class LongBuffer extends Buffer implements
      *                if either {@code start} or {@code longCount} is invalid.
      */
     public static LongBuffer wrap(long[] array, int start, int longCount) {
-        if (array == null) {
-            throw new NullPointerException();
-        }
-        if (start < 0 || longCount < 0 || (long) longCount + (long) start > array.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(array.length, start, longCount);
         LongBuffer buf = new ReadWriteLongArrayBuffer(array);
         buf.position = start;
         buf.limit = start + longCount;
-
         return buf;
     }
 
@@ -263,10 +258,7 @@ public abstract class LongBuffer extends Buffer implements
      *                if {@code longCount} is greater than {@code remaining()}.
      */
     public LongBuffer get(long[] dst, int dstOffset, int longCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || longCount < 0 || (long) longCount + (long) dstOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, longCount);
         if (longCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -409,10 +401,7 @@ public abstract class LongBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public LongBuffer put(long[] src, int srcOffset, int longCount) {
-        int length = src.length;
-        if (srcOffset < 0 || longCount < 0 || (long) longCount + (long) srcOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, longCount);
         if (longCount > remaining()) {
             throw new BufferOverflowException();
         }

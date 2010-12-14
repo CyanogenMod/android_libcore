@@ -102,19 +102,13 @@ final class ReadWriteDoubleArrayBuffer extends DoubleArrayBuffer {
 
     @Override
     public DoubleBuffer put(int index, double c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
-        int length = src.length;
-        if (srcOffset < 0 || doubleCount < 0 || (long) srcOffset + (long) doubleCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (doubleCount > remaining()) {
             throw new BufferOverflowException();
         }

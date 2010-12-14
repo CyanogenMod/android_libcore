@@ -260,7 +260,7 @@ public class LineNumberReader extends BufferedReader {
     @Override
     public long skip(long charCount) throws IOException {
         if (charCount < 0) {
-            throw new IllegalArgumentException("charCount < 0");
+            throw new IllegalArgumentException("charCount < 0: " + charCount);
         }
         synchronized (lock) {
             for (int i = 0; i < charCount; i++) {

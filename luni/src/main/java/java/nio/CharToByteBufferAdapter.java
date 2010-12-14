@@ -91,9 +91,7 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public char get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return byteBuffer.getChar(index * SizeOf.CHAR);
     }
 
@@ -151,9 +149,7 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public CharBuffer put(int index, char c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         byteBuffer.putChar(index * SizeOf.CHAR, c);
         return this;
     }
@@ -182,10 +178,7 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        if (start < 0 || end < start || end > remaining()) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        checkStartEndRemaining(start, end);
         CharBuffer result = duplicate();
         result.limit(position + end);
         result.position(position + start);

@@ -27,6 +27,7 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -264,9 +265,7 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
-        if (offset < 0 || length < 0 || offset + length > buffers.length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buffers.length, offset, length);
         openCheck();
         int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, true);
         if (count == 0) {
@@ -506,9 +505,7 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
-        if (offset < 0 || length < 0 || (offset + length) > buffers.length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buffers.length, offset, length);
         openCheck();
         int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, false);
         if (count == 0) {

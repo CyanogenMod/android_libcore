@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Arrays;
+
 /**
  * Receives information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped writer and the other creates a piped
@@ -233,12 +235,7 @@ public class PipedReader extends Reader {
         if (this.buffer == null) {
             throw new IOException("Pipe is closed");
         }
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, count);
         if (count == 0) {
             return 0;
         }
@@ -270,8 +267,7 @@ public class PipedReader extends Reader {
         int copyLength = 0;
         /* Copy chars from out to end of buffer first */
         if (out >= in) {
-            copyLength = count > this.buffer.length - out ? this.buffer.length - out
-                    : count;
+            copyLength = count > this.buffer.length - out ? this.buffer.length - out : count;
             System.arraycopy(this.buffer, out, buffer, offset, copyLength);
             out += copyLength;
             if (out == this.buffer.length) {
@@ -294,10 +290,8 @@ public class PipedReader extends Reader {
 
         int charsCopied = copyLength;
         /* Copy bytes from 0 to the number of available bytes */
-        copyLength = in - out > count - copyLength ? count - copyLength
-                : in - out;
-        System.arraycopy(this.buffer, out, buffer, offset + charsCopied,
-                copyLength);
+        copyLength = in - out > count - copyLength ? count - copyLength : in - out;
+        System.arraycopy(this.buffer, out, buffer, offset + charsCopied, copyLength);
         out += copyLength;
         if (out == in) {
             // empty buffer
@@ -389,24 +383,12 @@ public class PipedReader extends Reader {
      * If the buffer is full and the thread sending #receive is interrupted, the
      * InterruptedIOException will be thrown.
      *
-     * @param chars
-     *            the char array to store into the pipe.
-     * @param offset
-     *            offset to start reading from
-     * @param count
-     *            total characters to read
-     *
      * @throws IOException
      *             If the stream is already closed or another IOException
      *             occurs.
      */
     synchronized void receive(char[] chars, int offset, int count) throws IOException {
-        if (chars == null) {
-            throw new NullPointerException("chars == null");
-        }
-        if ((offset | count) < 0 || count > chars.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(chars.length, offset, count);
         if (buffer == null) {
             throw new IOException("Pipe is closed");
         }

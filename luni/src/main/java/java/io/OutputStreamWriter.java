@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.util.Arrays;
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
@@ -212,15 +213,7 @@ public class OutputStreamWriter extends Writer {
     public void write(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             checkStatus();
-            if (offset < 0) {
-                throw new IndexOutOfBoundsException();
-            }
-            if (buffer == null) {
-                throw new NullPointerException("buffer == null");
-            }
-            if (count < 0 || offset > buffer.length - count) {
-                throw new IndexOutOfBoundsException();
-            }
+            Arrays.checkOffsetAndCount(buffer.length, offset, count);
             CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
         }

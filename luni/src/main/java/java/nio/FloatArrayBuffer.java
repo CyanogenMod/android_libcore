@@ -59,18 +59,12 @@ abstract class FloatArrayBuffer extends FloatBuffer {
 
     @Override
     public final float get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || floatCount < 0 || (long) dstOffset + (long) floatCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (floatCount > remaining()) {
             throw new BufferUnderflowException();
         }

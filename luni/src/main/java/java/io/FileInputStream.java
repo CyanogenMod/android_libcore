@@ -20,6 +20,7 @@ package java.io;
 import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
@@ -195,19 +196,14 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int count) throws IOException {
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
-        if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (count == 0) {
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        if (byteCount == 0) {
             return 0;
         }
         checkOpen();
         synchronized (repositioningLock) {
-            return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, count);
+            return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, byteCount);
         }
     }
 
@@ -219,7 +215,7 @@ public class FileInputStream extends InputStream implements Closeable {
             return 0;
         }
         if (byteCount < 0) {
-            throw new IOException("byteCount < 0");
+            throw new IOException("byteCount < 0: " + byteCount);
         }
 
         // The RI doesn't treat stdin as special. It throws IOException for

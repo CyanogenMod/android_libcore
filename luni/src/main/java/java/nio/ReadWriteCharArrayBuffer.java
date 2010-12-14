@@ -101,19 +101,13 @@ final class ReadWriteCharArrayBuffer extends CharArrayBuffer {
 
     @Override
     public CharBuffer put(int index, char c) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         backingArray[offset + index] = c;
         return this;
     }
 
     @Override
     public CharBuffer put(char[] src, int srcOffset, int charCount) {
-        int length = src.length;
-        if (srcOffset < 0 || charCount < 0 || (long) charCount + (long) srcOffset > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (charCount > remaining()) {
             throw new BufferOverflowException();
         }

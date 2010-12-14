@@ -183,19 +183,7 @@ public class PushbackReader extends FilterReader {
     public int read(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             checkNotClosed();
-            // avoid int overflow
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from
-            // RI, but are spec-compliant.
-            // made implicit null check explicit, used (offset | count) < 0
-            // instead of (offset < 0) || (count < 0) to safe one operation
-            if (buffer == null) {
-                throw new NullPointerException("buffer == null");
-            }
-            if ((offset | count) < 0 || offset > buffer.length - count) {
-                throw new IndexOutOfBoundsException();
-            }
-            // END android-changed
+            Arrays.checkOffsetAndCount(buffer.length, offset, count);
 
             int copiedChars = 0;
             int copyLength = 0;
@@ -363,7 +351,7 @@ public class PushbackReader extends FilterReader {
     @Override
     public long skip(long charCount) throws IOException {
         if (charCount < 0) {
-            throw new IllegalArgumentException("charCount < 0");
+            throw new IllegalArgumentException("charCount < 0: " + charCount);
         }
         synchronized (lock) {
             checkNotClosed();

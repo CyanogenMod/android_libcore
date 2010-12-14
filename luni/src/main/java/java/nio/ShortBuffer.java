@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * A buffer of shorts.
  * <p>
@@ -82,17 +84,10 @@ public abstract class ShortBuffer extends Buffer implements
      *                if either {@code start} or {@code shortCount} is invalid.
      */
     public static ShortBuffer wrap(short[] array, int start, int shortCount) {
-        if (array == null) {
-            throw new NullPointerException();
-        }
-        if (start < 0 || shortCount < 0 || (long) start + (long) shortCount > array.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        Arrays.checkOffsetAndCount(array.length, start, shortCount);
         ShortBuffer buf = new ReadWriteShortArrayBuffer(array);
         buf.position = start;
         buf.limit = start + shortCount;
-
         return buf;
     }
 
@@ -263,9 +258,7 @@ public abstract class ShortBuffer extends Buffer implements
      */
     public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
         int length = dst.length;
-        if (dstOffset < 0 || shortCount < 0 || (long) dstOffset + (long) shortCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, shortCount);
         if (shortCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -407,9 +400,7 @@ public abstract class ShortBuffer extends Buffer implements
      */
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
         int length = src.length;
-        if (srcOffset < 0 || shortCount < 0 || (long) srcOffset + (long) shortCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(src.length, srcOffset, shortCount);
         if (shortCount > remaining()) {
             throw new BufferOverflowException();
         }

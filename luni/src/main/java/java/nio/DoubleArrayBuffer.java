@@ -59,18 +59,12 @@ abstract class DoubleArrayBuffer extends DoubleBuffer {
 
     @Override
     public final double get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return backingArray[offset + index];
     }
 
     @Override
     public final DoubleBuffer get(double[] dst, int dstOffset, int doubleCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || doubleCount < 0 || (long) dstOffset + (long) doubleCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
         if (doubleCount > remaining()) {
             throw new BufferUnderflowException();
         }

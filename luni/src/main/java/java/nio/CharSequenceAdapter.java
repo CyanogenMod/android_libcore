@@ -17,6 +17,8 @@
 
 package java.nio;
 
+import java.util.Arrays;
+
 /**
  * This class wraps a char sequence to be a char buffer.
  * <p>
@@ -69,18 +71,13 @@ final class CharSequenceAdapter extends CharBuffer {
 
     @Override
     public char get(int index) {
-        if (index < 0 || index >= limit) {
-            throw new IndexOutOfBoundsException();
-        }
+        checkIndex(index);
         return sequence.charAt(index);
     }
 
     @Override
     public final CharBuffer get(char[] dst, int dstOffset, int charCount) {
-        int length = dst.length;
-        if (dstOffset < 0 || charCount < 0 || (long) dstOffset + (long) charCount > length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Arrays.checkOffsetAndCount(dst.length, dstOffset, charCount);
         if (charCount > remaining()) {
             throw new BufferUnderflowException();
         }
@@ -132,22 +129,11 @@ final class CharSequenceAdapter extends CharBuffer {
 
     @Override
     public final CharBuffer put(char[] src, int srcOffset, int charCount) {
-        if (srcOffset < 0 || charCount < 0 || (long) srcOffset + (long) charCount > src.length) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        if (charCount > remaining()) {
-            throw new BufferOverflowException();
-        }
-
         throw new ReadOnlyBufferException();
     }
 
     @Override
     public CharBuffer put(String src, int start, int end) {
-        if (start < 0 || end < 0 || (long) start + (long) end > src.length()) {
-            throw new IndexOutOfBoundsException();
-        }
         throw new ReadOnlyBufferException();
     }
 
@@ -158,10 +144,7 @@ final class CharSequenceAdapter extends CharBuffer {
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        if (end < start || start < 0 || end > remaining()) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        checkStartEndRemaining(start, end);
         CharSequenceAdapter result = copy(this);
         result.position = position + start;
         result.limit = position + end;
