@@ -6,9 +6,7 @@
  */
 
 package java.util.concurrent;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.*;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -328,7 +326,9 @@ public class Exchanger<V> {
             else if (y == null &&                 // Try to occupy
                      slot.compareAndSet(null, me)) {
                 if (index == 0)                   // Blocking wait for slot 0
-                    return timed? awaitNanos(me, slot, nanos): await(me, slot);
+                    return timed ?
+                        awaitNanos(me, slot, nanos) :
+                        await(me, slot);
                 Object v = spinWait(me, slot);    // Spin wait for non-0
                 if (v != CANCEL)
                     return v;
@@ -570,8 +570,8 @@ public class Exchanger<V> {
      * dormant until one of two things happens:
      * <ul>
      * <li>Some other thread enters the exchange; or
-     * <li>Some other thread {@linkplain Thread#interrupt interrupts} the current
-     * thread.
+     * <li>Some other thread {@linkplain Thread#interrupt interrupts}
+     * the current thread.
      * </ul>
      * <p>If the current thread:
      * <ul>
@@ -589,7 +589,7 @@ public class Exchanger<V> {
      */
     public V exchange(V x) throws InterruptedException {
         if (!Thread.interrupted()) {
-            Object v = doExchange(x == null? NULL_ITEM : x, false, 0);
+            Object v = doExchange((x == null) ? NULL_ITEM : x, false, 0);
             if (v == NULL_ITEM)
                 return null;
             if (v != CANCEL)
@@ -644,7 +644,7 @@ public class Exchanger<V> {
     public V exchange(V x, long timeout, TimeUnit unit)
         throws InterruptedException, TimeoutException {
         if (!Thread.interrupted()) {
-            Object v = doExchange(x == null? NULL_ITEM : x,
+            Object v = doExchange((x == null) ? NULL_ITEM : x,
                                   true, unit.toNanos(timeout));
             if (v == NULL_ITEM)
                 return null;

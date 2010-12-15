@@ -6,11 +6,9 @@
 
 package java.util.concurrent.atomic;
 
-import dalvik.system.VMStack;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Modifier;
+import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
+import java.lang.reflect.*;
 
 /**
  * A reflection-based utility that enables atomic updates to
@@ -30,7 +28,7 @@ import sun.misc.Unsafe;
  * @author Doug Lea
  * @param <T> The type of the object holding the updatable field
  */
-public abstract class  AtomicLongFieldUpdater<T>  {
+public abstract class  AtomicLongFieldUpdater<T> {
     /**
      * Creates and returns an updater for objects with the given field.
      * The Class argument is needed to check that reflective types and
@@ -317,7 +315,7 @@ public abstract class  AtomicLongFieldUpdater<T>  {
             if (cclass.isInstance(obj)) {
                 return;
             }
-            throw new RuntimeException (
+            throw new RuntimeException(
                 new IllegalAccessException("Class " +
                     cclass.getName() +
                     " can not access a protected member of class " +
@@ -384,7 +382,7 @@ public abstract class  AtomicLongFieldUpdater<T>  {
 
         public boolean compareAndSet(T obj, long expect, long update) {
             if (obj == null || obj.getClass() != tclass || cclass != null) fullCheck(obj);
-            synchronized(this) {
+            synchronized (this) {
                 long v = unsafe.getLong(obj, offset);
                 if (v != expect)
                     return false;
@@ -399,7 +397,7 @@ public abstract class  AtomicLongFieldUpdater<T>  {
 
         public void set(T obj, long newValue) {
             if (obj == null || obj.getClass() != tclass || cclass != null) fullCheck(obj);
-            synchronized(this) {
+            synchronized (this) {
                 unsafe.putLong(obj, offset, newValue);
             }
         }
@@ -410,7 +408,7 @@ public abstract class  AtomicLongFieldUpdater<T>  {
 
         public long get(T obj) {
             if (obj == null || obj.getClass() != tclass || cclass != null) fullCheck(obj);
-            synchronized(this) {
+            synchronized (this) {
                 return unsafe.getLong(obj, offset);
             }
         }
@@ -419,7 +417,7 @@ public abstract class  AtomicLongFieldUpdater<T>  {
             if (cclass.isInstance(obj)) {
                 return;
             }
-            throw new RuntimeException (
+            throw new RuntimeException(
                 new IllegalAccessException("Class " +
                     cclass.getName() +
                     " can not access a protected member of class " +

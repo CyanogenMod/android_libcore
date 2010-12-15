@@ -4,6 +4,10 @@
  * http://creativecommons.org/licenses/publicdomain
  */
 
+// BEGIN android-note
+// Dropped references to unreleased APIs (ForkJoinPool, Phaser, etc.)
+// END android-note
+
 /**
  * Utility classes commonly useful in concurrent programming.  This
  * package includes a few small standardized extensible frameworks, as

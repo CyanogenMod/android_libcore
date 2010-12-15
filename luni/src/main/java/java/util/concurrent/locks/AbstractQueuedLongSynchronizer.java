@@ -5,11 +5,9 @@
  */
 
 package java.util.concurrent.locks;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 import sun.misc.Unsafe;
 
 /**
@@ -963,7 +961,8 @@ public abstract class AbstractQueuedLongSynchronizer
      *        can represent anything you like.
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final void acquireInterruptibly(long arg) throws InterruptedException {
+    public final void acquireInterruptibly(long arg)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (!tryAcquire(arg))
@@ -987,7 +986,8 @@ public abstract class AbstractQueuedLongSynchronizer
      * @return {@code true} if acquired; {@code false} if timed out
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final boolean tryAcquireNanos(long arg, long nanosTimeout) throws InterruptedException {
+    public final boolean tryAcquireNanos(long arg, long nanosTimeout)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquire(arg) ||
@@ -1043,7 +1043,8 @@ public abstract class AbstractQueuedLongSynchronizer
      * you like.
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final void acquireSharedInterruptibly(long arg) throws InterruptedException {
+    public final void acquireSharedInterruptibly(long arg)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (tryAcquireShared(arg) < 0)
@@ -1066,7 +1067,8 @@ public abstract class AbstractQueuedLongSynchronizer
      * @return {@code true} if acquired; {@code false} if timed out
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final boolean tryAcquireSharedNanos(long arg, long nanosTimeout) throws InterruptedException {
+    public final boolean tryAcquireSharedNanos(long arg, long nanosTimeout)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquireShared(arg) >= 0 ||
@@ -1436,7 +1438,6 @@ public abstract class AbstractQueuedLongSynchronizer
      * Transfers node, if necessary, to sync queue after a cancelled
      * wait. Returns true if thread was cancelled before being
      * signalled.
-     * @param current the waiting thread
      * @param node its node
      * @return true if cancelled before the node was signalled
      */
@@ -1814,7 +1815,8 @@ public abstract class AbstractQueuedLongSynchronizer
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * </ol>
          */
-        public final long awaitNanos(long nanosTimeout) throws InterruptedException {
+        public final long awaitNanos(long nanosTimeout)
+                throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
             Node node = addConditionWaiter();
@@ -1858,7 +1860,8 @@ public abstract class AbstractQueuedLongSynchronizer
          * <li> If timed out while blocked in step 4, return false, else true.
          * </ol>
          */
-        public final boolean awaitUntil(Date deadline) throws InterruptedException {
+        public final boolean awaitUntil(Date deadline)
+                throws InterruptedException {
             if (deadline == null)
                 throw new NullPointerException();
             long abstime = deadline.getTime();
@@ -1901,7 +1904,8 @@ public abstract class AbstractQueuedLongSynchronizer
          * <li> If timed out while blocked in step 4, return false, else true.
          * </ol>
          */
-        public final boolean await(long time, TimeUnit unit) throws InterruptedException {
+        public final boolean await(long time, TimeUnit unit)
+                throws InterruptedException {
             if (unit == null)
                 throw new NullPointerException();
             long nanosTimeout = unit.toNanos(time);
@@ -2057,7 +2061,7 @@ public abstract class AbstractQueuedLongSynchronizer
     /**
      * CAS waitStatus field of a node.
      */
-    private final static boolean compareAndSetWaitStatus(Node node,
+    private static final boolean compareAndSetWaitStatus(Node node,
                                                          int expect,
                                                          int update) {
         return unsafe.compareAndSwapInt(node, waitStatusOffset,
@@ -2067,7 +2071,7 @@ public abstract class AbstractQueuedLongSynchronizer
     /**
      * CAS next field of a node.
      */
-    private final static boolean compareAndSetNext(Node node,
+    private static final boolean compareAndSetNext(Node node,
                                                    Node expect,
                                                    Node update) {
         return unsafe.compareAndSwapObject(node, nextOffset, expect, update);
