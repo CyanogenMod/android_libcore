@@ -5,12 +5,9 @@
  */
 
 package java.util.concurrent.locks;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 import sun.misc.Unsafe;
 
 /**
@@ -128,7 +125,7 @@ import sun.misc.Unsafe;
  * disable barging by internally invoking one or more of the inspection
  * methods, thereby providing a <em>fair</em> FIFO acquisition order.
  * In particular, most fair synchronizers can define <tt>tryAcquire</tt>
- * to return <tt>false</tt> if {@code hasQueuedPredecessors} (a method
+ * to return <tt>false</tt> if {@link #hasQueuedPredecessors} (a method
  * specifically designed to be used by fair synchronizers) returns
  * <tt>true</tt>.  Other variations are possible.
  *
@@ -239,7 +236,7 @@ import sun.misc.Unsafe;
  *     boolean isSignalled() { return getState() != 0; }
  *
  *     protected int tryAcquireShared(int ignore) {
- *       return isSignalled()? 1 : -1;
+ *       return isSignalled() ? 1 : -1;
  *     }
  *
  *     protected boolean tryReleaseShared(int ignore) {
@@ -1187,7 +1184,8 @@ public abstract class AbstractQueuedSynchronizer
      *        can represent anything you like.
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final void acquireInterruptibly(int arg) throws InterruptedException {
+    public final void acquireInterruptibly(int arg)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (!tryAcquire(arg))
@@ -1211,7 +1209,8 @@ public abstract class AbstractQueuedSynchronizer
      * @return {@code true} if acquired; {@code false} if timed out
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final boolean tryAcquireNanos(int arg, long nanosTimeout) throws InterruptedException {
+    public final boolean tryAcquireNanos(int arg, long nanosTimeout)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquire(arg) ||
@@ -1267,7 +1266,8 @@ public abstract class AbstractQueuedSynchronizer
      * you like.
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final void acquireSharedInterruptibly(int arg) throws InterruptedException {
+    public final void acquireSharedInterruptibly(int arg)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (tryAcquireShared(arg) < 0)
@@ -1290,7 +1290,8 @@ public abstract class AbstractQueuedSynchronizer
      * @return {@code true} if acquired; {@code false} if timed out
      * @throws InterruptedException if the current thread is interrupted
      */
-    public final boolean tryAcquireSharedNanos(int arg, long nanosTimeout) throws InterruptedException {
+    public final boolean tryAcquireSharedNanos(int arg, long nanosTimeout)
+            throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquireShared(arg) >= 0 ||
@@ -2002,9 +2003,6 @@ public abstract class AbstractQueuedSynchronizer
          *      {@link #acquire} with saved state as argument.
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * </ol>
-         *
-         * @throws InterruptedException if the current thread is interrupted (and
-         * interruption of thread suspension is supported).
          */
         public final void await() throws InterruptedException {
             if (Thread.interrupted())
@@ -2038,17 +2036,9 @@ public abstract class AbstractQueuedSynchronizer
          *      {@link #acquire} with saved state as argument.
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * </ol>
-         *
-         * @param nanosTimeout the maximum time to wait, in nanoseconds
-         * @return A value less than or equal to zero if the wait has
-         * timed out; otherwise an estimate, that
-         * is strictly less than the <tt>nanosTimeout</tt> argument,
-         * of the time still remaining when this method returned.
-         *
-         * @throws InterruptedException if the current thread is interrupted (and
-         * interruption of thread suspension is supported).
          */
-        public final long awaitNanos(long nanosTimeout) throws InterruptedException {
+        public final long awaitNanos(long nanosTimeout)
+                throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
             Node node = addConditionWaiter();
@@ -2091,15 +2081,9 @@ public abstract class AbstractQueuedSynchronizer
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * <li> If timed out while blocked in step 4, return false, else true.
          * </ol>
-         *
-         * @param deadline the absolute time to wait until
-         * @return <tt>false</tt> if the deadline has
-         * elapsed upon return, else <tt>true</tt>.
-         *
-         * @throws InterruptedException if the current thread is interrupted (and
-         * interruption of thread suspension is supported).
          */
-        public final boolean awaitUntil(Date deadline) throws InterruptedException {
+        public final boolean awaitUntil(Date deadline)
+                throws InterruptedException {
             if (deadline == null)
                 throw new NullPointerException();
             long abstime = deadline.getTime();
@@ -2141,15 +2125,9 @@ public abstract class AbstractQueuedSynchronizer
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * <li> If timed out while blocked in step 4, return false, else true.
          * </ol>
-         *
-         * @param time the maximum time to wait
-         * @param unit the time unit of the <tt>time</tt> argument.
-         * @return <tt>false</tt> if the waiting time detectably elapsed
-         * before return from the method, else <tt>true</tt>.
-         * @throws InterruptedException if the current thread is interrupted (and
-         * interruption of thread suspension is supported).
          */
-        public final boolean await(long time, TimeUnit unit) throws InterruptedException {
+        public final boolean await(long time, TimeUnit unit)
+                throws InterruptedException {
             if (unit == null)
                 throw new NullPointerException();
             long nanosTimeout = unit.toNanos(time);
@@ -2307,7 +2285,7 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * CAS waitStatus field of a node.
      */
-    private final static boolean compareAndSetWaitStatus(Node node,
+    private static final boolean compareAndSetWaitStatus(Node node,
                                                          int expect,
                                                          int update) {
         return unsafe.compareAndSwapInt(node, waitStatusOffset,
@@ -2317,7 +2295,7 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * CAS next field of a node.
      */
-    private final static boolean compareAndSetNext(Node node,
+    private static final boolean compareAndSetNext(Node node,
                                                    Node expect,
                                                    Node update) {
         return unsafe.compareAndSwapObject(node, nextOffset, expect, update);

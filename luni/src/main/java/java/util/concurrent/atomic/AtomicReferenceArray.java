@@ -5,8 +5,8 @@
  */
 
 package java.util.concurrent.atomic;
-
 import sun.misc.Unsafe;
+import java.util.*;
 
 /**
  * An array of object references in which elements may be updated
@@ -22,8 +22,15 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
 
     private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
     private static final int base = unsafe.arrayBaseOffset(Object[].class);
-    private static final int scale = unsafe.arrayIndexScale(Object[].class);
+    private static final int shift;
     private final Object[] array;
+
+    static {
+        int scale = unsafe.arrayIndexScale(Object[].class);
+        if ((scale & (scale - 1)) != 0)
+            throw new Error("data type scale not a power of two");
+        shift = 31 - Integer.numberOfLeadingZeros(scale);
+    }
 
     private long checkedByteOffset(int i) {
         if (i < 0 || i >= array.length)
@@ -33,7 +40,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     }
 
     private static long byteOffset(int i) {
-        return base + (long) i * scale;
+        return ((long) i << shift) + base;
     }
 
     /**
@@ -114,7 +121,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     public final E getAndSet(int i, E newValue) {
         long offset = checkedByteOffset(i);
         while (true) {
-            E current = getRaw(offset);
+            E current = (E) getRaw(offset);
             if (compareAndSetRaw(offset, current, newValue))
                 return current;
         }
@@ -170,7 +177,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
             b.append(getRaw(byteOffset(i)));
             if (i == iMax)
                 return b.append(']').toString();
-            b.append(", ");
+            b.append(',').append(' ');
         }
     }
 

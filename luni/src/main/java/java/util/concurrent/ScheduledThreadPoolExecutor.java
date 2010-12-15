@@ -5,16 +5,9 @@
  */
 
 package java.util.concurrent;
-
-import java.util.AbstractQueue;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.*;
+import java.util.concurrent.locks.*;
+import java.util.*;
 
 /**
  * A {@link ThreadPoolExecutor} that can additionally schedule
@@ -31,14 +24,17 @@ import java.util.concurrent.locks.ReentrantLock;
  * submission.
  *
  * <p>When a submitted task is cancelled before it is run, execution
- * is suppressed. Such a cancelled task is not
+ * is suppressed. By default, such a cancelled task is not
  * automatically removed from the work queue until its delay
  * elapses. While this enables further inspection and monitoring, it
- * may also cause unbounded retention of cancelled tasks.
+ * may also cause unbounded retention of cancelled tasks. To avoid
+ * this, set {@link #setRemoveOnCancelPolicy} to {@code true}, which
+ * causes tasks to be immediately removed from the work queue at
+ * time of cancellation.
  *
  * <p>Successive executions of a task scheduled via
- * <code>scheduleAtFixedRate</code> or
- * <code>scheduleWithFixedDelay</code> do not overlap. While different
+ * {@code scheduleAtFixedRate} or
+ * {@code scheduleWithFixedDelay} do not overlap. While different
  * executions may be performed by different threads, the effects of
  * prior executions <a
  * href="package-summary.html#MemoryVisibility"><i>happen-before</i></a>
@@ -335,8 +331,12 @@ public class ScheduledThreadPoolExecutor
             getExecuteExistingDelayedTasksAfterShutdownPolicy();
         boolean keepPeriodic =
             getContinueExistingPeriodicTasksAfterShutdownPolicy();
-        if (!keepDelayed && !keepPeriodic)
+        if (!keepDelayed && !keepPeriodic) {
+            for (Object e : q.toArray())
+                if (e instanceof RunnableScheduledFuture<?>)
+                    ((RunnableScheduledFuture<?>) e).cancel(false);
             q.clear();
+        }
         else {
             // Traverse snapshot to avoid iterator exceptions
             for (Object e : q.toArray()) {
@@ -411,7 +411,7 @@ public class ScheduledThreadPoolExecutor
      * @throws NullPointerException if {@code threadFactory} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                             ThreadFactory threadFactory) {
+                                       ThreadFactory threadFactory) {
         super(corePoolSize, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS,
               new DelayedWorkQueue(), threadFactory);
     }
@@ -428,7 +428,7 @@ public class ScheduledThreadPoolExecutor
      * @throws NullPointerException if {@code handler} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                              RejectedExecutionHandler handler) {
+                                       RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS,
               new DelayedWorkQueue(), handler);
     }
@@ -448,8 +448,8 @@ public class ScheduledThreadPoolExecutor
      *         {@code handler} is null
      */
     public ScheduledThreadPoolExecutor(int corePoolSize,
-                              ThreadFactory threadFactory,
-                              RejectedExecutionHandler handler) {
+                                       ThreadFactory threadFactory,
+                                       RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS,
               new DelayedWorkQueue(), threadFactory, handler);
     }
@@ -701,7 +701,7 @@ public class ScheduledThreadPoolExecutor
      *
      * @return {@code true} if cancelled tasks are immediately removed
      *         from the queue
-     * @see #setRemoveOnCancelPolicy(boolean)
+     * @see #setRemoveOnCancelPolicy
      * @since 1.7
      */
     /*public*/ boolean getRemoveOnCancelPolicy() { // android-changed

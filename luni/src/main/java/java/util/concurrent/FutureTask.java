@@ -5,8 +5,7 @@
  */
 
 package java.util.concurrent;
-
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.*;
 
 /**
  * A cancellable asynchronous computation.  This class provides a base
@@ -57,7 +56,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * @param result the result to return on successful completion. If
      * you don't need a particular result, consider using
      * constructions of the form:
-     * <tt>Future&lt;?&gt; f = new FutureTask&lt;Object&gt;(runnable, null)</tt>
+     * {@code Future<?> f = new FutureTask<Void>(runnable, null)}
      * @throws NullPointerException if runnable is null
      */
     public FutureTask(Runnable runnable, V result) {

@@ -5,8 +5,8 @@
  */
 
 package java.util.concurrent.atomic;
-
 import sun.misc.Unsafe;
+import java.util.*;
 
 /**
  * An {@code int} array in which elements may be updated atomically.
@@ -21,8 +21,15 @@ public class AtomicIntegerArray implements java.io.Serializable {
 
     private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
     private static final int base = unsafe.arrayBaseOffset(int[].class);
-    private static final int scale = unsafe.arrayIndexScale(int[].class);
+    private static final int shift;
     private final int[] array;
+
+    static {
+        int scale = unsafe.arrayIndexScale(int[].class);
+        if ((scale & (scale - 1)) != 0)
+            throw new Error("data type scale not a power of two");
+        shift = 31 - Integer.numberOfLeadingZeros(scale);
+    }
 
     private long checkedByteOffset(int i) {
         if (i < 0 || i >= array.length)
@@ -32,7 +39,7 @@ public class AtomicIntegerArray implements java.io.Serializable {
     }
 
     private static long byteOffset(int i) {
-        return base + (long) i * scale;
+        return ((long) i << shift) + base;
     }
 
     /**
@@ -241,7 +248,7 @@ public class AtomicIntegerArray implements java.io.Serializable {
             b.append(getRaw(byteOffset(i)));
             if (i == iMax)
                 return b.append(']').toString();
-            b.append(", ");
+            b.append(',').append(' ');
         }
     }
 

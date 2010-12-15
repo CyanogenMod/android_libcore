@@ -5,12 +5,7 @@
  */
 
 package java.util.concurrent;
-
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -39,24 +34,23 @@ import java.util.Set;
  * copy-on-write set to maintain a set of Handler objects that
  * perform some action upon state updates.
  *
- * <pre>
+ *  <pre> {@code
  * class Handler { void handle(); ... }
  *
  * class X {
- *    private final CopyOnWriteArraySet&lt;Handler&gt; handlers
- *       = new CopyOnWriteArraySet&lt;Handler&gt;();
- *    public void addHandler(Handler h) { handlers.add(h); }
+ *   private final CopyOnWriteArraySet<Handler> handlers
+ *     = new CopyOnWriteArraySet<Handler>();
+ *   public void addHandler(Handler h) { handlers.add(h); }
  *
- *    private long internalState;
- *    private synchronized void changeState() { internalState = ...; }
+ *   private long internalState;
+ *   private synchronized void changeState() { internalState = ...; }
  *
- *    public void update() {
- *       changeState();
- *       for (Handler handler : handlers)
- *          handler.handle();
- *    }
- * }
- * </pre>
+ *   public void update() {
+ *     changeState();
+ *     for (Handler handler : handlers)
+ *        handler.handle();
+ *   }
+ * }}</pre>
  *
  * @see CopyOnWriteArrayList
  * @since 1.5
