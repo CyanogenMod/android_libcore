@@ -814,6 +814,24 @@ public class ObjectStreamClass implements Serializable {
         return loadFields == null ? fields().clone() : loadFields.clone();
     }
 
+    private volatile List<ObjectStreamClass> cachedHierarchy;
+
+    List<ObjectStreamClass> getHierarchy() {
+        List<ObjectStreamClass> result = cachedHierarchy;
+        if (result == null) {
+            cachedHierarchy = result = makeHierarchy();
+        }
+        return result;
+    }
+
+    private List<ObjectStreamClass> makeHierarchy() {
+        ArrayList<ObjectStreamClass> result = new ArrayList<ObjectStreamClass>();
+        for (ObjectStreamClass osc = this; osc != null; osc = osc.getSuperclass()) {
+            result.add(0, osc);
+        }
+        return result;
+    }
+
     /**
      * If a Class uses "serialPersistentFields" to define the serialized fields,
      * this.loadFields cannot get the "unshared" information when deserializing
