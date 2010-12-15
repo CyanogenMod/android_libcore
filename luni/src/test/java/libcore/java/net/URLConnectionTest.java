@@ -1602,6 +1602,24 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
+    public void testGetHeadersThrows() throws IOException {
+        server.enqueue(new MockResponse().setDisconnectAtStart(true));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (IOException expected) {
+        }
+
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
     /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
