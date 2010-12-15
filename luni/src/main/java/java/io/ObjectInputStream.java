@@ -1167,57 +1167,48 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // We may not have been able to find the field, but we still need to read the value
             // and do the other checking, so there's no null check on 'field' here.
             try {
-                switch (fieldDesc.getTypeCode()) {
-                case 'B':
+                Class<?> type = fieldDesc.getTypeInternal();
+                if (type == Byte.TYPE) {
                     byte b = input.readByte();
                     if (field != null) {
                         field.setByte(obj, b);
                     }
-                    break;
-                case 'C':
+                } else if (type == Character.TYPE) {
                     char c = input.readChar();
                     if (field != null) {
                         field.setChar(obj, c);
                     }
-                    break;
-                case 'D':
+                } else if (type == Double.TYPE) {
                     double d = input.readDouble();
                     if (field != null) {
                         field.setDouble(obj, d);
                     }
-                    break;
-                case 'F':
+                } else if (type == Float.TYPE) {
                     float f = input.readFloat();
                     if (field != null) {
                         field.setFloat(obj, f);
                     }
-                    break;
-                case 'I':
+                } else if (type == Integer.TYPE) {
                     int i = input.readInt();
                     if (field != null) {
                         field.setInt(obj, i);
                     }
-                    break;
-                case 'J':
+                } else if (type == Long.TYPE) {
                     long j = input.readLong();
                     if (field != null) {
                         field.setLong(obj, j);
                     }
-                    break;
-                case 'S':
+                } else if (type == Short.TYPE) {
                     short s = input.readShort();
                     if (field != null) {
                         field.setShort(obj, s);
                     }
-                    break;
-                case 'Z':
+                } else if (type == Boolean.TYPE) {
                     boolean z = input.readBoolean();
                     if (field != null) {
                         field.setBoolean(obj, z);
                     }
-                    break;
-                case 'L':
-                case '[':
+                } else {
                     String fieldName = fieldDesc.getName();
                     boolean setBack = false;
                     ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
@@ -1248,9 +1239,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                             }
                         }
                     }
-                    break;
-                default:
-                    throw new StreamCorruptedException("Invalid typecode: " + fieldDesc.getTypeCode());
                 }
             } catch (IllegalAccessException iae) {
                 // ObjectStreamField should have called setAccessible(true).
