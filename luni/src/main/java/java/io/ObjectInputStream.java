@@ -1065,8 +1065,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         if (currentObject == null) {
             throw new NotActiveException();
         }
-        EmulatedFieldsForLoading result = new EmulatedFieldsForLoading(
-                currentClass);
+        EmulatedFieldsForLoading result = new EmulatedFieldsForLoading(currentClass);
         readFieldValues(result);
         return result;
     }
@@ -1351,17 +1350,14 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                 readObjectForClass(null, objectStreamClass);
             }
         } else {
-            ArrayList<Class<?>> classList = new ArrayList<Class<?>>(32);
-            Class<?> nextClass = object.getClass();
-            while (nextClass != null) {
-                Class<?> testClass = nextClass.getSuperclass();
-                if (testClass != null) {
-                    classList.add(0, nextClass);
-                }
-                nextClass = testClass;
+            List<Class<?>> superclasses = cachedSuperclasses.get(object.getClass());
+            if (superclasses == null) {
+                superclasses = cacheSuperclassesFor(object.getClass());
             }
+
             int lastIndex = 0;
-            for (Class<?> superclass : classList) {
+            for (int i = 0, end = superclasses.size(); i < end; ++i) {
+                Class<?> superclass = superclasses.get(i);
                 int index = findStreamSuperclass(superclass, streamClassList, lastIndex);
                 if (index == -1) {
                     readObjectNoData(object, superclass,
@@ -1376,9 +1372,24 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
+    private HashMap<Class<?>, List<Class<?>>> cachedSuperclasses = new HashMap<Class<?>, List<Class<?>>>();
+
+    private List<Class<?>> cacheSuperclassesFor(Class<?> c) {
+        ArrayList<Class<?>> result = new ArrayList<Class<?>>();
+        Class<?> nextClass = c;
+        while (nextClass != null) {
+            Class<?> testClass = nextClass.getSuperclass();
+            if (testClass != null) {
+                result.add(0, nextClass);
+            }
+            nextClass = testClass;
+        }
+        cachedSuperclasses.put(c, result);
+        return result;
+    }
+
     private int findStreamSuperclass(Class<?> cl, List<ObjectStreamClass> classList, int lastIndex) {
-        final int end = classList.size();
-        for (int i = lastIndex; i < end; i++) {
+        for (int i = lastIndex, end = classList.size(); i < end; i++) {
             ObjectStreamClass objCl = classList.get(i);
             String forName = objCl.forClass().getName();
 
