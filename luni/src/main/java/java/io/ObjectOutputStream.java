@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import java.util.List;
 import libcore.base.EmptyArray;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
@@ -37,8 +38,7 @@ import org.apache.harmony.luni.platform.OSMemory;
  * @see Serializable
  * @see Externalizable
  */
-public class ObjectOutputStream extends OutputStream implements ObjectOutput,
-        ObjectStreamConstants {
+public class ObjectOutputStream extends OutputStream implements ObjectOutput, ObjectStreamConstants {
 
     private static final Class<?>[] WRITE_UNSHARED_PARAM_TYPES = new Class[] { Object.class };
 
@@ -1123,52 +1123,50 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
 
         // Fields are written from class closest to Object to leaf class
         // (down the chain)
-        if (classDesc.getSuperclass() != null) {
-            // first
-            writeHierarchy(object, classDesc.getSuperclass());
-        }
+        List<ObjectStreamClass> hierarchy = classDesc.getHierarchy();
+        for (int i = 0, end = hierarchy.size(); i < end; ++i) {
+            ObjectStreamClass osc = hierarchy.get(i);
+            // Have to do this before calling defaultWriteObject or anything
+            // that calls defaultWriteObject
+            currentObject = object;
+            currentClass = osc;
 
-        // Have to do this before calling defaultWriteObject or anything
-        // that calls defaultWriteObject
-        currentObject = object;
-        currentClass = classDesc;
-
-        // See if the object has a writeObject method. If so, run it
-        boolean executed = false;
-        try {
-            if (classDesc.hasMethodWriteObject()){
-                final Method method = classDesc.getMethodWriteObject();
-                try {
-                    method.invoke(object, new Object[] { this });
-                    executed = true;
-                } catch (InvocationTargetException e) {
-                    Throwable ex = e.getTargetException();
-                    if (ex instanceof RuntimeException) {
-                        throw (RuntimeException) ex;
-                    } else if (ex instanceof Error) {
-                        throw (Error) ex;
+            // See if the object has a writeObject method. If so, run it
+            try {
+                boolean executed = false;
+                if (osc.hasMethodWriteObject()) {
+                    final Method method = osc.getMethodWriteObject();
+                    try {
+                        method.invoke(object, new Object[] { this });
+                        executed = true;
+                    } catch (InvocationTargetException e) {
+                        Throwable ex = e.getTargetException();
+                        if (ex instanceof RuntimeException) {
+                            throw (RuntimeException) ex;
+                        } else if (ex instanceof Error) {
+                            throw (Error) ex;
+                        }
+                        throw (IOException) ex;
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e.toString());
                     }
-                    throw (IOException) ex;
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e.toString());
                 }
-            }
 
-
-            if (executed) {
-                drain();
-                output.writeByte(TC_ENDBLOCKDATA);
-            } else {
-                // If the object did not have a writeMethod, call
-                // defaultWriteObject
-                defaultWriteObject();
+                if (executed) {
+                    drain();
+                    output.writeByte(TC_ENDBLOCKDATA);
+                } else {
+                    // If the object did not have a writeMethod, call
+                    // defaultWriteObject
+                    defaultWriteObject();
+                }
+            } finally {
+                // Cleanup, needs to run always so that we can later detect
+                // invalid calls to defaultWriteObject
+                currentObject = null;
+                currentClass = null;
+                currentPutField = null;
             }
-        } finally {
-            // Cleanup, needs to run always so that we can later detect
-            // invalid calls to defaultWriteObject
-            currentObject = null;
-            currentClass = null;
-            currentPutField = null;
         }
     }
 
