@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import libcore.base.EmptyArray;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -85,8 +86,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     // Resolve object is a mechanism for replacement
     private boolean enableResolve;
 
-    // Table mapping Integer (handle) -> Object
-    private HashMap<Integer, Object> objectsRead;
+    /**
+     * All the objects we've read, indexed by their serialization handle (minus the base offset).
+     */
+    private ArrayList<Object> objectsRead;
 
     // Used by defaultReadObject
     private Object currentObject;
@@ -108,7 +111,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     private boolean mustResolve = true;
 
     // Handle for the current class descriptor
-    private Integer descriptorHandle;
+    private int descriptorHandle = -1;
 
     private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES =
         new HashMap<String, Class<?>>();
@@ -547,34 +550,13 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         return originalValue;
     }
 
-    // BEGIN android-added
-    /**
-     * Create and return a new instance of class {@code instantiationClass}
-     * but running the constructor defined in class
-     * {@code constructorClass} (same as {@code instantiationClass}
-     * or a superclass).
-     *
-     * Has to be native to avoid visibility rules and to be able to have
-     * {@code instantiationClass} not the same as
-     * {@code constructorClass} (no such API in java.lang.reflect).
-     *
-     * @param instantiationClass
-     *            The new object will be an instance of this class
-     * @param constructorClass
-     *            The empty constructor to run will be in this class
-     * @return the object created from {@code instantiationClass}
-     */
-    private static native Object newInstance(Class<?> instantiationClass,
-            Class<?> constructorClass);
-    // END android-added
-
     /**
      * Return the next {@code int} handle to be used to indicate cyclic
      * references being loaded from the stream.
      *
      * @return the next handle to represent the next cyclic reference
      */
-    private Integer nextHandle() {
+    private int nextHandle() {
         return nextHandle++;
     }
 
@@ -921,8 +903,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @throws InvalidObjectException
      *             If the cyclic reference is not valid.
      */
-    private Object readCyclicReference() throws InvalidObjectException,
-            IOException {
+    private Object readCyclicReference() throws InvalidObjectException, IOException {
         return registeredObjectRead(readNewHandle());
     }
 
@@ -1084,8 +1065,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         if (currentObject == null) {
             throw new NotActiveException();
         }
-        EmulatedFieldsForLoading result = new EmulatedFieldsForLoading(
-                currentClass);
+        EmulatedFieldsForLoading result = new EmulatedFieldsForLoading(currentClass);
         readFieldValues(result);
         return result;
     }
@@ -1187,57 +1167,48 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // We may not have been able to find the field, but we still need to read the value
             // and do the other checking, so there's no null check on 'field' here.
             try {
-                switch (fieldDesc.getTypeCode()) {
-                case 'B':
+                Class<?> type = fieldDesc.getTypeInternal();
+                if (type == Byte.TYPE) {
                     byte b = input.readByte();
                     if (field != null) {
                         field.setByte(obj, b);
                     }
-                    break;
-                case 'C':
+                } else if (type == Character.TYPE) {
                     char c = input.readChar();
                     if (field != null) {
                         field.setChar(obj, c);
                     }
-                    break;
-                case 'D':
+                } else if (type == Double.TYPE) {
                     double d = input.readDouble();
                     if (field != null) {
                         field.setDouble(obj, d);
                     }
-                    break;
-                case 'F':
+                } else if (type == Float.TYPE) {
                     float f = input.readFloat();
                     if (field != null) {
                         field.setFloat(obj, f);
                     }
-                    break;
-                case 'I':
+                } else if (type == Integer.TYPE) {
                     int i = input.readInt();
                     if (field != null) {
                         field.setInt(obj, i);
                     }
-                    break;
-                case 'J':
+                } else if (type == Long.TYPE) {
                     long j = input.readLong();
                     if (field != null) {
                         field.setLong(obj, j);
                     }
-                    break;
-                case 'S':
+                } else if (type == Short.TYPE) {
                     short s = input.readShort();
                     if (field != null) {
                         field.setShort(obj, s);
                     }
-                    break;
-                case 'Z':
+                } else if (type == Boolean.TYPE) {
                     boolean z = input.readBoolean();
                     if (field != null) {
                         field.setBoolean(obj, z);
                     }
-                    break;
-                case 'L':
-                case '[':
+                } else {
                     String fieldName = fieldDesc.getName();
                     boolean setBack = false;
                     ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
@@ -1268,9 +1239,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                             }
                         }
                     }
-                    break;
-                default:
-                    throw new StreamCorruptedException("Invalid typecode: " + fieldDesc.getTypeCode());
                 }
             } catch (IllegalAccessException iae) {
                 // ObjectStreamField should have called setAccessible(true).
@@ -1364,28 +1332,20 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw new NotActiveException();
         }
 
-        ArrayList<ObjectStreamClass> streamClassList = new ArrayList<ObjectStreamClass>(32);
-        ObjectStreamClass nextStreamClass = classDesc;
-        while (nextStreamClass != null) {
-            streamClassList.add(0, nextStreamClass);
-            nextStreamClass = nextStreamClass.getSuperclass();
-        }
+        List<ObjectStreamClass> streamClassList = classDesc.getHierarchy();
         if (object == null) {
             for (ObjectStreamClass objectStreamClass : streamClassList) {
                 readObjectForClass(null, objectStreamClass);
             }
         } else {
-            ArrayList<Class<?>> classList = new ArrayList<Class<?>>(32);
-            Class<?> nextClass = object.getClass();
-            while (nextClass != null) {
-                Class<?> testClass = nextClass.getSuperclass();
-                if (testClass != null) {
-                    classList.add(0, nextClass);
-                }
-                nextClass = testClass;
+            List<Class<?>> superclasses = cachedSuperclasses.get(object.getClass());
+            if (superclasses == null) {
+                superclasses = cacheSuperclassesFor(object.getClass());
             }
+
             int lastIndex = 0;
-            for (Class<?> superclass : classList) {
+            for (int i = 0, end = superclasses.size(); i < end; ++i) {
+                Class<?> superclass = superclasses.get(i);
                 int index = findStreamSuperclass(superclass, streamClassList, lastIndex);
                 if (index == -1) {
                     readObjectNoData(object, superclass,
@@ -1400,14 +1360,26 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    private int findStreamSuperclass(Class<?> cl,
-            ArrayList<ObjectStreamClass> classList, int lastIndex) {
-        ObjectStreamClass objCl;
-        String forName;
+    private HashMap<Class<?>, List<Class<?>>> cachedSuperclasses = new HashMap<Class<?>, List<Class<?>>>();
 
-        for (int i = lastIndex; i < classList.size(); i++) {
-            objCl = classList.get(i);
-            forName = objCl.forClass().getName();
+    private List<Class<?>> cacheSuperclassesFor(Class<?> c) {
+        ArrayList<Class<?>> result = new ArrayList<Class<?>>();
+        Class<?> nextClass = c;
+        while (nextClass != null) {
+            Class<?> testClass = nextClass.getSuperclass();
+            if (testClass != null) {
+                result.add(0, nextClass);
+            }
+            nextClass = testClass;
+        }
+        cachedSuperclasses.put(c, result);
+        return result;
+    }
+
+    private int findStreamSuperclass(Class<?> cl, List<ObjectStreamClass> classList, int lastIndex) {
+        for (int i = lastIndex, end = classList.size(); i < end; i++) {
+            ObjectStreamClass objCl = classList.get(i);
+            String forName = objCl.forClass().getName();
 
             if (objCl.getName().equals(forName)) {
                 if (cl.getName().equals(objCl.getName())) {
@@ -1563,7 +1535,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw missingClassDescriptor();
         }
 
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
 
         // Array size
         int size = input.readInt();
@@ -1681,11 +1653,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    private ObjectStreamClass readEnumDescInternal() throws IOException,
-            ClassNotFoundException {
+    private ObjectStreamClass readEnumDescInternal() throws IOException, ClassNotFoundException {
         ObjectStreamClass classDesc;
         primitiveData = input;
-        Integer oldHandle = descriptorHandle;
+        int oldHandle = descriptorHandle;
         descriptorHandle = nextHandle();
         classDesc = readClassDescriptor();
         registerObjectRead(classDesc, descriptorHandle, false);
@@ -1718,7 +1689,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             ClassNotFoundException, IOException {
         // read classdesc for Enum first
         ObjectStreamClass classDesc = readEnumDesc();
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
         // read name after class desc
         String name;
         byte tc = nextTC();
@@ -1763,7 +1734,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // So read...() methods can be used by
         // subclasses during readClassDescriptor()
         primitiveData = input;
-        Integer oldHandle = descriptorHandle;
+        int oldHandle = descriptorHandle;
         descriptorHandle = nextHandle();
         ObjectStreamClass newClassDesc = readClassDescriptor();
         registerObjectRead(newClassDesc, descriptorHandle, unshared);
@@ -1846,9 +1817,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         /*
          * We must register the class descriptor before reading field
          * descriptors. If called outside of readObject, the descriptorHandle
-         * might be null.
+         * might be unset.
          */
-        descriptorHandle = (descriptorHandle == null) ? nextHandle() : descriptorHandle;
+        if (descriptorHandle == -1) {
+            descriptorHandle = nextHandle();
+        }
         registerObjectRead(newClassDesc, descriptorHandle, false);
 
         readFieldDescriptors(newClassDesc);
@@ -1888,14 +1861,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
     }
 
-    /**
-     * Write a new handle describing a cyclic reference from the stream.
-     *
-     * @return the handle read
-     *
-     * @throws IOException
-     *             If an IO exception happened when reading the handle
-     */
     private int readNewHandle() throws IOException {
         return input.readInt();
     }
@@ -1930,15 +1895,14 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throw missingClassDescriptor();
         }
 
-        Integer newHandle = nextHandle();
+        int newHandle = nextHandle();
         Class<?> objectClass = classDesc.forClass();
         Object result = null;
         Object registeredResult = null;
         if (objectClass != null) {
             // Now we know which class to instantiate and which constructor to
             // run. We are allowed to run the constructor.
-            Class constructorClass = classDesc.resolveConstructorClass(objectClass);
-            result = newInstance(objectClass, constructorClass);
+            result = classDesc.newInstance(objectClass);
             registerObjectRead(result, newHandle, unshared);
             registeredResult = result;
         } else {
@@ -2284,17 +2248,12 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     }
 
     /**
-     * Return the object previously read tagged with handle {@code handle}.
-     *
-     * @param handle
-     *            The handle that this object was assigned when it was read.
-     * @return the object previously read.
-     *
+     * Returns the previously-read object corresponding to the given serialization handle.
      * @throws InvalidObjectException
-     *             If there is no previously read object with this handle
+     *             If there is no previously-read object with this handle
      */
-    private Object registeredObjectRead(Integer handle) throws InvalidObjectException {
-        Object res = objectsRead.get(handle);
+    private Object registeredObjectRead(int handle) throws InvalidObjectException {
+        Object res = objectsRead.get(handle - ObjectStreamConstants.baseWireHandle);
         if (res == UNSHARED_OBJ) {
             throw new InvalidObjectException("Cannot read back reference to unshared object");
         }
@@ -2302,20 +2261,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     }
 
     /**
-     * Assume object {@code obj} has been read, and assign a handle to
-     * it, {@code handle}.
-     *
-     * @param obj
-     *            Non-null object being loaded.
-     * @param handle
-     *            An Integer, the handle to this object
-     * @param unshared
-     *            Boolean, indicates that caller is reading in unshared mode
-     *
-     * @see #nextHandle
+     * Associates a read object with the its serialization handle.
      */
-    private void registerObjectRead(Object obj, Integer handle, boolean unshared) {
-        objectsRead.put(handle, unshared ? UNSHARED_OBJ : obj);
+    private void registerObjectRead(Object obj, int handle, boolean unshared) throws IOException {
+        if (unshared) {
+            obj = UNSHARED_OBJ;
+        }
+        int index = handle - ObjectStreamConstants.baseWireHandle;
+        if (index < objectsRead.size()) {
+            objectsRead.set(index, obj);
+        } else if (index == objectsRead.size()) {
+            objectsRead.add(obj);
+        } else {
+            throw new StreamCorruptedException("non-dense use of serialization handles; " +
+                    "objectsRead.size()=" + objectsRead.size() + " index=" + index);
+        }
     }
 
     /**
@@ -2384,7 +2344,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * Reset the collection of objects already loaded by the receiver.
      */
     private void resetSeenObjects() {
-        objectsRead = new HashMap<Integer, Object>();
+        objectsRead = new ArrayList<Object>();
         nextHandle = baseWireHandle;
         primitiveData = emptyStream;
     }

@@ -59,6 +59,9 @@ ifeq ($(EMMA_INSTRUMENT),true)
     core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
 endif
 
+local_javac_flags=-encoding UTF-8
+#local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
+local_javac_flags+=-Xmaxwarns 9999999
 
 #
 # Build for the target (device).
@@ -72,7 +75,7 @@ LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := -encoding UTF-8
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 
 LOCAL_NO_EMMA_INSTRUMENT := true
@@ -264,7 +267,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVACFLAGS := -encoding UTF-8
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_DX_FLAGS := --core-library
 
     LOCAL_NO_EMMA_INSTRUMENT := true
