@@ -133,6 +133,17 @@ public final class TestKeyStore extends Assert {
                      false,
                      INTERMEDIATE_CA);
 
+    private static final TestKeyStore ROOT_CA_2
+            = create(new String[] { "RSA" },
+                     null,
+                     null,
+                     "RootCA2",
+                     x509Principal("Test Root Certificate Authority 2"),
+                     true,
+                     null);
+    private static final TestKeyStore CLIENT_2
+            = new TestKeyStore(createClient(ROOT_CA_2.keyStore), null, null);
+
     /**
      * Return a server keystore with a matched RSA certificate and
      * private key as well as a CA certificate.
@@ -154,6 +165,15 @@ public final class TestKeyStore extends Assert {
      */
     public static TestKeyStore getClientCertificate() {
         return CLIENT_CERTIFICATE;
+    }
+
+    /**
+     * Return a keystore with a second CA certificate that does not
+     * trust the server certificate returned by getServer for negative
+     * testing.
+     */
+    public static TestKeyStore getClientCA2() {
+        return CLIENT_2;
     }
 
     /**
