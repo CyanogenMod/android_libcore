@@ -129,16 +129,25 @@ public class PathClassLoader extends ClassLoader {
             mFiles[i] = pathFile;
 
             if (pathFile.isFile()) {
-                try {
-                    mZips[i] = new ZipFile(pathFile);
-                }
-                catch (IOException ioex) {
-                    // expecting IOException and ZipException
-                    //System.out.println("Failed opening '" + pathFile + "': " + ioex);
-                    //ioex.printStackTrace();
+                if (!mPaths[i].endsWith(".dex")) {
+                    /*
+                     * If the name doesn't end with ".dex" assume it's a zip
+                     * file of some sort.
+                     */
+                    try {
+                        mZips[i] = new ZipFile(pathFile);
+                    }
+                    catch (IOException ioex) {
+                        // expecting IOException and ZipException
+                        //System.out.println("Failed opening '" + pathFile + "': " + ioex);
+                        //ioex.printStackTrace();
+                    }
                 }
                 if (wantDex) {
-                    /* we need both DEX and Zip, because dex has no resources */
+                    /*
+                     * If we got a zip file, we still need to extract out
+                     * the dex file from it.
+                     */
                     try {
                         mDexs[i] = new DexFile(pathFile);
                     }
