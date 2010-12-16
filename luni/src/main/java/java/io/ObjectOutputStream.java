@@ -567,16 +567,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         return currentPutField;
     }
 
-    /**
-     * Assume object {@code obj} has not been dumped yet, and assign a
-     * handle to it
-     *
-     * @param obj
-     *            Non-null object being dumped.
-     * @return the handle that this object is being assigned.
-     *
-     * @see #nextHandle
-     */
     private int registerObjectWritten(Object obj) {
         int handle = nextHandle();
         objectsWritten.put(obj, handle);
@@ -843,8 +833,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
             }
             // If we got here, it is a new (non-null) classDesc that will have
             // to be registered as well
-            handle = nextHandle();
-            objectsWritten.put(classDesc, handle);
+            handle = registerObjectWritten(classDesc);
 
             if (classDesc.isProxy()) {
                 output.writeByte(TC_PROXYCLASSDESC);
@@ -1221,7 +1210,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         writeClassDesc(arrayClDesc, false);
 
         int handle = nextHandle();
-
         if (!unshared) {
             objectsWritten.put(array, handle);
         }
@@ -1328,7 +1316,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         }
 
         int handle = nextHandle();
-
         if (!unshared) {
             objectsWritten.put(object, handle);
         }
@@ -1460,8 +1447,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         if (unshared) {
             previousHandle = objectsWritten.get(object);
         }
-        int handle = nextHandle();
-        objectsWritten.put(object, handle);
+
+        int handle = registerObjectWritten(object);
 
         // This is how we know what to do in defaultWriteObject. And it is also
         // used by defaultWriteObject to check if it was called from an invalid
@@ -1538,7 +1525,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         output.write(buffer, 0, buffer.length);
 
         int handle = nextHandle();
-
         if (!unshared) {
             objectsWritten.put(object, handle);
         }
@@ -1783,7 +1769,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
             Class<?> classToWrite = classDesc.forClass();
             // If we got here, it is a new (non-null) classDesc that will have
             // to be registered as well
-            objectsWritten.put(classDesc, nextHandle());
+            registerObjectWritten(classDesc);
 
             output.writeByte(TC_CLASSDESC);
             if (protocolVersion == PROTOCOL_VERSION_1) {
@@ -1834,8 +1820,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         if (unshared) {
             previousHandle = objectsWritten.get(object);
         }
-        int handle = nextHandle();
-        objectsWritten.put(object, handle);
+        int handle = registerObjectWritten(object);
 
         ObjectStreamField[] fields = classDesc.getSuperclass().fields();
         // Only write field "name" for enum class, which is the second field of
