@@ -10,6 +10,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import sun.misc.Unsafe;
 
+// BEGIN android-note
+// Use older class level documentation to not @link to hasQueuedPredecessors
+// END android-changed
+
 /**
  * Provides a framework for implementing blocking locks and related
  * synchronizers (semaphores, events, etc) that rely on
@@ -120,14 +124,18 @@ import sun.misc.Unsafe;
  *
  * <p><a name="barging">Because checks in acquire are invoked before
  * enqueuing, a newly acquiring thread may <em>barge</em> ahead of
- * others that are blocked and queued.  However, you can, if desired,
+ * others that are blocked and queued. However, you can, if desired,
  * define <tt>tryAcquire</tt> and/or <tt>tryAcquireShared</tt> to
  * disable barging by internally invoking one or more of the inspection
- * methods, thereby providing a <em>fair</em> FIFO acquisition order.
- * In particular, most fair synchronizers can define <tt>tryAcquire</tt>
- * to return <tt>false</tt> if {@link #hasQueuedPredecessors} (a method
- * specifically designed to be used by fair synchronizers) returns
- * <tt>true</tt>.  Other variations are possible.
+ * methods. In particular, a strict FIFO lock can define
+ * <tt>tryAcquire</tt> to immediately return <tt>false</tt> if {@link
+ * #getFirstQueuedThread} does not return the current thread.  A
+ * normally preferable non-strict fair version can immediately return
+ * <tt>false</tt> only if {@link #hasQueuedThreads} returns
+ * <tt>true</tt> and <tt>getFirstQueuedThread</tt> is not the current
+ * thread; or equivalently, that <tt>getFirstQueuedThread</tt> is both
+ * non-null and not the current thread.  Further variations are
+ * possible.
  *
  * <p>Throughput and scalability are generally highest for the
  * default barging (also known as <em>greedy</em>,
