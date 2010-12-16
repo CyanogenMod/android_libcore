@@ -850,6 +850,41 @@
   ]
 },
 {
+  names: [
+    "org.apache.harmony.luni.tests.java.io.FileTest#test_equalsLjava_lang_Object",
+    "tests.api.java.io.FileTest#test_equalsLjava_lang_Object"
+  ],
+  result: EXEC_FAILED,
+  substring: "File system is case insensitive"
+},
+{
+  description: "We don't special case as much for new File(emptyString, emptyString)",
+  name: "org.apache.harmony.luni.tests.java.io.FileTest#test_getPath",
+  result: EXEC_FAILED,
+  substring: "expected:</> but was:<>"
+},
+{
+  description: "Can't test read-only when running as root!",
+  names: [
+    "org.apache.harmony.luni.tests.java.io.FileTest#test_setReadOnly",
+    "tests.api.java.io.FileTest#test_setReadOnly"
+  ],
+  result: EXEC_FAILED
+},
+{
+  description: "These tests want to load class files on a dalvikvm",
+  names: [
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_defineClass_defaultDomain",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_getResourceAsStreamLjava_lang_String",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_getResourceAsStream_withSharpChar",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_getResourceLjava_lang_String",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_getSystemClassLoader",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_getSystemResourceLjava_lang_String",
+    "org.apache.harmony.luni.tests.java.lang.ClassLoaderTest#test_loadClass_concurrentLoad"
+  ],
+  result: EXEC_FAILED
+},
+{
   description: "Some tests (ExcludedProxyTest) connect to a public webserver to check that the HTTP client works",
   result: EXEC_FAILED,
   failure: "connect to the Internet",
