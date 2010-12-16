@@ -26,76 +26,7 @@ import junit.framework.TestSuite;
 public class AllTests {
     public static Test suite() {
         TestSuite suite = new TestSuite("All tests for package tests.api.java.io;");
-        // $JUnit-BEGIN$
-
-        suite.addTestSuite(BufferedInputStreamTest.class);
-        suite.addTestSuite(BufferedOutputStreamTest.class);
-        suite.addTestSuite(BufferedReaderTest.class);
-        suite.addTestSuite(BufferedWriterTest.class);
-        suite.addTestSuite(ByteArrayInputStreamTest.class);
-        suite.addTestSuite(ByteArrayOutputStreamTest.class);
-        suite.addTestSuite(CharArrayReaderTest.class);
-        suite.addTestSuite(CharArrayWriterTest.class);
-        suite.addTestSuite(CharConversionExceptionTest.class);
-        suite.addTestSuite(ComputeSerialVersionUIDTest.class);
-        suite.addTestSuite(DataInputStreamTest.class);
-        suite.addTestSuite(DataInputOutputStreamTest.class);
-        suite.addTestSuite(DataOutputStreamTest.class);
-        suite.addTestSuite(EOFExceptionTest.class);
-        suite.addTestSuite(FileDescriptorTest.class);
-        suite.addTestSuite(FileInputStreamTest.class);
-        suite.addTestSuite(FileNotFoundExceptionTest.class);
-        suite.addTestSuite(FileOutputStreamTest.class);
-        suite.addTestSuite(FilePermissionTest.class);
-        suite.addTestSuite(FileReaderTest.class);
-        suite.addTestSuite(FileTest.class);
-        suite.addTestSuite(FileWriterTest.class);
-        suite.addTestSuite(FilterInputStreamTest.class);
-        suite.addTestSuite(FilterOutputStreamTest.class);
-        suite.addTestSuite(FilterReaderTest.class);
-        suite.addTestSuite(FilterWriterTest.class);
-        suite.addTestSuite(IOExceptionTest.class);
-        suite.addTestSuite(InputStreamReaderTest.class);
-        suite.addTestSuite(InterruptedIOExceptionTest.class);
-        suite.addTestSuite(InvalidClassExceptionTest.class);
-        suite.addTestSuite(InvalidObjectExceptionTest.class);
-        suite.addTestSuite(LineNumberInputStreamTest.class);
-        suite.addTestSuite(LineNumberReaderTest.class);
-        suite.addTestSuite(NotActiveExceptionTest.class);
-        suite.addTestSuite(NotSerializableExceptionTest.class);
         suite.addTestSuite(ObjectInputStreamTest.class);
-        suite.addTestSuite(ObjectInputStreamGetFieldTest.class);
-        suite.addTestSuite(ObjectInputOutputStreamTest.class);
-        suite.addTestSuite(ObjectOutputStreamTest.class);
-        suite.addTestSuite(ObjectOutputStreamPutFieldTest.class);
-        suite.addTestSuite(ObjectStreamClassTest.class);
-        suite.addTestSuite(ObjectStreamExceptionTest.class);
-        suite.addTestSuite(ObjectStreamFieldTest.class);
-        suite.addTestSuite(OpenRandomFileTest.class);
-        suite.addTestSuite(OutputStreamTest.class);
-        suite.addTestSuite(OutputStreamWriterTest.class);
-        suite.addTestSuite(PipedInputStreamTest.class);
-        suite.addTestSuite(PipedOutputStreamTest.class);
-        suite.addTestSuite(PipedReaderTest.class);
-        suite.addTestSuite(PipedWriterTest.class);
-        suite.addTestSuite(PrintStreamTest.class);
-        suite.addTestSuite(PrintWriterTest.class);
-        suite.addTestSuite(PushbackInputStreamTest.class);
-        suite.addTestSuite(PushbackReaderTest.class);
-        suite.addTestSuite(SequenceInputStreamTest.class);
-        suite.addTestSuite(SerializablePermissionTest.class);
-        suite.addTestSuite(StreamCorruptedExceptionTest.class);
-        suite.addTestSuite(StreamTokenizerTest.class);
-        suite.addTestSuite(StringBufferInputStreamTest.class);
-        suite.addTestSuite(StringReaderTest.class);
-        suite.addTestSuite(StringWriterTest.class);
-        suite.addTestSuite(SyncFailedExceptionTest.class);
-        suite.addTestSuite(UTFDataFormatExceptionTest.class);
-        suite.addTestSuite(UnsupportedEncodingExceptionTest.class);
-        suite.addTestSuite(WriteAbortedExceptionTest.class);
-        suite.addTestSuite(WriterTest.class);
-
-        // $JUnit-END$
         return suite;
     }
 }

@@ -224,7 +224,7 @@
 {
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
-  name: "tests.api.java.io.FileTest#test_deleteOnExit"
+  name: "libcore.java.io.OldFileTest#test_deleteOnExit"
 },
 {
   description: "Fails in CTS but passes under run-core-tests",
