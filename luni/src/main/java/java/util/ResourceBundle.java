@@ -133,7 +133,11 @@ public abstract class ResourceBundle {
      *                if the {@code ResourceBundle} cannot be found.
      */
     public static ResourceBundle getBundle(String bundleName) throws MissingResourceException {
-        return getBundle(bundleName, Locale.getDefault(), VMStack.getCallingClassLoader());
+        ClassLoader classLoader = VMStack.getCallingClassLoader();
+        if (classLoader == null) {
+            classLoader = getLoader();
+        }
+        return getBundle(bundleName, Locale.getDefault(), classLoader);
     }
 
     /**
@@ -149,7 +153,11 @@ public abstract class ResourceBundle {
      *                if the resource bundle cannot be found.
      */
     public static ResourceBundle getBundle(String bundleName, Locale locale) {
-        return getBundle(bundleName, locale, VMStack.getCallingClassLoader());
+        ClassLoader classLoader = VMStack.getCallingClassLoader();
+        if (classLoader == null) {
+            classLoader = getLoader();
+        }
+        return getBundle(bundleName, locale, classLoader);
     }
 
     /**

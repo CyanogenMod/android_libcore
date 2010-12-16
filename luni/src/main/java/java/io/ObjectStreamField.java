@@ -202,35 +202,31 @@ public class ObjectStreamField implements Comparable<Object> {
      * @return the field's type code.
      */
     public char getTypeCode() {
-        Class<?> t = getTypeInternal();
-        if (t == Integer.TYPE) {
+        return typeCodeOf(getTypeInternal());
+    }
+
+    private char typeCodeOf(Class<?> type) {
+        if (type == Integer.TYPE) {
             return 'I';
-        }
-        if (t == Byte.TYPE) {
+        } else if (type == Byte.TYPE) {
             return 'B';
-        }
-        if (t == Character.TYPE) {
+        } else if (type == Character.TYPE) {
             return 'C';
-        }
-        if (t == Short.TYPE) {
+        } else if (type == Short.TYPE) {
             return 'S';
-        }
-        if (t == Boolean.TYPE) {
+        } else if (type == Boolean.TYPE) {
             return 'Z';
-        }
-        if (t == Long.TYPE) {
+        } else if (type == Long.TYPE) {
             return 'J';
-        }
-        if (t == Float.TYPE) {
+        } else if (type == Float.TYPE) {
             return 'F';
-        }
-        if (t == Double.TYPE) {
+        } else if (type == Double.TYPE) {
             return 'D';
-        }
-        if (t.isArray()) {
+        } else if (type.isArray()) {
             return '[';
+        } else {
+            return 'L';
         }
-        return 'L';
     }
 
     /**
@@ -264,6 +260,13 @@ public class ObjectStreamField implements Comparable<Object> {
         return t != null && t.isPrimitive();
     }
 
+    boolean writeField(DataOutputStream out) throws IOException {
+        Class<?> t = getTypeInternal();
+        out.writeByte(typeCodeOf(t));
+        out.writeUTF(name);
+        return (t != null && t.isPrimitive());
+    }
+
     /**
      * Sets this field's offset in the object.
      *
@@ -286,7 +289,7 @@ public class ObjectStreamField implements Comparable<Object> {
     }
 
     void resolve(ClassLoader loader) {
-        if (typeString == null && isPrimitive()){
+        if (typeString == null && isPrimitive()) {
             // primitive type declared in a serializable class
             typeString = String.valueOf(getTypeCode());
         }

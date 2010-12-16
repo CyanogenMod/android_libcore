@@ -113,18 +113,17 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     // Handle for the current class descriptor
     private int descriptorHandle = -1;
 
-    private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES =
-        new HashMap<String, Class<?>>();
-
+    private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES = new HashMap<String, Class<?>>();
     static {
+        PRIMITIVE_CLASSES.put("boolean", boolean.class);
         PRIMITIVE_CLASSES.put("byte", byte.class);
-        PRIMITIVE_CLASSES.put("short", short.class);
+        PRIMITIVE_CLASSES.put("char", char.class);
+        PRIMITIVE_CLASSES.put("double", double.class);
+        PRIMITIVE_CLASSES.put("float", float.class);
         PRIMITIVE_CLASSES.put("int", int.class);
         PRIMITIVE_CLASSES.put("long", long.class);
-        PRIMITIVE_CLASSES.put("boolean", boolean.class);
-        PRIMITIVE_CLASSES.put("char", char.class);
-        PRIMITIVE_CLASSES.put("float", float.class);
-        PRIMITIVE_CLASSES.put("double", double.class);
+        PRIMITIVE_CLASSES.put("short", short.class);
+        PRIMITIVE_CLASSES.put("void", void.class);
     }
 
     // BEGIN android-removed
@@ -512,7 +511,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      */
     public void defaultReadObject() throws IOException, ClassNotFoundException,
             NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject != null || !mustResolve) {
             readFieldValues(currentObject, currentClass);
         } else {
@@ -1061,7 +1059,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *             if this stream is currently not reading an object.
      */
     public GetField readFields() throws IOException, ClassNotFoundException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -1327,7 +1324,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      */
     private void readHierarchy(Object object, ObjectStreamClass classDesc)
             throws IOException, ClassNotFoundException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (object == null && mustResolve) {
             throw new NotActiveException();
         }
@@ -2268,13 +2264,18 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             obj = UNSHARED_OBJ;
         }
         int index = handle - ObjectStreamConstants.baseWireHandle;
-        if (index < objectsRead.size()) {
-            objectsRead.set(index, obj);
-        } else if (index == objectsRead.size()) {
+        int size = objectsRead.size();
+        // ObjectOutputStream sometimes wastes a handle. I've compared hex dumps of the RI
+        // and it seems like that's a 'feature'. Look for calls to objectsWritten.put that
+        // are guarded by !unshared tests.
+        while (index > size) {
+            objectsRead.add(null);
+            ++size;
+        }
+        if (index == size) {
             objectsRead.add(obj);
         } else {
-            throw new StreamCorruptedException("non-dense use of serialization handles; " +
-                    "objectsRead.size()=" + objectsRead.size() + " index=" + index);
+            objectsRead.set(index, obj);
         }
     }
 
@@ -2303,7 +2304,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // Validation can only be registered when inside readObject calls
         Object instanceBeingRead = this.currentObject;
 
-        // We can't be called from just anywhere. There are rules.
         if (instanceBeingRead == null && nestedLevels == 0) {
             throw new NotActiveException();
         }

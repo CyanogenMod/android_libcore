@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
-import java.util.IdentityHashMap;
+import java.util.List;
 import libcore.base.EmptyArray;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
@@ -38,8 +38,7 @@ import org.apache.harmony.luni.platform.OSMemory;
  * @see Serializable
  * @see Externalizable
  */
-public class ObjectOutputStream extends OutputStream implements ObjectOutput,
-        ObjectStreamConstants {
+public class ObjectOutputStream extends OutputStream implements ObjectOutput, ObjectStreamConstants {
 
     private static final Class<?>[] WRITE_UNSHARED_PARAM_TYPES = new Class[] { Object.class };
 
@@ -76,7 +75,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     /*
      * Table mapping Object -> Integer (handle)
      */
-    private IdentityHashMap<Object, Integer> objectsWritten;
+    private SerializationHandleMap objectsWritten;
 
     /*
      * All objects are assigned an ID (integer handle)
@@ -391,7 +390,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see #writeFieldValues(EmulatedFieldsForDumping)
      */
     private void computePutField() {
-        currentPutField = new EmulatedFieldsForDumping(currentClass);
+        currentPutField = new EmulatedFieldsForDumping(this, currentClass);
     }
 
     /**
@@ -406,7 +405,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see ObjectInputStream#defaultReadObject
      */
     public void defaultWriteObject() throws IOException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -457,23 +455,22 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @param obj
      *            Object to check if an instance previously dumped by this
      *            stream.
-     * @return null if it is an instance which has not been dumped yet (and this
-     *         method does nothing). Integer, if {@code obj} is an
-     *         instance which has been dumped already. In this case this method
-     *         saves the cyclic reference.
+     * @return -1 if it is an instance which has not been dumped yet (and this
+     *         method does nothing). The handle if {@code obj} is an
+     *         instance which has been dumped already.
      *
      * @throws IOException
      *             If an error occurs attempting to save {@code null} or
      *             a cyclic reference.
      */
-    private Integer dumpCycle(Object obj) throws IOException {
+    private int dumpCycle(Object obj) throws IOException {
         // If the object has been saved already, save its handle only
-        Integer handle = objectsWritten.get(obj);
-        if (handle != null) {
+        int handle = objectsWritten.get(obj);
+        if (handle != -1) {
             writeCyclicReference(handle);
             return handle;
         }
-        return null;
+        return -1;
     }
 
     /**
@@ -535,13 +532,13 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     private static native Object getFieldL(Object instance, Class<?> declaringClass, String fieldName, String fieldTypeName);
 
     /**
-     * Return the next <code>Integer</code> handle to be used to indicate cyclic
+     * Return the next handle to be used to indicate cyclic
      * references being saved to the stream.
      *
      * @return the next handle to represent the next cyclic reference
      */
-    private Integer nextHandle() {
-        return Integer.valueOf(this.currentHandle++);
+    private int nextHandle() {
+        return currentHandle++;
     }
 
     /**
@@ -559,7 +556,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @see ObjectInputStream#defaultReadObject
      */
     public PutField putFields() throws IOException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -569,18 +565,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         return currentPutField;
     }
 
-    /**
-     * Assume object {@code obj} has not been dumped yet, and assign a
-     * handle to it
-     *
-     * @param obj
-     *            Non-null object being dumped.
-     * @return the handle that this object is being assigned.
-     *
-     * @see #nextHandle
-     */
-    private Integer registerObjectWritten(Object obj) {
-        Integer handle = nextHandle();
+    private int registerObjectWritten(Object obj) {
+        int handle = nextHandle();
         objectsWritten.put(obj, handle);
         return handle;
     }
@@ -594,8 +580,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @param previousHandle
      *            The handle of the previous identical object dumped
      */
-    private void removeUnsharedReference(Object obj, Integer previousHandle) {
-        if (previousHandle != null) {
+    private void removeUnsharedReference(Object obj, int previousHandle) {
+        if (previousHandle != -1) {
             objectsWritten.put(obj, previousHandle);
         } else {
             objectsWritten.remove(obj);
@@ -653,7 +639,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *
      */
     private void resetSeenObjects() {
-        objectsWritten = new IdentityHashMap<Object, Integer>();
+        objectsWritten = new SerializationHandleMap();
         currentHandle = baseWireHandle;
     }
 
@@ -828,26 +814,24 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *             If an IO exception happened when writing the class
      *             descriptor.
      */
-    private Integer writeClassDesc(ObjectStreamClass classDesc, boolean unshared)
-            throws IOException {
+    private int writeClassDesc(ObjectStreamClass classDesc, boolean unshared) throws IOException {
         if (classDesc == null) {
             writeNull();
-            return null;
+            return -1;
         }
-        Integer handle = null;
+        int handle = -1;
         if (!unshared) {
             handle = dumpCycle(classDesc);
         }
-        if (handle == null) {
+        if (handle == -1) {
             Class<?> classToWrite = classDesc.forClass();
-            Integer previousHandle = null;
+            int previousHandle = -1;
             if (unshared) {
                 previousHandle = objectsWritten.get(classDesc);
             }
             // If we got here, it is a new (non-null) classDesc that will have
             // to be registered as well
-            handle = nextHandle();
-            objectsWritten.put(classDesc, handle);
+            handle = registerObjectWritten(classDesc);
 
             if (classDesc.isProxy()) {
                 output.writeByte(TC_PROXYCLASSDESC);
@@ -892,17 +876,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     /**
      * Writes a handle representing a cyclic reference (object previously
      * dumped).
-     *
-     * @param handle
-     *            The Integer handle that represents an object previously seen
-     *
-     * @throws IOException
-     *             If an IO exception happened when writing the cyclic
-     *             reference.
      */
-    private void writeCyclicReference(Integer handle) throws IOException {
+    private void writeCyclicReference(int handle) throws IOException {
         output.writeByte(TC_REFERENCE);
-        output.writeInt(handle.intValue());
+        output.writeInt(handle);
     }
 
     /**
@@ -935,8 +912,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *
      * @see #writeObject(Object)
      */
-    private void writeFieldDescriptors(ObjectStreamClass classDesc,
-            boolean externalizable) throws IOException {
+    private void writeFieldDescriptors(ObjectStreamClass classDesc, boolean externalizable) throws IOException {
         Class<?> loadedClass = classDesc.forClass();
         ObjectStreamField[] fields = null;
         int fieldCount = 0;
@@ -953,9 +929,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         // Field names
         for (int i = 0; i < fieldCount; i++) {
             ObjectStreamField f = fields[i];
-            output.writeByte(f.getTypeCode());
-            output.writeUTF(f.getName());
-            if (!f.isPrimitive()) {
+            boolean wasPrimitive = f.writeField(output);
+            if (!wasPrimitive) {
                 writeObject(f.getTypeString());
             }
         }
@@ -998,27 +973,25 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         // Access internal fields which we can set/get. Users can't do this.
         EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
         EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
-        for (int i = 0; i < slots.length; i++) {
-            EmulatedFields.ObjectSlot slot = slots[i];
+        for (EmulatedFields.ObjectSlot slot : accessibleSimulatedFields.slots()) {
             Object fieldValue = slot.getFieldValue();
             Class<?> type = slot.getField().getType();
-            // WARNING - default values exist for each primitive type
             if (type == Integer.TYPE) {
                 output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
             } else if (type == Byte.TYPE) {
-                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : (byte) 0);
+                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : 0);
             } else if (type == Character.TYPE) {
-                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : (char) 0);
+                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : 0);
             } else if (type == Short.TYPE) {
-                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : (short) 0);
+                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : 0);
             } else if (type == Boolean.TYPE) {
                 output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
             } else if (type == Long.TYPE) {
-                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : (long) 0);
+                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : 0);
             } else if (type == Float.TYPE) {
-                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : (float) 0);
+                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : 0);
             } else if (type == Double.TYPE) {
-                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : (double) 0);
+                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : 0);
             } else {
                 // Either array or Object
                 writeObject(fieldValue);
@@ -1047,47 +1020,35 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     private void writeFieldValues(Object obj, ObjectStreamClass classDesc) throws IOException {
         for (ObjectStreamField fieldDesc : classDesc.fields()) {
             try {
+                Class<?> type = fieldDesc.getTypeInternal();
                 Field field = classDesc.getReflectionField(fieldDesc);
                 if (field == null) {
-                    throw new InvalidClassException(classDesc.getName() + " doesn't have a field " + fieldDesc.getName() + " of type " + fieldDesc.getTypeCode());
+                    throw new InvalidClassException(classDesc.getName() + " doesn't have a field " + fieldDesc.getName() + " of type " + type);
                 }
-                switch (fieldDesc.getTypeCode()) {
-                case 'B':
+                if (type == Byte.TYPE) {
                     output.writeByte(field.getByte(obj));
-                    break;
-                case 'C':
+                } else if (type == Character.TYPE) {
                     output.writeChar(field.getChar(obj));
-                    break;
-                case 'D':
+                } else if (type == Double.TYPE) {
                     output.writeDouble(field.getDouble(obj));
-                    break;
-                case 'F':
+                } else if (type == Float.TYPE) {
                     output.writeFloat(field.getFloat(obj));
-                    break;
-                case 'I':
+                } else if (type == Integer.TYPE) {
                     output.writeInt(field.getInt(obj));
-                    break;
-                case 'J':
+                } else if (type == Long.TYPE) {
                     output.writeLong(field.getLong(obj));
-                    break;
-                case 'S':
+                } else if (type == Short.TYPE) {
                     output.writeShort(field.getShort(obj));
-                    break;
-                case 'Z':
+                } else if (type == Boolean.TYPE) {
                     output.writeBoolean(field.getBoolean(obj));
-                    break;
-                case 'L':
-                case '[':
-                    // Reference types ('L' and '[').
+                } else {
+                    // Reference types (including arrays).
                     Object objField = field.get(obj);
                     if (fieldDesc.isUnshared()) {
                         writeUnshared(objField);
                     } else {
                         writeObject(objField);
                     }
-                    break;
-                default:
-                    throw new IOException("Invalid typecode: " + fieldDesc.getTypeCode());
                 }
             } catch (IllegalAccessException iae) {
                 // ObjectStreamField should have called setAccessible(true).
@@ -1140,59 +1101,56 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      */
     private void writeHierarchy(Object object, ObjectStreamClass classDesc)
             throws IOException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (object == null) {
             throw new NotActiveException();
         }
 
         // Fields are written from class closest to Object to leaf class
         // (down the chain)
-        if (classDesc.getSuperclass() != null) {
-            // first
-            writeHierarchy(object, classDesc.getSuperclass());
-        }
+        List<ObjectStreamClass> hierarchy = classDesc.getHierarchy();
+        for (int i = 0, end = hierarchy.size(); i < end; ++i) {
+            ObjectStreamClass osc = hierarchy.get(i);
+            // Have to do this before calling defaultWriteObject or anything
+            // that calls defaultWriteObject
+            currentObject = object;
+            currentClass = osc;
 
-        // Have to do this before calling defaultWriteObject or anything
-        // that calls defaultWriteObject
-        currentObject = object;
-        currentClass = classDesc;
-
-        // See if the object has a writeObject method. If so, run it
-        boolean executed = false;
-        try {
-            if (classDesc.hasMethodWriteObject()){
-                final Method method = classDesc.getMethodWriteObject();
-                try {
-                    method.invoke(object, new Object[] { this });
-                    executed = true;
-                } catch (InvocationTargetException e) {
-                    Throwable ex = e.getTargetException();
-                    if (ex instanceof RuntimeException) {
-                        throw (RuntimeException) ex;
-                    } else if (ex instanceof Error) {
-                        throw (Error) ex;
+            // See if the object has a writeObject method. If so, run it
+            try {
+                boolean executed = false;
+                if (osc.hasMethodWriteObject()) {
+                    final Method method = osc.getMethodWriteObject();
+                    try {
+                        method.invoke(object, new Object[] { this });
+                        executed = true;
+                    } catch (InvocationTargetException e) {
+                        Throwable ex = e.getTargetException();
+                        if (ex instanceof RuntimeException) {
+                            throw (RuntimeException) ex;
+                        } else if (ex instanceof Error) {
+                            throw (Error) ex;
+                        }
+                        throw (IOException) ex;
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e.toString());
                     }
-                    throw (IOException) ex;
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e.toString());
                 }
-            }
 
-
-            if (executed) {
-                drain();
-                output.writeByte(TC_ENDBLOCKDATA);
-            } else {
-                // If the object did not have a writeMethod, call
-                // defaultWriteObject
-                defaultWriteObject();
+                if (executed) {
+                    drain();
+                    output.writeByte(TC_ENDBLOCKDATA);
+                } else {
+                    // If the object did not have a writeMethod, call
+                    // defaultWriteObject
+                    defaultWriteObject();
+                }
+            } finally {
+                // Cleanup, needs to run always so that we can later detect
+                // invalid calls to defaultWriteObject
+                currentObject = null;
+                currentClass = null;
+                currentPutField = null;
             }
-        } finally {
-            // Cleanup, needs to run always so that we can later detect
-            // invalid calls to defaultWriteObject
-            currentObject = null;
-            currentClass = null;
-            currentPutField = null;
         }
     }
 
@@ -1225,8 +1183,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     /**
      * Write array {@code array} of class {@code arrayClass} with
      * component type {@code componentType} into the receiver. It is
-     * assumed the array has not been dumped yet. Return an {@code Integer}
-     * that represents the handle for this object (array) which is dumped here.
+     * assumed the array has not been dumped yet. Returns
+     * the handle for this object (array) which is dumped here.
      *
      * @param array
      *            The array object to dump
@@ -1241,13 +1199,12 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @throws IOException
      *             If an IO exception happened when writing the array.
      */
-    private Integer writeNewArray(Object array, Class<?> arrayClass, ObjectStreamClass arrayClDesc,
+    private int writeNewArray(Object array, Class<?> arrayClass, ObjectStreamClass arrayClDesc,
             Class<?> componentType, boolean unshared) throws IOException {
         output.writeByte(TC_ARRAY);
         writeClassDesc(arrayClDesc, false);
 
-        Integer handle = nextHandle();
-
+        int handle = nextHandle();
         if (!unshared) {
             objectsWritten.put(array, handle);
         }
@@ -1326,8 +1283,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * Write class {@code object} into the receiver. It is assumed the
      * class has not been dumped yet. Classes are not really dumped, but a class
      * descriptor ({@code ObjectStreamClass}) that corresponds to them.
-     * Return an {@code Integer} that represents the handle for this
-     * object (class) which is dumped here.
+     * Returns the handle for this object (class) which is dumped here.
      *
      * @param object
      *            The {@code java.lang.Class} object to dump
@@ -1336,8 +1292,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @throws IOException
      *             If an IO exception happened when writing the class.
      */
-    private Integer writeNewClass(Class<?> object, boolean unshared)
-            throws IOException {
+    private int writeNewClass(Class<?> object, boolean unshared) throws IOException {
         output.writeByte(TC_CLASS);
 
         // Instances of java.lang.Class are always Serializable, even if their
@@ -1355,8 +1310,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             writeClassDesc(clDesc, unshared);
         }
 
-        Integer handle = nextHandle();
-
+        int handle = nextHandle();
         if (!unshared) {
             objectsWritten.put(object, handle);
         }
@@ -1367,9 +1321,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     /**
      * Write class descriptor {@code classDesc} into the receiver. It is
      * assumed the class descriptor has not been dumped yet. The class
-     * descriptors for the superclass chain will be dumped as well. Return an
-     * {@code Integer} that represents the handle for this object (class
-     * descriptor) which is dumped here.
+     * descriptors for the superclass chain will be dumped as well. Returns
+     * the handle for this object (class descriptor) which is dumped here.
      *
      * @param classDesc
      *            The {@code ObjectStreamClass} object to dump
@@ -1419,8 +1372,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
 
     /**
      * Write exception {@code ex} into the receiver. It is assumed the
-     * exception has not been dumped yet. Return an {@code Integer} that
-     * represents the handle for this object (exception) which is dumped here.
+     * exception has not been dumped yet. Returns
+     * the handle for this object (exception) which is dumped here.
      * This is used to dump the exception instance that happened (if any) when
      * dumping the original object graph. The set of seen objects will be reset
      * just before and just after dumping this exception object.
@@ -1445,8 +1398,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
 
     /**
      * Write object {@code object} of class {@code theClass} into
-     * the receiver. It is assumed the object has not been dumped yet. Return an
-     * {@code Integer} that represents the handle for this object which
+     * the receiver. It is assumed the object has not been dumped yet.
+     * Return the handle for this object which
      * is dumped here.
      *
      * If the object implements {@code Externalizable} its
@@ -1467,7 +1420,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @throws IOException
      *             If an IO exception happened when writing the object.
      */
-    private Integer writeNewObject(Object object, Class<?> theClass, ObjectStreamClass clDesc,
+    private int writeNewObject(Object object, Class<?> theClass, ObjectStreamClass clDesc,
             boolean unshared) throws IOException {
         // Not String, not null, not array, not cyclic reference
 
@@ -1485,12 +1438,12 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         // Either serializable or externalizable, now we can save info
         output.writeByte(TC_OBJECT);
         writeClassDesc(clDesc, false);
-        Integer previousHandle = null;
+        int previousHandle = -1;
         if (unshared) {
             previousHandle = objectsWritten.get(object);
         }
-        Integer handle = nextHandle();
-        objectsWritten.put(object, handle);
+
+        int handle = registerObjectWritten(object);
 
         // This is how we know what to do in defaultWriteObject. And it is also
         // used by defaultWriteObject to check if it was called from an invalid
@@ -1538,8 +1491,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
 
     /**
      * Write String {@code object} into the receiver. It is assumed the
-     * String has not been dumped yet. Return an {@code Integer} that
-     * represents the handle for this object (String) which is dumped here.
+     * String has not been dumped yet. Returns the handle for this object (String) which is dumped here.
      * Strings are saved encoded with {@link DataInput modified UTF-8}.
      *
      * @param object
@@ -1549,7 +1501,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      * @throws IOException
      *             If an IO exception happened when writing the String.
      */
-    private Integer writeNewString(String object, boolean unshared) throws IOException {
+    private int writeNewString(String object, boolean unshared) throws IOException {
         long count = ModifiedUtf8.countBytes(object, false);
         byte[] buffer;
         int offset = 0;
@@ -1567,8 +1519,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         ModifiedUtf8.encode(buffer, offset, object);
         output.write(buffer, 0, buffer.length);
 
-        Integer handle = nextHandle();
-
+        int handle = nextHandle();
         if (!unshared) {
             objectsWritten.put(object, handle);
         }
@@ -1673,18 +1624,18 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      *
      * @see ObjectInputStream#readObject()
      */
-    private Integer writeObjectInternal(Object object, boolean unshared,
+    private int writeObjectInternal(Object object, boolean unshared,
             boolean computeClassBasedReplacement,
             boolean computeStreamReplacement) throws IOException {
 
         if (object == null) {
             writeNull();
-            return null;
+            return -1;
         }
-        Integer handle = null;
+        int handle = -1;
         if (!unshared) {
             handle = dumpCycle(object);
-            if (handle != null) {
+            if (handle != -1) {
                 return handle; // cyclic reference
             }
         }
@@ -1707,9 +1658,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                 }
             }
 
-            if (clDesc.isSerializable()
-                    && computeClassBasedReplacement) {
-                if(clDesc.hasMethodWriteReplace()){
+            if (clDesc.isSerializable() && computeClassBasedReplacement) {
+                if (clDesc.hasMethodWriteReplace()){
                     Method methodWriteReplace = clDesc.getMethodWriteReplace();
                     Object replObj = null;
                     try {
@@ -1730,12 +1680,11 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                     }
                     if (replObj != object) {
                         // All over, class-based replacement off this time.
-                        Integer replacementHandle = writeObjectInternal(
-                                replObj, false, false,
+                        int replacementHandle = writeObjectInternal(replObj, false, false,
                                 computeStreamReplacement);
                         // Make the original object also map to the same
                         // handle.
-                        if (replacementHandle != null) {
+                        if (replacementHandle != -1) {
                             objectsWritten.put(object, replacementHandle);
                         }
                         return replacementHandle;
@@ -1752,11 +1701,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                 Object streamReplacement = replaceObject(object);
                 if (streamReplacement != object) {
                     // All over, class-based replacement off this time.
-                    Integer replacementHandle = writeObjectInternal(
-                            streamReplacement, false,
+                    int replacementHandle = writeObjectInternal(streamReplacement, false,
                             computeClassBasedReplacement, false);
                     // Make the original object also map to the same handle.
-                    if (replacementHandle != null) {
+                    if (replacementHandle != -1) {
                         objectsWritten.put(object, replacementHandle);
                     }
                     return replacementHandle;
@@ -1804,19 +1752,19 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
 
         // set flag for enum, the flag is (SC_SERIALIZABLE | SC_ENUM)
         classDesc.setFlags((byte) (SC_SERIALIZABLE | SC_ENUM));
-        Integer previousHandle = null;
+        int previousHandle = -1;
         if (unshared) {
             previousHandle = objectsWritten.get(classDesc);
         }
-        Integer handle = null;
+        int handle = -1;
         if (!unshared) {
             handle = dumpCycle(classDesc);
         }
-        if (handle == null) {
+        if (handle == -1) {
             Class<?> classToWrite = classDesc.forClass();
             // If we got here, it is a new (non-null) classDesc that will have
             // to be registered as well
-            objectsWritten.put(classDesc, nextHandle());
+            registerObjectWritten(classDesc);
 
             output.writeByte(TC_CLASSDESC);
             if (protocolVersion == PROTOCOL_VERSION_1) {
@@ -1849,8 +1797,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         return classDesc;
     }
 
-    private Integer writeNewEnum(Object object, Class<?> theClass, boolean unshared)
-            throws IOException {
+    private int writeNewEnum(Object object, Class<?> theClass, boolean unshared) throws IOException {
         // write new Enum
         EmulatedFieldsForDumping originalCurrentPutField = currentPutField; // save
         // null it, to make sure one will be computed if needed
@@ -1864,12 +1811,11 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         ObjectStreamClass classDesc = ObjectStreamClass.lookup(theClass);
         writeEnumDesc(theClass, classDesc, unshared);
 
-        Integer previousHandle = null;
+        int previousHandle = -1;
         if (unshared) {
             previousHandle = objectsWritten.get(object);
         }
-        Integer handle = nextHandle();
-        objectsWritten.put(object, handle);
+        int handle = registerObjectWritten(object);
 
         ObjectStreamField[] fields = classDesc.getSuperclass().fields();
         // Only write field "name" for enum class, which is the second field of
@@ -1881,11 +1827,11 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             }
             try {
                 String str = (String) field.get(object);
-                Integer strHandle = null;
+                int strHandle = -1;
                 if (!unshared) {
                     strHandle = dumpCycle(str);
                 }
-                if (strHandle == null) {
+                if (strHandle == -1) {
                     writeNewString(str, unshared);
                 }
             } catch (IllegalAccessException iae) {

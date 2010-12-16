@@ -6,11 +6,9 @@
 
 package java.util.concurrent.atomic;
 
-import dalvik.system.VMStack;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Modifier;
+import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
+import java.lang.reflect.*;
 
 /**
  * A reflection-based utility that enables atomic updates to
@@ -30,7 +28,7 @@ import sun.misc.Unsafe;
  * @author Doug Lea
  * @param <T> The type of the object holding the updatable field
  */
-public abstract class  AtomicIntegerFieldUpdater<T>  {
+public abstract class  AtomicIntegerFieldUpdater<T> {
     /**
      * Creates and returns an updater for objects with the given field.
      * The Class argument is needed to check that reflective types and

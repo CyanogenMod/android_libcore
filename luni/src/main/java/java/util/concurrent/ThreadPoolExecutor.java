@@ -5,16 +5,9 @@
  */
 
 package java.util.concurrent;
-
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.*;
+import java.util.concurrent.atomic.*;
+import java.util.*;
 
 /**
  * An {@link ExecutorService} that executes each submitted task using
@@ -1419,16 +1412,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Invokes {@code shutdown} when this executor is no longer
      * referenced and it has no threads.
      */
-    @Override protected void finalize() {
-        try {
-            shutdown();
-        } finally {
-            try {
-                super.finalize();
-            } catch (Throwable t) {
-                throw new AssertionError(t);
-            }
-        }
+    protected void finalize() {
+        shutdown();
     }
 
     /**
@@ -1827,6 +1812,43 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         }
     }
 
+    /**
+     * Returns a string identifying this pool, as well as its state,
+     * including indications of run state and estimated worker and
+     * task counts.
+     *
+     * @return a string identifying this pool, as well as its state
+     */
+    public String toString() {
+        long ncompleted;
+        int nworkers, nactive;
+        final ReentrantLock mainLock = this.mainLock;
+        mainLock.lock();
+        try {
+            ncompleted = completedTaskCount;
+            nactive = 0;
+            nworkers = workers.size();
+            for (Worker w : workers) {
+                ncompleted += w.completedTasks;
+                if (w.isLocked())
+                    ++nactive;
+            }
+        } finally {
+            mainLock.unlock();
+        }
+        int c = ctl.get();
+        String rs = (runStateLessThan(c, SHUTDOWN) ? "Running" :
+                     (runStateAtLeast(c, TERMINATED) ? "Terminated" :
+                      "Shutting down"));
+        return super.toString() +
+            "[" + rs +
+            ", pool size = " + nworkers +
+            ", active threads = " + nactive +
+            ", queued tasks = " + workQueue.size() +
+            ", completed tasks = " + ncompleted +
+            "]";
+    }
+
     /* Extension hooks */
 
     /**
@@ -1947,20 +1969,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * @throws RejectedExecutionException always.
          */
         public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-            // BEGIN android-changed
-            //     provide diagnostic messaging for a common exception
-
-            // a message is helpful even if it isn't created atomically
-            int queueSize = e.getQueue().size();
-            int remainingCapacity = e.getQueue().remainingCapacity();
-            String message = "pool=" + e.getPoolSize() + "/" + e.maximumPoolSize
-                    + ", queue=" + queueSize;
-            if (remainingCapacity != Integer.MAX_VALUE) {
-                message += "/" + (queueSize + remainingCapacity);
-            }
-            throw new RejectedExecutionException(message);
-
-            // END android-changed
+            throw new RejectedExecutionException("Task " + r.toString() +
+                                                 " rejected from " +
+                                                 e.toString());
         }
     }
 

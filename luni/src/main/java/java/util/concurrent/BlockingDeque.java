@@ -5,10 +5,7 @@
  */
 
 package java.util.concurrent;
-
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A {@link Deque} that additionally supports blocking operations that wait
@@ -39,9 +36,9 @@ import java.util.NoSuchElementException;
  *  <tr>
  *    <td><b>Insert</b></td>
  *    <td>{@link #addFirst addFirst(e)}</td>
- *    <td>{@link #offerFirst(E) offerFirst(e)}</td>
+ *    <td>{@link #offerFirst offerFirst(e)}</td>
  *    <td>{@link #putFirst putFirst(e)}</td>
- *    <td>{@link #offerFirst(E, long, TimeUnit) offerFirst(e, time, unit)}</td>
+ *    <td>{@link #offerFirst offerFirst(e, time, unit)}</td>
  *  </tr>
  *  <tr>
  *    <td><b>Remove</b></td>
@@ -70,9 +67,9 @@ import java.util.NoSuchElementException;
  *  <tr>
  *    <td><b>Insert</b></td>
  *    <td>{@link #addLast addLast(e)}</td>
- *    <td>{@link #offerLast(E) offerLast(e)}</td>
+ *    <td>{@link #offerLast offerLast(e)}</td>
  *    <td>{@link #putLast putLast(e)}</td>
- *    <td>{@link #offerLast(E, long, TimeUnit) offerLast(e, time, unit)}</td>
+ *    <td>{@link #offerLast offerLast(e, time, unit)}</td>
  *  </tr>
  *  <tr>
  *    <td><b>Remove</b></td>
@@ -109,20 +106,20 @@ import java.util.NoSuchElementException;
  *    <td ALIGN=CENTER COLSPAN = 2> <b>Insert</b></td>
  *  </tr>
  *  <tr>
- *    <td>{@link #add(E) add(e)}</td>
- *    <td>{@link #addLast(E) addLast(e)}</td>
+ *    <td>{@link #add add(e)}</td>
+ *    <td>{@link #addLast addLast(e)}</td>
  *  </tr>
  *  <tr>
- *    <td>{@link #offer(E) offer(e)}</td>
- *    <td>{@link #offerLast(E) offerLast(e)}</td>
+ *    <td>{@link #offer offer(e)}</td>
+ *    <td>{@link #offerLast offerLast(e)}</td>
  *  </tr>
  *  <tr>
- *    <td>{@link #put(E) put(e)}</td>
- *    <td>{@link #putLast(E) putLast(e)}</td>
+ *    <td>{@link #put put(e)}</td>
+ *    <td>{@link #putLast putLast(e)}</td>
  *  </tr>
  *  <tr>
- *    <td>{@link #offer(E, long, TimeUnit) offer(e, time, unit)}</td>
- *    <td>{@link #offerLast(E, long, TimeUnit) offerLast(e, time, unit)}</td>
+ *    <td>{@link #offer offer(e, time, unit)}</td>
+ *    <td>{@link #offerLast offerLast(e, time, unit)}</td>
  *  </tr>
  *  <tr>
  *    <td ALIGN=CENTER COLSPAN = 2> <b>Remove</b></td>
@@ -184,7 +181,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * possible to do so immediately without violating capacity restrictions,
      * throwing an <tt>IllegalStateException</tt> if no space is currently
      * available.  When using a capacity-restricted deque, it is generally
-     * preferable to use {@link #offerFirst(E) offerFirst}.
+     * preferable to use {@link #offerFirst offerFirst}.
      *
      * @param e the element to add
      * @throws IllegalStateException {@inheritDoc}
@@ -199,7 +196,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * possible to do so immediately without violating capacity restrictions,
      * throwing an <tt>IllegalStateException</tt> if no space is currently
      * available.  When using a capacity-restricted deque, it is generally
-     * preferable to use {@link #offerLast(E) offerLast}.
+     * preferable to use {@link #offerLast offerLast}.
      *
      * @param e the element to add
      * @throws IllegalStateException {@inheritDoc}
@@ -215,7 +212,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * returning <tt>true</tt> upon success and <tt>false</tt> if no space is
      * currently available.
      * When using a capacity-restricted deque, this method is generally
-     * preferable to the {@link #addFirst(E) addFirst} method, which can
+     * preferable to the {@link #addFirst addFirst} method, which can
      * fail to insert an element only by throwing an exception.
      *
      * @param e the element to add
@@ -231,7 +228,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * returning <tt>true</tt> upon success and <tt>false</tt> if no space is
      * currently available.
      * When using a capacity-restricted deque, this method is generally
-     * preferable to the {@link #addLast(E) addLast} method, which can
+     * preferable to the {@link #addLast addLast} method, which can
      * fail to insert an element only by throwing an exception.
      *
      * @param e the element to add
@@ -404,9 +401,9 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * <tt>true</tt> upon success and throwing an
      * <tt>IllegalStateException</tt> if no space is currently available.
      * When using a capacity-restricted deque, it is generally preferable to
-     * use {@link #offer(E) offer}.
+     * use {@link #offer offer}.
      *
-     * <p>This method is equivalent to {@link #addLast(E) addLast}.
+     * <p>This method is equivalent to {@link #addLast addLast}.
      *
      * @param e the element to add
      * @throws IllegalStateException {@inheritDoc}
@@ -427,7 +424,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * generally preferable to the {@link #add} method, which can fail to
      * insert an element only by throwing an exception.
      *
-     * <p>This method is equivalent to {@link #offerLast(E) offerLast}.
+     * <p>This method is equivalent to {@link #offerLast offerLast}.
      *
      * @param e the element to add
      * @throws ClassCastException if the class of the specified element
@@ -443,7 +440,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * (in other words, at the tail of this deque), waiting if necessary for
      * space to become available.
      *
-     * <p>This method is equivalent to {@link #putLast(E) putLast}.
+     * <p>This method is equivalent to {@link #putLast putLast}.
      *
      * @param e the element to add
      * @throws InterruptedException {@inheritDoc}
@@ -461,7 +458,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * specified wait time if necessary for space to become available.
      *
      * <p>This method is equivalent to
-     * {@link #offerLast(E,long,TimeUnit) offerLast}.
+     * {@link #offerLast offerLast}.
      *
      * @param e the element to add
      * @return <tt>true</tt> if the element was added to this deque, else
@@ -560,7 +557,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * (or equivalently, if this deque changed as a result of the call).
      *
      * <p>This method is equivalent to
-     * {@link #removeFirstOccurrence(Object) removeFirstOccurrence}.
+     * {@link #removeFirstOccurrence removeFirstOccurrence}.
      *
      * @param o element to be removed from this deque, if present
      * @return <tt>true</tt> if this deque changed as a result of the call
@@ -605,7 +602,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * words, inserts the element at the front of this deque unless it would
      * violate capacity restrictions.
      *
-     * <p>This method is equivalent to {@link #addFirst(E) addFirst}.
+     * <p>This method is equivalent to {@link #addFirst addFirst}.
      *
      * @throws IllegalStateException {@inheritDoc}
      * @throws ClassCastException {@inheritDoc}

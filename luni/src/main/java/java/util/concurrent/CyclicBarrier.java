@@ -5,9 +5,7 @@
  */
 
 package java.util.concurrent;
-
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.*;
 
 /**
  * A synchronization aid that allows a set of threads to all wait for

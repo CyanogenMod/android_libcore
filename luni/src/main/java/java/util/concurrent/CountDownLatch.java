@@ -5,8 +5,8 @@
  */
 
 package java.util.concurrent;
-
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.*;
+import java.util.concurrent.atomic.*;
 
 /**
  * A synchronization aid that allows one or more threads to wait until
@@ -146,7 +146,7 @@ public class CountDownLatch {
         }
 
         protected int tryAcquireShared(int acquires) {
-            return getState() == 0? 1 : -1;
+            return (getState() == 0) ? 1 : -1;
         }
 
         protected boolean tryReleaseShared(int releases) {
