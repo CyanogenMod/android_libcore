@@ -511,7 +511,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      */
     public void defaultReadObject() throws IOException, ClassNotFoundException,
             NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject != null || !mustResolve) {
             readFieldValues(currentObject, currentClass);
         } else {
@@ -1060,7 +1059,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *             if this stream is currently not reading an object.
      */
     public GetField readFields() throws IOException, ClassNotFoundException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -1326,7 +1324,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      */
     private void readHierarchy(Object object, ObjectStreamClass classDesc)
             throws IOException, ClassNotFoundException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (object == null && mustResolve) {
             throw new NotActiveException();
         }
@@ -2307,7 +2304,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // Validation can only be registered when inside readObject calls
         Object instanceBeingRead = this.currentObject;
 
-        // We can't be called from just anywhere. There are rules.
         if (instanceBeingRead == null && nestedLevels == 0) {
             throw new NotActiveException();
         }

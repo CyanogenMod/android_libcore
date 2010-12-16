@@ -390,7 +390,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @see #writeFieldValues(EmulatedFieldsForDumping)
      */
     private void computePutField() {
-        currentPutField = new EmulatedFieldsForDumping(currentClass);
+        currentPutField = new EmulatedFieldsForDumping(this, currentClass);
     }
 
     /**
@@ -405,7 +405,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @see ObjectInputStream#defaultReadObject
      */
     public void defaultWriteObject() throws IOException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -557,7 +556,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @see ObjectInputStream#defaultReadObject
      */
     public PutField putFields() throws IOException {
-        // We can't be called from just anywhere. There are rules.
         if (currentObject == null) {
             throw new NotActiveException();
         }
@@ -975,27 +973,25 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         // Access internal fields which we can set/get. Users can't do this.
         EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
         EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
-        for (int i = 0; i < slots.length; i++) {
-            EmulatedFields.ObjectSlot slot = slots[i];
+        for (EmulatedFields.ObjectSlot slot : accessibleSimulatedFields.slots()) {
             Object fieldValue = slot.getFieldValue();
             Class<?> type = slot.getField().getType();
-            // WARNING - default values exist for each primitive type
             if (type == Integer.TYPE) {
                 output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
             } else if (type == Byte.TYPE) {
-                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : (byte) 0);
+                output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : 0);
             } else if (type == Character.TYPE) {
-                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : (char) 0);
+                output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : 0);
             } else if (type == Short.TYPE) {
-                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : (short) 0);
+                output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : 0);
             } else if (type == Boolean.TYPE) {
                 output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
             } else if (type == Long.TYPE) {
-                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : (long) 0);
+                output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : 0);
             } else if (type == Float.TYPE) {
-                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : (float) 0);
+                output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : 0);
             } else if (type == Double.TYPE) {
-                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : (double) 0);
+                output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : 0);
             } else {
                 // Either array or Object
                 writeObject(fieldValue);
@@ -1105,7 +1101,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      */
     private void writeHierarchy(Object object, ObjectStreamClass classDesc)
             throws IOException, NotActiveException {
-        // We can't be called from just anywhere. There are rules.
         if (object == null) {
             throw new NotActiveException();
         }
