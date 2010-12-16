@@ -1112,31 +1112,19 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
         try {
             raf.write(testBuf, -1, 10);
             fail("Test 2: IndexOutOfBoundsException expected.");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-            assertEquals(
-                    "Test 2: IndexOutOfBoundsException rather than a subclass expected.",
-                    IndexOutOfBoundsException.class, e.getClass());
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         try {
             raf.write(testBuf, 0, -1);
             fail("Test 3: IndexOutOfBoundsException expected.");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-            assertEquals(
-                    "Test 3: IndexOutOfBoundsException rather than a subclass expected.",
-                    IndexOutOfBoundsException.class, e.getClass());
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         try {
             raf.write(testBuf, 5, testLength);
             fail("Test 4: IndexOutOfBoundsException expected.");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-            assertEquals(
-                    "Test 4: IndexOutOfBoundsException rather than a subclass expected.",
-                    IndexOutOfBoundsException.class, e.getClass());
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         // Positive test: The following write should not fail.
