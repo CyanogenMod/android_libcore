@@ -181,7 +181,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * possible to do so immediately without violating capacity restrictions,
      * throwing an <tt>IllegalStateException</tt> if no space is currently
      * available.  When using a capacity-restricted deque, it is generally
-     * preferable to use {@link #offerFirst(Object) offerFirst}.
+     * preferable to use {@link #offerFirst offerFirst}.
      *
      * @param e the element to add
      * @throws IllegalStateException {@inheritDoc}
@@ -196,7 +196,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * possible to do so immediately without violating capacity restrictions,
      * throwing an <tt>IllegalStateException</tt> if no space is currently
      * available.  When using a capacity-restricted deque, it is generally
-     * preferable to use {@link #offerLast(Object) offerLast}.
+     * preferable to use {@link #offerLast offerLast}.
      *
      * @param e the element to add
      * @throws IllegalStateException {@inheritDoc}
@@ -212,7 +212,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * returning <tt>true</tt> upon success and <tt>false</tt> if no space is
      * currently available.
      * When using a capacity-restricted deque, this method is generally
-     * preferable to the {@link #addFirst(Object) addFirst} method, which can
+     * preferable to the {@link #addFirst addFirst} method, which can
      * fail to insert an element only by throwing an exception.
      *
      * @param e the element to add
@@ -557,7 +557,7 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * (or equivalently, if this deque changed as a result of the call).
      *
      * <p>This method is equivalent to
-     * {@link #removeFirstOccurrence(Object) removeFirstOccurrence}.
+     * {@link #removeFirstOccurrence removeFirstOccurrence}.
      *
      * @param o element to be removed from this deque, if present
      * @return <tt>true</tt> if this deque changed as a result of the call

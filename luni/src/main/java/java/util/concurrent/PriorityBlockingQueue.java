@@ -476,7 +476,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
      * @param timeout This parameter is ignored as the method never blocks
      * @param unit This parameter is ignored as the method never blocks
      * @return {@code true} (as specified by
-     *  {@link BlockingQueue#offer(Object,long,TimeUnit) BlockingQueue.offer})
+     *  {@link BlockingQueue#offer BlockingQueue.offer})
      * @throws ClassCastException if the specified element cannot be compared
      *         with elements currently in the priority queue according to the
      *         priority queue's ordering
