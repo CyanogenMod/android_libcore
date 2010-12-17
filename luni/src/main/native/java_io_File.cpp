@@ -63,20 +63,6 @@ static jlong File_lengthImpl(JNIEnv* env, jclass, jstring javaPath) {
         // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
         return 0;
     }
-
-    /*
-     * This android-changed code explicitly treats non-regular files (e.g.,
-     * sockets and block-special devices) as having size zero. Some synthetic
-     * "regular" files may report an arbitrary non-zero size, but
-     * in these cases they generally report a block count of zero.
-     * So, use a zero block count to trump any other concept of
-     * size.
-     *
-     * TODO: why do we do this?
-     */
-    if (!S_ISREG(sb.st_mode) || sb.st_blocks == 0) {
-        return 0;
-    }
     return sb.st_size;
 }
 
