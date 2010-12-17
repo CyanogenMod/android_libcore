@@ -56,10 +56,12 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.http.DefaultResponseCache;
 import tests.http.MockResponse;
@@ -463,6 +465,30 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+    }
+
+    /**
+     * Verify that we don't retry connections on certificate verification errors.
+     *
+     * http://code.google.com/p/android/issues/detail?id=13178
+     */
+    public void testConnectViaHttpsToUntrustedServer() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create(TestKeyStore.getClientCA2(),
+                                                              TestKeyStore.getServer());
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()); // unused
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            assertTrue(expected.getCause() instanceof CertificateException);
+        }
+        assertEquals(0, server.getRequestCount());
     }
 
     public void testConnectViaProxyUsingProxyArg() throws Exception {
