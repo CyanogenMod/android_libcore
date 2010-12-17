@@ -978,9 +978,9 @@
   name: "tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
 },
 {
-  description: "DefaultHostnameVerifier is broken on Android, fixed in donutburger",
-  result: EXEC_FAILED,
-  name: "tests.api.javax.net.ssl.HostnameVerifierTest#testSubjectAlt"
+  description: "HostnameVerifier doesn't verify IP addresses",
+  bug: 3299188,
+  name: "tests.api.javax.net.ssl.HostnameVerifierTest#testVerifyIpAddress"
 },
 {
   description: "NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing",
