@@ -42,7 +42,7 @@
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
   name: "tests.xml.DeclarationTest#testGetXmlVersion",
-  substring: "This implementation doesn't parse the version from the XML declaration expected:<...1> but was:<...0>"
+  substring: "This implementation doesn't parse the version from the XML declaration"
 },
 {
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
