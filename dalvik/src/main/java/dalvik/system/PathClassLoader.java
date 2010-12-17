@@ -105,8 +105,9 @@ public class PathClassLoader extends ClassLoader {
     public PathClassLoader(String path, String libPath, ClassLoader parent) {
         super(parent);
 
-        if (path == null)
+        if (path == null) {
             throw new NullPointerException();
+        }
 
         this.path = path;
         this.libPath = libPath;
@@ -114,17 +115,12 @@ public class PathClassLoader extends ClassLoader {
         mPaths = path.split(":");
         int length = mPaths.length;
 
-        //System.out.println("PathClassLoader: " + mPaths);
         mFiles = new File[length];
         mZips = new ZipFile[length];
         mDexs = new DexFile[length];
 
-        boolean wantDex =
-            System.getProperty("android.vm.dexfile", "").equals("true");
-
         /* open all Zip and DEX files up front */
         for (int i = 0; i < length; i++) {
-            //System.out.println("My path is: " + mPaths[i]);
             File pathFile = new File(mPaths[i]);
             mFiles[i] = pathFile;
 
@@ -139,19 +135,23 @@ public class PathClassLoader extends ClassLoader {
                     }
                     catch (IOException ioex) {
                         // expecting IOException and ZipException
-                        //System.out.println("Failed opening '" + pathFile + "': " + ioex);
+                        //System.out.println("Failed opening '" + pathFile
+                        //    + "': " + ioex);
                         //ioex.printStackTrace();
                     }
                 }
-                if (wantDex) {
-                    /*
-                     * If we got a zip file, we still need to extract out
-                     * the dex file from it.
-                     */
-                    try {
-                        mDexs[i] = new DexFile(pathFile);
-                    }
-                    catch (IOException ioex) {}
+
+                /*
+                 * If we got a zip file, we still need to extract out
+                 * the dex file from it.
+                 */
+                try {
+                    mDexs[i] = new DexFile(pathFile);
+                }
+                catch (IOException ioex) {
+                    // It might be a resource-only zip.
+                    //System.out.println("Failed to construct DexFile '"
+                    //    + pathFile + "': " + ioex);
                 }
             }
         }
@@ -197,8 +197,7 @@ public class PathClassLoader extends ClassLoader {
      *             if the class cannot be found
      */
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException
-    {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         //System.out.println("PathClassLoader " + this + ": findClass '" + name + "'");
 
         byte[] data = null;
@@ -269,7 +268,7 @@ public class PathClassLoader extends ClassLoader {
 
         for (int i = 0; i < length; i++) {
             URL result = findResource(name, i);
-            if(result != null) {
+            if (result != null) {
                 return result;
             }
         }
@@ -290,7 +289,7 @@ public class PathClassLoader extends ClassLoader {
         ArrayList<URL> results = new ArrayList<URL>();
         for (int i = 0; i < length; i++) {
             URL result = findResource(resName, i);
-            if(result != null) {
+            if (result != null) {
                 results.add(result);
             }
         }
