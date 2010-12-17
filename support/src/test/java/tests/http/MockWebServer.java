@@ -45,6 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import static tests.http.SocketPolicy.DISCONNECT_AT_START;
 
 /**
  * A scriptable web server. Callers supply canned responses and the server
@@ -207,7 +208,7 @@ public final class MockWebServer {
                     }
 
                     Socket socket = serverSocket.accept();
-                    if (responseQueue.peek().getDisconnectAtStart()) {
+                    if (responseQueue.peek().getSocketPolicy() == DISCONNECT_AT_START) {
                         responseQueue.take();
                         socket.close();
                         continue;
@@ -235,7 +236,7 @@ public final class MockWebServer {
                 Socket socket;
                 if (sslSocketFactory != null) {
                     if (tunnelProxy) {
-                        if (!processOneRequest(raw.getInputStream(), raw.getOutputStream())) {
+                        if (!processOneRequest(raw.getInputStream(), raw.getOutputStream(), raw)) {
                             throw new IllegalStateException("Tunnel without any CONNECT!");
                         }
                     }
@@ -251,10 +252,10 @@ public final class MockWebServer {
                 InputStream in = new BufferedInputStream(socket.getInputStream());
                 OutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
-                if (!processOneRequest(in, out)) {
+                if (!processOneRequest(in, out, socket)) {
                     throw new IllegalStateException("Connection without any request!");
                 }
-                while (processOneRequest(in, out)) {}
+                while (processOneRequest(in, out, socket)) {}
 
                 in.close();
                 out.close();
@@ -267,7 +268,7 @@ public final class MockWebServer {
              * Reads a request and writes its response. Returns true if a request
              * was processed.
              */
-            private boolean processOneRequest(InputStream in, OutputStream out)
+            private boolean processOneRequest(InputStream in, OutputStream out, Socket socket)
                     throws IOException, InterruptedException {
                 RecordedRequest request = readRequest(in, sequenceNumber);
                 if (request == null) {
@@ -275,9 +276,13 @@ public final class MockWebServer {
                 }
                 MockResponse response = dispatch(request);
                 writeResponse(out, response);
-                if (response.getDisconnectAtEnd()) {
+                if (response.getSocketPolicy() == SocketPolicy.DISCONNECT_AT_END) {
                     in.close();
                     out.close();
+                } else if (response.getSocketPolicy() == SocketPolicy.SHUTDOWN_INPUT_AT_END) {
+                    socket.shutdownInput();
+                } else if (response.getSocketPolicy() == SocketPolicy.SHUTDOWN_OUTPUT_AT_END) {
+                    socket.shutdownOutput();
                 }
                 sequenceNumber++;
                 return true;

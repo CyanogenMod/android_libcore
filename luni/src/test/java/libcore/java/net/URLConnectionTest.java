@@ -56,15 +56,22 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.http.DefaultResponseCache;
 import tests.http.MockResponse;
 import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
+import tests.http.SocketPolicy;
+import static tests.http.SocketPolicy.DISCONNECT_AT_END;
+import static tests.http.SocketPolicy.DISCONNECT_AT_START;
+import static tests.http.SocketPolicy.SHUTDOWN_INPUT_AT_END;
+import static tests.http.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import tests.net.StuckServer;
 
 public class URLConnectionTest extends junit.framework.TestCase {
@@ -227,6 +234,33 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, server.takeRequest().getSequenceNumber());
         assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/z").openConnection());
         assertEquals(2, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testServerClosesSocket() throws Exception {
+        testServerClosesOutput(DISCONNECT_AT_END);
+    }
+
+    public void testServerShutdownInput() throws Exception {
+        testServerClosesOutput(SHUTDOWN_INPUT_AT_END);
+    }
+
+    public void testServerShutdownOutput() throws Exception {
+        testServerClosesOutput(SHUTDOWN_OUTPUT_AT_END);
+    }
+
+    private void testServerClosesOutput(SocketPolicy socketPolicy) throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("This connection won't pool properly")
+                .setSocketPolicy(socketPolicy));
+        server.enqueue(new MockResponse()
+                .setBody("This comes after a busted connection"));
+        server.play();
+
+        assertContent("This connection won't pool properly", server.getUrl("/a").openConnection());
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertContent("This comes after a busted connection", server.getUrl("/b").openConnection());
+        // sequence number 0 means the HTTP socket connection was not reused
+        assertEquals(0, server.takeRequest().getSequenceNumber());
     }
 
     enum WriteKind { BYTE_BY_BYTE, SMALL_BUFFERS, LARGE_BUFFERS }
@@ -452,7 +486,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
-        server.enqueue(new MockResponse().setDisconnectAtStart(true));
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AT_START));
         server.enqueue(new MockResponse().setBody("this response comes via SSL"));
         server.play();
 
@@ -463,6 +497,30 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+    }
+
+    /**
+     * Verify that we don't retry connections on certificate verification errors.
+     *
+     * http://code.google.com/p/android/issues/detail?id=13178
+     */
+    public void testConnectViaHttpsToUntrustedServer() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create(TestKeyStore.getClientCA2(),
+                                                              TestKeyStore.getServer());
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()); // unused
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            assertTrue(expected.getCause() instanceof CertificateException);
+        }
+        assertEquals(0, server.getRequestCount());
     }
 
     public void testConnectViaProxyUsingProxyArg() throws Exception {
@@ -925,7 +983,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
      * the HTTP body.
      */
     private MockResponse truncateViolently(MockResponse response, int numBytesToKeep) {
-        response.setDisconnectAtEnd(true);
+        response.setSocketPolicy(DISCONNECT_AT_END);
         List<String> headers = new ArrayList<String>(response.getHeaders());
         response.setBody(Arrays.copyOfRange(response.getBody(), 0, numBytesToKeep));
         response.getHeaders().clear();
@@ -1014,7 +1072,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 .setBody("5")
                 .clearHeaders()
                 .addHeader("Transfer-encoding: chunked")
-                .setDisconnectAtEnd(true));
+                .setSocketPolicy(DISCONNECT_AT_END));
         server.play();
 
         URLConnection connection = server.getUrl("/").openConnection();
@@ -1603,7 +1661,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     public void testGetHeadersThrows() throws IOException {
-        server.enqueue(new MockResponse().setDisconnectAtStart(true));
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AT_START));
         server.play();
 
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
@@ -1681,7 +1739,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         END_OF_STREAM() {
             @Override void setBody(MockResponse response, byte[] content, int chunkSize) {
                 response.setBody(content);
-                response.setDisconnectAtEnd(true);
+                response.setSocketPolicy(DISCONNECT_AT_END);
                 for (Iterator<String> h = response.getHeaders().iterator(); h.hasNext(); ) {
                     if (h.next().startsWith("Content-Length:")) {
                         h.remove();

@@ -147,6 +147,8 @@
 {
   description: "Math failures when running on the host",
   names: [
+    "libcore.java.lang.OldAndroidStrictMathTest#testLog1pD",
+    "libcore.java.lang.OldAndroidStrictMathTest#testRintD",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_cbrt_D",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_powDD",
     "org.apache.harmony.luni.tests.java.lang.MathTest#test_sinh_D",

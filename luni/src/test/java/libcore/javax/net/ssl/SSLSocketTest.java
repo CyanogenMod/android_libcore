@@ -24,6 +24,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
@@ -573,6 +575,33 @@ public class SSLSocketTest extends TestCase {
         client.close();
         server.close();
         c.close();
+    }
+
+    public void test_SSLSocket_untrustedServer() throws Exception {
+        TestSSLContext c = TestSSLContext.create(TestKeyStore.getClientCA2(),
+                                                 TestKeyStore.getServer());
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                                                                                       c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        Thread thread = new Thread(new Runnable () {
+            public void run() {
+                try {
+                    server.startHandshake();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        thread.start();
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            assertTrue(expected.getCause() instanceof CertificateException);
+        }
+        thread.join();
     }
 
     public void test_SSLSocket_clientAuth() throws Exception {

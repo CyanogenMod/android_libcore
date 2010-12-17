@@ -26,14 +26,24 @@ import libcore.io.SizeOf;
  * The tricky part is that we need to keep our fields in sync with our delegate's fields.
  * There are lots of methods that access the fields directly.
  *
- * The main consequence of our implementation is that we need to explicitly call
- * wrapped.position(int) before any operation on our delegate that makes use of the
- * implicit position. This means that, even more than usual, the implicit iteration
+ * The main consequences of this implementation are:
+ *
+ * 1. we need to explicitly call wrapped.position(int) before any operation on our delegate
+ * that makes use of the implicit position.
+ *
+ * 2. we need to explicitly update position after any operation on our delegate that makes
+ * use of the implicit position.
+ *
+ * This means that, even more than usual, the implicit iteration
  * operations are more expensive than the indexed operations.
  *
  * But we save a ton of code, for classes that no-one really uses because the API's broken
  * by design (disallowing munmap(2) calls). Internally, we can use libcore.io.MemoryMappedFile
  * as a high-performance and more usable replacement for MappedByteBuffer.
+ *
+ * FIXME: harmony changed their implementation after we diverged, switching to a scheme
+ * where DirectByteBuffer extends MappedByteBuffer and this class doesn't exist. That's
+ * much better than their original implementation, fossilized here.
  */
 final class MappedByteBufferAdapter extends MappedByteBuffer {
     private MappedByteBufferAdapter(ByteBuffer buffer) {
@@ -131,7 +141,9 @@ final class MappedByteBufferAdapter extends MappedByteBuffer {
 
     @Override
     public ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-        return wrapped.get(dst, dstOffset, byteCount);
+        ByteBuffer result = wrapped.get(dst, dstOffset, byteCount);
+        position += byteCount;
+        return result;
     }
 
     @Override

@@ -16,21 +16,37 @@
 
 package libcore.java.nio;
 
+import java.io.*;
 import java.nio.*;
+import java.nio.channels.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
 public class BufferTest extends TestCase {
+    private static ByteBuffer allocateMapped(int size) throws Exception {
+        File f = File.createTempFile("mapped", "tmp");
+        f.deleteOnExit();
+        RandomAccessFile raf = new RandomAccessFile(f, "rw");
+        raf.setLength(size);
+        FileChannel ch = raf.getChannel();
+        MappedByteBuffer result = ch.map(FileChannel.MapMode.READ_WRITE, 0, size);
+        ch.close();
+        return result;
+    }
+
     public void testByteSwappedBulkGetDirect() throws Exception {
-        testByteSwappedBulkGet(true);
+        testByteSwappedBulkGet(ByteBuffer.allocateDirect(10));
     }
 
     public void testByteSwappedBulkGetHeap() throws Exception {
-        testByteSwappedBulkGet(false);
+        testByteSwappedBulkGet(ByteBuffer.allocate(10));
     }
 
-    private void testByteSwappedBulkGet(boolean direct) throws Exception {
-        ByteBuffer b = direct ? ByteBuffer.allocateDirect(10) : ByteBuffer.allocate(10);
+    public void testByteSwappedBulkGetMapped() throws Exception {
+        testByteSwappedBulkGet(allocateMapped(10));
+    }
+
+    private void testByteSwappedBulkGet(ByteBuffer b) throws Exception {
         for (int i = 0; i < b.limit(); ++i) {
             b.put(i, (byte) i);
         }
@@ -112,15 +128,18 @@ public class BufferTest extends TestCase {
     }
 
     public void testByteSwappedBulkPutDirect() throws Exception {
-        testByteSwappedBulkPut(true);
+        testByteSwappedBulkPut(ByteBuffer.allocateDirect(10));
     }
 
     public void testByteSwappedBulkPutHeap() throws Exception {
-        testByteSwappedBulkPut(false);
+        testByteSwappedBulkPut(ByteBuffer.allocate(10));
     }
 
-    private void testByteSwappedBulkPut(boolean direct) throws Exception {
-        ByteBuffer b = direct ? ByteBuffer.allocateDirect(10) : ByteBuffer.allocate(10);
+    public void testByteSwappedBulkPutMapped() throws Exception {
+        testByteSwappedBulkPut(allocateMapped(10));
+    }
+
+    private void testByteSwappedBulkPut(ByteBuffer b) throws Exception {
         b.position(1);
 
         char[] chars = new char[] { '\u2222', '\u0102', '\u0304', '\u0506', '\u0708', '\u2222' };
@@ -162,27 +181,34 @@ public class BufferTest extends TestCase {
     }
 
     public void testByteBufferByteOrderDirectRW() throws Exception {
-        testByteBufferByteOrder(true, false);
+        testByteBufferByteOrder(ByteBuffer.allocateDirect(10), false);
     }
 
     public void testByteBufferByteOrderHeapRW() throws Exception {
-        testByteBufferByteOrder(false, false);
+        testByteBufferByteOrder(ByteBuffer.allocate(10), false);
+    }
+
+    public void testByteBufferByteOrderMappedRW() throws Exception {
+        testByteBufferByteOrder(allocateMapped(10), false);
     }
 
     public void testByteBufferByteOrderDirectRO() throws Exception {
-        testByteBufferByteOrder(true, true);
+        testByteBufferByteOrder(ByteBuffer.allocateDirect(10), true);
     }
 
     public void testByteBufferByteOrderHeapRO() throws Exception {
-        testByteBufferByteOrder(false, true);
+        testByteBufferByteOrder(ByteBuffer.allocate(10), true);
     }
 
-    private void testByteBufferByteOrder(boolean direct, boolean readOnly) throws Exception {
-        // allocate/allocateDirect always returns a big-endian buffer.
-        ByteBuffer b = direct ? ByteBuffer.allocateDirect(10) : ByteBuffer.allocate(10);
+    public void testByteBufferByteOrderMappedRO() throws Exception {
+        testByteBufferByteOrder(allocateMapped(10), true);
+    }
+
+    private void testByteBufferByteOrder(ByteBuffer b, boolean readOnly) throws Exception {
         if (readOnly) {
             b = b.asReadOnlyBuffer();
         }
+        // allocate/allocateDirect/map always returns a big-endian buffer.
         assertEquals(ByteOrder.BIG_ENDIAN, b.order());
 
         // wrap always returns a big-endian buffer.
@@ -299,5 +325,95 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new short[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+    }
+
+    public void testRelativePositionsHeap() throws Exception {
+        testRelativePositions(ByteBuffer.allocate(10));
+    }
+
+    public void testRelativePositionsDirect() throws Exception {
+        testRelativePositions(ByteBuffer.allocateDirect(10));
+    }
+
+    public void testRelativePositionsMapped() throws Exception {
+        testRelativePositions(allocateMapped(10));
+    }
+
+    // http://b/3291927 - ensure that the relative get and put methods advance 'position'.
+    private void testRelativePositions(ByteBuffer b) throws Exception {
+        // gets
+        b.position(0);
+        b.get();
+        assertEquals(1, b.position());
+
+        byte[] buf = new byte[5];
+        b.position(0);
+        b.get(buf);
+        assertEquals(5, b.position());
+
+        b.position(0);
+        b.get(buf, 1, 3);
+        assertEquals(3, b.position());
+
+        b.position(0);
+        b.getChar();
+        assertEquals(2, b.position());
+
+        b.position(0);
+        b.getDouble();
+        assertEquals(8, b.position());
+
+        b.position(0);
+        b.getFloat();
+        assertEquals(4, b.position());
+
+        b.position(0);
+        b.getInt();
+        assertEquals(4, b.position());
+
+        b.position(0);
+        b.getLong();
+        assertEquals(8, b.position());
+
+        b.position(0);
+        b.getShort();
+        assertEquals(2, b.position());
+
+        // puts
+        b.position(0);
+        b.put((byte) 0);
+        assertEquals(1, b.position());
+
+        b.position(0);
+        b.put(buf);
+        assertEquals(5, b.position());
+
+        b.position(0);
+        b.put(buf, 1, 3);
+        assertEquals(3, b.position());
+
+        b.position(0);
+        b.putChar('x');
+        assertEquals(2, b.position());
+
+        b.position(0);
+        b.putDouble(0);
+        assertEquals(8, b.position());
+
+        b.position(0);
+        b.putFloat(0);
+        assertEquals(4, b.position());
+
+        b.position(0);
+        b.putInt(0);
+        assertEquals(4, b.position());
+
+        b.position(0);
+        b.putLong(0);
+        assertEquals(8, b.position());
+
+        b.position(0);
+        b.putShort((short) 0);
+        assertEquals(2, b.position());
     }
 }
