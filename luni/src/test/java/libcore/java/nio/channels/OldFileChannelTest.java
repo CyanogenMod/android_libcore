@@ -736,40 +736,40 @@ public final class OldFileChannelTest extends TestCase {
         try {
             readOnlyFileChannel.read(null, -1, 0);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
         try {
             readOnlyFileChannel.read(null, 0, -1);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         try {
             readWriteFileChannel.read(null, -1, 0);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
         try {
             readWriteFileChannel.read(null, 0, -1);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         try {
             writeOnlyFileChannel.read(null, -1, 0);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
         try {
             writeOnlyFileChannel.read(null, 0, -1);
             fail("should throw IndexOutOfBoundException");
-        } catch (IndexOutOfBoundsException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (IndexOutOfBoundsException expected) {
         }
 
         readOnlyFileChannel.close();
