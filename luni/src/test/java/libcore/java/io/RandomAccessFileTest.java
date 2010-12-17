@@ -34,7 +34,7 @@ public final class RandomAccessFileTest extends TestCase {
         file.delete();
     }
 
-    public void testSeekTooLarge() throws FileNotFoundException {
+    public void testSeekTooLarge() throws Exception {
         RandomAccessFile raf = new RandomAccessFile(file, "rw");
         try {
             raf.seek(Long.MAX_VALUE);
@@ -43,7 +43,7 @@ public final class RandomAccessFileTest extends TestCase {
         }
     }
 
-    public void testSetLengthTooLarge() throws FileNotFoundException {
+    public void testSetLengthTooLarge() throws Exception {
         RandomAccessFile raf = new RandomAccessFile(file, "rw");
         try {
             raf.setLength(Long.MAX_VALUE);
@@ -52,8 +52,17 @@ public final class RandomAccessFileTest extends TestCase {
         }
     }
 
+    public void testSetLength64() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        raf.setLength(0);
+        assertEquals(0, file.length());
+        long moreThanFourGig = ((long) Integer.MAX_VALUE) + 1L;
+        raf.setLength(moreThanFourGig);
+        assertEquals(moreThanFourGig, file.length());
+    }
+
     // http://b/3015023
-    public void testRandomAccessFileHasCleanupFinalizer() throws IOException {
+    public void testRandomAccessFileHasCleanupFinalizer() throws Exception {
         int tooManyOpenFiles = 2000;
         File file = File.createTempFile("RandomAccessFileTest", "tmp");
         for (int i = 0; i < tooManyOpenFiles; i++) {

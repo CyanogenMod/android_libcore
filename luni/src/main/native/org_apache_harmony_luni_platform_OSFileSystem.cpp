@@ -103,34 +103,6 @@ static int EsTranslateOpenFlags(int flags) {
     return -1;
 }
 
-// Checks whether we can safely treat the given jlong as an off_t without
-// accidental loss of precision.
-// TODO: this is bogus; we should use _FILE_OFFSET_BITS=64, but bionic doesn't support it.
-static bool offsetTooLarge(JNIEnv* env, jlong longOffset) {
-    if (sizeof(off_t) >= sizeof(jlong)) {
-        // We're only concerned about the possibility that off_t is
-        // smaller than jlong. off_t is signed, so we don't need to
-        // worry about signed/unsigned.
-        return false;
-    }
-
-    // TODO: use std::numeric_limits<off_t>::max() and min() when we have them.
-    if (sizeof(off_t) != sizeof(int)) {
-        jniThrowException(env, "java/lang/AssertionError",
-                "off_t is smaller than 64-bit, but not 32-bit!");
-        return true;
-    }
-    static const off_t off_t_max = INT_MAX;
-    static const off_t off_t_min = INT_MIN;
-
-    if (longOffset > off_t_max || longOffset < off_t_min) {
-        // "Value too large for defined data type".
-        jniThrowIOException(env, EOVERFLOW);
-        return true;
-    }
-    return false;
-}
-
 static jlong translateLockLength(jlong length) {
     // FileChannel.tryLock uses Long.MAX_VALUE to mean "lock the whole
     // file", where POSIX would use 0. We can support that special case,
@@ -347,12 +319,7 @@ static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataT
 }
 
 static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
-    // TODO: if we had ftruncate64, we could kill this (http://b/3107933).
-    if (offsetTooLarge(env, length)) {
-        return -1;
-    }
-
-    int rc = ftruncate(fd, length);
+    int rc = ftruncate64(fd, length);
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
