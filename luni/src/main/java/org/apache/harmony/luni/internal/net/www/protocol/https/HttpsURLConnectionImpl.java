@@ -25,9 +25,11 @@ import java.net.URL;
 import java.security.Permission;
 import java.security.Principal;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
 import org.apache.harmony.luni.internal.net.www.protocol.http.HttpConnection;
@@ -367,27 +369,39 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 return;
             }
 
+            boolean connectionReused;
             // first try an SSL connection with compression and
             // various TLS extensions enabled, if it fails (and its
             // not unheard of that it will) fallback to a more
             // barebones connections
             try {
-                makeSslConnection(true);
+                connectionReused = makeSslConnection(true);
             } catch (IOException e) {
+                // If the problem was a CertificateException from the X509TrustManager,
+                // do not retry, we didn't have an abrupt server initiated exception.
+                if (e instanceof SSLHandshakeException
+                        && e.getCause() instanceof CertificateException) {
+                    throw e;
+                }
                 releaseSocket(false);
-                sslSocket = null;
-                makeSslConnection(false);
+                connectionReused = makeSslConnection(false);
             }
+
+            if (!connectionReused) {
+                sslSocket = connection.verifySecureSocketHostname(getHostnameVerifier());
+            }
+            setUpTransportIO(connection);
         }
 
         /**
-         * Attempt to make an https connection.
+         * Attempt to make an https connection. Returns true if a
+         * connection was reused, false otherwise.
          *
          * @param tlsTolerant If true, assume server can handle common
          * TLS extensions and SSL deflate compression. If false, use
          * an SSL3 only fallback mode without compression.
          */
-        private void makeSslConnection(boolean tlsTolerant) throws IOException {
+        private boolean makeSslConnection(boolean tlsTolerant) throws IOException {
 
             super.makeConnection();
 
@@ -399,11 +413,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
             // we already have an SSL connection,
             if (sslSocket != null) {
-                // ensure requestOut etc are reinitialized. they will
-                // not have been set by super.makeSslConnection's call
-                // to setUpTransportIO because sslSocket was not yet set.
-                setUpTransportIO(connection);
-                return;
+                return true;
             }
 
             // make SSL Tunnel
@@ -420,10 +430,8 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 }
             }
 
-            sslSocket = connection.setupSecureSocket(getSSLSocketFactory(),
-                                                     getHostnameVerifier(),
-                                                     tlsTolerant);
-            setUpTransportIO(connection);
+            connection.setupSecureSocket(getSSLSocketFactory(), tlsTolerant);
+            return false;
         }
 
         @Override protected void setUpTransportIO(HttpConnection connection) throws IOException {

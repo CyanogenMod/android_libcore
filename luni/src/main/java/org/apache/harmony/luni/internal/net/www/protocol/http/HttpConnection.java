@@ -52,6 +52,7 @@ public final class HttpConnection {
     private InputStream inputStream;
     private OutputStream outputStream;
 
+    private SSLSocket unverifiedSocket;
     private SSLSocket sslSocket;
     private InputStream sslInputStream;
     private OutputStream sslOutputStream;
@@ -157,21 +158,18 @@ public final class HttpConnection {
     }
 
     /**
-     * Return an {@code SSLSocket} that is connected and passed hostname verification.
+     * Create an {@code SSLSocket} and perform the SSL handshake
+     * (performing certificate validation.
      *
      * @param sslSocketFactory Source of new {@code SSLSocket} instances.
-     * @param hostnameVerifier Used to verify the hostname we
-     * connected to is an acceptable match for the peer certificate
-     * chain of the SSLSession.
      * @param tlsTolerant If true, assume server can handle common
      * TLS extensions and SSL deflate compression. If false, use
      * an SSL3 only fallback mode without compression.
      */
-    public SSLSocket setupSecureSocket(SSLSocketFactory sslSocketFactory,
-            HostnameVerifier hostnameVerifier,
-            boolean tlsTolerant) throws IOException {
+    public void setupSecureSocket(SSLSocketFactory sslSocketFactory, boolean tlsTolerant)
+            throws IOException {
         // create the wrapper over connected socket
-        SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
+        unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
                 address.uriHost, address.uriPort, true /* autoClose */);
         // tlsTolerant mimics Chrome's behavior
         if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
@@ -183,6 +181,20 @@ public final class HttpConnection {
         } else {
             unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
         }
+        // force handshake, which can throw
+        unverifiedSocket.startHandshake();
+    }
+
+    /**
+     * Return an {@code SSLSocket} that is not only connected but has
+     * also passed hostname verification.
+     *
+     * @param hostnameVerifier Used to verify the hostname we
+     * connected to is an acceptable match for the peer certificate
+     * chain of the SSLSession.
+     */
+    public SSLSocket verifySecureSocketHostname(HostnameVerifier hostnameVerifier)
+            throws IOException {
         if (!hostnameVerifier.verify(address.uriHost, unverifiedSocket.getSession())) {
             throw new IOException("Hostname '" + address.uriHost + "' was not verified");
         }
