@@ -75,12 +75,12 @@ public class DexClassLoader extends ClassLoader {
      *  the parent class loader
      */
     public DexClassLoader(String dexPath, String dexOutputDir, String libPath,
-        ClassLoader parent) {
-
+            ClassLoader parent) {
         super(parent);
 
-        if (dexPath == null || dexOutputDir == null)
+        if (dexPath == null || dexOutputDir == null) {
             throw new NullPointerException();
+        }
 
         mRawDexPath = dexPath;
         mDexOutputPath = dexOutputDir;
@@ -89,14 +89,12 @@ public class DexClassLoader extends ClassLoader {
         String[] dexPathList = mRawDexPath.split(":");
         int length = dexPathList.length;
 
-        //System.out.println("DexClassLoader: " + dexPathList);
         mFiles = new File[length];
         mZips = new ZipFile[length];
         mDexs = new DexFile[length];
 
         /* open all Zip and DEX files up front */
         for (int i = 0; i < length; i++) {
-            //System.out.println("My path is: " + dexPathList[i]);
             File pathFile = new File(dexPathList[i]);
             mFiles[i] = pathFile;
 
@@ -116,7 +114,7 @@ public class DexClassLoader extends ClassLoader {
                         generateOutputName(dexPathList[i], mDexOutputPath);
                     mDexs[i] = DexFile.loadDex(dexPathList[i], outputName, 0);
                 } catch (IOException ioex) {
-                    // might be a resource-only zip
+                    // It might be a resource-only zip.
                     System.out.println("Failed loadDex '" + pathFile
                         + "': " + ioex);
                 }
@@ -151,7 +149,8 @@ public class DexClassLoader extends ClassLoader {
             if (!mLibPaths[i].endsWith(fileSep))
                 mLibPaths[i] += fileSep;
             if (VERBOSE_DEBUG)
-                System.out.println("Native lib path " +i+ ":  " + mLibPaths[i]);
+                System.out.println("Native lib path " +i+ ":  "
+                        + mLibPaths[i]);
         }
     }
 
@@ -160,8 +159,7 @@ public class DexClassLoader extends ClassLoader {
      * file name.
      */
     private static String generateOutputName(String sourcePathName,
-        String outputDir) {
-
+            String outputDir) {
         StringBuilder newStr = new StringBuilder(80);
 
         /* start with the output directory */

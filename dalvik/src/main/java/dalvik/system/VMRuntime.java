@@ -144,48 +144,35 @@ public final class VMRuntime {
     private native void nativeSetTargetHeapUtilization(float newTarget);
 
     /**
-     * Asks the VM if &lt;size&gt; bytes can be allocated in an external heap.
-     * This information may be used to limit the amount of memory available
-     * to Dalvik threads.  Returns false if the VM would rather that the caller
-     * did not allocate that much memory.  If the call returns false, the VM
-     * will not update its internal counts.  May cause one or more GCs as a
-     * side-effect.
+     * This method exists for binary compatibility.  It was part of
+     * the external allocation API which was removed in Honeycomb.
      *
-     * Called by JNI code.
-     *
-     * {@hide}
-     *
-     * @param size The number of bytes that have been allocated.
-     * @return true if the VM thinks there's enough process memory
-     *         to satisfy this request, or false if not.
+     * @hide
      */
     @Deprecated
-    public native boolean trackExternalAllocation(long size);
+    public boolean trackExternalAllocation(long size) {
+        return true;
+    }
 
     /**
-     * Tells the VM that &lt;size&gt; bytes have been freed in an external
-     * heap.  This information may be used to control the amount of memory
-     * available to Dalvik threads.
+     * This method exists for binary compatibility.  It was part of
+     * the external allocation API which was removed in Honeycomb.
      *
-     * Called by JNI code.
-     *
-     * {@hide}
-     *
-     * @param size The number of bytes that have been freed.  This same number
-     *             should have been passed to trackExternalAlloc() when
-     *             the underlying memory was originally allocated.
+     * @hide
      */
     @Deprecated
-    public native void trackExternalFree(long size);
+    public void trackExternalFree(long size) {}
 
     /**
-     * Returns the number of externally-allocated bytes being tracked by
-     * trackExternalAllocation/Free().
+     * This method exists for binary compatibility.  It was part of
+     * the external allocation API which was removed in Honeycomb.
      *
-     * @return the number of bytes
+     * @hide
      */
     @Deprecated
-    public native long getExternalBytesAllocated();
+    public long getExternalBytesAllocated() {
+        return 0;
+    }
 
     /**
      * Tells the VM to enable the JIT compiler. If the VM does not have a JIT
