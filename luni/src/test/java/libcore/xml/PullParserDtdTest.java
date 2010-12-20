@@ -168,6 +168,31 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }
 
+    public void testStructuredEntityAndNextToken() throws Exception {
+        String xml = "<!DOCTYPE foo [<!ENTITY bb \"<bar>baz<!--quux--></bar>\">]><foo>a&bb;c</foo>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.DOCDECL, parser.nextToken());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("foo", parser.getName());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("a", parser.getText());
+        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
+        assertEquals("bb", parser.getName());
+        assertEquals("", parser.getText());
+        assertEquals(XmlPullParser.START_TAG, parser.nextToken());
+        assertEquals("bar", parser.getName());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("baz", parser.getText());
+        assertEquals(XmlPullParser.COMMENT, parser.nextToken());
+        assertEquals("quux", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.nextToken());
+        assertEquals("bar", parser.getName());
+        assertEquals(XmlPullParser.TEXT, parser.nextToken());
+        assertEquals("c", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
     /**
      * Android's Expat replaces external entities with the empty string.
      */
@@ -462,10 +487,6 @@ public abstract class PullParserDtdTest extends TestCase {
         }
     }
 
-    /**
-     * In honeycomb, KxmlParser's DTD handling was improved but no longer
-     * supports returning the full DTD text. http://b/3241492
-     */
     public void testDoctypeWithNextToken() throws Exception {
         String xml = "<!DOCTYPE foo [<!ENTITY bb \"bar baz\">]><foo>a&bb;c</foo>";
         XmlPullParser parser = newPullParser(xml);
@@ -473,13 +494,21 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals(" foo [<!ENTITY bb \"bar baz\">]", parser.getText());
         assertNull(parser.getName());
         assertEquals(XmlPullParser.START_TAG, parser.nextToken());
-        assertEquals(XmlPullParser.TEXT, parser.nextToken());
-        assertEquals("a", parser.getText());
-        assertEquals(XmlPullParser.ENTITY_REF, parser.nextToken());
-        assertEquals("bb", parser.getName());
-        assertEquals("bar baz", parser.getText());
-        assertEquals(XmlPullParser.TEXT, parser.nextToken());
-        assertEquals("c", parser.getText());
+        assertEquals(XmlPullParser.TEXT, parser.next());
+        assertEquals("abar bazc", parser.getText());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testDoctypeSpansBuffers() throws Exception {
+        char[] doctypeChars = new char[READ_BUFFER_SIZE + 1];
+        Arrays.fill(doctypeChars, 'x');
+        String doctypeBody = " foo [<!--" + new String(doctypeChars) + "-->]";
+        String xml = "<!DOCTYPE" + doctypeBody + "><foo/>";
+        XmlPullParser parser = newPullParser(xml);
+        assertEquals(XmlPullParser.DOCDECL, parser.nextToken());
+        assertEquals(doctypeBody, parser.getText());
+        assertEquals(XmlPullParser.START_TAG, parser.next());
         assertEquals(XmlPullParser.END_TAG, parser.next());
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }

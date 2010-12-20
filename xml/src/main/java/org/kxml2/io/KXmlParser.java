@@ -110,6 +110,13 @@ public class KXmlParser implements XmlPullParser, Closeable {
     private boolean keepNamespaceAttributes;
 
     /**
+     * If non-null, the contents of the read buffer must be copied into this
+     * string builder before the read buffer is overwritten. This is used to
+     * capture the raw DTD text while parsing the DTD.
+     */
+    private StringBuilder bufferCapture;
+
+    /**
      * Entities defined in or for this document. This map is created lazily.
      */
     private Map<String, char[]> documentEntities;
@@ -408,10 +415,7 @@ public class KXmlParser implements XmlPullParser, Closeable {
                 }
                 break;
             case DOCDECL:
-                readDoctype();
-                if (justOneToken) {
-                    text = ""; // TODO: support capturing the doctype text
-                }
+                readDoctype(justOneToken);
                 break;
 
             default:
@@ -563,16 +567,32 @@ public class KXmlParser implements XmlPullParser, Closeable {
      * Read the document's DTD. Although this parser is non-validating, the DTD
      * must be parsed to capture entity values and default attribute values.
      */
-    private void readDoctype() throws IOException, XmlPullParserException {
+    private void readDoctype(boolean saveDtdText) throws IOException, XmlPullParserException {
         read(START_DOCTYPE);
-        skip();
-        rootElementName = readName();
-        readExternalId(true, true);
-        skip();
-        if (peekCharacter() == '[') {
-            readInternalSubset();
+
+        int startPosition = -1;
+        if (saveDtdText) {
+            bufferCapture = new StringBuilder();
+            startPosition = position;
         }
-        skip();
+        try {
+            skip();
+            rootElementName = readName();
+            readExternalId(true, true);
+            skip();
+            if (peekCharacter() == '[') {
+                readInternalSubset();
+            }
+            skip();
+        } finally {
+            if (saveDtdText) {
+                bufferCapture.append(buffer, 0, position);
+                bufferCapture.delete(0, startPosition);
+                text = bufferCapture.toString();
+                bufferCapture = null;
+            }
+        }
+
         read('>');
     }
 
@@ -1454,6 +1474,10 @@ public class KXmlParser implements XmlPullParser, Closeable {
             } else {
                 bufferStartColumn++;
             }
+        }
+
+        if (bufferCapture != null) {
+            bufferCapture.append(buffer, 0, position);
         }
 
         if (limit != position) {

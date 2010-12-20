@@ -615,6 +615,15 @@ public abstract class PullParserTest extends TestCase {
         assertEquals(0, parser.getDepth());
     }
 
+    public void testNextAfterEndDocument() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo></foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
     public void testNamespaces() throws Exception {
         String xml = "<one xmlns='ns:default' xmlns:n1='ns:1' a='b'>\n"
                 + "  <n1:two c='d' n1:e='f' xmlns:n2='ns:2'>text</n1:two>\n"
