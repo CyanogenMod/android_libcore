@@ -17,7 +17,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargetClass;
@@ -102,38 +101,19 @@ public class ProxyTest extends junit.framework.TestCase {
                 .isProxyClass(Proxy.getProxyClass(null,
                         new Class[] { Comparable.class })));
 
-        boolean aborted = false;
-// TODO: We load the test classes in the bootclasspath, so they are visible
-// to the default loader. We can re-enable this test once we move the CTS
-// tests to the system classpath.
-//
-//        try {
-//            Proxy.getProxyClass(null, new Class[] { Support_Proxy_I1.class,
-//                    Support_Proxy_I2.class });
-//        } catch (IllegalArgumentException e) {
-//            aborted = true;
-//        }
-//        assertTrue("Default classLoader should not see app class ", aborted);
-
-        aborted = false;
         try {
             Proxy.getProxyClass(Support_Proxy_I1.class.getClassLoader(),
                     (Class<?>[]) null);
             fail("NPE expected");
-        } catch (NullPointerException e) {
-            aborted = true;
+        } catch (NullPointerException expected) {
         }
-        assertTrue("NPE not thrown", aborted);
 
-        aborted = false;
         try {
             Proxy.getProxyClass(Support_Proxy_I1.class.getClassLoader(),
                     new Class<?>[] {Support_Proxy_I1.class, null});
             fail("NPE expected");
-        } catch (NullPointerException e) {
-            aborted = true;
+        } catch (NullPointerException expected) {
         }
-        assertTrue("NPE not thrown", aborted);
     }
 
     /**
