@@ -3,7 +3,8 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
-	dalvik_system_TouchDex.cpp
+	dalvik_system_TouchDex.cpp \
+	org_apache_harmony_dalvik_NativeTestTarget.cpp
 
 #LOCAL_C_INCLUDES +=
 

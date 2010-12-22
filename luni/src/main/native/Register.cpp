@@ -59,6 +59,7 @@ extern int register_libcore_icu_NativePluralRules(JNIEnv* env);
 extern int register_libcore_icu_TimeZones(JNIEnv* env);
 extern int register_libcore_io_IoUtils(JNIEnv* env);
 extern int register_libcore_net_RawSocket(JNIEnv* env);
+extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
@@ -116,6 +117,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
             // Initialize the Android classes last, as they have dependencies on the "corer" core classes.
             android::register_dalvik_system_TouchDex(env) != -1 &&
+            register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
             register_org_apache_harmony_xml_ExpatParser(env) != -1;
 
     if (!result) {
