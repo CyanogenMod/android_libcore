@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import junit.framework.AssertionFailedError;
 
@@ -33,6 +34,15 @@ public class SerializableTester<T> {
     public SerializableTester(T value, String golden) {
         this.golden = golden;
         this.value = value;
+    }
+
+    /**
+     * Returns true if {@code a} and {@code b} are equal. Override this if
+     * {@link Object#equals} isn't appropriate or sufficient for this tester's
+     * value type.
+     */
+    protected boolean equals(T a, T b) {
+        return a.equals(b);
     }
 
     protected void verify(T deserialized) {}
@@ -49,14 +59,14 @@ public class SerializableTester<T> {
 
             @SuppressWarnings("unchecked") // deserialize should return the proper type
             T deserialized = (T) deserialize(hexDecode(golden));
-            assertEquals("User-constructed value doesn't equal deserialized golden value",
-                    value, deserialized);
+            assertTrue("User-constructed value doesn't equal deserialized golden value",
+                    equals(value, deserialized));
             verify(deserialized);
 
             @SuppressWarnings("unchecked") // deserialize should return the proper type
             T reserialized = (T) deserialize(serialize(value));
-            assertEquals("User-constructed value doesn't equal itself, reserialized",
-                    value, reserialized);
+            assertTrue("User-constructed value doesn't equal itself, reserialized",
+                    equals(value, reserialized));
             verify(reserialized);
 
         } catch (Exception e) {

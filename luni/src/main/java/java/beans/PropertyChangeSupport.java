@@ -20,36 +20,43 @@ package java.beans;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import libcore.base.Objects;
 
 /**
- * This utility class
+ * Manages a list of listeners to be notified when a property changes. Listeners
+ * subscribe to be notified of all property changes, or of changes to a single
+ * named property.
  *
+ * <p>This class is thread safe. No locking is necessary when subscribing or
+ * unsubscribing listeners, or when publishing events. Callers should be careful
+ * when publishing events because listeners may not be thread safe.
  */
 public class PropertyChangeSupport implements Serializable {
 
     private static final long serialVersionUID = 6401253773779951803l;
+    private static final ObjectStreamField[] serialPersistentFields = {
+            new ObjectStreamField("source", Object.class),
+            new ObjectStreamField("children", Object.class),
+            new ObjectStreamField("propertyChangeSupportSerializedDataVersion", int.class)
+    };
 
     private transient Object sourceBean;
 
-    private transient List<PropertyChangeListener> allPropertiesChangeListeners =
-            new ArrayList<PropertyChangeListener>();
-
-    private transient Map<String, List<PropertyChangeListener>>
-            selectedPropertiesChangeListeners =
-            new HashMap<String, List<PropertyChangeListener>>();
-
-    // fields for serialization compatibility
-    private Hashtable<String, List<PropertyChangeListener>> children;
-
-    private Object source;
-
-    private int propertyChangeSupportSerializedDataVersion = 1;
+    /**
+     * All listeners, including PropertyChangeListenerProxy listeners that are
+     * only be notified when the assigned property is changed. This list may be
+     * modified concurrently!
+     */
+    private transient List<PropertyChangeListener> listeners
+            = new CopyOnWriteArrayList<PropertyChangeListener>();
 
     /**
      * Creates a new instance that uses the source bean as source for any event.
@@ -77,11 +84,8 @@ public class PropertyChangeSupport implements Serializable {
      * @param newValue
      *            the new value of the property
      */
-    public void firePropertyChange(String propertyName, Object oldValue,
-            Object newValue) {
-        PropertyChangeEvent event = createPropertyChangeEvent(propertyName,
-                oldValue, newValue);
-        doFirePropertyChange(event);
+    public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        firePropertyChange(new PropertyChangeEvent(sourceBean, propertyName, oldValue, newValue));
     }
 
     /**
@@ -101,88 +105,84 @@ public class PropertyChangeSupport implements Serializable {
      */
     public void fireIndexedPropertyChange(String propertyName, int index,
             Object oldValue, Object newValue) {
-
-        // nulls and equals check done in doFire...
-        doFirePropertyChange(new IndexedPropertyChangeEvent(sourceBean,
+        firePropertyChange(new IndexedPropertyChangeEvent(sourceBean,
                 propertyName, oldValue, newValue, index));
     }
 
     /**
-     * Removes the listener from the specific property. This only happens if it
-     * was registered to this property. Nothing happens if it was not
-     * registered with this property or if the property name or the listener is
-     * null.
-     *
-     * @param propertyName
-     *            the property name the listener is listening to
-     * @param listener
-     *            the listener to remove
+     * Unsubscribes {@code listener} from change notifications for the property
+     * named {@code propertyName}. If multiple subscriptions exist for {@code
+     * listener}, it will receive one fewer notifications when the property
+     * changes. If the property name or listener is null or not subscribed, this
+     * method silently does nothing.
      */
-    public synchronized void removePropertyChangeListener(String propertyName,
-            PropertyChangeListener listener) {
-        if ((propertyName != null) && (listener != null)) {
-            List<PropertyChangeListener> listeners =
-                    selectedPropertiesChangeListeners.get(propertyName);
-
-            if (listeners != null) {
-                listeners.remove(listener);
+    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        for (PropertyChangeListener p : listeners) {
+            if (equals(propertyName, listener, p)) {
+                listeners.remove(p);
+                return;
             }
         }
     }
 
     /**
-     * Adds a listener to a specific property. Nothing happens if the property
-     * name or the listener is null.
-     *
-     * @param propertyName
-     *            the name of the property
-     * @param listener
-     *            the listener to register for the property with the given name
+     * Returns true if two chains of PropertyChangeListenerProxies have the same
+     * names in the same order and bottom out in the same event listener. This
+     * method's signature is asymmetric to avoid allocating a proxy: if
+     * non-null, {@code aName} represents the first property name and {@code a}
+     * is its listener.
      */
-    public synchronized void addPropertyChangeListener(String propertyName,
-            PropertyChangeListener listener) {
-        if ((listener != null) && (propertyName != null)) {
-            List<PropertyChangeListener> listeners =
-                    selectedPropertiesChangeListeners.get(propertyName);
-
-            if (listeners == null) {
-                listeners = new ArrayList<PropertyChangeListener>();
-                selectedPropertiesChangeListeners.put(propertyName, listeners);
+    private boolean equals(String aName, EventListener a, EventListener b) {
+        /*
+         * Each iteration of the loop attempts to match a pair of property names
+         * from a and b. If they don't match, the chains must not be equal!
+         */
+        while (b instanceof PropertyChangeListenerProxy) {
+            PropertyChangeListenerProxy bProxy = (PropertyChangeListenerProxy) b; // unwrap b
+            String bName = bProxy.getPropertyName();
+            b = bProxy.getListener();
+            if (aName == null) {
+                if (!(a instanceof PropertyChangeListenerProxy)) {
+                    return false;
+                }
+                PropertyChangeListenerProxy aProxy = (PropertyChangeListenerProxy) a; // unwrap a
+                aName = aProxy.getPropertyName();
+                a = aProxy.getListener();
             }
-
-            // RI compatibility
-            if (listener instanceof PropertyChangeListenerProxy) {
-                PropertyChangeListenerProxy proxy =
-                        (PropertyChangeListenerProxy) listener;
-
-                listeners.add(new PropertyChangeListenerProxy(
-                        proxy.getPropertyName(),
-                        (PropertyChangeListener) proxy.getListener()));
-            } else {
-                listeners.add(listener);
+            if (!Objects.equal(aName, bName)) {
+                return false; // not equal; a and b subscribe to different properties
             }
+            aName = null;
+        }
+        return aName == null && Objects.equal(a, b);
+    }
+
+    /**
+     * Subscribes {@code listener} to change notifications for the property
+     * named {@code propertyName}. If the listener is already subscribed, it
+     * will receive an additional notification when the property changes. If the
+     * property name or listener is null, this method silently does nothing.
+     */
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        if (listener != null && propertyName != null) {
+            listeners.add(new PropertyChangeListenerProxy(propertyName, listener));
         }
     }
 
     /**
-     * Returns an array of listeners that registered to the property with the
-     * given name. If the property name is null an empty array is returned.
-     *
-     * @param propertyName
-     *            the name of the property whose listeners should be returned
-     * @return the array of listeners to the property with the given name.
+     * Returns the subscribers to be notified when {@code propertyName} changes.
+     * This includes both listeners subscribed to all property changes and
+     * listeners subscribed to the named property only.
      */
-    public synchronized PropertyChangeListener[] getPropertyChangeListeners(
-            String propertyName) {
-        List<PropertyChangeListener> listeners = null;
-
-        if (propertyName != null) {
-            listeners = selectedPropertiesChangeListeners.get(propertyName);
+    public PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
+        List<PropertyChangeListener> result = new ArrayList<PropertyChangeListener>();
+        for (PropertyChangeListener p : listeners) {
+            if (p instanceof PropertyChangeListenerProxy && Objects.equal(
+                    propertyName, ((PropertyChangeListenerProxy) p).getPropertyName())) {
+                result.add(p);
+            }
         }
-
-        return (listeners == null) ? new PropertyChangeListener[] {}
-                : listeners.toArray(
-                        new PropertyChangeListener[listeners.size()]);
+        return result.toArray(new PropertyChangeListener[result.size()]);
     }
 
     /**
@@ -197,11 +197,8 @@ public class PropertyChangeSupport implements Serializable {
      * @param newValue
      *            the new value
      */
-    public void firePropertyChange(String propertyName, boolean oldValue,
-            boolean newValue) {
-        PropertyChangeEvent event = createPropertyChangeEvent(propertyName,
-                oldValue, newValue);
-        doFirePropertyChange(event);
+    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
+        firePropertyChange(propertyName, Boolean.valueOf(oldValue), Boolean.valueOf(newValue));
     }
 
     /**
@@ -220,10 +217,9 @@ public class PropertyChangeSupport implements Serializable {
      */
     public void fireIndexedPropertyChange(String propertyName, int index,
             boolean oldValue, boolean newValue) {
-
         if (oldValue != newValue) {
-            fireIndexedPropertyChange(propertyName, index, Boolean
-                    .valueOf(oldValue), Boolean.valueOf(newValue));
+            fireIndexedPropertyChange(propertyName, index,
+                    Boolean.valueOf(oldValue), Boolean.valueOf(newValue));
         }
     }
 
@@ -239,11 +235,8 @@ public class PropertyChangeSupport implements Serializable {
      * @param newValue
      *            the new value
      */
-    public void firePropertyChange(String propertyName, int oldValue,
-            int newValue) {
-        PropertyChangeEvent event = createPropertyChangeEvent(propertyName,
-                oldValue, newValue);
-        doFirePropertyChange(event);
+    public void firePropertyChange(String propertyName, int oldValue, int newValue) {
+        firePropertyChange(propertyName, Integer.valueOf(oldValue), Integer.valueOf(newValue));
     }
 
     /**
@@ -262,7 +255,6 @@ public class PropertyChangeSupport implements Serializable {
      */
     public void fireIndexedPropertyChange(String propertyName, int index,
             int oldValue, int newValue) {
-
         if (oldValue != newValue) {
             fireIndexedPropertyChange(propertyName, index,
                     Integer.valueOf(oldValue), Integer.valueOf(newValue));
@@ -278,223 +270,130 @@ public class PropertyChangeSupport implements Serializable {
      * @return true if there are listeners registered to that property, false
      *         otherwise.
      */
-    public synchronized boolean hasListeners(String propertyName) {
-        boolean result = allPropertiesChangeListeners.size() > 0;
-        if (!result && (propertyName != null)) {
-            List<PropertyChangeListener> listeners =
-                    selectedPropertiesChangeListeners.get(propertyName);
-            if (listeners != null) {
-                result = listeners.size() > 0;
+    public boolean hasListeners(String propertyName) {
+        for (PropertyChangeListener p : listeners) {
+            if (!(p instanceof PropertyChangeListenerProxy) || Objects.equal(
+                    propertyName, ((PropertyChangeListenerProxy) p).getPropertyName())) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
     /**
-     * removes a property change listener that was registered to all properties.
-     *
-     * @param listener
-     *            the listener to remove
+     * Unsubscribes {@code listener} from change notifications for all
+     * properties. If the listener has multiple subscriptions, it will receive
+     * one fewer notification when properties change. If the property name or
+     * listener is null or not subscribed, this method silently does nothing.
      */
-    public synchronized void removePropertyChangeListener(
-            PropertyChangeListener listener) {
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        for (PropertyChangeListener p : listeners) {
+            if (equals(null, listener, p)) {
+                listeners.remove(p);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Subscribes {@code listener} to change notifications for all properties.
+     * If the listener is already subscribed, it will receive an additional
+     * notification. If the listener is null, this method silently does nothing.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
         if (listener != null) {
-            if (listener instanceof PropertyChangeListenerProxy) {
-                String name = ((PropertyChangeListenerProxy) listener)
-                        .getPropertyName();
-                PropertyChangeListener lst = (PropertyChangeListener)
-                        ((PropertyChangeListenerProxy) listener).getListener();
-
-                removePropertyChangeListener(name, lst);
-            } else {
-                allPropertiesChangeListeners.remove(listener);
-            }
+            listeners.add(listener);
         }
     }
 
     /**
-     * Registers a listener with all properties.
-     *
-     * @param listener
-     *            the listener to register
+     * Returns all subscribers. This includes both listeners subscribed to all
+     * property changes and listeners subscribed to a single property.
      */
-    public synchronized void addPropertyChangeListener(
-            PropertyChangeListener listener) {
-        if (listener != null) {
-            if (listener instanceof PropertyChangeListenerProxy) {
-                String name = ((PropertyChangeListenerProxy) listener)
-                        .getPropertyName();
-                PropertyChangeListener lst = (PropertyChangeListener)
-                        ((PropertyChangeListenerProxy) listener).getListener();
-                addPropertyChangeListener(name, lst);
-            } else {
-                allPropertiesChangeListeners.add(listener);
-            }
-        }
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return listeners.toArray(new PropertyChangeListener[0]); // 0 to avoid synchronization
     }
 
-    /**
-     * Returns an array with the listeners that registered to all properties.
-     *
-     * @return the array of listeners
-     */
-    public synchronized PropertyChangeListener[] getPropertyChangeListeners() {
-        ArrayList<PropertyChangeListener> result =
-                new ArrayList<PropertyChangeListener>(
-                        allPropertiesChangeListeners);
-
-        for (String propertyName : selectedPropertiesChangeListeners.keySet()) {
-            List<PropertyChangeListener> selectedListeners =
-                    selectedPropertiesChangeListeners.get(propertyName);
-
-            if (selectedListeners != null) {
-
-                for (PropertyChangeListener listener : selectedListeners) {
-                    result.add(new PropertyChangeListenerProxy(propertyName,
-                            listener));
-                }
-            }
-        }
-
-        return result.toArray(new PropertyChangeListener[result.size()]);
-    }
-
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        List<PropertyChangeListener> allSerializedPropertiesChangeListeners =
-                new ArrayList<PropertyChangeListener>();
-
-        for (PropertyChangeListener pcl : allPropertiesChangeListeners) {
-            if (pcl instanceof Serializable) {
-                allSerializedPropertiesChangeListeners.add(pcl);
-            }
-        }
-
-        Map<String, List<PropertyChangeListener>>
-                selectedSerializedPropertiesChangeListeners =
-                        new HashMap<String, List<PropertyChangeListener>>();
-
-        for (String propertyName : selectedPropertiesChangeListeners.keySet()) {
-            List<PropertyChangeListener> keyValues =
-                    selectedPropertiesChangeListeners.get(propertyName);
-
-            if (keyValues != null) {
-                List<PropertyChangeListener> serializedPropertiesChangeListeners
-                        = new ArrayList<PropertyChangeListener>();
-
-                for (PropertyChangeListener pcl : keyValues) {
-                    if (pcl instanceof Serializable) {
-                        serializedPropertiesChangeListeners.add(pcl);
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        /*
+         * The serialized form of this class uses PropertyChangeSupport to group
+         * PropertyChangeListeners subscribed to the same property name.
+         */
+        Map<String, PropertyChangeSupport> map = new Hashtable<String, PropertyChangeSupport>();
+        for (PropertyChangeListener p : listeners) {
+            if (p instanceof PropertyChangeListenerProxy && !(p instanceof Serializable)) {
+                PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) p;
+                PropertyChangeListener listener = (PropertyChangeListener) proxy.getListener();
+                if (listener instanceof Serializable) {
+                    PropertyChangeSupport list = map.get(proxy.getPropertyName());
+                    if (list == null) {
+                        list = new PropertyChangeSupport(sourceBean);
+                        map.put(proxy.getPropertyName(), list);
                     }
-                }
-
-                if (!serializedPropertiesChangeListeners.isEmpty()) {
-                    selectedSerializedPropertiesChangeListeners.put(
-                            propertyName, serializedPropertiesChangeListeners);
+                    list.listeners.add(listener);
                 }
             }
         }
 
-        children = new Hashtable<String, List<PropertyChangeListener>>(
-                selectedSerializedPropertiesChangeListeners);
-        children.put("", allSerializedPropertiesChangeListeners);
-        oos.writeObject(children);
+        ObjectOutputStream.PutField putFields = out.putFields();
+        putFields.put("source", sourceBean);
+        putFields.put("children", map);
+        out.writeFields();
 
-        Object source = null;
-        if (sourceBean instanceof Serializable) {
-            source = sourceBean;
+        for (PropertyChangeListener p : listeners) {
+            if (p instanceof Serializable) {
+                out.writeObject(p);
+            }
         }
-        oos.writeObject(source);
-
-        oos.writeInt(propertyChangeSupportSerializedDataVersion);
+        out.writeObject(null);
     }
 
     @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream ois) throws IOException,
-            ClassNotFoundException {
-        children = (Hashtable<String, List<PropertyChangeListener>>) ois
-                .readObject();
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        ObjectInputStream.GetField readFields = in.readFields();
+        sourceBean = readFields.get("source", null);
+        listeners = new CopyOnWriteArrayList<PropertyChangeListener>();
 
-        selectedPropertiesChangeListeners = new HashMap<String, List<PropertyChangeListener>>(
-                children);
-        allPropertiesChangeListeners = selectedPropertiesChangeListeners
-                .remove("");
-        if (allPropertiesChangeListeners == null) {
-            allPropertiesChangeListeners = new ArrayList<PropertyChangeListener>();
+        Map<String, PropertyChangeSupport> children
+                = (Map<String, PropertyChangeSupport>) readFields.get("children", null);
+        if (children != null) {
+            for (Map.Entry<String, PropertyChangeSupport> entry : children.entrySet()) {
+                for (PropertyChangeListener p : entry.getValue().listeners) {
+                    listeners.add(new PropertyChangeListenerProxy(entry.getKey(), p));
+                }
+            }
         }
 
-        sourceBean = ois.readObject();
-        propertyChangeSupportSerializedDataVersion = ois.readInt();
+        PropertyChangeListener listener;
+        while ((listener = (PropertyChangeListener) in.readObject()) != null) {
+            listeners.add(listener);
+        }
     }
 
     /**
-     * Fires a property change event to all listeners of that property.
-     *
-     * @param event
-     *            the event to fire
+     * Publishes a property change event to all listeners of that property. If
+     * the event's old and new values are equal (but non-null), no event will be
+     * published.
      */
     public void firePropertyChange(PropertyChangeEvent event) {
-        doFirePropertyChange(event);
-    }
-
-    private PropertyChangeEvent createPropertyChangeEvent(String propertyName,
-            Object oldValue, Object newValue) {
-        return new PropertyChangeEvent(sourceBean, propertyName, oldValue,
-                newValue);
-    }
-
-    private PropertyChangeEvent createPropertyChangeEvent(String propertyName,
-            boolean oldValue, boolean newValue) {
-        return new PropertyChangeEvent(sourceBean, propertyName, oldValue,
-                newValue);
-    }
-
-    private PropertyChangeEvent createPropertyChangeEvent(String propertyName,
-            int oldValue, int newValue) {
-        return new PropertyChangeEvent(sourceBean, propertyName, oldValue,
-                newValue);
-    }
-
-    private void doFirePropertyChange(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         Object oldValue = event.getOldValue();
         Object newValue = event.getNewValue();
-
-        if ((newValue != null) && (oldValue != null)
-                && newValue.equals(oldValue)) {
+        if (newValue != null && oldValue != null && newValue.equals(oldValue)) {
             return;
         }
 
-        /*
-         * Copy the listeners collections so they can be modified while we fire
-         * events.
-         */
-
-        // Listeners to all property change events
-        PropertyChangeListener[] listensToAll;
-        // Listens to a given property change
-        PropertyChangeListener[] listensToOne = null;
-        synchronized (this) {
-            listensToAll = allPropertiesChangeListeners
-                    .toArray(new PropertyChangeListener[allPropertiesChangeListeners
-                            .size()]);
-
-            List<PropertyChangeListener> listeners = selectedPropertiesChangeListeners
-                    .get(propertyName);
-            if (listeners != null) {
-                listensToOne = listeners
-                        .toArray(new PropertyChangeListener[listeners.size()]);
+        notifyEachListener:
+        for (PropertyChangeListener p : listeners) {
+            // unwrap listener proxies until we get a mismatched name or the real listener
+            while (p instanceof PropertyChangeListenerProxy) {
+                PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) p;
+                if (!Objects.equal(proxy.getPropertyName(), propertyName)) {
+                    continue notifyEachListener;
+                }
+                p = (PropertyChangeListener) proxy.getListener();
             }
-        }
-
-        // Fire the listeners
-        for (PropertyChangeListener listener : listensToAll) {
-            listener.propertyChange(event);
-        }
-        if (listensToOne != null) {
-            for (PropertyChangeListener listener : listensToOne) {
-                listener.propertyChange(event);
-            }
+            p.propertyChange(event);
         }
     }
-
 }
