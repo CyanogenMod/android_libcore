@@ -601,6 +601,8 @@ public class SSLSocketTest extends TestCase {
         } catch (SSLHandshakeException expected) {
             assertTrue(expected.getCause() instanceof CertificateException);
         }
+        client.close();
+        server.close();
         thread.join();
     }
 
