@@ -16,8 +16,6 @@
 
 package libcore.java.util.concurrent;
 
-import java.nio.channels.IllegalSelectorException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -30,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import junit.framework.TestCase;
+import libcore.java.util.SerializableTester;
 
 public final class CopyOnWriteArrayListTest extends TestCase {
 
@@ -256,5 +255,16 @@ public final class CopyOnWriteArrayListTest extends TestCase {
             fail();
         } catch (NoSuchElementException expected) {
         }
+    }
+
+    public void testSerialize() {
+        String s = "aced0005737200296a6176612e7574696c2e636f6e63757272656e742e436f70"
+                + "794f6e577269746541727261794c697374785d9fd546ab90c3030000787077040"
+                + "0000005740001617400016274000163707400016578";
+
+        List<String> contents = Arrays.asList("a", "b", "c", null, "e");
+        CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<String>(contents);
+
+        new SerializableTester<CopyOnWriteArrayList<String>>(list, s).test();
     }
 }
