@@ -74,7 +74,7 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
      * non-blocking read methods. Write methods must be synchronized to avoid
      * clobbering concurrent writes.
      */
-    private volatile Object[] elements;
+    private transient volatile Object[] elements;
 
     /**
      * Creates a new empty instance.
@@ -364,8 +364,8 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
     }
 
     /**
-     * Removes or retains the elements in {@code predicate}
-     * Returns the number of elements removed.
+     * Removes or retains the elements in {@code collection}. Returns the number
+     * of elements removed.
      */
     private int removeOrRetain(Collection<?> collection, boolean retain, int from, int to) {
         for (int i = from; i < to; i++) {
@@ -455,10 +455,9 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
         return -1;
     }
 
-    @SuppressWarnings("unchecked")
-    final E[] getArray() {
+    final Object[] getArray() {
         // CopyOnWriteArraySet needs this.
-        return (E[]) elements;
+        return elements;
     }
 
     /**
@@ -759,7 +758,8 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
         }
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private synchronized void readObject(ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         Object[] snapshot = new Object[in.readInt()];
         for (int i = 0; i < snapshot.length; i++) {
