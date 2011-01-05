@@ -216,26 +216,34 @@ public class StringTest extends TestCase {
 
     public void testChangeCase_tr_TR() {
         Locale trTR = new Locale("tr", "TR");
-        assertEquals("META-\u0130NF", "meta-inf".toUpperCase(trTR));
-        assertEquals("meta-inf", "meta-inf".toLowerCase(trTR));
-        assertEquals("META-INF", "META-INF".toUpperCase(trTR));
-        assertEquals("meta-\u0131nf", "META-INF".toLowerCase(trTR));
-        assertEquals("META-INF", "meta-\u0131nf".toUpperCase(trTR));
-        assertEquals("meta-\u0131nf", "meta-\u0131nf".toLowerCase(trTR));
-        assertEquals("META-\u0130NF", "META-\u0130NF".toUpperCase(trTR));
-        assertEquals("meta-inf", "META-\u0130NF".toLowerCase(trTR));
+        String lower = "i";
+        String dotlessLower = "\u0131";
+        String upper = "I";
+        String dottedUpper = "\u0130";
+        assertEquals(dottedUpper, lower.toUpperCase(trTR));
+        assertEquals(lower, lower.toLowerCase(trTR));
+        assertEquals(upper, upper.toUpperCase(trTR));
+        assertEquals(dotlessLower, upper.toLowerCase(trTR));
+        assertEquals(upper, dotlessLower.toUpperCase(trTR));
+        assertEquals(dotlessLower, dotlessLower.toLowerCase(trTR));
+        assertEquals(dottedUpper, dottedUpper.toUpperCase(trTR));
+        assertEquals(lower, dottedUpper.toLowerCase(trTR));
     }
 
     public void testChangeCase_en_US() {
         Locale enUs = new Locale("en", "US");
-        assertEquals("META-INF", "meta-inf".toUpperCase(enUs));
-        assertEquals("meta-inf", "meta-inf".toLowerCase(enUs));
-        assertEquals("META-INF", "META-INF".toUpperCase(enUs));
-        assertEquals("meta-inf", "META-INF".toLowerCase(enUs));
-        assertEquals("META-INF", "meta-\u0131nf".toUpperCase(enUs));
-        assertEquals("meta-\u0131nf", "meta-\u0131nf".toLowerCase(enUs));
-        assertEquals("META-\u0130NF", "META-\u0130NF".toUpperCase(enUs));
-        assertEquals("meta-inf", "META-\u0130NF".toLowerCase(enUs)); // fails on Android
+        String lower = "i";
+        String dotlessLower = "\u0131";
+        String upper = "I";
+        String dottedUpper = "\u0130";
+        assertEquals(upper, lower.toUpperCase(enUs));
+        assertEquals(lower, lower.toLowerCase(enUs));
+        assertEquals(upper, upper.toUpperCase(enUs));
+        assertEquals(lower, upper.toLowerCase(enUs));
+        assertEquals(upper, dotlessLower.toUpperCase(enUs));
+        assertEquals(dotlessLower, dotlessLower.toLowerCase(enUs));
+        assertEquals(dottedUpper, dottedUpper.toUpperCase(enUs));
+        assertEquals(lower, dottedUpper.toLowerCase(enUs)); // fails on Android
     }
 
     public void testEqualsIgnoreCase_tr_TR() {
@@ -253,25 +261,17 @@ public class StringTest extends TestCase {
         Locale defaultLocale = Locale.getDefault();
         Locale.setDefault(locale);
         try {
-            assertTrue("meta-inf".equalsIgnoreCase("META-INF"));
-            assertTrue("meta-inf".equalsIgnoreCase("meta-inf"));
-            assertTrue("meta-inf".equalsIgnoreCase("META-\u0130NF"));
-            assertTrue("meta-inf".equalsIgnoreCase("meta-\u0131nf"));
-
-            assertTrue("META-INF".equalsIgnoreCase("META-INF"));
-            assertTrue("META-INF".equalsIgnoreCase("meta-inf"));
-            assertTrue("META-INF".equalsIgnoreCase("META-\u0130NF"));
-            assertTrue("META-INF".equalsIgnoreCase("meta-\u0131nf"));
-
-            assertTrue("meta-\u0131nf".equalsIgnoreCase("META-INF"));
-            assertTrue("meta-\u0131nf".equalsIgnoreCase("meta-inf"));
-            assertTrue("meta-\u0131nf".equalsIgnoreCase("META-\u0130NF")); // fails on Android
-            assertTrue("meta-\u0131nf".equalsIgnoreCase("meta-\u0131nf"));
-
-            assertTrue("META-\u0130NF".equalsIgnoreCase("META-INF"));
-            assertTrue("META-\u0130NF".equalsIgnoreCase("meta-inf"));
-            assertTrue("META-\u0130NF".equalsIgnoreCase("META-\u0130NF"));
-            assertTrue("META-\u0130NF".equalsIgnoreCase("meta-\u0131nf")); // fails on Android
+            String[] equivalenceClass = {
+                    "i",
+                    "\u0131", // dotless i
+                    "I",
+                    "\u0130", // dotted I
+            };
+            for (String a : equivalenceClass) {
+                for (String b : equivalenceClass) {
+                    assertTrue("Expected " + a + " to equal " + b, a.equalsIgnoreCase(b));
+                }
+            }
         } finally {
             Locale.setDefault(defaultLocale);
         }
