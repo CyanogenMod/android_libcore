@@ -267,4 +267,16 @@ public final class CopyOnWriteArrayListTest extends TestCase {
 
         new SerializableTester<CopyOnWriteArrayList<String>>(list, s).test();
     }
+
+    /**
+     * Test that we don't retain the array returned by toArray() on the copy
+     * constructor. That array may not be of the required type!
+     */
+    public void testDoesNotRetainToArray() {
+        String[] strings = { "a", "b", "c" };
+        List<String> asList = Arrays.asList(strings);
+        assertEquals(String[].class, asList.toArray().getClass());
+        CopyOnWriteArrayList<Object> objects = new CopyOnWriteArrayList<Object>(asList);
+        objects.add(Boolean.TRUE);
+    }
 }
