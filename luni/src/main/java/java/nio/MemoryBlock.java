@@ -85,8 +85,8 @@ class MemoryBlock {
         return new MemoryMappedBlock(address, size);
     }
 
-    public static MemoryBlock malloc(int byteCount) {
-        return new NativeHeapBlock(OSMemory.malloc(byteCount), byteCount);
+    public static MemoryBlock allocate(int byteCount) {
+        return new NativeHeapBlock(OSMemory.calloc(byteCount), byteCount);
     }
 
     public static MemoryBlock wrapFromJni(int address, long byteCount) {
