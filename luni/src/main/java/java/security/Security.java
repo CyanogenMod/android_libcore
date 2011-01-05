@@ -31,7 +31,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.harmony.security.Util;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.SecurityAccess;
 import org.apache.harmony.security.fortress.Services;
@@ -148,16 +147,13 @@ public final class Security {
         if (algName == null || propName == null) {
             return null;
         }
-        // BEGIN android-changed
         String prop = "Alg." + propName + "." + algName;
-        // END android-changed
         Provider[] providers = getProviders();
-        for (int i = 0; i < providers.length; i++) {
-            for (Enumeration e = providers[i].propertyNames(); e
-                    .hasMoreElements();) {
-                String pname = (String) e.nextElement();
-                if (Util.equalsIgnoreCase(prop, pname)) {
-                    return providers[i].getProperty(pname);
+        for (Provider provider : providers) {
+            for (Enumeration e = provider.propertyNames(); e.hasMoreElements(); ) {
+                String propertyName = (String) e.nextElement();
+                if (propertyName.equalsIgnoreCase(prop)) {
+                    return provider.getProperty(propertyName);
                 }
             }
         }
@@ -484,18 +480,14 @@ public final class Security {
      */
     public static Set<String> getAlgorithms(String serviceName) {
         Set<String> result = new HashSet<String>();
-        // BEGIN android-added
         // compatibility with RI
         if (serviceName == null) {
             return result;
         }
-        // END android-added
-        Provider[] p = getProviders();
-        for (int i = 0; i < p.length; i++) {
-            for (Iterator it = p[i].getServices().iterator(); it.hasNext();) {
-                Provider.Service s = (Provider.Service) it.next();
-                if (Util.equalsIgnoreCase(s.getType(),serviceName)) {
-                    result.add(s.getAlgorithm());
+        for (Provider provider : getProviders()) {
+            for (Provider.Service service: provider.getServices()) {
+                if (service.getType().equalsIgnoreCase(serviceName)) {
+                    result.add(service.getAlgorithm());
                 }
             }
         }

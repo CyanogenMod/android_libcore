@@ -29,8 +29,8 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import org.apache.harmony.security.Util;
 
 
 /**
@@ -167,23 +167,17 @@ public class Services {
      * @param p
      */
     public static void initServiceInfo(Provider p) {
-        StringBuilder sb = new StringBuilder(128);
-
         for (Provider.Service serv : p.getServices()) {
             String type = serv.getType();
             if (secureRandom == null && type.equals("SecureRandom")) {
                 secureRandom = serv;
             }
-            sb.delete(0, sb.length());
-            String key = sb.append(type).append(".").append(
-                    Util.toUpperCase(serv.getAlgorithm())).toString();
+            String key = type + "." + serv.getAlgorithm().toUpperCase(Locale.US);
             if (!services.containsKey(key)) {
                 services.put(key, serv);
             }
             for (String alias : Engine.door.getAliases(serv)) {
-                sb.delete(0, sb.length());
-                key = sb.append(type).append(".").append(Util.toUpperCase(alias))
-                        .toString();
+                key = type + "." + alias.toUpperCase(Locale.US);
                 if (!services.containsKey(key)) {
                     services.put(key, serv);
                 }

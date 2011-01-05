@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.apache.harmony.security.Util;
 
 /**
  * This class consist of a number of static methods, which provide a common functionality
@@ -421,8 +420,8 @@ public class PolicyUtils {
      * @see #expand(String, Properties)
      */
     public static boolean canExpandProperties() {
-        return !Util.equalsIgnoreCase(FALSE,AccessController
-                .doPrivileged(new SecurityPropertyAccessor(POLICY_EXPAND)));
+        return !AccessController.doPrivileged(new SecurityPropertyAccessor(POLICY_EXPAND))
+                .equalsIgnoreCase(FALSE);
     }
 
     /**
@@ -467,8 +466,8 @@ public class PolicyUtils {
         URL dynamicURL = null;
 
         //first check if policy is set via system properties
-        if (!Util.equalsIgnoreCase(FALSE, AccessController
-                .doPrivileged(security.key(POLICY_ALLOW_DYNAMIC)))) {
+        if (!AccessController.doPrivileged(security.key(POLICY_ALLOW_DYNAMIC))
+                .equalsIgnoreCase(FALSE)) {
             String location = system.getProperty(systemUrlKey);
             if (location != null) {
                 if (location.startsWith("=")) {

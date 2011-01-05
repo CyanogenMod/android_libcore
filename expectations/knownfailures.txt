@@ -3,6 +3,15 @@
  */
 [
 {
+  description: "Turkish dotless i behaves differently on dalvik vs. RI",
+  names: [
+    "libcore.java.lang.StringTest#testChangeCase_en_US",
+    "libcore.java.lang.StringTest#testEqualsIgnoreCase_en_US",
+    "libcore.java.lang.StringTest#testEqualsIgnoreCase_tr_TR"
+  ],
+  bug: 3325799
+},
+{
   description: "Test regression",
   name: "libcore.javax.crypto.spec.KeyFactoryTestDSA#testKeyFactory",
   substring: "not implemented yet",

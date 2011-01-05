@@ -27,8 +27,8 @@ import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
-import org.apache.harmony.security.Util;
 import org.apache.harmony.security.asn1.ASN1Constants;
 import org.apache.harmony.security.asn1.ASN1Oid;
 import org.apache.harmony.security.asn1.ASN1Sequence;
@@ -283,7 +283,7 @@ public class AttributeTypeAndValue {
             this.oid = thisOid;
 
         } else {
-            this.oid = (ObjectIdentifier) KNOWN_NAMES.get(Util.toUpperCase(sOid));
+            this.oid = (ObjectIdentifier) KNOWN_NAMES.get(sOid.toUpperCase(Locale.US));
             if (this.oid == null) {
                 throw new IOException("Unrecognizable attribute name: " + sOid);
             }
@@ -309,8 +309,7 @@ public class AttributeTypeAndValue {
 
             buf.append('=');
             if (value.escapedString == value.getHexString()) {
-                //FIXME all chars in upper case
-                buf.append(Util.toUpperCase(value.getHexString()));
+                buf.append(value.getHexString().toUpperCase(Locale.US));
             } else if (value.escapedString.length() != value.rawString.length()) {
                 // was escaped
                 value.appendQEString(buf);

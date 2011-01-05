@@ -1573,17 +1573,17 @@ outer:
     }
 
     /**
-     * Converts this string to lowercase, using the rules of the user's default locale.
+     * Converts this string to lower case, using the rules of the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @return a new lowercase string, or {@code this} if it's already all-lowercase.
+     * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase() {
         return CaseMapper.toLowerCase(Locale.getDefault(), this, value, offset, count);
     }
 
     /**
-     * Converts this string to lowercase, using the rules of {@code locale}.
+     * Converts this string to lower case, using the rules of {@code locale}.
      *
      * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
      * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
@@ -1593,7 +1593,7 @@ outer:
      * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
      * for full details of context- and language-specific special cases.
      *
-     * @return a new lowercase string, or {@code this} if it's already all-lowercase.
+     * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase(Locale locale) {
         return CaseMapper.toLowerCase(locale, this, value, offset, count);
@@ -1601,8 +1601,6 @@ outer:
 
     /**
      * Returns this string.
-     *
-     * @return this string.
      */
     @Override
     public String toString() {
@@ -1610,17 +1608,17 @@ outer:
     }
 
     /**
-     * Converts this this string to uppercase, using the rules of the user's default locale.
+     * Converts this this string to upper case, using the rules of the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
+     * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase() {
         return CaseMapper.toUpperCase(Locale.getDefault(), this, value, offset, count);
     }
 
     /**
-     * Converts this this string to uppercase, using the rules of {@code locale}.
+     * Converts this this string to upper case, using the rules of {@code locale}.
      *
      * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
      * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
@@ -1630,7 +1628,7 @@ outer:
      * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
      * for full details of context- and language-specific special cases.
      *
-     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
+     * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase(Locale locale) {
         return CaseMapper.toUpperCase(locale, this, value, offset, count);

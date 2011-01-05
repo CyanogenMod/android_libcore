@@ -28,11 +28,11 @@ import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import org.apache.harmony.luni.util.Base64;
-import org.apache.harmony.luni.util.Util;
 import org.apache.harmony.security.utils.JarUtils;
 
 /**
@@ -234,7 +234,7 @@ class JarVerifier {
      * @see #removeMetaEntries()
      */
     void addMetaEntry(String name, byte[] buf) {
-        metaEntries.put(Util.toASCIIUpperCase(name), buf);
+        metaEntries.put(name.toUpperCase(Locale.US), buf);
     }
 
     /**

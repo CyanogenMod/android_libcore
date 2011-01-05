@@ -46,15 +46,16 @@ public final class Util {
      * @return java.lang.String The decoded version.
      */
     public static String decode(String s, boolean convertPlus, String encoding) {
-        if (!convertPlus && s.indexOf('%') == -1)
+        if (!convertPlus && s.indexOf('%') == -1) {
             return s;
+        }
         StringBuilder result = new StringBuilder(s.length());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for (int i = 0; i < s.length();) {
             char c = s.charAt(i);
-            if (convertPlus && c == '+')
+            if (convertPlus && c == '+') {
                 result.append(' ');
-            else if (c == '%') {
+            } else if (c == '%') {
                 out.reset();
                 do {
                     if (i + 2 >= s.length()) {
@@ -79,38 +80,11 @@ public final class Util {
                     }
                 }
                 continue;
-            } else
+            } else {
                 result.append(c);
+            }
             i++;
         }
         return result.toString();
-    }
-
-    public static String toASCIILowerCase(String s) {
-        int len = s.length();
-        StringBuilder buffer = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            char c = s.charAt(i);
-            if ('A' <= c && c <= 'Z') {
-                buffer.append((char) (c + ('a' - 'A')));
-            } else {
-                buffer.append(c);
-            }
-        }
-        return buffer.toString();
-    }
-
-    public static String toASCIIUpperCase(String s) {
-        int len = s.length();
-        StringBuilder buffer = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            char c = s.charAt(i);
-            if ('a' <= c && c <= 'z') {
-                buffer.append((char) (c - ('a' - 'A')));
-            } else {
-                buffer.append(c);
-            }
-        }
-        return buffer.toString();
     }
 }
