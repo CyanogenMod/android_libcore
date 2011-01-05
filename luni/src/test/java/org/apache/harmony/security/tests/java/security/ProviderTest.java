@@ -36,12 +36,11 @@ import java.security.Provider.Service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
-import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
@@ -371,8 +370,22 @@ public class ProviderTest extends TestCase {
     public final void testService1() {
         p.put("MessageDigest.SHA-1", "AnotherClassName");
         Provider.Service s = p.getService("MessageDigest", "SHA-1");
-
         assertEquals("AnotherClassName", s.getClassName());
+    }
+
+    public final void testGetServiceCaseSensitivity() {
+        p.put("i.I", "foo");
+
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(new Locale("tr", "TR"));
+        try {
+            assertEquals("foo", p.getService("i", "i").getClassName());
+            assertEquals("foo", p.getService("i", "I").getClassName());
+            assertNull(p.getService("\u0130", "\u0130")); // Turkish dotless i and dotted I
+            assertNull(p.getService("\u0131", "\u0131"));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     // Regression for HARMONY-2760.

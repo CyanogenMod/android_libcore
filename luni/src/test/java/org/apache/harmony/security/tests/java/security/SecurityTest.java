@@ -22,27 +22,22 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.KnownFailure;
+import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-
-
 import junit.framework.TestCase;
+
+
 @TestTargetClass(Security.class)
-/**
- * Tests for <code>Security</code> constructor and methods
- */
 public class SecurityTest extends TestCase {
 
     /**
@@ -272,7 +267,6 @@ public class SecurityTest extends TestCase {
         args = {java.lang.String.class}
     )
     public void test_getProvidersLjava_lang_String() {
-
         try {
             Security.getProviders("");
             fail("No expected InvalidParameterException");
@@ -285,6 +279,17 @@ public class SecurityTest extends TestCase {
         } catch (NullPointerException e) {
         }
 
+        testGetProviders(Locale.US);
+        testGetProviders(new Locale("tr", "TR"));
+    }
+
+    /**
+     * Test that Security.getProviders does case sensitive operations
+     * independent of its locale.
+     */
+    private void testGetProviders(Locale locale) {
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(locale);
         Provider p = new MyProvider();
         try {
             Security.addProvider(p);
@@ -307,6 +312,9 @@ public class SecurityTest extends TestCase {
             filter = "MyService.MyAlgorithm ATTribute:attributeVALUE";
             assertTrue(filter, Arrays.equals(new Provider[] { p }, Security
                     .getProviders(filter)));
+            filter = "MyService.MyAlgorithm \u0130mPLemented\u0131n:softWARE"; // Turkish dotless i
+            assertTrue(filter, Arrays.equals(new Provider[] { p }, Security
+                    .getProviders(filter)));
 
             // Regression for HARMONY-2761
             filter = "MyService.NoKeySize KeySize:512";
@@ -319,6 +327,7 @@ public class SecurityTest extends TestCase {
             assertNull(filter, Security.getProviders(filter));
         } finally { // clean up
             Security.removeProvider(p.getName());
+            Locale.setDefault(defaultLocale);
         }
     }
 

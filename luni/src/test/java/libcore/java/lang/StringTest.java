@@ -26,6 +26,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.util.Arrays;
+import java.util.Locale;
 import junit.framework.TestCase;
 
 public class StringTest extends TestCase {
@@ -211,5 +212,68 @@ public class StringTest extends TestCase {
 
     static class HasLiteral {
         static String literal = "[5058, 9962, 1563, 5744]";
+    }
+
+    public void testChangeCase_tr_TR() {
+        Locale trTR = new Locale("tr", "TR");
+        assertEquals("META-\u0130NF", "meta-inf".toUpperCase(trTR));
+        assertEquals("meta-inf", "meta-inf".toLowerCase(trTR));
+        assertEquals("META-INF", "META-INF".toUpperCase(trTR));
+        assertEquals("meta-\u0131nf", "META-INF".toLowerCase(trTR));
+        assertEquals("META-INF", "meta-\u0131nf".toUpperCase(trTR));
+        assertEquals("meta-\u0131nf", "meta-\u0131nf".toLowerCase(trTR));
+        assertEquals("META-\u0130NF", "META-\u0130NF".toUpperCase(trTR));
+        assertEquals("meta-inf", "META-\u0130NF".toLowerCase(trTR));
+    }
+
+    public void testChangeCase_en_US() {
+        Locale enUs = new Locale("en", "US");
+        assertEquals("META-INF", "meta-inf".toUpperCase(enUs));
+        assertEquals("meta-inf", "meta-inf".toLowerCase(enUs));
+        assertEquals("META-INF", "META-INF".toUpperCase(enUs));
+        assertEquals("meta-inf", "META-INF".toLowerCase(enUs));
+        assertEquals("META-INF", "meta-\u0131nf".toUpperCase(enUs));
+        assertEquals("meta-\u0131nf", "meta-\u0131nf".toLowerCase(enUs));
+        assertEquals("META-\u0130NF", "META-\u0130NF".toUpperCase(enUs));
+        assertEquals("meta-inf", "META-\u0130NF".toLowerCase(enUs)); // fails on Android
+    }
+
+    public void testEqualsIgnoreCase_tr_TR() {
+        testEqualsIgnoreCase(new Locale("tr", "TR"));
+    }
+
+    public void testEqualsIgnoreCase_en_US() {
+        testEqualsIgnoreCase(new Locale("en", "US"));
+    }
+
+    /**
+     * String.equalsIgnoreCase should not depend on the locale.
+     */
+    private void testEqualsIgnoreCase(Locale locale) {
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(locale);
+        try {
+            assertTrue("meta-inf".equalsIgnoreCase("META-INF"));
+            assertTrue("meta-inf".equalsIgnoreCase("meta-inf"));
+            assertTrue("meta-inf".equalsIgnoreCase("META-\u0130NF"));
+            assertTrue("meta-inf".equalsIgnoreCase("meta-\u0131nf"));
+
+            assertTrue("META-INF".equalsIgnoreCase("META-INF"));
+            assertTrue("META-INF".equalsIgnoreCase("meta-inf"));
+            assertTrue("META-INF".equalsIgnoreCase("META-\u0130NF"));
+            assertTrue("META-INF".equalsIgnoreCase("meta-\u0131nf"));
+
+            assertTrue("meta-\u0131nf".equalsIgnoreCase("META-INF"));
+            assertTrue("meta-\u0131nf".equalsIgnoreCase("meta-inf"));
+            assertTrue("meta-\u0131nf".equalsIgnoreCase("META-\u0130NF")); // fails on Android
+            assertTrue("meta-\u0131nf".equalsIgnoreCase("meta-\u0131nf"));
+
+            assertTrue("META-\u0130NF".equalsIgnoreCase("META-INF"));
+            assertTrue("META-\u0130NF".equalsIgnoreCase("meta-inf"));
+            assertTrue("META-\u0130NF".equalsIgnoreCase("META-\u0130NF"));
+            assertTrue("META-\u0130NF".equalsIgnoreCase("meta-\u0131nf")); // fails on Android
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 }

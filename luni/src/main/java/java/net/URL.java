@@ -22,9 +22,9 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.security.AccessController;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
@@ -241,9 +241,8 @@ public final class URL implements java.io.Serializable {
                     protocol = null;
                     index = -1;
                 } else {
-                    // Ignore case in protocol names.
-                    // Scheme is defined by ASCII characters.
-                    protocol = Util.toASCIILowerCase(protocol);
+                    // Ignore case in protocol names. Scheme is defined by ASCII characters.
+                    protocol = protocol.toLowerCase(Locale.US);
                 }
             }
         }

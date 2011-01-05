@@ -125,9 +125,9 @@ public class DefaultPolicyScanner {
                 break parsing;
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("keystore", st.sval)) {
+                if (st.sval.equalsIgnoreCase("keystore")) {
                     keystoreEntries.add(readKeystoreEntry(st));
-                } else if (Util.equalsIgnoreCase("grant", st.sval)) {
+                } else if (st.sval.equalsIgnoreCase("grant")) {
                     grantEntries.add(readGrantEntry(st));
                 } else {
                     handleUnexpectedToken(st, "Expected entries are \"grant\" or \"keystore\"");
@@ -206,19 +206,19 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("signedby", st.sval)) {
+                if (st.sval.equalsIgnoreCase("signedby")) {
                     if (st.nextToken() == '"') {
                         ge.signers = st.sval;
                     } else {
                         handleUnexpectedToken(st, "Expected syntax is signedby \"name1,...,nameN\"");
                     }
-                } else if (Util.equalsIgnoreCase("codebase", st.sval)) {
+                } else if (st.sval.equalsIgnoreCase("codebase")) {
                     if (st.nextToken() == '"') {
                         ge.codebase = st.sval;
                     } else {
                         handleUnexpectedToken(st, "Expected syntax is codebase \"url\"");
                     }
-                } else if (Util.equalsIgnoreCase("principal", st.sval)) {
+                } else if (st.sval.equalsIgnoreCase("principal")) {
                     ge.addPrincipal(readPrincipalEntry(st));
                 } else {
                     handleUnexpectedToken(st);
@@ -306,7 +306,7 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("permission", st.sval)) {
+                if (st.sval.equalsIgnoreCase("permission")) {
                     PermissionEntry pe = new PermissionEntry();
                     if (st.nextToken() == StreamTokenizer.TT_WORD) {
                         pe.klass = st.sval;
@@ -324,7 +324,7 @@ public class DefaultPolicyScanner {
                             }
                         }
                         if (st.ttype == StreamTokenizer.TT_WORD
-                                && Util.equalsIgnoreCase("signedby", st.sval)) {
+                                && st.sval.equalsIgnoreCase("signedby")) {
                             if (st.nextToken() == '"') {
                                 pe.signers = st.sval;
                             } else {

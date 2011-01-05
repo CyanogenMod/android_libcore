@@ -21,9 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * The input stream from which the JAR file to be read may be fetched. It is
@@ -58,8 +58,7 @@ public class JarInputStream extends ZipInputStream {
      *             If an error occurs reading entries from the input stream.
      * @see ZipInputStream#ZipInputStream(InputStream)
      */
-    public JarInputStream(InputStream stream, boolean verify)
-            throws IOException {
+    public JarInputStream(InputStream stream, boolean verify) throws IOException {
         super(stream);
         if (verify) {
             verifier = new JarVerifier("JarInputStream");
@@ -67,22 +66,19 @@ public class JarInputStream extends ZipInputStream {
         if ((mEntry = getNextJarEntry()) == null) {
             return;
         }
-        String name = Util.toASCIIUpperCase(mEntry.getName());
-        if (name.equals(JarFile.META_DIR)) {
+        if (mEntry.getName().equalsIgnoreCase(JarFile.META_DIR)) {
             mEntry = null; // modifies behavior of getNextJarEntry()
             closeEntry();
             mEntry = getNextJarEntry();
-            name = mEntry.getName().toUpperCase();
         }
-        if (name.equals(JarFile.MANIFEST_NAME)) {
+        if (mEntry.getName().equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
             mEntry = null;
             manifest = new Manifest(this, verify);
             closeEntry();
             if (verify) {
                 verifier.setManifest(manifest);
                 if (manifest != null) {
-                    verifier.mainAttributesEnd = manifest
-                            .getMainAttributesEnd();
+                    verifier.mainAttributesEnd = manifest.getMainAttributesEnd();
                 }
             }
 
@@ -198,8 +194,7 @@ public class JarInputStream extends ZipInputStream {
                 return null;
             }
             if (verifier != null) {
-                isMeta = Util.toASCIIUpperCase(jarEntry.getName()).startsWith(
-                        JarFile.META_DIR);
+                isMeta = jarEntry.getName().toUpperCase(Locale.US).startsWith(JarFile.META_DIR);
                 if (isMeta) {
                     verStream = new ByteArrayOutputStream();
                 } else {

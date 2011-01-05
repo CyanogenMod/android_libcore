@@ -24,7 +24,7 @@ package org.apache.harmony.security.fortress;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import org.apache.harmony.security.Util;
+import java.util.Locale;
 
 
 /**
@@ -138,18 +138,14 @@ public class Engine {
         Provider.Service service;
         ServiceCacheEntry cacheEntry = this.serviceCache;
         if (cacheEntry != null
-                && Util.equalsIgnoreCase(algorithm, cacheEntry.algorithm)
+                && cacheEntry.algorithm.equalsIgnoreCase(algorithm)
                 && Services.refreshNumber != cacheEntry.refreshNumber) {
             service = cacheEntry.service;
         } else {
             if (Services.isEmpty()) {
                 throw notFound(serviceName, algorithm);
             }
-            String name = new StringBuilder(128)
-                    .append(this.serviceName)
-                    .append(".")
-                    .append(Util.toUpperCase(algorithm))
-                    .toString();
+            String name = this.serviceName + "." + algorithm.toUpperCase(Locale.US);
             service = Services.getService(name);
             if (service == null) {
                 throw notFound(serviceName, algorithm);
