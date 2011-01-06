@@ -64,7 +64,7 @@ import java.security.PrivilegedAction;
  * different order in the output than the order in which they were supplied.
  * For example, {@code "%4$s"} formats the fourth argument ({@code 4$}) as a string ({@code s}).
  * It's also possible to reuse an argument with {@code <}. For example,
- * {@code format("%o %<d %<x", 64)} results in {@code "100 64 40"}.
+ * {@code format("%o %&lt;d %&lt;x", 64)} results in {@code "100 64 40"}.
  * <p>
  * <i>Flags</i>. The available flags are:
  * <p>
