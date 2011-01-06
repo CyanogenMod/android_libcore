@@ -280,3 +280,45 @@ ifeq ($(WITH_HOST_DALVIK),true)
     include $(BUILD_HOST_JAVA_LIBRARY)
 
 endif
+
+#
+# Local droiddoc for faster libcore testing
+#
+#
+# Run with:
+#     m libcore-docs
+#
+# Main output:
+#     out/target/common/docs/libcore/reference/packages.html
+#
+# All text for proofreading (or running tools over):
+#     out/target/common/docs/libcore-proofread.txt
+#
+# TODO list of missing javadoc, etc:
+#     out/target/common/docs/libcore-docs-todo.html
+#
+# Rerun:
+#     rm -rf out/target/common/docs/libcore-timestamp && m libcore-docs
+#
+include $(CLEAR_VARS)
+
+# for shared defintion of libcore_to_document
+include $(LOCAL_PATH)/Docs.mk
+
+LOCAL_SRC_FILES:=$(call find-other-java-files, $(libcore_to_document))
+# rerun doc generation without recompiling the java
+LOCAL_JAVA_LIBRARIES:=
+LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
+
+LOCAL_MODULE := libcore
+
+LOCAL_DROIDDOC_OPTIONS:= \
+ -offlinemode \
+ -title "libcore" \
+ -proofread $(OUT_DOCS)/$(LOCAL_MODULE)-proofread.txt \
+ -todo ../$(LOCAL_MODULE)-docs-todo.html \
+ -hdf android.whichdoc offline
+
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR:=build/tools/droiddoc/templates-sdk
+
+include $(BUILD_DROIDDOC)
