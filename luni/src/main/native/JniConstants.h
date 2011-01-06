@@ -66,7 +66,6 @@ struct JniConstants {
     static jclass socketClass;
     static jclass socketImplClass;
     static jclass stringClass;
-    static jclass vmRuntimeClass;
 };
 
 #define NATIVE_METHOD(className, functionName, signature) \

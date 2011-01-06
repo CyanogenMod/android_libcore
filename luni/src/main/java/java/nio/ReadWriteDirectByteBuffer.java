@@ -43,7 +43,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     // Used by ByteBuffer.allocateDirect.
     ReadWriteDirectByteBuffer(int capacity) {
-        super(MemoryBlock.malloc(capacity), capacity, 0);
+        super(MemoryBlock.allocate(capacity), capacity, 0);
     }
 
     // Used by the JNI NewDirectByteBuffer function.

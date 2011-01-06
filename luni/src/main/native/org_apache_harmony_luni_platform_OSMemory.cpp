@@ -39,8 +39,6 @@
 #error unknown load/store alignment restrictions for this architecture
 #endif
 
-static jobject runtimeInstance;
-
 template <typename T> static T cast(jint address) {
     return reinterpret_cast<T>(static_cast<uintptr_t>(address));
 }
@@ -80,41 +78,19 @@ static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t coun
     }
 }
 
-static jint OSMemory_malloc(JNIEnv* env, jclass, jint size) {
-    static jmethodID trackExternalAllocationMethod =
-            env->GetMethodID(JniConstants::vmRuntimeClass, "trackExternalAllocation", "(J)Z");
-
-    jboolean allowed = env->CallBooleanMethod(runtimeInstance, trackExternalAllocationMethod,
-            static_cast<jlong>(size));
-    if (!allowed) {
-        LOGW("External allocation of %d bytes was rejected\n", size);
-        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
-        return 0;
-    }
-
+static jint OSMemory_calloc(JNIEnv* env, jclass, jint size) {
     // Our only caller wants zero-initialized memory.
     // calloc(3) may be faster than malloc(3) followed by memset(3).
-    void* block = calloc(size + sizeof(jlong), 1);
-    if (block == NULL) {
+    void* result = calloc(size, 1);
+    if (result == NULL) {
         jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
         return 0;
     }
-
-    // Tuck a copy of the size at the head of the buffer.  We need this
-    // so OSMemory_free() knows how much memory is being freed.
-    jlong* result = reinterpret_cast<jlong*>(block);
-    *result++ = size;
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
-static void OSMemory_free(JNIEnv* env, jclass, jint address) {
-    static jmethodID trackExternalFreeMethod =
-            env->GetMethodID(JniConstants::vmRuntimeClass, "trackExternalFree", "(J)V");
-
-    jlong* p = reinterpret_cast<jlong*>(static_cast<uintptr_t>(address));
-    jlong size = *--p;
-    env->CallVoidMethod(runtimeInstance, trackExternalFreeMethod, size);
-    free(reinterpret_cast<void*>(p));
+static void OSMemory_free(JNIEnv*, jclass, jint address) {
+    free(cast<void*>(address));
 }
 
 static void OSMemory_memmove(JNIEnv*, jclass, jint dstAddress, jint srcAddress, jlong length) {
@@ -428,7 +404,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, free, "(I)V"),
     NATIVE_METHOD(OSMemory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(OSMemory, load, "(IJ)V"),
-    NATIVE_METHOD(OSMemory, malloc, "(I)I"),
+    NATIVE_METHOD(OSMemory, calloc, "(I)I"),
     NATIVE_METHOD(OSMemory, memmove, "(IIJ)V"),
     NATIVE_METHOD(OSMemory, mmapImpl, "(IJJI)I"),
     NATIVE_METHOD(OSMemory, msync, "(IJ)V"),
@@ -459,20 +435,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, unsafeBulkPut, "([BIILjava/lang/Object;IIZ)V"),
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
-    jmethodID method_getRuntime = env->GetStaticMethodID(JniConstants::vmRuntimeClass,
-            "getRuntime", "()Ldalvik/system/VMRuntime;");
-    if (method_getRuntime == NULL) {
-        LOGE("Unable to find VMRuntime methods\n");
-        return -1;
-    }
-
-    jobject instance = env->CallStaticObjectMethod(JniConstants::vmRuntimeClass, method_getRuntime);
-    if (instance == NULL) {
-        LOGE("Unable to obtain VMRuntime instance\n");
-        return -1;
-    }
-    runtimeInstance = env->NewGlobalRef(instance);
-
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSMemory",
             gMethods, NELEM(gMethods));
 }

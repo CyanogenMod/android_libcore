@@ -44,7 +44,6 @@ jclass JniConstants::realToStringClass;
 jclass JniConstants::socketClass;
 jclass JniConstants::socketImplClass;
 jclass JniConstants::stringClass;
-jclass JniConstants::vmRuntimeClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
     jclass result = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(name)));
@@ -82,5 +81,4 @@ void JniConstants::init(JNIEnv* env) {
     socketClass = findClass(env, "java/net/Socket");
     socketImplClass = findClass(env, "java/net/SocketImpl");
     stringClass = findClass(env, "java/lang/String");
-    vmRuntimeClass = findClass(env, "dalvik/system/VMRuntime");
 }

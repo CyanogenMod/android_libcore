@@ -139,49 +139,10 @@ public final class OSMemory {
         }
     }
 
-    /**
-     * Returns the address of byteCount bytes of memory. Unlike the corresponding C library
-     * function, the memory returned has been zero-initialized.
-     */
-    public static native int malloc(int byteCount) throws OutOfMemoryError;
-
-    /**
-     * Deallocates space for a memory block that was previously allocated by a
-     * call to {@link #malloc(int) malloc(int)}. The number of bytes freed is
-     * identical to the number of bytes acquired when the memory block was
-     * allocated. If <code>address</code> is zero the method does nothing.
-     * <p>
-     * Freeing a pointer to a memory block that was not allocated by
-     * <code>malloc()</code> has unspecified effect.
-     * </p>
-     *
-     * @param address
-     *            the address of the memory block to deallocate.
-     */
+    public static native int calloc(int byteCount) throws OutOfMemoryError;
     public static native void free(int address);
 
-    /**
-     * Copies <code>length</code> bytes from <code>srcAddress</code> to
-     * <code>destAddress</code>. Where any part of the source memory block
-     * and the destination memory block overlap <code>memmove()</code> ensures
-     * that the original source bytes in the overlapping region are copied
-     * before being overwritten.
-     * <p>
-     * The behavior is unspecified if
-     * <code>(srcAddress ... srcAddress + length)</code> and
-     * <code>(destAddress ... destAddress + length)</code> are not both wholly
-     * within the range that was previously allocated using
-     * <code>malloc()</code>.
-     * </p>
-     *
-     * @param destAddress
-     *            the address of the destination memory block.
-     * @param srcAddress
-     *            the address of the source memory block.
-     * @param length
-     *            the number of bytes to move.
-     */
-    public static native void memmove(int destAddress, int srcAddress, long length);
+    public static native void memmove(int destAddress, int srcAddress, long byteCount);
 
     public static native byte peekByte(int address);
     public static native int peekInt(int address, boolean swap);
@@ -209,8 +170,6 @@ public final class OSMemory {
     public static native void pokeLongArray(int address, long[] src, int offset, int count, boolean swap);
     public static native void pokeShortArray(int address, short[] src, int offset, int count, boolean swap);
 
-    private static native int mmapImpl(int fd, long offset, long size, int mapMode);
-
     public static int mmap(int fd, long offset, long size, MapMode mapMode) throws IOException {
         // Check just those errors mmap(2) won't detect.
         if (offset < 0 || size < 0 || offset > Integer.MAX_VALUE || size > Integer.MAX_VALUE) {
@@ -224,6 +183,7 @@ public final class OSMemory {
         }
         return mmapImpl(fd, offset, size, intMode);
     }
+    private static native int mmapImpl(int fd, long offset, long size, int mapMode);
 
     public static native void munmap(int addr, long size);
 

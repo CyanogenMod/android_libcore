@@ -33,7 +33,7 @@ public class OSMemoryTest extends TestCase {
         int scale = 4;
         int ptr;
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Regular copy.
             OSMemory.pokeIntArray(ptr, values, 0, values.length, false);
@@ -43,7 +43,7 @@ public class OSMemoryTest extends TestCase {
             OSMemory.free(ptr);
         }
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Swapped copy.
             OSMemory.pokeIntArray(ptr, values, 0, values.length, true);
@@ -53,7 +53,7 @@ public class OSMemoryTest extends TestCase {
             OSMemory.free(ptr);
         }
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Swapped copies of slices (to ensure we test non-zero offsets).
             for (int i = 0; i < values.length; ++i) {
@@ -79,7 +79,7 @@ public class OSMemoryTest extends TestCase {
         int scale = 2;
         int ptr;
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Regular copy. Memset first so we start from a known state.
             OSMemory.pokeShortArray(ptr, values, 0, values.length, false);
@@ -89,7 +89,7 @@ public class OSMemoryTest extends TestCase {
             OSMemory.free(ptr);
         }
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Swapped copy.
             OSMemory.pokeShortArray(ptr, values, 0, values.length, true);
@@ -99,7 +99,7 @@ public class OSMemoryTest extends TestCase {
             OSMemory.free(ptr);
         }
 
-        ptr = OSMemory.malloc(scale * values.length);
+        ptr = OSMemory.calloc(scale * values.length);
         try {
             // Swapped copies of slices (to ensure we test non-zero offsets).
             for (int i = 0; i < values.length; ++i) {
