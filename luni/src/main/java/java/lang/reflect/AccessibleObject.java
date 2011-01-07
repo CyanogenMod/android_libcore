@@ -94,8 +94,7 @@ public class AccessibleObject implements AnnotatedElement {
      * Attempts to set the value of the accessible flag for all the objects in
      * the array provided. Only one security check is performed. Setting this
      * flag to {@code false} will enable access checks, setting to {@code true}
-     * will disable them. If there is a security manager, checkPermission is
-     * called with a {@code ReflectPermission("suppressAccessChecks")}.
+     * will disable them.
      *
      * @param objects
      *            the accessible objects
@@ -137,8 +136,7 @@ public class AccessibleObject implements AnnotatedElement {
     /**
      * Attempts to set the value of the accessible flag. Setting this flag to
      * {@code false} will enable access checks, setting to {@code true} will
-     * disable them. If there is a security manager, checkPermission is called
-     * with a {@code ReflectPermission("suppressAccessChecks")}.
+     * disable them.
      *
      * @param flag
      *            the new value for the accessible flag

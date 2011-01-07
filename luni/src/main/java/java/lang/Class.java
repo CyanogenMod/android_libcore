@@ -1390,9 +1390,4 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         System.arraycopy(tail, 0, result, head.length, tail.length);
         return result;
     }
-
-    // TODO: kill this.
-    static Class<?>[] getStackClasses(int maxDepth, boolean stopAtPrivileged) {
-        return VMStack.getClasses(maxDepth, stopAtPrivileged);
-    }
 }

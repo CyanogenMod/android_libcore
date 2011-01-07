@@ -283,7 +283,7 @@ public class SecurityManager {
          * Now, check if there are any non-system class loaders in the stack up
          * to the first privileged method (or the end of the stack.
          */
-        Class<?>[] classes = Class.getStackClasses(-1, true);
+        Class<?>[] classes = VMStack.getClasses(-1, true);
         for (int i = 0; i < classes.length; i++) {
             ClassLoader cl = classes[i].getClassLoaderImpl();
             if (!cl.isSystemClassLoader()) {
@@ -318,7 +318,7 @@ public class SecurityManager {
          * Now, check if there are any non-system class loaders in the stack up
          * to the first privileged method (or the end of the stack.
          */
-        Class<?>[] classes = Class.getStackClasses(-1, true);
+        Class<?>[] classes = VMStack.getClasses(-1, true);
         for (int i = 0; i < classes.length; i++) {
             ClassLoader cl = classes[i].getClassLoaderImpl();
             if (!cl.isSystemClassLoader()) {
@@ -350,7 +350,7 @@ public class SecurityManager {
      */
     @Deprecated
     protected int classDepth(String name) {
-        Class<?>[] classes = Class.getStackClasses(-1, false);
+        Class<?>[] classes = VMStack.getClasses(-1, false);
         for (int i = 0; i < classes.length; i++) {
             if (classes[i].getName().equals(name)) {
                 return i;

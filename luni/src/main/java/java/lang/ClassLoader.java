@@ -390,8 +390,7 @@ public abstract class ClassLoader {
      * @param resName
      *            the name of the resource to find.
      * @return the {@code URL} object for the requested resource or {@code null}
-     *         if either the resource can not be found or a security manager
-     *         does not allow to access the resource.
+     *         if the resource can not be found
      * @see Class#getResource
      */
     public URL getResource(String resName) {
@@ -429,9 +428,7 @@ public abstract class ClassLoader {
      * {@link #getResource(String)} for a description of the lookup algorithm
      * used to find the resource.
      *
-     * @return a stream for the resource or {@code null} if either the resource
-     *         can not be found or a security manager does not allow to access
-     *         the resource.
+     * @return a stream for the resource or {@code null} if the resource can not be found
      * @param resName
      *            the name of the resource to find.
      * @see Class#getResourceAsStream

@@ -61,28 +61,19 @@ public abstract class Signer extends Identity {
      *             if a signer with the specified name already exists in the
      *             provided scope.
      */
-    public Signer(String name, IdentityScope scope)
-            throws KeyManagementException {
+    public Signer(String name, IdentityScope scope) throws KeyManagementException {
         super(name, scope);
     }
 
     /**
-     * Returns the private key of this {@code Signer}. If a {@code
-     * SecurityManager} is installed, code calling this method needs the {@code
-     * SecurityPermission} {@code "getSignerPrivateKey"} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
-     *
-     * @return the private key of this {@code Signer}.
+     * Returns the private key of this {@code Signer}.
      */
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
 
     /**
-     * Associates the specified key pair with this {@code Signer}. If a {@code
-     * SecurityManager} is installed, code calling this method needs the {@code
-     * SecurityPermission} {@code getSignerPrivateKey} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
+     * Associates the specified key pair with this {@code Signer}.
      *
      * @param pair
      *            the key pair to associate with this {@code Signer}.
@@ -91,22 +82,15 @@ public abstract class Signer extends Identity {
      * @throws KeyException
      *             if any other key related problem occurs.
      */
-    public final void setKeyPair(KeyPair pair)
-            throws InvalidParameterException, KeyException {
-
+    public final void setKeyPair(KeyPair pair) throws InvalidParameterException, KeyException {
         if (pair == null) {
             throw new NullPointerException();
         }
 
-        if ((pair.getPrivate() == null) || (pair.getPublic() == null)) {
+        if (pair.getPrivate() == null || pair.getPublic() == null) {
             throw new InvalidParameterException();
         }
-        final PublicKey pk = pair.getPublic();
-        try {
-            setPublicKey(pk);
-        } catch (KeyManagementException ex) {
-            throw new KeyException(ex);
-        }
+        setPublicKey(pair.getPublic());
         this.privateKey = pair.getPrivate();
     }
 

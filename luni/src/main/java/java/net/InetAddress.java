@@ -349,12 +349,8 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Gets the fully qualified domain name for the host associated with this IP
-     * address. If a security manager is set, it is checked if the method caller
-     * is allowed to get the hostname. Otherwise, the textual representation in
-     * a dotted-quad-notation is returned.
-     *
-     * @return the fully qualified domain name of this IP address.
+     * Returns the fully qualified domain name for the host associated with this IP
+     * address.
      */
     public String getCanonicalHostName() {
         String canonicalName;

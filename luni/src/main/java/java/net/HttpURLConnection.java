@@ -601,8 +601,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Sets the flag of whether this connection will follow redirects returned
-     * by the remote server. This method can only be called with the permission
-     * from the security manager.
+     * by the remote server.
      *
      * @param auto
      *            the value to enable or disable this option.

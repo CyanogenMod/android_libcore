@@ -35,9 +35,6 @@ import java.util.List;
  * <p>This class <i>doesn't</i> adjust its configuration as system properties
  * are changed. This assumes that the applications that set these parameters do
  * so before making HTTP connections, and that this class is initialized lazily.
- *
- * <p>If a security manager is in place, HTTP connection pooling will be
- * disabled and these system properties will be ignored.
  */
 public final class HttpConnectionPool {
 

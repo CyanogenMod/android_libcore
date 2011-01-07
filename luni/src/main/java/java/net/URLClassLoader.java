@@ -749,20 +749,30 @@ public class URLClassLoader extends SecureClassLoader {
      * class could be found, a class object representing the loaded class will
      * be returned.
      *
-     * @param clsName
-     *            the name of the class which has to be found.
-     * @return the class that has been loaded.
      * @throws ClassNotFoundException
      *             if the specified class cannot be loaded.
      */
     @Override
-    protected Class<?> findClass(final String clsName) throws ClassNotFoundException {
-        // TODO: merge?
-        Class<?> cls = findClassImpl(clsName);
-        if (cls != null) {
-            return cls;
+    protected Class<?> findClass(final String className) throws ClassNotFoundException {
+        String partialName = className.replace('.', '/');
+        final String classFileName = new StringBuilder(partialName).append(".class").toString();
+        String packageName = null;
+        int position = partialName.lastIndexOf('/');
+        if ((position = partialName.lastIndexOf('/')) != -1) {
+            packageName = partialName.substring(0, position);
         }
-        throw new ClassNotFoundException(clsName);
+        int n = 0;
+        while (true) {
+            URLHandler handler = getHandler(n++);
+            if (handler == null) {
+                break;
+            }
+            Class<?> res = handler.findClass(packageName, classFileName, className);
+            if (res != null) {
+                return res;
+            }
+        }
+        throw new ClassNotFoundException(className);
     }
 
     /**
@@ -805,25 +815,13 @@ public class URLClassLoader extends SecureClassLoader {
         if (name == null) {
             return null;
         }
-        // TODO: merge?
-        return findResourceImpl(name);
-    }
-
-    /**
-     * Returns a URL among the given ones referencing the specified resource or
-     * null if no resource could be found.
-     *
-     * @param resName java.lang.String the name of the requested resource
-     * @return URL URL for the resource.
-     */
-    URL findResourceImpl(String resName) {
         int n = 0;
         while (true) {
             URLHandler handler = getHandler(n++);
             if (handler == null) {
                 break;
             }
-            URL res = handler.findResource(resName);
+            URL res = handler.findResource(name);
             if (res != null) {
                 return res;
             }
@@ -831,7 +829,7 @@ public class URLClassLoader extends SecureClassLoader {
         return null;
     }
 
-    URLHandler getHandler(int num) {
+    private URLHandler getHandler(int num) {
         if (num < handlerList.size()) {
             return handlerList.get(num);
         }
@@ -1034,28 +1032,4 @@ public class URLClassLoader extends SecureClassLoader {
         }
         return addedURLs;
     }
-
-    Class<?> findClassImpl(String className) {
-        String partialName = className.replace('.', '/');
-        final String classFileName = new StringBuilder(partialName).append(".class").toString();
-        String packageName = null;
-        int position = partialName.lastIndexOf('/');
-        if ((position = partialName.lastIndexOf('/')) != -1) {
-            packageName = partialName.substring(0, position);
-        }
-        int n = 0;
-        while (true) {
-            URLHandler handler = getHandler(n++);
-            if (handler == null) {
-                break;
-            }
-            Class<?> res = handler.findClass(packageName, classFileName, className);
-            if (res != null) {
-                return res;
-            }
-        }
-        return null;
-
-    }
-
 }

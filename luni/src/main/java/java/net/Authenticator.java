@@ -118,8 +118,7 @@ public abstract class Authenticator {
     }
 
     /**
-     * If the permission check of the security manager does not result in a
-     * security exception, this method invokes the methods of the registered
+     * Invokes the methods of the registered
      * authenticator to get the authentication info.
      *
      * @return password authentication info or {@code null} if no authenticator
@@ -157,9 +156,7 @@ public abstract class Authenticator {
 
     /**
      * Sets {@code a} as the default authenticator. It will be called whenever
-     * the realm that the URL is pointing to requires authorization. If there is
-     * a security manager set then the caller must have the appropriate {@code
-     * NetPermission}.
+     * the realm that the URL is pointing to requires authorization.
      *
      * @param a
      *            authenticator which has to be set as default.
@@ -169,8 +166,7 @@ public abstract class Authenticator {
     }
 
     /**
-     * If the permission check of the security manager does not result in a
-     * security exception, this method invokes the methods of the registered
+     * Invokes the methods of the registered
      * authenticator to get the authentication info.
      *
      * @return password authentication info or {@code null} if no authenticator
@@ -220,8 +216,7 @@ public abstract class Authenticator {
     }
 
     /**
-     * If the permission check of the security manager does not result in a
-     * security exception, this method invokes the methods of the registered
+     * Invokes the methods of the registered
      * authenticator to get the authentication info.
      *
      * @return password authentication info or {@code null} if no authenticator

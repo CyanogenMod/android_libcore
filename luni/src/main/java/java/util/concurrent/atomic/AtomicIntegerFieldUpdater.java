@@ -252,15 +252,6 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
                 // END android-changed
                 modifiers = field.getModifiers();
 
-                // BEGIN android-added
-                SecurityManager smgr = System.getSecurityManager();
-                if (smgr != null) {
-                    int type = Modifier.isPublic(modifiers)
-                            ? Member.PUBLIC : Member.DECLARED;
-                    smgr.checkMemberAccess(tclass, type);
-                    smgr.checkPackageAccess(tclass.getPackage().getName());
-                }
-                // END android-added
                 // BEGIN android-removed
                 // modifiers = field.getModifiers();
                 // sun.reflect.misc.ReflectUtil.ensureMemberAccess(

@@ -833,8 +833,7 @@ public abstract class URLConnection {
 
     /**
      * Sets the internally used content handler factory. The content factory can
-     * only be set if it is allowed by the security manager and only once during
-     * the lifetime of the application.
+     * only be set once during the lifetime of the application.
      *
      * @param contentFactory
      *            the content factory to be set.

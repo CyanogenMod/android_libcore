@@ -180,15 +180,6 @@ public abstract class AtomicReferenceFieldUpdater<T, V> {
                 field = tclass.getDeclaredField(fieldName);
                 caller = VMStack.getStackClass2(); // android-changed
                 modifiers = field.getModifiers();
-                // BEGIN android-added
-                SecurityManager smgr = System.getSecurityManager();
-                if (smgr != null) {
-                    int type = Modifier.isPublic(modifiers)
-                            ? Member.PUBLIC : Member.DECLARED;
-                    smgr.checkMemberAccess(tclass, type);
-                    smgr.checkPackageAccess(tclass.getPackage().getName());
-                }
-                // END android-added
                 // BEGIN android-removed
                 // sun.reflect.misc.ReflectUtil.ensureMemberAccess(
                 //     caller, tclass, null, modifiers);
