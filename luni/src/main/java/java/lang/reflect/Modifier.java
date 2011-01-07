@@ -277,7 +277,6 @@ public class Modifier {
      *            the modifiers to print
      * @return a printable representation of the modifiers
      */
-    @SuppressWarnings("nls")
     public static java.lang.String toString(int modifiers) {
         StringBuilder buf = new StringBuilder();
 

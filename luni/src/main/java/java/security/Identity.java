@@ -344,7 +344,6 @@ public abstract class Identity implements Principal, Serializable {
      * @return a printable representation for this {@code Identity}.
      */
     @Override
-    @SuppressWarnings("nls")
     public String toString() {
         String s = (this.name == null ? "" : this.name);
         if (scope != null) {

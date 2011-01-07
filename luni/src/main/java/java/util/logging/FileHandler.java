@@ -208,7 +208,6 @@ public class FileHandler extends StreamHandler {
         setOutputStream(output);
     }
 
-    @SuppressWarnings("nls")
     private void initProperties(String p, Boolean a, Integer l, Integer c) {
         super.initProperties("ALL", null, "java.util.logging.XMLFormatter",
                 null);

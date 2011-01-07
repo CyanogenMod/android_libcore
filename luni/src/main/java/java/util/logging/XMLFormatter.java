@@ -48,7 +48,6 @@ public class XMLFormatter extends Formatter {
      *            the log record to be formatted.
      * @return the log record formatted as an XML string.
      */
-    @SuppressWarnings("nls")
     @Override
     public String format(LogRecord r) {
         // call a method of LogRecord to ensure not null
@@ -96,7 +95,6 @@ public class XMLFormatter extends Formatter {
         return sb.toString();
     }
 
-    @SuppressWarnings("nls")
     private void formatMessages(LogRecord r, StringBuilder sb) {
         // get localized message if has, but don't call Formatter.formatMessage
         // to parse pattern string
@@ -131,7 +129,6 @@ public class XMLFormatter extends Formatter {
         }
     }
 
-    @SuppressWarnings("nls")
     private void formatThrowable(LogRecord r, StringBuilder sb) {
         Throwable t;
         if ((t = r.getThrown()) != null) {
@@ -168,7 +165,6 @@ public class XMLFormatter extends Formatter {
      *            the output handler, may be {@code null}.
      * @return the header string for log records formatted as XML strings.
      */
-    @SuppressWarnings("nls")
     @Override
     public String getHead(Handler h) {
         String encoding = null;

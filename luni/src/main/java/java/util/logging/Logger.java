@@ -437,7 +437,6 @@ public class Logger {
      * Set the logger's manager and initializes its configuration from the
      * manager's properties.
      */
-    @SuppressWarnings("nls")
     void setManager(LogManager manager) {
         String levelProperty = manager.getProperty(name + ".level");
         if (levelProperty != null) {
@@ -753,7 +752,6 @@ public class Logger {
      * @param params
      *            an array of parameters for the method call.
      */
-    @SuppressWarnings("nls")
     public void entering(String sourceClass, String sourceMethod,
             Object[] params) {
         if (!internalIsLoggable(Level.FINER)) {

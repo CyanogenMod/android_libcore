@@ -134,7 +134,6 @@ public class JarURLConnectionImpl extends JarURLConnection {
         }
     }
 
-    @SuppressWarnings("nls")
     JarFile openJarFile() throws IOException {
         if (jarFileURL.getProtocol().equals("file")) {
             return new JarFile(new File(Util.decode(jarFileURL.getFile(), false,

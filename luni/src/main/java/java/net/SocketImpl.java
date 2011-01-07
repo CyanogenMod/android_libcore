@@ -212,12 +212,10 @@ public abstract class SocketImpl implements SocketOptions {
      *
      * @return the textual representation of this socket.
      */
-    @SuppressWarnings("nls")
     @Override
     public String toString() {
-        return new StringBuilder(100).append("Socket[addr=").append(
-                getInetAddress()).append(",port=").append(port).append(
-                ",localport=").append(getLocalPort()).append("]").toString();
+        return "Socket[address=" + getInetAddress() +
+                ",port=" + port + ",localPort=" + getLocalPort() + "]";
     }
 
     /**

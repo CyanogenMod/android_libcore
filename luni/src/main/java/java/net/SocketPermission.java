@@ -74,7 +74,6 @@ public final class SocketPermission extends Permission implements Serializable {
 
     // list of actions permitted for socket permission in order, indexed by mask
     // value
-    @SuppressWarnings("nls")
     private static final String[] actionNames = { "", "connect", "listen", "",
             "accept", "", "", "", "resolve" };
 

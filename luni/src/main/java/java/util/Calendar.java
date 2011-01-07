@@ -1357,7 +1357,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @return the string representation of this {@code Calendar}.
      */
     @Override
-    @SuppressWarnings("nls")
     public String toString() {
         StringBuilder result = new StringBuilder(getClass().getName() + "[time="
                 + (isTimeSet ? String.valueOf(time) : "?")
@@ -1502,7 +1501,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         }
     }
 
-    @SuppressWarnings("nls")
     private static final ObjectStreamField[] serialPersistentFields = {
             new ObjectStreamField("areFieldsSet", Boolean.TYPE),
             new ObjectStreamField("fields", int[].class),
@@ -1516,7 +1514,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             new ObjectStreamField("time", Long.TYPE),
             new ObjectStreamField("zone", TimeZone.class), };
 
-    @SuppressWarnings("nls")
     private void writeObject(ObjectOutputStream stream) throws IOException {
         complete();
         ObjectOutputStream.PutField putFields = stream.putFields();
@@ -1534,9 +1531,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         stream.writeFields();
     }
 
-    @SuppressWarnings("nls")
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField readFields = stream.readFields();
         areFieldsSet = readFields.get("areFieldsSet", false);
         this.fields = (int[]) readFields.get("fields", null);

@@ -193,16 +193,7 @@ public abstract class FileLock {
      * @return the display string.
      */
     @Override
-    @SuppressWarnings("nls")
     public final String toString() {
-        StringBuilder buffer = new StringBuilder(64); // Guess length of string
-        buffer.append("FileLock: [position=");
-        buffer.append(position);
-        buffer.append(", size=");
-        buffer.append(size);
-        buffer.append(", shared=");
-        buffer.append(Boolean.toString(shared));
-        buffer.append("]");
-        return buffer.toString();
+        return "FileLock[position=" + position + ", size=" + size + ", shared=" + shared + "]";
     }
 }

@@ -1183,9 +1183,7 @@ public class DecimalFormat extends NumberFormat {
      *             if some I/O error occurs
      * @throws ClassNotFoundException
      */
-    @SuppressWarnings("nls")
-    private void writeObject(ObjectOutputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void writeObject(ObjectOutputStream stream) throws IOException, ClassNotFoundException {
         ObjectOutputStream.PutField fields = stream.putFields();
         fields.put("positivePrefix", dform.getPositivePrefix());
         fields.put("positiveSuffix", dform.getPositiveSuffix());
@@ -1226,7 +1224,6 @@ public class DecimalFormat extends NumberFormat {
      * @throws ClassNotFoundException
      *             if some class of serialized objects or fields cannot be found
      */
-    @SuppressWarnings("nls")
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         // BEGIN android-changed
         ObjectInputStream.GetField fields = stream.readFields();

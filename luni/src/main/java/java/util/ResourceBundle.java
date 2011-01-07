@@ -681,7 +681,6 @@ public abstract class ResourceBundle {
         }
     }
 
-    @SuppressWarnings("nls")
     /**
      * ResourceBundle.Control is a static utility class defines ResourceBundle
      * load access methods, its default access order is as the same as before.

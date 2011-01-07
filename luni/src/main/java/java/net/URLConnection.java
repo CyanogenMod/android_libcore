@@ -709,10 +709,7 @@ public abstract class URLConnection {
      * @throws IOException
      *             if an I/O error occurs while reading from the input stream.
      */
-    @SuppressWarnings("nls")
-    public static String guessContentTypeFromStream(InputStream is)
-            throws IOException {
-
+    public static String guessContentTypeFromStream(InputStream is) throws IOException {
         if (!is.markSupported()) {
             return null;
         }

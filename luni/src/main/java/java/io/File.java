@@ -990,9 +990,8 @@ public class File implements Serializable, Comparable<File> {
      * @throws IOException
      *             if an error occurs when writing the file.
      */
-    @SuppressWarnings("nls")
-    public static File createTempFile(String prefix, String suffix,
-            File directory) throws IOException {
+    public static File createTempFile(String prefix, String suffix, File directory)
+            throws IOException {
         // Force a prefix null check first
         if (prefix.length() < 3) {
             throw new IllegalArgumentException("prefix must be at least 3 characters");
@@ -1058,7 +1057,6 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return an URI for this file.
      */
-    @SuppressWarnings("nls")
     public URI toURI() {
         String name = getAbsoluteName();
         try {
@@ -1089,7 +1087,6 @@ public class File implements Serializable, Comparable<File> {
      * correct escaping of illegal characters.
      */
     @Deprecated
-    @SuppressWarnings("nls")
     public URL toURL() throws java.net.MalformedURLException {
         String name = getAbsoluteName();
         if (!name.startsWith("/")) {

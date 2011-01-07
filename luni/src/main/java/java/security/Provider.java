@@ -781,7 +781,6 @@ public abstract class Provider extends Properties {
      * Provider.id name, Provider.id version, Provider.id info,
      * Provider.id className
      */
-    @SuppressWarnings("nls")
     private void putProviderInfo() {
         super.put("Provider.id name", (name != null) ? name : "null");
         super.put("Provider.id version", versionString);
