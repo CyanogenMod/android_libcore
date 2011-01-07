@@ -434,7 +434,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredConstructor(Class...)
      */
     @SuppressWarnings("unchecked")
-    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException, SecurityException {
+    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
         return getMatchingConstructor(getDeclaredConstructors(this, true), parameterTypes);
     }
 
@@ -448,7 +448,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         this {@code Class}.
      * @see #getDeclaredConstructors()
      */
-    public Constructor<?>[] getConstructors() throws SecurityException {
+    public Constructor<?>[] getConstructors() {
         return getDeclaredConstructors(this, true);
     }
 
@@ -474,7 +474,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return an array with {@code Class} objects for all the classes and
      *         interfaces that are used in member declarations.
      */
-    public Class<?>[] getDeclaredClasses() throws SecurityException {
+    public Class<?>[] getDeclaredClasses() {
         return getDeclaredClasses(this, false);
     }
 
@@ -529,7 +529,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
-            throws NoSuchMethodException, SecurityException {
+            throws NoSuchMethodException {
         return getMatchingConstructor(getDeclaredConstructors(this, false), parameterTypes);
     }
 
@@ -543,7 +543,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         by this {@code Class}.
      * @see #getConstructors()
      */
-    public Constructor<?>[] getDeclaredConstructors() throws SecurityException {
+    public Constructor<?>[] getDeclaredConstructors() {
         return getDeclaredConstructors(this, false);
     }
 
@@ -604,7 +604,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the requested field can not be found.
      * @see #getField(String)
      */
-    public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException {
+    public Field getDeclaredField(String name) throws NoSuchFieldException {
         Field[] fields = getClassCache().getDeclaredFields();
         Field field = findFieldByName(fields, name);
 
@@ -625,7 +625,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         this class.
      * @see #getFields()
      */
-    public Field[] getDeclaredFields() throws SecurityException {
+    public Field[] getDeclaredFields() {
         // Return a copy of the private (to the package) array.
         Field[] fields = getClassCache().getDeclaredFields();
         return ClassCache.deepCopy(fields);
@@ -659,7 +659,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getMethod(String, Class...)
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
-            throws NoSuchMethodException, SecurityException {
+            throws NoSuchMethodException {
         Method[] methods = getClassCache().getDeclaredMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
@@ -680,7 +680,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         this {@code Class}.
      * @see #getMethods()
      */
-    public Method[] getDeclaredMethods() throws SecurityException {
+    public Method[] getDeclaredMethods() {
         // Return a copy of the private (to the package) array.
         Method[] methods = getClassCache().getDeclaredMethods();
         return ClassCache.deepCopy(methods);
@@ -781,7 +781,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the field can not be found.
      * @see #getDeclaredField(String)
      */
-    public Field getField(String name) throws NoSuchFieldException, SecurityException {
+    public Field getField(String name) throws NoSuchFieldException {
         Field[] fields = getClassCache().getAllPublicFields();
         Field field = findFieldByName(fields, name);
 
@@ -817,16 +817,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * for the class C represented by this {@code Class}. Fields may be declared
      * in C, the interfaces it implements or in the superclasses of C. The
      * elements in the returned array are in no particular order.
-     * <p>
-     * If there are no public fields or if this class represents an array class,
+     *
+     * <p>If there are no public fields or if this class represents an array class,
      * a primitive type or {@code void} then an empty array is returned.
-     * </p>
      *
      * @return an array with the public fields of the class represented by this
      *         {@code Class}.
      * @see #getDeclaredFields()
      */
-    public Field[] getFields() throws SecurityException {
+    public Field[] getFields() {
         // Return a copy of the private (to the package) array.
         Field[] fields = getClassCache().getAllPublicFields();
         return ClassCache.deepCopy(fields);
@@ -888,8 +887,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the method can not be found.
      * @see #getDeclaredMethod(String, Class...)
      */
-    public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException,
-            SecurityException {
+    public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
         Method[] methods = getClassCache().getMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
@@ -914,7 +912,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         {@code Class}.
      * @see #getDeclaredMethods()
      */
-    public Method[] getMethods() throws SecurityException {
+    public Method[] getMethods() {
         // Return a copy of the private (to the package) array.
         Method[] methods = getClassCache().getMethods();
         return ClassCache.deepCopy(methods);

@@ -250,7 +250,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @throws IOException
      *             if an error occurs when creating this stream.
      */
-    protected ObjectOutputStream() throws IOException, SecurityException {
+    protected ObjectOutputStream() throws IOException {
         super();
         /*
          * WARNING - we should throw IOException if not called from a subclass
@@ -451,7 +451,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @see #replaceObject
      * @see ObjectInputStream#enableResolveObject
      */
-    protected boolean enableReplaceObject(boolean enable) throws SecurityException {
+    protected boolean enableReplaceObject(boolean enable) {
         boolean originalValue = enableReplace;
         enableReplace = enable;
         return originalValue;

@@ -286,8 +286,7 @@ public abstract class Handler {
      * @throws UnsupportedEncodingException
      *             if the specified encoding is not supported by the runtime.
      */
-    public void setEncoding(String encoding) throws SecurityException,
-            UnsupportedEncodingException {
+    public void setEncoding(String encoding) throws UnsupportedEncodingException {
         LogManager.getLogManager().checkAccess();
         internalSetEncoding(encoding);
     }

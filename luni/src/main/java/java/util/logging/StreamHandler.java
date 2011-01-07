@@ -186,8 +186,7 @@ public class StreamHandler extends Handler {
      *             if the specified encoding is not supported by the runtime.
      */
     @Override
-    public void setEncoding(String encoding) throws SecurityException,
-            UnsupportedEncodingException {
+    public void setEncoding(String encoding) throws UnsupportedEncodingException {
         // flush first before set new encoding
         this.flush();
         super.setEncoding(encoding);

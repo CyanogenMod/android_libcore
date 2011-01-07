@@ -353,7 +353,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @throws IOException
      *             if an error occurs when creating this stream.
      */
-    protected ObjectInputStream() throws IOException, SecurityException {
+    protected ObjectInputStream() throws IOException {
         super();
         // WARNING - we should throw IOException if not called from a subclass
         // according to the JavaDoc. Add the test.
@@ -487,7 +487,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @see #resolveObject
      * @see ObjectOutputStream#enableReplaceObject
      */
-    protected boolean enableResolveObject(boolean enable) throws SecurityException {
+    protected boolean enableResolveObject(boolean enable) {
         boolean originalValue = enableResolve;
         enableResolve = enable;
         return originalValue;

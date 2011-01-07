@@ -52,11 +52,10 @@ import org.apache.harmony.kernel.vm.StringUtils;
  * @see Field
  * @see Constructor
  * @see Method
- * @see ReflectPermission
  */
 public class AccessibleObject implements AnnotatedElement {
 
-    // If true, object is accessible, bypassing normal security checks
+    // If true, object is accessible, bypassing normal access checks
     boolean flag = false;
 
     /**
@@ -92,7 +91,7 @@ public class AccessibleObject implements AnnotatedElement {
 
     /**
      * Attempts to set the value of the accessible flag for all the objects in
-     * the array provided. Only one security check is performed. Setting this
+     * the array provided. Setting this
      * flag to {@code false} will enable access checks, setting to {@code true}
      * will disable them.
      *
@@ -102,10 +101,8 @@ public class AccessibleObject implements AnnotatedElement {
      *            the new value for the accessible flag
      *
      * @see #setAccessible(boolean)
-     * @see ReflectPermission
      */
-    public static void setAccessible(AccessibleObject[] objects, boolean flag)
-            throws SecurityException {
+    public static void setAccessible(AccessibleObject[] objects, boolean flag) {
         synchronized(AccessibleObject.class) {
             for (int i = 0; i < objects.length; i++) {
                 objects[i].flag = flag;
@@ -123,10 +120,10 @@ public class AccessibleObject implements AnnotatedElement {
     }
 
     /**
-     * Indicates whether this object is accessible without security checks being
+     * Indicates whether this object is accessible without access checks being
      * performed. Returns the accessible flag.
      *
-     * @return {@code true} if this object is accessible without security
+     * @return {@code true} if this object is accessible without access
      *         checks, {@code false} otherwise
      */
     public boolean isAccessible() {
@@ -140,10 +137,8 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param flag
      *            the new value for the accessible flag
-     *
-     * @see ReflectPermission
      */
-    public void setAccessible(boolean flag) throws SecurityException {
+    public void setAccessible(boolean flag) {
         this.flag = flag;
     }
 
