@@ -25,17 +25,17 @@ import java.io.Serializable;
  * {@link String#matches String.matches}, {@link String#replaceAll String.replaceAll} and
  * {@link String#split String.split} will be preferable, but if you need to do a lot of work
  * with the same regular expression, it may be more efficient to compile it once and reuse it.
- * The {@code Pattern} class and its companion, {@link Matcher}, are also a lot more powerful
- * than the small amount of functionality exposed by {@code String}.
+ * The {@code Pattern} class and its companion, {@link Matcher}, also offer more functionality
+ * than the small amount exposed by {@code String}.
  *
  * <pre>
  * // String convenience methods:
- * boolean sawFailures = s.matches("Failures: \d+");
- * String farewell = s.replaceAll("Hello, (\S+)", "Goodbye, $1");
+ * boolean sawFailures = s.matches("Failures: \\d+");
+ * String farewell = s.replaceAll("Hello, (\\S+)", "Goodbye, $1");
  * String[] fields = s.split(":");
  *
  * // Direct use of Pattern:
- * Pattern p = Pattern.compile("Hello, (\S+)");
+ * Pattern p = Pattern.compile("Hello, (\\S+)");
  * Matcher m = p.matcher(inputString);
  * while (m.find()) { // Find each match in turn; String can't do this.
  *     String name = m.group(1); // Access a submatch group; String can't do this.
@@ -202,7 +202,7 @@ import java.io.Serializable;
  *
  * <h3>Implementation notes</h3>
  *
- * The regular expression implementation used in Android is provided by
+ * <p>The regular expression implementation used in Android is provided by
  * <a href="http://www.icu-project.org">ICU</a>. The notation for the regular
  * expressions is mostly a superset of those used in other Java language
  * implementations. This means that existing applications will normally work as
