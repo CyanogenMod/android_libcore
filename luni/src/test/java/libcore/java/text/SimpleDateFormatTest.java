@@ -71,6 +71,21 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals(Calendar.TUESDAY, parseDate(ru, "cccc", "\u0412\u0442\u043e\u0440\u043d\u0438\u043a").get(Calendar.DAY_OF_WEEK));
     }
 
+    public void test2038() {
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        assertEquals("Sun Nov 24 17:31:44 1833",
+                format.format(new Date(((long) Integer.MIN_VALUE + Integer.MIN_VALUE) * 1000L)));
+        assertEquals("Fri Dec 13 20:45:52 1901",
+                format.format(new Date(Integer.MIN_VALUE * 1000L)));
+        assertEquals("Thu Jan 01 00:00:00 1970",
+                format.format(new Date(0L)));
+        assertEquals("Tue Jan 19 03:14:07 2038",
+                format.format(new Date(Integer.MAX_VALUE * 1000L)));
+        assertEquals("Sun Feb 07 06:28:16 2106",
+                format.format(new Date((2L + Integer.MAX_VALUE + Integer.MAX_VALUE) * 1000L)));
+    }
     private String formatDate(Locale l, String fmt) {
         DateFormat dateFormat = new SimpleDateFormat(fmt, l);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
