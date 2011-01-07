@@ -21,8 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.spi.CharsetProvider;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -565,11 +563,7 @@ public abstract class Charset implements Comparable<Charset> {
     }
 
     private static Charset getDefaultCharset() {
-        String encoding = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty("file.encoding", "UTF-8");
-            }
-        });
+        String encoding = System.getProperty("file.encoding", "UTF-8");
         try {
             return Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {

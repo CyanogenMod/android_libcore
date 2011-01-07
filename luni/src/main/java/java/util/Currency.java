@@ -18,8 +18,6 @@
 package java.util;
 
 import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import libcore.icu.ICU;
 import libcore.icu.LocaleData;
 
@@ -36,14 +34,11 @@ public final class Currency implements Serializable {
 
     private final String currencyCode;
 
-    // BEGIN android-added
     // TODO: this isn't set if we're restored from serialized form,
     // so getDefaultFractionDigits always returns 0!
     private transient int defaultFractionDigits;
-    // END android-added
 
     private Currency(String currencyCode) {
-        // BEGIN android-changed
         this.currencyCode = currencyCode;
 
         // In some places the code XXX is used as the fall back currency.
@@ -66,7 +61,6 @@ public final class Currency implements Serializable {
             // locale's currency.
             throw badCurrency(currencyCode);
         }
-        // END android-changed
     }
 
     private IllegalArgumentException badCurrency(String currencyCode) {
@@ -87,14 +81,12 @@ public final class Currency implements Serializable {
      *             code.
      */
     public static Currency getInstance(String currencyCode) {
-        // BEGIN android-changed
         Currency currency = codesToCurrencies.get(currencyCode);
         if (currency == null) {
             currency = new Currency(currencyCode);
             codesToCurrencies.put(currencyCode, currency);
         }
         return currency;
-        // END android-changed
     }
 
     /**
@@ -108,7 +100,6 @@ public final class Currency implements Serializable {
      *             if the locale's country is not a supported ISO 3166 Country.
      */
     public static Currency getInstance(Locale locale) {
-        // BEGIN android-changed
         Currency currency = localesToCurrencies.get(locale);
         if (currency != null) {
             return currency;
@@ -129,7 +120,6 @@ public final class Currency implements Serializable {
         Currency result = getInstance(currencyCode);
         localesToCurrencies.put(locale, result);
         return result;
-        // END android-changed
     }
 
     /**
@@ -183,16 +173,11 @@ public final class Currency implements Serializable {
      * @return the default number of fraction digits for this currency.
      */
     public int getDefaultFractionDigits() {
-        // BEGIN android-changed
-        // return com.ibm.icu.util.Currency.getInstance(currencyCode).getDefaultFractionDigits();
         return defaultFractionDigits;
-        // END android-changed
     }
 
     /**
      * Returns this currency's ISO 4217 currency code.
-     *
-     * @return this currency's ISO 4217 currency code.
      */
     @Override
     public String toString() {
@@ -201,15 +186,5 @@ public final class Currency implements Serializable {
 
     private Object readResolve() {
         return getInstance(currencyCode);
-    }
-
-    // TODO: remove this in favor of direct access (and no ResourceBundle cruft).
-    private static ResourceBundle getCurrencyBundle(final Locale locale) {
-        return AccessController.doPrivileged(new PrivilegedAction<ResourceBundle>() {
-            public ResourceBundle run() {
-                String bundle = "org.apache.harmony.luni.internal.locale.Currency";
-                return ResourceBundle.getBundle(bundle, locale);
-            }
-        });
     }
 }

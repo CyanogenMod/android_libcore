@@ -69,17 +69,10 @@ public class FileInputStream extends InputStream implements Closeable {
      *            the file from which this stream reads.
      * @throws FileNotFoundException
      *             if {@code file} does not exist.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public FileInputStream(File file) throws FileNotFoundException {
         if (file == null) {
             throw new NullPointerException("file == null");
-        }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkRead(file.getPath());
         }
         fd = new FileDescriptor();
         fd.readOnly = true;
@@ -95,17 +88,10 @@ public class FileInputStream extends InputStream implements Closeable {
      *            the FileDescriptor from which this stream reads.
      * @throws NullPointerException
      *             if {@code fd} is {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public FileInputStream(FileDescriptor fd) {
         if (fd == null) {
             throw new NullPointerException("fd == null");
-        }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkRead(fd);
         }
         this.fd = fd;
         this.shouldCloseFd = false;

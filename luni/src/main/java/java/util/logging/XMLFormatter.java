@@ -17,8 +17,6 @@
 
 package java.util.logging;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -32,8 +30,7 @@ import java.util.ResourceBundle;
  */
 public class XMLFormatter extends Formatter {
 
-    private static final String lineSeperator = LogManager
-            .getSystemLineSeparator();
+    private static final String lineSeperator = LogManager.getSystemLineSeparator();
 
     private static final String indent = "    ";
 
@@ -179,7 +176,7 @@ public class XMLFormatter extends Formatter {
             encoding = h.getEncoding();
         }
         if (encoding == null) {
-            encoding = getSystemProperty("file.encoding");
+            encoding = System.getProperty("file.encoding");
         }
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"").append(encoding).append(
@@ -200,14 +197,5 @@ public class XMLFormatter extends Formatter {
     @Override
     public String getTail(Handler h) {
         return "</log>";
-    }
-
-    // use privilege code to get system property
-    private static String getSystemProperty(final String key) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key);
-            }
-        });
     }
 }

@@ -31,10 +31,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -475,14 +471,6 @@ class XMLParser {
      * @return Properties instance which indicates the preferences key-value pairs
      */
     static Properties loadFilePrefs(final File file) {
-        return AccessController.doPrivileged(new PrivilegedAction<Properties>() {
-            public Properties run() {
-                return loadFilePrefsImpl(file);
-            }
-        });
-    }
-
-    static Properties loadFilePrefsImpl(final File file) {
         Properties result = new Properties();
         if (!file.exists()) {
             file.getParentFile().mkdirs();
@@ -516,22 +504,7 @@ class XMLParser {
         return result;
     }
 
-    /**
-     *
-     * @param file
-     * @param prefs
-     * @throws PrivilegedActionException
-     */
-    static void flushFilePrefs(final File file, final Properties prefs) throws PrivilegedActionException {
-        AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-            public Object run() throws IOException {
-                flushFilePrefsImpl(file, prefs);
-                return null;
-            }
-        });
-    }
-
-    static void flushFilePrefsImpl(File file, Properties prefs) throws IOException {
+    static void flushFilePrefs(final File file, final Properties prefs) throws IOException {
         BufferedWriter out = null;
         FileLock lock = null;
         try {

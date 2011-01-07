@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -122,14 +120,7 @@ public class ZipFile implements ZipConstants {
             throw new IllegalArgumentException();
         }
 
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(fileName);
-        }
         if ((mode & OPEN_DELETE) != 0) {
-            if (security != null) {
-                security.checkDelete(fileName);
-            }
             fileToDeleteOnClose = file; // file.deleteOnExit();
         } else {
             fileToDeleteOnClose = null;
@@ -183,13 +174,7 @@ public class ZipFile implements ZipConstants {
                 raf.close();
             }
             if (fileToDeleteOnClose != null) {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        new File(fileName).delete();
-                        return null;
-                    }
-                });
-                // fileToDeleteOnClose.delete();
+                fileToDeleteOnClose.delete();
                 fileToDeleteOnClose = null;
             }
         }

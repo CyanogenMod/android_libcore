@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
-import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.WeakHashMap;
 import libcore.base.EmptyArray;
 import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Represents a descriptor for identifying a class during serialization and
@@ -333,7 +331,7 @@ public class ObjectStreamClass implements Serializable {
         if (!useReflectFields) {
             // The user declared a collection of emulated fields. Use them.
             // We have to be able to fetch its value, even if it is private
-            AccessController.doPrivileged(new PriviAction<Object>(f));
+            f.setAccessible(true);
             try {
                 // static field, pass null
                 _fields = (ObjectStreamField[]) f.get(null);
@@ -404,8 +402,7 @@ public class ObjectStreamClass implements Serializable {
                          * visibility. That is why we set accessible first (new
                          * API in reflect 1.2)
                          */
-                        AccessController.doPrivileged(new PriviAction<Object>(
-                                field));
+                        field.setAccessible(true);
                         try {
                             // Static field, parameter is ignored
                             return field.getLong(null);

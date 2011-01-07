@@ -22,9 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.security.AccessController;
 import libcore.icu.ICU;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * {@code Locale} represents a language/country/variant combination. Locales are used to
@@ -216,9 +214,9 @@ public final class Locale implements Cloneable, Serializable {
             "user.language", "write");
 
     static {
-        String language = AccessController.doPrivileged(new PriviAction<String>("user.language", "en"));
-        String region = AccessController.doPrivileged(new PriviAction<String>("user.region", "US"));
-        String variant = AccessController.doPrivileged(new PriviAction<String>("user.variant", ""));
+        String language = System.getProperty("user.language", "en");
+        String region = System.getProperty("user.region", "US");
+        String variant = System.getProperty("user.variant", "");
         defaultLocale = new Locale(language, region, variant);
     }
 
@@ -566,12 +564,6 @@ public final class Locale implements Cloneable, Serializable {
         if (locale == null) {
             throw new NullPointerException();
         }
-
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(setLocalePermission);
-        }
-
         defaultLocale = locale;
     }
 

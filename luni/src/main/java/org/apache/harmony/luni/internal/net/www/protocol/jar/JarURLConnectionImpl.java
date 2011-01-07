@@ -28,9 +28,7 @@ import java.net.ContentHandlerFactory;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.Permission;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -138,52 +136,42 @@ public class JarURLConnectionImpl extends JarURLConnection {
 
     @SuppressWarnings("nls")
     JarFile openJarFile() throws IOException {
-        JarFile jar = null;
         if (jarFileURL.getProtocol().equals("file")) {
-            jar = new JarFile(new File(Util.decode(jarFileURL.getFile(), false,
+            return new JarFile(new File(Util.decode(jarFileURL.getFile(), false,
                     "UTF-8")), true, ZipFile.OPEN_READ);
         } else {
             final InputStream is = jarFileURL.openConnection().getInputStream();
             try {
-                jar = AccessController
-                        .doPrivileged(new PrivilegedAction<JarFile>() {
-                            public JarFile run() {
-                                FileOutputStream fos = null;
-                                JarFile result = null;
-                                try {
-                                    File tempJar = File.createTempFile("hyjar_", ".tmp", null);
-                                    tempJar.deleteOnExit();
-                                    fos = new FileOutputStream(tempJar);
-                                    byte[] buf = new byte[4096];
-                                    int nbytes = 0;
-                                    while ((nbytes = is.read(buf)) > -1) {
-                                        fos.write(buf, 0, nbytes);
-                                    }
-                                    fos.close();
-                                    result = new JarFile(tempJar, true,
-                                            ZipFile.OPEN_READ | ZipFile.OPEN_DELETE);
-                                } catch (IOException e) {
-                                    return null;
-                                } finally {
-                                    if (fos != null) {
-                                        try {
-                                            fos.close();
-                                        } catch (IOException ex) {
-                                            result = null;
-                                        }
-                                    }
-                                }
-                                return result;
-                            }
-                        });
+                FileOutputStream fos = null;
+                JarFile result = null;
+                try {
+                    File tempJar = File.createTempFile("hyjar_", ".tmp", null);
+                    tempJar.deleteOnExit();
+                    fos = new FileOutputStream(tempJar);
+                    byte[] buf = new byte[4096];
+                    int nbytes = 0;
+                    while ((nbytes = is.read(buf)) > -1) {
+                        fos.write(buf, 0, nbytes);
+                    }
+                    fos.close();
+                    return new JarFile(tempJar, true, ZipFile.OPEN_READ | ZipFile.OPEN_DELETE);
+                } catch (IOException e) {
+                    return null;
+                } finally {
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException ex) {
+                            return null;
+                        }
+                    }
+                }
             } finally {
                 if (is != null) {
                     is.close();
                 }
             }
         }
-
-        return jar;
     }
 
     /**

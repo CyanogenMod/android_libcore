@@ -48,12 +48,6 @@ public final class HttpConnectionPool {
             = new HashMap<HttpConnection.Address, List<HttpConnection>>();
 
     private HttpConnectionPool() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            maxConnections = 0;
-            return;
-        }
-
         String keepAlive = System.getProperty("http.keepAlive");
         if (keepAlive != null && !Boolean.parseBoolean(keepAlive)) {
             maxConnections = 0;

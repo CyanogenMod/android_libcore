@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import libcore.io.IoUtils;
 
 /**
@@ -271,16 +269,11 @@ public abstract class ResourceBundle {
     }
 
     private static ClassLoader getLoader() {
-        return AccessController
-                .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                    public ClassLoader run() {
-                        ClassLoader cl = this.getClass().getClassLoader();
-                        if (cl == null) {
-                            cl = ClassLoader.getSystemClassLoader();
-                        }
-                        return cl;
-                    }
-                });
+        ClassLoader cl = ResourceBundle.class.getClassLoader();
+        if (cl == null) {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        return cl;
     }
 
     /**
@@ -885,24 +878,16 @@ public abstract class ResourceBundle {
             if (format == null || loader == null) {
                 throw new NullPointerException();
             }
-            InputStream streams = null;
             final String bundleName = toBundleName(baseName, locale);
             final ClassLoader clsloader = loader;
             ResourceBundle ret;
-            Class<?> cls = null;
             if (JAVACLASS == format) {
-                cls = AccessController
-                        .doPrivileged(new PrivilegedAction<Class<?>>() {
-                            public Class<?> run() {
-                                try {
-                                    return clsloader.loadClass(bundleName);
-                                } catch (Exception e) {
-                                    return null;
-                                } catch (NoClassDefFoundError e) {
-                                    return null;
-                                }
-                            }
-                        });
+                Class<?> cls = null;
+                try {
+                    cls = clsloader.loadClass(bundleName);
+                } catch (Exception e) {
+                } catch (NoClassDefFoundError e) {
+                }
                 if (cls == null) {
                     return null;
                 }
@@ -915,8 +900,8 @@ public abstract class ResourceBundle {
                 }
             }
             if (JAVAPROPERTIES == format) {
-                final String resourceName = toResourceName(bundleName,
-                        "properties");
+                InputStream streams = null;
+                final String resourceName = toResourceName(bundleName, "properties");
                 if (reload) {
                     URL url = null;
                     try {
@@ -931,13 +916,7 @@ public abstract class ResourceBundle {
                     }
                 } else {
                     try {
-                        streams = AccessController
-                                .doPrivileged(new PrivilegedAction<InputStream>() {
-                                    public InputStream run() {
-                                        return clsloader
-                                                .getResourceAsStream(resourceName);
-                                    }
-                                });
+                        streams = clsloader.getResourceAsStream(resourceName);
                     } catch (NullPointerException e) {
                         // do nothing
                     }

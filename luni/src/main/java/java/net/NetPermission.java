@@ -33,7 +33,6 @@ package java.net;
  * </dl>
  *
  * @see java.security.BasicPermission
- * @see SecurityManager
  */
 public final class NetPermission extends java.security.BasicPermission {
 

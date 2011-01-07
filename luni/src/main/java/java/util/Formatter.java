@@ -30,8 +30,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.charset.Charset;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import libcore.icu.LocaleData;
 import libcore.icu.NativeDecimalFormat;
 import libcore.io.IoUtils;
@@ -677,9 +675,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the filename does not denote a normal and writable file,
      *             or if a new file cannot be created, or if any error arises when
      *             opening or creating the file.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the file in {@code checkWrite(file.getPath())}.
      */
     public Formatter(String fileName) throws FileNotFoundException {
         this(new File(fileName));
@@ -703,9 +698,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the filename does not denote a normal and writable file,
      *             or if a new file cannot be created, or if any error arises when
      *             opening or creating the file.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the file in {@code checkWrite(file.getPath())}.
      * @throws UnsupportedEncodingException
      *             if the charset with the specified name is not supported.
      */
@@ -732,9 +724,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the filename does not denote a normal and writable file,
      *             or if a new file cannot be created, or if any error arises when
      *             opening or creating the file.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the file in {@code checkWrite(file.getPath())}.
      * @throws UnsupportedEncodingException
      *             if the charset with the specified name is not supported.
      */
@@ -761,9 +750,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the {@code File} is not a normal and writable {@code File}, or if a
      *             new {@code File} cannot be created, or if any error rises when opening or
      *             creating the {@code File}.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the {@code File} in {@code checkWrite(file.getPath())}.
      */
     public Formatter(File file) throws FileNotFoundException {
         this(new FileOutputStream(file));
@@ -787,9 +773,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the {@code File} is not a normal and writable {@code File}, or if a
      *             new {@code File} cannot be created, or if any error rises when opening or
      *             creating the {@code File}.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the {@code File} in {@code checkWrite(file.getPath())}.
      * @throws UnsupportedEncodingException
      *             if the charset with the specified name is not supported.
      */
@@ -816,9 +799,6 @@ public final class Formatter implements Closeable, Flushable {
      *             if the {@code File} is not a normal and writable {@code File}, or if a
      *             new {@code File} cannot be created, or if any error rises when opening or
      *             creating the {@code File}.
-     * @throws SecurityException
-     *             if there is a {@code SecurityManager} in place which denies permission
-     *             to write to the {@code File} in {@code checkWrite(file.getPath())}.
      * @throws UnsupportedEncodingException
      *             if the charset with the specified name is not supported.
      */
@@ -1632,11 +1612,7 @@ public final class Formatter implements Closeable, Flushable {
 
     private CharSequence transformFromLineSeparator() {
         if (lineSeparator == null) {
-            lineSeparator = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                public String run() {
-                    return System.getProperty("line.separator");
-                }
-            });
+            lineSeparator = System.getProperty("line.separator");
         }
         return lineSeparator;
     }

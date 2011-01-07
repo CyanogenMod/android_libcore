@@ -17,11 +17,9 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Wraps either an existing {@link OutputStream} or an existing {@link Writer}
@@ -47,8 +45,7 @@ public class PrintWriter extends Writer {
      */
     private boolean autoflush;
 
-    private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator"));
+    private final String lineSeparator = System.getProperty("line.separator");
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
@@ -127,9 +124,6 @@ public class PrintWriter extends Writer {
      *            removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintWriter(File file) throws FileNotFoundException {
         this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file))), false);
@@ -150,9 +144,6 @@ public class PrintWriter extends Writer {
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */
@@ -174,9 +165,6 @@ public class PrintWriter extends Writer {
      *            contents are removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintWriter(String fileName) throws FileNotFoundException {
         this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fileName))),
@@ -199,9 +187,6 @@ public class PrintWriter extends Writer {
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */

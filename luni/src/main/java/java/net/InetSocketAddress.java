@@ -75,10 +75,6 @@ public class InetSocketAddress extends SocketAddress {
      *            the specified port number to which this socket is bound.
      * @param host
      *            the specified hostname to which this socket is bound.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkConnect()} method does not allow the resolving of the
-     *             host name.
      */
     public InetSocketAddress(String host, int port) {
         this(host, port, true);
@@ -95,10 +91,6 @@ public class InetSocketAddress extends SocketAddress {
 
         InetAddress addr = null;
         if (needResolved) {
-            SecurityManager smgr = System.getSecurityManager();
-            if (smgr != null) {
-                smgr.checkConnect(hostname, port);
-            }
             try {
                 addr = InetAddress.getByName(hostname);
                 hostname = null;

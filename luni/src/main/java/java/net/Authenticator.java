@@ -134,17 +134,10 @@ public abstract class Authenticator {
      *            realm of the connection that requests authentication.
      * @param rScheme
      *            scheme of the connection that requests authentication.
-     * @throws SecurityException
-     *             if a security manager denies the password authentication
-     *             permission.
      */
     public static synchronized PasswordAuthentication requestPasswordAuthentication(
             InetAddress rAddr, int rPort, String rProtocol, String rPrompt,
             String rScheme) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(requestPasswordAuthenticationPermission);
-        }
         if (thisAuthenticator == null) {
             return null;
         }
@@ -170,15 +163,8 @@ public abstract class Authenticator {
      *
      * @param a
      *            authenticator which has to be set as default.
-     * @throws SecurityException
-     *             if a security manager denies the password authentication
-     *             permission.
      */
     public static void setDefault(Authenticator a) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(setDefaultAuthenticatorPermission);
-        }
         thisAuthenticator = a;
     }
 
@@ -201,17 +187,10 @@ public abstract class Authenticator {
      *            realm of the connection that requests authentication.
      * @param rScheme
      *            scheme of the connection that requests authentication.
-     * @throws SecurityException
-     *             if a security manager denies the password authentication
-     *             permission.
      */
     public static synchronized PasswordAuthentication requestPasswordAuthentication(
             String rHost, InetAddress rAddr, int rPort, String rProtocol,
             String rPrompt, String rScheme) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(requestPasswordAuthenticationPermission);
-        }
         if (thisAuthenticator == null) {
             return null;
         }
@@ -263,18 +242,11 @@ public abstract class Authenticator {
      *            url of the connection that requests authentication.
      * @param reqType
      *            requestor type of the connection that requests authentication.
-     * @throws SecurityException
-     *             if a security manager denies the password authentication
-     *             permission.
      */
     public static PasswordAuthentication requestPasswordAuthentication(
             String rHost, InetAddress rAddr, int rPort, String rProtocol,
             String rPrompt, String rScheme, URL rURL,
             Authenticator.RequestorType reqType) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(requestPasswordAuthenticationPermission);
-        }
         if (thisAuthenticator == null) {
             return null;
         }

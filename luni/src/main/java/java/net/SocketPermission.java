@@ -376,7 +376,7 @@ public final class SocketPermission extends Permission implements Serializable {
     private String getIPString(boolean isCheck) {
         if (!resolved) {
             try {
-                ipString = InetAddress.getHostNameInternal(hostName, isCheck);
+                ipString = InetAddress.getHostNameInternal(hostName);
             } catch (UnknownHostException e) {
                 // ignore
             }

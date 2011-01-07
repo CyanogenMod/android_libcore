@@ -26,7 +26,6 @@ import java.io.ObjectStreamException;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.nio.ByteOrder;
-import java.security.AccessController;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +33,6 @@ import java.util.Enumeration;
 import java.util.List;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and
@@ -273,11 +271,6 @@ public class InetAddress implements Serializable {
             return new InetAddress[] { makeInetAddress(bytes, null) };
         }
 
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkConnect(host, -1);
-        }
-
         return lookupHostByName(host);
     }
 
@@ -296,8 +289,7 @@ public class InetAddress implements Serializable {
     static native byte[] ipStringToByteArray(String address);
 
     static boolean preferIPv6Addresses() {
-        String propertyName = "java.net.preferIPv6Addresses";
-        String propertyValue = AccessController.doPrivileged(new PriviAction<String>(propertyName));
+        String propertyValue = System.getProperty("java.net.preferIPv6Addresses");
         return Boolean.parseBoolean(propertyValue);
     }
 
@@ -353,15 +345,6 @@ public class InetAddress implements Serializable {
         } catch (UnknownHostException e) {
             return hostName = byteArrayToIpString(ipaddress);
         }
-        SecurityManager security = System.getSecurityManager();
-        try {
-            // Only check host names, not addresses
-            if (security != null && !isNumeric(hostName)) {
-                security.checkConnect(hostName, -1);
-            }
-        } catch (SecurityException e) {
-            return byteArrayToIpString(ipaddress);
-        }
         return hostName;
     }
 
@@ -385,15 +368,6 @@ public class InetAddress implements Serializable {
             }
             canonicalName = getHostByAddrImpl(ipaddress).hostName;
         } catch (UnknownHostException e) {
-            return byteArrayToIpString(ipaddress);
-        }
-        SecurityManager security = System.getSecurityManager();
-        try {
-            // Only check host names, not addresses
-            if (security != null && !isNumeric(canonicalName)) {
-                security.checkConnect(canonicalName, -1);
-            }
-        } catch (SecurityException e) {
             return byteArrayToIpString(ipaddress);
         }
         return canonicalName;
@@ -438,14 +412,6 @@ public class InetAddress implements Serializable {
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
         String host = gethostname();
-        SecurityManager security = System.getSecurityManager();
-        try {
-            if (security != null) {
-                security.checkConnect(host, -1);
-            }
-        } catch (SecurityException e) {
-            return Inet4Address.LOOPBACK;
-        }
         return lookupHostByName(host)[0];
     }
     private static native String gethostname();
@@ -529,17 +495,11 @@ public class InetAddress implements Serializable {
      */
     private static native String getnameinfo(byte[] addr);
 
-    static String getHostNameInternal(String host, boolean isCheck) throws UnknownHostException {
+    static String getHostNameInternal(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             return Inet4Address.LOOPBACK.getHostAddress();
         }
         if (!isNumeric(host)) {
-            if (isCheck) {
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm.checkConnect(host, -1);
-                }
-            }
             return lookupHostByName(host)[0].getHostAddress();
         }
         return host;

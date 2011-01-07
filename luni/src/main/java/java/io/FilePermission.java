@@ -17,7 +17,6 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
@@ -102,16 +101,11 @@ public final class FilePermission extends Permission implements Serializable {
         if (path.equals("<<ALL FILES>>")) {
             includeAll = true;
         } else {
-            canonPath = AccessController
-                    .doPrivileged(new PrivilegedAction<String>() {
-                        public String run() {
-                            try {
-                                return new File(path).getCanonicalPath();
-                            } catch (IOException e) {
-                                return path;
-                            }
-                        }
-                    });
+            canonPath = path;
+            try {
+                canonPath = new File(path).getCanonicalPath();
+            } catch (IOException e) {
+            }
             if (path.equals("*") || path.endsWith(File.separator + "*")) {
                 allDir = true;
             }

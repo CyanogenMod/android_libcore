@@ -170,11 +170,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
         int port = inetSocketAddress.getPort();
         String hostName = normalAddr.getHostName();
-        // security check
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkConnect(hostName, port);
-        }
 
         // connect result
         int result = EOF;

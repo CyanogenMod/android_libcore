@@ -27,7 +27,6 @@ import libcore.base.CollectionUtils;
  * {@code ThreadGroup} is a means of organizing threads into a hierarchical structure.
  * This class is obsolete. See <i>Effective Java</i> Item 73, "Avoid thread groups" for details.
  * @see Thread
- * @see SecurityManager
  */
 public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
@@ -74,8 +73,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * will be child of the {@code ThreadGroup} to which the calling thread belongs.
      *
      * @param name the name
-     * @throws SecurityException if {@code checkAccess()} for the parent
-     *         group fails with a SecurityException
      * @see Thread#currentThread
      */
 
@@ -90,18 +87,13 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @param parent the parent
      * @param name the name
      * @throws NullPointerException if {@code parent == null}
-     * @throws SecurityException if {@code checkAccess()} for the parent
-     *         group fails with a SecurityException
      * @throws IllegalThreadStateException if {@code parent} has been
      *         destroyed already
      */
     public ThreadGroup(ThreadGroup parent, String name) {
-        if (Thread.currentThread() != null) {
-            // If parent is null we must throw NullPointerException, but that
-            // will be done "for free" with the message send below
-            parent.checkAccess();
+        if (parent == null) {
+            throw new NullPointerException("parent == null");
         }
-
         this.name = name;
         this.parent = parent;
         if (parent != null) {
@@ -212,16 +204,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * Checks the accessibility of this {@code ThreadGroup} from the perspective of the
-     * caller. If there is a {@code SecurityManager} installed, calls
-     * {@code checkAccess} with this thread group as a parameter, otherwise does
-     * nothing.
+     * Does nothing.
      */
     public final void checkAccess() {
-        SecurityManager currentManager = System.getSecurityManager();
-        if (currentManager != null) {
-            currentManager.checkAccess(this);
-        }
     }
 
     /**
@@ -233,12 +218,8 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @throws IllegalThreadStateException if this thread group or any of its
      *         subgroups has been destroyed already or if it still contains
      *         threads.
-     * @throws SecurityException if {@code this.checkAccess()} fails with
-     *         a SecurityException
      */
     public final void destroy() {
-        checkAccess();
-
         synchronized (threadRefs) {
             synchronized (groups) {
                 if (isDestroyed) {
@@ -373,8 +354,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      */
     private int enumerateGeneric(Object[] enumeration, boolean recurse, int enumerationIndex,
             boolean enumeratingThreads) {
-        checkAccess();
-
         if (enumeratingThreads) {
             synchronized (threadRefs) {
                 // walk the references directly so we can iterate in reverse order
@@ -440,9 +419,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @return the parent
      */
     public final ThreadGroup getParent() {
-        if (parent != null) {
-            parent.checkAccess();
-        }
         return parent;
     }
 
@@ -450,13 +426,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Interrupts every {@code Thread} in this group and recursively in all its
      * subgroups.
      *
-     * @throws SecurityException if {@code this.checkAccess()} fails with
-     *         a SecurityException
-     *
      * @see Thread#interrupt
      */
     public final void interrupt() {
-        checkAccess();
         synchronized (threadRefs) {
             for (Thread thread : threads) {
                 thread.interrupt();
@@ -597,9 +569,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Resumes every thread in this group and recursively in all its
      * subgroups.
      *
-     * @throws SecurityException if {@code this.checkAccess()} fails with
-     *         a SecurityException
-     *
      * @see Thread#resume
      * @see #suspend
      *
@@ -608,7 +577,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     @SuppressWarnings("deprecation")
     @Deprecated
     public final void resume() {
-        checkAccess();
         synchronized (threadRefs) {
             for (Thread thread : threads) {
                 thread.resume();
@@ -626,14 +594,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * thread groups are automatically destroyed when they become empty.
      *
      * @param isDaemon the new value
-     * @throws SecurityException if {@code checkAccess()} for the parent
-     *         group fails with a SecurityException
-     *
      * @see #isDaemon
      * @see #destroy
      */
     public final void setDaemon(boolean isDaemon) {
-        checkAccess();
         this.isDaemon = isDaemon;
     }
 
@@ -647,16 +611,12 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      *
      * @param newMax the new maximum priority to be set
      *
-     * @throws SecurityException if {@code checkAccess()} fails with a
-     *         SecurityException
      * @throws IllegalArgumentException if the new priority is greater than
      *         Thread.MAX_PRIORITY or less than Thread.MIN_PRIORITY
      *
      * @see #getMaxPriority
      */
     public final void setMaxPriority(int newMax) {
-        checkAccess();
-
         if (newMax <= this.maxPriority) {
             if (newMax < Thread.MIN_PRIORITY) {
                 newMax = Thread.MIN_PRIORITY;
@@ -675,9 +635,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Stops every thread in this group and recursively in all its subgroups.
      *
-     * @throws SecurityException if {@code this.checkAccess()} fails with
-     *         a SecurityException
-     *
      * @see Thread#stop()
      * @see Thread#stop(Throwable)
      * @see ThreadDeath
@@ -694,8 +651,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     @SuppressWarnings("deprecation")
     private boolean stopHelper() {
-        checkAccess();
-
         boolean stopCurrent = false;
         synchronized (threadRefs) {
             Thread current = Thread.currentThread();
@@ -719,9 +674,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Suspends every thread in this group and recursively in all its
      * subgroups.
      *
-     * @throws SecurityException if {@code this.checkAccess()} fails with
-     *         a SecurityException
-     *
      * @see Thread#suspend
      * @see #resume
      *
@@ -737,8 +689,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     @SuppressWarnings("deprecation")
     private boolean suspendHelper() {
-        checkAccess();
-
         boolean suspendCurrent = false;
         synchronized (threadRefs) {
             Thread current = Thread.currentThread();

@@ -606,13 +606,8 @@ public abstract class HttpURLConnection extends URLConnection {
      *
      * @param auto
      *            the value to enable or disable this option.
-     * @see SecurityManager#checkSetFactory()
      */
     public static void setFollowRedirects(boolean auto) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkSetFactory();
-        }
         followRedirects = auto;
     }
 

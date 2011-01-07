@@ -213,14 +213,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             ClassLoader classLoader) throws ClassNotFoundException {
 
         if (classLoader == null) {
-            SecurityManager smgr = System.getSecurityManager();
-            if (smgr != null) {
-                ClassLoader calling = VMStack.getCallingClassLoader();
-                if (calling != null) {
-                    smgr.checkPermission(new RuntimePermission("getClassLoader"));
-                }
-            }
-
             classLoader = ClassLoader.getSystemClassLoader();
         }
         // Catch an Exception thrown by the underlying native code. It wraps
@@ -264,12 +256,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * of length 0 is returned.
      *
      * @return the public class members of the class represented by this object.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      */
     public Class<?>[] getClasses() {
-        checkPublicMemberAccess();
         return getFullListOfClasses(true);
     }
 
@@ -384,37 +372,24 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * representation of the bootstrap class loader.
      *
      * @return the class loader for the represented class.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow accessing
-     *             the class loader.
      * @see ClassLoader
      */
     public ClassLoader getClassLoader() {
-        SecurityManager smgr = System.getSecurityManager();
-        ClassLoader loader = getClassLoaderImpl();
-        if (smgr != null && loader != null) {
-            ClassLoader calling = VMStack.getCallingClassLoader();
-
-            if (calling != null && !calling.isAncestorOf(loader)) {
-                smgr.checkPermission(new RuntimePermission("getClassLoader"));
-            }
-        }
-
         if (this.isPrimitive()) {
             return null;
         }
 
+        ClassLoader loader = getClassLoaderImpl();
         if (loader == null) {
             loader = BootClassLoader.getInstance();
         }
-
         return loader;
     }
 
     /**
      * This must be provided by the VM vendor, as it is used by other provided
      * class implementations in this package. Outside of this class, it is used
-     * by SecurityManager.checkMemberAccess(), classLoaderDepth(),
+     * by SecurityManager.classLoaderDepth(),
      * currentClassLoader() and currentLoadedClass(). Return the ClassLoader for
      * this Class without doing any security checks. The bootstrap ClassLoader
      * is returned, unlike getClassLoader() which returns null in place of the
@@ -456,15 +431,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the constructor described by {@code parameterTypes}.
      * @throws NoSuchMethodException
      *             if the constructor can not be found.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredConstructor(Class...)
      */
     @SuppressWarnings("unchecked")
-    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException,
-            SecurityException {
-        checkPublicMemberAccess();
+    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException, SecurityException {
         return getMatchingConstructor(getDeclaredConstructors(this, true), parameterTypes);
     }
 
@@ -476,13 +446,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the public constructors of the class represented by
      *         this {@code Class}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredConstructors()
      */
     public Constructor<?>[] getConstructors() throws SecurityException {
-        checkPublicMemberAccess();
         return getDeclaredConstructors(this, true);
     }
 
@@ -507,12 +473,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with {@code Class} objects for all the classes and
      *         interfaces that are used in member declarations.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      */
     public Class<?>[] getDeclaredClasses() throws SecurityException {
-        checkDeclaredMemberAccess();
         return getDeclaredClasses(this, false);
     }
 
@@ -563,15 +525,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the constructor described by {@code parameterTypes}.
      * @throws NoSuchMethodException
      *             if the requested constructor can not be found.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getConstructor(Class...)
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
-        checkDeclaredMemberAccess();
         return getMatchingConstructor(getDeclaredConstructors(this, false), parameterTypes);
     }
 
@@ -583,14 +541,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the constructors declared in the class represented
      *         by this {@code Class}.
-     *
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getConstructors()
      */
     public Constructor<?>[] getDeclaredConstructors() throws SecurityException {
-        checkDeclaredMemberAccess();
         return getDeclaredConstructors(this, false);
     }
 
@@ -649,14 +602,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the requested field in the class represented by this class.
      * @throws NoSuchFieldException
      *             if the requested field can not be found.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getField(String)
      */
     public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException {
-        checkDeclaredMemberAccess();
-
         Field[] fields = getClassCache().getDeclaredFields();
         Field field = findFieldByName(fields, name);
 
@@ -675,14 +623,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the fields declared in the class represented by
      *         this class.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getFields()
      */
     public Field[] getDeclaredFields() throws SecurityException {
-        checkDeclaredMemberAccess();
-
         // Return a copy of the private (to the package) array.
         Field[] fields = getClassCache().getDeclaredFields();
         return ClassCache.deepCopy(fields);
@@ -713,15 +656,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the requested constructor can not be found.
      * @throws NullPointerException
      *             if {@code name} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getMethod(String, Class...)
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
-        checkDeclaredMemberAccess();
-
         Method[] methods = getClassCache().getDeclaredMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
@@ -740,14 +678,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the methods declared in the class represented by
      *         this {@code Class}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getMethods()
      */
     public Method[] getDeclaredMethods() throws SecurityException {
-        checkDeclaredMemberAccess();
-
         // Return a copy of the private (to the package) array.
         Method[] methods = getClassCache().getDeclaredMethods();
         return ClassCache.deepCopy(methods);
@@ -826,7 +759,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public T[] getEnumConstants() {
         if (isEnum()) {
-            checkPublicMemberAccess();
             T[] values = getClassCache().getEnumValuesInOrder();
 
             // Copy the private (to the package) array.
@@ -847,14 +779,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the public field specified by {@code name}.
      * @throws NoSuchFieldException
      *             if the field can not be found.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredField(String)
      */
     public Field getField(String name) throws NoSuchFieldException, SecurityException {
-        checkPublicMemberAccess();
-
         Field[] fields = getClassCache().getAllPublicFields();
         Field field = findFieldByName(fields, name);
 
@@ -897,14 +824,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the public fields of the class represented by this
      *         {@code Class}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredFields()
      */
     public Field[] getFields() throws SecurityException {
-        checkPublicMemberAccess();
-
         // Return a copy of the private (to the package) array.
         Field[] fields = getClassCache().getAllPublicFields();
         return ClassCache.deepCopy(fields);
@@ -964,15 +886,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the public field specified by {@code name}.
      * @throws NoSuchMethodException
      *             if the method can not be found.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredMethod(String, Class...)
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
-        checkPublicMemberAccess();
-
         Method[] methods = getClassCache().getMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
@@ -995,62 +912,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the methods of the class represented by this
      *         {@code Class}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      * @see #getDeclaredMethods()
      */
     public Method[] getMethods() throws SecurityException {
-        checkPublicMemberAccess();
-
         // Return a copy of the private (to the package) array.
         Method[] methods = getClassCache().getMethods();
         return ClassCache.deepCopy(methods);
-    }
-
-    /**
-     * Performs the security checks regarding the access of a public
-     * member of this {@code Class}.
-     *
-     * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
-     * check, this method must be called exactly one level deep into a
-     * public method on this instance.</p>
-     */
-    /*package*/ void checkPublicMemberAccess() {
-        SecurityManager smgr = System.getSecurityManager();
-
-        if (smgr != null) {
-            smgr.checkMemberAccess(this, Member.PUBLIC);
-
-            ClassLoader calling = VMStack.getCallingClassLoader2();
-            ClassLoader current = getClassLoader();
-
-            if (calling != null && !calling.isAncestorOf(current)) {
-                smgr.checkPackageAccess(this.getPackage().getName());
-            }
-        }
-    }
-
-    /**
-     * Performs the security checks regarding the access of a declared
-     * member of this {@code Class}.
-     *
-     * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
-     * check, this method must be called exactly one level deep into a
-     * public method on this instance.</p>
-     */
-    private void checkDeclaredMemberAccess() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkMemberAccess(this, Member.DECLARED);
-
-            ClassLoader calling = VMStack.getCallingClassLoader2();
-            ClassLoader current = getClassLoader();
-
-            if (calling != null && !calling.isAncestorOf(current)) {
-                smgr.checkPackageAccess(this.getPackage().getName());
-            }
-        }
     }
 
     /**
@@ -1139,17 +1006,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return the {@code ProtectionDomain} of the class represented by this
      *         class.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow member
-     *             access.
      */
     public ProtectionDomain getProtectionDomain() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            // Security check is independent of calling class loader.
-            smgr.checkPermission(new RuntimePermission("getProtectionDomain"));
-        }
-
         return pd;
     }
 
@@ -1415,17 +1273,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the default constructor is not visible.
      * @throws InstantiationException
      *             if the instance can not be created.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow creating
-     *             new instances.
      */
     public T newInstance() throws InstantiationException, IllegalAccessException {
-        checkPublicMemberAccess();
         return newInstanceImpl();
     }
 
-    private native T newInstanceImpl() throws IllegalAccessException,
-            InstantiationException;
+    private native T newInstanceImpl() throws IllegalAccessException, InstantiationException;
 
     @Override
     public String toString() {
@@ -1521,8 +1374,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param ao non-null; the object to modify
      * @param flag the new value for the accessible flag
      */
-    /*package*/ static native void setAccessibleNoCheck(AccessibleObject ao,
-            boolean flag);
+    /*package*/ static native void setAccessibleNoCheck(AccessibleObject ao, boolean flag);
 
     /**
      * Copies two arrays into one. Assumes that the destination array is large
@@ -1539,41 +1391,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return result;
     }
 
-    /**
-     * This must be provided by the vm vendor, as it is used by other provided
-     * class implementations in this package. This method is used by
-     * SecurityManager.classDepth(), and getClassContext() which use the
-     * parameters (-1, false) and SecurityManager.classLoaderDepth(),
-     * currentClassLoader(), and currentLoadedClass() which use the parameters
-     * (-1, true). Walk the stack and answer an array containing the maxDepth
-     * most recent classes on the stack of the calling thread. Starting with the
-     * caller of the caller of getStackClasses(), return an array of not more
-     * than maxDepth Classes representing the classes of running methods on the
-     * stack (including native methods). Frames representing the VM
-     * implementation of java.lang.reflect are not included in the list. If
-     * stopAtPrivileged is true, the walk will terminate at any frame running
-     * one of the following methods: <code><ul>
-     * <li>java/security/AccessController.doPrivileged(Ljava/security/PrivilegedAction;)Ljava/lang/Object;</li>
-     * <li>java/security/AccessController.doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;</li>
-     * <li>java/security/AccessController.doPrivileged(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;</li>
-     * <li>java/security/AccessController.doPrivileged(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;</li>
-     * </ul></code> If one of the doPrivileged methods is found, the walk terminate
-     * and that frame is NOT included in the returned array. Notes:
-     * <ul>
-     * <li>This method operates on the defining classes of methods on stack.
-     * NOT the classes of receivers.</li>
-     * <li>The item at index zero in the result array describes the caller of
-     * the caller of this method.</li>
-     * </ul>
-     *
-     * @param maxDepth
-     *            maximum depth to walk the stack, -1 for the entire stack
-     * @param stopAtPrivileged
-     *            stop at privileged classes
-     * @return the array of the most recent classes on the stack
-     */
+    // TODO: kill this.
     static Class<?>[] getStackClasses(int maxDepth, boolean stopAtPrivileged) {
         return VMStack.getClasses(maxDepth, stopAtPrivileged);
     }
-
 }

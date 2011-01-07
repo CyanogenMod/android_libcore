@@ -122,27 +122,9 @@ public abstract class ClassLoader {
     /**
      * Returns the system class loader. This is the parent for new
      * {@code ClassLoader} instances and is typically the class loader used to
-     * start the application. If a security manager is present and the caller's
-     * class loader is neither {@code null} nor the same as or an ancestor of
-     * the system class loader, then this method calls the security manager's
-     * checkPermission method with a RuntimePermission("getClassLoader")
-     * permission to ensure that it is ok to access the system class loader. If
-     * not, a {@code SecurityException} is thrown.
-     *
-     * @return the system class loader.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow access to
-     *             the system class loader.
+     * start the application.
      */
     public static ClassLoader getSystemClassLoader() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            ClassLoader caller = VMStack.getCallingClassLoader();
-            if (caller != null && !caller.isAncestorOf(SystemClassLoader.loader)) {
-                smgr.checkPermission(new RuntimePermission("getClassLoader"));
-            }
-        }
-
         return SystemClassLoader.loader;
     }
 
@@ -194,10 +176,6 @@ public abstract class ClassLoader {
     /**
      * Constructs a new instance of this class with the system class loader as
      * its parent.
-     *
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow the
-     *             creation of a new {@code ClassLoader}.
      */
     protected ClassLoader() {
         this(getSystemClassLoader(), false);
@@ -210,9 +188,6 @@ public abstract class ClassLoader {
      * @param parentLoader
      *            The {@code ClassLoader} to use as the new class loader's
      *            parent.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow the
-     *             creation of new a new {@code ClassLoader}.
      */
     protected ClassLoader(ClassLoader parentLoader) {
         this(parentLoader, false);
@@ -222,16 +197,9 @@ public abstract class ClassLoader {
      * constructor for the BootClassLoader which needs parent to be null.
      */
     ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkCreateClassLoader();
-        }
-
         if (parentLoader == null && !nullAllowed) {
-            throw new NullPointerException(
-                    "Parent ClassLoader may not be null");
+            throw new NullPointerException("Parent ClassLoader may not be null");
         }
-
         parent = parentLoader;
     }
 
@@ -408,16 +376,8 @@ public abstract class ClassLoader {
      * Returns this class loader's parent.
      *
      * @return this class loader's parent or {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow to
-     *             retrieve the parent class loader.
      */
     public final ClassLoader getParent() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkPermission(new RuntimePermission("getClassLoader"));
-        }
-
         return parent;
     }
 
@@ -828,8 +788,6 @@ public abstract class ClassLoader {
      *            the classloader in which to load the library
      * @throws UnsatisfiedLinkError
      *             if the library could not be loaded
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded
      * <p>
      * <strong>Note: </strong>This method does nothing in the Android reference
      * implementation.

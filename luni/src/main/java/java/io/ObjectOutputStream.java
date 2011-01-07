@@ -249,17 +249,9 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      *
      * @throws IOException
      *             if an error occurs when creating this stream.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
-     * @see SecurityManager#checkPermission(java.security.Permission)
      */
     protected ObjectOutputStream() throws IOException, SecurityException {
         super();
-        SecurityManager currentManager = System.getSecurityManager();
-        if (currentManager != null) {
-            currentManager.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-        }
         /*
          * WARNING - we should throw IOException if not called from a subclass
          * according to the JavaDoc. Add the test.
@@ -277,36 +269,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @throws IOException
      *             if an error occurs while writing the object stream
      *             header
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
      */
     public ObjectOutputStream(OutputStream output) throws IOException {
         Class<?> implementationClass = getClass();
         Class<?> thisClass = ObjectOutputStream.class;
-        if (implementationClass != thisClass) {
-            boolean mustCheck = false;
-            try {
-                Method method = implementationClass.getMethod("putFields", EmptyArray.CLASS);
-                mustCheck = method.getDeclaringClass() != thisClass;
-            } catch (NoSuchMethodException e) {
-            }
-            if (!mustCheck) {
-                try {
-                    Method method = implementationClass.getMethod("writeUnshared",
-                            WRITE_UNSHARED_PARAM_TYPES);
-                    mustCheck = method.getDeclaringClass() != thisClass;
-                } catch (NoSuchMethodException e) {
-                }
-            }
-            if (mustCheck) {
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm
-                            .checkPermission(ObjectStreamConstants.SUBCLASS_IMPLEMENTATION_PERMISSION);
-                }
-            }
-        }
         this.output = (output instanceof DataOutputStream) ? (DataOutputStream) output
                 : new DataOutputStream(output);
         this.enableReplace = false;
@@ -482,22 +448,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      *            {@code true} to enable object replacement; {@code false} to
      *            disable it.
      * @return the previous setting.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies enabling
-     *             object replacement for this stream.
      * @see #replaceObject
      * @see ObjectInputStream#enableResolveObject
      */
-    protected boolean enableReplaceObject(boolean enable)
-            throws SecurityException {
-        if (enable) {
-            // The Stream has to be trusted for this feature to be enabled.
-            // trusted means the stream's classloader has to be null
-            SecurityManager currentManager = System.getSecurityManager();
-            if (currentManager != null) {
-                currentManager.checkPermission(SUBSTITUTION_PERMISSION);
-            }
-        }
+    protected boolean enableReplaceObject(boolean enable) throws SecurityException {
         boolean originalValue = enableReplace;
         enableReplace = enable;
         return originalValue;

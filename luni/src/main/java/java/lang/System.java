@@ -100,16 +100,8 @@ public final class System {
      * @param newIn
      *            the user defined input stream to set as the standard input
      *            stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setIn(InputStream newIn) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("in", "Ljava/io/InputStream;", newIn);
     }
 
@@ -119,16 +111,8 @@ public final class System {
      * @param newOut
      *            the user defined output stream to set as the standard output
      *            stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setOut(java.io.PrintStream newOut) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("out", "Ljava/io/PrintStream;", newOut);
     }
 
@@ -139,16 +123,8 @@ public final class System {
      * @param newErr
      *            the user defined output stream to set as the standard error
      *            output stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setErr(java.io.PrintStream newErr) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("err", "Ljava/io/PrintStream;", newErr);
     }
 
@@ -204,10 +180,6 @@ public final class System {
      *
      * @param code
      *            the return code.
-     * @throws SecurityException
-     *             if the running thread has not enough permission to exit the
-     *             virtual machine.
-     * @see SecurityManager#checkExit
      */
     public static void exit(int code) {
         Runtime.getRuntime().exit(code);
@@ -230,20 +202,11 @@ public final class System {
      *            the name of the environment variable.
      * @return the value of the specified environment variable or {@code null}
      *         if no variable exists with the given name.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the querying of
-     *             single environment variables.
      */
     public static String getenv(String name) {
         if (name == null) {
             throw new NullPointerException();
         }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new RuntimePermission("getenv." + name));
-        }
-
         return getEnvByName(name);
     }
 
@@ -258,17 +221,8 @@ public final class System {
      * Returns an unmodifiable map of all available environment variables.
      *
      * @return the map representing all environment variables.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the querying of
-     *             all environment variables.
      */
     public static Map<String, String> getenv() {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new RuntimePermission("getenv.*"));
-        }
-
         Map<String, String> map = new HashMap<String, String>();
 
         int index = 0;
@@ -315,33 +269,14 @@ public final class System {
      * subsequent calls to getProperty and getProperties.
      *
      * @return the system properties.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertiesAccess()} method does not allow the operation.
      */
     public static Properties getProperties() {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertiesAccess();
-        }
-
-        return internalGetProperties();
-    }
-
-    /**
-     * Returns the system properties without any security checks. This is used
-     * for access from within java.lang.
-     *
-     * @return the system properties
-     */
-    static Properties internalGetProperties() {
         if (System.systemProperties == null) {
             SystemProperties props = new SystemProperties();
             props.preInit();
             props.postInit();
             System.systemProperties = props;
         }
-
         return systemProperties;
     }
 
@@ -394,9 +329,6 @@ public final class System {
      *            the name of the system property to look up.
      * @return the value of the specified system property or {@code null} if the
      *         property doesn't exist.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertyAccess()} method does not allow the operation.
      */
     public static String getProperty(String propertyName) {
         return getProperty(propertyName, null);
@@ -413,20 +345,12 @@ public final class System {
      *            does not exist.
      * @return the value of the specified system property or the {@code
      *         defaultValue} if the property does not exist.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertyAccess()} method does not allow the operation.
      */
     public static String getProperty(String prop, String defaultValue) {
-        if (prop.length() == 0) {
+        if (prop.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertyAccess(prop);
-        }
-
-        return internalGetProperties().getProperty(prop, defaultValue);
+        return getProperties().getProperty(prop, defaultValue);
     }
 
     /**
@@ -438,19 +362,12 @@ public final class System {
      *            the value to associate with the given property {@code prop}.
      * @return the old value of the property or {@code null} if the property
      *         didn't exist.
-     * @throws SecurityException
-     *             if a security manager exists and write access to the
-     *             specified property is not allowed.
      */
     public static String setProperty(String prop, String value) {
-        if (prop.length() == 0) {
+        if (prop.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new PropertyPermission(prop, "write"));
-        }
-        return (String)internalGetProperties().setProperty(prop, value);
+        return (String) getProperties().setProperty(prop, value);
     }
 
     /**
@@ -463,23 +380,15 @@ public final class System {
      *             if the argument {@code key} is {@code null}.
      * @throws IllegalArgumentException
      *             if the argument {@code key} is empty.
-     * @throws SecurityException
-     *             if a security manager exists and write access to the
-     *             specified property is not allowed.
      */
     public static String clearProperty(String key) {
         if (key == null) {
             throw new NullPointerException();
         }
-        if (key.length() == 0) {
+        if (key.isEmpty()) {
             throw new IllegalArgumentException();
         }
-
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new PropertyPermission(key, "write"));
-        }
-        return (String)internalGetProperties().remove(key);
+        return (String) getProperties().remove(key);
     }
 
     /**
@@ -523,14 +432,8 @@ public final class System {
      *
      * @param pathName
      *            the path of the file to be loaded.
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded.
      */
     public static void load(String pathName) {
-        SecurityManager smngr = System.getSecurityManager();
-        if (smngr != null) {
-            smngr.checkLink(pathName);
-        }
         Runtime.getRuntime().load(pathName, VMStack.getCallingClassLoader());
     }
 
@@ -543,14 +446,8 @@ public final class System {
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library could not be loaded.
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded.
      */
     public static void loadLibrary(String libName) {
-        SecurityManager smngr = System.getSecurityManager();
-        if (smngr != null) {
-            smngr.checkLink(libName);
-        }
         Runtime.getRuntime().loadLibrary(libName, VMStack.getCallingClassLoader());
     }
 
@@ -581,17 +478,9 @@ public final class System {
      * Sets all system properties.
      *
      * @param p
-     *            the new system property.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertiesAccess()} method does not allow the operation.
+     *            the new system properties.
      */
     public static void setProperties(Properties p) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertiesAccess();
-        }
-
         systemProperties = p;
     }
 

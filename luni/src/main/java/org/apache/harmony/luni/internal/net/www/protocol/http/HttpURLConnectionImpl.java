@@ -40,9 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charsets;
-import java.security.AccessController;
 import java.security.Permission;
-import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +50,6 @@ import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 import libcore.base.Streams;
 import org.apache.harmony.luni.util.Base64;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * This subclass extends <code>HttpURLConnection</code> which in turns extends
@@ -187,12 +184,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         super(url);
         defaultPort = port;
         requestHeader = new HttpHeaders(defaultRequestHeader);
-
-        responseCache = AccessController.doPrivileged(new PrivilegedAction<ResponseCache>() {
-            public ResponseCache run() {
-                return ResponseCache.getDefault();
-            }
-        });
+        responseCache = ResponseCache.getDefault();
     }
 
     /**
@@ -906,8 +898,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     private String getDefaultUserAgent() {
-        String agent = getSystemProperty("http.agent");
-        return agent != null ? agent : ("Java" + getSystemProperty("java.version"));
+        String agent = System.getProperty("http.agent");
+        return agent != null ? agent : ("Java" + System.getProperty("java.version"));
     }
 
     private boolean hasConnectionCloseHeader() {
@@ -1000,10 +992,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return usingProxy()
                 ? ((InetSocketAddress) proxy.address()).getHostName()
                 : url.getHost();
-    }
-
-    private String getSystemProperty(final String property) {
-        return AccessController.doPrivileged(new PriviAction<String>(property));
     }
 
     @Override public final boolean usingProxy() {

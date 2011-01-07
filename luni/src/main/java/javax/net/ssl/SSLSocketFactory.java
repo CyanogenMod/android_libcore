@@ -19,9 +19,7 @@ package javax.net.ssl;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.security.AccessController;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.Security;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,26 +50,19 @@ public abstract class SSLSocketFactory extends SocketFactory {
             return defaultSocketFactory;
         }
         if (defaultName == null) {
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                public Void run() {
-                    defaultName = Security.getProperty("ssl.SocketFactory.provider");
-                    if (defaultName != null) {
-                        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                        if (cl == null) {
-                            cl = ClassLoader.getSystemClassLoader();
-                        }
-                        try {
-                            final Class<?> sfc = Class.forName(defaultName, true, cl);
-                            defaultSocketFactory = (SocketFactory) sfc.newInstance();
-                        } catch (Exception e) {
-                            // BEGIN android-added
-                            log("SSLSocketFactory", "Problem creating " + defaultName, e);
-                            // END android-added
-                        }
-                    }
-                    return null;
+            defaultName = Security.getProperty("ssl.SocketFactory.provider");
+            if (defaultName != null) {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                if (cl == null) {
+                    cl = ClassLoader.getSystemClassLoader();
                 }
-            });
+                try {
+                    final Class<?> sfc = Class.forName(defaultName, true, cl);
+                    defaultSocketFactory = (SocketFactory) sfc.newInstance();
+                } catch (Exception e) {
+                    log("SSLSocketFactory", "Problem creating " + defaultName, e);
+                }
+            }
         }
 
         if (defaultSocketFactory == null) {

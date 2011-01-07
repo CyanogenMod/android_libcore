@@ -97,9 +97,6 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      *             if another thread interrupts the calling thread while this
      *             operation is executing. The calling thread will have the
      *             interrupt state set and the channel will be closed.
-     * @throws SecurityException
-     *             if there is a security manager and it denies the access of
-     *             {@code address}.
      * @throws UnresolvedAddressException
      *             if the address is not resolved.
      * @throws UnsupportedAddressTypeException
@@ -187,9 +184,6 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      *             if the address is not resolved.
      * @throws UnsupportedAddressTypeException
      *             if the address type is not supported.
-     * @throws SecurityException
-     *             if there is a security manager and it denies the access of
-     *             {@code address}.
      * @throws IOException
      *             if an I/O error occurs.
      */

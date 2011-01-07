@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.AccessController;
 import java.security.ProviderException;
-
 
 /**
  *  The static class providing access on Linux platform
@@ -37,8 +35,6 @@ import java.security.ProviderException;
  *  If no device available the service is not available,
  *  that is, provider shouldn't register the algorithm. <BR>
  */
-
-
 public class RandomBitsSupplier implements SHA1_Data {
 
 
@@ -67,41 +63,25 @@ public class RandomBitsSupplier implements SHA1_Data {
      */
     private static boolean serviceAvailable = false;
 
+    /**
+     *  names of random devices on Linux platform
+     */
+    private static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };
 
     static {
-        AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-                public Object run() {
-
-                    for ( int i = 0 ; i < DEVICE_NAMES.length ; i++ ) {
-                        File file = new File(DEVICE_NAMES[i]);
-
-                        try {
-                            if ( file.canRead() ) {
-                                // BEGIN android-modified
-                                bis = new FileInputStream(file);
-                                // END android-modified
-                                randomFile = file;
-                                serviceAvailable = true;
-                                return null;
-                            }
-                        } catch (FileNotFoundException e) {
-                        }
-                    }
-
-                    // BEGIN android-removed
-//                    // If we have come out of the above loop, then we have been unable to
-//                    // access /dev/*random, so try to fall back to using the system random() API
-//                    try {
-//                        System.loadLibrary(LIBRARY_NAME);
-//                        serviceAvailable = true;
-//                    } catch (UnsatisfiedLinkError e) {
-//                        serviceAvailable = false;
-//                    }
-                    return null;
+        for (String deviceName : DEVICE_NAMES) {
+            try {
+                File file = new File(deviceName);
+                if (file.canRead()) {
+                    // BEGIN android-modified
+                    bis = new FileInputStream(file);
+                    // END android-modified
+                    randomFile = file;
+                    serviceAvailable = true;
                 }
+            } catch (FileNotFoundException e) {
             }
-        );
+        }
     }
 
 
@@ -154,18 +134,6 @@ public class RandomBitsSupplier implements SHA1_Data {
         }
         return bytes;
     }
-
-
-    // BEGIN android-removed
-//    /**
-//     * On platforms with no "random" devices available, this native
-//     * method uses system API calls to generate random numbers<BR>
-//     *
-//     * In case of any runtime failure ProviderException gets thrown.
-//     */
-//    private static native synchronized boolean getUnixSystemRandom(byte[] randomBits, int numBytes);
-    // END android-removed
-
 
     /**
      * The method returns byte array of requested length provided service is available.

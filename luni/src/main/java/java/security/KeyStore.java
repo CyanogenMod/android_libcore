@@ -176,8 +176,7 @@ public class KeyStore {
      *             NoSuchAlgorithmException) as in 1.4 release
      * @see #getDefaultType
      */
-    public static KeyStore getInstance(String type, Provider provider)
-            throws KeyStoreException {
+    public static KeyStore getInstance(String type, Provider provider) throws KeyStoreException {
         // check parameters
         if (provider == null) {
             throw new IllegalArgumentException();
@@ -197,21 +196,15 @@ public class KeyStore {
 
     /**
      * Returns the default type for {@code KeyStore} instances.
-     * <p>
-     * The default is specified in the {@code 'keystore.type'} property in the
-     * file named {@code JAVA_HOME/lib/security/java.security}. If this property
+     *
+     * <p>The default is specified in the {@code 'keystore.type'} property in the
+     * file named {@code java.security} properties file. If this property
      * is not set, {@code "jks"} will be used.
      *
      * @return the default type for {@code KeyStore} instances
      */
     public static final String getDefaultType() {
-        String dt = AccessController.doPrivileged(
-                new PrivilegedAction<String>() {
-                    public String run() {
-                        return Security.getProperty(PROPERTYNAME);
-                    }
-                }
-            );
+        String dt = Security.getProperty(PROPERTYNAME);
         return (dt == null ? DEFAULT_KEYSTORE_TYPE : dt);
     }
 
@@ -826,8 +819,7 @@ public class KeyStore {
             if (!keyStore.isInit) {
                 throw new IllegalArgumentException("KeyStore was not initialized");
             }
-            return new BuilderImpl(keyStore, protectionParameter,
-                    null, null, null, null);
+            return new BuilderImpl(keyStore, protectionParameter, null, null, null);
         }
 
         /**
@@ -887,8 +879,7 @@ public class KeyStore {
                 throw new IllegalArgumentException("Not a regular file: " + file.getName());
             }
             // create new instance
-            return new BuilderImpl(null, protectionParameter, file,
-                    type, provider, AccessController.getContext());
+            return new BuilderImpl(null, protectionParameter, file, type, provider);
         }
 
         /**
@@ -926,8 +917,7 @@ public class KeyStore {
             if (protectionParameter == null) {
                 throw new NullPointerException("protectionParameter == null");
             }
-            return new BuilderImpl(null, protectionParameter, null,
-                    type, provider, AccessController.getContext());
+            return new BuilderImpl(null, protectionParameter, null, type, provider);
         }
 
         /*
@@ -958,16 +948,13 @@ public class KeyStore {
             // Store last Exception in getKeyStore()
             private KeyStoreException lastException;
 
-            // Store AccessControlContext which is used in getKeyStore() method
-            private final AccessControlContext accControlContext;
-
             /**
              * Constructor BuilderImpl initializes private fields: keyStore,
              * protParameter, typeForKeyStore providerForKeyStore fileForLoad,
              * isGetKeyStore
              */
             BuilderImpl(KeyStore ks, ProtectionParameter pp, File file,
-                        String type, Provider provider, AccessControlContext context) {
+                        String type, Provider provider) {
                 super();
                 keyStore = ks;
                 protParameter = pp;
@@ -976,7 +963,6 @@ public class KeyStore {
                 providerForKeyStore = provider;
                 isGetKeyStore = false;
                 lastException = null;
-                accControlContext = context;
             }
 
             /**
@@ -1009,15 +995,13 @@ public class KeyStore {
                 }
 
                 try {
-                    final KeyStore ks;
-                    final char[] passwd;
-
                     // get KeyStore instance using type or type and provider
-                    ks = (providerForKeyStore == null ? KeyStore
+                    final KeyStore ks = (providerForKeyStore == null ? KeyStore
                             .getInstance(typeForKeyStore) : KeyStore
                             .getInstance(typeForKeyStore, providerForKeyStore));
                     // protection parameter should be PasswordProtection
                     // or CallbackHandlerProtection
+                    final char[] passwd;
                     if (protParameter instanceof PasswordProtection) {
                         passwd = ((PasswordProtection) protParameter)
                                 .getPassword();
@@ -1030,25 +1014,17 @@ public class KeyStore {
                     }
 
                     // load KeyStore from file
-                    AccessController.doPrivileged(
-                            new PrivilegedExceptionAction<Object>() {
-                                public Object run() throws Exception {
-                                    if (fileForLoad != null) {
-                                        FileInputStream fis = null;
-                                        try {
-                                            fis = new FileInputStream(fileForLoad);
-                                            ks.load(fis, passwd);
-                                        } finally {
-                                            IoUtils.closeQuietly(fis);
-                                        }
-                                    } else {
-                                        ks.load(new TmpLSParameter(
-                                                protParameter));
-                                    }
-                                    return null;
-                                }
-                            }, accControlContext);
-
+                    if (fileForLoad != null) {
+                        FileInputStream fis = null;
+                        try {
+                            fis = new FileInputStream(fileForLoad);
+                            ks.load(fis, passwd);
+                        } finally {
+                            IoUtils.closeQuietly(fis);
+                        }
+                    } else {
+                        ks.load(new TmpLSParameter(protParameter));
+                    }
 
                     isGetKeyStore = true;
                     return ks;

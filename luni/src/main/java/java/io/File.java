@@ -30,12 +30,10 @@ package java.io;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.apache.harmony.luni.util.DeleteOnExit;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * An "abstract" representation of a file system entity identified by a
@@ -191,7 +189,7 @@ public class File implements Serializable, Comparable<File> {
         if (isAbsolute) {
             this.path = this.absolutePath = cleanPath;
         } else {
-            String userDir = AccessController.doPrivileged(new PriviAction<String>("user.dir"));
+            String userDir = System.getProperty("user.dir");
             this.absolutePath = cleanPath.isEmpty() ? userDir : join(userDir, cleanPath);
             // We want path to be equal to cleanPath, but we'd like to reuse absolutePath's char[].
             this.path = absolutePath.substring(absolutePath.length() - cleanPath.length());
@@ -277,21 +275,11 @@ public class File implements Serializable, Comparable<File> {
      * to actually attempt the operation.
      *
      * @return {@code true} if this file can be executed, {@code false} otherwise.
-     * @throws SecurityException
-     *             If a security manager exists and
-     *             SecurityManager.checkExec(java.lang.String) disallows read
-     *             permission to this file object
-     * @see java.lang.SecurityManager#checkExec(String)
-     *
      * @since 1.6
      */
     public boolean canExecute() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkExec(path); // Seems bogus, but this is what the RI does.
         }
         return canExecuteImpl(absolutePath);
     }
@@ -301,17 +289,10 @@ public class File implements Serializable, Comparable<File> {
      * Indicates whether the current context is allowed to read from this file.
      *
      * @return {@code true} if this file can be read, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public boolean canRead() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return canReadImpl(absolutePath);
     }
@@ -322,17 +303,10 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return {@code true} if this file can be written, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             write request.
      */
     public boolean canWrite() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
         }
         return canWriteImpl(absolutePath);
     }
@@ -359,18 +333,10 @@ public class File implements Serializable, Comparable<File> {
      * Callers must check the return value.
      *
      * @return {@code true} if this file was deleted, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             request.
-     * @see java.lang.SecurityManager#checkDelete
      */
     public boolean delete() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkDelete(path);
         }
         return deleteImpl(absolutePath);
     }
@@ -381,16 +347,8 @@ public class File implements Serializable, Comparable<File> {
      * Schedules this file to be automatically deleted once the virtual machine
      * terminates. This will only happen when the virtual machine terminates
      * normally as described by the Java Language Specification section 12.9.
-     *
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             request.
      */
     public void deleteOnExit() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkDelete(path);
-        }
         DeleteOnExit.getInstance().addFile(getAbsoluteName());
     }
 
@@ -416,19 +374,10 @@ public class File implements Serializable, Comparable<File> {
      * underlying file system.
      *
      * @return {@code true} if this file exists, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public boolean exists() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return existsImpl(absolutePath);
     }
@@ -497,7 +446,6 @@ public class File implements Serializable, Comparable<File> {
      * @return the new file constructed from this file's canonical path.
      * @throws IOException
      *             if an I/O error occurs.
-     * @see java.lang.SecurityManager#checkPropertyAccess
      */
     public File getCanonicalFile() throws IOException {
         return new File(getCanonicalPath());
@@ -595,17 +543,10 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return {@code true} if this file is a directory, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isDirectory() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return isDirectoryImpl(absolutePath);
     }
@@ -617,17 +558,10 @@ public class File implements Serializable, Comparable<File> {
      * file system.
      *
      * @return {@code true} if this file is a file, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isFile() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return isFileImpl(absolutePath);
     }
@@ -642,17 +576,10 @@ public class File implements Serializable, Comparable<File> {
      * purpose.
      *
      * @return {@code true} if the file is hidden, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isHidden() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return getName().startsWith(".");
     }
@@ -663,17 +590,10 @@ public class File implements Serializable, Comparable<File> {
      * Returns 0 if the file does not exist.
      *
      * @return the time when this file was last modified.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public long lastModified() {
         if (path.isEmpty()) {
             return 0;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return lastModifiedImpl(absolutePath);
     }
@@ -693,9 +613,6 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      * @throws IllegalArgumentException
      *             if {@code time < 0}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access to this file.
      */
     public boolean setLastModified(long time) {
         if (path.isEmpty()) {
@@ -703,10 +620,6 @@ public class File implements Serializable, Comparable<File> {
         }
         if (time < 0) {
             throw new IllegalArgumentException("time < 0");
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
         }
         return setLastModifiedImpl(absolutePath, time);
     }
@@ -741,19 +654,11 @@ public class File implements Serializable, Comparable<File> {
      *         pathname the operation will fail. If the underlying file system
      *         does not support execute permission and the value of executable
      *         is false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
         }
         return setExecutableImpl(absolutePath, executable, ownerOnly);
     }
@@ -785,19 +690,11 @@ public class File implements Serializable, Comparable<File> {
      *         pathname the operation will fail. If the underlying file system
      *         does not support read permission and the value of readable is
      *         false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setReadable(boolean readable, boolean ownerOnly) {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
         }
         return setReadableImpl(absolutePath, readable, ownerOnly);
     }
@@ -827,19 +724,11 @@ public class File implements Serializable, Comparable<File> {
      * @return true if and only if the operation succeeded. If the user does not
      *         have permission to change the access permissions of this abstract
      *         pathname the operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setWritable(boolean writable, boolean ownerOnly) {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
         }
         return setWritableImpl(absolutePath, writable, ownerOnly);
     }
@@ -861,15 +750,8 @@ public class File implements Serializable, Comparable<File> {
      * The result for a directory is not defined.
      *
      * @return the number of bytes in this file.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public long length() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
         return lengthImpl(absolutePath);
     }
 
@@ -884,17 +766,8 @@ public class File implements Serializable, Comparable<File> {
      * directory are not returned as part of the list.
      *
      * @return an array of strings with file names or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public String[] list() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
         if (path.isEmpty()) {
             return null;
         }
@@ -916,12 +789,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public String[] list(FilenameFilter filter) {
         String[] filenames = list();
@@ -944,11 +811,6 @@ public class File implements Serializable, Comparable<File> {
      * absolute, they are relative otherwise.
      *
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #list
-     * @see #isDirectory
      */
     public File[] listFiles() {
         return filenamesToFiles(list());
@@ -967,13 +829,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #list(FilenameFilter filter)
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public File[] listFiles(FilenameFilter filter) {
         return filenamesToFiles(list(filter));
@@ -991,12 +846,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public File[] listFiles(FileFilter filter) {
         File[] files = listFiles();
@@ -1039,16 +888,9 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return {@code true} if the directory has been created, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      * @see #mkdirs
      */
     public boolean mkdir() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
         return mkdirImpl(absolutePath);
     }
 
@@ -1064,9 +906,6 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if the necessary directories have been created,
      *         {@code false} if the target directory already exists or one of
      *         the directories can not be created.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      * @see #mkdir
      */
     public boolean mkdirs() {
@@ -1100,15 +939,8 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if the file has been created, {@code false} if it
      *         already exists.
      * @throws IOException if it's not possible to create the file.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      */
     public boolean createNewFile() throws IOException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
         if (path.isEmpty()) {
             throw new IOException("No such file or directory");
         }
@@ -1170,8 +1002,7 @@ public class File implements Serializable, Comparable<File> {
         }
         File tmpDirFile = directory;
         if (tmpDirFile == null) {
-            String tmpDir = AccessController.doPrivileged(
-                new PriviAction<String>("java.io.tmpdir", "."));
+            String tmpDir = System.getProperty("java.io.tmpdir", ".");
             tmpDirFile = new File(tmpDir);
         }
         File result;
@@ -1199,18 +1030,10 @@ public class File implements Serializable, Comparable<File> {
      *
      * @param newPath the new path.
      * @return true on success.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file or {@code newPath}.
      */
     public boolean renameTo(File newPath) {
         if (path.isEmpty() || newPath.path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-            security.checkWrite(newPath.path);
         }
         return renameToImpl(absolutePath, newPath.absolutePath);
     }
@@ -1312,10 +1135,6 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getTotalSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
-        }
         return getTotalSpaceImpl(absolutePath);
     }
     private static native long getTotalSpaceImpl(String path);
@@ -1334,10 +1153,6 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getUsableSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
-        }
         return getUsableSpaceImpl(absolutePath);
     }
     private static native long getUsableSpaceImpl(String path);
@@ -1352,10 +1167,6 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getFreeSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
-        }
         return getFreeSpaceImpl(absolutePath);
     }
     private static native long getFreeSpaceImpl(String path);

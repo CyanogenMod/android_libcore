@@ -23,9 +23,6 @@ import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.Channel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.InterruptibleChannel;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * {@code AbstractInterruptibleChannel} is the root class for interruptible
@@ -37,27 +34,15 @@ import java.security.PrivilegedExceptionAction;
  * argument to the {@code end} method should indicate if the I/O operation has
  * actually completed so that any change may be visible to the invoker.
 */
-public abstract class AbstractInterruptibleChannel implements Channel,
-        InterruptibleChannel {
+public abstract class AbstractInterruptibleChannel implements Channel, InterruptibleChannel {
 
     static Method setInterruptAction = null;
-
     static {
         try {
-            setInterruptAction = AccessController
-                    .doPrivileged(new PrivilegedExceptionAction<Method>() {
-                        public Method run() throws Exception {
-                            return Thread.class.getDeclaredMethod(
-                                    "setInterruptAction",
-                                    new Class[] { Runnable.class });
-
-                        }
-                    });
+            setInterruptAction = Thread.class.getDeclaredMethod("setInterruptAction", Runnable.class);
             setInterruptAction.setAccessible(true);
-        } catch (PrivilegedActionException e) {
-            // FIXME: be accommodate before VM actually provides
-            // setInterruptAction method
-            // throw new Error(e);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
         }
     }
 

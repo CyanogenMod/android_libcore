@@ -69,9 +69,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
      *
      * @param file the file to which this stream writes.
      * @throws FileNotFoundException if file cannot be opened for writing.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public FileOutputStream(File file) throws FileNotFoundException {
         this(file, false);
@@ -85,17 +82,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
      * @param file the file to which this stream writes.
      * @param append true to append to an existing file.
      * @throws FileNotFoundException if the file cannot be opened for writing.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
-     * @see java.lang.SecurityManager#checkWrite(String)
      */
-    public FileOutputStream(File file, boolean append)
-            throws FileNotFoundException {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkWrite(file.getPath());
-        }
+    public FileOutputStream(File file, boolean append) throws FileNotFoundException {
         this.fd = new FileDescriptor();
         this.mode = append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY;
         this.fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), mode);
@@ -108,17 +96,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
      *
      * @param fd the FileDescriptor to which this stream writes.
      * @throws NullPointerException if {@code fd} is null.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public FileOutputStream(FileDescriptor fd) {
         if (fd == null) {
             throw new NullPointerException();
-        }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkWrite(fd);
         }
         this.fd = fd;
         this.shouldCloseFd = false;

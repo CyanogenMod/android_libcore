@@ -186,10 +186,7 @@ final class ProcessManager {
         // Handle security and safety by copying mutable inputs and checking them.
         String[] command = taintedCommand.clone();
         String[] environment = taintedEnvironment != null ? taintedEnvironment.clone() : null;
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkExec(command[0]);
-        }
+
         // Check we're not passing null Strings to the native exec.
         for (String arg : command) {
             if (arg == null) {

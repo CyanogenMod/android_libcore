@@ -33,8 +33,6 @@ import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -120,18 +118,14 @@ public class PlainSocketImpl extends SocketImpl {
      * gets SocketImpl field by reflection.
      */
     private Field getSocketImplField(final String fieldName) {
-        return AccessController.doPrivileged(new PrivilegedAction<Field>() {
-            public Field run() {
-                Field field = null;
-                try {
-                    field = SocketImpl.class.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    throw new Error(e);
-                }
-                return field;
-            }
-        });
+        Field field = null;
+        try {
+            field = SocketImpl.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
+        }
+        return field;
     }
 
     public void initLocalPort(int localPort) {

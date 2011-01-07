@@ -96,11 +96,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @throws IllegalArgumentException
      *             if {@code mode} is not {@code "r"}, {@code "rw"}, {@code
      *             "rws"} or {@code "rwd"}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies
-     *             access request according to {@code mode}.
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public RandomAccessFile(File file, String mode) throws FileNotFoundException {
         int options;
@@ -123,14 +118,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
         this.mode = options;
-
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(file.getPath());
-            if (!mode.equals("r")) {
-                security.checkWrite(file.getPath());
-            }
-        }
 
         fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), this.mode);
 
@@ -162,11 +149,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @throws IllegalArgumentException
      *             if {@code mode} is not {@code "r"}, {@code "rw"}, {@code
      *             "rws"} or {@code "rwd"}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies
-     *             access request according to {@code mode}.
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public RandomAccessFile(String fileName, String mode) throws FileNotFoundException {
         this(new File(fileName), mode);

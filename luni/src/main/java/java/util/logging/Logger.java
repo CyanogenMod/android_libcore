@@ -26,8 +26,6 @@ package java.util.logging;
 
 import dalvik.system.DalvikLogHandler;
 import dalvik.system.DalvikLogging;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -282,12 +280,7 @@ public class Logger {
      */
     static ResourceBundle loadResourceBundle(String resourceBundleName) {
         // try context class loader to load the resource
-        ClassLoader cl = AccessController
-                .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                    public ClassLoader run() {
-                        return Thread.currentThread().getContextClassLoader();
-                    }
-                });
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl != null) {
             try {
                 return ResourceBundle.getBundle(resourceBundleName, Locale
@@ -297,42 +290,25 @@ public class Logger {
             }
         }
         // try system class loader to load the resource
-        cl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                return ClassLoader.getSystemClassLoader();
-            }
-        });
+        cl = ClassLoader.getSystemClassLoader();
         if (cl != null) {
             try {
-                return ResourceBundle.getBundle(resourceBundleName, Locale
-                        .getDefault(), cl);
+                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
             } catch (MissingResourceException e) {
                 // Failed to load using system classloader, ignore
             }
         }
         // try all class loaders up the class stack
-        final Class<?>[] classes = AccessController
-                .doPrivileged(new PrivilegedAction<Class<?>[]>() {
-                    public Class<?>[] run() {
-                        return (new PrivateSecurityManager())
-                                .privateGetClassContext();
-                    }
-                });
+        final Class<?>[] classes = new PrivateSecurityManager().privateGetClassContext();
         // the first class, which is PrivateSecurityManager, is skipped
         for (int i = 1; i < classes.length; i++) {
             final int index = i;
             try {
-                cl = AccessController
-                        .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                            public ClassLoader run() {
-                                return classes[index].getClassLoader();
-                            }
-                        });
+                cl = classes[index].getClassLoader();
                 if (cl == null) {
                     continue;
                 }
-                return ResourceBundle.getBundle(resourceBundleName, Locale
-                        .getDefault(), cl);
+                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
             } catch (MissingResourceException e) {
                 // Failed to load using the current class's classloader, ignore
             }
@@ -444,9 +420,6 @@ public class Logger {
      *
      * @param handler
      *            the handler object to add, cannot be {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void addHandler(Handler handler) {
         if (handler == null) {
@@ -522,9 +495,6 @@ public class Logger {
      *
      * @param handler
      *            the handler to be removed.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void removeHandler(Handler handler) {
         // Anonymous loggers can always remove handlers
@@ -552,9 +522,6 @@ public class Logger {
      *
      * @param newFilter
      *            the filter to set, may be {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setFilter(Filter newFilter) {
         // Anonymous loggers can always set the filter
@@ -580,9 +547,6 @@ public class Logger {
      *
      * @param newLevel
      *            the logging level to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setLevel(Level newLevel) {
         // Anonymous loggers can always set the level
@@ -611,9 +575,6 @@ public class Logger {
      *
      * @param notifyParentHandlers
      *            the new flag indicating whether to use the parent's handlers.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setUseParentHandlers(boolean notifyParentHandlers) {
         // Anonymous loggers can always set the useParentHandlers flag
@@ -640,9 +601,6 @@ public class Logger {
      *
      * @param parent
      *            the parent logger to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setParent(Logger parent) {
         if (parent == null) {

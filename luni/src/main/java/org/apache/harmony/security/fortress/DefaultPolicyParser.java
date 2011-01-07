@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -108,15 +107,9 @@ public class DefaultPolicyParser {
      * @return a collection of PolicyEntry objects, may be empty
      * @throws Exception IO error while reading location or file syntax error
      */
-    public Collection<PolicyEntry>parse(URL location, Properties system)
-            throws Exception {
-
+    public Collection<PolicyEntry>parse(URL location, Properties system) throws Exception {
         boolean resolve = PolicyUtils.canExpandProperties();
-        Reader r =
-            new BufferedReader(
-                    new InputStreamReader(
-                            AccessController.doPrivileged(
-                                    new PolicyUtils.URLLoader(location))));
+        Reader r = new BufferedReader(new InputStreamReader(location.openStream()));
 
         Collection<GrantEntry> grantEntries = new HashSet<GrantEntry>();
         List<KeystoreEntry> keystores = new ArrayList<KeystoreEntry>();
@@ -456,8 +449,7 @@ public class DefaultPolicyParser {
                 }
                 KeyStore ks = KeyStore.getInstance(ke.type);
                 URL location = new URL(base, ke.url);
-                InputStream is = AccessController
-                        .doPrivileged(new PolicyUtils.URLLoader(location));
+                InputStream is = location.openStream();
                 try {
                     ks.load(is, null);
                 }

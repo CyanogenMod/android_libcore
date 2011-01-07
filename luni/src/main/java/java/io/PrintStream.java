@@ -19,12 +19,10 @@ package java.io;
 
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.security.AccessController;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Wraps an existing {@link OutputStream} and provides convenience methods for
@@ -48,8 +46,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     private String encoding;
 
-    private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator"));
+    private final String lineSeparator = System.getProperty("line.separator");
 
     // private Formatter formatter;
 
@@ -136,9 +133,6 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      *            removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintStream(File file) throws FileNotFoundException {
         super(new FileOutputStream(file));
@@ -157,9 +151,6 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */
@@ -185,9 +176,6 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      *            contents are removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintStream(String fileName) throws FileNotFoundException {
         this(new File(fileName));
@@ -207,9 +195,6 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */

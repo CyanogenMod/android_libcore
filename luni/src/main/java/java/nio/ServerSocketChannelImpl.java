@@ -155,10 +155,6 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                     sockChannel.setBound(true);
                     sockChannel.finishAccept();
                 }
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm.checkAccept(socket.getInetAddress().getHostAddress(), socket.getPort());
-                }
                 connectOK = true;
             } finally {
                 if (!connectOK) {

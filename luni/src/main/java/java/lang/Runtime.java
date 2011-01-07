@@ -123,10 +123,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray) throws java.io.IOException {
         return exec(progArray, null, null);
@@ -148,10 +144,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray, String[] envp) throws java.io.IOException {
         return exec(progArray, envp, null);
@@ -175,10 +167,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray, String[] envp, File directory) throws IOException {
         // BEGIN android-changed: push responsibility for argument checking into ProcessManager
@@ -197,10 +185,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog) throws java.io.IOException {
         return exec(prog, null, null);
@@ -220,10 +204,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog, String[] envp) throws java.io.IOException {
         return exec(prog, envp, null);
@@ -246,10 +226,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog, String[] envp, File directory) throws java.io.IOException {
         // Sanity checks
@@ -280,18 +256,8 @@ public class Runtime {
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow the
-     *             running thread to terminate the virtual machine.
-     * @see SecurityManager#checkExit
      */
     public void exit(int code) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(code);
-        }
-
         // Make sure we don't try this several times
         synchronized(this) {
             if (!shuttingDown) {
@@ -363,18 +329,8 @@ public class Runtime {
      *            the absolute (platform dependent) path to the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library can not be loaded.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow to load
-     *             the library.
-     * @see SecurityManager#checkLink
      */
     public void load(String pathName) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkLink(pathName);
-        }
-
         load(pathName, VMStack.getCallingClassLoader());
     }
 
@@ -400,18 +356,8 @@ public class Runtime {
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library can not be loaded.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow to load
-     *             the library.
-     * @see SecurityManager#checkLink
      */
     public void loadLibrary(String libName) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkLink(libName);
-        }
-
         loadLibrary(libName, VMStack.getCallingClassLoader());
     }
 
@@ -488,10 +434,6 @@ public class Runtime {
      */
     @Deprecated
     public static void runFinalizersOnExit(boolean run) {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(0);
-        }
         finalizeOnExit = run;
     }
 
@@ -606,9 +548,6 @@ public class Runtime {
      *             been registered.
      * @throws IllegalStateException
      *             if the virtual machine is already shutting down.
-     * @throws SecurityException
-     *             if a SecurityManager is registered and the calling code
-     *             doesn't have the RuntimePermission("shutdownHooks").
      */
     public void addShutdownHook(Thread hook) {
         // Sanity checks
@@ -622,11 +561,6 @@ public class Runtime {
 
         if (hook.hasBeenStarted) {
             throw new IllegalArgumentException("Hook has already been started");
-        }
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
         }
 
         synchronized (shutdownHooks) {
@@ -647,9 +581,6 @@ public class Runtime {
      *         false} otherwise.
      * @throws IllegalStateException
      *             if the virtual machine is already shutting down.
-     * @throws SecurityException
-     *             if a SecurityManager is registered and the calling code
-     *             doesn't have the RuntimePermission("shutdownHooks").
      */
     public boolean removeShutdownHook(Thread hook) {
         // Sanity checks
@@ -659,11 +590,6 @@ public class Runtime {
 
         if (shuttingDown) {
             throw new IllegalStateException("VM already shutting down");
-        }
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
         }
 
         synchronized (shutdownHooks) {
@@ -678,21 +604,11 @@ public class Runtime {
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow the
-     *             running thread to terminate the virtual machine.
-     * @see SecurityManager#checkExit
      * @see #addShutdownHook(Thread)
      * @see #removeShutdownHook(Thread)
      * @see #runFinalizersOnExit(boolean)
      */
     public void halt(int code) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(code);
-        }
-
         // Get out of here...
         nativeExit(code, false);
     }

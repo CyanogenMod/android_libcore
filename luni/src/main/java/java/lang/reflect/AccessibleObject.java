@@ -102,19 +102,11 @@ public class AccessibleObject implements AnnotatedElement {
      * @param flag
      *            the new value for the accessible flag
      *
-     * @throws SecurityException
-     *             if the request is denied
-     *
      * @see #setAccessible(boolean)
      * @see ReflectPermission
      */
     public static void setAccessible(AccessibleObject[] objects, boolean flag)
             throws SecurityException {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkPermission(new ReflectPermission("suppressAccessChecks"));
-        }
-
         synchronized(AccessibleObject.class) {
             for (int i = 0; i < objects.length; i++) {
                 objects[i].flag = flag;
@@ -151,17 +143,9 @@ public class AccessibleObject implements AnnotatedElement {
      * @param flag
      *            the new value for the accessible flag
      *
-     * @throws SecurityException
-     *             if the request is denied
-     *
      * @see ReflectPermission
      */
     public void setAccessible(boolean flag) throws SecurityException {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkPermission(new ReflectPermission("suppressAccessChecks"));
-        }
-
         this.flag = flag;
     }
 

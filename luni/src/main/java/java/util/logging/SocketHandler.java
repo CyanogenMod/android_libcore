@@ -71,9 +71,6 @@ public class SocketHandler extends StreamHandler {
      *             if failed to connect to the specified host and port.
      * @throws IllegalArgumentException
      *             if the host name or port number is illegal.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission to control this handler.
      */
     public SocketHandler() throws IOException {
         super(DEFAULT_LEVEL, null, DEFAULT_FORMATTER, null);
@@ -96,9 +93,6 @@ public class SocketHandler extends StreamHandler {
      *             if failed to connect to the specified host and port.
      * @throws IllegalArgumentException
      *             if the host name or port number is illegal.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission to control this handler.
      */
     public SocketHandler(String host, int port) throws IOException {
         super(DEFAULT_LEVEL, null, DEFAULT_FORMATTER, null);
@@ -134,10 +128,6 @@ public class SocketHandler extends StreamHandler {
 
     /**
      * Closes this handler. The network connection to the host is also closed.
-     *
-     * @throws SecurityException
-     *             If a security manager determines that the caller does not
-     *             have the required permission to control this handler.
      */
     @Override
     public void close() {

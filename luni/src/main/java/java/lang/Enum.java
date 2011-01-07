@@ -18,8 +18,6 @@ package java.lang;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * The superclass of all enumerated types. Actual enumeration types inherit from
@@ -165,8 +163,6 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
         if (enumType == null || name == null) {
             throw new NullPointerException("enumType == null || name == null");
         }
-
-        enumType.checkPublicMemberAccess();
 
         T result = enumType.getClassCache().getEnumValue(name);
         if (result == null) {

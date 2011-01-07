@@ -73,16 +73,8 @@ public abstract class Signer extends Identity {
      * a {@code SecurityException} will be thrown.
      *
      * @return the private key of this {@code Signer}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public PrivateKey getPrivateKey() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("getSignerPrivateKey");
-        }
-
         return privateKey;
     }
 
@@ -98,9 +90,6 @@ public abstract class Signer extends Identity {
      *             if the key pair is invalid.
      * @throws KeyException
      *             if any other key related problem occurs.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public final void setKeyPair(KeyPair pair)
             throws InvalidParameterException, KeyException {
@@ -112,20 +101,11 @@ public abstract class Signer extends Identity {
         if ((pair.getPrivate() == null) || (pair.getPublic() == null)) {
             throw new InvalidParameterException();
         }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setSignerKeyPair");
-        }
         final PublicKey pk = pair.getPublic();
         try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
-                public Void run() throws KeyManagementException {
-                    setPublicKey(pk);
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw new KeyException(e.getException());
+            setPublicKey(pk);
+        } catch (KeyManagementException ex) {
+            throw new KeyException(ex);
         }
         this.privateKey = pair.getPrivate();
     }

@@ -20,14 +20,12 @@ package java.sql;
 import dalvik.system.VMStack;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Provides facilities for managing JDBC drivers.
@@ -70,9 +68,7 @@ public class DriverManager {
      * it is defined.
      */
     private static void loadInitialDrivers() {
-        String theDriverList = AccessController
-                .doPrivileged(new PriviAction<String>("jdbc.drivers", null));
-
+        String theDriverList = System.getProperty("jdbc.drivers", null);
         if (theDriverList == null) {
             return;
         }
@@ -378,7 +374,6 @@ public class DriverManager {
      */
     @Deprecated
     public static void setLogStream(PrintStream out) {
-        checkLogSecurity();
         thePrintStream = out;
     }
 
@@ -390,20 +385,7 @@ public class DriverManager {
      *            the {@code PrintWriter} to be used.
      */
     public static void setLogWriter(PrintWriter out) {
-        checkLogSecurity();
         thePrintWriter = out;
-    }
-
-    /*
-     * Method which checks to see if setting a logging stream is allowed by the
-     * Security manager
-     */
-    private static void checkLogSecurity() {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            // Throws a SecurityException if setting the log is not permitted
-            securityManager.checkPermission(logPermission);
-        }
     }
 
     /**

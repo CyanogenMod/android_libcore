@@ -92,21 +92,9 @@ public class DatagramSocket {
         createSocket(aPort, (addr == null) ? Inet4Address.ANY : addr);
     }
 
-    /**
-     * Sends prior to attempting to bind the socket, checks whether the port is
-     * within the valid port range and verifies with the security manager that
-     * the port may be bound by the current context.
-     *
-     * @param aPort
-     *            the port on the localhost that is to be bound.
-     */
-    void checkListen(int aPort) {
+    private void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
             throw new IllegalArgumentException("Port out of range: " + aPort);
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkListen(aPort);
         }
     }
 
@@ -145,15 +133,6 @@ public class DatagramSocket {
                 checkClosedAndBind(true);
             } catch (SocketException e) {
                 // Ignored
-            }
-
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                if (anAddress.isMulticastAddress()) {
-                    security.checkMulticast(anAddress);
-                } else {
-                    security.checkConnect(anAddress.getHostName(), aPort);
-                }
             }
 
             try {
@@ -220,16 +199,7 @@ public class DatagramSocket {
         if (!isBound()) {
             return Inet4Address.ANY;
         }
-        InetAddress anAddr = impl.getLocalAddress();
-        try {
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                security.checkConnect(anAddr.getHostName(), -1);
-            }
-        } catch (SecurityException e) {
-            return Inet4Address.ANY;
-        }
-        return anAddr;
+        return impl.getLocalAddress();
     }
 
     /**
@@ -307,9 +277,7 @@ public class DatagramSocket {
      * pack}. All fields of {@code pack} must be set according to the data
      * received. If the received data is longer than the packet buffer size it
      * is truncated. This method blocks until a packet is received or a timeout
-     * has expired. If a security manager exists, its {@code checkAccept} method
-     * determines whether or not a packet is discarded. Any packets from
-     * unacceptable origins are silently discarded.
+     * has expired.
      *
      * @param pack
      *            the {@code DatagramPacket} to store the received data.
@@ -326,11 +294,8 @@ public class DatagramSocket {
         // means that we have received the packet into the temporary buffer
         boolean copy = false;
 
-        SecurityManager security = System.getSecurityManager();
-
-        if (address != null || security != null) {
-            // The socket is connected or we need to check security permissions
-
+        if (address != null) {
+            // The socket is connected.
             // Check pack before peeking
             if (pack == null) {
                 throw new NullPointerException();
@@ -361,21 +326,7 @@ public class DatagramSocket {
                     }
                 }
 
-                if (address == null) {
-                    // if we are not connected let's check if we are allowed to
-                    // receive packets from sender's address and port
-                    try {
-                        security.checkAccept(senderAddr.getHostName(),
-                                senderPort);
-                        // address & port are valid
-                        break;
-                    } catch (SecurityException e) {
-                        if (!copy) {
-                            // drop this packet and continue
-                            impl.receive(tempPack);
-                        }
-                    }
-                } else if (port == senderPort && address.equals(senderAddr)) {
+                if (port == senderPort && address.equals(senderAddr)) {
                     // we are connected and the packet came
                     // from the address & port we are connected to
                     break;
@@ -387,8 +338,8 @@ public class DatagramSocket {
         }
 
         if (copy) {
-            System.arraycopy(tempPack.getData(), 0, pack.getData(), pack
-                    .getOffset(), tempPack.getLength());
+            System.arraycopy(tempPack.getData(), 0, pack.getData(), pack.getOffset(),
+                    tempPack.getLength());
             // we shouldn't update the pack's capacity field in order to be
             // compatible with RI
             pack.setLengthOnly(tempPack.getLength());
@@ -403,10 +354,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Sends a packet over this socket. The packet must satisfy the security
-     * policy before it may be sent. If a security manager is installed, this
-     * method checks whether it is allowed to send this packet to the specified
-     * address.
+     * Sends a packet over this socket.
      *
      * @param pack
      *            the {@code DatagramPacket} which has to be sent.
@@ -430,14 +378,6 @@ public class DatagramSocket {
             // not connected so the target address is not allowed to be null
             if (packAddr == null) {
                 throw new NullPointerException("Destination address is null");
-            }
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                if (packAddr.isMulticastAddress()) {
-                    security.checkMulticast(packAddr);
-                } else {
-                    security.checkConnect(packAddr.getHostName(), pack.getPort());
-                }
             }
         }
         impl.send(pack);
@@ -521,10 +461,7 @@ public class DatagramSocket {
     /**
      * Sets the socket implementation factory. This may only be invoked once
      * over the lifetime of the application. This factory is used to create
-     * a new datagram socket implementation. If a security manager is set its
-     * method {@code checkSetFactory()} is called to check if the operation is
-     * allowed. A {@code SecurityException} is thrown if the operation is not
-     * allowed.
+     * a new datagram socket implementation.
      *
      * @param fac
      *            the socket factory to use.
@@ -532,12 +469,8 @@ public class DatagramSocket {
      *                if the factory has already been set.
      * @see DatagramSocketImplFactory
      */
-    public static synchronized void setDatagramSocketImplFactory(
-            DatagramSocketImplFactory fac) throws IOException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkSetFactory();
-        }
+    public static synchronized void setDatagramSocketImplFactory(DatagramSocketImplFactory fac)
+            throws IOException {
         if (factory != null) {
             throw new SocketException("Factory already set");
         }
@@ -668,16 +601,6 @@ public class DatagramSocket {
         synchronized (lock) {
             // make sure the socket is open
             checkClosedAndBind(true);
-
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                if (inetAddr.getAddress().isMulticastAddress()) {
-                    security.checkMulticast(inetAddr.getAddress());
-                } else {
-                    security.checkConnect(inetAddr.getAddress().getHostName(),
-                            inetAddr.getPort());
-                }
-            }
 
             // now try to do the connection at the native level. To be
             // compatible for the case when the address is inaddr_any we just

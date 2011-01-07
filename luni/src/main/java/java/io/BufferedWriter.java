@@ -17,9 +17,7 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.SneakyThrow;
 
 /**
@@ -46,8 +44,7 @@ public class BufferedWriter extends Writer {
 
     private int pos;
 
-    private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator"));
+    private final String lineSeparator = System.getProperty("line.separator");
 
     /**
      * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer

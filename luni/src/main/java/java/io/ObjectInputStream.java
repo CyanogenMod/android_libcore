@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import libcore.base.EmptyArray;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * A specialized {@link InputStream} that is able to read (deserialize) Java
@@ -354,17 +352,9 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *
      * @throws IOException
      *             if an error occurs when creating this stream.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
-     * @see SecurityManager#checkPermission(java.security.Permission)
      */
     protected ObjectInputStream() throws IOException, SecurityException {
         super();
-        SecurityManager currentManager = System.getSecurityManager();
-        if (currentManager != null) {
-            currentManager.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-        }
         // WARNING - we should throw IOException if not called from a subclass
         // according to the JavaDoc. Add the test.
         this.subclassOverridingImplementation = true;
@@ -381,45 +371,12 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @throws StreamCorruptedException
      *             if the source stream does not contain serialized objects that
      *             can be read.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
      */
-    public ObjectInputStream(InputStream input)
-            throws StreamCorruptedException, IOException {
+    public ObjectInputStream(InputStream input) throws StreamCorruptedException, IOException {
         final Class<?> implementationClass = getClass();
         final Class<?> thisClass = ObjectInputStream.class;
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null && implementationClass != thisClass) {
-            boolean mustCheck = AccessController
-                    .doPrivileged(new PrivilegedAction<Boolean>() {
-                        public Boolean run() {
-                            try {
-                                Method method = implementationClass.getMethod("readFields",
-                                        EmptyArray.CLASS);
-                                if (method.getDeclaringClass() != thisClass) {
-                                    return Boolean.TRUE;
-                                }
-                            } catch (NoSuchMethodException ignored) {
-                            }
-                            try {
-                                Method method = implementationClass.getMethod("readUnshared",
-                                        EmptyArray.CLASS);
-                                if (method.getDeclaringClass() != thisClass) {
-                                    return Boolean.TRUE;
-                                }
-                            } catch (NoSuchMethodException ignored) {
-                            }
-                            return Boolean.FALSE;
-                        }
-                    });
-            if (mustCheck) {
-                sm
-                        .checkPermission(ObjectStreamConstants.SUBCLASS_IMPLEMENTATION_PERMISSION);
-            }
-        }
-        this.input = (input instanceof DataInputStream) ? (DataInputStream) input
-                : new DataInputStream(input);
+        this.input = (input instanceof DataInputStream)
+                ? (DataInputStream) input : new DataInputStream(input);
         primitiveTypes = new DataInputStream(this);
         enableResolve = false;
         this.subclassOverridingImplementation = false;
@@ -527,22 +484,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *            {@code true} to enable object replacement; {@code false} to
      *            disable it.
      * @return the previous setting.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies enabling
-     *             object replacement for this stream.
      * @see #resolveObject
      * @see ObjectOutputStream#enableReplaceObject
      */
-    protected boolean enableResolveObject(boolean enable)
-            throws SecurityException {
-        if (enable) {
-            // The Stream has to be trusted for this feature to be enabled.
-            // trusted means the stream's class loader has to be null
-            SecurityManager currentManager = System.getSecurityManager();
-            if (currentManager != null) {
-                currentManager.checkPermission(SUBSTITUTION_PERMISSION);
-            }
-        }
+    protected boolean enableResolveObject(boolean enable) throws SecurityException {
         boolean originalValue = enableResolve;
         enableResolve = enable;
         return originalValue;
@@ -1434,8 +1379,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         try {
             if (readMethod != null) {
                 // We have to be able to fetch its value, even if it is private
-                AccessController.doPrivileged(new PriviAction<Object>(
-                        readMethod));
+                readMethod.setAccessible(true);
                 try {
                     readMethod.invoke(object, this);
                 } catch (InvocationTargetException e) {

@@ -22,8 +22,6 @@
 
 package org.apache.harmony.security.fortress;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
@@ -66,14 +64,8 @@ public class Services {
 
     // Hash for quick provider access by name
     private static final Map<String, Provider> providersNames = new HashMap<String, Provider>(20);
-
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                loadProviders();
-                return null;
-            }
-        });
+        loadProviders();
     }
 
     // Load statically registered providers and init Services Info

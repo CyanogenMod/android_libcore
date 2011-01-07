@@ -131,17 +131,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
         // check the address
         InetSocketAddress inetSocketAddress = SocketChannelImpl.validateAddress(address);
 
-        // security check
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            if (inetSocketAddress.getAddress().isMulticastAddress()) {
-                sm.checkMulticast(inetSocketAddress.getAddress());
-            } else {
-                sm.checkConnect(inetSocketAddress.getAddress().getHostName(),
-                        inetSocketAddress.getPort());
-            }
-        }
-
         try {
             begin();
             Platform.NETWORK.connect(fd,
@@ -225,17 +214,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
                     false, isConnected());
 
-            // security check
-            SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && sm != null) {
-                try {
-                    sm.checkAccept(receivePacket.getAddress().getHostAddress(),
-                            receivePacket.getPort());
-                } catch (SecurityException e) {
-                    // do discard the datagram packet
-                    receivePacket = null;
-                }
-            }
             if (receivePacket != null && receivePacket.getAddress() != null) {
 
                 if (received > 0) {
@@ -263,17 +241,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             received = Platform.NETWORK.recvDirect(fd, receivePacket, address,
                     target.position(), target.remaining(), false, isConnected());
 
-            // security check
-            SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && sm != null) {
-                try {
-                    sm.checkAccept(receivePacket.getAddress().getHostAddress(),
-                            receivePacket.getPort());
-                } catch (SecurityException e) {
-                    // do discard the datagram packet
-                    receivePacket = null;
-                }
-            }
             if (receivePacket != null && receivePacket.getAddress() != null) {
                 // copy the data of received packet
                 if (received > 0) {
@@ -303,20 +270,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             throw new IOException();
         }
 
-        if (isConnected()) {
-            if (!connectAddress.equals(isa)) {
-                throw new IllegalArgumentException();
-            }
-        } else {
-            // not connected, check security
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                if (isa.getAddress().isMulticastAddress()) {
-                    sm.checkMulticast(isa.getAddress());
-                } else {
-                    sm.checkConnect(isa.getAddress().getHostAddress(), isa.getPort());
-                }
-            }
+        if (isConnected() && !connectAddress.equals(isa)) {
+            throw new IllegalArgumentException();
         }
 
         // the return value.

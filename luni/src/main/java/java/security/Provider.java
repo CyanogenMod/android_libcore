@@ -149,22 +149,9 @@ public abstract class Provider extends Properties {
     /**
      * Clears all properties used to look up services implemented by this
      * {@code Provider}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code clearProviderProperties.NAME}
-     * (where NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
-     *
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     @Override
     public synchronized void clear() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("clearProviderProperties." + name);
-        }
         super.clear();
         if (serviceTable != null) {
             serviceTable.clear();
@@ -198,29 +185,11 @@ public abstract class Provider extends Properties {
 
     /**
      * Copies all from the provided map to this {@code Provider}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code putProviderProperty.NAME} (where
-     * NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
-     *
      * @param t
      *            the mappings to copy to this provider.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     @Override
     public synchronized void putAll(Map<?,?> t) {
-
-        // Implementation note:
-        // checkSecurityAccess method call is NOT specified
-        // Do it as in put(Object key, Object value).
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name);
-        }
         myPutAll(t);
     }
 
@@ -269,11 +238,6 @@ public abstract class Provider extends Properties {
     /**
      * Maps the specified {@code key} property name to the specified {@code
      * value}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code putProviderProperty.NAME} (where
-     * NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
      *
      * @param key
      *            the name of the property.
@@ -281,16 +245,9 @@ public abstract class Provider extends Properties {
      *            the value of the property.
      * @return the value that was previously mapped to the specified {@code key}
      *         ,or {@code null} if it did not have one.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     @Override
     public synchronized Object put(Object key, Object value) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name);
-        }
         if (key instanceof String && ((String) key).startsWith("Provider.")) {
             // Provider service type is reserved
             return null;
@@ -312,26 +269,14 @@ public abstract class Provider extends Properties {
     /**
      * Removes the specified {@code key} and its associated value from this
      * {@code Provider}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code removeProviderProperty.NAME} (where
-     * NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
      *
      * @param key
      *            the name of the property
      * @return the value that was mapped to the specified {@code key} ,or
      *         {@code null} if no mapping was present
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have the permission to invoke this method.
      */
     @Override
     public synchronized Object remove(Object key) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("removeProviderProperty." + name);
-        }
         if (key instanceof String && ((String) key).startsWith("Provider.")) {
             // Provider service type is reserved
             return null;
@@ -527,25 +472,13 @@ public abstract class Provider extends Properties {
     /**
      * Adds a {@code Service} to this {@code Provider}. If a service with the
      * same name was registered via this method, it is replace.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code putProviderProperty.NAME} (where
-     * NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
      *
      * @param s
      *            the {@code Service} to register
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method
      */
     protected synchronized void putService(Provider.Service s) {
         if (s == null) {
             throw new NullPointerException();
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name);
         }
         if ("Provider".equals(s.getType())) { // Provider service type cannot be added
             return;
@@ -569,27 +502,15 @@ public abstract class Provider extends Properties {
     /**
      * Removes a previously registered {@code Service} from this {@code
      * Provider}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code removeProviderProperty.NAME} (where
-     * NAME is the provider name) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
      *
      * @param s
      *            the {@code Service} to remove
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method
      * @throws NullPointerException
      *             if {@code s} is {@code null}
      */
     protected synchronized void removeService(Provider.Service s) {
         if (s == null) {
             throw new NullPointerException();
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("removeProviderProperty." + name);
         }
         servicesChanged();
         if (serviceTable != null) {
@@ -1067,31 +988,17 @@ public abstract class Provider extends Properties {
          *             if the implementation does not support the specified
          *             {@code constructorParameter}.
          */
-        public Object newInstance(Object constructorParameter)
-                throws NoSuchAlgorithmException {
+        public Object newInstance(Object constructorParameter) throws NoSuchAlgorithmException {
             if (implementation == null || !className.equals(lastClassName)) {
-                NoSuchAlgorithmException result = AccessController
-                        .doPrivileged(new PrivilegedAction<NoSuchAlgorithmException>() {
-                            public NoSuchAlgorithmException run() {
-                                ClassLoader cl = provider.getClass()
-                                        .getClassLoader();
-                                if (cl == null) {
-                                    cl = ClassLoader.getSystemClassLoader();
-                                }
-                                try {
-                                    implementation = Class.forName(className,
-                                            true, cl);
-                                } catch (Exception e) {
-                                    return new NoSuchAlgorithmException(
-                                            type + " " + algorithm
-                                            + " implementation not found: " + e);
-                                }
-                                lastClassName = className;
-                                return null;
-                            }
-                        });
-                if (result != null) {
-                    throw result;
+                ClassLoader cl = provider.getClass().getClassLoader();
+                if (cl == null) {
+                    cl = ClassLoader.getSystemClassLoader();
+                }
+                try {
+                    implementation = Class.forName(className, true, cl);
+                    lastClassName = className;
+                } catch (Exception e) {
+                    throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found: " + e);
                 }
             }
             if (constructorParameter == null) {

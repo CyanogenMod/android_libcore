@@ -162,9 +162,6 @@ public class StreamHandler extends Handler {
      *
      * @param os
      *            the new output stream.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      * @throws NullPointerException
      *             if {@code os} is {@code null}.
      */
@@ -185,9 +182,6 @@ public class StreamHandler extends Handler {
      *
      * @param encoding
      *            the character encoding to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      * @throws UnsupportedEncodingException
      *             if the specified encoding is not supported by the runtime.
      */
@@ -247,10 +241,6 @@ public class StreamHandler extends Handler {
      * this handler is written out. A flush operation and a subsequent close
      * operation is then performed upon the output stream. Client applications
      * should not use a handler after closing it.
-     *
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     @Override
     public void close() {

@@ -20,11 +20,9 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.security.AccessController;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
@@ -136,10 +134,6 @@ public final class URL implements java.io.Serializable {
         if (streamHandlerFactory != null) {
             throw new Error("Factory already set");
         }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSetFactory();
-        }
         streamHandlers.clear();
         streamHandlerFactory = streamFactory;
     }
@@ -195,13 +189,8 @@ public final class URL implements java.io.Serializable {
      *             if the given string {@code spec} could not be parsed as a URL
      *             or an invalid protocol has been found.
      */
-    public URL(URL context, String spec, URLStreamHandler handler)
-            throws MalformedURLException {
+    public URL(URL context, String spec, URLStreamHandler handler) throws MalformedURLException {
         if (handler != null) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(specifyStreamHandlerPermission);
-            }
             strmHandler = handler;
         }
 
@@ -366,10 +355,6 @@ public final class URL implements java.io.Serializable {
      * @throws MalformedURLException
      *             if the combination of all arguments do not represent a valid
      *             URL or the protocol is invalid.
-     * @throws SecurityException
-     *             if {@code handler} is non-{@code null}, and a security
-     *             manager is installed that disallows user-defined protocol
-     *             handlers.
      */
     public URL(String protocol, String host, int port, String file,
             URLStreamHandler handler) throws MalformedURLException {
@@ -410,10 +395,6 @@ public final class URL implements java.io.Serializable {
                 throw new MalformedURLException("Unknown protocol: " + protocol);
             }
         } else {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(specifyStreamHandlerPermission);
-            }
             strmHandler = handler;
         }
     }
@@ -556,9 +537,7 @@ public final class URL implements java.io.Serializable {
 
         // Check if there is a list of packages which can provide handlers.
         // If so, then walk this list looking for an applicable one.
-        String packageList = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "java.protocol.handler.pkgs"));
+        String packageList = System.getProperty("java.protocol.handler.pkgs");
         if (packageList != null) {
             StringTokenizer st = new StringTokenizer(packageList, "|");
             while (st.hasMoreTokens()) {
@@ -678,9 +657,6 @@ public final class URL implements java.io.Serializable {
      *         connection to this URL.
      * @throws IOException
      *             if an I/O error occurs while opening the connection.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies to connect
-     *             to the proxy.
      * @throws IllegalArgumentException
      *             if the argument proxy is {@code null} or is an invalid type.
      * @throws UnsupportedOperationException
@@ -691,15 +667,6 @@ public final class URL implements java.io.Serializable {
         if (proxy == null) {
             throw new IllegalArgumentException("proxy == null");
         }
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null && proxy.type() != Proxy.Type.DIRECT) {
-            InetSocketAddress pAddress = (InetSocketAddress) proxy.address();
-            String pHostName = pAddress.isUnresolved() ? pAddress.getHostName()
-                    : pAddress.getAddress().getHostAddress();
-            sm.checkConnect(pHostName, pAddress.getPort());
-        }
-
         return strmHandler.openConnection(this, proxy);
     }
 

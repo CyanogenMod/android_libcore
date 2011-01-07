@@ -29,16 +29,12 @@ public interface Member {
     /**
      * Designates all public members of a class or interface (including
      * inherited members).
-     *
-     * @see java.lang.SecurityManager#checkMemberAccess
      */
     public static final int PUBLIC = 0;
 
     /**
      * Designates all declared members of a class or interface (without
      * inherited members).
-     *
-     * @see java.lang.SecurityManager#checkMemberAccess
      */
     public static final int DECLARED = 1;
 

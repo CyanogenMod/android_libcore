@@ -80,20 +80,4 @@ public interface SHA1_Data {
      * in this implementation # is set to 20 (in general # varies from 1 to 20)
      */
     static final int DIGEST_LENGTH = 20;
-
-
-    // BEGIN android-removed
-//    /**
-//     *  name of native library to use on Windows platform
-//     */
-//    static final String LIBRARY_NAME = "hysecurity";
-    // END android-removed
-
-
-    /**
-     *  names of random devices on Linux platform
-     */
-    // BEGIN android-changed: /dev/random seems to be empty on Android
-    static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };
-    // END android-changed
 }

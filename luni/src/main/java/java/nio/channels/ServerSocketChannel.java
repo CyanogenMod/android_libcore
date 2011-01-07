@@ -107,9 +107,6 @@ public abstract class ServerSocketChannel extends AbstractSelectableChannel {
      *             if another I/O error occurs.
      * @throws NotYetBoundException
      *             if the socket has not yet been bound.
-     * @throws SecurityException
-     *             if there is a security manager and it does not permit to
-     *             access the new connection.
      */
     public abstract SocketChannel accept() throws IOException;
 }

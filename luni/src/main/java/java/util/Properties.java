@@ -31,11 +31,9 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.security.AccessController;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.harmony.luni.util.PriviAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -557,7 +555,7 @@ public class Properties extends Hashtable<Object, Object> {
      */
     public synchronized void store(Writer writer, String comment) throws IOException {
         if (lineSeparator == null) {
-            lineSeparator = AccessController.doPrivileged(new PriviAction<String>("line.separator"));
+            lineSeparator = System.getProperty("line.separator");
         }
 
         if (comment != null) {
