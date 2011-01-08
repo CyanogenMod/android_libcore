@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # This file is included by the top-level libcore Android.mk.
 # It's not a normal makefile, so we don't include CLEAR_VARS
 # or BUILD_*_LIBRARY.
