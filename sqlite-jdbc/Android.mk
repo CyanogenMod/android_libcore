@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 
 sqlite_jdbc_src_files := \
     src/main/native/sqlite_jni.c

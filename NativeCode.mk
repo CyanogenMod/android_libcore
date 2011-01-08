@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # Copyright (C) 2007 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,7 +102,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 
 ifneq ($(TARGET_SIMULATOR),true)
-LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include 
+LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
 LOCAL_SHARED_LIBRARIES += libstlport
 endif
 
