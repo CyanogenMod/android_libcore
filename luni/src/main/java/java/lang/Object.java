@@ -171,7 +171,7 @@ public class Object {
      * Also, no object reference other than null is equal to null.
      *
      * <p>The default implementation returns {@code true} only if {@code this ==
-     * o}. See <a href="#writing_equals">Writing a correct {@code equals} method</a>
+     * o}. See <a href="{@docRoot}/reference/java/lang/Object.html#writing_equals">Writing a correct {@code equals} method</a>
      * if you intend implementing your own {@code equals} method.
      *
      * <p>The general contract for the {@code equals} and {@link
@@ -245,7 +245,7 @@ public class Object {
      * <p>Note that hash values must not change over time unless information used in equals
      * comparisons also changes.
      *
-     * <p>See <a href="#writing_hashCode">Writing a correct {@code hashCode} method</a>
+     * <p>See <a href="{@docRoot}/reference/java/lang/Object.html#writing_hashCode">Writing a correct {@code hashCode} method</a>
      * if you intend implementing your own {@code hashCode} method.
      *
      * @return this object's hash code.
@@ -317,7 +317,7 @@ public class Object {
      * default implementation is equivalent to the following expression:
      * <pre>
      *   getClass().getName() + '@' + Integer.toHexString(hashCode())</pre>
-     * <p>See <a href="#writing_toString">Writing a useful {@code toString} method</a>
+     * <p>See <a href="{@docRoot}/reference/java/lang/Object.html#writing_toString">Writing a useful {@code toString} method</a>
      * if you intend implementing your own {@code toString} method.
      *
      * @return a printable representation of this object.
