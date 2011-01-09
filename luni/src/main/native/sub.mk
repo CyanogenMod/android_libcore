@@ -23,6 +23,7 @@ LOCAL_SRC_FILES := \
 	Register.cpp \
 	TimeZones.cpp \
 	cbigint.cpp \
+	ifaddrs-android.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
 	java_io_FileDescriptor.cpp \
