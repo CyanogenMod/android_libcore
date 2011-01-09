@@ -39,7 +39,6 @@ import org.xml.sax.ext.LexicalHandler;
  * Adapts SAX API to the Expat native XML parser. Not intended for reuse
  * across documents.
  *
- * @see org.apache.harmony.xml.ExpatPullParser
  * @see org.apache.harmony.xml.ExpatReader
  */
 class ExpatParser {
