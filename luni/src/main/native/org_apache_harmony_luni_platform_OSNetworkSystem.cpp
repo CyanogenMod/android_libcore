@@ -20,7 +20,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "LocalArray.h"
 #include "NetFd.h"
 #include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
