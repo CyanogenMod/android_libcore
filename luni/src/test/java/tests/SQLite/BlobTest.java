@@ -103,31 +103,6 @@ public class BlobTest extends SQLiteTest {
         super.tearDown();
     }
 
-    /**
-     * @throws Exception
-     * @throws IOException
-     * @tests Blob#Blob()
-     */
-    @TestTargets ( {
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "db.open_blob is not supported also for Stmt, therefore cannot test Blobs",
-        method = "Blob",
-        args = {}
-    ),
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "functional test",
-        method = "getOutputStream",
-        args = {}
-    ),
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "functional test",
-        method = "getInputStream",
-        args = {}
-    )
-    })
     @KnownFailure("db.open_blob is not supported.")
     public void testBlob() throws Exception, IOException {
         byte[] b = new byte[4];
@@ -149,19 +124,6 @@ public class BlobTest extends SQLiteTest {
         } finally {
         blob.close();
         }
-    }
-
-    /**
-     * @tests Blob#finalize()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Can not be checked. Should be tested in DX test package.",
-        method = "finalize",
-        args = {}
-    )
-    public void testFinalize() {
-
     }
 
     /**
@@ -204,26 +166,16 @@ public class BlobTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @tests Blob#close()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not clear from spec what should happen when Blob is closed.",
-        method = "close",
-        args = {}
-    )
-//    @KnownFailure("Blob does not clean up inputStream.")
     public void testClose() {
-    assertNotNull(testBlob);
+        assertNotNull(testBlob);
 
-    testBlob.close();
-    // inputStream either null or some error occurs
-    try {
-        // TODO This does look a bit weird. Revisit later.
-        assertNull(testBlob.getInputStream());
-    } catch (Throwable e) {
-        //ok
-    }
+        testBlob.close();
+        // inputStream either null or some error occurs
+        try {
+            // TODO This does look a bit weird. Revisit later.
+            assertNull(testBlob.getInputStream());
+        } catch (Throwable e) {
+            //ok
+        }
     }
 }

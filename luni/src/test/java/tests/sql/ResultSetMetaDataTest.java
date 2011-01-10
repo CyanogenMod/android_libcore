@@ -743,15 +743,7 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#isReadOnly(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Cannot know from blackbox test if readonly or writable. Exceptions fail, Feature only partially implemented.",
-        method = "isReadOnly",
-        args = {int.class}
-    )
+    // Cannot know from blackbox test if readonly or writable. Exceptions fail, Feature only partially implemented.
     @KnownFailure("not supported")
     public void testIsReadOnly() {
 
@@ -832,15 +824,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#isWritable(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Analaguous to is Readonly.  Exceptions and tests on non numeric fields fail, failing statements commented out. Feature only partially implemented.",
-        method = "isWritable",
-        args = {int.class}
-    )
+    // Analogous to is Readonly.  Exceptions and tests on non numeric fields fail, failing statements commented out. Feature only partially implemented.
     @KnownFailure("not supported")
     public void testIsWritable() {
 

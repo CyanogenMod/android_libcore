@@ -764,12 +764,6 @@ public class SSLEngineTest extends TestCase {
      *                                     int length, ByteBuffer dst)
      * Exception case: SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "wrap cannot be forced to fail",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     public void test_wrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
@@ -780,7 +774,7 @@ public class SSLEngineTest extends TestCase {
         try {
             @SuppressWarnings("unused")
             SSLEngineResult result = clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
-            //fail("SSLException wasn't thrown");
+            fail("SSLException wasn't thrown");
         } catch (SSLException ex) {
             //expected
         }
@@ -1350,12 +1344,6 @@ public class SSLEngineTest extends TestCase {
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "wrap cannot be forced to produce SSLException",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer_ByteBuffer_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
@@ -1364,7 +1352,7 @@ public class SSLEngineTest extends TestCase {
 
         try {
             clientEngine.engine.wrap(bbs, bbd);
-            //fail("SSLException wasn't thrown");
+            fail("SSLException wasn't thrown");
         } catch (SSLException ex) {
             //expected
         }

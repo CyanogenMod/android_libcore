@@ -496,16 +496,6 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @throws SQLException
-     * @test java.sql.PreparedStatement#getParameterMetaData()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getParameterMetaData",
-        args = {}
-    )
     public void testGetParameterMetaData() throws SQLException {
         PreparedStatement ps = null;
         String query = "select * from zoo where id = ?";

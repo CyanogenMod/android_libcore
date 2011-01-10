@@ -1731,38 +1731,6 @@ public class StatementTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.Statement#getMoreResults(int)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Callable Statements are not supported",
-        method = "getMoreResults",
-        args = {int.class}
-    )
-    public void testGetMoreResultsInt() {
-        /*
-        } catch (BatchUpdateException e) {
-            fail("Unexpected Exception "+e.getMessage());
-        } catch (SQLException e) {
-            assertEquals("not supported",e.getMessage());
-        } finally {
-            try {
-                st.close();
-            } catch (SQLException ee) {
-            }
-        }
-
-        try {
-            st.getMoreResults(Integer.MAX_VALUE);
-            fail("Exception expected");
-        } catch (SQLException e) {
-            //ok
-        }
-        */
-    }
-
-    /**
      * @test {@link java.sql.Statement#cancel()}
      *
      */

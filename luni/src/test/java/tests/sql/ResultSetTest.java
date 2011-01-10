@@ -188,20 +188,6 @@ public class ResultSetTest extends SQLTest {
     }
 
     /**
-     * Test method for {@link java.sql.ResultSet#clearWarnings()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Not supported",
-        method = "clearWarnings",
-        args = {}
-    )
-    @KnownFailure("Not supported")
-    public void testClearWarnings() {
-        fail("Not yet implemented");
-    }
-
-    /**
      * Test method for {@link java.sql.ResultSet#close()}.
      *
      * According to the JDBC spec close has to "Releases this ResultSet
@@ -727,12 +713,6 @@ public class ResultSetTest extends SQLTest {
     /**
      * Test method for {@link java.sql.ResultSet#updateObject(java.lang.String, java.lang.Object)}.
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "updateObject",
-        args = {java.lang.String.class, java.lang.Object.class}
-    )
     @KnownFailure("not supported")
     public void testUpdateObjectStringObject() {
         try {

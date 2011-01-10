@@ -27,22 +27,6 @@ import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-@TestTargetClass(
-        value = Pattern.class,
-        untestedMethods= {
-            @TestTargetNew(
-                level = TestLevel.NOT_FEASIBLE,
-                notes = "finalize is hard to test since the implementation only calls a native function",
-                method = "finalize",
-                args = {}
-            )
-        }
-)
 public class PatternTest extends TestCase {
     String[] testPatterns = {
             "(a|b)*abb",
@@ -85,12 +69,6 @@ public class PatternTest extends TestCase {
 
     final static int DEFAULT_FLAGS = 0;
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!",
-        args = {}
-    )
     public void testMatcher() {
         // some very simple test
         Pattern p = Pattern.compile("a");
@@ -98,15 +76,6 @@ public class PatternTest extends TestCase {
         assertNotSame(p.matcher("a"), p.matcher("a"));
     }
 
-    /*
-     * Class under test for String[] split(CharSequence, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of splitsplit(java.lang.String, int) method.",
-        method = "split",
-        args = {CharSequence.class, int.class}
-    )
     public void testSplitCharSequenceint() {
         // splitting CharSequence which ends with pattern
         // bug6193
@@ -181,15 +150,6 @@ public class PatternTest extends TestCase {
         assertEquals(s.length, 5);
     }
 
-    /*
-     * Class under test for String[] split(CharSequence)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of splitsplit(java.lang.String) method.",
-        method = "split",
-        args = {CharSequence.class}
-    )
     public void testSplitCharSequence() {
         String s[];
         Pattern pat = Pattern.compile("b");
@@ -209,12 +169,6 @@ public class PatternTest extends TestCase {
         // bug6544
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies the functionality of pattern() method.",
-        method = "pattern",
-        args = {}
-    )
     public void testPattern() {
         /* Positive assertion test. */
         for (String aPattern : testPatterns) {
@@ -227,12 +181,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCompile() {
         /* Positive assertion test. */
         for (String aPattern : testPatterns) {
@@ -265,12 +213,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method for different flags.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFlags() {
         String baseString;
         String testString;
@@ -443,13 +385,6 @@ public class PatternTest extends TestCase {
      * Check default flags when they are not specified in pattern. Based on RI
      * since could not find that info
      */
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of flags() method for default flags.",
-        method = "flags",
-        args = {}
-    )
     public void testFlagsCompileDefault() {
         for (String pat : testPatternsAlt) {
             try {
@@ -466,21 +401,6 @@ public class PatternTest extends TestCase {
      * simple implementation that does not use flags combinations. Need to
      * improve.
      */
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & flags() methods. Checks that compilation was corect.",
-            method = "flags",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & flags() methods. Checks that compilation was corect.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testFlagsCompileValid() {
         for (String pat : testPatternsAlt) {
             for (int flags : flagsSet) {
@@ -494,16 +414,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    /*
-     * Class under test for Pattern compile(String, int)
-     */
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.Checks that correct exceptions were thrown.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCompileStringint() {
         /*
          * these tests are needed to verify that appropriate exceptions are
@@ -559,12 +469,6 @@ public class PatternTest extends TestCase {
     /*
      * Class under test for Pattern compile(String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.Checks that correct exceptions were thrown.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testQuantCompileNeg() {
         String[] patterns = { "5{,2}", "{5asd", "{hgdhg", "{5,hjkh", "{,5hdsh",
                 "{5,3shdfkjh}" };
@@ -587,12 +491,6 @@ public class PatternTest extends TestCase {
         assertNotNull(Pattern.compile(pattern));
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testQuantCompilePos() {
         String[] patterns = {/* "(abc){1,3}", */"abc{2,}", "abc{5}" };
         for (String element : patterns) {
@@ -600,12 +498,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile() method. Also tested methods from matcher: matches(), start(int), group(int)",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testQuantComposition() {
         String pattern = "(a{1,3})aab";
         java.util.regex.Pattern pat = java.util.regex.Pattern.compile(pattern);
@@ -615,12 +507,6 @@ public class PatternTest extends TestCase {
         mat.group(1);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testMatches() {
         String[][] posSeq = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
@@ -649,12 +535,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies exception",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testMatchesException() {
         /* Negative assertion test. */
         for (String aPattern : wrongTestPatterns) {
@@ -669,12 +549,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "The test verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testTimeZoneIssue() {
         Pattern p = Pattern.compile("GMT(\\+|\\-)(\\d+)(:(\\d+))?");
         Matcher m = p.matcher("GMT-9:45");
@@ -687,12 +561,6 @@ public class PatternTest extends TestCase {
 
 // BEGIN android-changed
 // Removed one pattern that is buggy on the JDK. We don't want to duplicate that.
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testCompileRanges() {
         String[] correctTestPatterns = { "[^]*abb]*", /* "[^a-d[^m-p]]*abb", */
                 "[a-d\\d]*abb", "[abc]*abb", "[a-e&&[de]]*abb", "[^abc]*abb",
@@ -726,12 +594,6 @@ public class PatternTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method for ranged patterns.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testRangesSpecialCases() {
         String neg_patterns[] = { "[a-&&[b-c]]", "[a-\\w]", "[b-a]", "[]" };
 
@@ -755,22 +617,10 @@ public class PatternTest extends TestCase {
     }
  // END android-changed
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "The test verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
-public void testZeroSymbols() {
+    public void testZeroSymbols() {
         assertTrue(Pattern.matches("[\0]*abb", "\0\0\0\0\0\0abb"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of matcher(java.lang.String) method.",
-        method = "matcher",
-        args = {CharSequence.class}
-    )
     public void testEscapes() {
         Pattern pat = Pattern.compile("\\Q{]()*?");
         Matcher mat = pat.matcher("{]()*?");
@@ -778,22 +628,10 @@ public void testZeroSymbols() {
         assertTrue(mat.matches());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testBug181() {
         Pattern.compile("[\\t-\\r]");
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testOrphanQuantifiers() {
         try {
             Pattern.compile("+++++");
@@ -802,12 +640,6 @@ public void testZeroSymbols() {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testOrphanQuantifiers2() {
         try {
             Pattern pat = Pattern.compile("\\d+*");
@@ -816,21 +648,6 @@ public void testZeroSymbols() {
         }
     }
 
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) method.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) method.",
-            method = "compile",
-            args = {java.lang.String.class}
-        )
-    })
     public void testBug197() {
         Object[] vals = { ":", new Integer(2),
                 new String[] { "boo", "and:foo" }, ":", new Integer(5),
@@ -856,13 +673,6 @@ public void testZeroSymbols() {
         }
     }
 
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "The test verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testURIPatterns() {
         String URI_REGEXP_STR = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?";
         String SCHEME_REGEXP_STR = "^[a-zA-Z]{1}[\\w+-.]+$";
@@ -881,12 +691,6 @@ public void testZeroSymbols() {
         Pattern HOSTNAME_REGEXP = Pattern.compile(HOSTNAME_REGEXP_STR);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases1() {
         Pattern pat = Pattern.compile(".*\n");
         Matcher mat = pat.matcher("a\n");
@@ -895,12 +699,6 @@ public void testZeroSymbols() {
         assertEquals("a\n", mat.group());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases2() {
         Pattern pat = Pattern.compile(".*A");
         Matcher mat = pat.matcher("aAa");
@@ -909,12 +707,6 @@ public void testZeroSymbols() {
         assertEquals("aA", mat.group());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases3() {
         Pattern pat = Pattern.compile(".*A");
         Matcher mat = pat.matcher("a\naA\n");
@@ -923,12 +715,6 @@ public void testZeroSymbols() {
         assertEquals("aA", mat.group());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases4() {
         Pattern pat = Pattern.compile("A.*");
         Matcher mat = pat.matcher("A\n");
@@ -937,12 +723,6 @@ public void testZeroSymbols() {
         assertEquals("A", mat.group());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases5() {
         Pattern pat = Pattern.compile(".*A.*");
         Matcher mat = pat.matcher("\nA\naaa\nA\naaAaa\naaaA\n");
@@ -954,12 +734,6 @@ public void testZeroSymbols() {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testFindBoundaryCases6() {
         String[] res = { "", "a", "", "" };
         Pattern pat = Pattern.compile(".*");
@@ -971,20 +745,6 @@ public void testZeroSymbols() {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testBackReferences() {
         Pattern pat = Pattern.compile("(\\((\\w*):(.*):(\\2)\\))");
         Matcher mat = pat
@@ -1002,20 +762,6 @@ public void testZeroSymbols() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testNewLine() {
         Pattern pat = Pattern.compile("(^$)*\n", Pattern.MULTILINE);
         Matcher mat = pat.matcher("\r\n\n");
@@ -1026,40 +772,13 @@ public void testZeroSymbols() {
         assertEquals(2, counter);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testFindGreedy() {
         Pattern pat = Pattern.compile(".*aaa", Pattern.DOTALL);
         Matcher mat = pat.matcher("aaaa\naaa\naaaaaa");
         mat.matches();
         assertEquals(15, mat.end());
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies serialization/deserialization.",
-            method = "!SerializationSelf",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies serialization/deserialization.",
-            method = "!SerializationGolden",
-            args = {}
-        )
-    })
+
     public void testSerialization() throws Exception {
         Pattern pat = Pattern.compile("a*bc");
         SerializableAssert comparator = new SerializableAssert() {
@@ -1073,20 +792,6 @@ public void testZeroSymbols() {
         SerializationTest.verifySelf(pat, comparator);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testSOLQuant() {
         Pattern pat = Pattern.compile("$*", Pattern.MULTILINE);
         Matcher mat = pat.matcher("\n\n");
@@ -1098,12 +803,6 @@ public void testZeroSymbols() {
         assertEquals(3, counter);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testIllegalEscape() {
         try {
             Pattern.compile("\\y");
@@ -1112,31 +811,11 @@ public void testZeroSymbols() {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testEmptyFamily() {
         Pattern.compile("\\p{Lower}");
         String a = "*";
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testNonCaptConstr() {
         // Flags
         Pattern pat = Pattern.compile("(?i)b*(?-i)a*");
@@ -1206,12 +885,6 @@ public void testZeroSymbols() {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCorrectReplacementBackreferencedJointSet() {
         Pattern pat = Pattern.compile("ab(a)*\\1");
         pat = Pattern.compile("abc(cd)fg");
@@ -1230,40 +903,12 @@ public void testZeroSymbols() {
         pat = Pattern.compile("ab(a){1,3}?(c)d");
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testCompilePatternWithTerminatorMark() {
         Pattern pat = Pattern.compile("a\u0000\u0000cd");
         Matcher mat = pat.matcher("a\u0000\u0000cd");
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testAlternations() {
         String baseString = "|a|bc";
         Pattern pat = Pattern.compile(baseString);
@@ -1332,20 +977,6 @@ public void testZeroSymbols() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testMatchWithGroups() {
         String baseString = "jwkerhjwehrkwjehrkwjhrwkjehrjwkehrjkwhrkwehrkwhrkwrhwkhrwkjehr";
         String pattern = ".*(..).*\\1.*";
@@ -1357,32 +988,12 @@ public void testZeroSymbols() {
         assertTrue(Pattern.compile(pattern).matcher(baseString).find());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies split method for empty string.",
-        method = "split",
-        args = {java.lang.CharSequence.class}
-    )
     public void testSplitEmptyCharSequence() {
         String s1 = "";
         String[] arr = s1.split(":");
         assertEquals(arr.length, 1);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies the functionality of compile(java.lang.String) & split(java.lang.CharSequence, int) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies the functionality of compile(java.lang.String) & split(java.lang.CharSequence, int) methods.",
-            method = "split",
-            args = {java.lang.CharSequence.class, int.class}
-        )
-    })
     public void testSplitEndsWithPattern() {
         assertEquals(",,".split(",", 3).length, 3);
         assertEquals(",,".split(",", 4).length, 3);
@@ -1391,30 +1002,10 @@ public void testZeroSymbols() {
         assertEquals(Pattern.compile("b").split("ab", -1).length, 2);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "The test verifies the functionality of matches(java.lang.String), java.lang.CharSequence) method for case insensitive flags.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testCaseInsensitiveFlag() {
         assertTrue(Pattern.matches("(?i-:AbC)", "ABC"));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testEmptyGroups() {
         Pattern pat = Pattern.compile("ab(?>)cda");
         Matcher mat = pat.matcher("abcda");
@@ -1429,20 +1020,6 @@ public void testZeroSymbols() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & compile(java.lang.String, int) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & compile(java.lang.String, int) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testCompileNonCaptGroup() {
         boolean isCompiled = false;
 
@@ -1461,20 +1038,6 @@ public void testZeroSymbols() {
         assertTrue(isCompiled);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testEmbeddedFlags() {
         String baseString = "(?i)((?s)a)";
         String testString = "A";
@@ -1507,12 +1070,6 @@ public void testZeroSymbols() {
         assertTrue(mat.matches());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testAltWithFlags() {
         boolean isCompiled = false;
 
@@ -1525,21 +1082,7 @@ public void testZeroSymbols() {
         assertTrue(isCompiled);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
-public void testRestoreFlagsAfterGroup() {
+    public void testRestoreFlagsAfterGroup() {
         String baseString = "abc((?x)d)   a";
         String testString = "abcd   a";
         Pattern pat = Pattern.compile(baseString);
@@ -1552,12 +1095,6 @@ public void testRestoreFlagsAfterGroup() {
      * Verify if the Pattern support the following character classes:
      * \p{javaLowerCase} \p{javaUpperCase} \p{javaWhitespace} \p{javaMirrored}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of compile(java.lang.String) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCompileCharacterClass() {
         // Regression for HARMONY-606, 696
         Pattern pattern = Pattern.compile("\\p{javaLowerCase}");
@@ -1879,20 +1416,6 @@ public void testRestoreFlagsAfterGroup() {
 //         */}
 // END android-removed
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testRangesWithSurrogatesSupplementary() {
         String patString = "[abc\uD8D2]";
         String testString = "\uD8D2";
@@ -1959,20 +1482,6 @@ public void testRestoreFlagsAfterGroup() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testSequencesWithSurrogatesSupplementary() {
         String patString = "abcd\uD8D3";
         String testString = "abcd\uD8D3\uDFFC";
@@ -2011,24 +1520,6 @@ public void testRestoreFlagsAfterGroup() {
         assertTrue(mat.find());
     }
 
-    /**
-     * s original test was fixed to pass on RI
-     */
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testPredefinedClassesWithSurrogatesSupplementary() {
         String patString = "[123\\D]";
         String testString = "a";
@@ -2130,26 +1621,6 @@ public void testRestoreFlagsAfterGroup() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) &  compile(java.lang.String, int) matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) &  compile(java.lang.String, int) matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) &  compile(java.lang.String, int) matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testDotConstructionWithSurrogatesSupplementary() {
         String patString = ".";
         String testString = "\uD9A0\uDE81";
@@ -2186,15 +1657,6 @@ public void testRestoreFlagsAfterGroup() {
         assertTrue(mat.matches());
     }
 
-    /**
-     * s java.util.regex.Pattern.quote(String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "quote",
-        args = {java.lang.String.class}
-    )
     public void test_quoteLjava_lang_String() {
         for (String aPattern : testPatterns) {
             Pattern p = Pattern.compile(aPattern);
@@ -2211,25 +1673,6 @@ public void testRestoreFlagsAfterGroup() {
         }
     }
 
-    /**
-     * s java.util.regex.Pattern.matcher(String, CharSequence)
-     * coped from test for matches method
-     */
-
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void test_matcherLjava_lang_StringLjava_lang_CharSequence() {
         String[][] posSeq = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
@@ -2258,20 +1701,6 @@ public void testRestoreFlagsAfterGroup() {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testQuantifiersWithSurrogatesSupplementary() {
         String patString = "\uD9A0\uDE81*abc";
         String testString = "\uD9A0\uDE81\uD9A0\uDE81abc";
@@ -2284,20 +1713,6 @@ public void testRestoreFlagsAfterGroup() {
         assertTrue(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testAlternationsWithSurrogatesSupplementary() {
         String patString = "\uDE81|\uD9A0\uDE81|\uD9A0";
         String testString = "\uD9A0";
@@ -2318,26 +1733,6 @@ public void testRestoreFlagsAfterGroup() {
         assertFalse(mat.matches());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of compile(java.lang.String) & compile(java.lang.String, int) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testGroupsWithSurrogatesSupplementary() {
 
         //this pattern matches nothing
@@ -2357,32 +1752,12 @@ public void testRestoreFlagsAfterGroup() {
     /*
      * Regression test for HARMONY-688
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies the functionality of compile(java.lang.String) & matcher(java.lang.CharSequence) methods.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testUnicodeCategoryWithSurrogatesSupplementary() {
         Pattern p = Pattern.compile("\\p{javaLowerCase}");
         Matcher matcher = p.matcher("\uD801\uDC28");
         assertTrue(matcher.find());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "The test doesn't verify Matcher and should be moved to PatterTest.",
-        method = "split",
-        args = {java.lang.CharSequence.class, int.class}
-    )
     public void testSplitEmpty() {
 
         Pattern pat = Pattern.compile("");
@@ -2392,12 +1767,6 @@ public void testRestoreFlagsAfterGroup() {
         assertEquals("", s[0]);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         for (int i = 0; i < testPatterns.length; i++) {
             Pattern p = Pattern.compile(testPatterns[i]);

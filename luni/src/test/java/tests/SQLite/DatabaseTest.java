@@ -171,18 +171,6 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     /**
-     * @tests Database#finalize()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "method test",
-        method = "finalize",
-        args = {}
-    )
-    public void testFinalize() {
-    }
-
-    /**
      * @tests {@link Database#open(String, int)}.
      */
     @TestTargetNew(
@@ -512,21 +500,6 @@ public class DatabaseTest extends SQLiteTest {
      * @throws Exception
      * @tests {@link Database#busy_handler(BusyHandler)}
      */
-    @TestTargets({
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "method test fails once in a while. Cannot be sure that exception is thrown every time.",
-        method = "busy_handler",
-        args = {BusyHandler.class}
-    ),
-    @TestTargetNew(
-            level = TestLevel.NOT_FEASIBLE,
-            notes = "method test fails once in a while. Cannot be sure that exception is thrown every time.",
-            method = "busy",
-            clazz = BusyHandler.class,
-            args = {java.lang.String.class, int.class}
-        )
-    })
     @KnownFailure("method test fails once in a while. "+
             "Cannot be sure that exception is thrown in every test execution.")
     public void testBusy_handler() throws SQLException, Exception {
@@ -643,17 +616,7 @@ public class DatabaseTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @throws Exception
-     * @throws SQLException
-     * @tests {@link Database#busy_timeout(int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "test fails. Cannot be sure that exception is thrown every time.",
-        method = "busy_timeout",
-        args = {int.class}
-    )
+    // test fails. Cannot be sure that exception is thrown every time.
     @KnownFailure("Database does not lock values")
     public void testBusy_timeout() throws Exception, SQLException {
         int counter = 0;

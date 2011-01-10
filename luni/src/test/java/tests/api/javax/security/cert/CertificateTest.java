@@ -40,19 +40,6 @@ import javax.security.cert.Certificate;
 import javax.security.cert.CertificateEncodingException;
 import javax.security.cert.CertificateException;
 
-/**
- */
-@TestTargetClass(
-        value = Certificate.class,
-        untestedMethods = {
-            @TestTargetNew(
-                    level = TestLevel.NOT_FEASIBLE,
-                    notes = "not specific enough for black-box testing",
-                    method = "toString",
-                    args = {}
-                  )
-        }
-)
 public class CertificateTest extends TestCase {
 
     /**

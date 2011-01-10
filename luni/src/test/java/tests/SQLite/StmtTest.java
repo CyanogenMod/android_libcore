@@ -149,19 +149,6 @@ public class StmtTest extends SQLiteTest {
     }
 
     /**
-     * @tests {@link Stmt#finalize()}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "method test",
-        method = "finalize",
-        args = {}
-    )
-    public void testFinalize() {
-
-    }
-
-    /**
      * @tests {@link Stmt#prepare()}
      */
     @TestTargetNew(
@@ -639,15 +626,6 @@ public class StmtTest extends SQLiteTest {
 
     }
 
-    /**
-     * @tests {@link Stmt#bind_zeroblob(int, int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "bind_zeroblob",
-        args = {int.class, int.class}
-    )
     public void testBind_zeroblob() {
         try {
             st.bind_zeroblob(1, 128);
@@ -917,16 +895,6 @@ public class StmtTest extends SQLiteTest {
 
     }
 
-    /**
-     * @throws Exception
-     * @tests {@link Stmt#column_bytes(int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "column_bytes",
-        args = {int.class}
-    )
     public void testColumn_bytes() throws Exception {
 
         db.exec("create table B(id integer primary key, val blob)",null);
@@ -1126,15 +1094,6 @@ public class StmtTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @tests {@link Stmt#column_table_name(int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "column_table_name",
-        args = {int.class}
-    )
     public void testColumn_table_name() {
         try {
             st = db.prepare("select * from " + DatabaseCreator.SIMPLE_TABLE1);
@@ -1145,15 +1104,6 @@ public class StmtTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @tests {@link Stmt#column_database_name(int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "column_database_name",
-        args = {int.class}
-    )
     public void testColumn_database_name() {
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
@@ -1229,15 +1179,6 @@ public class StmtTest extends SQLiteTest {
                 .column_decltype(29)));
     }
 
-    /**
-     * @tests {@link Stmt#column_origin_name(int)}
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "column_origin_name",
-        args = {int.class}
-    )
     public void testColumn_origin_name() {
         try {
             st = db.prepare("select * from " + DatabaseCreator.SIMPLE_TABLE1);

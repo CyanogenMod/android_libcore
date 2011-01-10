@@ -774,16 +774,6 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getImportedKeys(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Test fails: Keys are not supported",
-        method = "getImportedKeys",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("Keys are not supported: Ticket 91")
     public void test_getImportedKeysLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -1435,18 +1425,7 @@ public class DatabaseMetaDataTest extends TestCase {
 
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#getUserName()
-     *
-     *  NOT_FEASIBLE not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getUserName",
-        args = {}
-    )
-     @KnownFailure("Ticket 98")
+    @KnownFailure("Ticket 98")
     public void s() throws SQLException {
       assertEquals("Wrong user name", Support_SQL.sqlUser, meta.getUserName());
 
