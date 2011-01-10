@@ -18,6 +18,7 @@ package org.apache.harmony.xml.dom;
 
 import java.util.ArrayList;
 import java.util.List;
+import libcore.base.Objects;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -75,7 +76,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
     private int indexOfAttribute(String name) {
         for (int i = 0; i < attributes.size(); i++) {
             AttrImpl attr = attributes.get(i);
-            if (attr.matchesName(name, false)) {
+            if (Objects.equal(name, attr.getNodeName())) {
                 return i;
             }
         }
@@ -86,7 +87,8 @@ public class ElementImpl extends InnerNodeImpl implements Element {
     private int indexOfAttributeNS(String namespaceURI, String localName) {
         for (int i = 0; i < attributes.size(); i++) {
             AttrImpl attr = attributes.get(i);
-            if (attr.matchesNameNS(namespaceURI, localName, false)) {
+            if (Objects.equal(namespaceURI, attr.getNamespaceURI())
+                    && Objects.equal(localName, attr.getLocalName())) {
                 return i;
             }
         }
@@ -174,41 +176,48 @@ public class ElementImpl extends InnerNodeImpl implements Element {
     }
 
     public NodeList getElementsByTagName(String name) {
-        NodeListImpl list = new NodeListImpl();
-        getElementsByTagName(list, name);
-        return list;
+        NodeListImpl result = new NodeListImpl();
+        getElementsByTagName(result, name);
+        return result;
     }
 
-    void getElementsByTagName(NodeListImpl list, String name) {
-        if (matchesName(name, true)) {
-            list.add(this);
-        }
-
+    private void getElementsByTagName(NodeListImpl out, String name) {
         for (NodeImpl node : children) {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                ((ElementImpl) node).getElementsByTagName(list, name);
+                ElementImpl element = (ElementImpl) node;
+                if (matchesNameOrWildcard(name, element.getNodeName())) {
+                    out.add(element);
+                }
+                element.getElementsByTagName(out, name);
             }
         }
     }
 
     public NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
-        NodeListImpl list = new NodeListImpl();
-        getElementsByTagNameNS(list, namespaceURI, localName);
-        return list;
+        NodeListImpl result = new NodeListImpl();
+        getElementsByTagNameNS(result, namespaceURI, localName);
+        return result;
     }
 
-    void getElementsByTagNameNS(NodeListImpl list, String namespaceURI,
-            String localName) {
-        if (matchesNameNS(namespaceURI, localName, true)) {
-            list.add(this);
-        }
-
+    private void getElementsByTagNameNS(NodeListImpl out, String namespaceURI, String localName) {
         for (NodeImpl node : children) {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                ((ElementImpl) node).getElementsByTagNameNS(list, namespaceURI,
-                        localName);
+                ElementImpl element = (ElementImpl) node;
+                if (matchesNameOrWildcard(namespaceURI, element.getNamespaceURI())
+                        && matchesNameOrWildcard(localName, element.getLocalName())) {
+                    out.add(element);
+                }
+                element.getElementsByTagNameNS(out, namespaceURI, localName);
             }
         }
+    }
+
+    /**
+     * Returns true if {@code pattern} equals either "*" or {@code s}. Pattern
+     * may be {@code null}.
+     */
+    private static boolean matchesNameOrWildcard(String pattern, String s) {
+        return "*".equals(pattern) || Objects.equal(pattern, s);
     }
 
     @Override

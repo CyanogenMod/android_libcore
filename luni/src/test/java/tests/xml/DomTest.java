@@ -1417,6 +1417,44 @@ public class DomTest extends TestCase {
         assertEquals("http://www.w3.org/TR/html4/strict.dtd", doctype.getSystemId());
     }
 
+    public void testGetElementsByTagNameNs() {
+        NodeList elements = item.getElementsByTagNameNS("http://addons", "option");
+        assertEquals(option1, elements.item(0));
+        assertEquals(option2, elements.item(1));
+        assertEquals(2, elements.getLength());
+    }
+
+    public void testGetElementsByTagName() {
+        NodeList elements = item.getElementsByTagName("a:option");
+        assertEquals(option1, elements.item(0));
+        assertEquals(option2, elements.item(1));
+        assertEquals(2, elements.getLength());
+    }
+
+    public void testGetElementsByTagNameWithWildcard() {
+        NodeList elements = item.getElementsByTagName("*");
+        assertEquals(name, elements.item(0));
+        assertEquals(description, elements.item(1));
+        assertEquals(option1, elements.item(2));
+        assertEquals(option2, elements.item(3));
+        assertEquals(nutrition, elements.item(4));
+        assertEquals(vitamins, elements.item(5));
+        assertEquals(vitaminc, elements.item(6));
+        assertEquals(7, elements.getLength());
+    }
+
+    public void testGetElementsByTagNameNsWithWildcard() {
+        NodeList elements = item.getElementsByTagNameNS("*", "*");
+        assertEquals(name, elements.item(0));
+        assertEquals(description, elements.item(1));
+        assertEquals(option1, elements.item(2));
+        assertEquals(option2, elements.item(3));
+        assertEquals(nutrition, elements.item(4));
+        assertEquals(vitamins, elements.item(5));
+        assertEquals(vitaminc, elements.item(6));
+        assertEquals(7, elements.getLength());
+    }
+
     private class RecordingHandler implements UserDataHandler {
         final Set<String> calls = new HashSet<String>();
         public void handle(short operation, String key, Object data, Node src, Node dst) {
