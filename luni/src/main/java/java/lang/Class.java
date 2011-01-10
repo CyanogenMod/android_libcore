@@ -463,7 +463,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
      *             access.
-     * @see #getDeclaredConstructor(Class...)
+     * @see #getDeclaredConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException,
@@ -570,7 +570,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
      *             access.
-     * @see #getConstructor(Class...)
+     * @see #getConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
@@ -721,7 +721,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
      *             access.
-     * @see #getMethod(String, Class...)
+     * @see #getMethod(String, Class[])
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
@@ -952,7 +952,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
      *             access.
-     * @see #getDeclaredMethod(String, Class...)
+     * @see #getDeclaredMethod(String, Class[])
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
