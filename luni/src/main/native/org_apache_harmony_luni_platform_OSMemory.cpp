@@ -78,21 +78,6 @@ static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t coun
     }
 }
 
-static jint OSMemory_calloc(JNIEnv* env, jclass, jint size) {
-    // Our only caller wants zero-initialized memory.
-    // calloc(3) may be faster than malloc(3) followed by memset(3).
-    void* result = calloc(size, 1);
-    if (result == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
-        return 0;
-    }
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
-}
-
-static void OSMemory_free(JNIEnv*, jclass, jint address) {
-    free(cast<void*>(address));
-}
-
 static void OSMemory_memmove(JNIEnv*, jclass, jint dstAddress, jint srcAddress, jlong length) {
     memmove(cast<void*>(dstAddress), cast<const void*>(srcAddress), length);
 }
@@ -401,10 +386,8 @@ static void OSMemory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jin
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSMemory, free, "(I)V"),
     NATIVE_METHOD(OSMemory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(OSMemory, load, "(IJ)V"),
-    NATIVE_METHOD(OSMemory, calloc, "(I)I"),
     NATIVE_METHOD(OSMemory, memmove, "(IIJ)V"),
     NATIVE_METHOD(OSMemory, mmapImpl, "(IJJI)I"),
     NATIVE_METHOD(OSMemory, msync, "(IJ)V"),

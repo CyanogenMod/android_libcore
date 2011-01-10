@@ -17,11 +17,9 @@
 
 package org.apache.harmony.luni.platform;
 
+import dalvik.system.VMRuntime;
 import junit.framework.TestCase;
 
-/**
- * Tests org.apache.harmony.luni.platform.OSMemory.
- */
 public class OSMemoryTest extends TestCase {
     public void testSetIntArray() {
         int[] values = { 3, 7, 31, 127, 8191, 131071, 524287, 2147483647 };
@@ -31,39 +29,26 @@ public class OSMemoryTest extends TestCase {
         }
 
         int scale = 4;
-        int ptr;
+        VMRuntime runtime = VMRuntime.getRuntime();
+        byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, scale * values.length);
+        int ptr = (int) runtime.addressOf(array);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Regular copy.
-            OSMemory.pokeIntArray(ptr, values, 0, values.length, false);
-            assertIntsEqual(values, ptr, false);
-            assertIntsEqual(swappedValues, ptr, true);
-        } finally {
-            OSMemory.free(ptr);
-        }
+        // Regular copy.
+        OSMemory.pokeIntArray(ptr, values, 0, values.length, false);
+        assertIntsEqual(values, ptr, false);
+        assertIntsEqual(swappedValues, ptr, true);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Swapped copy.
-            OSMemory.pokeIntArray(ptr, values, 0, values.length, true);
-            assertIntsEqual(values, ptr, true);
-            assertIntsEqual(swappedValues, ptr, false);
-        } finally {
-            OSMemory.free(ptr);
-        }
+        // Swapped copy.
+        OSMemory.pokeIntArray(ptr, values, 0, values.length, true);
+        assertIntsEqual(values, ptr, true);
+        assertIntsEqual(swappedValues, ptr, false);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Swapped copies of slices (to ensure we test non-zero offsets).
-            for (int i = 0; i < values.length; ++i) {
-                OSMemory.pokeIntArray(ptr + i * scale, values, i, 1, true);
-            }
-            assertIntsEqual(values, ptr, true);
-            assertIntsEqual(swappedValues, ptr, false);
-        } finally {
-            OSMemory.free(ptr);
+        // Swapped copies of slices (to ensure we test non-zero offsets).
+        for (int i = 0; i < values.length; ++i) {
+            OSMemory.pokeIntArray(ptr + i * scale, values, i, 1, true);
         }
+        assertIntsEqual(values, ptr, true);
+        assertIntsEqual(swappedValues, ptr, false);
     }
 
     private void assertIntsEqual(int[] expectedValues, int ptr, boolean swap) {
@@ -77,39 +62,26 @@ public class OSMemoryTest extends TestCase {
         short[] swappedValues = { 0x0100, 0x2000, 0x0003, 0x0040 };
 
         int scale = 2;
-        int ptr;
+        VMRuntime runtime = VMRuntime.getRuntime();
+        byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, scale * values.length);
+        int ptr = (int) runtime.addressOf(array);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Regular copy. Memset first so we start from a known state.
-            OSMemory.pokeShortArray(ptr, values, 0, values.length, false);
-            assertShortsEqual(values, ptr, false);
-            assertShortsEqual(swappedValues, ptr, true);
-        } finally {
-            OSMemory.free(ptr);
-        }
+        // Regular copy. Memset first so we start from a known state.
+        OSMemory.pokeShortArray(ptr, values, 0, values.length, false);
+        assertShortsEqual(values, ptr, false);
+        assertShortsEqual(swappedValues, ptr, true);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Swapped copy.
-            OSMemory.pokeShortArray(ptr, values, 0, values.length, true);
-            assertShortsEqual(values, ptr, true);
-            assertShortsEqual(swappedValues, ptr, false);
-        } finally {
-            OSMemory.free(ptr);
-        }
+        // Swapped copy.
+        OSMemory.pokeShortArray(ptr, values, 0, values.length, true);
+        assertShortsEqual(values, ptr, true);
+        assertShortsEqual(swappedValues, ptr, false);
 
-        ptr = OSMemory.calloc(scale * values.length);
-        try {
-            // Swapped copies of slices (to ensure we test non-zero offsets).
-            for (int i = 0; i < values.length; ++i) {
-                OSMemory.pokeShortArray(ptr + i * scale, values, i, 1, true);
-            }
-            assertShortsEqual(values, ptr, true);
-            assertShortsEqual(swappedValues, ptr, false);
-        } finally {
-            OSMemory.free(ptr);
+        // Swapped copies of slices (to ensure we test non-zero offsets).
+        for (int i = 0; i < values.length; ++i) {
+            OSMemory.pokeShortArray(ptr + i * scale, values, i, 1, true);
         }
+        assertShortsEqual(values, ptr, true);
+        assertShortsEqual(swappedValues, ptr, false);
     }
 
     private void assertShortsEqual(short[] expectedValues, int ptr, boolean swap) {
