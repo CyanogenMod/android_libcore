@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
+import libcore.base.Objects;
 import org.apache.xml.serializer.utils.SystemIDResolver;
 import org.apache.xml.utils.URI;
 import org.w3c.dom.Attr;
@@ -264,52 +265,6 @@ public abstract class NodeImpl implements Node {
                 throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
                         "Cannot rename nodes of type " + node.getNodeType());
         }
-    }
-
-    /**
-     * Checks whether a required string matches an actual string. This utility
-     * method is used for comparing namespaces and such. It takes into account
-     * null arguments and the "*" special case.
-     *
-     * @param required The required string.
-     * @param actual The actual string.
-     * @return True if and only if the actual string matches the required one.
-     */
-    private static boolean matchesName(String required, String actual, boolean wildcard) {
-        if (wildcard && "*".equals(required)) {
-            return true;
-        }
-
-        if (required == null) {
-            return (actual == null);
-        }
-
-        return required.equals(actual);
-    }
-
-    /**
-     * Checks whether this node's name matches a required name. It takes into
-     * account null arguments and the "*" special case.
-     *
-     * @param name The required name.
-     * @return True if and only if the actual name matches the required one.
-     */
-    public boolean matchesName(String name, boolean wildcard) {
-        return matchesName(name, getNodeName(), wildcard);
-    }
-
-    /**
-     * Checks whether this node's namespace and local name match a required
-     * pair of namespace and local name. It takes into account null arguments
-     * and the "*" special case.
-     *
-     * @param namespaceURI The required namespace.
-     * @param localName The required local name.
-     * @return True if and only if the actual namespace and local name match
-     *         the required pair of namespace and local name.
-     */
-    public boolean matchesNameNS(String namespaceURI, String localName, boolean wildcard) {
-        return matchesName(namespaceURI, getNamespaceURI(), wildcard) && matchesName(localName, getLocalName(), wildcard);
     }
 
     public final String getBaseURI() {
