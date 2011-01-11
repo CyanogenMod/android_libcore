@@ -189,4 +189,17 @@ public final class VMRuntime {
      * {@hide}
      */
     public native void disableJitCompilation();
+
+    /**
+     * Returns an array allocated in an area of the Java heap where it will never be moved.
+     * This is used to implement native allocations on the Java heap, such as DirectByteBuffers
+     * and Bitmaps.
+     */
+    public native Object newNonMovableArray(Class<?> componentType, int length);
+
+    /**
+     * Returns the address of array[0]. This differs from using JNI in that JNI might lie and
+     * give you the address of a copy of the array when in forcecopy mode.
+     */
+    public native long addressOf(Object array);
 }

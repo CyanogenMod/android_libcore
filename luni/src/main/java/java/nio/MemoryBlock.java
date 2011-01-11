@@ -17,6 +17,7 @@
 
 package java.nio;
 
+import dalvik.system.VMRuntime;
 import java.io.IOException;
 import java.nio.channels.FileChannel.MapMode;
 import org.apache.harmony.luni.platform.OSMemory;
@@ -43,22 +44,23 @@ class MemoryBlock {
     }
 
     /**
-     * Handles calling free(3) on a native heap block.
+     * Non-movable heap blocks are byte arrays on the Java heap that the GC
+     * guarantees not to move. Used to implement DirectByteBuffer.
+     *
+     * Losing the strong reference to the array is sufficient
+     * to allow the GC to reclaim the storage. No finalizer needed.
      */
-    private static class NativeHeapBlock extends MemoryBlock {
-        private NativeHeapBlock(int address, long byteCount) {
+    private static class NonMovableHeapBlock extends MemoryBlock {
+        private byte[] array;
+
+        private NonMovableHeapBlock(byte[] array, int address, long byteCount) {
             super(address, byteCount);
+            this.array = array;
         }
 
         @Override public void free() {
-            if (address != 0) {
-                OSMemory.free(address);
-                address = 0;
-            }
-        }
-
-        @Override protected void finalize() throws Throwable {
-            free();
+            array = null;
+            address = 0;
         }
     }
 
@@ -86,7 +88,10 @@ class MemoryBlock {
     }
 
     public static MemoryBlock allocate(int byteCount) {
-        return new NativeHeapBlock(OSMemory.calloc(byteCount), byteCount);
+        VMRuntime runtime = VMRuntime.getRuntime();
+        byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, byteCount);
+        int address = (int) runtime.addressOf(array);
+        return new NonMovableHeapBlock(array, address, byteCount);
     }
 
     public static MemoryBlock wrapFromJni(int address, long byteCount) {
