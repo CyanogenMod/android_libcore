@@ -44,10 +44,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * Provides a straightforward DocumentBuilder implementation based on
- * XMLPull/KXML. The class is used internally only, thus only notable members
- * that are not already in the abstract superclass are documented. Hope that's
- * ok.
+ * Builds a DOM using KXmlParser.
  */
 class DocumentBuilderImpl extends DocumentBuilder {
 
@@ -245,9 +242,9 @@ class DocumentBuilderImpl extends DocumentBuilder {
                     // TODO Implement this...
                 }
 
-                String replacement = resolveStandardEntity(entity);
-                if (replacement != null) {
-                    appendText(document, node, token, replacement);
+                String resolved = resolvePredefinedOrCharacterEntity(entity);
+                if (resolved != null) {
+                    appendText(document, node, token, resolved);
                 } else {
                     node.appendChild(document.createEntityReference(entity));
                 }
@@ -338,11 +335,11 @@ class DocumentBuilderImpl extends DocumentBuilder {
      */
     private void appendText(DocumentImpl document, Node parent, int token, String text) {
         // Ignore empty runs.
-        if (text.length() == 0) {
+        if (text.isEmpty()) {
             return;
         }
         // Merge with any previous text node if possible.
-        if (coalescing) {
+        if (coalescing || token != XmlPullParser.CDSECT) {
             Node lastChild = parent.getLastChild();
             if (lastChild != null && lastChild.getNodeType() == Node.TEXT_NODE) {
                 Text textNode = (Text) lastChild;
@@ -368,8 +365,6 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder ignores comments.
-     *
-     * @param value Turns comment ignorance on or off.
      */
     public void setIgnoreComments(boolean value) {
         ignoreComments = value;
@@ -381,8 +376,6 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder ignores element content whitespace.
-     *
-     * @param value Turns element whitespace content ignorance on or off.
      */
     public void setIgnoreElementContentWhitespace(boolean value) {
         ignoreElementContentWhitespace = value;
@@ -390,38 +383,31 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder is namespace-aware.
-     *
-     * @param value Turns namespace awareness on or off.
      */
     public void setNamespaceAware(boolean value) {
         namespaceAware = value;
     }
 
     /**
-     * Resolves predefined XML character or entity references.
-     *
-     * @param entity The reference to resolve, not including
-     *               the ampersand or the semicolon.
-     *
-     * @return The proper replacement, or null, if the entity is unknown.
+     * Returns the replacement text or null if {@code entity} isn't predefined.
      */
-    private String resolveStandardEntity(String entity) {
+    private String resolvePredefinedOrCharacterEntity(String entityName) {
         // Character references, section 4.1 of the XML specification.
-        if (entity.startsWith("#x")) {
-            return resolveCharacterReference(entity.substring(2), 16);
-        } else if (entity.startsWith("#")) {
-            return resolveCharacterReference(entity.substring(1), 10);
+        if (entityName.startsWith("#x")) {
+            return resolveCharacterReference(entityName.substring(2), 16);
+        } else if (entityName.startsWith("#")) {
+            return resolveCharacterReference(entityName.substring(1), 10);
         }
         // Predefined entities, section 4.6 of the XML specification.
-        if ("lt".equals(entity)) {
+        if ("lt".equals(entityName)) {
             return "<";
-        } else if ("gt".equals(entity)) {
+        } else if ("gt".equals(entityName)) {
             return ">";
-        } else if ("amp".equals(entity)) {
+        } else if ("amp".equals(entityName)) {
             return "&";
-        } else if ("apos".equals(entity)) {
+        } else if ("apos".equals(entityName)) {
             return "'";
-        } else if ("quot".equals(entity)) {
+        } else if ("quot".equals(entityName)) {
             return "\"";
         } else {
             return null;
