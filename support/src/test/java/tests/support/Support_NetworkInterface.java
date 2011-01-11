@@ -22,7 +22,7 @@ import java.net.NetworkInterface;
 public class Support_NetworkInterface {
 
     /**
-     * On windows platforms with IPV6 enabled there are a number of pseudo
+     * On windows platforms with IPv6 enabled there are a number of pseudo
      * interfaces which don't work with our tests. This function is called to
      * make sure we only use the non-pseudo interfaces
      */

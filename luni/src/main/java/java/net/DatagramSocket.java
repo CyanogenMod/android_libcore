@@ -268,11 +268,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the socket receive buffer size. ( {@code SocketOptions.SO_RCVBUF} )
-     *
-     * @return the input buffer size.
-     * @throws SocketException
-     *                if an error occurs while getting the option value.
+     * Returns this socket's {@link SocketOptions#SO_RCVBUF receive buffer size}.
      */
     public synchronized int getReceiveBufferSize() throws SocketException {
         checkClosedAndBind(false);
@@ -280,11 +276,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the socket send buffer size. ( {@code SocketOptions.SO_SNDBUF} )
-     *
-     * @return the output buffer size.
-     * @throws SocketException
-     *                if an error occurs while getting the option value.
+     * Returns this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
      */
     public synchronized int getSendBufferSize() throws SocketException {
         checkClosedAndBind(false);
@@ -462,15 +454,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Sets the socket send buffer size. This buffer size determines which the
-     * maximum packet size is that can be sent over this socket. It depends on
-     * the network implementation what will happen if the packet is bigger than
-     * the buffer size. ( {@code SocketOptions.SO_SNDBUF} )
-     *
-     * @param size
-     *            the buffer size in bytes. The size must be at least one byte.
-     * @throws SocketException
-     *                if an error occurs while setting the option.
+     * Sets this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
         if (size < 1) {
@@ -481,15 +465,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Sets the socket receive buffer size. This buffer size determines which
-     * the maximum packet size is that can be received over this socket. It
-     * depends on the network implementation what will happen if the packet is
-     * bigger than the buffer size. ( {@code SocketOptions.SO_RCVBUF} )
-     *
-     * @param size
-     *            the buffer size in bytes. The size must be at least one byte.
-     * @throws SocketException
-     *                if an error occurs while setting the option.
+     * Sets this socket's {@link SocketOptions#SO_SNDBUF receive buffer size}.
      */
     public synchronized void setReceiveBufferSize(int size) throws SocketException {
         if (size < 1) {
