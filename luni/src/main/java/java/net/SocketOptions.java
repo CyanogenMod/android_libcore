@@ -27,30 +27,35 @@ package java.net;
  * @see DatagramSocketImpl
  */
 public interface SocketOptions {
-
     /**
-     * This option specifies the behavior of the {@code close()} method if there
-     * is still some buffered data to be sent while closing the socket. If the
-     * value of this option is set to {@code 0} the method closes the TCP socket
-     * forcefully and returns immediately. Is this value greater than {@code 0}
-     * the method blocks this time in seconds. If all data could be sent
-     * during this timeout the socket is closed normally otherwise forcefully.
-     * Valid values for this option are in the range 0 to 65535 inclusive. (Larger
+     * Number of seconds to wait when closing a socket if there
+     * is still some buffered data to be sent.
+     *
+     * <p>If this option is set to 0, the TCP socket is closed forcefully and the
+     * call to {@code close} returns immediately.
+     *
+     * <p>If this option is set to a value greater than 0, the value is interpreted
+     * as the number of seconds to wait. If all data could be sent
+     * during this time, the socket is closed normally. Otherwise the connection will be
+     * closed forcefully.
+     *
+     * <p>Valid values for this option are in the range 0 to 65535 inclusive. (Larger
      * timeouts will be treated as 65535s timeouts; roughly 18 hours.)
      */
     public static final int SO_LINGER = 128;
 
     /**
-     * Timeout for blocking accept or read/receive operations (but not write/send operations).
-     * The argument value is specified in milliseconds, with 0 meaning no timeout and negative
-     * values not allowed.
-     * An {@code InterruptedIOException} is thrown if this timeout expires.
+     * Timeout in milliseconds for blocking accept or read/receive operations (but not
+     * write/send operations). A timeout of 0 means no timeout. Negative
+     * timeouts are not allowed.
+     *
+     * <p>An {@code InterruptedIOException} is thrown if this timeout expires.
      */
     public static final int SO_TIMEOUT = 4102;
 
     /**
-     * This option specifies whether data is sent immediately on this socket, as
-     * a side-effect though, this could lead to a low packet efficiency. The
+     * Whether data is sent immediately on this socket.
+     * As a side-effect this could lead to low packet efficiency. The
      * socket implementation uses the Nagle's algorithm to try to reach a higher
      * packet efficiency if this option is disabled.
      */
@@ -61,8 +66,8 @@ public interface SocketOptions {
     // For 7 see PlainDatagramSocketImpl
 
     /**
-     * This option specifies the interface which is used to send multicast
-     * packets. It's only available on a {@code MulticastSocket}.
+     * The interface used to send multicast packets.
+     * This option is only available on a {@link MulticastSocket}.
      */
     public static final int IP_MULTICAST_IF = 16;
 
@@ -83,12 +88,19 @@ public interface SocketOptions {
     // 10 not currently used
 
     /**
-     * Buffer size of the outgoing channel.
+     * The size in bytes of a socket's send buffer. This must be an integer greater than 0.
+     * This is a hint to the kernel; the kernel may use a larger buffer.
+     *
+     * <p>For datagram sockets, it is implementation-defined whether packets larger than
+     * this size can be sent.
      */
     public static final int SO_SNDBUF = 4097;
 
     /**
-     * Buffer size of the incoming channel.
+     * The size in bytes of a socket's receive buffer. This must be an integer greater than 0.
+     * This is a hint to the kernel; the kernel may use a larger buffer.
+     *
+     * <p>For datagram sockets, packets larger than this value will be discarded.
      */
     public static final int SO_RCVBUF = 4098;
 
@@ -135,7 +147,7 @@ public interface SocketOptions {
     public static final int SO_BROADCAST = 32;
 
     /**
-     * This option specifies whether sending TCP urgent data is supported on
+     * This boolean option specifies whether sending TCP urgent data is supported on
      * this socket or not.
      */
     public static final int SO_OOBINLINE = 4099;

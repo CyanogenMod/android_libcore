@@ -427,7 +427,7 @@ public final class SocketPermission extends Permission implements Serializable {
             }
             return host.toLowerCase();
         }
-            // maybe ipv6
+        // maybe IPv6
         boolean isFirstBracket = (host.charAt(0) == '[');
         if (!isFirstBracket) {
             // No bracket, should be in full form

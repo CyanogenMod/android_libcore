@@ -36,23 +36,16 @@ public final class NetworkInterface extends Object {
 
     private static final int CHECK_CONNECT_NO_PORT = -1;
 
-    static final int NO_INTERFACE_INDEX = 0;
-    static final int UNSET_INTERFACE_INDEX = -1;
-
     private final String name;
     private final String displayName;
     private final List<InterfaceAddress> interfaceAddresses = new LinkedList<InterfaceAddress>();
 
+    private final int interfaceIndex;
     private final List<InetAddress> addresses = new LinkedList<InetAddress>();
 
-    // The interface index is a positive integer which is non-negative. Where
-    // value is zero then we do not have an index for the interface (which
-    // occurs in systems which only support IPV4)
-    private int interfaceIndex;
+    private final List<NetworkInterface> children = new LinkedList<NetworkInterface>();
 
     private NetworkInterface parent = null;
-
-    private final List<NetworkInterface> children = new LinkedList<NetworkInterface>();
 
     private static NetworkInterface[] getNetworkInterfacesImpl() throws SocketException {
         Map<String, NetworkInterface> networkInterfaces = new LinkedHashMap<String, NetworkInterface>();
@@ -86,7 +79,7 @@ public final class NetworkInterface extends Object {
      *            the Internet addresses associated with the interface.
      * @param interfaceIndex
      *            an index for the interface. Only set for platforms that
-     *            support IPV6.
+     *            support IPv6.
      */
     NetworkInterface(String name, String displayName, InetAddress[] addresses,
             int interfaceIndex) {
@@ -102,7 +95,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns the index for the network interface. Unless the system supports
-     * IPV6 this will be 0.
+     * IPv6 this will be 0.
      *
      * @return the index
      */
