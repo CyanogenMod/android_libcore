@@ -20,7 +20,13 @@ package java.lang;
 import libcore.math.MathUtils;
 
 final class RealToString {
-    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
+    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
+        @Override protected RealToString initialValue() {
+            return new RealToString();
+        }
+    };
+
+    private static final double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
     private int firstK;
 
@@ -33,12 +39,6 @@ final class RealToString {
      * Number of valid entries in 'digits'.
      */
     private int digitCount;
-
-    private static final ThreadLocal<RealToString> INSTANCE = new ThreadLocal<RealToString>() {
-        @Override protected RealToString initialValue() {
-            return new RealToString();
-        }
-    };
 
     private RealToString() {
     }
@@ -90,7 +90,8 @@ final class RealToString {
         }
 
         int p = Double.EXPONENT_BIAS + Double.MANTISSA_BITS; // the power offset (precision)
-        int pow = 0, numBits = Double.MANTISSA_BITS;
+        int pow;
+        int numBits = Double.MANTISSA_BITS;
         if (e == 0) {
             pow = 1 - p; // a denormalized number
             long ff = f;
@@ -151,7 +152,8 @@ final class RealToString {
         }
 
         int p = Float.EXPONENT_BIAS + Float.MANTISSA_BITS; // the power offset (precision)
-        int pow = 0, numBits = Float.MANTISSA_BITS;
+        int pow;
+        int numBits = Float.MANTISSA_BITS;
         if (e == 0) {
             pow = 1 - p; // a denormalized number
             if (f < 8) { // want more precision with smallest values
@@ -285,8 +287,15 @@ final class RealToString {
         boolean low, high;
         int U;
         while (true) {
-            U = (int) (R / S);
-            R = R - U*S; // Faster than "R = R % S" on nexus one, which only has hardware MUL.
+            // Set U to floor(R/S) and R to the remainder, using *unsigned* 64-bit division
+            U = 0;
+            for (int i = 3; i >= 0; i--) {
+                long remainder = R - (S << i);
+                if (remainder >= 0) {
+                    R = remainder;
+                    U += 1 << i;
+                }
+            }
 
             low = R < M; // was M_minus
             high = R + M > S; // was M_plus
