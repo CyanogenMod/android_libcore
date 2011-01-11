@@ -77,10 +77,9 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
     public DocumentImpl(DOMImplementationImpl impl, String namespaceURI,
             String qualifiedName, DocumentType doctype, String inputEncoding) {
         super(null);
-
+        this.document = this;
         this.domImplementation = impl;
         this.inputEncoding = inputEncoding;
-        this.document = this;
 
         if (doctype != null) {
             appendChild(doctype);
@@ -402,18 +401,20 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
         return Node.DOCUMENT_NODE;
     }
 
-    @Override
-    public Node insertChildAt(Node newChild, int index) {
-        // Make sure we have at most one root element and one DTD element.
-        if (newChild instanceof Element && getDocumentElement() != null) {
+    /**
+     * Document elements may have at most one root element and at most one DTD
+     * element.
+     */
+    @Override public Node insertChildAt(Node toInsert, int index) {
+        if (toInsert instanceof Element && getDocumentElement() != null) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
                     "Only one root element allowed");
-        } else if (newChild instanceof DocumentType && getDoctype() != null) {
+        }
+        if (toInsert instanceof DocumentType && getDoctype() != null) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
                     "Only one DOCTYPE element allowed");
         }
-
-        return super.insertChildAt(newChild, index);
+        return super.insertChildAt(toInsert, index);
     }
 
     @Override public String getTextContent() {
@@ -521,10 +522,6 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
         }
 
         NodeImpl srcImpl = (NodeImpl) source;
-        if (srcImpl.document == null) {
-            return;
-        }
-
         for (Map.Entry<String, UserData> entry
                 : srcImpl.document.getUserDataMapForRead(srcImpl).entrySet()) {
             UserData userData = entry.getValue();
