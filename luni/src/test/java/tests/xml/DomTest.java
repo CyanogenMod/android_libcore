@@ -17,37 +17,6 @@
 package tests.xml;
 
 import dalvik.annotation.KnownFailure;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import org.w3c.dom.Attr;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.Entity;
-import org.w3c.dom.EntityReference;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Notation;
-import org.w3c.dom.ProcessingInstruction;
-import org.w3c.dom.Text;
-import org.w3c.dom.TypeInfo;
-import org.w3c.dom.UserDataHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,11 +29,41 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
+import org.w3c.dom.Attr;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.Entity;
+import org.w3c.dom.EntityReference;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Notation;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
+import org.w3c.dom.TypeInfo;
+import org.w3c.dom.UserDataHandler;
 import static org.w3c.dom.UserDataHandler.NODE_ADOPTED;
 import static org.w3c.dom.UserDataHandler.NODE_CLONED;
 import static org.w3c.dom.UserDataHandler.NODE_IMPORTED;
 import static org.w3c.dom.UserDataHandler.NODE_RENAMED;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Construct a DOM and then interrogate it.
@@ -1453,6 +1452,51 @@ public class DomTest extends TestCase {
         assertEquals(vitamins, elements.item(5));
         assertEquals(vitaminc, elements.item(6));
         assertEquals(7, elements.getLength());
+    }
+
+    /**
+     * Documents shouldn't contain document fragments.
+     * http://code.google.com/p/android/issues/detail?id=2735
+     */
+    public void testAddingADocumentFragmentAddsItsChildren() {
+        Element a = document.createElement("a");
+        Element b = document.createElement("b");
+        Element c = document.createElement("c");
+        DocumentFragment fragment = document.createDocumentFragment();
+        fragment.appendChild(a);
+        fragment.appendChild(b);
+        fragment.appendChild(c);
+
+        Node returned = menu.appendChild(fragment);
+        assertSame(fragment, returned);
+        NodeList children = menu.getChildNodes();
+        assertEquals(6, children.getLength());
+        assertTrue(children.item(0) instanceof Text); // whitespace
+        assertEquals(item, children.item(1));
+        assertTrue(children.item(2) instanceof Text); // whitespace
+        assertEquals(a, children.item(3));
+        assertEquals(b, children.item(4));
+        assertEquals(c, children.item(5));
+    }
+
+    public void testReplacingWithADocumentFragmentInsertsItsChildren() {
+        Element a = document.createElement("a");
+        Element b = document.createElement("b");
+        Element c = document.createElement("c");
+        DocumentFragment fragment = document.createDocumentFragment();
+        fragment.appendChild(a);
+        fragment.appendChild(b);
+        fragment.appendChild(c);
+
+        Node returned = menu.replaceChild(fragment, item);
+        assertSame(item, returned);
+        NodeList children = menu.getChildNodes();
+        assertEquals(5, children.getLength());
+        assertTrue(children.item(0) instanceof Text); // whitespace
+        assertEquals(a, children.item(1));
+        assertEquals(b, children.item(2));
+        assertEquals(c, children.item(3));
+        assertTrue(children.item(4) instanceof Text); // whitespace
     }
 
     private class RecordingHandler implements UserDataHandler {

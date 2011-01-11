@@ -19,6 +19,7 @@ package org.apache.harmony.xml.dom;
 import java.util.ArrayList;
 import java.util.List;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -95,38 +96,34 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
     }
 
     /**
-     * Inserts a new child node into this node at a given position. If the new
-     * node is already child of another node, it is first removed from there.
-     * This method is the generalization of the appendChild() and insertBefore()
-     * methods.
-     *
-     * @param newChild The new child node to add.
-     * @param index The index at which to insert the new child node.
-     *
-     * @return The node added.
-     *
-     * @throws DOMException If the attempted operation violates the XML/DOM
-     *         well-formedness rules.
+     * Inserts {@code newChild} at {@code index}. If it is already child of
+     * another node, it is removed from there.
      */
-    public Node insertChildAt(Node newChild, int index) throws DOMException {
-        LeafNodeImpl newChildImpl = (LeafNodeImpl) newChild;
-
-        if (document != null && newChildImpl.document != null && newChildImpl.document != document) {
-            throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
+    Node insertChildAt(Node newChild, int index) throws DOMException {
+        if (newChild instanceof DocumentFragment) {
+            NodeList toAdd = newChild.getChildNodes();
+            for (int i = 0; i < toAdd.getLength(); i++) {
+                insertChildAt(toAdd.item(i), index + i);
+            }
+            return newChild;
         }
 
-        if (newChildImpl.isParentOf(this)) {
+        LeafNodeImpl toInsert = (LeafNodeImpl) newChild;
+        if (toInsert.document != document) {
+            throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
+        }
+        if (toInsert.isParentOf(this)) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
         }
 
-        if (newChildImpl.parent != null) {
-            int oldIndex = newChildImpl.index;
-            newChildImpl.parent.children.remove(oldIndex);
-            newChildImpl.parent.refreshIndices(oldIndex);
+        if (toInsert.parent != null) {
+            int oldIndex = toInsert.index;
+            toInsert.parent.children.remove(oldIndex);
+            toInsert.parent.refreshIndices(oldIndex);
         }
 
-        children.add(index, newChildImpl);
-        newChildImpl.parent = this;
+        children.add(index, toInsert);
+        toInsert.parent = this;
         refreshIndices(index);
 
         return newChild;
@@ -175,7 +172,6 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
         if (oldChildImpl.document != document) {
             throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
         }
-
         if (oldChildImpl.parent != this) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
         }
@@ -188,26 +184,15 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
         return oldChild;
     }
 
+    /**
+     * Removes {@code oldChild} and adds {@code newChild} in its place. This
+     * is not atomic.
+     */
     public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
-        LeafNodeImpl oldChildImpl = (LeafNodeImpl) oldChild;
-        LeafNodeImpl newChildImpl = (LeafNodeImpl) newChild;
-
-        if (oldChildImpl.document != document
-                || newChildImpl.document != document) {
-            throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
-        }
-
-        if (oldChildImpl.parent != this || newChildImpl.isParentOf(this)) {
-            throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
-        }
-
-        int index = oldChildImpl.index;
-        children.set(index, newChildImpl);
-        oldChildImpl.parent = null;
-        newChildImpl.parent = this;
-        refreshIndices(index);
-
-        return oldChildImpl;
+        int index = ((LeafNodeImpl) oldChild).index;
+        removeChild(oldChild);
+        insertChildAt(newChild, index);
+        return oldChild;
     }
 
     public String getTextContent() throws DOMException {

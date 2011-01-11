@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
-import libcore.base.Objects;
 import org.apache.xml.serializer.utils.SystemIDResolver;
 import org.apache.xml.utils.URI;
 import org.w3c.dom.Attr;
@@ -63,6 +62,7 @@ public abstract class NodeImpl implements Node {
         }
     };
 
+    /** The containing document. Non-null. */
     DocumentImpl document;
 
     NodeImpl(DocumentImpl document) {
