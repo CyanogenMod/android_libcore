@@ -139,9 +139,6 @@ public final class OSMemory {
         }
     }
 
-    public static native int calloc(int byteCount) throws OutOfMemoryError;
-    public static native void free(int address);
-
     public static native void memmove(int destAddress, int srcAddress, long byteCount);
 
     public static native byte peekByte(int address);
