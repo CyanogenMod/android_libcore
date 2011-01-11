@@ -459,14 +459,7 @@ public class ServerSocket {
     }
 
     /**
-     * Sets the server socket receive buffer size {@code
-     * SocketOptions.SO_RCVBUF}.
-     *
-     * @param size
-     *            the buffer size in bytes.
-     * @throws SocketException
-     *             if an error occurs while setting the size or the size is
-     *             invalid.
+     * Sets this socket's {@link SocketOptions#SO_SNDBUF receive buffer size}.
      */
     public void setReceiveBufferSize(int size) throws SocketException {
         checkClosedAndCreate(true);
@@ -477,12 +470,7 @@ public class ServerSocket {
     }
 
     /**
-     * Gets the value for the receive buffer size socket option {@code
-     * SocketOptions.SO_RCVBUF}.
-     *
-     * @return the receive buffer size of this socket.
-     * @throws SocketException
-     *             if an error occurs while reading the option value.
+     * Returns this socket's {@link SocketOptions#SO_RCVBUF receive buffer size}.
      */
     public int getReceiveBufferSize() throws SocketException {
         checkClosedAndCreate(true);

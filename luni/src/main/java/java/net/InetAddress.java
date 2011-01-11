@@ -866,7 +866,7 @@ public class InetAddress implements Serializable {
      * @param ipAddress
      *            either a 4 (IPv4) or 16 (IPv6) byte array.
      * @param scope_id
-     *            the scope id for an IPV6 scoped address. If not a scoped
+     *            the scope id for an IPv6 scoped address. If not a scoped
      *            address just pass in 0.
      * @return the InetAddress
      * @throws UnknownHostException

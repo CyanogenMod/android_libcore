@@ -330,10 +330,8 @@ public class Socket {
     }
 
     /**
-     * Gets the IP address of the target host this socket is connected to.
-     *
-     * @return the IP address of the connected target host or {@code null} if
-     *         this socket is not yet connected.
+     * Returns the IP address of the target host this socket is connected to, or null if this
+     * socket is not yet connected.
      */
     public InetAddress getInetAddress() {
         if (!isConnected()) {
@@ -343,7 +341,7 @@ public class Socket {
     }
 
     /**
-     * Gets an input stream to read data from this socket.
+     * Returns an input stream to read data from this socket.
      *
      * @return the byte-oriented input stream.
      * @throws IOException
@@ -359,13 +357,7 @@ public class Socket {
     }
 
     /**
-     * Gets the setting of the socket option {@code SocketOptions.SO_KEEPALIVE}.
-     *
-     * @return {@code true} if the {@code SocketOptions.SO_KEEPALIVE} is
-     *         enabled, {@code false} otherwise.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_KEEPALIVE
+     * Returns this socket's {@link SocketOptions#SO_KEEPALIVE} setting.
      */
     public boolean getKeepAlive() throws SocketException {
         checkOpenAndCreate(true);
@@ -391,7 +383,7 @@ public class Socket {
     }
 
     /**
-     * Gets an output stream to write data into this socket.
+     * Returns an output stream to write data into this socket.
      *
      * @return the byte-oriented output stream.
      * @throws IOException
@@ -407,10 +399,8 @@ public class Socket {
     }
 
     /**
-     * Gets the port number of the target host this socket is connected to.
-     *
-     * @return the port number of the connected target host or {@code 0} if this
-     *         socket is not yet connected.
+     * Returns the port number of the target host this socket is connected to, or 0 if this socket
+     * is not yet connected.
      */
     public int getPort() {
         if (!isConnected()) {
@@ -420,13 +410,8 @@ public class Socket {
     }
 
     /**
-     * Gets the value of the socket option {@link SocketOptions#SO_LINGER}.
-     *
-     * @return the current value of the option {@code SocketOptions.SO_LINGER}
-     *         or {@code -1} if this option is disabled.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_LINGER
+     * Returns this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds, or -1
+     * for no linger (i.e. {@code close} will return immediately).
      */
     public int getSoLinger() throws SocketException {
         checkOpenAndCreate(true);
@@ -440,12 +425,7 @@ public class Socket {
     }
 
     /**
-     * Gets the receive buffer size of this socket.
-     *
-     * @return the current value of the option {@code SocketOptions.SO_RCVBUF}.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_RCVBUF
+     * Returns this socket's {@link SocketOptions#SO_RCVBUF receive buffer size}.
      */
     public synchronized int getReceiveBufferSize() throws SocketException {
         checkOpenAndCreate(true);
@@ -453,12 +433,7 @@ public class Socket {
     }
 
     /**
-     * Gets the send buffer size of this socket.
-     *
-     * @return the current value of the option {@code SocketOptions.SO_SNDBUF}.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_SNDBUF
+     * Returns this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
      */
     public synchronized int getSendBufferSize() throws SocketException {
         checkOpenAndCreate(true);
@@ -466,10 +441,7 @@ public class Socket {
     }
 
     /**
-     * Gets the socket {@link SocketOptions#SO_TIMEOUT receive timeout}.
-     *
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
+     * Returns this socket's {@link SocketOptions#SO_TIMEOUT receive timeout}.
      */
     public synchronized int getSoTimeout() throws SocketException {
         checkOpenAndCreate(true);
@@ -477,13 +449,7 @@ public class Socket {
     }
 
     /**
-     * Gets the setting of the socket option {@code SocketOptions.TCP_NODELAY}.
-     *
-     * @return {@code true} if the {@code SocketOptions.TCP_NODELAY} is enabled,
-     *         {@code false} otherwise.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#TCP_NODELAY
+     * Returns this socket's {@code SocketOptions#TCP_NODELAY} setting.
      */
     public boolean getTcpNoDelay() throws SocketException {
         checkOpenAndCreate(true);
@@ -491,13 +457,7 @@ public class Socket {
     }
 
     /**
-     * Sets the state of the {@code SocketOptions.SO_KEEPALIVE} for this socket.
-     *
-     * @param keepAlive
-     *            the state whether this option is enabled or not.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#SO_KEEPALIVE
+     * Sets this socket's {@link SocketOptions#SO_KEEPALIVE} option.
      */
     public void setKeepAlive(boolean keepAlive) throws SocketException {
         if (impl != null) {
@@ -524,15 +484,7 @@ public class Socket {
     }
 
     /**
-     * Sets the send buffer size of this socket.
-     *
-     * @param size
-     *            the buffer size in bytes. This value must be a positive number
-     *            greater than {@code 0}.
-     * @throws SocketException
-     *             if an error occurs while setting the size or the given value
-     *             is an invalid size.
-     * @see SocketOptions#SO_SNDBUF
+     * Sets this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
         checkOpenAndCreate(true);
@@ -543,15 +495,7 @@ public class Socket {
     }
 
     /**
-     * Sets the receive buffer size of this socket.
-     *
-     * @param size
-     *            the buffer size in bytes. This value must be a positive number
-     *            greater than {@code 0}.
-     * @throws SocketException
-     *             if an error occurs while setting the size or the given value
-     *             is an invalid size.
-     * @see SocketOptions#SO_RCVBUF
+     * Sets this socket's {@link SocketOptions#SO_SNDBUF receive buffer size}.
      */
     public synchronized void setReceiveBufferSize(int size) throws SocketException {
         checkOpenAndCreate(true);
@@ -562,15 +506,8 @@ public class Socket {
     }
 
     /**
-     * Sets the {@link SocketOptions#SO_LINGER} timeout in seconds.
-     *
-     * @param on
-     *            the state whether this option is enabled or not.
-     * @param timeout
-     *            the linger timeout value in seconds.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#SO_LINGER
+     * Sets this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds.
+     * If {@code on} is false, {@code timeout} is irrelevant.
      */
     public void setSoLinger(boolean on, int timeout) throws SocketException {
         checkOpenAndCreate(true);
@@ -586,15 +523,9 @@ public class Socket {
     }
 
     /**
-     * Sets the {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds for this socket.
-     * This receive timeout defines the period the socket will block waiting to
-     * receive data before throwing an {@code InterruptedIOException}. The value
-     * {@code 0} (default) is used to set an infinite timeout. To have effect
-     * this option must be set before the blocking method was called.
-     *
-     * @param timeout the timeout in milliseconds or 0 for no timeout.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
+     * Sets this socket's {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds.
+     * Use 0 for no timeout.
+     * To take effect, this option must be set before the blocking method was called.
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkOpenAndCreate(true);
@@ -605,13 +536,7 @@ public class Socket {
     }
 
     /**
-     * Sets the state of the {@code SocketOptions.TCP_NODELAY} for this socket.
-     *
-     * @param on
-     *            the state whether this option is enabled or not.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#TCP_NODELAY
+     * Sets this socket's {@link SocketOptions#TCP_NODELAY} option.
      */
     public void setTcpNoDelay(boolean on) throws SocketException {
         checkOpenAndCreate(true);
@@ -759,11 +684,9 @@ public class Socket {
     }
 
     /**
-     * Gets the local address and port of this socket as a SocketAddress or
-     * {@code null} if the socket is unbound. This is useful on multihomed
+     * Returns the local address and port of this socket as a SocketAddress or
+     * null if the socket is unbound. This is useful on multihomed
      * hosts.
-     *
-     * @return the bound local socket address and port.
      */
     public SocketAddress getLocalSocketAddress() {
         if (!isBound()) {
@@ -773,8 +696,8 @@ public class Socket {
     }
 
     /**
-     * Gets the remote address and port of this socket as a {@code
-     * SocketAddress} or {@code null} if the socket is not connected.
+     * Returns the remote address and port of this socket as a {@code
+     * SocketAddress} or null if the socket is not connected.
      *
      * @return the remote socket address and port.
      */
@@ -962,13 +885,7 @@ public class Socket {
     }
 
     /**
-     * Sets the state of the {@code SocketOptions.SO_REUSEADDR} for this socket.
-     *
-     * @param reuse
-     *            the state whether this option is enabled or not.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#SO_REUSEADDR
+     * Sets this socket's {@link SocketOptions#SO_REUSEADDR} option.
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
         checkOpenAndCreate(true);
@@ -976,13 +893,7 @@ public class Socket {
     }
 
     /**
-     * Gets the setting of the socket option {@code SocketOptions.SO_REUSEADDR}.
-     *
-     * @return {@code true} if the {@code SocketOptions.SO_REUSEADDR} is
-     *         enabled, {@code false} otherwise.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_REUSEADDR
+     * Returns this socket's {@link SocketOptions#SO_REUSEADDR} setting.
      */
     public boolean getReuseAddress() throws SocketException {
         checkOpenAndCreate(true);
@@ -990,15 +901,7 @@ public class Socket {
     }
 
     /**
-     * Sets the state of the {@code SocketOptions.SO_OOBINLINE} for this socket.
-     * When this option is enabled urgent data can be received in-line with
-     * normal data.
-     *
-     * @param oobinline
-     *            whether this option is enabled or not.
-     * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#SO_OOBINLINE
+     * Sets this socket's {@link SocketOptions#SO_OOBINLINE} option.
      */
     public void setOOBInline(boolean oobinline) throws SocketException {
         checkOpenAndCreate(true);
@@ -1006,13 +909,7 @@ public class Socket {
     }
 
     /**
-     * Gets the setting of the socket option {@code SocketOptions.SO_OOBINLINE}.
-     *
-     * @return {@code true} if the {@code SocketOptions.SO_OOBINLINE} is
-     *         enabled, {@code false} otherwise.
-     * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_OOBINLINE
+     * Returns this socket's {@link SocketOptions#SO_OOBINLINE} setting.
      */
     public boolean getOOBInline() throws SocketException {
         checkOpenAndCreate(true);
@@ -1020,10 +917,7 @@ public class Socket {
     }
 
     /**
-     * Sets the {@see SocketOptions#IP_TOS} value for every packet sent by this socket.
-     *
-     * @throws SocketException
-     *             if the socket is closed or the option could not be set.
+     * Sets this socket's {@link SocketOptions#IP_TOS} value for every packet sent by this socket.
      */
     public void setTrafficClass(int value) throws SocketException {
         checkOpenAndCreate(true);
@@ -1035,9 +929,6 @@ public class Socket {
 
     /**
      * Returns this socket's {@see SocketOptions#IP_TOS} setting.
-     *
-     * @throws SocketException
-     *             if the socket is closed or the option is invalid.
      */
     public int getTrafficClass() throws SocketException {
         checkOpenAndCreate(true);
@@ -1086,8 +977,8 @@ public class Socket {
 
     /**
      * Sets performance preferences for connectionTime, latency and bandwidth.
-     * <p>
-     * This method does currently nothing.
+     *
+     * <p>This method does currently nothing.
      *
      * @param connectionTime
      *            the value representing the importance of a short connecting

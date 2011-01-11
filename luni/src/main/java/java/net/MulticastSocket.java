@@ -28,6 +28,9 @@ import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
  * @see DatagramSocket
  */
 public class MulticastSocket extends DatagramSocket {
+    private static final int NO_INTERFACE_INDEX = 0;
+    private static final int UNSET_INTERFACE_INDEX = -1;
+
     private InetAddress interfaceSet;
 
     /**
@@ -71,7 +74,7 @@ public class MulticastSocket extends DatagramSocket {
             InetAddress ipvXaddress = (InetAddress) impl
                     .getOption(SocketOptions.IP_MULTICAST_IF);
             if (ipvXaddress.isAnyLocalAddress()) {
-                // the address was not set at the IPV4 level so check the IPV6
+                // the address was not set at the IPv4 level so check the IPv6
                 // level
                 NetworkInterface theInterface = getNetworkInterface();
                 if (theInterface != null) {
@@ -105,13 +108,13 @@ public class MulticastSocket extends DatagramSocket {
     public NetworkInterface getNetworkInterface() throws SocketException {
         checkClosedAndBind(false);
 
-        // check if it is set at the IPV6 level. If so then use that. Otherwise
-        // do it at the IPV4 level
+        // check if it is set at the IPv6 level. If so then use that. Otherwise
+        // do it at the IPv4 level
         Integer theIndex = Integer.valueOf(0);
         try {
             theIndex = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
         } catch (SocketException e) {
-            // we may get an exception if IPV6 is not enabled.
+            // we may get an exception if IPv6 is not enabled.
         }
 
         if (theIndex.intValue() != 0) {
@@ -124,7 +127,7 @@ public class MulticastSocket extends DatagramSocket {
             }
         }
 
-        // ok it was not set at the IPV6 level so try at the IPV4 level
+        // ok it was not set at the IPv6 level so try at the IPv4 level
         InetAddress theAddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
         if (theAddress != null) {
             if (!theAddress.isAnyLocalAddress()) {
@@ -140,8 +143,7 @@ public class MulticastSocket extends DatagramSocket {
             } else {
                 theAddresses[0] = Inet4Address.ANY;
             }
-            return new NetworkInterface(null, null, theAddresses,
-                    NetworkInterface.UNSET_INTERFACE_INDEX);
+            return new NetworkInterface(null, null, theAddresses, UNSET_INTERFACE_INDEX);
         }
 
         // ok not set at all so return null
@@ -333,9 +335,9 @@ public class MulticastSocket extends DatagramSocket {
         }
 
         /*
-         * now we should also make sure this works for IPV6 get the network
+         * now we should also make sure this works for IPv6 get the network
          * interface for the address and set the interface using its index
-         * however if IPV6 is not enabled then we may get an exception. if IPV6
+         * however if IPv6 is not enabled then we may get an exception. if IPv6
          * is not enabled
          */
         NetworkInterface theInterface = NetworkInterface.getByInetAddress(addr);
@@ -382,26 +384,25 @@ public class MulticastSocket extends DatagramSocket {
             throw new SocketException("No address associated with interface: " + netInterface);
         }
 
-        if (netInterface.getIndex() == NetworkInterface.UNSET_INTERFACE_INDEX) {
+        if (netInterface.getIndex() == UNSET_INTERFACE_INDEX) {
             // set the address using IP_MULTICAST_IF to make sure this
-            // works for both IPV4 and IPV6
+            // works for both IPv4 and IPv6
             impl.setOption(SocketOptions.IP_MULTICAST_IF, Inet4Address.ANY);
 
             try {
                 // we have the index so now we pass set the interface
                 // using IP_MULTICAST_IF2. This is what is used to set
-                // the interface on systems which support IPV6
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(NetworkInterface.NO_INTERFACE_INDEX));
+                // the interface on systems which support IPv6
+                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer.valueOf(NO_INTERFACE_INDEX));
             } catch (SocketException e) {
                 // for now just do this, -- could be narrowed?
             }
         }
 
         /*
-         * Now try to set using IPV4 way. However, if interface passed in has no
+         * Now try to set using IPv4 way. However, if interface passed in has no
          * IP addresses associated with it then we cannot do it. first we have
-         * to make sure there is an IPV4 address that we can use to call set
+         * to make sure there is an IPv4 address that we can use to call set
          * interface otherwise we will not set it
          */
         Enumeration<InetAddress> theAddresses = netInterface.getInetAddresses();
@@ -414,8 +415,8 @@ public class MulticastSocket extends DatagramSocket {
                 found = true;
             }
         }
-        if (netInterface.getIndex() == NetworkInterface.NO_INTERFACE_INDEX) {
-            // the system does not support IPV6 and does not provide
+        if (netInterface.getIndex() == NO_INTERFACE_INDEX) {
+            // the system does not support IPv6 and does not provide
             // indexes for the network interfaces. Just pass in the
             // first address for the network interface
             if (firstAddress != null) {
@@ -423,14 +424,14 @@ public class MulticastSocket extends DatagramSocket {
             } else {
                 /*
                  * we should never get here as there should not be any network
-                 * interfaces which have no IPV4 address and which does not have
+                 * interfaces which have no IPv4 address and which does not have
                  * the network interface index not set correctly
                  */
                 throw new SocketException("No address associated with interface: " + netInterface);
             }
         } else {
             // set the address using IP_MULTICAST_IF to make sure this
-            // works for both IPV4 and IPV6
+            // works for both IPv4 and IPv6
             if (firstAddress != null) {
                 impl.setOption(SocketOptions.IP_MULTICAST_IF, firstAddress);
             }
@@ -438,7 +439,7 @@ public class MulticastSocket extends DatagramSocket {
             try {
                 // we have the index so now we pass set the interface
                 // using IP_MULTICAST_IF2. This is what is used to set
-                // the interface on systems which support IPV6
+                // the interface on systems which support IPv6
                 impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
                         .valueOf(netInterface.getIndex()));
             } catch (SocketException e) {
