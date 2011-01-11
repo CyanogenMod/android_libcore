@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMConfiguration;
@@ -129,67 +128,81 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
      */
     private NodeImpl shallowCopy(short operation, Node node) {
         switch (node.getNodeType()) {
-            case Node.ATTRIBUTE_NODE:
-                Attr attr = (Attr) node;
-                AttrImpl attrCopy = createAttributeNS(attr.getNamespaceURI(), attr.getLocalName());
+        case Node.ATTRIBUTE_NODE:
+            AttrImpl attr = (AttrImpl) node;
+            AttrImpl attrCopy;
+            if (attr.namespaceAware) {
+                attrCopy = createAttributeNS(attr.getNamespaceURI(), attr.getLocalName());
                 attrCopy.setPrefix(attr.getPrefix());
-                attrCopy.setNodeValue(attr.getNodeValue());
-                return attrCopy;
+            } else {
+                attrCopy = createAttribute(attr.getName());
+            }
+            attrCopy.setNodeValue(attr.getValue());
+            return attrCopy;
 
-            case Node.CDATA_SECTION_NODE:
-                return createCDATASection(((CharacterData) node).getData());
+        case Node.CDATA_SECTION_NODE:
+            return createCDATASection(((CharacterData) node).getData());
 
-            case Node.COMMENT_NODE:
-                return createComment(((Comment) node).getData());
+        case Node.COMMENT_NODE:
+            return createComment(((Comment) node).getData());
 
-            case Node.DOCUMENT_FRAGMENT_NODE:
-                return createDocumentFragment();
+        case Node.DOCUMENT_FRAGMENT_NODE:
+            return createDocumentFragment();
 
-            case Node.DOCUMENT_NODE:
-            case Node.DOCUMENT_TYPE_NODE:
-                throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-                        "Cannot copy node of type " + node.getNodeType());
+        case Node.DOCUMENT_NODE:
+        case Node.DOCUMENT_TYPE_NODE:
+            throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+                    "Cannot copy node of type " + node.getNodeType());
 
-            case Node.ELEMENT_NODE:
-                Element element = (Element) node;
-                ElementImpl elementCopy = createElementNS(
-                        element.getNamespaceURI(), element.getLocalName());
+        case Node.ELEMENT_NODE:
+            ElementImpl element = (ElementImpl) node;
+            ElementImpl elementCopy;
+            if (element.namespaceAware) {
+                elementCopy = createElementNS(element.getNamespaceURI(), element.getLocalName());
                 elementCopy.setPrefix(element.getPrefix());
-                NamedNodeMap attributes = element.getAttributes();
-                for (int i = 0; i < attributes.getLength(); i++) {
-                    Node elementAttr = attributes.item(i);
-                    AttrImpl elementAttrCopy = (AttrImpl) shallowCopy(operation, elementAttr);
-                    notifyUserDataHandlers(operation, elementAttr, elementAttrCopy);
+            } else {
+                elementCopy = createElement(element.getTagName());
+            }
+
+            NamedNodeMap attributes = element.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                AttrImpl elementAttr = (AttrImpl) attributes.item(i);
+                AttrImpl elementAttrCopy = (AttrImpl) shallowCopy(operation, elementAttr);
+                notifyUserDataHandlers(operation, elementAttr, elementAttrCopy);
+                if (elementAttr.namespaceAware) {
                     elementCopy.setAttributeNodeNS(elementAttrCopy);
+                } else {
+                    elementCopy.setAttributeNode(elementAttrCopy);
                 }
-                return elementCopy;
+            }
+            return elementCopy;
 
-            case Node.ENTITY_NODE:
-            case Node.NOTATION_NODE:
-                // TODO: implement this when we support these node types
-                throw new UnsupportedOperationException();
+        case Node.ENTITY_NODE:
+        case Node.NOTATION_NODE:
+            // TODO: implement this when we support these node types
+            throw new UnsupportedOperationException();
 
-            case Node.ENTITY_REFERENCE_NODE:
-                /*
-                 * When we support entities in the doctype, this will need to
-                 * behave differently for clones vs. imports. Clones copy
-                 * entities by value, copying the referenced subtree from the
-                 * original document. Imports copy entities by reference,
-                 * possibly referring to a different subtree in the new
-                 * document.
-                 */
-                return createEntityReference(node.getNodeName());
+        case Node.ENTITY_REFERENCE_NODE:
+            /*
+             * When we support entities in the doctype, this will need to
+             * behave differently for clones vs. imports. Clones copy
+             * entities by value, copying the referenced subtree from the
+             * original document. Imports copy entities by reference,
+             * possibly referring to a different subtree in the new
+             * document.
+             */
+            return createEntityReference(node.getNodeName());
 
-            case Node.PROCESSING_INSTRUCTION_NODE:
-                ProcessingInstruction pi = (ProcessingInstruction) node;
-                return createProcessingInstruction(pi.getTarget(), pi.getData());
+        case Node.PROCESSING_INSTRUCTION_NODE:
+            ProcessingInstruction pi = (ProcessingInstruction) node;
+            return createProcessingInstruction(pi.getTarget(), pi.getData());
 
-            case Node.TEXT_NODE:
-                return createTextNode(((Text) node).getData());
+        case Node.TEXT_NODE:
+            return createTextNode(((Text) node).getData());
 
-            default:
-                throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-                        "Unsupported node type " + node.getNodeType());
+        default:
+            throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+                    "Unsupported node type " + node.getNodeType());
         }
     }
 
