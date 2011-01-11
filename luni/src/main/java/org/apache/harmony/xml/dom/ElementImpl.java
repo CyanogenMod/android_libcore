@@ -53,24 +53,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
 
     ElementImpl(DocumentImpl document, String name) {
         super(document);
-
-        this.namespaceAware = false;
-
-        int p = name.lastIndexOf(":");
-        if (p != -1) {
-            String prefix = name.substring(0, p);
-            String localName = name.substring(p + 1);
-
-            if (!DocumentImpl.isXMLIdentifier(prefix) || !DocumentImpl.isXMLIdentifier(localName)) {
-                throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
-            }
-        } else {
-            if (!DocumentImpl.isXMLIdentifier(name)) {
-                throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
-            }
-        }
-
-        this.localName = name;
+        setName(this, name);
     }
 
     private int indexOfAttribute(String name) {
