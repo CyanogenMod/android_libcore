@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import libcore.base.Objects;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -62,6 +61,7 @@ public abstract class NodeImpl implements Node {
         }
     };
 
+    /** The containing document. Non-null. */
     DocumentImpl document;
 
     NodeImpl(DocumentImpl document) {
