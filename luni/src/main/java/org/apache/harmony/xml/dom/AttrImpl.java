@@ -43,35 +43,16 @@ public final class AttrImpl extends NodeImpl implements Attr {
     String prefix;
     String localName;
 
-    private String value;
+    private String value = "";
 
     AttrImpl(DocumentImpl document, String namespaceURI, String qualifiedName) {
         super(document);
-
         setNameNS(this, namespaceURI, qualifiedName);
-        value = "";
     }
 
     AttrImpl(DocumentImpl document, String name) {
         super(document);
-
-        this.namespaceAware = false;
-
-        int prefixSeparator = name.lastIndexOf(":");
-        if (prefixSeparator != -1) {
-            String prefix = name.substring(0, prefixSeparator);
-            String localName = name.substring(prefixSeparator + 1);
-
-            if (!DocumentImpl.isXMLIdentifier(prefix) || !DocumentImpl.isXMLIdentifier(localName)) {
-                throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
-            }
-        } else {
-            if (!DocumentImpl.isXMLIdentifier(name)) {
-                throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
-            }
-        }
-
-        this.localName = name;
+        setName(this, name);
     }
 
     @Override

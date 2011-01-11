@@ -805,6 +805,60 @@ public class DomTest extends TestCase {
         }
     }
 
+    public void testValueOfNewAttributesIsEmptyString() {
+        assertEquals("", document.createAttribute("bar").getValue());
+        assertEquals("", document.createAttributeNS("http://foo", "bar").getValue());
+    }
+
+    public void testCloneNode() throws Exception {
+        document = builder.parse(new InputSource(new StringReader("<menu "
+                + "xmlns:f=\"http://food\" xmlns:a=\"http://addons\">"
+                + "<f:item a:standard=\"strawberry\" deluxe=\"yes\">Waffles</f:item></menu>")));
+        name = (Element) document.getFirstChild().getFirstChild();
+
+        Element clonedName = (Element) name.cloneNode(true);
+        assertNull(clonedName.getParentNode());
+        assertNull(clonedName.getNextSibling());
+        assertNull(clonedName.getPreviousSibling());
+        assertEquals("http://food", clonedName.getNamespaceURI());
+        assertEquals("f:item", clonedName.getNodeName());
+        assertEquals("item", clonedName.getLocalName());
+        assertEquals("http://food", clonedName.getNamespaceURI());
+        assertEquals("yes", clonedName.getAttribute("deluxe"));
+        assertEquals("strawberry", clonedName.getAttribute("a:standard"));
+        assertEquals("strawberry", clonedName.getAttributeNS("http://addons", "standard"));
+        assertEquals(1, name.getChildNodes().getLength());
+
+        Text clonedChild = (Text) clonedName.getFirstChild();
+        assertSame(clonedName, clonedChild.getParentNode());
+        assertNull(clonedChild.getNextSibling());
+        assertNull(clonedChild.getPreviousSibling());
+        assertEquals("Waffles", clonedChild.getTextContent());
+    }
+
+    /**
+     * We can't use the namespace-aware factory method for non-namespace-aware
+     * nodes. http://code.google.com/p/android/issues/detail?id=2735
+     */
+    public void testCloneNodeNotNamespaceAware() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(false);
+        builder = factory.newDocumentBuilder();
+        document = builder.parse(new InputSource(new StringReader("<menu "
+                + "xmlns:f=\"http://food\" xmlns:a=\"http://addons\">"
+                + "<f:item a:standard=\"strawberry\" deluxe=\"yes\">Waffles</f:item></menu>")));
+        name = (Element) document.getFirstChild().getFirstChild();
+
+        Element clonedName = (Element) name.cloneNode(true);
+        assertNull(clonedName.getNamespaceURI());
+        assertEquals("f:item", clonedName.getNodeName());
+        assertNull(clonedName.getLocalName());
+        assertNull(clonedName.getNamespaceURI());
+        assertEquals("yes", clonedName.getAttribute("deluxe"));
+        assertEquals("strawberry", clonedName.getAttribute("a:standard"));
+        assertEquals("", clonedName.getAttributeNS("http://addons", "standard"));
+    }
+
     /**
      * A shallow clone requires cloning the attributes but not the child nodes.
      */
