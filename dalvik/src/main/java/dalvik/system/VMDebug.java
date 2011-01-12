@@ -135,8 +135,6 @@ public final class VMDebug {
      * Returns an array of strings that identify VM features.  This is
      * used by DDMS to determine what sorts of operations the VM can
      * perform.
-     *
-     * @hide
      */
     public static native String[] getVmFeatureList();
 
@@ -183,10 +181,6 @@ public final class VMDebug {
      * Like startMethodTracing(String, int, int), but taking an already-opened
      * FileDescriptor in which the trace is written.  The file name is also
      * supplied simply for logging.  Makes a dup of the file descriptor.
-     *
-     * Not exposed in the SDK unless we are really comfortable with supporting
-     * this and find it would be useful.
-     * @hide
      */
     public static void startMethodTracing(String traceFileName,
         FileDescriptor fd, int bufferSize, int flags)
@@ -202,8 +196,6 @@ public final class VMDebug {
      * Starts method tracing without a backing file.  When stopMethodTracing
      * is called, the result is sent directly to DDMS.  (If DDMS is not
      * attached when tracing ends, the profiling data will be discarded.)
-     *
-     * @hide
      */
     public static void startMethodTracingDdms(int bufferSize, int flags) {
         startMethodTracingNative(null, null, bufferSize, flags);
@@ -211,15 +203,12 @@ public final class VMDebug {
 
     /**
      * Implements all startMethodTracing variants.
-     *
-     * @hide
      */
     private static native void startMethodTracingNative(String traceFileName,
         FileDescriptor fd, int bufferSize, int flags);
 
     /**
      * Determine whether method tracing is currently active.
-     * @hide
      */
     public static native boolean isMethodTracingActive();
 
@@ -334,8 +323,6 @@ public final class VMDebug {
      *
      * @throws UnsupportedOperationException if the VM was built without
      *         HPROF support.
-     *
-     * @hide
      */
     public static native void dumpHprofDataDdms();
 
@@ -346,24 +333,18 @@ public final class VMDebug {
      *        file name is only used in log messages (and may be null).
      * @param fd Descriptor of open file that will receive the output.
      *        If this is null, the fileName is used instead.
-     *
-     * @hide
      */
     public static native void dumpHprofData(String fileName, FileDescriptor fd)
             throws IOException;
 
     /**
      * Primes the register map cache.
-     *
-     * @hide
      */
     public static native boolean cacheRegisterMap(String classAndMethodDesc);
 
     /**
      * Dumps the contents of the VM reference tables (e.g. JNI locals and
      * globals) to the log file.
-     *
-     * @hide
      */
     public static native void dumpReferenceTables();
 
@@ -372,16 +353,12 @@ public final class VMDebug {
      * the current thread and then aborts the VM so you can see the native
      * stack trace.  Useful for figuring out how you got somewhere when
      * lots of native code is involved.
-     *
-     * @hide
      */
     public static native void crash();
 
     /**
      * Together with gdb, provide a handy way to stop the VM at user-tagged
      * locations.
-     *
-     * @hide
      */
     public static native void infopoint(int id);
 
@@ -407,7 +384,6 @@ public final class VMDebug {
      *                   assignable to klass, as defined by
      *                   {@link Class#isAssignableFrom} are counted.
      * @returns the number of matching instances.
-     * @hide
      */
     public static native long countInstancesOfClass(Class klass, boolean assignable);
 }

@@ -206,7 +206,7 @@ public final class DexFile {
      *
      * This takes a "binary" class name to better match ClassLoader semantics.
      *
-     * {@hide}
+     * @hide
      */
     public Class loadClassBinaryName(String name, ClassLoader loader) {
         return defineClass(name, loader, mCookie,
