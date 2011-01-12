@@ -448,7 +448,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
             @Override public CacheRequest put(URI uri, URLConnection conn) throws IOException {
                 HttpURLConnection httpConnection = (HttpURLConnection) conn;
                 assertEquals("HTTP/1.1 200 Fantastic", httpConnection.getHeaderField(null));
-                assertEquals(Arrays.asList("HTP/1.1 200 Fantastic"),
+                assertEquals(Arrays.asList("HTTP/1.1 200 Fantastic"),
                         httpConnection.getHeaderFields().get(null));
                 assertEquals(200, httpConnection.getResponseCode());
                 assertEquals("Fantastic", httpConnection.getResponseMessage());
