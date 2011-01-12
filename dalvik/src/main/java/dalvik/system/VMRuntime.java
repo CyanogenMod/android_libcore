@@ -86,41 +86,22 @@ public final class VMRuntime {
     }
 
     /**
-     * Returns the minimum heap size, or zero if no minimum is in effect.
-     *
-     * @return the minimum heap size value
+     * This method exists for binary compatibility.  It was part of a
+     * heap sizing API which was removed in Honeycomb.
      */
+    @Deprecated
     public long getMinimumHeapSize() {
-        return nativeMinimumHeapSize(0, false);
+        return 0;
     }
 
     /**
-     * Sets the desired minimum heap size, and returns the
-     * old minimum size.  If size is larger than the maximum
-     * size, the maximum size will be used.  If size is zero
-     * or negative, the minimum size constraint will be removed.
-     *
-     * <p>Synchronized to make the order of the exchange reliable.
-     *
-     * <p>This is only a hint to the garbage collector and may be ignored.
-     *
-     * @param size the new suggested minimum heap size, in bytes
-     * @return the old minimum heap size value
+     * This method exists for binary compatibility.  It was part of a
+     * heap sizing API which was removed in Honeycomb.
      */
-    public synchronized long setMinimumHeapSize(long size) {
-        return nativeMinimumHeapSize(size, true);
+    @Deprecated
+    public long setMinimumHeapSize(long size) {
+        return 0;
     }
-
-    /**
-     * If set is true, sets the new minimum heap size to size; always
-     * returns the current (or previous) size.
-     *
-     * @param size the new suggested minimum heap size, in bytes
-     * @param set if true, set the size based on the size parameter,
-     *            otherwise ignore it
-     * @return the old or current minimum heap size value
-     */
-    private native long nativeMinimumHeapSize(long size, boolean set);
 
     /**
      * Requests that the virtual machine collect available memory,
