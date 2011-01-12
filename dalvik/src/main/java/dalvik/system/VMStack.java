@@ -42,7 +42,6 @@ public final class VMStack {
     /**
      * Returns the class of the caller's caller's caller.
      *
-     * @hide
      * @return the requested class, or {@code null}.
      */
     native public static Class<?> getStackClass2();
@@ -81,4 +80,3 @@ public final class VMStack {
      */
     native public static StackTraceElement[] getThreadStackTrace(Thread t);
 }
-
