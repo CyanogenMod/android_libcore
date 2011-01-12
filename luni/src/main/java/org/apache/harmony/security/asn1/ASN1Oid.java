@@ -150,7 +150,7 @@ public class ASN1Oid extends ASN1Primitive {
     //
     //
 
-    private final static ASN1Oid STRING_OID = new ASN1Oid() {
+    private static final ASN1Oid STRING_OID = new ASN1Oid() {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
 

@@ -117,17 +117,17 @@ public class Thread implements Runnable {
     /**
      * The maximum priority value allowed for a thread.
      */
-    public final static int MAX_PRIORITY = 10;
+    public static final int MAX_PRIORITY = 10;
 
     /**
      * The minimum priority value allowed for a thread.
      */
-    public final static int MIN_PRIORITY = 1;
+    public static final int MIN_PRIORITY = 1;
 
     /**
      * The normal (default) priority value assigned to threads.
      */
-    public final static int NORM_PRIORITY = 5;
+    public static final int NORM_PRIORITY = 5;
 
     /* some of these are accessed directly by the VM; do not rename them */
     volatile VMThread vmThread;
