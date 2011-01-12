@@ -383,7 +383,7 @@ public final class VMDebug {
      *                   counted.  If true, instances that are
      *                   assignable to klass, as defined by
      *                   {@link Class#isAssignableFrom} are counted.
-     * @returns the number of matching instances.
+     * @return the number of matching instances.
      */
     public static native long countInstancesOfClass(Class klass, boolean assignable);
 }
