@@ -431,7 +431,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the constructor described by {@code parameterTypes}.
      * @throws NoSuchMethodException
      *             if the constructor can not be found.
-     * @see #getDeclaredConstructor(Class...)
+     * @see #getDeclaredConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
@@ -525,7 +525,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the constructor described by {@code parameterTypes}.
      * @throws NoSuchMethodException
      *             if the requested constructor can not be found.
-     * @see #getConstructor(Class...)
+     * @see #getConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
@@ -656,7 +656,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if the requested constructor can not be found.
      * @throws NullPointerException
      *             if {@code name} is {@code null}.
-     * @see #getMethod(String, Class...)
+     * @see #getMethod(String, Class[])
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException {
@@ -885,7 +885,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the public field specified by {@code name}.
      * @throws NoSuchMethodException
      *             if the method can not be found.
-     * @see #getDeclaredMethod(String, Class...)
+     * @see #getDeclaredMethod(String, Class[])
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
         Method[] methods = getClassCache().getMethods();
