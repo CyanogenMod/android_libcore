@@ -18,6 +18,7 @@ package org.apache.harmony.xml.dom;
 
 import java.util.ArrayList;
 import java.util.List;
+import libcore.base.Objects;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -109,7 +110,7 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
         }
 
         LeafNodeImpl toInsert = (LeafNodeImpl) newChild;
-        if (toInsert.document != document) {
+        if (toInsert.document != null && document != null && toInsert.document != document) {
             throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
         }
         if (toInsert.isParentOf(this)) {
@@ -225,5 +226,38 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
         // TODO: skip text nodes with ignorable whitespace?
         return child.getNodeType() != Node.COMMENT_NODE
                 && child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
+    }
+
+    void getElementsByTagName(NodeListImpl out, String name) {
+        for (NodeImpl node : children) {
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                ElementImpl element = (ElementImpl) node;
+                if (matchesNameOrWildcard(name, element.getNodeName())) {
+                    out.add(element);
+                }
+                element.getElementsByTagName(out, name);
+            }
+        }
+    }
+
+    void getElementsByTagNameNS(NodeListImpl out, String namespaceURI, String localName) {
+        for (NodeImpl node : children) {
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                ElementImpl element = (ElementImpl) node;
+                if (matchesNameOrWildcard(namespaceURI, element.getNamespaceURI())
+                        && matchesNameOrWildcard(localName, element.getLocalName())) {
+                    out.add(element);
+                }
+                element.getElementsByTagNameNS(out, namespaceURI, localName);
+            }
+        }
+    }
+
+    /**
+     * Returns true if {@code pattern} equals either "*" or {@code s}. Pattern
+     * may be {@code null}.
+     */
+    private static boolean matchesNameOrWildcard(String pattern, String s) {
+        return "*".equals(pattern) || Objects.equal(pattern, s);
     }
 }

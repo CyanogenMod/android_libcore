@@ -233,7 +233,7 @@ public final class GetElementsByTagNameNS extends DOMTestCase {
         doc = (Document) load("staffNS", builder);
         docElem = doc.getDocumentElement();
         newList = docElem.getElementsByTagNameNS("*", "*");
-        assertEquals("listSize", 36, newList.getLength());
+        assertEquals("listSize", 35, newList.getLength());
     }
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

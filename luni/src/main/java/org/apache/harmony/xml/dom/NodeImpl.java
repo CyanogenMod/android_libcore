@@ -62,7 +62,10 @@ public abstract class NodeImpl implements Node {
         }
     };
 
-    /** The containing document. Non-null. */
+    /**
+     * The containing document. This is non-null except for DocumentTypeImpl
+     * nodes created by the DOMImplementation.
+     */
     DocumentImpl document;
 
     NodeImpl(DocumentImpl document) {
