@@ -245,10 +245,10 @@ public class AccessibleObject implements AnnotatedElement {
         StringBuilder result = new StringBuilder();
 
         if (types.length != 0) {
-            result.append(types[0].getCanonicalName());
+            result.append(types[0].getName());
             for (int i = 1; i < types.length; i++) {
                 result.append(',');
-                result.append(types[i].getCanonicalName());
+                result.append(types[i].getName());
             }
         }
 
@@ -334,26 +334,6 @@ public class AccessibleObject implements AnnotatedElement {
         default:
             for (; dimensions > 0; dimensions--) {
                 sb.append(DIMENSION_1);
-            }
-        }
-    }
-
-    /**
-     * Appends names of the specified array classes to the buffer. The array
-     * elements may represent a simple type, a reference type or an array type.
-     * Output format: java.lang.Object[], java.io.File, void
-     *
-     * @param sb buffer
-     * @param objs array of classes to print the names
-     *
-     * @throws NullPointerException if any of the arguments is null
-     */
-    void appendArrayType(StringBuilder sb, Class[] objs) {
-        if (objs.length > 0) {
-            appendArrayType(sb, objs[0]);
-            for (int i = 1; i < objs.length; i++) {
-                sb.append(',');
-                appendArrayType(sb, objs[i]);
             }
         }
     }
