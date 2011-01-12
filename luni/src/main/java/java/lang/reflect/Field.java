@@ -32,7 +32,6 @@
 
 package java.lang.reflect;
 
-import dalvik.system.VMStack;
 import java.lang.annotation.Annotation;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
@@ -838,7 +837,7 @@ public final class Field extends AccessibleObject implements Member {
         if (result.length() != 0) {
             result.append(' ');
         }
-        result.append(type.getName());
+        appendArrayType(result, type);
         result.append(' ');
         result.append(declaringClass.getName());
         result.append('.');
