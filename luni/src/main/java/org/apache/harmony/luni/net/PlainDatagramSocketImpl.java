@@ -44,7 +44,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private static final int SO_BROADCAST = 32;
 
-    final static int IP_MULTICAST_TTL = 17;
+    private static final int IP_MULTICAST_TTL = 17;
 
     private volatile boolean isNativeConnected;
 

@@ -107,7 +107,7 @@ public final class Permissions extends PermissionCollection implements
      * collection of PermissionCollections.
      *
      */
-    final static class MetaEnumeration implements Enumeration {
+    static final class MetaEnumeration implements Enumeration {
 
         private Iterator pcIter;
 

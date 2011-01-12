@@ -81,7 +81,7 @@ public final class VM {
      * @param loader ClassLoader the ClassLoader instance
      * @param bootLoader boolean true for the bootstrap class loader
      */
-    public final static void initializeClassLoader(ClassLoader loader, boolean bootLoader) {
+    public static final void initializeClassLoader(ClassLoader loader, boolean bootLoader) {
         return;
     };
 

@@ -51,7 +51,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
      * Looks like we're the only implementation guarding against this.
      * Firefox, Curl, Sun Java 1.4, 5, 6 don't bother with this check.
      */
-    private final static String[] BAD_COUNTRY_2LDS =
+    private static final String[] BAD_COUNTRY_2LDS =
           { "ac", "co", "com", "ed", "edu", "go", "gouv", "gov", "info",
             "lg", "ne", "net", "or", "org" };
 
@@ -189,7 +189,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
                     .log(Level.FINE, "Error parsing certificate.", cpe);
             return Collections.emptyList();
         }
-        
+
         if (subjectAlternativeNames == null) {
             return Collections.emptyList();
         }

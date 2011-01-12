@@ -105,7 +105,7 @@ public class Logger {
      * documentation.
      */
     @Deprecated
-    public final static Logger global = new Logger(GLOBAL_LOGGER_NAME, null);
+    public static final Logger global = new Logger(GLOBAL_LOGGER_NAME, null);
 
     /**
      * When converting the concurrent collection of handlers to an array, we
