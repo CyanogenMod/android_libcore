@@ -146,8 +146,6 @@ public final class VMRuntime {
     /**
      * This method exists for binary compatibility.  It was part of
      * the external allocation API which was removed in Honeycomb.
-     *
-     * @hide
      */
     @Deprecated
     public boolean trackExternalAllocation(long size) {
@@ -157,8 +155,6 @@ public final class VMRuntime {
     /**
      * This method exists for binary compatibility.  It was part of
      * the external allocation API which was removed in Honeycomb.
-     *
-     * @hide
      */
     @Deprecated
     public void trackExternalFree(long size) {}
@@ -166,8 +162,6 @@ public final class VMRuntime {
     /**
      * This method exists for binary compatibility.  It was part of
      * the external allocation API which was removed in Honeycomb.
-     *
-     * @hide
      */
     @Deprecated
     public long getExternalBytesAllocated() {
@@ -177,16 +171,12 @@ public final class VMRuntime {
     /**
      * Tells the VM to enable the JIT compiler. If the VM does not have a JIT
      * implementation, calling this method should have no effect.
-     *
-     * {@hide}
      */
     public native void startJitCompilation();
 
     /**
      * Tells the VM to disable the JIT compiler. If the VM does not have a JIT
      * implementation, calling this method should have no effect.
-     *
-     * {@hide}
      */
     public native void disableJitCompilation();
 
