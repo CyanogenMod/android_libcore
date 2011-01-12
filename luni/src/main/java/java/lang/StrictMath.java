@@ -38,13 +38,13 @@ public final class StrictMath {
     /**
      * The double value closest to e, the base of the natural logarithm.
      */
-    public final static double E = Math.E;
+    public static final double E = Math.E;
 
     /**
      * The double value closest to pi, the ratio of a circle's circumference to
      * its diameter.
      */
-    public final static double PI = Math.PI;
+    public static final double PI = Math.PI;
 
     /**
      * Prevents this class from being instantiated.

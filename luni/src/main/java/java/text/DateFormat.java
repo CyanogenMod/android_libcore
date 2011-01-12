@@ -143,51 +143,51 @@ public abstract class DateFormat extends Format {
      * The format style constant defining the default format style. The default
      * is MEDIUM.
      */
-    public final static int DEFAULT = 2;
+    public static final int DEFAULT = 2;
 
     /**
      * The format style constant defining the full style.
      */
-    public final static int FULL = 0;
+    public static final int FULL = 0;
 
     /**
      * The format style constant defining the long style.
      */
-    public final static int LONG = 1;
+    public static final int LONG = 1;
 
     /**
      * The format style constant defining the medium style.
      */
-    public final static int MEDIUM = 2;
+    public static final int MEDIUM = 2;
 
     /**
      * The format style constant defining the short style.
      */
-    public final static int SHORT = 3;
+    public static final int SHORT = 3;
 
     /**
      * The {@code FieldPosition} selector for 'G' field alignment, corresponds
      * to the {@link Calendar#ERA} field.
      */
-    public final static int ERA_FIELD = 0;
+    public static final int ERA_FIELD = 0;
 
     /**
      * The {@code FieldPosition} selector for 'y' field alignment, corresponds
      * to the {@link Calendar#YEAR} field.
      */
-    public final static int YEAR_FIELD = 1;
+    public static final int YEAR_FIELD = 1;
 
     /**
      * The {@code FieldPosition} selector for 'M' field alignment, corresponds
      * to the {@link Calendar#MONTH} field.
      */
-    public final static int MONTH_FIELD = 2;
+    public static final int MONTH_FIELD = 2;
 
     /**
      * The {@code FieldPosition} selector for 'd' field alignment, corresponds
      * to the {@link Calendar#DATE} field.
      */
-    public final static int DATE_FIELD = 3;
+    public static final int DATE_FIELD = 3;
 
     /**
      * The {@code FieldPosition} selector for 'k' field alignment, corresponds
@@ -195,7 +195,7 @@ public abstract class DateFormat extends Format {
      * used for the one-based 24-hour clock. For example, 23:59 + 01:00 results
      * in 24:59.
      */
-    public final static int HOUR_OF_DAY1_FIELD = 4;
+    public static final int HOUR_OF_DAY1_FIELD = 4;
 
     /**
      * The {@code FieldPosition} selector for 'H' field alignment, corresponds
@@ -203,80 +203,80 @@ public abstract class DateFormat extends Format {
      * used for the zero-based 24-hour clock. For example, 23:59 + 01:00 results
      * in 00:59.
      */
-    public final static int HOUR_OF_DAY0_FIELD = 5;
+    public static final int HOUR_OF_DAY0_FIELD = 5;
 
     /**
      * FieldPosition selector for 'm' field alignment, corresponds to the
      * {@link Calendar#MINUTE} field.
      */
-    public final static int MINUTE_FIELD = 6;
+    public static final int MINUTE_FIELD = 6;
 
     /**
      * FieldPosition selector for 's' field alignment, corresponds to the
      * {@link Calendar#SECOND} field.
      */
-    public final static int SECOND_FIELD = 7;
+    public static final int SECOND_FIELD = 7;
 
     /**
      * FieldPosition selector for 'S' field alignment, corresponds to the
      * {@link Calendar#MILLISECOND} field.
      */
-    public final static int MILLISECOND_FIELD = 8;
+    public static final int MILLISECOND_FIELD = 8;
 
     /**
      * FieldPosition selector for 'E' field alignment, corresponds to the
      * {@link Calendar#DAY_OF_WEEK} field.
      */
-    public final static int DAY_OF_WEEK_FIELD = 9;
+    public static final int DAY_OF_WEEK_FIELD = 9;
 
     /**
      * FieldPosition selector for 'D' field alignment, corresponds to the
      * {@link Calendar#DAY_OF_YEAR} field.
      */
-    public final static int DAY_OF_YEAR_FIELD = 10;
+    public static final int DAY_OF_YEAR_FIELD = 10;
 
     /**
      * FieldPosition selector for 'F' field alignment, corresponds to the
      * {@link Calendar#DAY_OF_WEEK_IN_MONTH} field.
      */
-    public final static int DAY_OF_WEEK_IN_MONTH_FIELD = 11;
+    public static final int DAY_OF_WEEK_IN_MONTH_FIELD = 11;
 
     /**
      * FieldPosition selector for 'w' field alignment, corresponds to the
      * {@link Calendar#WEEK_OF_YEAR} field.
      */
-    public final static int WEEK_OF_YEAR_FIELD = 12;
+    public static final int WEEK_OF_YEAR_FIELD = 12;
 
     /**
      * FieldPosition selector for 'W' field alignment, corresponds to the
      * {@link Calendar#WEEK_OF_MONTH} field.
      */
-    public final static int WEEK_OF_MONTH_FIELD = 13;
+    public static final int WEEK_OF_MONTH_FIELD = 13;
 
     /**
      * FieldPosition selector for 'a' field alignment, corresponds to the
      * {@link Calendar#AM_PM} field.
      */
-    public final static int AM_PM_FIELD = 14;
+    public static final int AM_PM_FIELD = 14;
 
     /**
      * FieldPosition selector for 'h' field alignment, corresponding to the
      * {@link Calendar#HOUR} field.
      */
-    public final static int HOUR1_FIELD = 15;
+    public static final int HOUR1_FIELD = 15;
 
     /**
      * The {@code FieldPosition} selector for 'K' field alignment, corresponding to the
      * {@link Calendar#HOUR} field.
      */
-    public final static int HOUR0_FIELD = 16;
+    public static final int HOUR0_FIELD = 16;
 
     /**
      * The {@code FieldPosition} selector for 'z' field alignment, corresponds
      * to the {@link Calendar#ZONE_OFFSET} and {@link Calendar#DST_OFFSET}
      * fields.
      */
-    public final static int TIMEZONE_FIELD = 17;
+    public static final int TIMEZONE_FIELD = 17;
 
     /**
      * Constructs a new instance of {@code DateFormat}.
@@ -422,7 +422,7 @@ public abstract class DateFormat extends Format {
      *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
-    public final static DateFormat getDateInstance() {
+    public static final DateFormat getDateInstance() {
         return getDateInstance(DEFAULT);
     }
 
@@ -438,7 +438,7 @@ public abstract class DateFormat extends Format {
      *             if {@code style} is not one of SHORT, MEDIUM, LONG, FULL, or
      *             DEFAULT.
      */
-    public final static DateFormat getDateInstance(int style) {
+    public static final DateFormat getDateInstance(int style) {
         checkDateStyle(style);
         return getDateInstance(style, Locale.getDefault());
     }
@@ -457,7 +457,7 @@ public abstract class DateFormat extends Format {
      * @return the {@code DateFormat} instance for {@code style} and
      *         {@code locale}.
      */
-    public final static DateFormat getDateInstance(int style, Locale locale) {
+    public static final DateFormat getDateInstance(int style, Locale locale) {
         checkDateStyle(style);
         return new SimpleDateFormat(LocaleData.get(locale).getDateFormat(style), locale);
     }
@@ -468,7 +468,7 @@ public abstract class DateFormat extends Format {
      *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
-    public final static DateFormat getDateTimeInstance() {
+    public static final DateFormat getDateTimeInstance() {
         return getDateTimeInstance(DEFAULT, DEFAULT);
     }
 
@@ -486,7 +486,7 @@ public abstract class DateFormat extends Format {
      *             if {@code dateStyle} or {@code timeStyle} is not one of
      *             SHORT, MEDIUM, LONG, FULL, or DEFAULT.
      */
-    public final static DateFormat getDateTimeInstance(int dateStyle, int timeStyle) {
+    public static final DateFormat getDateTimeInstance(int dateStyle, int timeStyle) {
         checkTimeStyle(timeStyle);
         checkDateStyle(dateStyle);
         return getDateTimeInstance(dateStyle, timeStyle, Locale.getDefault());
@@ -508,7 +508,7 @@ public abstract class DateFormat extends Format {
      *             if {@code dateStyle} or {@code timeStyle} is not one of
      *             SHORT, MEDIUM, LONG, FULL, or DEFAULT.
      */
-    public final static DateFormat getDateTimeInstance(int dateStyle, int timeStyle, Locale locale) {
+    public static final DateFormat getDateTimeInstance(int dateStyle, int timeStyle, Locale locale) {
         checkTimeStyle(timeStyle);
         checkDateStyle(dateStyle);
         LocaleData localeData = LocaleData.get(locale);
@@ -523,7 +523,7 @@ public abstract class DateFormat extends Format {
      * @return the {@code DateFormat} instance for the SHORT style and default
      *         locale.
      */
-    public final static DateFormat getInstance() {
+    public static final DateFormat getInstance() {
         return getDateTimeInstance(SHORT, SHORT);
     }
 
@@ -542,7 +542,7 @@ public abstract class DateFormat extends Format {
      *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
-    public final static DateFormat getTimeInstance() {
+    public static final DateFormat getTimeInstance() {
         return getTimeInstance(DEFAULT);
     }
 
@@ -558,7 +558,7 @@ public abstract class DateFormat extends Format {
      *             if {@code style} is not one of SHORT, MEDIUM, LONG, FULL, or
      *             DEFAULT.
      */
-    public final static DateFormat getTimeInstance(int style) {
+    public static final DateFormat getTimeInstance(int style) {
         checkTimeStyle(style);
         return getTimeInstance(style, Locale.getDefault());
     }
@@ -577,7 +577,7 @@ public abstract class DateFormat extends Format {
      * @return the {@code DateFormat} instance for {@code style} and
      *         {@code locale}.
      */
-    public final static DateFormat getTimeInstance(int style, Locale locale) {
+    public static final DateFormat getTimeInstance(int style, Locale locale) {
         checkTimeStyle(style);
         return new SimpleDateFormat(LocaleData.get(locale).getTimeFormat(style), locale);
     }
@@ -743,95 +743,95 @@ public abstract class DateFormat extends Format {
         /**
          * Marks the era part of a date.
          */
-        public final static Field ERA = new Field("era", Calendar.ERA);
+        public static final Field ERA = new Field("era", Calendar.ERA);
 
         /**
          * Marks the year part of a date.
          */
-        public final static Field YEAR = new Field("year", Calendar.YEAR);
+        public static final Field YEAR = new Field("year", Calendar.YEAR);
 
         /**
          * Marks the month part of a date.
          */
-        public final static Field MONTH = new Field("month", Calendar.MONTH);
+        public static final Field MONTH = new Field("month", Calendar.MONTH);
 
         /**
          * Marks the hour of the day part of a date (0-11).
          */
-        public final static Field HOUR_OF_DAY0 = new Field("hour of day", Calendar.HOUR_OF_DAY);
+        public static final Field HOUR_OF_DAY0 = new Field("hour of day", Calendar.HOUR_OF_DAY);
 
         /**
          * Marks the hour of the day part of a date (1-12).
          */
-        public final static Field HOUR_OF_DAY1 = new Field("hour of day 1", -1);
+        public static final Field HOUR_OF_DAY1 = new Field("hour of day 1", -1);
 
         /**
          * Marks the minute part of a time.
          */
-        public final static Field MINUTE = new Field("minute", Calendar.MINUTE);
+        public static final Field MINUTE = new Field("minute", Calendar.MINUTE);
 
         /**
          * Marks the second part of a time.
          */
-        public final static Field SECOND = new Field("second", Calendar.SECOND);
+        public static final Field SECOND = new Field("second", Calendar.SECOND);
 
         /**
          * Marks the millisecond part of a time.
          */
-        public final static Field MILLISECOND = new Field("millisecond", Calendar.MILLISECOND);
+        public static final Field MILLISECOND = new Field("millisecond", Calendar.MILLISECOND);
 
         /**
          * Marks the day of the week part of a date.
          */
-        public final static Field DAY_OF_WEEK = new Field("day of week", Calendar.DAY_OF_WEEK);
+        public static final Field DAY_OF_WEEK = new Field("day of week", Calendar.DAY_OF_WEEK);
 
         /**
          * Marks the day of the month part of a date.
          */
-        public final static Field DAY_OF_MONTH = new Field("day of month", Calendar.DAY_OF_MONTH);
+        public static final Field DAY_OF_MONTH = new Field("day of month", Calendar.DAY_OF_MONTH);
 
         /**
          * Marks the day of the year part of a date.
          */
-        public final static Field DAY_OF_YEAR = new Field("day of year", Calendar.DAY_OF_YEAR);
+        public static final Field DAY_OF_YEAR = new Field("day of year", Calendar.DAY_OF_YEAR);
 
         /**
          * Marks the day of the week in the month part of a date.
          */
-        public final static Field DAY_OF_WEEK_IN_MONTH = new Field("day of week in month",
+        public static final Field DAY_OF_WEEK_IN_MONTH = new Field("day of week in month",
                 Calendar.DAY_OF_WEEK_IN_MONTH);
 
         /**
          * Marks the week of the year part of a date.
          */
-        public final static Field WEEK_OF_YEAR = new Field("week of year",
+        public static final Field WEEK_OF_YEAR = new Field("week of year",
                 Calendar.WEEK_OF_YEAR);
 
         /**
          * Marks the week of the month part of a date.
          */
-        public final static Field WEEK_OF_MONTH = new Field("week of month",
+        public static final Field WEEK_OF_MONTH = new Field("week of month",
                 Calendar.WEEK_OF_MONTH);
 
         /**
          * Marks the time indicator part of a date.
          */
-        public final static Field AM_PM = new Field("am pm", Calendar.AM_PM);
+        public static final Field AM_PM = new Field("am pm", Calendar.AM_PM);
 
         /**
          * Marks the hour part of a date (0-11).
          */
-        public final static Field HOUR0 = new Field("hour", Calendar.HOUR);
+        public static final Field HOUR0 = new Field("hour", Calendar.HOUR);
 
         /**
          * Marks the hour part of a date (1-12).
          */
-        public final static Field HOUR1 = new Field("hour 1", -1);
+        public static final Field HOUR1 = new Field("hour 1", -1);
 
         /**
          * Marks the time zone part of a date.
          */
-        public final static Field TIME_ZONE = new Field("time zone", -1);
+        public static final Field TIME_ZONE = new Field("time zone", -1);
 
         /**
          * The calendar field that this field represents.

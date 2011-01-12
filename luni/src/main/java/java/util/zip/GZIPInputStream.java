@@ -56,7 +56,7 @@ public class GZIPInputStream extends InflaterInputStream {
     /**
      * The magic header for the GZIP format.
      */
-    public final static int GZIP_MAGIC = 0x8b1f;
+    public static final int GZIP_MAGIC = 0x8b1f;
 
     /**
      * The checksum algorithm used when handling uncompressed data.

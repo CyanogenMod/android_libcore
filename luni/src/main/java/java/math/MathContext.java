@@ -82,7 +82,7 @@ public final class MathContext implements Serializable {
      * @see #MathContext(String)
      * @see #toString()
      */
-    private final static char[] chPrecision = { 'p', 'r', 'e', 'c', 'i', 's',
+    private static final char[] chPrecision = { 'p', 'r', 'e', 'c', 'i', 's',
             'i', 'o', 'n', '=' };
 
     /**
@@ -93,7 +93,7 @@ public final class MathContext implements Serializable {
      * @see #MathContext(String)
      * @see #toString()
      */
-    private final static char[] chRoundingMode = { 'r', 'o', 'u', 'n', 'd',
+    private static final char[] chRoundingMode = { 'r', 'o', 'u', 'n', 'd',
             'i', 'n', 'g', 'M', 'o', 'd', 'e', '=' };
 
     /**

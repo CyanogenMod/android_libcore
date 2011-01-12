@@ -116,7 +116,7 @@ public final class DerOutputStream extends BerOutputStream {
      * DATA
      */
 
-    private final static int initSize = 32;
+    private static final int initSize = 32;
 
     private int index;
 

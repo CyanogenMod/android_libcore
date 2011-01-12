@@ -67,7 +67,7 @@ final class AllPermissionCollection extends PermissionCollection {
      * An auxiliary implementation for enumerating a single object.
      *
      */
-    final static class SingletonEnumeration<E> implements Enumeration<E> {
+    static final class SingletonEnumeration<E> implements Enumeration<E> {
 
         private E element;
 

@@ -340,7 +340,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling currency values.
      */
-    public final static NumberFormat getCurrencyInstance() {
+    public static final NumberFormat getCurrencyInstance() {
         return getCurrencyInstance(Locale.getDefault());
     }
 
@@ -363,7 +363,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling integers.
      */
-    public final static NumberFormat getIntegerInstance() {
+    public static final NumberFormat getIntegerInstance() {
         return getIntegerInstance(Locale.getDefault());
     }
 
@@ -387,7 +387,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
-    public final static NumberFormat getInstance() {
+    public static final NumberFormat getInstance() {
         return getNumberInstance();
     }
 
@@ -458,7 +458,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
-    public final static NumberFormat getNumberInstance() {
+    public static final NumberFormat getNumberInstance() {
         return getNumberInstance(Locale.getDefault());
     }
 
@@ -484,7 +484,7 @@ public abstract class NumberFormat extends Format {
      * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
      * treated as 5,300%, which is rarely what you intended.
      */
-    public final static NumberFormat getPercentInstance() {
+    public static final NumberFormat getPercentInstance() {
         return getPercentInstance(Locale.getDefault());
     }
 

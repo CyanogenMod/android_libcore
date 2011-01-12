@@ -110,7 +110,7 @@ public class ASN1UTCTime extends ASN1Time {
     // According to X.680 coordinated universal time format:
     // two digit year, seconds always presented,
     // no fractional-seconds elements, 'Z' at the end
-    private final static String UTC_PATTERN = "yyMMddHHmmss'Z'";
+    private static final String UTC_PATTERN = "yyMMddHHmmss'Z'";
 
     public void setEncodingContent(BerOutputStream out) {
         SimpleDateFormat sdf = new SimpleDateFormat(UTC_PATTERN);
