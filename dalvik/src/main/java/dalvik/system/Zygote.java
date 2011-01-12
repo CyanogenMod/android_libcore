@@ -40,8 +40,6 @@ public class Zygote {
     /**
      * When set by the system server, all subsequent apps will be launched in
      * VM safe mode.
-     *
-     * @hide
      */
     public static boolean systemInSafeMode = false;
 
