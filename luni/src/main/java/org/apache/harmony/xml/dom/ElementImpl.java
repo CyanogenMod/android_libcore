@@ -164,43 +164,10 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         return result;
     }
 
-    private void getElementsByTagName(NodeListImpl out, String name) {
-        for (NodeImpl node : children) {
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                ElementImpl element = (ElementImpl) node;
-                if (matchesNameOrWildcard(name, element.getNodeName())) {
-                    out.add(element);
-                }
-                element.getElementsByTagName(out, name);
-            }
-        }
-    }
-
     public NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
         NodeListImpl result = new NodeListImpl();
         getElementsByTagNameNS(result, namespaceURI, localName);
         return result;
-    }
-
-    private void getElementsByTagNameNS(NodeListImpl out, String namespaceURI, String localName) {
-        for (NodeImpl node : children) {
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                ElementImpl element = (ElementImpl) node;
-                if (matchesNameOrWildcard(namespaceURI, element.getNamespaceURI())
-                        && matchesNameOrWildcard(localName, element.getLocalName())) {
-                    out.add(element);
-                }
-                element.getElementsByTagNameNS(out, namespaceURI, localName);
-            }
-        }
-    }
-
-    /**
-     * Returns true if {@code pattern} equals either "*" or {@code s}. Pattern
-     * may be {@code null}.
-     */
-    private static boolean matchesNameOrWildcard(String pattern, String s) {
-        return "*".equals(pattern) || Objects.equal(pattern, s);
     }
 
     @Override

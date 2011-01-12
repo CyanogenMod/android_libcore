@@ -386,18 +386,16 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
         return (root == null ? null : root.getElementById(elementId));
     }
 
-    public NodeList getElementsByTagName(String tagname) {
-        ElementImpl root = (ElementImpl) getDocumentElement();
-
-        return (root == null ? new NodeListImpl()
-                : root.getElementsByTagName(tagname));
+    public NodeList getElementsByTagName(String name) {
+        NodeListImpl result = new NodeListImpl();
+        getElementsByTagName(result, name);
+        return result;
     }
 
     public NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
-        ElementImpl root = (ElementImpl) getDocumentElement();
-
-        return (root == null ? new NodeListImpl() : root.getElementsByTagNameNS(
-                namespaceURI, localName));
+        NodeListImpl result = new NodeListImpl();
+        getElementsByTagNameNS(result, namespaceURI, localName);
+        return result;
     }
 
     public DOMImplementation getImplementation() {
@@ -535,6 +533,10 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
         }
 
         NodeImpl srcImpl = (NodeImpl) source;
+        if (srcImpl.document == null) {
+            return;
+        }
+
         for (Map.Entry<String, UserData> entry
                 : srcImpl.document.getUserDataMapForRead(srcImpl).entrySet()) {
             UserData userData = entry.getValue();
