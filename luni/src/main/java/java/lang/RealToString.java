@@ -26,7 +26,7 @@ final class RealToString {
         }
     };
 
-    private final static double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
+    private static final double invLogOfTenBaseTwo = Math.log(2.0) / Math.log(10.0);
 
     private int firstK;
 
@@ -287,8 +287,15 @@ final class RealToString {
         boolean low, high;
         int U;
         while (true) {
-            U = (int) (R / S);
-            R = R - U*S; // Faster than "R = R % S" on nexus one, which only has hardware MUL.
+            // Set U to floor(R/S) and R to the remainder, using *unsigned* 64-bit division
+            U = 0;
+            for (int i = 3; i >= 0; i--) {
+                long remainder = R - (S << i);
+                if (remainder >= 0) {
+                    R = remainder;
+                    U += 1 << i;
+                }
+            }
 
             low = R < M; // was M_minus
             high = R + M > S; // was M_plus
