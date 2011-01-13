@@ -3,6 +3,12 @@
  */
 [
 {
+  description: "URLConnection fails on URLs containing {}",
+  name: "libcore.java.net.URLConnectionTest#testMalformedUrl",
+  bug: 1158780,
+  substring: "java.net.URISyntaxException"
+},
+{
   description: "Test regression",
   name: "libcore.javax.crypto.spec.KeyFactoryTestDSA#testKeyFactory",
   substring: "not implemented yet",
