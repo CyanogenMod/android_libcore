@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -774,7 +775,7 @@ public abstract class URLConnection {
         }
 
         // Check text types
-        String textHeader = header.trim().toUpperCase();
+        String textHeader = header.trim().toUpperCase(Locale.US);
         if (textHeader.startsWith("<!DOCTYPE HTML") ||
                 textHeader.startsWith("<HTML") ||
                 textHeader.startsWith("<HEAD") ||

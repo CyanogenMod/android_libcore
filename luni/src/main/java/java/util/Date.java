@@ -470,7 +470,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
                     throw new IllegalArgumentException();
                 }
             } else if (state == LETTERS && nextState != LETTERS) {
-                String text = buffer.toString().toUpperCase();
+                String text = buffer.toString().toUpperCase(Locale.US);
                 buffer.setLength(0);
                 if (text.length() == 1) {
                     throw new IllegalArgumentException();

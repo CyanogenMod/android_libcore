@@ -984,17 +984,16 @@ public class URLClassLoader extends SecureClassLoader {
     }
 
     private boolean isSealed(Manifest manifest, String dirName) {
-        Attributes mainAttributes = manifest.getMainAttributes();
-        String value = mainAttributes.getValue(Attributes.Name.SEALED);
-        boolean sealed = value != null && value.toLowerCase().equals("true");
         Attributes attributes = manifest.getAttributes(dirName);
         if (attributes != null) {
-            value = attributes.getValue(Attributes.Name.SEALED);
+            String value = attributes.getValue(Attributes.Name.SEALED);
             if (value != null) {
-                sealed = value.toLowerCase().equals("true");
+                return value.equalsIgnoreCase("true");
             }
         }
-        return sealed;
+        Attributes mainAttributes = manifest.getMainAttributes();
+        String value = mainAttributes.getValue(Attributes.Name.SEALED);
+        return (value != null && value.equalsIgnoreCase("true"));
     }
 
     /**

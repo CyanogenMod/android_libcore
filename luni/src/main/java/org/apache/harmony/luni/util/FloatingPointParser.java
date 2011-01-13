@@ -282,8 +282,9 @@ public final class FloatingPointParser {
             return parseDblName(s, length);
         }
 
-        // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) {
+        // See if it could be a hexadecimal representation.
+        // We don't use startsWith because there might be a leading sign.
+        if (s.indexOf("0x") != -1 || s.indexOf("0X") != -1) {
             return HexStringParser.parseDouble(s);
         }
 
@@ -324,7 +325,8 @@ public final class FloatingPointParser {
         }
 
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) {
+        // We don't use startsWith because there might be a leading sign.
+        if (s.indexOf("0x") != -1 || s.indexOf("0X") != -1) {
             return HexStringParser.parseFloat(s);
         }
 
