@@ -26,8 +26,6 @@ import java.io.IOException;
  * recommended way to access this functionality is through the class
  * <code>android.os.Debug</code>.
  *
- * @cts Please complete the spec.
- *
  * @hide
  */
 public final class VMDebug {
