@@ -21,8 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * This class provides an implementation of {@code FilterOutputStream} that
@@ -78,7 +78,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
 
     private String comment;
 
-    private final Vector<String> entries = new Vector<String>();
+    private final ArrayList<String> entries = new ArrayList<String>();
 
     private int compressMethod = DEFLATED;
 
@@ -223,7 +223,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         if (cDir == null) {
             return;
         }
-        if (entries.size() == 0) {
+        if (entries.isEmpty()) {
             throw new ZipException("No entries");
         }
         if (currentEntry != null) {

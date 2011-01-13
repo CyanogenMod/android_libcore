@@ -175,7 +175,7 @@ public class Timer {
         private boolean finished;
 
         /**
-         * Vector consists of scheduled events, sorted according to
+         * Contains scheduled events, sorted according to
          * {@code when} field of TaskScheduled object.
          */
         private TimerHeap tasks = new TimerHeap();

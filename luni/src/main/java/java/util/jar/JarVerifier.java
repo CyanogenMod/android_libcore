@@ -25,6 +25,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -171,31 +172,23 @@ class JarVerifier {
             return null;
         }
 
-        Vector<Certificate> certs = new Vector<Certificate>();
-        Iterator<Map.Entry<String, HashMap<String, Attributes>>> it = signatures
-                .entrySet().iterator();
+        ArrayList<Certificate> certs = new ArrayList<Certificate>();
+        Iterator<Map.Entry<String, HashMap<String, Attributes>>> it = signatures.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, HashMap<String, Attributes>> entry = it.next();
             HashMap<String, Attributes> hm = entry.getValue();
             if (hm.get(name) != null) {
                 // Found an entry for entry name in .SF file
                 String signatureFile = entry.getKey();
-
-                Vector<Certificate> newCerts = getSignerCertificates(
-                        signatureFile, certificates);
-                Iterator<Certificate> iter = newCerts.iterator();
-                while (iter.hasNext()) {
-                    certs.add(iter.next());
-                }
+                certs.addAll(getSignerCertificates(signatureFile, certificates));
             }
         }
 
         // entry is not signed
-        if (certs.size() == 0) {
+        if (certs.isEmpty()) {
             return null;
         }
-        Certificate[] certificatesArray = new Certificate[certs.size()];
-        certs.toArray(certificatesArray);
+        Certificate[] certificatesArray = certs.toArray(new Certificate[certs.size()]);
 
         String algorithms = attributes.getValue("Digest-Algorithms");
         if (algorithms == null) {

@@ -7,8 +7,8 @@
 package org.xml.sax.helpers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
 import org.xml.sax.AttributeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -475,14 +475,12 @@ public class ParserAdapter implements XMLReader, DocumentHandler
      * @exception SAXException The client may raise a
      *            processing exception.
      */
-    public void startElement (String qName, AttributeList qAtts)
-    throws SAXException
-    {
-                // These are exceptions from the
-                // first pass; they should be
-                // ignored if there's a second pass,
-                // but reported otherwise.
-    Vector exceptions = null;
+    public void startElement (String qName, AttributeList qAtts) throws SAXException {
+        // These are exceptions from the
+        // first pass; they should be
+        // ignored if there's a second pass,
+        // but reported otherwise.
+        ArrayList<SAXParseException> exceptions = null;
 
                 // If we're not doing Namespace
                 // processing, dispatch this quickly.
@@ -575,18 +573,19 @@ public class ParserAdapter implements XMLReader, DocumentHandler
         atts.addAttribute(attName[0], attName[1], attName[2],
                   type, value);
         } catch (SAXException e) {
-        if (exceptions == null)
-            exceptions = new Vector();
-        exceptions.addElement(e);
-        atts.addAttribute("", attQName, attQName, type, value);
+            if (exceptions == null) {
+                exceptions = new ArrayList<SAXParseException>();
+            }
+            exceptions.add((SAXParseException) e);
+            atts.addAttribute("", attQName, attQName, type, value);
         }
     }
 
     // now handle the deferred exception reports
     if (exceptions != null && errorHandler != null) {
-        for (int i = 0; i < exceptions.size(); i++)
-        errorHandler.error((SAXParseException)
-                (exceptions.elementAt(i)));
+        for (SAXParseException ex : exceptions) {
+            errorHandler.error(ex);
+        }
     }
 
                 // OK, finally report the event.

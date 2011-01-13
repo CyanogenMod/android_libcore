@@ -5,7 +5,7 @@
 
 package org.xml.sax.helpers;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import org.xml.sax.AttributeList;
 
 
@@ -136,11 +136,10 @@ public class AttributeListImpl implements AttributeList
      * @see #removeAttribute
      * @see org.xml.sax.DocumentHandler#startElement
      */
-    public void addAttribute (String name, String type, String value)
-    {
-    names.addElement(name);
-    types.addElement(type);
-    values.addElement(value);
+    public void addAttribute(String name, String type, String value) {
+        names.add(name);
+        types.add(type);
+        values.add(value);
     }
 
 
@@ -158,15 +157,13 @@ public class AttributeListImpl implements AttributeList
      * @param name The attribute name.
      * @see #addAttribute
      */
-    public void removeAttribute (String name)
-    {
-    int i = names.indexOf(name);
-
-    if (i >= 0) {
-        names.removeElementAt(i);
-        types.removeElementAt(i);
-        values.removeElementAt(i);
-    }
+    public void removeAttribute(String name) {
+        int i = names.indexOf(name);
+        if (i != -1) {
+            names.remove(i);
+            types.remove(i);
+            values.remove(i);
+        }
     }
 
 
@@ -180,11 +177,10 @@ public class AttributeListImpl implements AttributeList
      *
      * @see org.xml.sax.DocumentHandler#startElement
      */
-    public void clear ()
-    {
-    names.removeAllElements();
-    types.removeAllElements();
-    values.removeAllElements();
+    public void clear() {
+        names.clear();
+        types.clear();
+        values.clear();
     }
 
 
@@ -200,9 +196,8 @@ public class AttributeListImpl implements AttributeList
      * @return The number of attributes in the list.
      * @see org.xml.sax.AttributeList#getLength
      */
-    public int getLength ()
-    {
-    return names.size();
+    public int getLength() {
+        return names.size();
     }
 
 
@@ -214,16 +209,11 @@ public class AttributeListImpl implements AttributeList
      *         is no attribute at that position.
      * @see org.xml.sax.AttributeList#getName(int)
      */
-    public String getName (int i)
-    {
-    if (i < 0) {
-        return null;
-    }
-    try {
-        return (String)names.elementAt(i);
-    } catch (ArrayIndexOutOfBoundsException e) {
-        return null;
-    }
+    public String getName(int i) {
+        if (i < 0 || i >= names.size()) {
+            return null;
+        }
+        return names.get(i);
     }
 
 
@@ -237,16 +227,11 @@ public class AttributeListImpl implements AttributeList
      *         that position.
      * @see org.xml.sax.AttributeList#getType(int)
      */
-    public String getType (int i)
-    {
-    if (i < 0) {
-        return null;
-    }
-    try {
-        return (String)types.elementAt(i);
-    } catch (ArrayIndexOutOfBoundsException e) {
-        return null;
-    }
+    public String getType(int i) {
+        if (i < 0 || i >= types.size()) {
+            return null;
+        }
+        return types.get(i);
     }
 
 
@@ -258,16 +243,11 @@ public class AttributeListImpl implements AttributeList
      *         there is no attribute at that position.
      * @see org.xml.sax.AttributeList#getValue(int)
      */
-    public String getValue (int i)
-    {
-    if (i < 0) {
-        return null;
-    }
-    try {
-        return (String)values.elementAt(i);
-    } catch (ArrayIndexOutOfBoundsException e) {
-        return null;
-    }
+    public String getValue(int i) {
+        if (i < 0 || i >= values.size()) {
+            return null;
+        }
+        return values.get(i);
     }
 
 
@@ -280,9 +260,8 @@ public class AttributeListImpl implements AttributeList
      *         read).
      * @see org.xml.sax.AttributeList#getType(java.lang.String)
      */
-    public String getType (String name)
-    {
-    return getType(names.indexOf(name));
+    public String getType(String name) {
+        return getType(names.indexOf(name));
     }
 
 
@@ -294,9 +273,8 @@ public class AttributeListImpl implements AttributeList
      *         exist.
      * @see org.xml.sax.AttributeList#getValue(java.lang.String)
      */
-    public String getValue (String name)
-    {
-    return getValue(names.indexOf(name));
+    public String getValue(String name) {
+        return getValue(names.indexOf(name));
     }
 
 
@@ -305,9 +283,9 @@ public class AttributeListImpl implements AttributeList
     // Internal state.
     ////////////////////////////////////////////////////////////////////
 
-    Vector names = new Vector();
-    Vector types = new Vector();
-    Vector values = new Vector();
+    private ArrayList<String> names = new ArrayList<String>();
+    private ArrayList<String> types = new ArrayList<String>();
+    private ArrayList<String> values = new ArrayList<String>();
 
 }
 
