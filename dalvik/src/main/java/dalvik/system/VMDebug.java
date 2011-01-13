@@ -251,36 +251,22 @@ public final class VMDebug {
     public static native void resetAllocCount(int kinds);
 
     /**
-     * Establishes an object allocation limit in the current thread. Useful for
-     * catching regressions in code that is expected to operate without causing
-     * any allocations. The limit is valid from the return of this method until
-     * it is either changed or the thread terminates.
-     *
-     * @param limit
-     *            the new limit. A value of 0 means not a single new object may
-     *            be allocated. A value of -1 disables the limit.
-     *
-     * @return the previous limit, or -1 if no limit was set
-     *
-     * @see #setGlobalAllocationLimit(int)
+     * This method exists for binary compatibility.  It was part of
+     * the allocation limits API which was removed in Honeycomb.
      */
-    public static native int setAllocationLimit(int limit);
+    @Deprecated
+    public static int setAllocationLimit(int limit) {
+        return -1;
+    }
 
     /**
-     * Establishes an object allocation limit for the entire VM. Useful for
-     * catching regressions in code that is expected to operate without causing
-     * any allocations. The limit is valid from the return of this method until
-     * it is either changed or the thread terminates.
-     *
-     * @param limit
-     *            the new limit. A value of 0 means not a single new object may
-     *            be allocated. A value of -1 disables the limit.
-     *
-     * @return the previous limit, or -1 if no limit was set
-     *
-     * @see #setAllocationLimit(int)
+     * This method exists for binary compatibility.  It was part of
+     * the allocation limits API which was removed in Honeycomb.
      */
-    public static native int setGlobalAllocationLimit(int limit);
+    @Deprecated
+    public static int setGlobalAllocationLimit(int limit) {
+        return -1;
+    }
 
     /**
      * Count the number of instructions executed between two points.
