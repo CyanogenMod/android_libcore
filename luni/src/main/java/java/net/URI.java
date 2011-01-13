@@ -23,7 +23,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
-import java.util.StringTokenizer;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -595,9 +594,8 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         String lastLabel = null;
-        StringTokenizer st = new StringTokenizer(host, ".");
-        while (st.hasMoreTokens()) {
-            lastLabel = st.nextToken();
+        for (String token : host.split("\\.")) {
+            lastLabel = token;
             if (lastLabel.startsWith("-") || lastLabel.endsWith("-")) {
                 return false;
             }

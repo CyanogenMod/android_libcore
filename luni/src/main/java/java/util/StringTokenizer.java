@@ -18,88 +18,24 @@
 package java.util;
 
 /**
- * The {@code StringTokenizer} class allows an application to break a string
- * into tokens by performing code point comparison. The {@code StringTokenizer}
- * methods do not distinguish among identifiers, numbers, and quoted strings,
- * nor do they recognize and skip comments.
- * <p>
- * The set of delimiters (the codepoints that separate tokens) may be specified
- * either at creation time or on a per-token basis.
- * <p>
- * An instance of {@code StringTokenizer} behaves in one of three ways,
- * depending on whether it was created with the {@code returnDelimiters} flag
- * having the value {@code true} or {@code false}:
- * <ul>
- * <li>If returnDelims is {@code false}, delimiter code points serve to separate
- * tokens. A token is a maximal sequence of consecutive code points that are not
- * delimiters.
- * <li>If returnDelims is {@code true}, delimiter code points are themselves
- * considered to be tokens. In this case a token will be received for each
- * delimiter code point.
- * </ul>
- * <p>
- * A token is thus either one delimiter code point, or a maximal sequence of
- * consecutive code points that are not delimiters.
- * <p>
- * A {@code StringTokenizer} object internally maintains a current position
- * within the string to be tokenized. Some operations advance this current
- * position past the code point processed.
- * <p>
- * A token is returned by taking a substring of the string that was used to
- * create the {@code StringTokenizer} object.
- * <p>
- * Here's an example of the use of the default delimiter {@code StringTokenizer}
- * : <blockquote>
+ * Breaks a string into tokens; new code should probably use {@link String#split}.
  *
+ * <blockquote>
  * <pre>
- * StringTokenizer st = new StringTokenizer(&quot;this is a test&quot;);
+ * // Legacy code:
+ * StringTokenizer st = new StringTokenizer("a:b:c", ":");
  * while (st.hasMoreTokens()) {
- *     println(st.nextToken());
+ *     System.err.println(st.nextToken());
+ * }
+ *
+ * // New code:
+ * for (String token : "a:b:c".split(":")) {
+ *     System.err.println(token);
  * }
  * </pre>
- *
  * </blockquote>
- * <p>
- * This prints the following output: <blockquote>
  *
- * <pre>
- *     this
- *     is
- *     a
- *     test
- * </pre>
- *
- * </blockquote>
- * <p>
- * Here's an example of how to use a {@code StringTokenizer} with a user
- * specified delimiter: <blockquote>
- *
- * <pre>
- * StringTokenizer st = new StringTokenizer(
- *         &quot;this is a test with supplementary characters \ud800\ud800\udc00\udc00&quot;,
- *         &quot; \ud800\udc00&quot;);
- * while (st.hasMoreTokens()) {
- *     println(st.nextToken());
- * }
- * </pre>
- *
- * </blockquote>
- * <p>
- * This prints the following output: <blockquote>
- *
- * <pre>
- *     this
- *     is
- *     a
- *     test
- *     with
- *     supplementary
- *     characters
- *     \ud800
- *     \udc00
- * </pre>
- *
- * </blockquote>
+ * @since 1.0
  */
 public class StringTokenizer implements Enumeration<Object> {
 

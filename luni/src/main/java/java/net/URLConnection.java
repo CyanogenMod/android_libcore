@@ -26,7 +26,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * A connection to a URL for reading or writing. For HTTP connections, see
@@ -274,17 +273,14 @@ public abstract class URLConnection {
             return (ContentHandler) cHandler;
         }
 
-        // search through the package list for the right class for the Content
-        // Type
+        // search through the package list for the right class for the Content Type
         String packageList = System.getProperty("java.content.handler.pkgs");
         if (packageList != null) {
-            final StringTokenizer st = new StringTokenizer(packageList, "|");
-            while (st.countTokens() > 0) {
+            for (String packageName : packageList.split("\\|")) {
+                String className = packageName + "." + typeString;
                 try {
-                    Class<?> cl = Class.forName(st.nextToken() + "."
-                            + typeString, true, ClassLoader
-                            .getSystemClassLoader());
-                    cHandler = cl.newInstance();
+                    Class<?> klass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
+                    cHandler = klass.newInstance();
                 } catch (ClassNotFoundException e) {
                 } catch (IllegalAccessException e) {
                 } catch (InstantiationException e) {

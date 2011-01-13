@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import org.apache.harmony.security.DefaultPolicyScanner;
 import org.apache.harmony.security.DefaultPolicyScanner.GrantEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.KeystoreEntry;
@@ -374,17 +373,15 @@ public class DefaultPolicyParser {
      * @throws Exception if KeyStore is <code>null</code>
      * or if it failed to provide a certificate
      */
-    protected Certificate[] resolveSigners(KeyStore ks, String signers)
-            throws Exception {
+    protected Certificate[] resolveSigners(KeyStore ks, String signers) throws Exception {
         if (ks == null) {
             throw new KeyStoreException("No KeyStore to resolve signers: " + signers);
         }
 
         Collection<Certificate> certs = new HashSet<Certificate>();
-        StringTokenizer snt = new StringTokenizer(signers, ",");
-        while (snt.hasMoreTokens()) {
+        for (String signer : signers.split(",")) {
             //XXX cache found certs ??
-            certs.add(ks.getCertificate(snt.nextToken().trim()));
+            certs.add(ks.getCertificate(signer.trim()));
         }
         return certs.toArray(new Certificate[certs.size()]);
     }

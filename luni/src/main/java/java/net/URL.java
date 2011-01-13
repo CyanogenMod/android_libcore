@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
@@ -539,14 +538,11 @@ public final class URL implements java.io.Serializable {
         // If so, then walk this list looking for an applicable one.
         String packageList = System.getProperty("java.protocol.handler.pkgs");
         if (packageList != null) {
-            StringTokenizer st = new StringTokenizer(packageList, "|");
-            while (st.hasMoreTokens()) {
-                String className = st.nextToken() + "." + protocol + ".Handler";
-
+            for (String packageName : packageList.split("\\|")) {
+                String className = packageName + "." + protocol + ".Handler";
                 try {
-                    strmHandler = (URLStreamHandler) Class.forName(className,
-                            true, ClassLoader.getSystemClassLoader())
-                            .newInstance();
+                    Class<?> klass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
+                    strmHandler = (URLStreamHandler) klass.newInstance();
                     if (strmHandler != null) {
                         streamHandlers.put(protocol, strmHandler);
                     }
