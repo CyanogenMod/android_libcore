@@ -17,27 +17,27 @@
 package libcore.java.security;
 
 import java.security.AccessControlContext;
-import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.DomainCombiner;
 import java.security.Permission;
 import java.security.Permissions;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
+import java.util.concurrent.atomic.AtomicInteger;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+/**
+ * Android doesn't fully support access controller. This tests that actions are
+ * passed through without permission enforcement.
+ */
 public final class AccessControllerTest extends TestCase {
 
     public void testDoPrivilegedWithCombiner() {
         final Permission permission = new RuntimePermission("do stuff");
         final DomainCombiner union = new DomainCombiner() {
             public ProtectionDomain[] combine(ProtectionDomain[] a, ProtectionDomain[] b) {
-                a = (a == null) ? new ProtectionDomain[0] : a;
-                b = (b == null) ? new ProtectionDomain[0] : b;
-                ProtectionDomain[] union = new ProtectionDomain[a.length + b.length];
-                System.arraycopy(a, 0, union, 0, a.length);
-                System.arraycopy(b, 0, union, a.length, b.length);
-                return union;
+                throw new AssertionFailedError("Expected combiner to be unused");
             }
         };
 
@@ -45,26 +45,19 @@ public final class AccessControllerTest extends TestCase {
         AccessControlContext accessControlContext = new AccessControlContext(
                 new AccessControlContext(new ProtectionDomain[] { protectionDomain }), union);
 
+        final AtomicInteger actionCount = new AtomicInteger();
+
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
-                // in this block we lack our requested permission
-                assertSame(union, AccessController.getContext().getDomainCombiner());
-                assertPermission(false, permission);
+                assertEquals(null, AccessController.getContext().getDomainCombiner());
+                AccessController.getContext().checkPermission(permission);
 
+                // Calling doPrivileged again would have exercised the combiner
                 AccessController.doPrivileged(new PrivilegedAction<Void>() {
                     public Void run() {
-                        // nest doPrivileged to get it back.
-                        assertNull(AccessController.getContext().getDomainCombiner());
-                        assertPermission(true, permission);
-                        return null;
-                    }
-                });
-
-                AccessController.doPrivilegedWithCombiner(new PrivilegedAction<Void>() {
-                    public Void run() {
-                        // nest doPrivilegedWithCombiner() to get it back and keep the combiner.
-                        assertSame(union, AccessController.getContext().getDomainCombiner());
-                        assertPermission(true, permission);
+                        actionCount.incrementAndGet();
+                        assertEquals(null, AccessController.getContext().getDomainCombiner());
+                        AccessController.getContext().checkPermission(permission);
                         return null;
                     }
                 });
@@ -72,17 +65,7 @@ public final class AccessControllerTest extends TestCase {
                 return null;
             }
         }, accessControlContext);
-    }
 
-    private void assertPermission(boolean granted, Permission permission) {
-        if (granted) {
-            AccessController.getContext().checkPermission(permission);
-        } else {
-            try {
-                AccessController.getContext().checkPermission(permission);
-                fail("Had unexpected permission: " + permission);
-            } catch (AccessControlException expected) {
-            }
-        }
+        assertEquals(1, actionCount.get());
     }
 }
