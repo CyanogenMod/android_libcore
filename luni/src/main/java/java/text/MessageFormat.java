@@ -22,11 +22,12 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 import libcore.base.EmptyArray;
 import libcore.base.Objects;
 
@@ -386,11 +387,11 @@ public class MessageFormat extends Format {
         int length = template.length();
         StringBuffer buffer = new StringBuffer();
         ParsePosition position = new ParsePosition(0);
-        Vector<String> localStrings = new Vector<String>();
+        ArrayList<String> localStrings = new ArrayList<String>();
         int argCount = 0;
         int[] args = new int[10];
         int maxArg = -1;
-        Vector<Format> localFormats = new Vector<Format>();
+        ArrayList<Format> localFormats = new ArrayList<Format>();
         while (position.getIndex() < length) {
             if (Format.upTo(template, position, buffer, '{')) {
                 int arg = 0;
@@ -413,7 +414,7 @@ public class MessageFormat extends Format {
                 }
                 offset--;
                 position.setIndex(offset);
-                localFormats.addElement(parseVariable(template, position));
+                localFormats.add(parseVariable(template, position));
                 if (argCount >= args.length) {
                     int[] newArgs = new int[args.length * 2];
                     System.arraycopy(args, 0, newArgs, 0, args.length);
@@ -424,18 +425,12 @@ public class MessageFormat extends Format {
                     maxArg = arg;
                 }
             }
-            localStrings.addElement(buffer.toString());
+            localStrings.add(buffer.toString());
             buffer.setLength(0);
         }
-        this.strings = new String[localStrings.size()];
-        for (int i = 0; i < localStrings.size(); i++) {
-            this.strings[i] = localStrings.elementAt(i);
-        }
+        this.strings = localStrings.toArray(new String[localStrings.size()]);
         argumentNumbers = args;
-        this.formats = new Format[argCount];
-        for (int i = 0; i < argCount; i++) {
-            this.formats[i] = localFormats.elementAt(i);
-        }
+        this.formats = localFormats.toArray(new Format[argCount]);
         maxOffset = argCount - 1;
         maxArgumentIndex = maxArg;
     }
@@ -516,7 +511,7 @@ public class MessageFormat extends Format {
         }
 
         StringBuffer buffer = new StringBuffer();
-        Vector<FieldContainer> fields = new Vector<FieldContainer>();
+        ArrayList<FieldContainer> fields = new ArrayList<FieldContainer>();
 
         // format the message, and find fields
         formatImpl((Object[]) object, buffer, new FieldPosition(0), fields);
@@ -525,8 +520,7 @@ public class MessageFormat extends Format {
         AttributedString as = new AttributedString(buffer.toString());
 
         // add MessageFormat field attributes and values to the AttributedString
-        for (int i = 0; i < fields.size(); i++) {
-            FieldContainer fc = fields.elementAt(i);
+        for (FieldContainer fc : fields) {
             as.addAttribute(fc.attribute, fc.value, fc.start, fc.end);
         }
 
@@ -558,7 +552,7 @@ public class MessageFormat extends Format {
     }
 
     private StringBuffer formatImpl(Object[] objects, StringBuffer buffer,
-            FieldPosition position, Vector<FieldContainer> fields) {
+            FieldPosition position, List<FieldContainer> fields) {
         FieldPosition passedField = new FieldPosition(0);
         for (int i = 0; i <= maxOffset; i++) {
             buffer.append(strings[i]);
@@ -570,8 +564,7 @@ public class MessageFormat extends Format {
                 buffer.append('{');
                 buffer.append(argumentNumbers[i]);
                 buffer.append('}');
-                handleArgumentField(begin, buffer.length(), argumentNumbers[i],
-                        position, fields);
+                handleArgumentField(begin, buffer.length(), argumentNumbers[i], position, fields);
                 continue;
             }
             Format format = formats[i];
@@ -582,8 +575,7 @@ public class MessageFormat extends Format {
                     format = DateFormat.getInstance();
                 } else {
                     buffer.append(arg);
-                    handleArgumentField(begin, buffer.length(),
-                            argumentNumbers[i], position, fields);
+                    handleArgumentField(begin, buffer.length(), argumentNumbers[i], position, fields);
                     continue;
                 }
             }
@@ -592,14 +584,12 @@ public class MessageFormat extends Format {
                 MessageFormat mf = new MessageFormat(result);
                 mf.setLocale(locale);
                 mf.format(objects, buffer, passedField);
-                handleArgumentField(begin, buffer.length(), argumentNumbers[i],
-                        position, fields);
-                handleformat(format, arg, begin, fields);
+                handleArgumentField(begin, buffer.length(), argumentNumbers[i], position, fields);
+                handleFormat(format, arg, begin, fields);
             } else {
                 format.format(arg, buffer, passedField);
-                handleArgumentField(begin, buffer.length(), argumentNumbers[i],
-                        position, fields);
-                handleformat(format, arg, begin, fields);
+                handleArgumentField(begin, buffer.length(), argumentNumbers[i], position, fields);
+                handleFormat(format, arg, begin, fields);
             }
         }
         if (maxOffset + 1 < strings.length) {
@@ -610,12 +600,12 @@ public class MessageFormat extends Format {
 
     /**
      * Adds a new FieldContainer with MessageFormat.Field.ARGUMENT field,
-     * argIndex, begin and end index to the fields vector, or sets the
+     * argIndex, begin and end index to the fields list, or sets the
      * position's begin and end index if it has MessageFormat.Field.ARGUMENT as
      * its field attribute.
      */
     private void handleArgumentField(int begin, int end, int argIndex,
-            FieldPosition position, Vector<FieldContainer> fields) {
+            FieldPosition position, List<FieldContainer> fields) {
         if (fields != null) {
             fields.add(new FieldContainer(begin, end, Field.ARGUMENT, Integer.valueOf(argIndex)));
         } else {
@@ -630,7 +620,7 @@ public class MessageFormat extends Format {
 
     /**
      * An inner class to store attributes, values, start and end indices.
-     * Instances of this inner class are used as elements for the fields vector
+     * Instances of this inner class are used as elements for the fields list.
      */
     private static class FieldContainer {
         int start, end;
@@ -649,8 +639,8 @@ public class MessageFormat extends Format {
     }
 
     /**
-     * If fields vector is not null, find and add the fields of this format to
-     * the fields vector by iterating through its AttributedCharacterIterator
+     * If fields list is not null, find and add the fields of this format to
+     * the fields list by iterating through its AttributedCharacterIterator
      *
      * @param format
      *            the format to find fields for
@@ -658,29 +648,23 @@ public class MessageFormat extends Format {
      *            object to format
      * @param begin
      *            the index where the string this format has formatted begins
-     * @param fields
-     *            fields vector, each entry in this vector are of type
-     *            FieldContainer.
      */
-    private void handleformat(Format format, Object arg, int begin,
-            Vector<FieldContainer> fields) {
-        if (fields != null) {
-            AttributedCharacterIterator iterator = format
-                    .formatToCharacterIterator(arg);
-            while (iterator.getIndex() != iterator.getEndIndex()) {
-                int start = iterator.getRunStart();
-                int end = iterator.getRunLimit();
-
-                Iterator<?> it = iterator.getAttributes().keySet().iterator();
-                while (it.hasNext()) {
-                    AttributedCharacterIterator.Attribute attribute = (AttributedCharacterIterator.Attribute) it
-                            .next();
-                    Object value = iterator.getAttribute(attribute);
-                    fields.add(new FieldContainer(begin + start, begin + end,
-                            attribute, value));
-                }
-                iterator.setIndex(end);
+    private void handleFormat(Format format, Object arg, int begin, List<FieldContainer> fields) {
+        if (fields == null) {
+            return;
+        }
+        AttributedCharacterIterator iterator = format.formatToCharacterIterator(arg);
+        while (iterator.getIndex() != iterator.getEndIndex()) {
+            int start = iterator.getRunStart();
+            int end = iterator.getRunLimit();
+            Iterator<?> it = iterator.getAttributes().keySet().iterator();
+            while (it.hasNext()) {
+                AttributedCharacterIterator.Attribute attribute =
+                        (AttributedCharacterIterator.Attribute) it.next();
+                Object value = iterator.getAttribute(attribute);
+                fields.add(new FieldContainer(begin + start, begin + end, attribute, value));
             }
+            iterator.setIndex(end);
         }
     }
 

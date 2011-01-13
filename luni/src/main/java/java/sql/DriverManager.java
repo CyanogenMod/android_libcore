@@ -21,11 +21,11 @@ import dalvik.system.VMStack;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * Provides facilities for managing JDBC drivers.
@@ -255,28 +255,19 @@ public class DriverManager {
      *         {@code Drivers}.
      */
     public static Enumeration<Driver> getDrivers() {
-        // BEGIN android-changed
-        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
-        // END android-changed
         /*
          * Synchronize to avoid clashes with additions and removals of drivers
          * in the DriverSet
          */
+        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
         synchronized (theDrivers) {
-            /*
-             * Create the Enumeration by building a Vector from the elements of
-             * the DriverSet
-             */
-            Vector<Driver> theVector = new Vector<Driver>();
-            Iterator<Driver> theIterator = theDrivers.iterator();
-            while (theIterator.hasNext()) {
-                Driver theDriver = theIterator.next();
-                if (DriverManager.isClassFromClassLoader(theDriver,
-                        callerClassLoader)) {
-                    theVector.add(theDriver);
+            ArrayList<Driver> result = new ArrayList<Driver>();
+            for (Driver driver : theDrivers) {
+                if (DriverManager.isClassFromClassLoader(driver, callerClassLoader)) {
+                    result.add(driver);
                 }
             }
-            return theVector.elements();
+            return Collections.enumeration(result);
         }
     }
 
