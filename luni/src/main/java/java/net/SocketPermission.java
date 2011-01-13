@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Permission;
 import java.security.PermissionCollection;
+import java.util.Locale;
 
 /**
  * Regulates the access to network operations available through sockets through
@@ -218,7 +219,7 @@ public final class SocketPermission extends Permission implements Serializable {
             if (pos == length) {
                 parsing = false;
             }
-            action = sb.toString().trim().toLowerCase();
+            action = sb.toString().trim().toLowerCase(Locale.US);
             if (action.equals(actionNames[SP_CONNECT])) {
                 actionsMask |= SP_CONNECT;
             } else if (action.equals(actionNames[SP_LISTEN])) {
@@ -414,7 +415,7 @@ public final class SocketPermission extends Permission implements Serializable {
             if (idx > -1) {
                 host = host.substring(0, idx);
             }
-            return host.toLowerCase();
+            return host.toLowerCase(Locale.US);
         }
 
         int lastIdx = host.lastIndexOf(':');
@@ -424,7 +425,7 @@ public final class SocketPermission extends Permission implements Serializable {
                 // only one colon, should be port
                 host = host.substring(0, idx);
             }
-            return host.toLowerCase();
+            return host.toLowerCase(Locale.US);
         }
         // maybe IPv6
         boolean isFirstBracket = (host.charAt(0) == '[');
@@ -441,7 +442,7 @@ public final class SocketPermission extends Permission implements Serializable {
                 host = host.substring(0, lastIdx);
             }
             if (isIP6AddressInFullForm(host)) {
-                return host.toLowerCase();
+                return host.toLowerCase(Locale.US);
             }
             throw new IllegalArgumentException("Invalid port number: " + host);
         }
@@ -453,7 +454,7 @@ public final class SocketPermission extends Permission implements Serializable {
         }
         host = host.substring(0, bbracketIdx + 1);
         if (isValidIP6Address(host)) {
-            return host.toLowerCase();
+            return host.toLowerCase(Locale.US);
         }
         throw new IllegalArgumentException("Invalid port number: " + host);
     }

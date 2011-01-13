@@ -1281,7 +1281,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @Override
     public String toString() {
         if (isPrimitive()) {
-            return getSimpleName().toLowerCase();
+            return getSimpleName();
         } else {
             return (isInterface() ? "interface " : "class ") + getName();
         }

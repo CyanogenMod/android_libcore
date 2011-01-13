@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
@@ -800,7 +801,7 @@ public final class URI implements Comparable<URI>, Serializable {
         int index, prevIndex = 0;
         while ((index = s.indexOf('%', prevIndex)) != -1) {
             result.append(s.substring(prevIndex, index + 1));
-            result.append(s.substring(index + 1, index + 3).toLowerCase());
+            result.append(s.substring(index + 1, index + 3).toLowerCase(Locale.US));
             index += 3;
             prevIndex = index;
         }
@@ -1490,7 +1491,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private String getHashString() {
         StringBuilder result = new StringBuilder();
         if (scheme != null) {
-            result.append(scheme.toLowerCase());
+            result.append(scheme.toLowerCase(Locale.US));
             result.append(':');
         }
         if (opaque) {
@@ -1504,7 +1505,7 @@ public final class URI implements Comparable<URI>, Serializable {
                     if (userInfo != null) {
                         result.append(userInfo + "@");
                     }
-                    result.append(host.toLowerCase());
+                    result.append(host.toLowerCase(Locale.US));
                     if (port != -1) {
                         result.append(":" + port);
                     }
