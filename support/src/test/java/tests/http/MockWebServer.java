@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -37,12 +38,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import static tests.http.SocketPolicy.DISCONNECT_AT_START;
@@ -55,6 +57,7 @@ public final class MockWebServer {
 
     static final String ASCII = "US-ASCII";
 
+    private static final Logger logger = Logger.getLogger(MockWebServer.class.getName());
     private final BlockingQueue<RecordedRequest> requestQueue
             = new LinkedBlockingQueue<RecordedRequest>();
     private final BlockingQueue<MockResponse> responseQueue
@@ -157,13 +160,12 @@ public final class MockWebServer {
         serverSocket.setReuseAddress(true);
 
         port = serverSocket.getLocalPort();
-        executor.submit(namedCallable("MockWebServer-accept-" + port, new Callable<Void>() {
-            public Void call() throws Exception {
-                List<Throwable> failures = new ArrayList<Throwable>();
+        executor.execute(namedRunnable("MockWebServer-accept-" + port, new Runnable() {
+            public void run() {
                 try {
                     acceptConnections();
                 } catch (Throwable e) {
-                    failures.add(e);
+                    logger.log(Level.WARNING, "MockWebServer connection failed", e);
                 }
 
                 /*
@@ -173,49 +175,39 @@ public final class MockWebServer {
                 try {
                     serverSocket.close();
                 } catch (Throwable e) {
-                    failures.add(e);
+                    logger.log(Level.WARNING, "MockWebServer server socket close failed", e);
                 }
-                for (Iterator<Socket> s = openClientSockets.iterator(); s.hasNext(); ) {
+                for (Iterator<Socket> s = openClientSockets.iterator(); s.hasNext();) {
                     try {
                         s.next().close();
                         s.remove();
                     } catch (Throwable e) {
-                        failures.add(e);
+                        logger.log(Level.WARNING, "MockWebServer socket close failed", e);
                     }
                 }
                 try {
                     executor.shutdown();
                 } catch (Throwable e) {
-                    failures.add(e);
-                }
-                if (!failures.isEmpty()) {
-                    Throwable thrown = failures.get(0);
-                    if (thrown instanceof Exception) {
-                        throw (Exception) thrown;
-                    } else {
-                        throw (Error) thrown;
-                    }
-                } else {
-                    return null;
+                    logger.log(Level.WARNING, "MockWebServer executor shutdown failed", e);
                 }
             }
 
-            public void acceptConnections() throws Exception {
-                int count = 0;
-                while (true) {
-                    if (count > 0 && responseQueue.isEmpty()) {
-                        return;
-                    }
-
-                    Socket socket = serverSocket.accept();
-                    if (responseQueue.peek().getSocketPolicy() == DISCONNECT_AT_START) {
-                        responseQueue.take();
-                        socket.close();
+            private void acceptConnections() throws Exception {
+                while (!responseQueue.isEmpty()) {
+                    Socket socket;
+                    try {
+                        socket = serverSocket.accept();
+                    } catch (SocketException ignored) {
                         continue;
                     }
-                    openClientSockets.add(socket);
-                    serveConnection(socket);
-                    count++;
+                    MockResponse peek = responseQueue.peek();
+                    if (peek != null && peek.getSocketPolicy() == DISCONNECT_AT_START) {
+                        responseQueue.take();
+                        socket.close();
+                    } else {
+                        openClientSockets.add(socket);
+                        serveConnection(socket);
+                    }
                 }
             }
         }));
@@ -229,10 +221,18 @@ public final class MockWebServer {
 
     private void serveConnection(final Socket raw) {
         String name = "MockWebServer-" + raw.getRemoteSocketAddress();
-        executor.submit(namedCallable(name, new Callable<Void>() {
+        executor.execute(namedRunnable(name, new Runnable() {
             int sequenceNumber = 0;
 
-            public Void call() throws Exception {
+            public void run() {
+                try {
+                    processConnection();
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "MockWebServer connection failed", e);
+                }
+            }
+
+            public void processConnection() throws Exception {
                 Socket socket;
                 if (sslSocketFactory != null) {
                     if (tunnelProxy) {
@@ -252,16 +252,19 @@ public final class MockWebServer {
                 InputStream in = new BufferedInputStream(socket.getInputStream());
                 OutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
-                if (!processOneRequest(in, out, socket)) {
-                    throw new IllegalStateException("Connection without any request!");
+                while (!responseQueue.isEmpty() && processOneRequest(in, out, socket)) {}
+
+                if (sequenceNumber == 0) {
+                    logger.warning("MockWebServer connection didn't make a request");
                 }
-                while (processOneRequest(in, out, socket)) {}
 
                 in.close();
                 out.close();
                 socket.close();
+                if (responseQueue.isEmpty()) {
+                    shutdown();
+                }
                 openClientSockets.remove(socket);
-                return null;
             }
 
             /**
@@ -294,9 +297,14 @@ public final class MockWebServer {
      * @param sequenceNumber the index of this request on this connection.
      */
     private RecordedRequest readRequest(InputStream in, int sequenceNumber) throws IOException {
-        String request = readAsciiUntilCrlf(in);
+        String request;
+        try {
+            request = readAsciiUntilCrlf(in);
+        } catch (IOException streamIsClosed) {
+            return null; // no request because we closed the stream
+        }
         if (request.isEmpty()) {
-            return null; // end of data; no more requests
+            return null; // no request because the stream is exhausted
         }
 
         List<String> headers = new ArrayList<String>();
@@ -437,13 +445,13 @@ public final class MockWebServer {
         }
     }
 
-    private static <T> Callable<T> namedCallable(final String name, final Callable<T> callable) {
-        return new Callable<T>() {
-            public T call() throws Exception {
+    private static Runnable namedRunnable(final String name, final Runnable runnable) {
+        return new Runnable() {
+            public void run() {
                 String originalName = Thread.currentThread().getName();
                 Thread.currentThread().setName(name);
                 try {
-                    return callable.call();
+                    runnable.run();
                 } finally {
                     Thread.currentThread().setName(originalName);
                 }
