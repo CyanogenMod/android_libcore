@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
+import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -1542,10 +1543,10 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
             assertEquals(Arrays.asList("verify " + hostname), hostnameVerifier.calls);
             assertEquals(Arrays.asList("checkServerTrusted ["
-                                       + "CN=" + hostname + " 1, "
-                                       + "CN=Test Intermediate Certificate Authority 1, "
-                                       + "CN=Test Root Certificate Authority 1"
-                                       + "] RSA"),
+                    + "CN=" + hostname + " 1, "
+                    + "CN=Test Intermediate Certificate Authority 1, "
+                    + "CN=Test Root Certificate Authority 1"
+                    + "] RSA"),
                     trustManager.calls);
         } finally {
             HttpsURLConnection.setDefaultHostnameVerifier(defaultHostnameVerifier);
@@ -1557,11 +1558,15 @@ public class URLConnectionTest extends junit.framework.TestCase {
         StuckServer ss = new StuckServer();
         int serverPort = ss.getLocalPort();
         URLConnection urlConnection = new URL("http://localhost:" + serverPort).openConnection();
-        urlConnection.setConnectTimeout(1000);
+        int timeout = 1000;
+        urlConnection.setConnectTimeout(timeout);
+        long start = System.currentTimeMillis();
         try {
             urlConnection.getInputStream();
             fail();
         } catch (SocketTimeoutException expected) {
+            long actual = System.currentTimeMillis() - start;
+            assertTrue(Math.abs(timeout - actual) < 500);
         } finally {
             ss.close();
         }
@@ -1578,6 +1583,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 .clearHeaders()
                 .addHeader("Content-Length: 4");
         server.enqueue(timeout);
+        server.enqueue(new MockResponse().setBody("unused")); // to keep the server alive
         server.play();
 
         URLConnection urlConnection = server.getUrl("/").openConnection();
@@ -1739,6 +1745,36 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail();
         } catch (IOException expected) {
         }
+    }
+
+    public void testGetKeepAlive() throws Exception {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.play();
+
+        // The request should work once and then fail
+        URLConnection connection = server.getUrl("").openConnection();
+        InputStream input = connection.getInputStream();
+        assertEquals("ABC", readAscii(input, Integer.MAX_VALUE));
+        input.close();
+        try {
+            server.getUrl("").openConnection().getInputStream();
+            fail();
+        } catch (ConnectException expected) {
+        }
+    }
+
+    /**
+     * Test that we support URLs containing '{' and '}'. http://b/1158780
+     */
+    public void testMalformedUrl() throws Exception {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.play();
+
+        URL url = server.getUrl("/search?q={foo}+{bar}");
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        assertEquals(404, connection.getResponseCode());
     }
 
     /**
