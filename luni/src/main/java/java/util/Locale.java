@@ -55,8 +55,8 @@ import libcore.icu.ICU;
  * nor any locales for other languages (such as de_DE). The opposite may well be true for a device
  * sold in Europe.
  *
- * <p>You can use {@code getDefault} to get an appropriate locale for the <i>user</i> of
- * the device you're running on, or {@code getAvailableLocales} to get a list of all the locales
+ * <p>You can use {@link Locale#getDefault} to get an appropriate locale for the <i>user</i> of the
+ * device you're running on, or {@link Locale#getAvailableLocales} to get a list of all the locales
  * available on the device you're running on.
  *
  * <a name="locale_data"><h3>Locale data</h3></a>
@@ -68,24 +68,37 @@ import libcore.icu.ICU;
  * <table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
  * <tr><td>cupcake/donut/eclair</td> <td>ICU 3.8</td> <td><a href="http://www.unicode.org/press/pr-cldr1.5.html">CLDR 1.5</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.0.0/">Unicode 5.0</a></td></tr>
  * <tr><td>froyo</td>                <td>ICU 4.2</td> <td><a href="http://www.unicode.org/press/pr-cldr1.7.html">CLDR 1.7</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.1.0/">Unicode 5.1</a></td></tr>
- * <tr><td>gingerbread</td>          <td>ICU 4.4</td> <td><a href="http://www.unicode.org/press/pr-cldr1.8.html">CLDR 1.8</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</a></td></tr>
+ * <tr><td>gingerbread/honeycomb</td><td>ICU 4.4</td> <td><a href="http://www.unicode.org/press/pr-cldr1.8.html">CLDR 1.8</a></td> <td><a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</a></td></tr>
  * </table>
  *
  * <a name="default_locale"><h3>Be wary of the default locale</h3></a>
  * <p>Note that there are many convenience methods that automatically use the default locale, but
- * these may not be as convenient as you imagine. The default locale is appropriate for anything
- * that involves presenting data to the user. You should use the user's date/time formats, number
- * formats, rules for conversion to lowercase, and so on. A common mistake is to implicitly use the
- * default locale when producing output meant to be machine-readable. This tends to work on the
- * developer's test devices but fail when run on a device whose user is in a less conventional
- * locale. For example, if you're formatting integers some locales will use non-ASCII decimal
+ * using them may lead to subtle bugs.
+ *
+ * <p>The default locale is appropriate for tasks that involve presenting data to the user. In
+ * this case, you want to use the user's date/time formats, number
+ * formats, rules for conversion to lowercase, and so on. In this case, it's safe to use the
+ * convenience methods.
+ *
+ * <p>The default locale is <i>not</i> appropriate for machine-readable output. The best choice
+ * there is usually {@code Locale.US}&nbsp;&ndash; this locale is guaranteed to be available on all
+ * devices, and the fact that it has no surprising special cases and is frequently used (especially
+ * for computer-computer communication) means that it tends to be the most efficient choice too.
+ *
+ * <p>A common mistake is to implicitly use the default locale when producing output meant to be
+ * machine-readable. This tends to work on the developer's test devices (especially because so many
+ * developers use en_US), but fails when run on a device whose user is in a more complex locale.
+ *
+ * <p>For example, if you're formatting integers some locales will use non-ASCII decimal
  * digits. As another example, if you're formatting floating-point numbers some locales will use
- * {@code ','} as the decimal point. That's correct for human-readable output, but likely to cause
- * problems if presented to another computer ({@code Double.parseDouble} can't parse such a number,
- * for example). The best choice for computer-readable output is usually {@code Locale.US}: this
- * locale is guaranteed to be available on all devices, and the combination of no surprising
- * behavior and frequent use (especially for computer-computer communication) means that it tends
- * to be the most efficient choice too.
+ * {@code ','} as the decimal point and {@code '.'} for digit grouping. That's correct for
+ * human-readable output, but likely to cause problems if presented to another
+ * computer ({@link Double#parseDouble} can't parse such a number, for example).
+ * You should also be wary of the {@link String#toLowerCase} and
+ * {@link String#toUpperCase} overloads that don't take a {@code Locale}: in Turkey, for example,
+ * the characters {@code 'i'} and {@code 'I'} won't be converted to {@code 'I'} and {@code 'i'}.
+ * This is the correct behavior for Turkish text (such as user input), but inappropriate for, say,
+ * HTTP headers.
  */
 public final class Locale implements Cloneable, Serializable {
 
@@ -401,10 +414,17 @@ public final class Locale implements Cloneable, Serializable {
     /**
      * Returns this locale's language name, country name, and variant, localized
      * to {@code locale}. The exact output form depends on whether this locale
-     * corresponds to a specific language, country and variant, such as:
-     * {@code English}, {@code English (United States)}, {@code English (United
-     * States,Computer)}, {@code anglais (États-Unis)}, {@code anglais
-     * (États-Unis,informatique)}.
+     * corresponds to a specific language, country and variant.
+     *
+     * <p>For example:
+     * <ul>
+     * <li>{@code new Locale("en").getDisplayName(Locale.US)} -> {@code English}
+     * <li>{@code new Locale("en", "US").getDisplayName(Locale.US)} -> {@code English (United States)}
+     * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.US)} -> {@code English (United States,Computer)}
+     * <li>{@code new Locale("en").getDisplayName(Locale.FRANCE)} -> {@code anglais}
+     * <li>{@code new Locale("en", "US").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis)}
+     * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis,informatique)}.
+     * </ul>
      */
     public String getDisplayName(Locale locale) {
         int count = 0;
@@ -439,24 +459,18 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Gets the full variant name in the default {@code Locale} for the variant code of
+     * Returns the full variant name in the default {@code Locale} for the variant code of
      * this {@code Locale}. If there is no matching variant name, the variant code is
      * returned.
-     *
-     * @return a variant name.
      */
     public final String getDisplayVariant() {
         return getDisplayVariant(getDefault());
     }
 
     /**
-     * Gets the full variant name in the specified {@code Locale} for the variant code
+     * Returns the full variant name in the specified {@code Locale} for the variant code
      * of this {@code Locale}. If there is no matching variant name, the variant code is
      * returned.
-     *
-     * @param locale
-     *            the {@code Locale} for which the display name is retrieved.
-     * @return a variant name.
      */
     public String getDisplayVariant(Locale locale) {
         if (variantCode.length() == 0) {
@@ -470,14 +484,10 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Gets the three letter ISO country code which corresponds to the country
+     * Returns the three letter ISO country code which corresponds to the country
      * code for this {@code Locale}.
-     *
-     * @return a three letter ISO language code.
-     * @throws MissingResourceException
-     *                if there is no matching three letter ISO country code.
      */
-    public String getISO3Country() throws MissingResourceException {
+    public String getISO3Country() {
         if (countryCode.length() == 0) {
             return countryCode;
         }
@@ -485,14 +495,10 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Gets the three letter ISO language code which corresponds to the language
+     * Returns the three letter ISO language code which corresponds to the language
      * code for this {@code Locale}.
-     *
-     * @return a three letter ISO language code.
-     * @throws MissingResourceException
-     *                if there is no matching three letter ISO language code.
      */
-    public String getISO3Language() throws MissingResourceException {
+    public String getISO3Language() {
         if (languageCode.length() == 0) {
             return languageCode;
         }
@@ -500,52 +506,37 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Gets the list of two letter ISO country codes which can be used as the
-     * country code for a {@code Locale}.
-     *
-     * @return an array of strings.
+     * Returns an array of strings containing all the two-letter ISO country codes that can be
+     * used as the country code when constructing a {@code Locale}.
      */
     public static String[] getISOCountries() {
         return ICU.getISOCountries();
     }
 
     /**
-     * Gets the list of two letter ISO language codes which can be used as the
-     * language code for a {@code Locale}.
-     *
-     * @return an array of strings.
+     * Returns an array of strings containing all the two-letter ISO language codes that can be
+     * used as the language code when constructing a {@code Locale}.
      */
     public static String[] getISOLanguages() {
         return ICU.getISOLanguages();
     }
 
     /**
-     * Gets the language code for this {@code Locale} or the empty string of no language
+     * Returns the language code for this {@code Locale} or the empty string if no language
      * was set.
-     *
-     * @return a language code.
      */
     public String getLanguage() {
         return languageCode;
     }
 
     /**
-     * Gets the variant code for this {@code Locale} or an empty {@code String} if no variant
+     * Returns the variant code for this {@code Locale} or an empty {@code String} if no variant
      * was set.
-     *
-     * @return a variant code.
      */
     public String getVariant() {
         return variantCode;
     }
 
-    /**
-     * Returns an integer hash code for the receiver. Objects which are equal
-     * return the same value for this method.
-     *
-     * @return the receiver's hash.
-     * @see #equals
-     */
     @Override
     public synchronized int hashCode() {
         return countryCode.hashCode() + languageCode.hashCode()
@@ -577,8 +568,6 @@ public final class Locale implements Cloneable, Serializable {
      * return the empty string.
      *
      * <p>Examples: "en", "en_US", "_US", "en__POSIX", "en_US_POSIX"
-     *
-     * @return the string representation of this {@code Locale}.
      */
     @Override
     public final String toString() {
