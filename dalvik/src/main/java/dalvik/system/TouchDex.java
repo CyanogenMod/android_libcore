@@ -39,8 +39,6 @@ public class TouchDex {
      *
      * @param dexFiles a colon-separated list of DEX files.
      * @return zero on success
-     *
-     * @cts What about error cases?
      */
     public static int start(String dexFiles) {
         return trampoline(dexFiles, System.getProperty("java.boot.class.path"));
@@ -147,4 +145,3 @@ public class TouchDex {
         }
     }
 }
-
