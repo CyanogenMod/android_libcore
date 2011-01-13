@@ -759,25 +759,12 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
-     *                                     int length, ByteBuffer dst)
-     * Exception case: SSLException should be thrown.
-     */
     public void test_wrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
-
         ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-
-        try {
-            @SuppressWarnings("unused")
-            SSLEngineResult result = clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
-            fail("SSLException wasn't thrown");
-        } catch (SSLException ex) {
-            //expected
-        }
+        clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
     }
 
     /**
@@ -1338,24 +1325,12 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    /**
-     * @throws IOException
-     * @throws InterruptedException
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
-     * SSLException should be thrown.
-     */
     public void test_wrap_ByteBuffer_ByteBuffer_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
         ByteBuffer bbs = ByteBuffer.allocate(20);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-
-        try {
-            clientEngine.engine.wrap(bbs, bbd);
-            fail("SSLException wasn't thrown");
-        } catch (SSLException ex) {
-            //expected
-        }
+        clientEngine.engine.wrap(bbs, bbd);
     }
 
     /**
