@@ -17,10 +17,29 @@
 package test;
 
 /**
- * Class used as part of the class loading tests.
+ * Class which is probed at by the class loading tests.
  */
-public class Test1 {
-    public static String test() {
+public class Target {
+    public static int staticVariable = 0;
+    public int instanceVariable = 0;
+
+    public Target() {
+        // This space intentionally left blank.
+    }
+
+    public static String blort() {
         return "blort";
+    }
+
+    public static void setStaticVariable(int n) {
+        staticVariable = n;
+    }
+
+    public String zorch() {
+        return "zorch";
+    }
+
+    public void setInstanceVariable(int n) {
+        instanceVariable = n;
     }
 }
