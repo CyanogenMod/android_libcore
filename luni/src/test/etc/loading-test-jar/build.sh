@@ -43,5 +43,5 @@ dx --dex --output=classes.dex classes
 jar cf loading-test.jar classes.dex -C resources .
 
 rm -rf classes
-rm -rf classes.dex
+mv classes.dex ../../resources/dalvik/system/loading-test.dex
 mv loading-test.jar ../../resources/dalvik/system/
