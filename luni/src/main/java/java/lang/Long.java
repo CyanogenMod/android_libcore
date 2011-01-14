@@ -700,11 +700,7 @@ public final class Long extends Number implements Comparable<Long> {
      * @since 1.5
      */
     public static int signum(long v) {
-        // BEGIN android-changed
         return v < 0 ? -1 : (v == 0 ? 0 : 1);
-        // END android-changed
-//      The following branch-free version is faster on modern desktops/servers
-//      return ((int)(v >> 63)) | (int) (-v >>> 63); // Hacker's delight 2-7
     }
 
     /**
