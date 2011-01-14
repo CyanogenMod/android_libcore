@@ -884,30 +884,6 @@ public class DecimalFormat extends NumberFormat {
         if (number == null) {
             return null;
         }
-        // BEGIN android-removed
-        // if (this.isParseBigDecimal()) {
-        //     if (number instanceof Long) {
-        //         return new BigDecimal(number.longValue());
-        //     }
-        //     if ((number instanceof Double) && !((Double) number).isInfinite()
-        //             && !((Double) number).isNaN()) {
-        //
-        //         return new BigDecimal(number.doubleValue());
-        //     }
-        //     if (number instanceof BigInteger) {
-        //         return new BigDecimal(number.doubleValue());
-        //     }
-        //     if (number instanceof com.ibm.icu.math.BigDecimal) {
-        //         return new BigDecimal(number.toString());
-        //     }
-        //     return number;
-        // }
-        // if ((number instanceof com.ibm.icu.math.BigDecimal)
-        //         || (number instanceof BigInteger)) {
-        //     return new Double(number.doubleValue());
-        // }
-        // END android-removed
-        // BEGIN android-added
         if (this.isParseBigDecimal()) {
             if (number instanceof Long) {
                 return new BigDecimal(number.longValue());
@@ -925,10 +901,8 @@ public class DecimalFormat extends NumberFormat {
         if ((number instanceof BigDecimal) || (number instanceof BigInteger)) {
             return new Double(number.doubleValue());
         }
-        // END android-added
-
         if (this.isParseIntegerOnly() && number.equals(NEGATIVE_ZERO_DOUBLE)) {
-            return Long.valueOf(0); // android-changed
+            return Long.valueOf(0);
         }
         return number;
 
@@ -942,10 +916,9 @@ public class DecimalFormat extends NumberFormat {
      */
     public void setDecimalFormatSymbols(DecimalFormatSymbols value) {
         if (value != null) {
-            // BEGIN android-changed: the Java object is canonical, and we copy down to native code.
+            // The Java object is canonical, and we copy down to native code.
             this.symbols = (DecimalFormatSymbols) value.clone();
             dform.setDecimalFormatSymbols(this.symbols);
-            // END android-changed
         }
     }
 
@@ -959,9 +932,7 @@ public class DecimalFormat extends NumberFormat {
      */
     @Override
     public void setCurrency(Currency currency) {
-        // BEGIN android-changed
         dform.setCurrency(Currency.getInstance(currency.getCurrencyCode()));
-        // END android-changed
         symbols.setCurrency(currency);
     }
 
@@ -1195,11 +1166,8 @@ public class DecimalFormat extends NumberFormat {
         fields.put("negSuffixPattern", (String) null);
         fields.put("multiplier", dform.getMultiplier());
         fields.put("groupingSize", (byte) dform.getGroupingSize());
-        // BEGIN android-added
         fields.put("groupingUsed", dform.isGroupingUsed());
-        // END android-added
-        fields.put("decimalSeparatorAlwaysShown", dform
-                .isDecimalSeparatorAlwaysShown());
+        fields.put("decimalSeparatorAlwaysShown", dform.isDecimalSeparatorAlwaysShown());
         fields.put("parseBigDecimal", dform.isParseBigDecimal());
         fields.put("roundingMode", roundingMode);
         fields.put("symbols", symbols);
@@ -1225,7 +1193,6 @@ public class DecimalFormat extends NumberFormat {
      *             if some class of serialized objects or fields cannot be found
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        // BEGIN android-changed
         ObjectInputStream.GetField fields = stream.readFields();
         this.symbols = (DecimalFormatSymbols) fields.get("symbols", null);
 
@@ -1245,7 +1212,7 @@ public class DecimalFormat extends NumberFormat {
         final int minimumIntegerDigits = fields.get("minimumIntegerDigits", 309);
         final int maximumFractionDigits = fields.get("maximumFractionDigits", 340);
         final int minimumFractionDigits = fields.get("minimumFractionDigits", 340);
-        // BEGIN android-changed: tell ICU what we want, then ask it what we can have, and then
+        // Tell ICU what we want, then ask it what we can have, and then
         // set that in our Java object. This isn't RI-compatible, but then very little of our
         // behavior in this area is, and it's not obvious how we can second-guess ICU (or tell
         // it to just do exactly what we ask). We only need to do this with maximumIntegerDigits
@@ -1264,7 +1231,6 @@ public class DecimalFormat extends NumberFormat {
             setMaximumFractionDigits(super.getMaximumFractionDigits());
             setMinimumFractionDigits(super.getMinimumFractionDigits());
         }
-        // END android-changed
     }
 
     /**

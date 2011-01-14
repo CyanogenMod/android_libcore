@@ -359,9 +359,6 @@ public class BufferedReader extends Reader {
             }
             for (int charPos = pos; charPos < end; charPos++) {
                 char ch = buf[charPos];
-                // BEGIN android-note
-                // a switch statement may be more efficient
-                // END android-note
                 if (ch > '\r') {
                     continue;
                 }

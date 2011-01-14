@@ -514,12 +514,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             if(bitLength < 64) {
                 smallValue = mantissa << (-scale);
             } else {
-                // BEGIN android-changed
                 BigInt bi = new BigInt();
                 bi.putLongInt(mantissa);
                 bi.shift(-scale);
                 intVal = new BigInteger(bi);
-                // END android-changed
             }
             scale = 0;
         } else if (scale > 0) {
@@ -809,7 +807,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
 
     private static BigDecimal addAndMult10(BigDecimal thisValue,BigDecimal augend, int diffScale) {
-        // BEGIN android-changed
         if(diffScale < MathUtils.LONG_POWERS_OF_TEN.length &&
                 Math.max(thisValue.bitLength,augend.bitLength+LONG_POWERS_OF_TEN_BIT_LENGTH[diffScale])+1<64) {
             return valueOf(thisValue.smallValue+augend.smallValue*MathUtils.LONG_POWERS_OF_TEN[diffScale],thisValue.scale);
@@ -818,7 +815,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             bi.add(thisValue.getUnscaledValue().getBigInt());
             return new BigDecimal(new BigInteger(bi), thisValue.scale);
         }
-        // END android-changed
     }
 
     /**
@@ -1742,11 +1738,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @return {@code abs(this)}
      */
     public BigDecimal abs(MathContext mc) {
-        // BEGIN android-changed
         BigDecimal result = abs();
         result.inplaceRound(mc);
         return result;
-        // END android-changed
     }
 
     /**
@@ -1771,11 +1765,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @return {@code -this}
      */
     public BigDecimal negate(MathContext mc) {
-        // BEGIN android-changed
         BigDecimal result = negate();
         result.inplaceRound(mc);
         return result;
-        // END android-changed
     }
 
     /**
@@ -2100,10 +2092,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         long newScale = scale;
 
         if (isZero()) {
-            // BEGIN android-changed: preserve RI compatibility, so BigDecimal.equals (which checks
+            // Preserve RI compatibility, so BigDecimal.equals (which checks
             // value *and* scale) continues to work.
             return this;
-            // END android-changed
         }
         BigInteger strippedBI = getUnscaledValue();
         BigInteger[] quotAndRem;
@@ -2751,11 +2742,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     private void inplaceRound(MathContext mc) {
         int mcPrecision = mc.getPrecision();
-        // BEGIN android-changed
         if (approxPrecision() < mcPrecision || mcPrecision == 0) {
             return;
         }
-        // END android-changed
         int discardedPrecision = precision() - mcPrecision;
         // If no rounding is necessary it returns immediately
         if ((discardedPrecision <= 0)) {
@@ -2925,11 +2914,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @return an approximation of {@code precision()} value
      */
     private int approxPrecision() {
-        // BEGIN android-changed
         return precision > 0
                 ? precision
                 : (int) ((this.bitLength - 1) * LOG10_2) + 1;
-        // END android-changed
     }
 
     private static int safeLongToInt(long longValue) {

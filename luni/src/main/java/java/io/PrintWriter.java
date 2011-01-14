@@ -619,9 +619,6 @@ public class PrintWriter extends Writer {
      */
     @Override
     public void write(char[] buf) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         write(buf, 0, buf.length);
     }
 
@@ -644,9 +641,6 @@ public class PrintWriter extends Writer {
      */
     @Override
     public void write(char[] buf, int offset, int count) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         doWrite(buf, offset, count);
     }
 
@@ -666,9 +660,6 @@ public class PrintWriter extends Writer {
     }
 
     private final void doWrite(char[] buf, int offset, int count) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         synchronized (lock) {
             if (out != null) {
                 try {

@@ -247,9 +247,7 @@ public class KeyStore {
             throws KeyStoreException, NoSuchAlgorithmException,
             UnrecoverableKeyException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetKey(alias, password);
     }
@@ -264,12 +262,9 @@ public class KeyStore {
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
      */
-    public final Certificate[] getCertificateChain(String alias)
-            throws KeyStoreException {
+    public final Certificate[] getCertificateChain(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetCertificateChain(alias);
     }
@@ -284,12 +279,9 @@ public class KeyStore {
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
      */
-    public final Certificate getCertificate(String alias)
-            throws KeyStoreException {
+    public final Certificate getCertificate(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetCertificate(alias);
     }
@@ -306,9 +298,7 @@ public class KeyStore {
      */
     public final Date getCreationDate(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetCreationDate(alias);
     }
@@ -337,9 +327,7 @@ public class KeyStore {
     public final void setKeyEntry(String alias, Key key, char[] password,
             Certificate[] chain) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
 
         // Certificate chain is required for PrivateKey
@@ -376,9 +364,7 @@ public class KeyStore {
     public final void setKeyEntry(String alias, byte[] key, Certificate[] chain)
             throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         implSpi.engineSetKeyEntry(alias, key, chain);
     }
@@ -399,12 +385,9 @@ public class KeyStore {
      * @throws NullPointerException
      *             if {@code alias} is {@code null}.
      */
-    public final void setCertificateEntry(String alias, Certificate cert)
-            throws KeyStoreException {
+    public final void setCertificateEntry(String alias, Certificate cert) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         implSpi.engineSetCertificateEntry(alias, cert);
     }
@@ -421,9 +404,7 @@ public class KeyStore {
      */
     public final void deleteEntry(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         implSpi.engineDeleteEntry(alias);
     }
@@ -439,9 +420,7 @@ public class KeyStore {
      */
     public final Enumeration<String> aliases() throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineAliases();
     }
@@ -457,9 +436,7 @@ public class KeyStore {
      */
     public final boolean containsAlias(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineContainsAlias(alias);
     }
@@ -473,9 +450,7 @@ public class KeyStore {
      */
     public final int size() throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineSize();
     }
@@ -492,9 +467,7 @@ public class KeyStore {
      */
     public final boolean isKeyEntry(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineIsKeyEntry(alias);
     }
@@ -510,12 +483,9 @@ public class KeyStore {
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
      */
-    public final boolean isCertificateEntry(String alias)
-            throws KeyStoreException {
+    public final boolean isCertificateEntry(String alias) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineIsCertificateEntry(alias);
     }
@@ -531,12 +501,9 @@ public class KeyStore {
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
      */
-    public final String getCertificateAlias(Certificate cert)
-            throws KeyStoreException {
+    public final String getCertificateAlias(Certificate cert) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetCertificateAlias(cert);
     }
@@ -561,12 +528,9 @@ public class KeyStore {
      *             this {@code KeyStore}.
      */
     public final void store(OutputStream stream, char[] password)
-            throws KeyStoreException, IOException, NoSuchAlgorithmException,
-            CertificateException {
+            throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
 
         //Just delegate stream and password to implSpi
@@ -595,9 +559,7 @@ public class KeyStore {
     public final void store(LoadStoreParameter param) throws KeyStoreException,
             IOException, NoSuchAlgorithmException, CertificateException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         implSpi.engineStore(param);
     }
@@ -672,15 +634,12 @@ public class KeyStore {
      *             if {@code alias} is {@code null}.
      */
     public final Entry getEntry(String alias, ProtectionParameter param)
-            throws NoSuchAlgorithmException, UnrecoverableEntryException,
-            KeyStoreException {
+            throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
         if (alias == null) {
             throw new NullPointerException("alias == null");
         }
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineGetEntry(alias, param);
     }
@@ -707,9 +666,7 @@ public class KeyStore {
     public final void setEntry(String alias, Entry entry,
             ProtectionParameter param) throws KeyStoreException {
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         if (alias == null) {
             throw new NullPointerException("alias == null");
@@ -744,9 +701,7 @@ public class KeyStore {
         }
 
         if (!isInit) {
-            // BEGIN android-changed
             throwNotInitialized();
-            // END android-changed
         }
         return implSpi.engineEntryInstanceOf(alias, entryClass);
     }

@@ -574,7 +574,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             }
         }
 
-        // BEGIN android-changed
         StringBuilder sb = new StringBuilder();
         sb.append(getSimpleName());
         sb.append('(');
@@ -590,7 +589,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         }
         sb.append(')');
         throw new NoSuchMethodException(sb.toString());
-        // END android-changed
     }
 
     /**

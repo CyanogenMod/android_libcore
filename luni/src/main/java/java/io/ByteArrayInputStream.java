@@ -73,9 +73,6 @@ public class ByteArrayInputStream extends InputStream {
      *            the number of bytes available for streaming.
      */
     public ByteArrayInputStream(byte[] buf, int offset, int length) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         this.buf = buf;
         pos = offset;
         mark = offset;

@@ -292,7 +292,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         if (currentEntry.getMethod() == -1) {
             currentEntry.setMethod(compressMethod);
         }
-        // BEGIN android-changed
+
         // Local file header.
         // http://www.pkware.com/documents/casestudies/APPNOTE.TXT
         int flags = currentEntry.getMethod() == STORED ? 0 : ZipFile.GPBF_DATA_DESCRIPTOR_FLAG;
@@ -308,7 +308,6 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         }
         writeShort(out, currentEntry.time);
         writeShort(out, currentEntry.modDate);
-        // END android-changed
 
         if (currentEntry.getMethod() == STORED) {
             if (currentEntry.size == -1) {

@@ -148,7 +148,6 @@ public abstract class LongBuffer extends Buffer implements
                 : otherBuffer.remaining();
         int thisPos = position;
         int otherPos = otherBuffer.position;
-        // BEGIN android-changed
         long thisLong, otherLong;
         while (compareRemaining > 0) {
             thisLong = get(thisPos);
@@ -160,7 +159,6 @@ public abstract class LongBuffer extends Buffer implements
             otherPos++;
             compareRemaining--;
         }
-        // END android-changed
         return remaining() - otherBuffer.remaining();
     }
 

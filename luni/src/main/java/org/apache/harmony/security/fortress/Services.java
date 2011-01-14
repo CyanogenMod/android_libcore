@@ -40,16 +40,14 @@ import java.util.Map;
 public class Services {
 
     // The HashMap that contains information about preferred implementations for
-    // all serviceName.algName in the registered providers
-    // BEGIN android-changed
-    // set the initial size to 600 so we don't grow to 1024 by default because
+    // all serviceName.algName in the registered providers.
+    // Set the initial size to 600 so we don't grow to 1024 by default because
     // initialization adds a few entries more than the growth threshold.
     private static final Map<String, Provider.Service> services
             = new HashMap<String, Provider.Service>(600);
-    // save default SecureRandom service as well.
-    // avoids similar provider/services iteration in SecureRandom constructor
+    // Save default SecureRandom service as well.
+    // Avoids similar provider/services iteration in SecureRandom constructor
     private static Provider.Service secureRandom;
-    // END android-changed
 
     // Need refresh flag
     private static boolean needRefresh; // = false;

@@ -17,12 +17,6 @@
 
 package java.util.logging;
 
-// BEGIN android-note
-// this file contains cleaned up documentation and style for contribution
-// upstream.
-// javax.management support (MBeans) has been dropped.
-// END android-note
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedInputStream;
@@ -511,7 +505,7 @@ public class LogManager {
             setLevelRecursively(logger, null);
         }
         newParent.children.add(logger);
-        logger.updateDalvikLogHandler(); // android-only
+        logger.updateDalvikLogHandler();
     }
 
     /**

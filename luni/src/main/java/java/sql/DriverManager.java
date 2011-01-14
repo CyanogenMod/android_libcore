@@ -221,23 +221,17 @@ public class DriverManager {
      *             if there is any kind of problem accessing the database.
      */
     public static Driver getDriver(String url) throws SQLException {
-        // BEGIN android-changed
         ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
-        // END android-changed
-
         synchronized (theDrivers) {
             /*
              * Loop over the drivers in the DriverSet checking to see if one
              * does understand the supplied URL - return the first driver which
              * does understand the URL
              */
-            Iterator<Driver> theIterator = theDrivers.iterator();
-            while (theIterator.hasNext()) {
-                Driver theDriver = theIterator.next();
-                if (theDriver.acceptsURL(url)
-                        && DriverManager.isClassFromClassLoader(theDriver,
-                                callerClassLoader)) {
-                    return theDriver;
+            for (Driver driver : theDrivers) {
+                if (driver.acceptsURL(url) &&
+                        DriverManager.isClassFromClassLoader(driver, callerClassLoader)) {
+                    return driver;
                 }
             }
         }

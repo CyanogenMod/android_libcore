@@ -152,9 +152,6 @@ public abstract class InputStream extends Object implements Closeable {
      *             if this stream is closed or another IOException occurs.
      */
     public int read(byte[] b) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         return read(b, 0, b.length);
     }
 

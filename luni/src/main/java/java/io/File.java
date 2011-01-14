@@ -15,16 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've dropped Windows support, except where it's exposed: we still support
-// non-Unix separators in serialized File objects, for example, but we don't
-// have any code for UNC paths or case-insensitivity.
-// We've also changed the JNI interface to better match what the Java actually wants.
-// (The JNI implementation is also much simpler.)
-// Some methods have been rewritten to reduce unnecessary allocation.
-// Some duplication has been factored out.
-// END android-note
-
 package java.io;
 
 import java.net.URI;

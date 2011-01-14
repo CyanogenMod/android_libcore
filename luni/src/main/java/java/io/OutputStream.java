@@ -76,9 +76,6 @@ public abstract class OutputStream implements Closeable, Flushable {
      *             if an error occurs while writing to this stream.
      */
     public void write(byte[] buffer) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         write(buffer, 0, buffer.length);
     }
 

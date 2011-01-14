@@ -88,9 +88,6 @@ public abstract class FilterWriter extends Writer {
      */
     @Override
     public void write(char[] buffer, int offset, int count) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         synchronized (lock) {
             out.write(buffer, offset, count);
         }

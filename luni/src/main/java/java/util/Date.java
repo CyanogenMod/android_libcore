@@ -184,7 +184,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 
@@ -698,9 +698,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
      */
     @Override
     public String toString() {
-        // BEGIN android-changed: fixed to use time zone display names ("PST")
-        // rather than ids ("America/Los_Angeles").
-        // Equivalent to the following one-liner, though that's currently 8x slower
+        // TODO: equivalent to the following one-liner, though that's currently 8x slower
         // at 1655us versus 195us...
         //   return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").format(d);
         Calendar cal = new GregorianCalendar(milliseconds);
@@ -709,7 +707,6 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
                 + " " + toTwoDigits(cal.get(Calendar.DAY_OF_MONTH)) + " " + toTwoDigits(cal.get(Calendar.HOUR_OF_DAY))
                 + ":" + toTwoDigits(cal.get(Calendar.MINUTE)) + ":" + toTwoDigits(cal.get(Calendar.SECOND))
                 + " " + tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT) + " " + cal.get(Calendar.YEAR);
-        // END android-changed
     }
     private static final String[] dayOfWeekNames =
             { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };

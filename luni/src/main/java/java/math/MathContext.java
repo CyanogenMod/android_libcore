@@ -173,9 +173,7 @@ public final class MathContext implements Serializable {
         if (digit == -1) {
             throw new IllegalArgumentException("Bad string format");
         }
-        // BEGIN android-changed
         this.precision = digit;
-        // END android-changed
         i++;
 
         do {

@@ -17,8 +17,6 @@
 
 package java.lang;
 
-// BEGIN android-added
-
 import dalvik.system.VMStack;
 import java.io.File;
 import java.io.FileDescriptor;

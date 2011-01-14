@@ -159,9 +159,7 @@ public class ObjectStreamField implements Comparable<Object> {
      *
      * @return A Class object representing the type of the field
      */
-    // BEGIN android-note
     // Changed from private to default visibility for usage in ObjectStreamClass
-    // END android-note
     /* package */ Class<?> getTypeInternal() {
         if (type instanceof WeakReference) {
             return (Class<?>) ((WeakReference<?>) type).get();

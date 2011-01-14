@@ -77,9 +77,7 @@ public class SignerInfo {
             ) {
         this.version = version;
         this.issuer = ((Name)issuerAndSerialNumber[0]).getX500Principal();
-        // BEGIN android-changed
         this.serialNumber = ASN1Integer.toBigIntegerValue(issuerAndSerialNumber[1]);
-        // END android-changed
         this.digestAlgorithm = digestAlgorithm;
         this.authenticatedAttributes = authenticatedAttributes;
         this.digestEncryptionAlgorithm = digestEncryptionAlgorithm;

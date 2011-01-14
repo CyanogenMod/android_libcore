@@ -15,12 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've made several changes including:
-//  - avoid shallow concurrency problems
-//  - improved consistency with PipedWriter
-// END android-note
-
 package java.io;
 
 /**

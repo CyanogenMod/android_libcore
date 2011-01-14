@@ -116,15 +116,12 @@ public abstract class CertPath implements Serializable {
         sb.append(getCertificates().size());
         sb.append(": [\n");
         int n=1;
-        // BEGIN android-changed
-        for (Iterator<? extends Certificate> i=getCertificates().iterator();
-                      i.hasNext(); n++) {
+        for (Iterator<? extends Certificate> i=getCertificates().iterator(); i.hasNext(); n++) {
             sb.append("---------------certificate ");
             sb.append(n);
             sb.append("---------------\n");
             sb.append(((Certificate)i.next()).toString());
         }
-        // END android-changed
         sb.append("\n]");
         return sb.toString();
     }

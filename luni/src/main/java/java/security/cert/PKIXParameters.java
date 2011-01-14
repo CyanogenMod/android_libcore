@@ -534,7 +534,7 @@ public class PKIXParameters implements CertPathParameters {
             }
             return ret;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

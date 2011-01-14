@@ -17,13 +17,6 @@
 
 package java.util.logging;
 
-// BEGIN android-note
-// this file contains cleaned up documentation and style for contribution
-// upstream
-// It also contains Android-specific optimizations that aren't appropriate for
-// general purpose platforms
-// END android-note
-
 import dalvik.system.DalvikLogHandler;
 import dalvik.system.DalvikLogging;
 import java.util.ArrayList;
@@ -79,7 +72,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Logger {
 
-    // BEGIN android-only
     /** A handler for use when no handler optimization is possible. */
     private static final DalvikLogHandler GENERAL_LOG_HANDLER = new DalvikLogHandler() {
         public void publish(Logger source, String tag, Level level, String message) {
@@ -89,7 +81,6 @@ public class Logger {
             source.log(record);
         }
     };
-    // END android-only
 
     /**
      * The name of the global logger. Before using this, see the discussion of how to use
@@ -168,7 +159,6 @@ public class Logger {
      */
     final List<Logger> children = new ArrayList<Logger>();
 
-    // BEGIN android-only
     /** the tag used for optimized logging. Derived from the logger name. */
     private final String androidTag;
 
@@ -243,7 +233,6 @@ public class Logger {
             logger.updateDalvikLogHandler();
         }
     }
-    // END android-only
 
     /**
      * Constructs a {@code Logger} object with the supplied name and resource
@@ -263,10 +252,8 @@ public class Logger {
     protected Logger(String name, String resourceBundleName) {
         this.name = name;
         initResourceBundle(resourceBundleName);
-        // BEGIN android-only
         this.androidTag = DalvikLogging.loggerNameToTag(name);
         updateDalvikLogHandler();
-        // END android-only
     }
 
     /**
@@ -430,7 +417,7 @@ public class Logger {
             LogManager.getLogManager().checkAccess();
         }
         this.handlers.add(handler);
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -476,7 +463,7 @@ public class Logger {
             }
         }
 
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -504,7 +491,7 @@ public class Logger {
             return;
         }
         this.handlers.remove(handler);
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -581,7 +568,7 @@ public class Logger {
             LogManager.getLogManager().checkAccess();
         }
         this.notifyParentHandlers = notifyParentHandlers;
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -942,10 +929,7 @@ public class Logger {
         if (!internalIsLoggable(logLevel)) {
             return;
         }
-
-        // BEGIN android-only
         dalvikLogHandler.publish(this, androidTag, logLevel, msg);
-        // END android-only
     }
 
     /**
@@ -1364,6 +1348,6 @@ public class Logger {
             }
         }
 
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 }

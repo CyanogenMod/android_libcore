@@ -2694,9 +2694,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isJavaIdentifierPart(char c) {
-        // BEGIN android-changed
         return isJavaIdentifierPart((int) c);
-        // END android-changed
     }
 
     /**
@@ -2709,8 +2707,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isJavaIdentifierPart(int codePoint) {
-        // BEGIN android-changed: use precomputed bitmasks for the ASCII range.
-        // Optimized case for ASCII
+        // Use precomputed bitmasks to optimize the ASCII range.
         if (codePoint < 64) {
             return (0x3ff00100fffc1ffL & (1L << codePoint)) != 0;
         } else if (codePoint < 128) {
@@ -2723,7 +2720,6 @@ public final class Character implements Serializable, Comparable<Character> {
                 || type == COMBINING_SPACING_MARK || type == NON_SPACING_MARK
                 || (codePoint >= 0 && codePoint <= 8) || (codePoint >= 0xe && codePoint <= 0x1b)
                 || (codePoint >= 0x7f && codePoint <= 0x9f) || type == FORMAT;
-        // END android-changed
     }
 
     /**
@@ -2736,9 +2732,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         identifier; {@code false} otherwise.
      */
     public static boolean isJavaIdentifierStart(char c) {
-        // BEGIN android-changed
         return isJavaIdentifierStart((int) c);
-        // END android-changed
     }
 
     /**
@@ -2751,8 +2745,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         identifier; {@code false} otherwise.
      */
     public static boolean isJavaIdentifierStart(int codePoint) {
-        // BEGIN android-changed: use precomputed bitmasks for the ASCII range.
-        // Optimized case for ASCII
+        // Use precomputed bitmasks to optimize the ASCII range.
         if (codePoint < 64) {
             return (codePoint == '$'); // There's only one character in this range.
         } else if (codePoint < 128) {
@@ -2761,7 +2754,6 @@ public final class Character implements Serializable, Comparable<Character> {
         int type = getType(codePoint);
         return (type >= UPPERCASE_LETTER && type <= OTHER_LETTER) || type == CURRENCY_SYMBOL
                 || type == CONNECTOR_PUNCTUATION || type == LETTER_NUMBER;
-        // END android-changed
     }
 
     /**

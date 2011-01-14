@@ -403,11 +403,9 @@ public abstract class NumberFormat extends Format {
         return getNumberInstance(locale);
     }
 
-    // BEGIN android-added
     private static NumberFormat getInstance(String pattern, Locale locale) {
         return new DecimalFormat(pattern, locale);
     }
-    // END android-added
 
     /**
      * Returns the maximum number of fraction digits that are printed when

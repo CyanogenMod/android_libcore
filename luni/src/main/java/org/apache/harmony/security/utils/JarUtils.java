@@ -120,13 +120,8 @@ public class JarUtils {
         String alg = null;
         if (da != null && dea != null) {
             alg = da + "with" +  dea;
-            try{
-                // BEGIN android-removed
-                // sig = OpenSSLSignature.getInstance(alg);
-                // END android-removed
-                // BEGIN android-added
+            try {
                 sig = OpenSSLSignature.getInstance(alg);
-                // END android-removed
             } catch (NoSuchAlgorithmException e) {}
         }
         if (sig == null) {
@@ -134,13 +129,8 @@ public class JarUtils {
             if (alg == null) {
                 return null;
             }
-            try{
-                // BEGIN android-removed
-                // sig = OpenSSLSignature.getInstance(alg);
-                // END android-removed
-                // BEGIN android-added
+            try {
                 sig = OpenSSLSignature.getInstance(alg);
-                // END android-removed
             } catch (NoSuchAlgorithmException e) {
                 return null;
             }

@@ -146,11 +146,9 @@ public class SealedObject implements Serializable {
     public final Object getObject(Key key)
                 throws IOException, ClassNotFoundException,
                        NoSuchAlgorithmException, InvalidKeyException {
-        // BEGIN android-added
         if (key == null) {
             throw new InvalidKeyException("key == null");
         }
-        // END android-added
         try {
             Cipher cipher = Cipher.getInstance(sealAlg);
             if ((paramsAlg != null) && (paramsAlg.length() != 0)) {

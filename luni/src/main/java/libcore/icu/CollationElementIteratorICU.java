@@ -99,11 +99,9 @@ public final class CollationElementIteratorICU {
         NativeCollation.setText(address, source);
     }
 
-    // BEGIN android-added
     public void setText(CharacterIterator source) {
         NativeCollation.setText(address, source.toString());
     }
-    // END android-added
 
     /**
      * Get the offset of the current source character.

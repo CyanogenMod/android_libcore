@@ -98,11 +98,9 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
         if (key.length == 0) {
             throw new IllegalArgumentException("key.length == 0");
         }
-        // BEGIN android-changed
         if (len < 0 || offset < 0) {
             throw new ArrayIndexOutOfBoundsException("len < 0 || offset < 0");
         }
-        // END android-changed
         if (key.length - offset < len) {
             throw new IllegalArgumentException("key too short");
         }

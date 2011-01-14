@@ -756,7 +756,7 @@ public class X509CertSelector implements CertSelector {
                         System.arraycopy(arr_neim, 0, neim, 0, arr_neim.length);
                     }
                     List list = new ArrayList(2);
-                    list.add(Integer.valueOf(tag)); // android-changed
+                    list.add(tag);
                     list.add(neim);
                     result.add(list);
                 }

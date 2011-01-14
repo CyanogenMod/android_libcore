@@ -490,7 +490,7 @@ public abstract class BreakIterator implements Cloneable {
             cloned.wrapped = (NativeBreakIterator) wrapped.clone();
             return cloned;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 }

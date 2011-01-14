@@ -30,19 +30,17 @@ final class MiniEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
     private long bits;
 
-    // BEGIN android-changed
     /**
      * Constructs an instance.
      *
      * @param elementType non-null; type of the elements
-     * @param enums non-null; prepopulated array of constants in ordinal
+     * @param enums non-null; pre-populated array of constants in ordinal
      * order
      */
     MiniEnumSet(Class<E> elementType, E[] enums) {
         super(elementType);
         this.enums = enums;
     }
-    // END android-changed
 
     private class MiniEnumSetIterator implements Iterator<E> {
 

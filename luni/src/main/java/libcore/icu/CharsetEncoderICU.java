@@ -56,10 +56,8 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private char[] input = null;
     private byte[] output = null;
 
-    // BEGIN android-added
     private char[] allocatedInput = null;
     private byte[] allocatedOutput = null;
-    // END android-added
 
     // These instance variables are always assigned in the methods before being used. This class
     // is inherently thread-unsafe so we don't have to worry about synchronization.
@@ -212,9 +210,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         data[INPUT_OFFSET] = getArray(in);
         data[OUTPUT_OFFSET]= getArray(out);
         data[INPUT_HELD] = 0;
-        // BEGIN android-added
         data[INVALID_CHARS] = 0; // Make sure we don't see earlier errors.
-        // END android added
 
         try {
             /* do the conversion */
@@ -272,19 +268,15 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     //------------------------------------------
     private int getArray(ByteBuffer out) {
         if (out.hasArray()) {
-            // BEGIN android-changed: take arrayOffset into account
             output = out.array();
             outEnd = out.arrayOffset() + out.limit();
             return out.arrayOffset() + out.position();
-            // END android-changed
         } else {
             outEnd = out.remaining();
-            // BEGIN android-added
             if (allocatedOutput == null || (outEnd > allocatedOutput.length)) {
                 allocatedOutput = new byte[outEnd];
             }
             output = allocatedOutput;
-            // END android-added
             //since the new
             // buffer start position
             // is 0
@@ -294,19 +286,15 @@ public final class CharsetEncoderICU extends CharsetEncoder {
 
     private int getArray(CharBuffer in) {
         if (in.hasArray()) {
-            // BEGIN android-changed: take arrayOffset into account
             input = in.array();
             inEnd = in.arrayOffset() + in.limit();
             return in.arrayOffset() + in.position() + savedInputHeldLen;/*exclude the number fo bytes held in previous conversion*/
-            // END android-changed
         } else {
             inEnd = in.remaining();
-            // BEGIN android-added
             if (allocatedInput == null || (inEnd > allocatedInput.length)) {
                 allocatedInput = new char[inEnd];
             }
             input = allocatedInput;
-            // END android-added
             // save the current position
             int pos = in.position();
             in.get(input,0,inEnd);
@@ -326,34 +314,15 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             // array backing the buffer directly and wrote to
             // it, so just just set the position and return.
             // This is done to avoid the creation of temp array.
-            // BEGIN android-changed: take arrayOffset into account
             out.position(out.position() + data[OUTPUT_OFFSET] - out.arrayOffset());
-            // END android-changed
         } else {
             out.put(output, 0, data[OUTPUT_OFFSET]);
         }
-        // BEGIN android-added
         // release reference to output array, which may not be ours
         output = null;
-        // END android-added
     }
     private void setPosition(CharBuffer in){
 
-// BEGIN android-removed
-//        // was there input held in the previous invocation of encodeLoop
-//        // that resulted in output in this invocation?
-//        if(data[OUTPUT_OFFSET]>0 && savedInputHeldLen>0){
-//            int len = in.position() + data[INPUT_OFFSET] + savedInputHeldLen;
-//            in.position(len);
-//            savedInputHeldLen = data[INPUT_HELD];
-//        }else{
-//            in.position(in.position() + data[INPUT_OFFSET] + savedInputHeldLen);
-//            savedInputHeldLen = data[INPUT_HELD];
-//            in.position(in.position() - savedInputHeldLen);
-//        }
-// END android-removed
-
-// BEGIN android-added
         // Slightly rewired original code to make it cleaner. Also
         // added a fix for the problem where input characters got
         // lost when invalid characters were encountered. Not sure
@@ -368,11 +337,8 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         if(!(data[OUTPUT_OFFSET]>0 && savedInputHeldLen>0)){
             in.position(in.position() - savedInputHeldLen);
         }
-// END android-added
 
-        // BEGIN android-added
         // release reference to input array, which may not be ours
         input = null;
-        // END android-added
     }
 }

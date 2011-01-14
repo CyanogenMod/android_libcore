@@ -165,9 +165,7 @@ public abstract class Provider extends Properties {
         if (propertyAliasTable != null) {
             propertyAliasTable.clear();
         }
-        // BEGIN android-changed
         changedProperties = null;
-        // END android-changed
         putProviderInfo();
         if (providerNumber != -1) {
             // if registered then refresh Services
@@ -287,11 +285,9 @@ public abstract class Provider extends Properties {
         }
         if (changedProperties != null && changedProperties.remove(key) == null) {
             removeFromPropertyServiceTable(key);
-            // BEGIN android-added
             if (changedProperties.size() == 0) {
                 changedProperties = null;
             }
-            // END android-added
         }
         return super.remove(key);
     }
@@ -680,9 +676,7 @@ public abstract class Provider extends Properties {
                 }
                 if (o != null) {
                     s = (Provider.Service) o;
-                    // BEGIN android-changed
                     s.addAlias(aliasName);
-                    // END android-changed
                     if (propertyAliasTable == null) {
                         propertyAliasTable = new TwoKeyHashMap<String, String, Service>(256);
                     }
@@ -721,11 +715,9 @@ public abstract class Provider extends Properties {
                     s = (Provider.Service) o;
                     s.className = value;
                 } else {
-                    // BEGIN android-changed
                     s = new Provider.Service(this, serviceName, algorithm,
                             value, Collections.<String>emptyList(),
                             Collections.<String,String>emptyMap());
-                    // END android-changed
                     if (propertyServiceTable == null) {
                         propertyServiceTable = new TwoKeyHashMap<String, String, Service>(128);
                     }
@@ -745,9 +737,7 @@ public abstract class Provider extends Properties {
                 }
                 if (o != null) {
                     s = (Provider.Service) o;
-                    // BEGIN android-changed
                     s.putAttribute(attribute, value);
-                    // END android-changed
                 } else {
                     String className = (String) changedProperties
                             .get(serviceName + "." + algorithm);
@@ -765,9 +755,7 @@ public abstract class Provider extends Properties {
             }
         }
         servicesChanged();
-        // BEGIN android-changed
         changedProperties = null;
-        // END android-changed
     }
 
     private void servicesChanged() {
@@ -869,16 +857,13 @@ public abstract class Provider extends Properties {
             this.type = type;
             this.algorithm = algorithm;
             this.className = className;
-            // BEGIN android-changed
             this.aliases = ((aliases != null) && (aliases.size() == 0))
                     ? Collections.<String>emptyList() : aliases;
             this.attributes =
                     ((attributes != null) && (attributes.size() == 0))
                     ? Collections.<String,String>emptyMap() : attributes;
-            // END android-changed
         }
 
-        // BEGIN android-added
         /**
          * Adds an alias.
          *
@@ -903,7 +888,6 @@ public abstract class Provider extends Properties {
             }
             attributes.put(name, value);
         }
-        // END android-added
 
         /**
          * Returns the type of this {@code Service}. For example {@code

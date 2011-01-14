@@ -171,12 +171,10 @@ public final class AccessControlContext {
                     .matchSubset(that.context, context))) {
                 return false;
             }
-            // BEGIN android-changed
             if (combiner != null) {
                 return combiner.equals(that.combiner);
             }
             return that.combiner == null;
-            // END android-changed
         }
         return false;
     }

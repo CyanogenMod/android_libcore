@@ -1535,9 +1535,6 @@ public class Collections {
      *             be compared to each other using the comparator.
      */
     @SuppressWarnings("unchecked")
-    // BEGIN android-note
-    // removed "@param <T> The element type", which is rejected by apicheck
-    // END android-note
     public static <T> int binarySearch(List<? extends T> list, T object,
             Comparator<? super T> comparator) {
         if (comparator == null) {

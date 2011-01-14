@@ -86,9 +86,7 @@ abstract class AbstractStringBuilder {
         count = string.length();
         shared = false;
         value = new char[count + INITIAL_CAPACITY];
-        // BEGIN android-changed
         string._getChars(0, count, value, 0);
-        // END android-changed
     }
 
     private void enlargeBuffer(int min) {
@@ -355,9 +353,7 @@ abstract class AbstractStringBuilder {
             int min = string.length();
             if (min != 0) {
                 move(min, index);
-                // BEGIN android-changed
                 string._getChars(0, min, value, index);
-                // END android-changed
                 count += min;
             }
         } else {
@@ -434,9 +430,7 @@ abstract class AbstractStringBuilder {
                     value = value.clone();
                     shared = false;
                 }
-                // BEGIN android-changed
                 string._getChars(0, stringLength, value, start);
-                // END android-changed
                 count -= diff;
                 return;
             }

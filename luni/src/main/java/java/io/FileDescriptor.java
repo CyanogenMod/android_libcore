@@ -52,14 +52,11 @@ public final class FileDescriptor {
      */
     public static final FileDescriptor err = new FileDescriptor();
 
-    // BEGIN android-changed
-    // file descriptors are only int on android
     /**
-     * Represents a link to any underlying OS resources for this FileDescriptor.
+     * The Unix file descriptor backing this FileDescriptor.
      * A value of -1 indicates that this FileDescriptor is invalid.
      */
     int descriptor = -1;
-    // END android-changed
 
     boolean readOnly = false;
 
