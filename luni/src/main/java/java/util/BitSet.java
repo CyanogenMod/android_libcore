@@ -936,38 +936,20 @@ public class BitSet implements Serializable, Cloneable {
 
     /**
      * Returns the number of bits that are {@code true} in this {@code BitSet}.
-     *
-     * @return the number of {@code true} bits in the set.
      */
     public int cardinality() {
         if (!needClear) {
             return 0;
         }
-        int count = 0;
+        int result = 0;
         int length = bits.length;
-        // FIXME: need to test performance, if still not satisfied, change it to
-        // 256-bits table based
-        for (int idx = 0; idx < length; idx++) {
-            count += pop(bits[idx] & 0xffffffffL);
-            count += pop(bits[idx] >>> 32);
+        for (int i = 0; i < length; ++i) {
+            result += Long.bitCount(bits[i]);
         }
-        return count;
+        return result;
     }
 
-    private final int pop(long x) {
-        // BEGIN android-note
-        // delegate to Integer.bitCount(i); consider using native code
-        // END android-note
-        x = x - ((x >>> 1) & 0x55555555);
-        x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
-        x = (x + (x >>> 4)) & 0x0f0f0f0f;
-        x = x + (x >>> 8);
-        x = x + (x >>> 16);
-        return (int) x & 0x0000003f;
-    }
-
-    private void readObject(ObjectInputStream ois) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         this.isLengthActual = false;
         this.actualArrayLength = bits.length;
