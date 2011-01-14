@@ -120,13 +120,13 @@ public class ObjectStreamClassTest extends TestCase {
     public void test_getSerialVersionUID_inner_private_class() {
         ObjectStreamClass osc1 = ObjectStreamClass.lookup(SyntheticTest.class);
         assertEquals("SyntheticTest unexpected UID: "
-                + osc1.getSerialVersionUID(), -7784078941584535183L, osc1
+                + osc1.getSerialVersionUID(), 4405770616475181267L, osc1
                 .getSerialVersionUID());
 
         ObjectStreamClass osc2 = ObjectStreamClass
                 .lookup(SyntheticTest.X.class);
         assertEquals("SyntheticTest.X unexpected UID: "
-                + osc2.getSerialVersionUID(), -7703000075736397332L, osc2
+                + osc2.getSerialVersionUID(), 676101599466902119L, osc2
                 .getSerialVersionUID());
     }
 
@@ -231,7 +231,7 @@ public class ObjectStreamClassTest extends TestCase {
         }
 
 	}
-	
+
     /**
      * @tests java.io.ObjectStreamClass#lookupAny(java.lang.Class)
      * @since 1.6
