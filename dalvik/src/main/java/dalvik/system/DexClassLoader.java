@@ -34,6 +34,7 @@ import java.util.zip.ZipFile;
  * app may not have an opportunity to remove them.
  */
 public class DexClassLoader extends ClassLoader {
+    // TODO: Factor out commonality between this class and PathClassLoader.
 
     private static final boolean VERBOSE_DEBUG = false;
 
@@ -99,28 +100,34 @@ public class DexClassLoader extends ClassLoader {
             mFiles[i] = pathFile;
 
             if (pathFile.isFile()) {
-                try {
-                    mZips[i] = new ZipFile(pathFile);
-                } catch (IOException ioex) {
-                    // expecting IOException and ZipException
-                    System.out.println("Failed opening '" + pathFile
-                        + "': " + ioex);
-                    //ioex.printStackTrace();
+                if (!dexPathList[i].endsWith(".dex")) {
+                    /*
+                     * If the name doesn't end with ".dex" assume it's a zip
+                     * file of some sort.
+                     */
+                    try {
+                        mZips[i] = new ZipFile(pathFile);
+                    }
+                    catch (IOException ioex) {
+                        // expecting IOException and ZipException
+                        //System.out.println("Failed opening '" + pathFile
+                        //    + "': " + ioex);
+                        //ioex.printStackTrace();
+                    }
                 }
 
-                /* we need both DEX and Zip, because dex has no resources */
+                /*
+                 * If we got a zip file, we still need to extract out
+                 * the dex file from it.
+                 */
                 try {
-                    String outputName =
-                        generateOutputName(dexPathList[i], mDexOutputPath);
-                    mDexs[i] = DexFile.loadDex(dexPathList[i], outputName, 0);
-                } catch (IOException ioex) {
-                    // It might be a resource-only zip.
-                    System.out.println("Failed loadDex '" + pathFile
-                        + "': " + ioex);
+                    mDexs[i] = new DexFile(pathFile);
                 }
-            } else {
-                if (VERBOSE_DEBUG)
-                    System.out.println("Not found: " + pathFile.getPath());
+                catch (IOException ioex) {
+                    // It might be a resource-only zip.
+                    //System.out.println("Failed to construct DexFile '"
+                    //    + pathFile + "': " + ioex);
+                }
             }
         }
 

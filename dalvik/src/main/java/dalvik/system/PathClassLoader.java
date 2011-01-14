@@ -40,6 +40,7 @@ import libcore.io.IoUtils;
  * loader and for its application class loader(s).
  */
 public class PathClassLoader extends ClassLoader {
+    // TODO: Factor out commonality between this class and DexClassLoader.
 
     private final String path;
     private final String libPath;
