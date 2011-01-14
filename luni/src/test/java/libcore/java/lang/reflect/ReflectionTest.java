@@ -68,6 +68,11 @@ public final class ReflectionTest extends TestCase {
         String fieldFourGeneric = "java.util.Map<? super java.lang.Integer, java.lang.Integer[]> "
                 + classC + ".fieldFour";
         assertEquals(fieldFourGeneric, fieldFour.toGenericString());
+
+        Field fieldFive = C.class.getDeclaredField("fieldFive");
+        String fieldFiveRaw = "java.lang.String[][][][][] " + classC + ".fieldFive";
+        assertEquals(fieldFiveRaw, fieldFive.toString());
+        assertEquals(fieldFiveRaw, fieldFive.toGenericString());
     }
 
     public void testConstructorToString() throws Exception {
@@ -137,6 +142,7 @@ public final class ReflectionTest extends TestCase {
         transient volatile Map<A, String> fieldTwo;
         K[] fieldThree;
         Map<? super Integer, Integer[]> fieldFour;
+        String[][][][][] fieldFive;
 
         C(A a) throws B {}
         protected <T1 extends A> C(Map<? super A, T1> a, K s) {}

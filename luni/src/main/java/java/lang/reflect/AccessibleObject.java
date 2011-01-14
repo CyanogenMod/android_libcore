@@ -58,21 +58,6 @@ public class AccessibleObject implements AnnotatedElement {
     // If true, object is accessible, bypassing normal access checks
     boolean flag = false;
 
-    /**
-     * one dimensional array
-     */
-    private static final String DIMENSION_1 = "[]";
-
-    /**
-     * two dimensional array
-     */
-    private static final String DIMENSION_2 = "[][]";
-
-    /**
-     * three dimensional array
-     */
-    private static final String DIMENSION_3 = "[][][]";
-
     // Holds a mapping from Java type names to native type codes.
     static Hashtable<String, String> trans;
 
@@ -286,32 +271,14 @@ public class AccessibleObject implements AnnotatedElement {
      * @throws NullPointerException if any of the arguments is null
      */
     void appendArrayType(StringBuilder sb, Class<?> obj) {
-        if (!obj.isArray()) {
-            sb.append(obj.getName());
-            return;
-        }
-        int dimensions = 1;
-        Class simplified = obj.getComponentType();
-        obj = simplified;
-        while (simplified.isArray()) {
-            obj = simplified;
+        int dimensions = 0;
+        while (obj.isArray()) {
+            obj = obj.getComponentType();
             dimensions++;
         }
         sb.append(obj.getName());
-        switch (dimensions) {
-        case 1:
-            sb.append(DIMENSION_1);
-            break;
-        case 2:
-            sb.append(DIMENSION_2);
-            break;
-        case 3:
-            sb.append(DIMENSION_3);
-            break;
-        default:
-            for (; dimensions > 0; dimensions--) {
-                sb.append(DIMENSION_1);
-            }
+        for (int d = 0; d < dimensions; d++) {
+            sb.append("[]");
         }
     }
 
