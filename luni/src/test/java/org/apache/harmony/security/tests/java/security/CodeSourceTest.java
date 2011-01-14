@@ -40,6 +40,7 @@ import java.security.cert.Certificate;
 import org.apache.harmony.security.tests.support.TestCertUtils;
 
 import junit.framework.TestCase;
+
 @TestTargetClass(CodeSource.class)
 /**
  * Unit test for CodeSource.
@@ -502,9 +503,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thizCS.implies(thatCS));
     }
 
-    /**
-     * If this object's location equals codesource's location, then return true.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -520,10 +518,6 @@ public class CodeSourceTest extends TestCase {
 
     }
 
-    /**
-     * This object's protocol (getLocation().getProtocol()) must be equal to
-     * codesource's protocol.
-     */
     /*
      * FIXME
      * commented out for temporary, as there is no FTP:// protocol supported yet.
@@ -549,11 +543,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thatCS.implies(thizCS));
     }
 
-    /**
-     * If this object's host (getLocation().getHost()) is not null, then the
-     * SocketPermission constructed with this object's host must imply the
-     * SocketPermission constructed with codesource's host.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -585,10 +574,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thatCS.implies(thizCS));
     }
 
-    /**
-     * If this object's port (getLocation().getPort()) is not equal to -1 (that
-     * is, if a port is specified), it must equal codesource's port.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -616,10 +601,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thizCS.implies(thatCS));
     }
 
-    /**
-     * If this object's file (getLocation().getFile()) doesn't equal
-     * codesource's file, then the following checks are made: ...
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -632,10 +613,6 @@ public class CodeSourceTest extends TestCase {
         assertTrue(thizCS.implies(thatCS));
     }
 
-    /**
-     * ... If this object's file ends with "/-", then codesource's file must
-     * start with this object's file (exclusive the trailing "-").
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -654,11 +631,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thiz.implies(that));
     }
 
-    /**
-     * ... If this object's file ends with a "/*", then codesource's file must
-     * start with this object's file and must not have any further "/"
-     * separators.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -680,10 +652,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thiz.implies(that));
     }
 
-    /**
-     * ... If this object's file doesn't end with a "/", then codesource's file
-     * must match this object's file with a '/' appended.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -698,10 +666,6 @@ public class CodeSourceTest extends TestCase {
         assertFalse(thatCS.implies(thizCS));
     }
 
-    /**
-     * If this object's reference (getLocation().getRef()) is not null, it must
-     * equal codesource's reference.
-     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
