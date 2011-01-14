@@ -16,11 +16,8 @@
 
 package dalvik.system;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,7 +28,6 @@ import junit.framework.TestCase;
 /**
  * Tests for the class {@link DexClassLoader}.
  */
-@TestTargetClass(DexClassLoader.class)
 public class DexClassLoaderTest extends TestCase {
     private static final String PACKAGE_PATH = "dalvik/system/";
     private static final String JAR_NAME = "loading-test.jar";
@@ -52,13 +48,37 @@ public class DexClassLoaderTest extends TestCase {
     }
 
     /**
-     * Just a trivial test of construction.
+     * Helper to construct an instance to test.
+     */
+    static private DexClassLoader createInstance() {
+        return new DexClassLoader(TMP_JAR.getAbsolutePath(),
+                                  TMP_DIR.getAbsolutePath(),
+                                  null,
+                                  ClassLoader.getSystemClassLoader());
+    }
+
+    /**
+     * Just a trivial test of construction. This one merely makes
+     * sure that a valid construction doesn't fail; it doesn't try
+     * to verify anything about the constructed instance. (Other
+     * tests will do that.)
      */
     public void test_init() {
-        DexClassLoader dcl = new DexClassLoader(
-                TMP_JAR.getAbsolutePath(),
-                TMP_DIR.getAbsolutePath(),
-                null,
-                ClassLoader.getSystemClassLoader());
+        createInstance();
+    }
+
+    /**
+     * Check that a class in the jar file may be used successfully. In this
+     * case, a trivial static method is called.
+     */
+    public void test_simpleUse()
+            throws ClassNotFoundException, NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException {
+        DexClassLoader dcl = createInstance();
+        Class c = dcl.loadClass("test.Test1");
+        Method m = c.getMethod("test", (Class[]) null);
+        String result = (String) m.invoke(null, (Object[]) null);
+
+        assertSame("blort", result);
     }
 }
