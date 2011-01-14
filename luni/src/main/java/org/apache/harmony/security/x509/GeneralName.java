@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
 import org.apache.harmony.security.asn1.ASN1Choice;
 import org.apache.harmony.security.asn1.ASN1Implicit;
@@ -365,8 +366,8 @@ public class GeneralName {
                 // Mail address [1]:
                 // a@b.c - particular address is acceptable by the same address,
                 // or by b.c - host name.
-                return ((String) gname.getName()).toLowerCase()
-                    .endsWith(((String) name).toLowerCase());
+                return ((String) gname.getName()).toLowerCase(Locale.US)
+                    .endsWith(((String) name).toLowerCase(Locale.US));
             case DNS_NAME:
                 // DNS name [2] that can be constructed by simply adding
                 // to the left hand side of the name satisfies the name
@@ -376,7 +377,7 @@ public class GeneralName {
                 if (dns.equalsIgnoreCase(_dns)) {
                     return true;
                 } else {
-                    return _dns.toLowerCase().endsWith("." + dns.toLowerCase());
+                    return _dns.toLowerCase(Locale.US).endsWith("." + dns.toLowerCase(Locale.US));
                 }
             case UR_ID:
                 // For URIs the constraint ".xyz.com" is satisfied by both
@@ -398,7 +399,7 @@ public class GeneralName {
                                 ? uri.substring(begin)
                                 : uri.substring(begin, end);
                 if (host.startsWith(".")) {
-                    return _host.toLowerCase().endsWith(host.toLowerCase());
+                    return _host.toLowerCase(Locale.US).endsWith(host.toLowerCase(Locale.US));
                 } else {
                     return host.equalsIgnoreCase(_host);
                 }
@@ -411,7 +412,7 @@ public class GeneralName {
                 if (length == _length) {
                     return Arrays.equals(address, _address);
                 } else if (length == 2*_length) {
-                    for (int i=0; i<_address.length; i++) {
+                    for (int i = 0; i < _address.length; i++) {
                         if ((_address[i] < address[i])
                                 || (_address[i] > address[i+_length])) {
                             return false;
@@ -497,7 +498,7 @@ public class GeneralName {
     //
     private String getBytesAsString(byte[] data) {
         String result = "";
-        for (int i=0; i<data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             String tail = Integer.toHexString(0x00ff & data[i]);
             if (tail.length() == 1) {
                 tail = "0" + tail;
@@ -580,13 +581,14 @@ public class GeneralName {
      * by RFC 1123 (section 2.1).
      */
     public static void checkDNS(String dns) throws IOException {
-        byte[] bytes = dns.toLowerCase().getBytes(Charsets.UTF_8);
+        String string = dns.toLowerCase(Locale.US);
+        int length = string.length();
         // indicates if it is a first letter of the label
         boolean first_letter = true;
-        for (int i=0; i<bytes.length; i++) {
-            byte ch = bytes[i];
+        for (int i = 0; i < length; i++) {
+            char ch = string.charAt(i);
             if (first_letter) {
-                if ((bytes.length > 2) && (ch == '*') && (bytes[1] == '.')) {
+                if ((length > 2) && (ch == '*') && (string.charAt(1) == '.')) {
                     first_letter = false;
                     continue;
                 }
@@ -603,7 +605,7 @@ public class GeneralName {
             if (ch == '.') {
                 // check the end of the previous label, it should not
                 // be '-' sign
-                if (bytes[i-1] == '-') {
+                if (string.charAt(i-1) == '-') {
                     throw new IOException("Incorrect DNS name: label ends with '-': " + dns);
                 }
                 first_letter = true;
@@ -631,42 +633,42 @@ public class GeneralName {
     }
 
     /**
-     * Converts OID into array of bytes.
+     * Converts OID into array of ints.
      */
     public static int[] oidStrToInts(String oid) throws IOException {
-        byte[] bytes = oid.getBytes(Charsets.UTF_8);
-        if (bytes[bytes.length-1] == '.') {
+        int length = oid.length();
+        if (oid.charAt(length-1) == '.') {
             throw new IOException("Bad OID: " + oid);
         }
-        int[] result = new int[bytes.length/2+1]; // best case: a.b.c.d.e
+        int[] result = new int[length/2+1]; // best case: a.b.c.d.e
         int number = 0; // the number of OID's components
-        for (int i=0; i<bytes.length; i++) {
+        for (int i = 0; i < length; i++) {
             int value = 0;
             int pos = i;
-            while ((i < bytes.length) && (bytes[i] >= '0')
-                        && (bytes[i] <= '9')) {
-                value = 10 * value + (bytes[i++] - 48);
+            for (; i < length; i++) {
+                char ch = oid.charAt(i);
+                if ((ch < '0') || (ch > '9')) {
+                    break;
+                }
+                value = 10 * value + (ch - '0');
             }
             if (i == pos) {
                 // the number was not read
                 throw new IOException("Bad OID: " + oid);
             }
             result[number++] = value;
-            if (i >= bytes.length) {
+            if (i == length) {
                 break;
             }
-            if (bytes[i] != '.') {
+            char ch = oid.charAt(i);
+            if (ch != '.') {
                 throw new IOException("Bad OID: " + oid);
             }
         }
         if (number < 2) {
             throw new IOException("OID should consist of no less than 2 components: " + oid);
         }
-        int[] res = new int[number];
-        for (int i=0; i<number; i++) {
-            res[i] = result[i];
-        }
-        return res;
+        return Arrays.copyOfRange(result, 0, number);
     }
 
     /**
@@ -688,7 +690,7 @@ public class GeneralName {
         }
         // the resulting array
         byte[] result = new byte[num_components];
-        byte[] ip_bytes = ip.getBytes(Charsets.UTF_8);
+        int length = ip.length();
         // number of address component to be read
         int component = 0;
         // if it is reading the second bound of a range
@@ -698,35 +700,41 @@ public class GeneralName {
             //      1.100.2.200
             // or in the range form:
             //      1.100.2.200/1.100.3.300
-            int i = 0;
-            while (i < ip_bytes.length) {
+            for (int i = 0; i < length; i++) {
                 int digits = 0;
                 // the value of the address component
                 int value = 0;
-                while ((i < ip_bytes.length) && (ip_bytes[i] >= '0') && (ip_bytes[i] <= '9')) {
+                for (; i < length; i++) {
+                    int ch = ip.charAt(i);
+                    if ((ch < '0') || (ch > '9')) {
+                        break;
+                    }
                     digits++;
                     if (digits > 3) {
                         throw new IOException("Component of IPv4 address should consist of no more than 3 decimal digits: " + ip);
                     }
-                    value = 10 * value + (ip_bytes[i] - 48);
-                    i++;
+                    value = 10 * value + (ch - '0');
+                    if (value > 255) {
+                        throw new IOException("Component of IPv4 address should not be more than 255: " + value);
+                    }
                 }
                 if (digits == 0) {
-                    // ip_bytes[i] is not a number
+                    // ch is not a number
                     throw badIp(4, ip);
                 }
                 result[component] = (byte) value;
                 component++;
-                if (i >= ip_bytes.length) {
+                if (i == length) {
                     // no more bytes
                     break;
                 }
+                int ch = ip.charAt(i);
                 // check the reached delimiter
-                if ((ip_bytes[i] != '.' && ip_bytes[i] != '/')) {
+                if ((ch != '.' && ch != '/')) {
                     throw badIp(4, ip);
                 }
                 // check the correctness of the range
-                if (ip_bytes[i] == '/') {
+                if (ch == '/') {
                     if (reading_second_bound) {
                         // more than 2 bounds in the range
                         throw badIp(4, ip);
@@ -740,7 +748,6 @@ public class GeneralName {
                 if (component > ((reading_second_bound) ? 7 : 3)) {
                     throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
                 }
-                i++;
             }
             // check the number of read components
             if (component != num_components) {
@@ -752,7 +759,7 @@ public class GeneralName {
             // 010a:020b:3337:1000:FFFA:ABCD:9999:0000
             // or in a range form:
             // 010a:020b:3337:1000:FFFA:ABCD:9999:0000/010a:020b:3337:1000:FFFA:ABCD:9999:1111
-            if (ip_bytes.length != 39 && ip_bytes.length != 79) {
+            if (length != 39 && length != 79) {
                 // incorrect length of the string representation
                 throw badIp(6, ip);
             }
@@ -761,25 +768,22 @@ public class GeneralName {
             boolean second_hex = false;
             // if the delimiter (':' or '/') is expected
             boolean expect_delimiter = false;
-            for (int i=0; i<ip_bytes.length; i++) {
-                byte bytik = ip_bytes[i];
-                if ((bytik >= '0') && (bytik <= '9')) {
-                    value = (bytik - 48); // '0':0, '1':1, ... , '9':9
-                } else if ((bytik >= 'A') && (bytik <= 'F')) {
-                    value = (bytik - 55); // 'A':10, 'B':11, ... , 'F':15
-                } else if ((bytik >= 'a') && (bytik <= 'f')) {
-                    value = (bytik - 87); // 'a':10, 'b':11, ... , 'f':15
+            for (int i = 0; i < length; i++) {
+                char ch = ip.charAt(i);
+                int numericValue = (ch < 128) ? Character.getNumericValue(ch) : -1; // 128 for ASCII check
+                if (numericValue != -1 && numericValue <= 16) {
+                    value = numericValue;
                 } else if (second_hex) {
                     // second hex value of a byte is expected but was not read
                     // (it is the situation like: ...ABCD:A:ABCD...)
                     throw badIp(6, ip);
-                } else if ((bytik == ':') || (bytik == '/')) {
+                } else if ((ch == ':') || (ch == '/')) {
                     if (component % 2 == 1) {
                         // second byte of the component is omitted
                         // (it is the situation like: ... ABDC:AB:ABCD ...)
                         throw badIp(6, ip);
                     }
-                    if (bytik == '/') {
+                    if (ch == '/') {
                         if (reading_second_bound) {
                             // more than 2 bounds in the range
                             throw badIp(6, ip);
@@ -841,14 +845,14 @@ public class GeneralName {
     public static String ipBytesToStr(byte[] ip) {
         String result = "";
         if (ip.length < 9) { // IP v4
-            for (int i=0; i<ip.length; i++) {
+            for (int i = 0; i < ip.length; i++) {
                 result += Integer.toString(ip[i] & 0xff);
                 if (i != ip.length-1) {
                     result += (i == 3) ? "/": ".";
                 }
             }
         } else {
-            for (int i=0; i<ip.length; i++) {
+            for (int i = 0; i < ip.length; i++) {
                 result += Integer.toHexString(0x00ff & ip[i]);
                 if ((i % 2 != 0) && (i != ip.length-1)) {
                     result += (i == 15) ? "/": ":";
@@ -922,7 +926,7 @@ public class GeneralName {
     //         String prefix,
     //         String delimiter,
     //         byte[] data) {
-    //     for (int i=0; i<data.length; i++) {
+    //     for (int i = 0; i < data.length; i++) {
     //         String tail = Integer.toHexString(0x000000ff & data[i]);
     //         if (tail.length() == 1) {
     //             tail = "0" + tail;
