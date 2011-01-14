@@ -247,7 +247,6 @@ public final class ObjectIdentifier {
         return sb.toString();
     }
 
-    // BEGIN android-changed
     /**
      * Gets ObjectIdentifier (OID) from string representation.
      *
@@ -368,5 +367,4 @@ public final class ObjectIdentifier {
 
         return oid;
     }
-    // END android-changed
 }

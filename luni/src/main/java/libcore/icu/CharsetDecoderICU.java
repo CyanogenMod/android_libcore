@@ -42,10 +42,8 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     private byte[] input = null;
     private char[] output= null;
 
-    // BEGIN android-added
     private byte[] allocatedInput = null;
     private char[] allocatedOutput = null;
-    // END android-added
 
     // These instance variables are always assigned in the methods before being used. This class
     // is inherently thread-unsafe so we don't have to worry about synchronization.
@@ -245,19 +243,15 @@ public final class CharsetDecoderICU extends CharsetDecoder {
 
     private int getArray(CharBuffer out) {
         if (out.hasArray()) {
-            // BEGIN android-changed: take arrayOffset into account
             output = out.array();
             outEnd = out.arrayOffset() + out.limit();
             return out.arrayOffset() + out.position();
-            // END android-changed
         } else {
             outEnd = out.remaining();
-            // BEGIN android-added
             if (allocatedOutput == null || (outEnd > allocatedOutput.length)) {
                 allocatedOutput = new char[outEnd];
             }
             output = allocatedOutput;
-            // END android-added
             //since the new
             // buffer start position
             // is 0
@@ -267,19 +261,15 @@ public final class CharsetDecoderICU extends CharsetDecoder {
 
     private  int getArray(ByteBuffer in) {
         if (in.hasArray()) {
-            // BEGIN android-changed: take arrayOffset into account
             input = in.array();
             inEnd = in.arrayOffset() + in.limit();
             return in.arrayOffset() + in.position() + savedInputHeldLen;/*exclude the number fo bytes held in previous conversion*/
-            // END android-changed
         } else {
             inEnd = in.remaining();
-            // BEGIN android-added
             if (allocatedInput == null || (inEnd > allocatedInput.length)) {
                 allocatedInput = new byte[inEnd];
             }
             input = allocatedInput;
-            // END android-added
             // save the current position
             int pos = in.position();
             in.get(input,0,inEnd);

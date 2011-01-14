@@ -206,16 +206,9 @@ public class CharArrayWriter extends Writer {
         if (str == null) {
             throw new NullPointerException("str == null");
         }
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
         if ((offset | count) < 0 || offset > str.length() - count) {
             throw new StringIndexOutOfBoundsException(str, offset, count);
         }
-        // END android-changed
         synchronized (lock) {
             expand(count);
             str.getChars(offset, offset + count, buf, this.count);

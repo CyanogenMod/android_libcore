@@ -514,7 +514,6 @@ abstract class FileChannelImpl extends FileChannel {
         int[] handles = new int[length];
         int[] offsets = new int[length];
         int[] lengths = new int[length];
-        // BEGIN android-changed
         // list of allocated direct ByteBuffers to prevent them from being GC-ed
         ByteBuffer[] allocatedBufs = new ByteBuffer[length];
 
@@ -534,7 +533,6 @@ abstract class FileChannelImpl extends FileChannel {
             handles[i] = NioUtils.getDirectBufferAddress(buffer);
             lengths[i] = buffer.remaining();
         }
-        // END android-changed
 
         long bytesWritten = 0;
         boolean completed = false;

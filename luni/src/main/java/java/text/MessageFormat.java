@@ -1004,9 +1004,7 @@ public class MessageFormat extends Format {
                         .getTimeInstance(dateStyle, locale);
             case 2: // number
                 if (ch == '}') {
-                    // BEGIN android-changed
                     return NumberFormat.getInstance(locale);
-                    // END android-changed
                 }
                 int numberStyle = match(string, position, true,
                         new String[] { "currency", "percent", "integer" });
@@ -1072,16 +1070,6 @@ public class MessageFormat extends Format {
         this.locale = locale;
         for (int i = 0; i <= maxOffset; i++) {
             Format format = formats[i];
-            // BEGIN android-removed
-            //if (format instanceof DecimalFormat) {
-            //     formats[i] = new DecimalFormat(((DecimalFormat) format)
-            //             .toPattern(), new DecimalFormatSymbols(locale));
-            //} else if (format instanceof SimpleDateFormat) {
-            //     formats[i] = new SimpleDateFormat(((SimpleDateFormat) format)
-            //             .toPattern(), locale);
-            //}
-            // END android-removed
-            // BEGIN android-added
             // java specification undefined for null argument, change into
             // a more tolerant implementation
             if (format instanceof DecimalFormat) {
@@ -1099,7 +1087,6 @@ public class MessageFormat extends Format {
                     formats[i] = null;
                 }
             }
-            // END android-added
         }
     }
 

@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// address length was changed from long to int for performance reasons.
-// END android-note
-
 package org.apache.harmony.luni.platform;
 
 import java.io.FileDescriptor;
@@ -105,13 +101,6 @@ public interface IFileSystem {
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
 
-    // BEGIN android-deleted
-    // public long ttyAvailable() throws IOException;
-    // public long ttyRead(byte[] bytes, int offset, int length) throws IOException;
-    // END android-deleted
-
-    // BEGIN android-added
     public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
-    // END android-added
 
 }

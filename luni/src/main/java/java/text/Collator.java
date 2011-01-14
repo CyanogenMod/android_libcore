@@ -172,7 +172,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
             clone.icuColl = (RuleBasedCollatorICU) icuColl.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

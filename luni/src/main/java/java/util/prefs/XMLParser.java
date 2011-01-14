@@ -109,9 +109,7 @@ class XMLParser {
      */
     static {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // BEGIN android-changed
         factory.setValidating(false);
-        // END android-changed
         try {
             builder = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -368,22 +366,12 @@ class XMLParser {
         } catch (SAXException e) {
             throw new InvalidPreferencesFormatException(e);
         }
-        // BEGIN android-removed
-        // catch (TransformerException e) {
-        //     throw new InvalidPreferencesFormatException(e);
-        // }
-        // END android-removed
     }
 
     private static void loadNode(Preferences prefs, Element node) {
-        // BEGIN android-note
-        // removed throw clause for TransformerException
-        // END android-note
         // load preferences
-        // BEGIN android-changed
         NodeList children = selectNodeList(node, "node");
         NodeList entries = selectNodeList(node, "map/entry");
-        // END android-changed
         int childNumber = children.getLength();
         Preferences[] prefChildren = new Preferences[childNumber];
         int entryNumber = entries.getLength();
@@ -411,7 +399,6 @@ class XMLParser {
         }
     }
 
-    // BEGIN android-added
     // TODO dirty implementation of a method from javax.xml.xpath
     // should be replaced with a call to a good impl of this method
     private static NodeList selectNodeList(Element documentElement, String string) {
@@ -458,7 +445,6 @@ class XMLParser {
 
         return result;
     }
-    // END android-added
 
     /***************************************************************************
      * utilities for FilePreferencesImpl, which is default implementation of Linux platform

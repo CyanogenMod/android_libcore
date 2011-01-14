@@ -23,10 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-// BEGIN android-removed
-// import org.apache.harmony.luni.internal.reflect.ProxyClassFile;
-// END android-removed
-
 /**
  * {@code Proxy} defines methods for creating dynamic proxy classes and instances.
  * A proxy class implements a declared set of interfaces and delegates method
@@ -91,9 +87,6 @@ public class Proxy implements Serializable {
      */
     public static Class<?> getProxyClass(ClassLoader loader,
             Class<?>... interfaces) throws IllegalArgumentException {
-        // BEGIN android-note
-        // Changed parameter to be closer to the RI
-        // END android-note
         // check that interfaces are a valid array of visible interfaces
         if (interfaces == null) {
             throw new NullPointerException();
@@ -165,21 +158,13 @@ public class Proxy implements Serializable {
                 if (commonPackageName != null && commonPackageName.length() > 0) {
                     nextClassName = commonPackageName + "." + nextClassName;
                 }
-                // BEGIN android-changed
-                // byte[] classFileBytes = ProxyClassFile.generateBytes(
-                //         nextClassName, interfaces);
-                // newClass = defineClassImpl(loader, nextClassName.replace('.',
-                //         '/'), classFileBytes);
                 if (loader == null) {
                     loader = ClassLoader.getSystemClassLoader();
                 }
-                newClass = generateProxy(nextClassName.replace('.', '/'),
-                        interfaces, loader);
-                // END android-changed
+                newClass = generateProxy(nextClassName.replace('.', '/'), interfaces, loader);
                 // Need a weak reference to the class so it can
                 // be unloaded if the class loader is discarded
-                interfaceCache.put(interfaceKey, new WeakReference<Class<?>>(
-                        newClass));
+                interfaceCache.put(interfaceKey, new WeakReference<Class<?>>(newClass));
                 synchronized (proxyCache) {
                     // the value is unused
                     proxyCache.put(newClass, "");
@@ -282,9 +267,6 @@ public class Proxy implements Serializable {
         throw new IllegalArgumentException("not a proxy instance");
     }
 
-    // BEGIN android-changed
-    //private static native Class<?> defineClassImpl(ClassLoader classLoader,
-    //        String className, byte[] classFileBytes);
     native private static Class generateProxy(String name, Class[] interfaces,
         ClassLoader loader);
 
@@ -293,6 +275,4 @@ public class Proxy implements Serializable {
      * There is no implementation.
      */
     native private static void constructorPrototype(InvocationHandler h);
-    // END android-changed
-
 }

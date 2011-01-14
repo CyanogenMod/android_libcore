@@ -761,14 +761,12 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
     @Override
     public Object clone() {
         try {
-            IdentityHashMap<K, V> cloneHashMap = (IdentityHashMap<K, V>) super
-                    .clone();
+            IdentityHashMap<K, V> cloneHashMap = (IdentityHashMap<K, V>) super.clone();
             cloneHashMap.elementData = newElementArray(elementData.length);
-            System.arraycopy(elementData, 0, cloneHashMap.elementData, 0,
-                    elementData.length);
+            System.arraycopy(elementData, 0, cloneHashMap.elementData, 0, elementData.length);
             return cloneHashMap;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

@@ -128,7 +128,7 @@ public class BitSet implements Serializable, Cloneable {
             clone.bits = bits.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

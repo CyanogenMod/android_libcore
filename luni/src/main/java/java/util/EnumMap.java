@@ -477,7 +477,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             enumMap.initialization(this);
             return enumMap;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

@@ -44,9 +44,6 @@ public abstract class SSLSocketFactory extends SocketFactory {
      */
     public static synchronized SocketFactory getDefault() {
         if (defaultSocketFactory != null) {
-            // BEGIN android-added
-            // log("SSLSocketFactory", "Using factory " + defaultSocketFactory, null);
-            // END android-added
             return defaultSocketFactory;
         }
         if (defaultName == null) {
@@ -80,18 +77,13 @@ public abstract class SSLSocketFactory extends SocketFactory {
             // Use internal implementation
             defaultSocketFactory = new DefaultSSLSocketFactory("No SSLSocketFactory installed");
         }
-        // BEGIN android-added
-        // log("SSLSocketFactory", "Using factory " + defaultSocketFactory, null);
-        // END android-added
         return defaultSocketFactory;
     }
 
-    // BEGIN android-added
     @SuppressWarnings("unchecked")
     private static void log(String tag, String msg, Throwable throwable) {
         Logger.getLogger(tag).log(Level.INFO, msg, throwable);
     }
-    // END android-added
 
     /**
      * Creates a new {@code SSLSocketFactory}.

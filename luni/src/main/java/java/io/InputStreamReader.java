@@ -138,11 +138,9 @@ public class InputStreamReader extends Reader {
     @Override
     public void close() throws IOException {
         synchronized (lock) {
-            // BEGIN android-added
             if (decoder != null) {
                 decoder.reset();
             }
-            // END android-added
             decoder = null;
             if (in != null) {
                 in.close();

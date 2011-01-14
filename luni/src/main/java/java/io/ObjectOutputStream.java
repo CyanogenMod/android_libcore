@@ -114,11 +114,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      */
     private boolean subclassOverridingImplementation;
 
-
-    // BEGIN android-removed
-    // private ObjectAccessor accessor = AccessorFactory.getObjectAccessor();
-    // END android-removed
-
     /*
      * Descriptor for java.lang.reflect.Proxy
      */

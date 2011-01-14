@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// New implementation: simpler and faster than Harmony implementation.
-// BEGIN android-note
-
 package java.util;
 
 import java.io.IOException;

@@ -103,7 +103,6 @@ public class ASN1Integer extends ASN1Primitive {
         out.length = ((byte[]) out.content).length;
     }
 
-// BEGIN android-changed
     /**
      * Converts decoded ASN.1 Integer to int value.
      * If the object represents an integer value
@@ -125,7 +124,6 @@ public class ASN1Integer extends ASN1Primitive {
     public static BigInteger toBigIntegerValue(Object decoded) {
         return new BigInteger((byte[]) decoded);//FIXME optimize
     }
-// END android-changed
 
     /**
      * Converts primitive int value to a form most suitable for encoding.

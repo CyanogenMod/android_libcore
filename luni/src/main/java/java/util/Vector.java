@@ -262,7 +262,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
             vector.elementData = elementData.clone();
             return vector;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

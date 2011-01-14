@@ -187,9 +187,7 @@ public class AlgNameMapper {
      * @return 'true' if parameter represents OID
      */
     public static boolean isOID(String alias) {
-        // BEGIN android-changed
         return ObjectIdentifier.isOID(normalize(alias));
-        // END android-changed
     }
 
     /**

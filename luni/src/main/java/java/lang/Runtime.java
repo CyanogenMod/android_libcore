@@ -169,9 +169,8 @@ public class Runtime {
      *             if the requested program can not be executed.
      */
     public Process exec(String[] progArray, String[] envp, File directory) throws IOException {
-        // BEGIN android-changed: push responsibility for argument checking into ProcessManager
+        // ProcessManager is responsible for all argument checking.
         return ProcessManager.getInstance().exec(progArray, envp, directory, false);
-        // END android-changed
     }
 
     /**

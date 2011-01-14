@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// This implementation is quite different from Harmony. Changes are not marked.
-// END android-note
-
 package java.lang.ref;
 
 /**

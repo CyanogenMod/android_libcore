@@ -64,19 +64,16 @@ import java.util.Map;
  */
 public abstract class ClassLoader {
 
-    // BEGIN android-note
-    /*
+    /**
+     * The 'System' ClassLoader - the one that is responsible for loading
+     * classes from the classpath. It is not equal to the bootstrap class loader -
+     * that one handles the built-in classes.
+     *
      * Because of a potential class initialization race between ClassLoader and
      * java.lang.System, reproducible when using JDWP with "suspend=y", we defer
      * creation of the system class loader until first use. We use a static
      * inner class to get synchronization at init time without having to sync on
      * every access.
-     */
-    // END android-note
-    /**
-     * The 'System' ClassLoader - the one that is responsible for loading
-     * classes from the classpath. It is not equal to the bootstrap class loader -
-     * that one handles the built-in classes.
      *
      * @see #getSystemClassLoader()
      */

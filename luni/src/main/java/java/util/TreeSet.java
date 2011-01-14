@@ -163,7 +163,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
             }
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

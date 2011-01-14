@@ -105,7 +105,7 @@ public final class StringCharacterIterator implements CharacterIterator {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

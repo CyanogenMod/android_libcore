@@ -818,7 +818,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             clone.zone = (TimeZone) zone.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

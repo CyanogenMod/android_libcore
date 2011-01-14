@@ -39,19 +39,20 @@ public class RandomBitsSupplier implements SHA1_Data {
 
 
     /**
-     *  BufferedInputStream to read from device
+     * InputStream to read from device
+     *
+     * Using a BufferedInputStream leads to problems
+     * on Android in rare cases, since the
+     * BufferedInputStream's available() issues an
+     * ioctl(), and the pseudo device doesn't seem
+     * to like that. Since we're reading bigger
+     * chunks and not single bytes, the FileInputStream
+     * shouldn't be slower, so we use that. Same might
+     * apply to other Linux platforms.
+     *
+     * TODO: the above doesn't sound true.
      */
-    // BEGIN android-changed
-    // Using a BufferedInputStream leads to problems
-    // on Android in rare cases, since the
-    // BufferedInputStream's available() issues an
-    // iotcl(), and the pseudo device doesn't seem
-    // to like that. Since we're reading bigger
-    // chunks and not single bytes, the FileInputStream
-    // shouldn't be slower, so we use that. Same might
-    // apply to other Linux platforms.
-    private static FileInputStream bis = null;
-    // END android-changed
+    private static FileInputStream fis = null;
 
     /**
      * File to connect to device
@@ -73,9 +74,7 @@ public class RandomBitsSupplier implements SHA1_Data {
             try {
                 File file = new File(deviceName);
                 if (file.canRead()) {
-                    // BEGIN android-modified
-                    bis = new FileInputStream(file);
-                    // END android-modified
+                    fis = new FileInputStream(file);
                     randomFile = file;
                     serviceAvailable = true;
                 }
@@ -109,7 +108,7 @@ public class RandomBitsSupplier implements SHA1_Data {
         try {
             for ( ; ; ) {
 
-                bytesRead = bis.read(bytes, offset, numBytes-total);
+                bytesRead = fis.read(bytes, offset, numBytes-total);
 
 
                 // the below case should not occur because /dev/random or /dev/urandom is a special file
@@ -147,7 +146,6 @@ public class RandomBitsSupplier implements SHA1_Data {
      *       InvalidArgumentException - if numBytes <= 0
      */
     public static byte[] getRandomBits(int numBytes) {
-
         if (numBytes <= 0) {
             throw new IllegalArgumentException(Integer.toString(numBytes));
         }
@@ -158,8 +156,6 @@ public class RandomBitsSupplier implements SHA1_Data {
             throw new ProviderException("ATTENTION: service is not available : no random devices");
         }
 
-        // BEGIN android-changed
         return getUnixDeviceRandom(numBytes);
-        // END android-changed
     }
 }

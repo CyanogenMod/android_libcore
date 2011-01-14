@@ -17,11 +17,6 @@
 
 package java.io;
 
-// BEGIN android-note
-// Harmony uses ObjectAccessors to access fields through JNI. Android has not
-// yet migrated that API. As a consequence, there's a lot of changes here...
-// END android-note
-
 import dalvik.system.VMStack;
 import java.io.EmulatedFields.ObjectSlot;
 import java.lang.reflect.Array;
@@ -51,9 +46,7 @@ import libcore.base.EmptyArray;
  */
 public class ObjectInputStream extends InputStream implements ObjectInput, ObjectStreamConstants {
 
-    // BEGIN android-note
-    // this is non-static to avoid sync contention. Would static be faster?
-    // END android-note
+    // TODO: this is non-static to avoid sync contention. Would static be faster?
     private InputStream emptyStream = new ByteArrayInputStream(EmptyArray.BYTE);
 
     // To put into objectsRead when reading unsharedObject
@@ -123,10 +116,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         PRIMITIVE_CLASSES.put("short", short.class);
         PRIMITIVE_CLASSES.put("void", void.class);
     }
-
-    // BEGIN android-removed
-    // private ObjectAccessor accessor = AccessorFactory.getObjectAccessor();
-    // END android-removed
 
     // Internal type used to keep track of validators & corresponding priority
     static class InputValidationDesc {
@@ -1165,13 +1154,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                     }
                     if (fieldDesc != null) {
                         if (toSet != null) {
-                            // BEGIN android-changed
                             // Get the field type from the local field rather than
                             // from the stream's supplied data. That's the field
                             // we'll be setting, so that's the one that needs to be
                             // validated.
                             Class<?> fieldType = localFieldDesc.getTypeInternal();
-                            // END android-added
                             Class<?> valueType = toSet.getClass();
                             if (!fieldType.isAssignableFrom(valueType)) {
                                 throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
@@ -1786,10 +1773,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throws IOException, ClassNotFoundException {
         // TODO: This method is opportunity for performance enhancement
         //       We can cache the classloader and recently used interfaces.
-        // BEGIN android-changed
-        // ClassLoader loader = VM.getNonBootstrapClassLoader();
         ClassLoader loader = ClassLoader.getSystemClassLoader();
-        // END android-changed
         Class<?>[] interfaces = new Class<?>[interfaceNames.length];
         for (int i = 0; i < interfaceNames.length; i++) {
             interfaces[i] = Class.forName(interfaceNames[i], false, loader);
@@ -2026,9 +2010,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // original/outside caller
             if (++nestedLevels == 1) {
                 // Remember the caller's class loader
-                // BEGIN android-changed
                 callerClassLoader = getClosestUserClassLoader();
-                // END android-changed
             }
 
             result = readNonPrimitiveContent(unshared);
@@ -2065,11 +2047,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         return result;
     }
 
-    // BEGIN android-added
-    private static final ClassLoader bootstrapLoader
-            = Object.class.getClassLoader();
-    private static final ClassLoader systemLoader
-            = ClassLoader.getSystemClassLoader();
+    private static final ClassLoader bootstrapLoader = Object.class.getClassLoader();
+    private static final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
 
     /**
      * Searches up the call stack to find the closest user-defined class loader.
@@ -2087,7 +2066,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
         return null;
     }
-    // END android-added
 
     /**
      * Method to be overridden by subclasses to read the next object from the

@@ -517,9 +517,7 @@ public final class Field extends AccessibleObject implements Member {
      */
     @Override
     public int hashCode() {
-        // BEGIN android-changed
         return name.hashCode() ^ getDeclaringClass().getName().hashCode();
-        // END android-changed
     }
 
     /**

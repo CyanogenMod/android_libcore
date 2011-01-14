@@ -135,7 +135,7 @@ public class LogRecord implements Serializable {
     private transient Object[] parameters;
 
     // If the source method and source class has been initialized
-    private transient boolean sourceInited;
+    private transient boolean sourceInitialized;
 
     /**
      * Constructs a {@code LogRecord} object using the supplied the logging
@@ -360,8 +360,7 @@ public class LogRecord implements Serializable {
      *  Init the sourceClass and sourceMethod fields.
      */
     private void initSource() {
-        // BEGIN android-changed
-        if (sourceInited) {
+        if (sourceInitialized) {
             return;
         }
 
@@ -377,8 +376,7 @@ public class LogRecord implements Serializable {
             }
         }
 
-        sourceInited = true;
-        // END android-changed
+        sourceInitialized = true;
     }
 
     /**
@@ -389,7 +387,7 @@ public class LogRecord implements Serializable {
      *            {@code null}.
      */
     public void setSourceClassName(String sourceClassName) {
-        sourceInited = true;
+        sourceInitialized = true;
         this.sourceClassName = sourceClassName;
     }
 
@@ -411,7 +409,7 @@ public class LogRecord implements Serializable {
      *            {@code null}.
      */
     public void setSourceMethodName(String sourceMethodName) {
-        sourceInited = true;
+        sourceInitialized = true;
         this.sourceMethodName = sourceMethodName;
     }
 

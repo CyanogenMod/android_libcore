@@ -772,11 +772,9 @@ outer:
         }
         if (object instanceof String) {
             String s = (String) object;
-            // BEGIN android-changed
             int hashCode1 = hashCode;
             int hashCode2 = s.hashCode;
-            if (count != s.count
-                || (hashCode1 != hashCode2 && hashCode1 != 0 && hashCode2 != 0)) {
+            if (count != s.count || (hashCode1 != hashCode2 && hashCode1 != 0 && hashCode2 != 0)) {
                 return false;
             }
             // inline 'return regionMatches(0, s, 0, count)'
@@ -790,7 +788,6 @@ outer:
                 }
             }
             return true;
-            // END android-changed
         }
         return false;
     }
@@ -1009,7 +1006,6 @@ outer:
     }
 
     private int fastIndexOf(int c, int start) {
-        // BEGIN android-changed
         int _count = count;
         if (start < _count) {
             if (start < 0) {
@@ -1025,7 +1021,6 @@ outer:
             }
         }
         return -1;
-        // END android-changed
     }
 
     private int indexOfSupplementary(int c, int start) {
@@ -1050,7 +1045,6 @@ outer:
      *             if {@code string} is {@code null}.
      */
     public int indexOf(String string) {
-        // BEGIN android-changed
         int start = 0;
         int subCount = string.count;
         int _count = count;
@@ -1079,7 +1073,6 @@ outer:
             }
         }
         return start < _count ? start : _count;
-        // END android-changed
     }
 
     /**
@@ -1097,7 +1090,6 @@ outer:
      *             if {@code subString} is {@code null}.
      */
     public int indexOf(String subString, int start) {
-        // BEGIN android-changed
         if (start < 0) {
             start = 0;
         }
@@ -1128,7 +1120,6 @@ outer:
             }
         }
         return start < _count ? start : _count;
-        // END android-changed
     }
 
     /**
@@ -1164,7 +1155,6 @@ outer:
         if (c > 0xffff) {
             return lastIndexOfSupplementary(c, Integer.MAX_VALUE);
         }
-        // BEGIN android-changed
         int _count = count;
         int _offset = offset;
         char[] _value = value;
@@ -1174,7 +1164,6 @@ outer:
             }
         }
         return -1;
-        // END android-changed
     }
 
     /**
@@ -1193,7 +1182,6 @@ outer:
         if (c > 0xffff) {
             return lastIndexOfSupplementary(c, start);
         }
-        // BEGIN android-changed
         int _count = count;
         int _offset = offset;
         char[] _value = value;
@@ -1208,7 +1196,6 @@ outer:
             }
         }
         return -1;
-        // END android-changed
     }
 
     private int lastIndexOfSupplementary(int c, int start) {
@@ -1324,7 +1311,6 @@ outer:
             return true;
         }
         int o1 = offset + thisStart, o2 = string.offset + start;
-        // BEGIN android-changed
         char[] value1 = value;
         char[] value2 = string.value;
         for (int i = 0; i < length; ++i) {
@@ -1332,7 +1318,6 @@ outer:
                 return false;
             }
         }
-        // END android-changed
         return true;
     }
 

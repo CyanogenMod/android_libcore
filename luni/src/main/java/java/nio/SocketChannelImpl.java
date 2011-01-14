@@ -346,11 +346,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                 int offset = target.position();
                 int length = target.remaining();
                 if (target.isDirect()) {
-                    // BEGIN android-changed
-                    // changed address from long to int
                     int address = NioUtils.getDirectBufferAddress(target);
                     readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
-                    // END android-changed
                 } else {
                     // target is assured to have array.
                     byte[] array = target.array();
@@ -711,9 +708,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             }
             ByteBuffer buf = ByteBuffer.allocate(1);
             int result = channel.read(buf);
-            // BEGIN android-changed: input was already consumed
-            return (-1 == result) ? result : buf.get(0) & 0xFF;
-            // END android-changed
+            return (result == -1) ? result : (buf.get(0) & 0xff);
         }
 
         @Override

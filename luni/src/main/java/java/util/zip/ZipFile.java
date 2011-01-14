@@ -58,7 +58,7 @@ public class ZipFile implements ZipConstants {
      * versions of PKZIP recognize this bit for any
      * compression method.)
      */
-    static final int GPBF_DATA_DESCRIPTOR_FLAG = 1 << 3; // android-added
+    static final int GPBF_DATA_DESCRIPTOR_FLAG = 1 << 3;
 
     /**
      * General Purpose Bit Flags, Bit 11.
@@ -66,7 +66,7 @@ public class ZipFile implements ZipConstants {
      * the filename and comment fields for this file
      * must be encoded using UTF-8.
      */
-    static final int GPBF_UTF8_FLAG = 1 << 11; // android-added
+    static final int GPBF_UTF8_FLAG = 1 << 11;
 
     /**
      * Open ZIP file for read.
