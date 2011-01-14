@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import libcore.base.Streams;
 import junit.framework.TestCase;
 
@@ -80,5 +81,19 @@ public class DexClassLoaderTest extends TestCase {
         String result = (String) m.invoke(null, (Object[]) null);
 
         assertSame("blort", result);
+    }
+
+    /**
+     * Check that a resource in the jar file is retrievable and contains
+     * the expected contents.
+     */
+    public void test_getResourceAsStream()
+            throws IOException, UnsupportedEncodingException {
+        DexClassLoader dcl = createInstance();
+        InputStream in = dcl.getResourceAsStream("test/Resource1.txt");
+        byte[] contents = Streams.readFully(in);
+        String s = new String(contents, "UTF-8");
+
+        assertEquals("Muffins are tasty!\n", s);
     }
 }
