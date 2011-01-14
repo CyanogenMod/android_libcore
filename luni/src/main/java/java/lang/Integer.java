@@ -581,14 +581,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since 1.5
      */
     public static int numberOfTrailingZeros(int i) {
-        // Seal's algorithm - Hacker's Delight 5-18
-        // BEGIN android-changed - Harmony version should be one-liner in comment below
-        i &= -i;
-        i = (i <<  4) + i;    // x *= 17
-        i = (i <<  6) + i;    // x *= 65
-        i = (i << 16) - i;    // x *= 65535
-        return NTZ_TABLE[i >>> 26]; // NTZ_TABLE[((i & -i) * 0x0450FBAF) >>> 26]
-        // END android-changed
+        return NTZ_TABLE[((i & -i) * 0x0450FBAF) >>> 26];
     }
 
     /**
