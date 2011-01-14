@@ -193,7 +193,7 @@ public final class MockWebServer {
             }
 
             private void acceptConnections() throws Exception {
-                while (!responseQueue.isEmpty()) {
+                do {
                     Socket socket;
                     try {
                         socket = serverSocket.accept();
@@ -208,7 +208,7 @@ public final class MockWebServer {
                         openClientSockets.add(socket);
                         serveConnection(socket);
                     }
-                }
+                } while (!responseQueue.isEmpty());
             }
         }));
     }

@@ -127,8 +127,8 @@ public final class HttpCookie implements Cloneable {
             return false;
         }
 
-        String a = host.toLowerCase();
-        String b = domainPattern.toLowerCase();
+        String a = host.toLowerCase(Locale.US);
+        String b = domainPattern.toLowerCase(Locale.US);
 
         /*
          * From the spec: "both host names are IP addresses and their host name strings match
@@ -505,7 +505,8 @@ public final class HttpCookie implements Cloneable {
     private boolean isValidName(String n) {
         // name cannot be empty or begin with '$' or equals the reserved
         // attributes (case-insensitive)
-        boolean isValid = !(n.length() == 0 || n.startsWith("$") || RESERVED_NAMES.contains(n.toLowerCase()));
+        boolean isValid = !(n.length() == 0 || n.startsWith("$")
+                || RESERVED_NAMES.contains(n.toLowerCase(Locale.US)));
         if (isValid) {
             for (int i = 0; i < n.length(); i++) {
                 char nameChar = n.charAt(i);
@@ -648,7 +649,7 @@ public final class HttpCookie implements Cloneable {
      * cookies only to matching domains.
      */
     public void setDomain(String pattern) {
-        domain = pattern == null ? null : pattern.toLowerCase();
+        domain = pattern == null ? null : pattern.toLowerCase(Locale.US);
     }
 
     /**
@@ -733,14 +734,14 @@ public final class HttpCookie implements Cloneable {
 
     /**
      * Returns the hash code of this HTTP cookie: <pre>   {@code
-     *   name.toLowerCase().hashCode()
-     *       + (domain == null ? 0 : domain.toLowerCase().hashCode())
+     *   name.toLowerCase(Locale.US).hashCode()
+     *       + (domain == null ? 0 : domain.toLowerCase(Locale.US).hashCode())
      *       + (path == null ? 0 : path.hashCode())
      * }</pre>
      */
     @Override public int hashCode() {
-        return name.toLowerCase().hashCode()
-                + (domain == null ? 0 : domain.toLowerCase().hashCode())
+        return name.toLowerCase(Locale.US).hashCode()
+                + (domain == null ? 0 : domain.toLowerCase(Locale.US).hashCode())
                 + (path == null ? 0 : path.hashCode());
     }
 

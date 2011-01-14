@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import junit.framework.TestCase;
 import tests.http.MockResponse;
@@ -287,9 +288,9 @@ public class CookiesTest extends TestCase {
             }
         });
         MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse());
         server.play();
 
-        server.enqueue(new MockResponse());
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         assertEquals(Collections.<String, List<String>>emptyMap(),
                 connection.getRequestProperties());
@@ -336,9 +337,9 @@ public class CookiesTest extends TestCase {
             }
         });
         MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse());
         server.play();
 
-        server.enqueue(new MockResponse());
         get(server, "/");
 
         RecordedRequest request = server.takeRequest();
@@ -361,6 +362,25 @@ public class CookiesTest extends TestCase {
         assertTrue(HttpCookie.domainMatches("127.0.0.1", "127.0.0.1"));
         assertFalse(HttpCookie.domainMatches("127.0.0.1", "127.0.0.0"));
         assertFalse(HttpCookie.domainMatches("127.0.0.1", "localhost"));
+    }
+
+    public void testDomainMatchesCaseMapping() {
+        testDomainMatchesCaseMapping(Locale.US);
+    }
+
+    public void testDomainMatchesCaseMappingExoticLocale() {
+        testDomainMatchesCaseMapping(new Locale("tr", "TR"));
+    }
+
+    private void testDomainMatchesCaseMapping(Locale locale) {
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(locale);
+        try {
+            assertTrue(HttpCookie.domainMatches(".android.com", "WWW.ANDROID.COM"));
+            assertFalse(HttpCookie.domainMatches("android.com", "WWW.ANDROID.COM"));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     /**
