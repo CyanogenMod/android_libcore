@@ -407,7 +407,7 @@ public class InputStreamReaderTest extends TestCase {
     public void test_read_specialCharset() throws IOException {
         reader.close();
         in = this.getClass().getClassLoader().getResourceAsStream(
-                "org/apache/harmony/luni/tests/java/io/testfile-utf8.txt");
+                "tests/api/java/io/testfile-utf8.txt");
         reader = new InputStreamReader(in, "utf-8");
         int c;
         StringBuffer sb = new StringBuffer();
@@ -420,7 +420,7 @@ public class InputStreamReaderTest extends TestCase {
         sb.setLength(0);
         reader.close();
         in = this.getClass().getClassLoader().getResourceAsStream(
-                "org/apache/harmony/luni/tests/java/io/testfile.txt");
+                "tests/api/java/io/testfile.txt");
         try {
             reader = new InputStreamReader(in, "gb18030");
         } catch (UnsupportedEncodingException e) {

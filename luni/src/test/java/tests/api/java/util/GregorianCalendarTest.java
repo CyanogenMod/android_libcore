@@ -785,7 +785,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         g = new GregorianCalendar(TimeZone.getTimeZone("Europe/London"),
                 new Locale("fr", "CA"));
         minimalDaysInFirstWeek = g.getMinimalDaysInFirstWeek();
-        assertEquals(1, minimalDaysInFirstWeek);
+        // Android's locale data says 4 but the RI says 1
+        assertTrue(minimalDaysInFirstWeek == 4 || minimalDaysInFirstWeek == 1);
     }
 
     /**
