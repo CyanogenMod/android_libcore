@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "Scanner needs to configure transparent and anchoring bounds in findWithinHorizon()",
+  name: "tests.api.java.util.ScannerTest#test_findWithinHorizon_LPatternI",
+  bug: 3037194
+},
+{
   description: "RandomAccessFile missing finalizer",
   name: "libcore.java.io.RandomAccessFileTest#testRandomAccessFileHasCleanupFinalizer",
   bug: 3015023
