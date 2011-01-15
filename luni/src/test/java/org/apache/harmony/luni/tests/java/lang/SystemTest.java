@@ -672,8 +672,9 @@ public class SystemTest extends junit.framework.TestCase {
         }
 
         try {
-            map.remove(null);
-            fail("Should throw UnsupportedOperationException.");
+            if (map.remove(null) != null) {
+                fail("Should no-op or throw UnsupportedOperationException.");
+            }
         } catch (UnsupportedOperationException e) {
             // expected
         }
