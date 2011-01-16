@@ -876,16 +876,16 @@ public class SimpleDateFormat extends DateFormat {
                     return position.getIndex();
                 }
                 break;
-            case STAND_ALONE_MONTH_FIELD:
+            case STAND_ALONE_MONTH_FIELD: // L
                 return parseMonth(string, offset, count, absolute,
                         formatData.longStandAloneMonths, formatData.shortStandAloneMonths);
-            case MONTH_FIELD:
+            case MONTH_FIELD: // M
                 return parseMonth(string, offset, count, absolute,
                         formatData.months, formatData.shortMonths);
             case DATE_FIELD:
                 field = Calendar.DATE;
                 break;
-            case HOUR_OF_DAY1_FIELD:
+            case HOUR_OF_DAY1_FIELD: // k
                 ParsePosition position = new ParsePosition(offset);
                 Number result = parseNumber(absolute, string, position);
                 if (result == null) {
@@ -897,7 +897,7 @@ public class SimpleDateFormat extends DateFormat {
                 }
                 calendar.set(Calendar.HOUR_OF_DAY, hour);
                 return position.getIndex();
-            case HOUR_OF_DAY0_FIELD:
+            case HOUR_OF_DAY0_FIELD: // H
                 field = Calendar.HOUR_OF_DAY;
                 break;
             case MINUTE_FIELD:
@@ -927,7 +927,7 @@ public class SimpleDateFormat extends DateFormat {
                 break;
             case AM_PM_FIELD:
                 return parseText(string, offset, formatData.ampms, Calendar.AM_PM);
-            case HOUR1_FIELD:
+            case HOUR1_FIELD: // h
                 position = new ParsePosition(offset);
                 result = parseNumber(absolute, string, position);
                 if (result == null) {
@@ -939,12 +939,12 @@ public class SimpleDateFormat extends DateFormat {
                 }
                 calendar.set(Calendar.HOUR, hour);
                 return position.getIndex();
-            case HOUR0_FIELD:
+            case HOUR0_FIELD: // K
                 field = Calendar.HOUR;
                 break;
-            case TIMEZONE_FIELD:
+            case TIMEZONE_FIELD: // z
                 return parseTimeZone(string, offset);
-            case RFC_822_TIMEZONE_FIELD:
+            case RFC_822_TIMEZONE_FIELD: // Z
                 return parseTimeZone(string, offset);
         }
         if (field != -1) {
@@ -1125,7 +1125,6 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private int parseTimeZone(String string, int offset) {
-        String[][] zones = formatData.internalZoneStrings();
         boolean foundGMT = string.regionMatches(offset, "GMT", 0, 3);
         if (foundGMT) {
             offset += 3;
@@ -1162,10 +1161,10 @@ public class SimpleDateFormat extends DateFormat {
             calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
             return offset;
         }
+        String[][] zones = formatData.internalZoneStrings();
         for (String[] element : zones) {
             for (int j = 1; j < 5; j++) {
-                if (string.regionMatches(true, offset, element[j], 0,
-                        element[j].length())) {
+                if (string.regionMatches(true, offset, element[j], 0, element[j].length())) {
                     TimeZone zone = TimeZone.getTimeZone(element[0]);
                     if (zone == null) {
                         return -offset - 1;
