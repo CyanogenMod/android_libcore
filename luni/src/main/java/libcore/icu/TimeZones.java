@@ -77,57 +77,31 @@ public final class TimeZones {
 
     /**
      * Creates array of time zone names for the given locale.
-     * This method takes about 2s to run on a 400MHz ARM11.
      */
     private static String[][] createZoneStringsFor(Locale locale) {
-        long start = System.currentTimeMillis();
-
-        /*
-         * The following code is optimized for fast native response (the time a
-         * method call can be in native code is limited). It prepares an empty
-         * array to keep native code from having to create new Java objects. It
-         * also fill in the time zone IDs to speed things up a bit. There's one
-         * array for each time zone name type. (standard/long, standard/short,
-         * daylight/long, daylight/short) The native method that fetches these
-         * strings is faster if it can do all entries of one type, before having
-         * to change to the next type. That's why the array passed down to
-         * native has 5 entries, each providing space for all time zone names of
-         * one type. Likely this access to the fields is much faster in the
-         * native code because there's less array access overhead.
-         */
-        String[][] arrayToFill = new String[5][];
-        arrayToFill[0] = availableTimeZones.clone();
-        arrayToFill[1] = new String[availableTimeZones.length];
-        arrayToFill[2] = new String[availableTimeZones.length];
-        arrayToFill[3] = new String[availableTimeZones.length];
-        arrayToFill[4] = new String[availableTimeZones.length];
-
-        // Don't be distracted by all the code either side of this line: this is the expensive bit!
-        long nativeStart = System.currentTimeMillis();
-        getZoneStringsImpl(arrayToFill, locale.toString());
+        // Don't be distracted by the code for de-duplication below: this is the expensive bit!
+        long start, nativeStart;
+        start = nativeStart = System.currentTimeMillis();
+        String[][] result = getZoneStringsImpl(locale.toString(), availableTimeZones);
         long nativeEnd = System.currentTimeMillis();
 
-        // Reorder the entries so we get the expected result.
-        // We also take the opportunity to de-duplicate the names (http://b/2672057).
+        // De-duplicate the strings (http://b/2672057).
         HashMap<String, String> internTable = new HashMap<String, String>();
-        String[][] result = new String[availableTimeZones.length][5];
-        for (int i = 0; i < availableTimeZones.length; ++i) {
-            result[i][0] = arrayToFill[0][i];
+        for (int i = 0; i < result.length; ++i) {
             for (int j = 1; j <= 4; ++j) {
-                String original = arrayToFill[j][i];
+                String original = result[i][j];
                 String nonDuplicate = internTable.get(original);
                 if (nonDuplicate == null) {
                     internTable.put(original, original);
-                    nonDuplicate = original;
+                } else {
+                    result[i][j] = nonDuplicate;
                 }
-                result[i][j] = nonDuplicate;
             }
         }
 
-        long end = System.currentTimeMillis();
-
-        // Ending up in this code too often is an easy way to make your app slow, so make sure
+        // Ending up in this method too often is an easy way to make your app slow, so we ensure
         // it's easy to tell from the log (a) what we were doing and (b) how long it took.
+        long end = System.currentTimeMillis();
         long duration = end - start;
         long nativeDuration = nativeEnd - nativeStart;
         Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms" +
@@ -170,6 +144,6 @@ public final class TimeZones {
     }
 
     private static native String[] forCountryCode(String countryCode);
-    private static native void getZoneStringsImpl(String[][] arrayToFill, String locale);
+    private static native String[][] getZoneStringsImpl(String locale, String[] timeZoneIds);
     private static native String getDisplayNameImpl(String id, boolean isDST, int style, String locale);
 }

@@ -88,7 +88,7 @@ static void setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const 
     env->SetObjectArrayElement(array, i, javaString.get());
 }
 
-static void TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jobjectArray result, jstring localeName) {
+static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring localeName, jobjectArray timeZoneIds) {
     Locale locale = getLocale(env, localeName);
 
     // We could use TimeZone::getDisplayName, but that's even slower
@@ -112,16 +112,14 @@ static void TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jobjectArray resul
     // 15th July 2008
     UDate date2 = 1218826800000.0;
 
-    jobjectArray zoneIds = reinterpret_cast<jobjectArray>(env->GetObjectArrayElement(result, 0));
-    size_t zoneIdCount = env->GetArrayLength(zoneIds);
-
     // In the first pass, we get the long names for the time zone.
     // We also get any commonly-used abbreviations.
     std::vector<TimeZoneNames> table;
     std::set<UnicodeString> usedAbbreviations;
-    for (size_t i = 0; i < zoneIdCount; ++i) {
+    size_t idCount = env->GetArrayLength(timeZoneIds);
+    for (size_t i = 0; i < idCount; ++i) {
         ScopedLocalRef<jstring> javaZoneId(env,
-                reinterpret_cast<jstring>(env->GetObjectArrayElement(zoneIds, i)));
+                reinterpret_cast<jstring>(env->GetObjectArrayElement(timeZoneIds, i)));
         ScopedJavaUnicodeString zoneId(env, javaZoneId.get());
         UnicodeString id(zoneId.unicodeString());
 
@@ -159,17 +157,15 @@ static void TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jobjectArray resul
         usedAbbreviations.insert(row.shortDst);
     }
 
-    // In the second pass, we fill in the Java String[][].
+    // In the second pass, we create the Java String[][].
     // We also look for any uncommon abbreviations that don't conflict with ones we've already seen.
-    jobjectArray longStdArray = reinterpret_cast<jobjectArray>(env->GetObjectArrayElement(result, 1));
-    jobjectArray shortStdArray = reinterpret_cast<jobjectArray>(env->GetObjectArrayElement(result, 2));
-    jobjectArray longDstArray = reinterpret_cast<jobjectArray>(env->GetObjectArrayElement(result, 3));
-    jobjectArray shortDstArray = reinterpret_cast<jobjectArray>(env->GetObjectArrayElement(result, 4));
+    jobjectArray result = env->NewObjectArray(idCount, JniConstants::stringArrayClass, NULL);
     UnicodeString gmt("GMT", 3, US_INV);
     for (size_t i = 0; i < table.size(); ++i) {
         TimeZoneNames& row(table[i]);
         // Did we get a GMT offset instead of an abbreviation?
         if (row.shortStd.length() > 3 && row.shortStd.startsWith(gmt)) {
+            // See if we can do better...
             UnicodeString uncommonStd, uncommonDst;
             allShortFormat.setTimeZone(*row.tz);
             allShortFormat.format(row.standardDate, uncommonStd);
@@ -189,18 +185,24 @@ static void TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jobjectArray resul
             }
         }
         // Fill in whatever we got.
-        setStringArrayElement(env, longStdArray, i, row.longStd);
-        setStringArrayElement(env, shortStdArray, i, row.shortStd);
-        setStringArrayElement(env, longDstArray, i, row.longDst);
-        setStringArrayElement(env, shortDstArray, i, row.shortDst);
+        ScopedLocalRef<jobjectArray> javaRow(env, env->NewObjectArray(5, JniConstants::stringClass, NULL));
+        ScopedLocalRef<jstring> id(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(timeZoneIds, i)));
+        env->SetObjectArrayElement(javaRow.get(), 0, id.get());
+        setStringArrayElement(env, javaRow.get(), 1, row.longStd);
+        setStringArrayElement(env, javaRow.get(), 2, row.shortStd);
+        setStringArrayElement(env, javaRow.get(), 3, row.longDst);
+        setStringArrayElement(env, javaRow.get(), 4, row.shortDst);
+        env->SetObjectArrayElement(result, i, javaRow.get());
         delete row.tz;
     }
+
+    return result;
 }
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(TimeZones, getDisplayNameImpl, "(Ljava/lang/String;ZILjava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(TimeZones, forCountryCode, "(Ljava/lang/String;)[Ljava/lang/String;"),
-    NATIVE_METHOD(TimeZones, getZoneStringsImpl, "([[Ljava/lang/String;Ljava/lang/String;)V"),
+    NATIVE_METHOD(TimeZones, getZoneStringsImpl, "(Ljava/lang/String;[Ljava/lang/String;)[[Ljava/lang/String;"),
 };
 int register_libcore_icu_TimeZones(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/icu/TimeZones", gMethods, NELEM(gMethods));

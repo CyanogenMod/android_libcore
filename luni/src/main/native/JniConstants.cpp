@@ -43,6 +43,7 @@ jclass JniConstants::patternSyntaxExceptionClass;
 jclass JniConstants::realToStringClass;
 jclass JniConstants::socketClass;
 jclass JniConstants::socketImplClass;
+jclass JniConstants::stringArrayClass;
 jclass JniConstants::stringClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
@@ -80,5 +81,6 @@ void JniConstants::init(JNIEnv* env) {
     realToStringClass = findClass(env, "java/lang/RealToString");
     socketClass = findClass(env, "java/net/Socket");
     socketImplClass = findClass(env, "java/net/SocketImpl");
+    stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
 }

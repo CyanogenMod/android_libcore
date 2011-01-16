@@ -65,6 +65,7 @@ struct JniConstants {
     static jclass realToStringClass;
     static jclass socketClass;
     static jclass socketImplClass;
+    static jclass stringArrayClass;
     static jclass stringClass;
 };
 
