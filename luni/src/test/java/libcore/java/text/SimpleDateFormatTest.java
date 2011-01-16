@@ -103,4 +103,14 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         c.setTime(d);
         return c;
     }
+
+    // http://code.google.com/p/android/issues/detail?id=13420
+    public void testUncommonTimeZoneAbbreviations() {
+        String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
+        String date = "2010-12-23 12:44:57.0 CET";
+        // ICU considers "CET" (Central European Time) to be common in Britain...
+        assertEquals(1293104697000L, parseDate(Locale.UK, fmt, date).getTimeInMillis());
+        // ...but not in the US.
+        assertEquals(1293104697000L, parseDate(Locale.US, fmt, date).getTimeInMillis());
+    }
 }

@@ -103,7 +103,9 @@ public final class TimeZones {
         arrayToFill[4] = new String[availableTimeZones.length];
 
         // Don't be distracted by all the code either side of this line: this is the expensive bit!
+        long nativeStart = System.currentTimeMillis();
         getZoneStringsImpl(arrayToFill, locale.toString());
+        long nativeEnd = System.currentTimeMillis();
 
         // Reorder the entries so we get the expected result.
         // We also take the opportunity to de-duplicate the names (http://b/2672057).
@@ -122,8 +124,14 @@ public final class TimeZones {
             }
         }
 
-        long duration = System.currentTimeMillis() - start;
-        Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms.");
+        long end = System.currentTimeMillis();
+
+        // Ending up in this code too often is an easy way to make your app slow, so make sure
+        // it's easy to tell from the log (a) what we were doing and (b) how long it took.
+        long duration = end - start;
+        long nativeDuration = nativeEnd - nativeStart;
+        Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms" +
+                " (" + nativeDuration + "ms native).");
 
         return result;
     }
