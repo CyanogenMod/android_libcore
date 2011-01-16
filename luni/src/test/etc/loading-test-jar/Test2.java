@@ -16,6 +16,10 @@
 
 package test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Class used as part of the class loading tests. This class uses other
  * classes that should have come from the same jar/dex file. Each test
@@ -44,29 +48,70 @@ public class Test2 {
     }
 
     /**
+     * Stream reader, to avoid pulling in libcore as a dependency.
+     * This is a copy of the same-named method in {@code libcore.base.Streams}.
+     */
+    public static byte[] readFully(InputStream in) throws IOException {
+        byte[] buffer = new byte[1024];
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        while (true) {
+            int byteCount = in.read(buffer);
+            if (byteCount == -1) {
+                return bytes.toByteArray();
+            }
+            bytes.write(buffer, 0, byteCount);
+        }
+    }
+
+    /**
      * Test that an instance of a sibling class can be constructed.
      */
     public static void test_constructor() {
         new Target();
     }
 
+    /**
+     * Test calling a static method on a sibling class.
+     */
     public static void test_callStaticMethod() {
         assertSame("blort", Target.blort());
     }
 
+    /**
+     * Test getting a static variable of a sibling class.
+     */
     public static void test_getStaticVariable() {
         Target.setStaticVariable(22);
         assertSame(22, Target.staticVariable);
     }
 
+    /**
+     * Test calling an instance method on a sibling class.
+     */
     public static void test_callInstanceMethod() {
         Target target = new Target();
         assertSame("zorch", target.zorch());
     }
 
+    /**
+     * Test getting an instance variable of a sibling class.
+     */
     public static void test_getInstanceVariable() {
         Target target = new Target();
         target.setInstanceVariable(10098);
         assertSame(10098, target.instanceVariable);
+    }
+
+    /**
+     * Test getting a resource which should be in the same jar
+     * file as this class.
+     */
+    public static void test_getResourceAsStream() throws IOException {
+        ClassLoader cl = Test2.class.getClassLoader();
+        InputStream in = cl.getResourceAsStream("test/Resource1.txt");
+        byte[] contents = readFully(in);
+        String s = new String(contents, "UTF-8");
+
+        assertSame("Muffins are tasty!\n", s.intern());
     }
 }
