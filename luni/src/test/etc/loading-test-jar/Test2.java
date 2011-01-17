@@ -16,6 +16,7 @@
 
 package test;
 
+import test2.Target2;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,7 +76,7 @@ public class Test2 {
     }
 
     /*
-     * Test methods, per se
+     * Test methods that use another class from the same dex/jar file
      */
 
     /**
@@ -128,5 +129,61 @@ public class Test2 {
         String s = new String(contents, "UTF-8");
 
         assertSame("Muffins are tasty!\n", s.intern());
+    }
+
+    /*
+     * Test methods that use a class from a different dex/jar file
+     */
+
+    /**
+     * Test that an instance of a cousin class can be constructed.
+     */
+    public static void test_diff_constructor() {
+        new Target2();
+    }
+
+    /**
+     * Test calling a static method on a cousin class.
+     */
+    public static void test_diff_callStaticMethod() {
+        assertSame("frotz", Target2.frotz());
+    }
+
+    /**
+     * Test getting a static variable of a cousin class.
+     */
+    public static void test_diff_getStaticVariable() {
+        Target2.setStaticIgram(220);
+        assertSame(220, Target2.staticIgram);
+    }
+
+    /**
+     * Test calling an instance method on a cousin class.
+     */
+    public static void test_diff_callInstanceMethod() {
+        Target2 target = new Target2();
+        assertSame("fizmo", target.fizmo());
+    }
+
+    /**
+     * Test getting an instance variable of a cousin class.
+     */
+    public static void test_diff_getInstanceVariable() {
+        Target2 target = new Target2();
+        target.setInstanceMagri(10098);
+        assertSame(10098, target.instanceMagri);
+    }
+
+    /**
+     * Test getting a resource which should be in a different jar
+     * file as this class.
+     */
+    public static void test_diff_getResourceAsStream() throws IOException {
+        ClassLoader cl = Test2.class.getClassLoader();
+        InputStream in = cl.getResourceAsStream("test2/Resource2.txt");
+        byte[] contents = readFully(in);
+        String s = new String(contents, "UTF-8");
+
+        assertSame("Who doesn't like a good biscuit?\n", s.intern());
     }
 }
