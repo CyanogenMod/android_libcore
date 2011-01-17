@@ -105,7 +105,7 @@ public class DexClassLoaderTest extends TestCase {
     }
 
     /**
-     * Check that a class in the jar file may be used successfully. In this
+     * Check that a class in the jar/dex file may be used successfully. In this
      * case, a trivial static method is called.
      */
     public static void test_simpleUse(boolean useDex) throws Exception {
@@ -113,20 +113,6 @@ public class DexClassLoaderTest extends TestCase {
             createInstanceAndCallStaticMethod(useDex, "test.Test1", "test");
 
         assertSame("blort", result);
-    }
-
-    /**
-     * Check that a resource in the jar file is retrievable and contains
-     * the expected contents.
-     */
-    public static void test_getResourceAsStream(boolean useDex)
-            throws Exception {
-        DexClassLoader dcl = createInstance(useDex);
-        InputStream in = dcl.getResourceAsStream("test/Resource1.txt");
-        byte[] contents = Streams.readFully(in);
-        String s = new String(contents, "UTF-8");
-
-        assertEquals("Muffins are tasty!\n", s);
     }
 
     /*
@@ -159,9 +145,8 @@ public class DexClassLoaderTest extends TestCase {
     }
 
     /*
-     * The rest of the file consists of the actual test methods, which
-     * are all mostly just calls to the parametrically-defined tests
-     * above.
+     * These methods are all essentially just calls to the
+     * parametrically-defined tests above.
      */
 
     public void test_jar_init() throws Exception {
@@ -170,10 +155,6 @@ public class DexClassLoaderTest extends TestCase {
 
     public void test_jar_simpleUse() throws Exception {
         test_simpleUse(false);
-    }
-
-    public void test_jar_getResourceAsStream() throws Exception {
-        test_getResourceAsStream(false);
     }
 
     public void test_jar_callStaticMethod() throws Exception {
@@ -200,12 +181,6 @@ public class DexClassLoaderTest extends TestCase {
         test_simpleUse(true);
     }
 
-    /*
-     * Note: No getResourceAsStream() test, since the dex file doesn't
-     * have any resources.
-     */
-    // public void test_dex_getResourceAsStream()
-
     public void test_dex_callStaticMethod() throws Exception {
         test_callStaticMethod(true);
     }
@@ -220,5 +195,33 @@ public class DexClassLoaderTest extends TestCase {
 
     public void test_dex_getInstanceVariable() throws Exception {
         test_getInstanceVariable(true);
+    }
+
+    /*
+     * Tests specifically for resource-related functionality.  Since
+     * raw dex files don't contain resources, these test only work
+     * with jar files.
+     */
+
+    /**
+     * Check that a resource in the jar file is retrievable and contains
+     * the expected contents.
+     */
+    public void test_directGetResourceAsStream() throws Exception {
+        DexClassLoader dcl = createInstance(false);
+        InputStream in = dcl.getResourceAsStream("test/Resource1.txt");
+        byte[] contents = Streams.readFully(in);
+        String s = new String(contents, "UTF-8");
+
+        assertEquals("Muffins are tasty!\n", s);
+    }
+
+    /**
+     * Check that a resource in the jar file can be retrieved from
+     * a class within that jar file.
+     */
+    public void test_getResourceAsStream() throws Exception {
+        createInstanceAndCallStaticMethod(
+            false, "test.Test2", "test_getResourceAsStream");
     }
 }
