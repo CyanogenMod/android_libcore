@@ -32,6 +32,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -163,7 +164,7 @@ static iovec* initIoVec(JNIEnv* env,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
     UniquePtr<iovec[]> vectors(new iovec[size]);
     if (vectors.get() == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
+        jniThrowOutOfMemoryError(env, NULL);
         return NULL;
     }
     ScopedIntArrayRO buffers(env, jBuffers);

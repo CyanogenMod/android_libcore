@@ -19,6 +19,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "ScopedFd.h"
 #include "ScopedLocalRef.h"
@@ -339,7 +340,7 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
     while ((filename = dir.next()) != NULL) {
         if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
             if (!entries.push_front(filename)) {
-                jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
+                jniThrowOutOfMemoryError(env, NULL);
                 return false;
             }
         }
