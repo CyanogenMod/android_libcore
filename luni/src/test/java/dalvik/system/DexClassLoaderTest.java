@@ -154,6 +154,12 @@ public class DexClassLoaderTest extends TestCase {
      * that lives inside the loading-test dex/jar file.
      */
 
+    public static void test_constructor(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_constructor");
+    }
+
     public static void test_callStaticMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
@@ -178,60 +184,203 @@ public class DexClassLoaderTest extends TestCase {
             config, "test.TestMethods", "test_getInstanceVariable");
     }
 
+    public static void test_diff_constructor(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_diff_constructor");
+    }
+
+    public static void test_diff_callStaticMethod(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_diff_callStaticMethod");
+    }
+
+    public static void test_diff_getStaticVariable(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_diff_getStaticVariable");
+    }
+
+    public static void test_diff_callInstanceMethod(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_diff_callInstanceMethod");
+    }
+
+    public static void test_diff_getInstanceVariable(Configuration config)
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            config, "test.TestMethods", "test_diff_getInstanceVariable");
+    }
+
     /*
      * These methods are all essentially just calls to the
-     * parametrically-defined tests above. As a mnemonic name
-     * differentiator, all the tests that use a two-element classpath
-     * have a "2" suffix in their name (even though some such tests
-     * don't have an equivalent single-element version).
+     * parametrically-defined tests above.
      */
 
-    public void test_jar_init() throws Exception {
+    // ONE_JAR
+
+    public void test_oneJar_init() throws Exception {
         test_init(Configuration.ONE_JAR);
     }
 
-    public void test_jar_simpleUse() throws Exception {
+    public void test_oneJar_simpleUse() throws Exception {
         test_simpleUse(Configuration.ONE_JAR);
     }
 
-    public void test_jar_callStaticMethod() throws Exception {
+    public void test_oneJar_constructor() throws Exception {
+        test_constructor(Configuration.ONE_JAR);
+    }
+
+    public void test_oneJar_callStaticMethod() throws Exception {
         test_callStaticMethod(Configuration.ONE_JAR);
     }
 
-    public void test_jar_getStaticVariable() throws Exception {
+    public void test_oneJar_getStaticVariable() throws Exception {
         test_getStaticVariable(Configuration.ONE_JAR);
     }
 
-    public void test_jar_callInstanceMethod() throws Exception {
+    public void test_oneJar_callInstanceMethod() throws Exception {
         test_callInstanceMethod(Configuration.ONE_JAR);
     }
 
-    public void test_jar_getInstanceVariable() throws Exception {
+    public void test_oneJar_getInstanceVariable() throws Exception {
         test_getInstanceVariable(Configuration.ONE_JAR);
     }
 
-    public void test_dex_init() throws Exception {
+    // ONE_DEX
+
+    public void test_oneDex_init() throws Exception {
         test_init(Configuration.ONE_DEX);
     }
 
-    public void test_dex_simpleUse() throws Exception {
+    public void test_oneDex_simpleUse() throws Exception {
         test_simpleUse(Configuration.ONE_DEX);
     }
 
-    public void test_dex_callStaticMethod() throws Exception {
+    public void test_oneDex_constructor() throws Exception {
+        test_constructor(Configuration.ONE_DEX);
+    }
+
+    public void test_oneDex_callStaticMethod() throws Exception {
         test_callStaticMethod(Configuration.ONE_DEX);
     }
 
-    public void test_dex_getStaticVariable() throws Exception {
+    public void test_oneDex_getStaticVariable() throws Exception {
         test_getStaticVariable(Configuration.ONE_DEX);
     }
 
-    public void test_dex_callInstanceMethod() throws Exception {
+    public void test_oneDex_callInstanceMethod() throws Exception {
         test_callInstanceMethod(Configuration.ONE_DEX);
     }
 
-    public void test_dex_getInstanceVariable() throws Exception {
+    public void test_oneDex_getInstanceVariable() throws Exception {
         test_getInstanceVariable(Configuration.ONE_DEX);
+    }
+
+    // TWO_JAR
+
+    public void test_twoJar_init() throws Exception {
+        test_init(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_simpleUse() throws Exception {
+        test_simpleUse(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_constructor() throws Exception {
+        test_constructor(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_callStaticMethod() throws Exception {
+        test_callStaticMethod(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_getStaticVariable() throws Exception {
+        test_getStaticVariable(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_callInstanceMethod() throws Exception {
+        test_callInstanceMethod(Configuration.TWO_JAR);
+    }
+
+    public void test_twoJar_getInstanceVariable() throws Exception {
+        test_getInstanceVariable(Configuration.TWO_JAR);
+    }
+
+    public static void test_twoJar_diff_constructor() throws Exception {
+        test_diff_constructor(Configuration.TWO_JAR);
+    }
+
+    public static void test_twoJar_diff_callStaticMethod() throws Exception {
+        test_diff_callStaticMethod(Configuration.TWO_JAR);
+    }
+
+    public static void test_twoJar_diff_getStaticVariable() throws Exception {
+        test_diff_getStaticVariable(Configuration.TWO_JAR);
+    }
+
+    public static void test_twoJar_diff_callInstanceMethod()
+            throws Exception {
+        test_diff_callInstanceMethod(Configuration.TWO_JAR);
+    }
+
+    public static void test_twoJar_diff_getInstanceVariable()
+            throws Exception {
+        test_diff_getInstanceVariable(Configuration.TWO_JAR);
+    }
+
+    // TWO_DEX
+
+    public void test_twoDex_init() throws Exception {
+        test_init(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_simpleUse() throws Exception {
+        test_simpleUse(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_constructor() throws Exception {
+        test_constructor(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_callStaticMethod() throws Exception {
+        test_callStaticMethod(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_getStaticVariable() throws Exception {
+        test_getStaticVariable(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_callInstanceMethod() throws Exception {
+        test_callInstanceMethod(Configuration.TWO_DEX);
+    }
+
+    public void test_twoDex_getInstanceVariable() throws Exception {
+        test_getInstanceVariable(Configuration.TWO_DEX);
+    }
+
+    public static void test_twoDex_diff_constructor() throws Exception {
+        test_diff_constructor(Configuration.TWO_DEX);
+    }
+
+    public static void test_twoDex_diff_callStaticMethod() throws Exception {
+        test_diff_callStaticMethod(Configuration.TWO_DEX);
+    }
+
+    public static void test_twoDex_diff_getStaticVariable() throws Exception {
+        test_diff_getStaticVariable(Configuration.TWO_DEX);
+    }
+
+    public static void test_twoDex_diff_callInstanceMethod()
+            throws Exception {
+        test_diff_callInstanceMethod(Configuration.TWO_DEX);
+    }
+
+    public static void test_twoDex_diff_getInstanceVariable()
+            throws Exception {
+        test_diff_getInstanceVariable(Configuration.TWO_DEX);
     }
 
     /*
@@ -276,19 +425,19 @@ public class DexClassLoaderTest extends TestCase {
             config, "test.TestMethods", "test_getResourceAsStream");
     }
 
-    public void test_directGetResourceAsStream() throws Exception {
+    public void test_oneJar_directGetResourceAsStream() throws Exception {
         test_directGetResourceAsStream(Configuration.ONE_JAR);
     }
 
-    public void test_getResourceAsStream() throws Exception {
+    public void test_oneJar_getResourceAsStream() throws Exception {
         test_getResourceAsStream(Configuration.ONE_JAR);
     }
 
-    public void test_directGetResourceAsStream2() throws Exception {
+    public void test_twoJar_directGetResourceAsStream() throws Exception {
         test_directGetResourceAsStream(Configuration.TWO_JAR);
     }
 
-    public void test_getResourceAsStream2() throws Exception {
+    public void test_twoJar_getResourceAsStream() throws Exception {
         test_getResourceAsStream(Configuration.TWO_JAR);
     }
 
@@ -296,7 +445,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in the second jar file is retrievable and
      * contains the expected contents.
      */
-    public static void test_diff_directGetResourceAsStream2()
+    public static void test_twoJar_diff_directGetResourceAsStream()
             throws Exception {
         test_directGetResourceAsStream(
             Configuration.TWO_JAR, "test2/Resource2.txt",
@@ -307,7 +456,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in a jar file can be retrieved from
      * a class within the other jar file.
      */
-    public static void test_diff_getResourceAsStream2()
+    public static void test_twoJar_diff_getResourceAsStream()
             throws Exception {
         createInstanceAndCallStaticMethod(
             Configuration.TWO_JAR, "test.TestMethods",
