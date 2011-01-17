@@ -33,6 +33,8 @@ oldwd=`pwd`
 progdir=`dirname "${prog}"`
 cd "${progdir}"
 
+resourceDir=../../resources/dalvik/system
+
 rm -rf classes
 rm -rf classes.dex
 rm -rf loading-test2.jar
@@ -43,5 +45,5 @@ dx --dex --output=classes.dex classes
 jar cf loading-test2.jar classes.dex -C resources .
 
 rm -rf classes
-mv classes.dex ../../resources/dalvik/system/loading-test2.dex
-mv loading-test2.jar ../../resources/dalvik/system/
+mv classes.dex ${resourceDir}/loading-test2.dex
+mv loading-test2.jar ${resourceDir}
