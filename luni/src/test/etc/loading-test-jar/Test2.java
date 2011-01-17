@@ -27,8 +27,19 @@ import java.io.InputStream;
  * {@code DexClassLoaderTest}.
  */
 public class Test2 {
+    /*
+     * The following are all simple utility methods which, under
+     * normal circumstances, would be part of other libraries
+     * (specifically, JUnit and the Android libcore support library).
+     *
+     * However, this file gets compiled as an independent unit without
+     * any dependencies. We could theoretically add dependencies on other
+     * libraries, but that would make things much more complicated and
+     * fragile, and for very little benefit.
+     */
+
     /**
-     * Simple sameness checker, to avoid pulling in JUnit as a dependency.
+     * Simple sameness assertion checker.
      */
     public static void assertSame(Object expected, Object actual) {
         if (expected != actual) {
@@ -38,7 +49,7 @@ public class Test2 {
     }
 
     /**
-     * Simple sameness checker, to avoid pulling in JUnit as a dependency.
+     * Simple sameness assertion checker.
      */
     public static void assertSame(int expected, int actual) {
         if (expected != actual) {
@@ -48,10 +59,10 @@ public class Test2 {
     }
 
     /**
-     * Stream reader, to avoid pulling in libcore as a dependency.
-     * This is a copy of the same-named method in {@code libcore.base.Streams}.
+     * Fully read the contents of the given stream.
      */
     public static byte[] readFully(InputStream in) throws IOException {
+        // This is a copy of the same-named method in libcore.base.Streams.
         byte[] buffer = new byte[1024];
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         while (true) {
@@ -62,6 +73,10 @@ public class Test2 {
             bytes.write(buffer, 0, byteCount);
         }
     }
+
+    /*
+     * Test methods, per se
+     */
 
     /**
      * Test that an instance of a sibling class can be constructed.
