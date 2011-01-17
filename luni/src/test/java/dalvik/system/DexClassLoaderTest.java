@@ -37,10 +37,10 @@ public class DexClassLoaderTest extends TestCase {
     private static final String DEX_NAME = "loading-test.dex";
     private static final String JAR2_NAME = "loading-test2.jar";
     private static final String DEX2_NAME = "loading-test2.dex";
-    private static final File TMP_JAR = new File(TMP_DIR, JAR_NAME);
-    private static final File TMP_DEX = new File(TMP_DIR, DEX_NAME);
-    private static final File TMP_JAR2 = new File(TMP_DIR, JAR2_NAME);
-    private static final File TMP_DEX2 = new File(TMP_DIR, DEX2_NAME);
+    private static final File JAR_FILE = new File(TMP_DIR, JAR_NAME);
+    private static final File DEX_FILE = new File(TMP_DIR, DEX_NAME);
+    private static final File JAR2_FILE = new File(TMP_DIR, JAR2_NAME);
+    private static final File DEX2_FILE = new File(TMP_DIR, DEX2_NAME);
 
     private static enum Configuration {
         /** just one classpath element, a raw dex file */
@@ -60,10 +60,10 @@ public class DexClassLoaderTest extends TestCase {
         TMP_DIR.mkdirs();
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
-        copyResource(cl, JAR_NAME, TMP_JAR);
-        copyResource(cl, DEX_NAME, TMP_DEX);
-        copyResource(cl, JAR2_NAME, TMP_JAR2);
-        copyResource(cl, DEX2_NAME, TMP_DEX2);
+        copyResource(cl, JAR_NAME, JAR_FILE);
+        copyResource(cl, DEX_NAME, DEX_FILE);
+        copyResource(cl, JAR2_NAME, JAR2_FILE);
+        copyResource(cl, DEX2_NAME, DEX2_FILE);
     }
 
     /**
@@ -89,10 +89,10 @@ public class DexClassLoaderTest extends TestCase {
         File file2;
 
         switch (config) {
-            case ONE_DEX: file1 = TMP_DEX; file2 = null;     break;
-            case ONE_JAR: file1 = TMP_JAR; file2 = null;     break;
-            case TWO_DEX: file1 = TMP_DEX; file2 = TMP_DEX2; break;
-            case TWO_JAR: file1 = TMP_JAR; file2 = TMP_JAR2; break;
+            case ONE_DEX: file1 = DEX_FILE; file2 = null;      break;
+            case ONE_JAR: file1 = JAR_FILE; file2 = null;      break;
+            case TWO_DEX: file1 = DEX_FILE; file2 = DEX2_FILE; break;
+            case TWO_JAR: file1 = JAR_FILE; file2 = JAR2_FILE; break;
             default: throw new AssertionError("shouldn't happen");
         }
 
@@ -157,25 +157,25 @@ public class DexClassLoaderTest extends TestCase {
     public static void test_callStaticMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            config, "test.Test2", "test_callStaticMethod");
+            config, "test.TestMethods", "test_callStaticMethod");
     }
 
     public static void test_getStaticVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            config, "test.Test2", "test_getStaticVariable");
+            config, "test.TestMethods", "test_getStaticVariable");
     }
 
     public static void test_callInstanceMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            config, "test.Test2", "test_callInstanceMethod");
+            config, "test.TestMethods", "test_callInstanceMethod");
     }
 
     public static void test_getInstanceVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            config, "test.Test2", "test_getInstanceVariable");
+            config, "test.TestMethods", "test_getInstanceVariable");
     }
 
     /*
@@ -273,7 +273,7 @@ public class DexClassLoaderTest extends TestCase {
     public static void test_getResourceAsStream(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            config, "test.Test2", "test_getResourceAsStream");
+            config, "test.TestMethods", "test_getResourceAsStream");
     }
 
     public void test_directGetResourceAsStream() throws Exception {
@@ -310,7 +310,7 @@ public class DexClassLoaderTest extends TestCase {
     public static void test_diff_getResourceAsStream2()
             throws Exception {
         createInstanceAndCallStaticMethod(
-            Configuration.TWO_JAR, "test.Test2",
+            Configuration.TWO_JAR, "test.TestMethods",
             "test_diff_getResourceAsStream");
     }
 }

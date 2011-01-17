@@ -27,7 +27,7 @@ import java.io.InputStream;
  * method in this class is called from the same-named method in
  * {@code DexClassLoaderTest}.
  */
-public class Test2 {
+public class TestMethods {
     /*
      * The following are all simple utility methods which, under
      * normal circumstances, would be part of other libraries
@@ -123,7 +123,7 @@ public class Test2 {
      * file as this class.
      */
     public static void test_getResourceAsStream() throws IOException {
-        ClassLoader cl = Test2.class.getClassLoader();
+        ClassLoader cl = TestMethods.class.getClassLoader();
         InputStream in = cl.getResourceAsStream("test/Resource1.txt");
         byte[] contents = readFully(in);
         String s = new String(contents, "UTF-8");
@@ -179,7 +179,7 @@ public class Test2 {
      * file as this class.
      */
     public static void test_diff_getResourceAsStream() throws IOException {
-        ClassLoader cl = Test2.class.getClassLoader();
+        ClassLoader cl = TestMethods.class.getClassLoader();
         InputStream in = cl.getResourceAsStream("test2/Resource2.txt");
         byte[] contents = readFully(in);
         String s = new String(contents, "UTF-8");
