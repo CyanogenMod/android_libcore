@@ -60,15 +60,20 @@ public class DexClassLoaderTest extends TestCase {
         TMP_DIR.mkdirs();
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
+        copyResource(cl, JAR_NAME, TMP_JAR);
+        copyResource(cl, DEX_NAME, TMP_DEX);
+        copyResource(cl, JAR2_NAME, TMP_JAR2);
+        copyResource(cl, DEX2_NAME, TMP_DEX2);
+    }
 
-        InputStream in = cl.getResourceAsStream(PACKAGE_PATH + JAR_NAME);
-        FileOutputStream out = new FileOutputStream(TMP_JAR);
-        Streams.copy(in, out);
-        in.close();
-        out.close();
-
-        in = cl.getResourceAsStream(PACKAGE_PATH + DEX_NAME);
-        out = new FileOutputStream(TMP_DEX);
+    /**
+     * Copy a resource in the package directory to the indicated file.
+     */
+    private static void copyResource(ClassLoader loader, String resourceName,
+            File destination) throws IOException {
+        InputStream in =
+            loader.getResourceAsStream(PACKAGE_PATH + resourceName);
+        FileOutputStream out = new FileOutputStream(destination);
         Streams.copy(in, out);
         in.close();
         out.close();
