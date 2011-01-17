@@ -33,15 +33,24 @@ oldwd=`pwd`
 progdir=`dirname "${prog}"`
 cd "${progdir}"
 
+resourceDir=../../resources/dalvik/system
+
 rm -rf classes
+rm -rf classes2
 rm -rf classes.dex
 rm -rf loading-test.jar
 
+# This library depends on loading-test2, so compile those classes first,
+# but keep them separate.
+mkdir classes2
+javac -d classes2 ../loading-test2-jar/*.java
+
 mkdir classes
-javac -d classes *.java
+javac -classpath classes2 -d classes *.java
 dx --dex --output=classes.dex classes
 jar cf loading-test.jar classes.dex -C resources .
 
 rm -rf classes
-mv classes.dex ../../resources/dalvik/system/loading-test.dex
-mv loading-test.jar ../../resources/dalvik/system/
+rm -rf classes2
+mv classes.dex ${resourceDir}/loading-test.dex
+mv loading-test.jar ${resourceDir}

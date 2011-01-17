@@ -30,13 +30,31 @@ import junit.framework.TestCase;
  * Tests for the class {@link DexClassLoader}.
  */
 public class DexClassLoaderTest extends TestCase {
+    private static final File TMP_DIR =
+        new File(System.getProperty("java.io.tmpdir"), "loading-test");
     private static final String PACKAGE_PATH = "dalvik/system/";
     private static final String JAR_NAME = "loading-test.jar";
     private static final String DEX_NAME = "loading-test.dex";
-    private static final File TMP_DIR =
-        new File(System.getProperty("java.io.tmpdir"), "loading-test");
+    private static final String JAR2_NAME = "loading-test2.jar";
+    private static final String DEX2_NAME = "loading-test2.dex";
     private static final File TMP_JAR = new File(TMP_DIR, JAR_NAME);
     private static final File TMP_DEX = new File(TMP_DIR, DEX_NAME);
+    private static final File TMP_JAR2 = new File(TMP_DIR, JAR2_NAME);
+    private static final File TMP_DEX2 = new File(TMP_DIR, DEX2_NAME);
+
+    private static enum Configuration {
+        /** just one classpath element, a raw dex file */
+        ONE_DEX,
+
+        /** just one classpath element, a jar file */
+        ONE_JAR,
+
+        /** two classpath elements, both raw dex files */
+        TWO_DEX,
+
+        /** two classpath elements, both jar files */
+        TWO_JAR;
+    }
 
     protected void setUp() throws IOException {
         TMP_DIR.mkdirs();
@@ -59,16 +77,28 @@ public class DexClassLoaderTest extends TestCase {
     /**
      * Helper to construct an instance to test.
      *
-     * @param useDex whether to use the raw dex file ({@code true}) or
-     * a dex-in-jar file ({@code false})
+     * @param config how to configure the classpath
      */
-    private static DexClassLoader createInstance(boolean useDex) {
-        File file = useDex ? TMP_DEX : TMP_JAR;
+    private static DexClassLoader createInstance(Configuration config) {
+        File file1;
+        File file2;
 
-        return new DexClassLoader(file.getAbsolutePath(),
-                                  TMP_DIR.getAbsolutePath(),
-                                  null,
-                                  ClassLoader.getSystemClassLoader());
+        switch (config) {
+            case ONE_DEX: file1 = TMP_DEX; file2 = null;     break;
+            case ONE_JAR: file1 = TMP_JAR; file2 = null;     break;
+            case TWO_DEX: file1 = TMP_DEX; file2 = TMP_DEX2; break;
+            case TWO_JAR: file1 = TMP_JAR; file2 = TMP_JAR2; break;
+            default: throw new AssertionError("shouldn't happen");
+        }
+
+        String path = file1.getAbsolutePath();
+        if (file2 != null) {
+            path += File.pathSeparator + file2.getAbsolutePath();
+        }
+
+        return new DexClassLoader(
+            path, TMP_DIR.getAbsolutePath(), null,
+            ClassLoader.getSystemClassLoader());
     }
 
     /**
@@ -76,14 +106,13 @@ public class DexClassLoaderTest extends TestCase {
      * the source, and call a named no-argument static method on a
      * named class.
      *
-     * @param useDex whether to use the raw dex file ({@code true}) or
-     * a dex-in-jar file ({@code false})
+     * @param config how to configure the classpath
      */
-    public static Object createInstanceAndCallStaticMethod(boolean useDex,
-            String className, String methodName)
+    public static Object createInstanceAndCallStaticMethod(
+            Configuration config, String className, String methodName)
             throws ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException {
-        DexClassLoader dcl = createInstance(useDex);
+        DexClassLoader dcl = createInstance(config);
         Class c = dcl.loadClass(className);
         Method m = c.getMethod(methodName, (Class[]) null);
         return m.invoke(null, (Object[]) null);
@@ -100,17 +129,17 @@ public class DexClassLoaderTest extends TestCase {
      * to verify anything about the constructed instance. (Other
      * tests will do that.)
      */
-    public static void test_init(boolean useDex) {
-        createInstance(useDex);
+    public static void test_init(Configuration config) {
+        createInstance(config);
     }
 
     /**
      * Check that a class in the jar/dex file may be used successfully. In this
      * case, a trivial static method is called.
      */
-    public static void test_simpleUse(boolean useDex) throws Exception {
+    public static void test_simpleUse(Configuration config) throws Exception {
         String result = (String)
-            createInstanceAndCallStaticMethod(useDex, "test.Test1", "test");
+            createInstanceAndCallStaticMethod(config, "test.Test1", "test");
 
         assertSame("blort", result);
     }
@@ -120,108 +149,163 @@ public class DexClassLoaderTest extends TestCase {
      * that lives inside the loading-test dex/jar file.
      */
 
-    public static void test_callStaticMethod(boolean useDex)
+    public static void test_callStaticMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            useDex, "test.Test2", "test_callStaticMethod");
+            config, "test.Test2", "test_callStaticMethod");
     }
 
-    public static void test_getStaticVariable(boolean useDex)
+    public static void test_getStaticVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            useDex, "test.Test2", "test_getStaticVariable");
+            config, "test.Test2", "test_getStaticVariable");
     }
 
-    public static void test_callInstanceMethod(boolean useDex)
+    public static void test_callInstanceMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            useDex, "test.Test2", "test_callInstanceMethod");
+            config, "test.Test2", "test_callInstanceMethod");
     }
 
-    public static void test_getInstanceVariable(boolean useDex)
+    public static void test_getInstanceVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
-            useDex, "test.Test2", "test_getInstanceVariable");
+            config, "test.Test2", "test_getInstanceVariable");
     }
 
     /*
      * These methods are all essentially just calls to the
-     * parametrically-defined tests above.
+     * parametrically-defined tests above. As a mnemonic name
+     * differentiator, all the tests that use a two-element classpath
+     * have a "2" suffix in their name (even though some such tests
+     * don't have an equivalent single-element version).
      */
 
     public void test_jar_init() throws Exception {
-        test_init(false);
+        test_init(Configuration.ONE_JAR);
     }
 
     public void test_jar_simpleUse() throws Exception {
-        test_simpleUse(false);
+        test_simpleUse(Configuration.ONE_JAR);
     }
 
     public void test_jar_callStaticMethod() throws Exception {
-        test_callStaticMethod(false);
+        test_callStaticMethod(Configuration.ONE_JAR);
     }
 
     public void test_jar_getStaticVariable() throws Exception {
-        test_getStaticVariable(false);
+        test_getStaticVariable(Configuration.ONE_JAR);
     }
 
     public void test_jar_callInstanceMethod() throws Exception {
-        test_callInstanceMethod(false);
+        test_callInstanceMethod(Configuration.ONE_JAR);
     }
 
     public void test_jar_getInstanceVariable() throws Exception {
-        test_getInstanceVariable(false);
+        test_getInstanceVariable(Configuration.ONE_JAR);
     }
 
     public void test_dex_init() throws Exception {
-        test_init(true);
+        test_init(Configuration.ONE_DEX);
     }
 
     public void test_dex_simpleUse() throws Exception {
-        test_simpleUse(true);
+        test_simpleUse(Configuration.ONE_DEX);
     }
 
     public void test_dex_callStaticMethod() throws Exception {
-        test_callStaticMethod(true);
+        test_callStaticMethod(Configuration.ONE_DEX);
     }
 
     public void test_dex_getStaticVariable() throws Exception {
-        test_getStaticVariable(true);
+        test_getStaticVariable(Configuration.ONE_DEX);
     }
 
     public void test_dex_callInstanceMethod() throws Exception {
-        test_callInstanceMethod(true);
+        test_callInstanceMethod(Configuration.ONE_DEX);
     }
 
     public void test_dex_getInstanceVariable() throws Exception {
-        test_getInstanceVariable(true);
+        test_getInstanceVariable(Configuration.ONE_DEX);
     }
 
     /*
      * Tests specifically for resource-related functionality.  Since
      * raw dex files don't contain resources, these test only work
-     * with jar files.
+     * with jar files. The first couple methods here are helpers,
+     * and they are followed by the tests per se.
      */
+
+    /**
+     * Check that a given resource (by name) is retrievable and contains
+     * the given expected contents.
+     */
+    public static void test_directGetResourceAsStream(Configuration config,
+            String resourceName, String expectedContents)
+            throws Exception {
+        DexClassLoader dcl = createInstance(config);
+        InputStream in = dcl.getResourceAsStream(resourceName);
+        byte[] contents = Streams.readFully(in);
+        String s = new String(contents, "UTF-8");
+
+        assertEquals(expectedContents, s);
+    }
 
     /**
      * Check that a resource in the jar file is retrievable and contains
      * the expected contents.
      */
-    public void test_directGetResourceAsStream() throws Exception {
-        DexClassLoader dcl = createInstance(false);
-        InputStream in = dcl.getResourceAsStream("test/Resource1.txt");
-        byte[] contents = Streams.readFully(in);
-        String s = new String(contents, "UTF-8");
-
-        assertEquals("Muffins are tasty!\n", s);
+    public static void test_directGetResourceAsStream(Configuration config)
+            throws Exception {
+        test_directGetResourceAsStream(
+            config, "test/Resource1.txt", "Muffins are tasty!\n");
     }
 
     /**
      * Check that a resource in the jar file can be retrieved from
      * a class within that jar file.
      */
-    public void test_getResourceAsStream() throws Exception {
+    public static void test_getResourceAsStream(Configuration config)
+            throws Exception {
         createInstanceAndCallStaticMethod(
-            false, "test.Test2", "test_getResourceAsStream");
+            config, "test.Test2", "test_getResourceAsStream");
+    }
+
+    public void test_directGetResourceAsStream() throws Exception {
+        test_directGetResourceAsStream(Configuration.ONE_JAR);
+    }
+
+    public void test_getResourceAsStream() throws Exception {
+        test_getResourceAsStream(Configuration.ONE_JAR);
+    }
+
+    public void test_directGetResourceAsStream2() throws Exception {
+        test_directGetResourceAsStream(Configuration.TWO_JAR);
+    }
+
+    public void test_getResourceAsStream2() throws Exception {
+        test_getResourceAsStream(Configuration.TWO_JAR);
+    }
+
+    /**
+     * Check that a resource in the second jar file is retrievable and
+     * contains the expected contents.
+     */
+    public static void test_diff_directGetResourceAsStream2()
+            throws Exception {
+        test_directGetResourceAsStream(
+            Configuration.TWO_JAR, "test2/Resource2.txt",
+            "Who doesn't like a good biscuit?\n");
+    }
+
+    /**
+     * Check that a resource in a jar file can be retrieved from
+     * a class within the other jar file.
+     */
+    public static void test_diff_getResourceAsStream2()
+            throws Exception {
+        createInstanceAndCallStaticMethod(
+            Configuration.TWO_JAR, "test.Test2",
+            "test_diff_getResourceAsStream");
     }
 }
