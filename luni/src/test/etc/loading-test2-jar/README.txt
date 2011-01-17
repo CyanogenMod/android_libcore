@@ -1,4 +1,4 @@
-This directory contains the source code for the loading-test jar and
+This directory contains the source code for the loading-test2 jar and
 dex files, which are included as resources in the luni tests. These
 files are used for testing the various class loaders.
 
