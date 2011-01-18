@@ -36,7 +36,7 @@ public class ParseException extends Exception {
      *            the index at which the parse exception occurred.
      */
     public ParseException(String detailMessage, int location) {
-        super(detailMessage);
+        super(detailMessage + (" (at offset " + location + ")"));
         errorOffset = location;
     }
 
