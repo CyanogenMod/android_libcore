@@ -22,10 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Class used as part of the class loading tests. This class uses other
- * classes that should have come from the same jar/dex file. Each test
- * method in this class is called from the same-named method in
- * {@code DexClassLoaderTest}.
+ * Class used as part of the class loading tests. This class uses
+ * other classes, some of which should have come from the same jar/dex
+ * file and others of which should have come from a different jar/dex
+ * file. Each test method in this class is called from the same-named
+ * method in {@code DexClassLoaderTest}.
  */
 public class TestMethods {
     /*
