@@ -1285,6 +1285,9 @@ class AppData {
         if (pipe(appData.get()->fdsEmergency) == -1) {
             return NULL;
         }
+        if (!setBlocking(appData.get()->fdsEmergency[0], false)) {
+            return NULL;
+        }
         if (MUTEX_SETUP(appData.get()->mutex) == -1) {
             return NULL;
         }
@@ -1345,7 +1348,7 @@ class AppData {
 /**
  * Dark magic helper function that checks, for a given SSL session, whether it
  * can SSL_read() or SSL_write() without blocking. Takes into account any
- * concurrent attempts to close the SSL session from the Java side. This is
+ * concurrent attempts to close the SSLSocket from the Java side. This is
  * needed to get rid of the hangs that occur when thread #1 closes the SSLSocket
  * while thread #2 is sitting in a blocking read or write. The type argument
  * specifies whether we are waiting for readability or writability. It expects
@@ -1393,7 +1396,7 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
 
         FD_SET(appData->fdsEmergency[0], &rfds);
 
-        int max = intFd > appData->fdsEmergency[0] ? intFd : appData->fdsEmergency[0];
+        int maxFd = (intFd > appData->fdsEmergency[0]) ? intFd : appData->fdsEmergency[0];
 
         // Build a struct for the timeout data if we actually want a timeout.
         timeval tv;
@@ -1406,32 +1409,33 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
             ptv = NULL;
         }
 
-        {
-            AsynchronousSocketCloseMonitor monitor(intFd);
-            result = select(max + 1, &rfds, &wfds, NULL, ptv);
-            JNI_TRACE("sslSelect %s fd=%d appData=%p timeout=%d => %d",
-                      (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE",
-                      fd.get(), appData, timeout, result);
-            if (result == -1) {
-                if (fd.isClosed()) {
-                    result = THROWN_SOCKETEXCEPTION;
-                    break;
-                }
-                if (errno != EINTR) {
-                    break;
-                }
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        result = select(maxFd + 1, &rfds, &wfds, NULL, ptv);
+        JNI_TRACE("sslSelect %s fd=%d appData=%p timeout=%d => %d",
+                  (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE",
+                  fd.get(), appData, timeout, result);
+        if (result == -1) {
+            if (fd.isClosed()) {
+                result = THROWN_SOCKETEXCEPTION;
+                break;
+            }
+            if (errno != EINTR) {
+                break;
             }
         }
     } while (result == -1);
 
-    // Lock
     if (MUTEX_LOCK(appData->mutex) == -1) {
         return -1;
     }
 
     if (result > 0) {
-        // If we have been woken up by the emergency pipe, there must be a token in
-        // it. Thus we can safely read it (even in a blocking way).
+        // If we have been woken up by the emergency pipe. We can't be
+        // sure there is a token in it because it could have been read
+        // by the thread that wrote it between when when we woke up
+        // from select and attempt to read it here. Thus we cannot
+        // safely read it in a blocking way (so we make it
+        // non-blocking at creation).
         if (FD_ISSET(appData->fdsEmergency[0], &rfds)) {
             char token;
             do {
@@ -1444,7 +1448,6 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
     // underlying network.
     appData->waitingThreads--;
 
-    // Unlock
     MUTEX_UNLOCK(appData->mutex);
 
     return result;
@@ -2421,6 +2424,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     ret = 0;
     while (appData->aliveAndKicking) {
         errno = 0;
+
         if (!appData->setCallbackState(env, shc, fdObject)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
@@ -2653,7 +2657,6 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
     while (appData->aliveAndKicking) {
         errno = 0;
 
-        // Lock
         if (MUTEX_LOCK(appData->mutex) == -1) {
             return -1;
         }
@@ -2688,7 +2691,6 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
             appData->waitingThreads++;
         }
 
-        // Unlock
         MUTEX_UNLOCK(appData->mutex);
 
         switch (sslError) {
@@ -2901,6 +2903,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
 
     while (appData->aliveAndKicking && len > 0) {
         errno = 0;
+
         if (MUTEX_LOCK(appData->mutex) == -1) {
             return -1;
         }
@@ -2938,7 +2941,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
         MUTEX_UNLOCK(appData->mutex);
 
         switch (sslError) {
-            // Successfully write at least one byte.
+            // Successfully wrote at least one byte.
             case SSL_ERROR_NONE: {
                 buf += result;
                 len -= result;
@@ -2971,7 +2974,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
                 break;
             }
 
-            // An problem occurred during a system call, but this is not
+            // A problem occurred during a system call, but this is not
             // necessarily an error.
             case SSL_ERROR_SYSCALL: {
                 // Connection closed without proper shutdown. Tell caller we
