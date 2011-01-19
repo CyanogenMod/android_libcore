@@ -157,14 +157,12 @@ public final class DexFile {
     /**
      * Closes the DEX file.
      * <p>
-     * This may not be able to release any resources. If classes have been
-     * loaded, the underlying storage can't be discarded.
+     * This may not be able to release any resources. If classes from this
+     * DEX file are still resident, the DEX file can't be unmapped.
      *
      * @throws IOException
      *             if an I/O error occurs during closing the file, which
      *             normally should not happen
-     *
-     * @cts Second sentence is a bit cryptic.
      */
     public void close() throws IOException {
         guard.close();
@@ -180,9 +178,8 @@ public final class DexFile {
      * going to do what you want. Use {@link Class#forName(String)} instead.
      * <p>
      * The method does not throw {@link ClassNotFoundException} if the class
-     * isn't found because it isn't feasible to throw exceptions wildly every
-     * time a class is not found in the first DEX file we look at. It will
-     * throw exceptions for other failures, though.
+     * isn't found because it isn't reasonable to throw exceptions wildly every
+     * time a class is not found in the first DEX file we look at.
      *
      * @param name
      *            the class name, which should look like "java/lang/String"
@@ -193,8 +190,6 @@ public final class DexFile {
      *
      * @return the {@link Class} object representing the class, or {@code null}
      *         if the class cannot be loaded
-     *
-     * @cts Exception comment is a bit cryptic. What exception will be thrown?
      */
     public Class loadClass(String name, ClassLoader loader) {
         String slashName = name.replace('.', '/');
