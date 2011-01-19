@@ -173,4 +173,10 @@ public final class VMRuntime {
      * give you the address of a copy of the array when in forcecopy mode.
      */
     public native long addressOf(Object array);
+
+    /**
+     * Removes any growth limits, allowing the application to allocate
+     * up to the maximum heap size.
+     */
+    public native void clearGrowthLimit();
 }
