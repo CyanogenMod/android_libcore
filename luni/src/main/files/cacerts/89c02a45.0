@@ -3,7 +3,7 @@ Certificate:
         Version: 3 (0x2)
         Serial Number:
             1f:47:af:aa:62:00:70:50:54:4c:01:9e:9b:63:99:2a
-        Signature Algorithm: 1.2.840.10045.4.3.3
+        Signature Algorithm: ecdsa-with-SHA384
         Issuer: C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO ECC Certification Authority
         Validity
             Not Before: Mar  6 00:00:00 2008 GMT
@@ -28,7 +28,7 @@ Certificate:
                 Certificate Sign, CRL Sign
             X509v3 Basic Constraints: critical
                 CA:TRUE
-    Signature Algorithm: 1.2.840.10045.4.3.3
+    Signature Algorithm: ecdsa-with-SHA384
         30:65:02:31:00:ef:03:5b:7a:ac:b7:78:0a:72:b7:88:df:ff:
         b5:46:14:09:0a:fa:a0:e6:7d:08:c6:1a:87:bd:18:a8:73:bd:
         26:ca:60:0c:9d:ce:99:9f:cf:5c:0f:30:e1:be:14:31:ea:02:
