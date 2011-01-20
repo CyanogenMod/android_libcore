@@ -1380,11 +1380,12 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
     }
 
     if (result > 0) {
-        // If we have been woken up by the emergency pipe. We can't be
-        // sure there is a token in it because it could have been read
-        // by the thread that wrote it between when when we woke up
-        // from select and attempt to read it here. Thus we cannot
-        // safely read it in a blocking way (so we make it
+        // We have been woken up by a token in the emergency pipe. We
+        // can't be sure the token is still in the pipe at this point
+        // because it could have already been read by the thread that
+        // originally wrote it if it entered sslSelect and acquired
+        // the mutex before we did. Thus we cannot safely read from
+        // the pipe in a blocking way (so we make the pipe
         // non-blocking at creation).
         if (FD_ISSET(appData->fdsEmergency[0], &rfds)) {
             char token;
