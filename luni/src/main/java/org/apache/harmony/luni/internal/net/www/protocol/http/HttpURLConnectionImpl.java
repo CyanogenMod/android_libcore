@@ -225,7 +225,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         try {
-            uri = url.toURI();
+            uri = url.toURILenient();
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
