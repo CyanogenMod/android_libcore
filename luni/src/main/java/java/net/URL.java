@@ -669,13 +669,26 @@ public final class URL implements java.io.Serializable {
     }
 
     /**
+     * Encodes this URL to the equivalent URI after escaping characters that are
+     * not permitted by URI.
+     *
+     * @hide
+     */
+    public URI toURILenient() throws URISyntaxException {
+        if (strmHandler == null) {
+            throw new IllegalStateException(protocol);
+        }
+        return new URI(strmHandler.toExternalForm(this, true));
+    }
+
+    /**
      * Opens a connection to the remote resource specified by this URL. The
      * connection will be established through the given proxy and allows
      * bidirectional data transfer.
      *
      * @param proxy
      *            the proxy through which the connection will be established.
-     * @return the appropriate URLconnection instance representing the
+     * @return the appropriate URLConnection instance representing the
      *         connection to this URL.
      * @throws IOException
      *             if an I/O error occurs while opening the connection.
