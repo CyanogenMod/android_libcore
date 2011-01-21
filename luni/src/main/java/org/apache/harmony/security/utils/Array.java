@@ -33,6 +33,15 @@ public class Array {
     private Array() {
     }
 
+    public static String getBytesAsString(byte[] data) {
+        StringBuilder result = new StringBuilder(data.length * 3);
+        for (int i = 0; i < data.length; ++i) {
+            result.append(Byte.toHexString(data[i], false));
+            result.append(' ');
+        }
+        return result.toString();
+    }
+
     /**
      * Represents <code>array</code> as <code>String</code>
      * for printing. Array length can be up to 32767
@@ -67,13 +76,9 @@ public class Array {
             // put delimiter
             sb.append(' ');
             // put current byte
-            int currentByte = (0xff & array[i]);
-            String hexTail = Integer.toHexString(currentByte);
-            if (hexTail.length() == 1) {
-                sb.append('0');
-            }
-            sb.append(hexTail);
+            sb.append(Byte.toHexString(array[i], false));
             // form character representation part
+            int currentByte = (0xff & array[i]);
             char currentChar = (char)(currentByte & 0xffff);
             // FIXME if needed (how to distinguish PRINTABLE chars?)
             charForm.append(
