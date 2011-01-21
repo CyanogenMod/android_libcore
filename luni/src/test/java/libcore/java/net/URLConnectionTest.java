@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -1870,6 +1871,37 @@ public class URLConnectionTest extends junit.framework.TestCase {
         return uriReference.get();
     }
 
+    /**
+     * Don't explode if the cache returns a null body. http://b/3373699
+     */
+    public void testResponseCacheReturnsNullOutputStream() throws Exception {
+        final AtomicBoolean aborted = new AtomicBoolean();
+        ResponseCache.setDefault(new ResponseCache() {
+            @Override public CacheResponse get(URI uri, String requestMethod,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                return null;
+            }
+            @Override public CacheRequest put(URI uri, URLConnection connection) throws IOException {
+                return new CacheRequest() {
+                    @Override public void abort() {
+                        aborted.set(true);
+                    }
+                    @Override public OutputStream getBody() throws IOException {
+                        return null;
+                    }
+                };
+            }
+        });
+
+        server.enqueue(new MockResponse().setBody("abcdef"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        InputStream in = connection.getInputStream();
+        assertEquals("abc", readAscii(in, 3));
+        in.close();
+        assertFalse(aborted.get()); // The best behavior is ambiguous, but RI 6 doesn't abort here
+    }
 
     /**
      * Encodes the response body using GZIP and adds the corresponding header.

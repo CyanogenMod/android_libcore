@@ -34,16 +34,24 @@ import java.net.CacheRequest;
 abstract class AbstractHttpInputStream extends InputStream {
     protected final InputStream in;
     protected final HttpURLConnectionImpl httpURLConnection;
-    protected final CacheRequest cacheRequest;
-    protected final OutputStream cacheOut;
+    private final CacheRequest cacheRequest;
+    private final OutputStream cacheBody;
     protected boolean closed;
 
     AbstractHttpInputStream(InputStream in, HttpURLConnectionImpl httpURLConnection,
             CacheRequest cacheRequest) throws IOException {
         this.in = in;
         this.httpURLConnection = httpURLConnection;
+
+        OutputStream cacheBody = cacheRequest != null ? cacheRequest.getBody() : null;
+
+        // some apps return a null body; for compatibility we treat that like a null cache request
+        if (cacheBody == null) {
+            cacheRequest = null;
+        }
+
+        this.cacheBody = cacheBody;
         this.cacheRequest = cacheRequest;
-        this.cacheOut = cacheRequest != null ? cacheRequest.getBody() : null;
     }
 
     /**
@@ -63,8 +71,8 @@ abstract class AbstractHttpInputStream extends InputStream {
     }
 
     protected final void cacheWrite(byte[] buffer, int offset, int count) throws IOException {
-        if (cacheOut != null) {
-            cacheOut.write(buffer, offset, count);
+        if (cacheBody != null) {
+            cacheBody.write(buffer, offset, count);
         }
     }
 
@@ -74,7 +82,7 @@ abstract class AbstractHttpInputStream extends InputStream {
      */
     protected final void endOfInput(boolean reuseSocket) throws IOException {
         if (cacheRequest != null) {
-            cacheOut.close();
+            cacheBody.close();
         }
         httpURLConnection.releaseSocket(reuseSocket);
     }
