@@ -1353,19 +1353,16 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
 
     /**
      * Returns the string representation of this {@code Calendar}.
-     *
-     * @return the string representation of this {@code Calendar}.
      */
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder(getClass().getName() + "[time="
-                + (isTimeSet ? String.valueOf(time) : "?")
-                + ",areFieldsSet="
-                + areFieldsSet
-                + // ",areAllFieldsSet=" + areAllFieldsSet +
-                ",lenient=" + lenient + ",zone=" + zone + ",firstDayOfWeek="
-                + firstDayOfWeek + ",minimalDaysInFirstWeek="
-                + minimalDaysInFirstWeek);
+        StringBuilder result = new StringBuilder(getClass().getName() +
+                "[time=" + (isTimeSet ? String.valueOf(time) : "?") +
+                ",areFieldsSet=" + areFieldsSet +
+                ",lenient=" + lenient +
+                ",zone=" + zone.getID() +
+                ",firstDayOfWeek=" + firstDayOfWeek +
+                ",minimalDaysInFirstWeek=" + minimalDaysInFirstWeek);
         for (int i = 0; i < FIELD_COUNT; i++) {
             result.append(',');
             result.append(FIELD_NAMES[i]);
