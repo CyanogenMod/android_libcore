@@ -392,10 +392,10 @@ public abstract class URLStreamHandler {
             result.append(s, copiedCount, i);
 
             if (c < 0x7f) {
-                appendHex(result, c);
+                URIEncoderDecoder.appendHex(result, (byte) c);
             } else {
                 for (byte b : s.substring(i, i + 1).getBytes(Charsets.UTF_8)) {
-                    appendHex(result, b & 0xff);
+                    URIEncoderDecoder.appendHex(result, b);
                 }
             }
 
@@ -408,11 +408,6 @@ public abstract class URLStreamHandler {
             result.append(s, copiedCount, s.length());
             return result.toString();
         }
-    }
-
-    private void appendHex(StringBuilder stringBuilder, int b) {
-        String hex = Integer.toHexString(b).toUpperCase(Locale.US);
-        stringBuilder.append(hex.length() == 1 ? "%0" : "%").append(hex); // always 2 hex digits
     }
 
     /**

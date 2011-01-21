@@ -18,15 +18,13 @@
 package java.net;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 
 /**
  * This class is used to encode a string using the format required by
  * {@code application/x-www-form-urlencoded} MIME content type.
  */
 public class URLEncoder {
-
-    static final String digits = "0123456789ABCDEF";
-
     /**
      * Prevents this class from being instantiated.
      */
@@ -59,11 +57,9 @@ public class URLEncoder {
             } else if (ch == ' ') {
                 buf.append('+');
             } else {
-                byte[] bytes = new String(new char[] { ch }).getBytes();
+                byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
-                    buf.append('%');
-                    buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
-                    buf.append(digits.charAt(bytes[j] & 0xf));
+                    URIEncoderDecoder.appendHex(buf, bytes[j]);
                 }
             }
         }
@@ -126,9 +122,7 @@ public class URLEncoder {
             throws UnsupportedEncodingException {
         byte[] bytes = s.getBytes(enc);
         for (int j = 0; j < bytes.length; j++) {
-            buf.append('%');
-            buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
-            buf.append(digits.charAt(bytes[j] & 0xf));
+            URIEncoderDecoder.appendHex(buf, bytes[j]);
         }
     }
 }

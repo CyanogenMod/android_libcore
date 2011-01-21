@@ -28,8 +28,10 @@ import java.nio.charset.Charsets;
  * slightly different way than {@code URLEncoder} and {@code URLDecoder}.
  */
 class URIEncoderDecoder {
-
-    static final String digits = "0123456789ABCDEF";
+    public static void appendHex(StringBuilder sb, byte b) {
+        sb.append('%');
+        sb.append(Byte.toHexString(b, true));
+    }
 
     /**
      * Validate a string by checking if it contains any characters other than:
@@ -106,8 +108,7 @@ class URIEncoderDecoder {
      *            string s
      * @return java.lang.String the converted string
      */
-    static String quoteIllegal(String s, String legal)
-            throws UnsupportedEncodingException {
+    static String quoteIllegal(String s, String legal) throws UnsupportedEncodingException {
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
@@ -115,15 +116,12 @@ class URIEncoderDecoder {
                     || (ch >= 'A' && ch <= 'Z')
                     || (ch >= '0' && ch <= '9')
                     || legal.indexOf(ch) > -1
-                    || (ch > 127 && !Character.isSpaceChar(ch) && !Character
-                            .isISOControl(ch))) {
+                    || (ch > 127 && !Character.isSpaceChar(ch) && !Character.isISOControl(ch))) {
                 buf.append(ch);
             } else {
                 byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
-                    buf.append('%');
-                    buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
-                    buf.append(digits.charAt(bytes[j] & 0xf));
+                    appendHex(buf, bytes[j]);
                 }
             }
         }
@@ -152,9 +150,7 @@ class URIEncoderDecoder {
             } else {
                 byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
-                    buf.append('%');
-                    buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
-                    buf.append(digits.charAt(bytes[j] & 0xf));
+                    appendHex(buf, bytes[j]);
                 }
             }
         }

@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.security.auth.x500.X500Principal;
 import libcore.base.EmptyArray;
 import org.apache.harmony.security.asn1.ASN1OctetString;
+import org.apache.harmony.security.utils.Array;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.CertificatePolicies;
 import org.apache.harmony.security.x509.GeneralName;
@@ -1030,11 +1031,11 @@ public class X509CertSelector implements CertSelector {
         }
         if (this.subjectKeyIdentifier != null) {
             result.append("\n  subjectKeyIdentifier: "
-                    + getBytesAsString(subjectKeyIdentifier));
+                    + Array.getBytesAsString(subjectKeyIdentifier));
         }
         if (this.authorityKeyIdentifier != null) {
             result.append("\n  authorityKeyIdentifier: "
-                    + getBytesAsString(authorityKeyIdentifier));
+                    + Array.getBytesAsString(authorityKeyIdentifier));
         }
         if (this.certificateValid != null) {
             result.append("\n  certificateValid: " + certificateValid);
@@ -1048,7 +1049,7 @@ public class X509CertSelector implements CertSelector {
         }
         if (this.subjectPublicKey != null) {
             result.append("\n  subjectPublicKey: "
-                    + getBytesAsString(subjectPublicKey));
+                    + Array.getBytesAsString(subjectPublicKey));
         }
         if (this.keyUsage != null) {
             result.append("\n  keyUsage: \n  [");
@@ -1099,18 +1100,6 @@ public class X509CertSelector implements CertSelector {
         }
         result.append("\n]");
         return result.toString();
-    }
-
-    private String getBytesAsString(byte[] data) {
-        String result = "";
-        for (int i=0; i<data.length; i++) {
-            String tail = Integer.toHexString(0x00ff & data[i]);
-            if (tail.length() == 1) {
-                tail = "0" + tail;
-            }
-            result += tail + " ";
-        }
-        return result;
     }
 
     private byte[] getExtensionValue(X509Certificate cert, String oid) {

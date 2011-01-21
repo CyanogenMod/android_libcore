@@ -40,6 +40,7 @@ import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
+import org.apache.harmony.security.utils.Array;
 import org.apache.harmony.security.x501.Name;
 
 /**
@@ -491,23 +492,6 @@ public class GeneralName {
         return Collections.unmodifiableList(result);
     }
 
-    //
-    // TODO
-    // @param   data:   byte[]
-    // @return
-    //
-    private String getBytesAsString(byte[] data) {
-        String result = "";
-        for (int i = 0; i < data.length; i++) {
-            String tail = Integer.toHexString(0x00ff & data[i]);
-            if (tail.length() == 1) {
-                tail = "0" + tail;
-            }
-            result += tail + " ";
-        }
-        return result;
-    }
-
     /**
      * TODO
      * @return
@@ -517,7 +501,7 @@ public class GeneralName {
         switch (tag) {
             case OTHER_NAME:
                 result = "otherName[0]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case RFC822_NAME:
                 result = "rfc822Name[1]: " + name;
@@ -533,7 +517,7 @@ public class GeneralName {
                 break;
             case X400_ADDR:
                 result = "x400Address[3]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case DIR_NAME:
                 result = "directoryName[4]: "
@@ -541,7 +525,7 @@ public class GeneralName {
                 break;
             case EDIP_NAME:
                 result = "ediPartyName[5]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case IP_ADDR:
                 result = "iPAddress[7]: " + ipBytesToStr((byte[]) name);
@@ -921,44 +905,4 @@ public class GeneralName {
             return result;
         }
     };
-
-    // public static void printAsHex(int perLine,
-    //         String prefix,
-    //         String delimiter,
-    //         byte[] data) {
-    //     for (int i = 0; i < data.length; i++) {
-    //         String tail = Integer.toHexString(0x000000ff & data[i]);
-    //         if (tail.length() == 1) {
-    //             tail = "0" + tail;
-    //         }
-    //         System.out.print(prefix + "0x" + tail + delimiter);
-
-    //         if (((i+1)%perLine) == 0) {
-    //             System.out.println();
-    //         }
-    //     }
-    //     System.out.println();
-    // }
-
-    // public static void main(String[] args) {
-    //     System.out.println(">> "+new BigInteger(new byte[] {(byte)23, (byte)255}).toString(2));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     ipStrToBytes("1.2.3.4");
-    //     ipStrToBytes("1.2.3.4/4.3.2.1");
-    //     printAsHex(8, "", " ", ipStrToBytes("ff17:8082:ff17:8082:ff17:8082:ff17:8082/ff17:8082:ff17:8082:ff17:8082:ff17:8082"));
-    // }
 }
