@@ -1547,18 +1547,6 @@ public final class SamplingProfiler {
         return hprofData;
     }
 
-
-    /**
-     * Prints the profiler's collected data in ASCII hprof format to
-     * the specified {@code PrintStream}.
-     *
-     * @deprecated Use {@code AsciiHprofWriter} as shown in class documentation.
-     */
-    @Deprecated public void writeHprofData(PrintStream out) {
-        // TODO remove deprecated writeHprofData
-        new AsciiHprofWriter(getHprofData(), out);
-    }
-
     /**
      * The Sampler does the real work of the profiler.
      *
