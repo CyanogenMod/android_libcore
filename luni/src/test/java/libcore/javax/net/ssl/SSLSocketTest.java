@@ -801,6 +801,50 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    /**
+     * b/3350645 Test to confirm that an SSLSocket.close() performing
+     * an SSL_shutdown does not throw an IOException if the peer
+     * socket has been closed.
+     */
+    public void test_SSLSocket_shutdownCloseOnClosedPeer() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        final Socket underlying = new Socket(c.host, c.port);
+        final SSLSocket wrapping = (SSLSocket)
+                c.clientContext.getSocketFactory().createSocket(underlying,
+                                                                c.host.getHostName(),
+                                                                c.port,
+                                                                false);
+        Thread clientThread = new Thread(new Runnable () {
+            public void run() {
+                try {
+                    try {
+                        wrapping.startHandshake();
+                        wrapping.getOutputStream().write(42);
+                        // close the underlying socket,
+                        // so that no SSL shutdown is sent
+                        underlying.close();
+                        wrapping.close();
+                    } catch (SSLException expected) {
+                    }
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        clientThread.start();
+
+        SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        server.startHandshake();
+        server.getInputStream().read();
+        // wait for thread to finish so we know client is closed.
+        clientThread.join();
+        // close should cause an SSL_shutdown which will fail
+        // because the peer has closed, but it shouldn't throw.
+        server.close();
+    }
+
     public void test_SSLSocket_setSoTimeout_basic() throws Exception {
         ServerSocket listening = new ServerSocket(0);
 
