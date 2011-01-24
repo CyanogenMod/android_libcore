@@ -30,7 +30,6 @@ import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -51,6 +50,7 @@ import junit.framework.Assert;
 import libcore.javax.net.ssl.TestKeyManager;
 import libcore.javax.net.ssl.TestTrustManager;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.X509Principal;
@@ -125,6 +125,7 @@ public final class TestKeyStore extends Assert {
                      null,
                      "RootCA",
                      x509Principal("Test Root Certificate Authority"),
+                     0,
                      true,
                      null,
                      null);
@@ -134,6 +135,7 @@ public final class TestKeyStore extends Assert {
                      null,
                      "IntermediateCA",
                      x509Principal("Test Intermediate Certificate Authority"),
+                     0,
                      true,
                      ROOT_CA.getPrivateKey("RSA", "RSA"),
                      ROOT_CA.getRootCertificate("RSA"));
@@ -143,6 +145,7 @@ public final class TestKeyStore extends Assert {
                      null,
                      "server",
                      localhost(),
+                     0,
                      false,
                      INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"),
                      INTERMEDIATE_CA.getRootCertificate("RSA"));
@@ -154,6 +157,7 @@ public final class TestKeyStore extends Assert {
                      null,
                      "client",
                      x509Principal("test@user"),
+                     0,
                      false,
                      INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"),
                      INTERMEDIATE_CA.getRootCertificate("RSA"));
@@ -164,6 +168,7 @@ public final class TestKeyStore extends Assert {
                      null,
                      "RootCA2",
                      x509Principal("Test Root Certificate Authority 2"),
+                     0,
                      true,
                      null,
                      null);
@@ -210,6 +215,7 @@ public final class TestKeyStore extends Assert {
      * @param keyAlgorithms The requested key types to generate and include
      * @param keyStorePassword Password used to protect the private key
      * @param aliasPrefix A unique prefix to identify the key aliases
+     * @param keyUsage {@link KeyUsage} bit mask for 2.5.29.15 extension
      * @param ca true If the keys being created are for a CA
      * @param signer If non-null, a private key entry to be used for signing, otherwise self-sign
      * @param signer If non-null, a root CA to include in the final store
@@ -219,6 +225,7 @@ public final class TestKeyStore extends Assert {
                                       char[] keyPassword,
                                       String aliasPrefix,
                                       X509Principal subject,
+                                      int keyUsage,
                                       boolean ca,
                                       PrivateKeyEntry signer,
                                       Certificate rootCa) {
@@ -242,6 +249,7 @@ public final class TestKeyStore extends Assert {
                                keyAlgorithm,
                                publicAlias, privateAlias,
                                subject,
+                               keyUsage,
                                ca,
                                privateKey(keyStore, keyPassword, "RSA", "RSA"));
                     continue;
@@ -250,6 +258,7 @@ public final class TestKeyStore extends Assert {
                            keyAlgorithm,
                            publicAlias, privateAlias,
                            subject,
+                           keyUsage,
                            ca,
                            signer);
             }
@@ -332,6 +341,7 @@ public final class TestKeyStore extends Assert {
                                       String publicAlias,
                                       String privateAlias,
                                       X509Principal subject,
+                                      int keyUsage,
                                       boolean ca,
                                       PrivateKeyEntry signer) throws Exception {
         PrivateKey caKey;
@@ -409,6 +419,11 @@ public final class TestKeyStore extends Assert {
             x509cg.setPublicKey(publicKey);
             x509cg.setSignatureAlgorithm(signatureAlgorithm);
             x509cg.setSerialNumber(serial);
+            if (keyUsage != 0) {
+                x509cg.addExtension(X509Extensions.KeyUsage,
+                                    true,
+                                    new KeyUsage(keyUsage));
+            }
             if (ca) {
                 x509cg.addExtension(X509Extensions.BasicConstraints,
                                     true,
