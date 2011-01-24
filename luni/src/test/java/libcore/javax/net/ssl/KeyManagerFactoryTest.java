@@ -46,6 +46,7 @@ public class KeyManagerFactoryTest extends TestCase {
                                   null,
                                   "rsa-dsa-ec",
                                   TestKeyStore.localhost(),
+                                  0,
                                   true,
                                   null,
                                   null);
