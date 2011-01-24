@@ -112,6 +112,12 @@ public interface IFileSystem {
 
     // BEGIN android-added
     public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
+
+    public static class SeekPipeException extends IOException {
+        public SeekPipeException(String message) {
+            super(message);
+        }
+    }
     // END android-added
 
 }

@@ -32,6 +32,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -306,7 +307,13 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
 
     jlong result = lseek64(fd, offset, nativeWhence);
     if (result == -1) {
-        jniThrowIOException(env, errno);
+        if (errno == ESPIPE) {
+            jniThrowExceptionWithErrno(env,
+                    "org/apache/harmony/luni/platform/IFileSystem$SeekPipeException",
+                    errno);
+        } else {
+            jniThrowIOException(env, errno);
+        }
     }
     return result;
 }
