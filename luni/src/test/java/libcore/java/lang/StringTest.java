@@ -214,36 +214,45 @@ public class StringTest extends TestCase {
         static String literal = "[5058, 9962, 1563, 5744]";
     }
 
-    public void testChangeCase_tr_TR() {
+    private static final String LATIN_CAPITAL_I = "I";
+    private static final String LATIN_CAPITAL_I_WITH_DOT_ABOVE = "\u0130";
+    private static final String LATIN_SMALL_I = "i";
+    private static final String LATIN_SMALL_DOTLESS_I = "\u0131";
+
+    private static final String[] LATIN_I_VARIANTS = {
+        LATIN_SMALL_I,
+        LATIN_SMALL_DOTLESS_I,
+        LATIN_CAPITAL_I,
+        LATIN_CAPITAL_I_WITH_DOT_ABOVE,
+    };
+
+    public void testCaseMapping_tr_TR() {
         Locale trTR = new Locale("tr", "TR");
-        String lower = "i";
-        String dotlessLower = "\u0131";
-        String upper = "I";
-        String dottedUpper = "\u0130";
-        assertEquals(dottedUpper, lower.toUpperCase(trTR));
-        assertEquals(lower, lower.toLowerCase(trTR));
-        assertEquals(upper, upper.toUpperCase(trTR));
-        assertEquals(dotlessLower, upper.toLowerCase(trTR));
-        assertEquals(upper, dotlessLower.toUpperCase(trTR));
-        assertEquals(dotlessLower, dotlessLower.toLowerCase(trTR));
-        assertEquals(dottedUpper, dottedUpper.toUpperCase(trTR));
-        assertEquals(lower, dottedUpper.toLowerCase(trTR));
+        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(trTR));
+        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(trTR));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(trTR));
+
+        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(trTR));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(trTR));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_SMALL_I.toUpperCase(trTR));
+
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(trTR));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_CAPITAL_I.toLowerCase(trTR));
     }
 
-    public void testChangeCase_en_US() {
+    public void testCaseMapping_en_US() {
         Locale enUs = new Locale("en", "US");
-        String lower = "i";
-        String dotlessLower = "\u0131";
-        String upper = "I";
-        String dottedUpper = "\u0130";
-        assertEquals(upper, lower.toUpperCase(enUs));
-        assertEquals(lower, lower.toLowerCase(enUs));
-        assertEquals(upper, upper.toUpperCase(enUs));
-        assertEquals(lower, upper.toLowerCase(enUs));
-        assertEquals(upper, dotlessLower.toUpperCase(enUs));
-        assertEquals(dotlessLower, dotlessLower.toLowerCase(enUs));
-        assertEquals(dottedUpper, dottedUpper.toUpperCase(enUs));
-        assertEquals(lower, dottedUpper.toLowerCase(enUs)); // fails on Android
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_I.toUpperCase(enUs));
+        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(enUs));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(enUs));
+
+        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(enUs));
+        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I.toLowerCase(enUs));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(enUs));
+
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(enUs));
+        // http://b/3325799: Android fails this with an extra combining "dot above".
+        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(enUs));
     }
 
     public void testEqualsIgnoreCase_tr_TR() {
@@ -261,15 +270,35 @@ public class StringTest extends TestCase {
         Locale defaultLocale = Locale.getDefault();
         Locale.setDefault(locale);
         try {
-            String[] equivalenceClass = {
-                    "i",
-                    "\u0131", // dotless i
-                    "I",
-                    "\u0130", // dotted I
-            };
-            for (String a : equivalenceClass) {
-                for (String b : equivalenceClass) {
-                    assertTrue("Expected " + a + " to equal " + b, a.equalsIgnoreCase(b));
+            for (String a : LATIN_I_VARIANTS) {
+                for (String b : LATIN_I_VARIANTS) {
+                    if (!a.equalsIgnoreCase(b)) {
+                        fail("Expected " + a + " to equal " + b + " in " +  locale);
+                    }
+                }
+            }
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
+
+    public void testRegionMatches_ignoreCase_en_US() {
+        testRegionMatches_ignoreCase(new Locale("en", "US"));
+    }
+
+    public void testRegionMatches_ignoreCase_tr_TR() {
+        testRegionMatches_ignoreCase(new Locale("tr", "TR"));
+    }
+
+    private void testRegionMatches_ignoreCase(Locale locale) {
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(locale);
+        try {
+            for (String a : LATIN_I_VARIANTS) {
+                for (String b : LATIN_I_VARIANTS) {
+                    if (!a.regionMatches(true, 0, b, 0, b.length())) {
+                        fail("Expected " + a + " to equal " + b + " in " +  locale);
+                    }
                 }
             }
         } finally {

@@ -602,8 +602,11 @@ outer:
         throw new StringIndexOutOfBoundsException("array length=" + arrayLength + " offset=" + offset + " count=" + count);
     }
 
-    // Optimized for ASCII
-    private char compareValue(char ch) {
+    /**
+     * This isn't equivalent to either of ICU's u_foldCase case folds, and thus any of the Unicode
+     * case folds, but it's what the RI uses.
+     */
+    private char foldCase(char ch) {
         if (ch < 128) {
             if ('A' <= ch && ch <= 'Z') {
                 return (char) (ch + ('a' - 'A'));
@@ -675,8 +678,8 @@ outer:
             if ((c1 = value[o1++]) == (c2 = target[o2++])) {
                 continue;
             }
-            c1 = compareValue(c1);
-            c2 = compareValue(c2);
+            c1 = foldCase(c1);
+            c2 = foldCase(c2);
             if ((result = c1 - c2) != 0) {
                 return result;
             }
@@ -808,16 +811,13 @@ outer:
         if (string == null || count != string.count) {
             return false;
         }
-
         int o1 = offset, o2 = string.offset;
         int end = offset + count;
-        char c1, c2;
         char[] target = string.value;
         while (o1 < end) {
-            if ((c1 = value[o1++]) != (c2 = target[o2++])
-                    && Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                    // Required for unicode that we test both cases
-                    && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
+            char c1 = value[o1++];
+            char c2 = target[o2++];
+            if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
                 return false;
             }
         }
@@ -1296,8 +1296,7 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public boolean regionMatches(int thisStart, String string, int start,
-            int length) {
+    public boolean regionMatches(int thisStart, String string, int start, int length) {
         if (string == null) {
             throw new NullPointerException();
         }
@@ -1341,36 +1340,31 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public boolean regionMatches(boolean ignoreCase, int thisStart,
-            String string, int start, int length) {
+    public boolean regionMatches(boolean ignoreCase, int thisStart, String string, int start, int length) {
         if (!ignoreCase) {
             return regionMatches(thisStart, string, start, length);
         }
-
-        if (string != null) {
-            if (thisStart < 0 || length > count - thisStart) {
-                return false;
-            }
-            if (start < 0 || length > string.count - start) {
-                return false;
-            }
-
-            thisStart += offset;
-            start += string.offset;
-            int end = thisStart + length;
-            char c1, c2;
-            char[] target = string.value;
-            while (thisStart < end) {
-                if ((c1 = value[thisStart++]) != (c2 = target[start++])
-                        && Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                        // Required for unicode that we test both cases
-                        && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
-                    return false;
-                }
-            }
-            return true;
+        if (string == null) {
+            throw new NullPointerException("string == null");
         }
-        throw new NullPointerException();
+        if (thisStart < 0 || length > count - thisStart) {
+            return false;
+        }
+        if (start < 0 || length > string.count - start) {
+            return false;
+        }
+        thisStart += offset;
+        start += string.offset;
+        int end = thisStart + length;
+        char[] target = string.value;
+        while (thisStart < end) {
+            char c1 = value[thisStart++];
+            char c2 = target[start++];
+            if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
