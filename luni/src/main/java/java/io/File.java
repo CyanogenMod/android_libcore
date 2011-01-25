@@ -742,6 +742,9 @@ public class File implements Serializable, Comparable<File> {
      * @return the number of bytes in this file.
      */
     public long length() {
+        if (path.isEmpty()) {
+            return 0;
+        }
         return lengthImpl(absolutePath);
     }
 
