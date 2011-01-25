@@ -33,17 +33,9 @@ import org.apache.harmony.security.asn1.ASN1Type;
  * </pre>
  * (as specified in RFC 3280 http://www.ietf.org/rfc/rfc3280.txt)
  */
-public class CRLNumber extends ExtensionValue {
-
-    // crl number value
+public final class CRLNumber extends ExtensionValue {
+    /** crl number value */
     private final BigInteger number;
-
-    /**
-     * Constructs the object on the base of the invalidity date value.
-     */
-    public CRLNumber(BigInteger number) {
-        this.number = number;
-    }
 
     /**
      * Constructs the object on the base of its encoded form.
@@ -62,9 +54,8 @@ public class CRLNumber extends ExtensionValue {
 
     /**
      * Returns ASN.1 encoded form of this X.509 CRLNumber value.
-     * @return a byte array containing ASN.1 encoded form.
      */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(number.toByteArray());
         }
@@ -75,9 +66,8 @@ public class CRLNumber extends ExtensionValue {
      * Places the string representation of extension value
      * into the StringBuffer object.
      */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CRL Number: [ ").append(number).append(
-                " ]\n");
+    @Override public void dumpValue(StringBuffer buffer, String prefix) {
+        buffer.append(prefix).append("CRL Number: [ ").append(number).append(" ]\n");
     }
 
     /**

@@ -30,24 +30,26 @@ import java.io.IOException;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-public class ASN1Implicit extends ASN1Type {
+public final class ASN1Implicit extends ASN1Type {
 
-    // primitive type of tagging
+    /** primitive type of tagging */
     private static final int TAGGING_PRIMITIVE = 0;
 
-    // constructed type of tagging
+    /** constructed type of tagging */
     private static final int TAGGING_CONSTRUCTED = 1;
 
-    // string type of tagging
+    /** string type of tagging */
     private static final int TAGGING_STRING = 2;
 
-    // tagged ASN.1 type
+    /** tagged ASN.1 type */
     private final ASN1Type type;
 
-    // type of tagging. There are three of them
-    // 1) primitive: only primitive identifier is valid
-    // 2) constructed: only constructed identifier is valid
-    // 3) string: both identifiers are valid
+    /**
+     * type of tagging. There are three of them
+     * 1) primitive: only primitive identifier is valid
+     * 2) constructed: only constructed identifier is valid
+     * 3) string: both identifiers are valid
+     */
     private final int taggingType;
 
     /**
@@ -59,19 +61,7 @@ public class ASN1Implicit extends ASN1Type {
      * @throws IllegalArgumentException - if tagNumber or type is invalid
      */
     public ASN1Implicit(int tagNumber, ASN1Type type) {
-        this(CLASS_CONTEXTSPECIFIC, tagNumber, type);
-    }
-
-    /**
-     * Constructs implicitly tagged ASN.1 type
-     *
-     * @param tagClass - ASN.1 tag class.
-     * @param tagNumber - ASN.1 tag number
-     * @param type - ASN.1 type to be tagged
-     * @throws IllegalArgumentException - if tagNumber, tagClass or type is invalid
-     */
-    public ASN1Implicit(int tagClass, int tagNumber, ASN1Type type) {
-        super(tagClass, tagNumber);
+        super(CLASS_CONTEXTSPECIFIC, tagNumber);
 
         if ((type instanceof ASN1Choice) || (type instanceof ASN1Any)) {
             // According to X.680:
@@ -98,15 +88,6 @@ public class ASN1Implicit extends ASN1Type {
         }
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
-    /**
-     * TODO
-     */
     public final boolean checkTag(int identifier) {
         switch (taggingType) {
         case TAGGING_PRIMITIVE:
@@ -118,9 +99,6 @@ public class ASN1Implicit extends ASN1Type {
         }
     }
 
-    /**
-     * TODO
-     */
     public Object decode(BerInputStream in) throws IOException {
         if (!checkTag(in.tag)) {
             // FIXME need look for tagging type
@@ -129,7 +107,7 @@ public class ASN1Implicit extends ASN1Type {
                     "but got " + Integer.toHexString(in.tag));
         }
 
-        // substitute indentifier for further decoding
+        // substitute identifier for further decoding
         if (id == in.tag) {
             in.tag = type.id;
         } else {
@@ -142,12 +120,6 @@ public class ASN1Implicit extends ASN1Type {
         }
         return getDecodedObject(in);
     }
-
-    //
-    //
-    // Encode
-    //
-    //
 
     public void encodeASN(BerOutputStream out) {
         //FIXME need another way for specifying identifier to be encoded

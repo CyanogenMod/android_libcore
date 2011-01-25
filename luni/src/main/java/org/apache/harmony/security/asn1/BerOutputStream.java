@@ -28,34 +28,21 @@ package org.apache.harmony.security.asn1;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public class BerOutputStream {
 
-    /**
-     *  Encoded byte array
-     */
+    /** Encoded byte array */
     public byte[] encoded;
 
-    /**
-     *  current offset
-     */
+    /** current offset */
     protected int offset;
 
-    /**
-     * Current encoded length
-     */
+    /** Current encoded length */
     public int length;
 
-    /**
-     * Current encoded content
-     */
+    /** Current encoded content */
     public Object content;
 
-    public BerOutputStream() {
-    }
-
     public final void encodeTag(int tag) {
-
         encoded[offset++] = (byte) tag; //FIXME long form?
 
         if (length > 127) { //long form
@@ -93,7 +80,7 @@ public class BerOutputStream {
     }
 
     public void encodeBoolean() {
-        if (((Boolean) content).booleanValue()) {
+        if ((Boolean) content) {
             encoded[offset] = (byte) 0xFF;
         } else {
             encoded[offset] = 0x00;
@@ -190,10 +177,6 @@ public class BerOutputStream {
         offset += length;
     }
 
-    /*
-     * LENGTH
-     */
-
     public void getChoiceLength(ASN1Choice choice) {
         throw new RuntimeException("Is not implemented yet"); //FIXME
     }
@@ -215,10 +198,6 @@ public class BerOutputStream {
     }
 
     public void getSetOfLength(ASN1SetOf setOf) {
-        throw new RuntimeException("Is not implemented yet"); //FIXME
-    }
-
-    public int getStringLength(Object object) {
         throw new RuntimeException("Is not implemented yet"); //FIXME
     }
 }

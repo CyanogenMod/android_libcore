@@ -25,8 +25,8 @@ package org.apache.harmony.security.x509;
 /**
  * Text utils for processing DN string representations
  */
-
-public class Utils {
+public final class Utils {
+    private Utils() {}
 
     /**
      * Checks if the string is PrintableString (see X.680)

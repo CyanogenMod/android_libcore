@@ -43,11 +43,9 @@ import org.apache.harmony.security.asn1.ASN1Type;
  * </pre>
  * (as specified in RFC 3280 http://www.ietf.org/rfc/rfc3280.txt)
  */
-public class KeyUsage extends ExtensionValue {
+public final class KeyUsage extends ExtensionValue {
 
-    /**
-     * The names of the usages.
-     */
+    /** The names of the usages. */
     private static final String[] USAGES = {
         "digitalSignature",
         "nonRepudiation",
@@ -60,15 +58,8 @@ public class KeyUsage extends ExtensionValue {
         "decipherOnly",
     };
 
-    // the value of extension
+    /** the value of extension */
     private final boolean[] keyUsage;
-
-    /**
-     * Creates the extension object corresponding to the given key usage.
-     */
-    public KeyUsage(boolean[] keyUsage) {
-        this.keyUsage = keyUsage;
-    }
 
     /**
      * Creates the extension object on the base of its encoded form.
@@ -82,22 +73,14 @@ public class KeyUsage extends ExtensionValue {
         return keyUsage;
     }
 
-    /**
-     * Returns the encoded of the object.
-     * @return a byte array containing ASN.1 encoded form.
-     */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(keyUsage);
         }
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
+    @Override public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix).append("KeyUsage [\n");
         for (int i=0; i<keyUsage.length; i++) {
             if (keyUsage[i]) {

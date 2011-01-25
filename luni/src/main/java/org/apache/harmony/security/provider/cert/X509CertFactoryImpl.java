@@ -124,7 +124,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         if (inStream == null) {
             throw new CertificateException("inStream == null");
         }
-        ArrayList result = new ArrayList();
+        ArrayList<Certificate> result = new ArrayList<Certificate>();
         try {
             if (!inStream.markSupported()) {
                 // create the mark supporting wrapper
@@ -210,12 +210,10 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 if (data == null) {
                     throw new CertificateException("Invalid PKCS7 data provided");
                 }
-                List certs = data.getCertificates();
+                List<org.apache.harmony.security.x509.Certificate> certs = data.getCertificates();
                 if (certs != null) {
-                    for (int i = 0; i < certs.size(); i++) {
-                        result.add(new X509CertImpl(
-                            (org.apache.harmony.security.x509.Certificate)
-                                certs.get(i)));
+                    for (org.apache.harmony.security.x509.Certificate cert : certs) {
+                        result.add(new X509CertImpl(cert));
                     }
                 }
                 return result;
@@ -267,7 +265,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         if (inStream == null) {
             throw new CRLException("inStream == null");
         }
-        ArrayList result = new ArrayList();
+        ArrayList<CRL> result = new ArrayList<CRL>();
         try {
             if (!inStream.markSupported()) {
                 inStream = new RestoringInputStream(inStream);
@@ -351,11 +349,10 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 if (data == null) {
                     throw new CRLException("Invalid PKCS7 data provided");
                 }
-                List crls = data.getCRLs();
+                List<CertificateList> crls = data.getCRLs();
                 if (crls != null) {
-                    for (int i = 0; i < crls.size(); i++) {
-                        result.add(new X509CRLImpl(
-                            (CertificateList) crls.get(i)));
+                    for (CertificateList crl : crls) {
+                        result.add(new X509CRLImpl(crl));
                     }
                 }
                 return result;

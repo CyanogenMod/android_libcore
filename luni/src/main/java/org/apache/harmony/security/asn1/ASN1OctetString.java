@@ -23,6 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
@@ -30,10 +31,9 @@ import java.io.IOException;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public class ASN1OctetString extends ASN1StringType {
 
-    // default implementation
+    /** default implementation */
     private static final ASN1OctetString ASN1 = new ASN1OctetString();
 
     /**
@@ -53,20 +53,12 @@ public class ASN1OctetString extends ASN1StringType {
      *
      * The default implementation works with encoding
      * that is represented as byte array.
-     *
-     * @return ASN.1 octet string type default implementation
      */
     public static ASN1OctetString getInstance() {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
-    public Object decode(BerInputStream in) throws IOException {
+    @Override public Object decode(BerInputStream in) throws IOException {
         in.readOctetString();
 
         if (in.isVerify) {
@@ -78,27 +70,17 @@ public class ASN1OctetString extends ASN1StringType {
     /**
      * Extracts array of bytes from BER input stream.
      *
-     * @param in - BER input stream
      * @return array of bytes
      */
-    public Object getDecodedObject(BerInputStream in) throws IOException {
-        byte[] bytesEncoded = new byte[in.length];
-        System.arraycopy(in.buffer, in.contentOffset, bytesEncoded, 0,
-                in.length);
-        return bytesEncoded;
+    @Override public Object getDecodedObject(BerInputStream in) throws IOException {
+        return Arrays.copyOfRange(in.buffer, in.contentOffset, in.contentOffset + in.length);
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-
-    public void encodeContent(BerOutputStream out) {
+    @Override public void encodeContent(BerOutputStream out) {
         out.encodeOctetString();
     }
 
-    public void setEncodingContent(BerOutputStream out) {
+    @Override public void setEncodingContent(BerOutputStream out) {
         out.length = ((byte[]) out.content).length;
     }
 }

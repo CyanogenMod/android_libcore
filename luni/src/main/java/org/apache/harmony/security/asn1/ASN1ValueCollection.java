@@ -33,23 +33,16 @@ import java.util.Collection;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
+public abstract class ASN1ValueCollection extends ASN1Constructed {
 
-public abstract class ASN1ValueCollection extends ASN1Constructured {
-
-    /**
-     * A value collection of this ASN.1 type
-     */
+    /** A value collection of this ASN.1 type */
     public final ASN1Type type;
 
     /**
      * Constructs ASN1 collection type.
-     *
-     * @param tagNumber - ASN.1 tag number
-     * @param type - ASN.1 type
      */
     public ASN1ValueCollection(int tagNumber, ASN1Type type) {
         super(tagNumber);
-
         this.type = type;
     }
 
@@ -62,7 +55,7 @@ public abstract class ASN1ValueCollection extends ASN1Constructured {
      * @param - an object to be encoded
      * @return - a collection of object's values to be encoded
      */
-    public Collection getValues(Object object) {
-        return (Collection)object;
+    public Collection<?> getValues(Object object) {
+        return (Collection<?>) object;
     }
 }

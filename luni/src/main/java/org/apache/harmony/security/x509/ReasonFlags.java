@@ -49,7 +49,7 @@ import org.apache.harmony.security.asn1.BerOutputStream;
  *  }
  *  </pre>
  */
-public class ReasonFlags {
+public final class ReasonFlags {
 
     /**
      * The names of the reasons.
@@ -66,8 +66,8 @@ public class ReasonFlags {
         "aACompromise"
     };
 
-    // the value of extension
-    private boolean[] flags;
+    /** the value of extension */
+    private final boolean[] flags;
 
     /**
      * Creates the extension object corresponding to the given flags.

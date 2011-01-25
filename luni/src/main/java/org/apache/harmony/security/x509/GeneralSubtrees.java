@@ -44,53 +44,26 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
  */
-
-public class GeneralSubtrees {
-
-    // the list of values of GeneralSubtrees
-    private List generalSubtrees;
-    // the ASN.1 encoded form of GeneralSubtrees
+public final class GeneralSubtrees {
+    /** the list of values of GeneralSubtrees */
+    private List<GeneralSubtree> generalSubtrees;
+    /** the ASN.1 encoded form of GeneralSubtrees */
     private byte[] encoding;
 
-    /**
-     * Constructs an object representing the value of GeneralSubtrees.
-     */
-    public GeneralSubtrees() {}
-
-    /**
-     * TODO
-     * @param   generalSubtrees:    List
-     */
-    public GeneralSubtrees(List generalSubtrees) {
+    public GeneralSubtrees(List<GeneralSubtree> generalSubtrees) {
         // TODO: the size should not be less than one
         this.generalSubtrees = generalSubtrees;
     }
 
     /**
      * Returns the list of values of subtrees.
-     * @return  subtrees
      */
-    public List getSubtrees() {
+    public List<GeneralSubtree> getSubtrees() {
         return generalSubtrees;
     }
 
     /**
-     * TODO
-     * @param   subtree:    GeneralSubtree
-     * @return
-     */
-    public GeneralSubtrees addSubtree(GeneralSubtree subtree) {
-        encoding = null;
-        if (generalSubtrees == null) {
-            generalSubtrees = new ArrayList();
-        }
-        generalSubtrees.add(subtree);
-        return this;
-    }
-
-    /**
      * Returns ASN.1 encoded form of this X.509 AlgorithmIdentifier value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -103,15 +76,15 @@ public class GeneralSubtrees {
      * ASN.1 DER X.509 GeneralSubtrees encoder/decoder class.
      */
     public static final ASN1Type ASN1 = new ASN1SequenceOf(GeneralSubtree.ASN1) {
-
-        public Object getDecodedObject(BerInputStream in) {
-            return new GeneralSubtrees((List)in.content);
+        @Override public Object getDecodedObject(BerInputStream in) {
+            return new GeneralSubtrees((List<GeneralSubtree>) in.content);
         }
 
-        public Collection getValues(Object object) {
+        @Override public Collection getValues(Object object) {
             GeneralSubtrees gss = (GeneralSubtrees) object;
             return (gss.generalSubtrees == null)
-                ? new ArrayList() : gss.generalSubtrees;
+                    ? new ArrayList<GeneralSubtree>()
+                    : gss.generalSubtrees;
         }
     };
 }

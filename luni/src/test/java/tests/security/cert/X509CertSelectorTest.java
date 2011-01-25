@@ -657,17 +657,8 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setPathToNames(sans);
-
-            Collection<List<?>> col = selector.getPathToNames();
-            Iterator<List<?>> i = col.iterator();
-            while (i.hasNext()) {
-                Object o = i.next();
-                if (!(o instanceof List)) {
-                    fail("expected a List");
-                }
-            }
-
+            selector.setPathToNames((Collection) sans);
+            selector.getPathToNames();
         } catch (IOException e) {
             e.printStackTrace();
             fail("Unexpected IOException was thrown.");
@@ -799,7 +790,7 @@ public class X509CertSelectorTest extends TestCase {
             assertNull("Selector should return null", selector
                     .getSubjectAlternativeNames());
 
-            selector.setSubjectAlternativeNames(sans.getPairsList());
+            selector.setSubjectAlternativeNames((Collection) sans.getPairsList());
             assertTrue("The certificate should match the selection criteria.",
                     selector.match(cert_1));
             selector.getSubjectAlternativeNames().clear();
@@ -1467,17 +1458,8 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setPathToNames(sans);
-
-            Collection<List<?>> col = selector.getPathToNames();
-            Iterator<List<?>> i = col.iterator();
-            while (i.hasNext()) {
-                Object o = i.next();
-                if (!(o instanceof List)) {
-                    fail("expected a List");
-                }
-            }
-
+            selector.setPathToNames((Collection) sans);
+            selector.getPathToNames();
         } catch (IOException e) {
             e.printStackTrace();
             fail("Unexpected IOException was thrown.");
@@ -1769,17 +1751,9 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setSubjectAlternativeNames(sans);
+            selector.setSubjectAlternativeNames((Collection) sans);
 
-            Collection<List<?>> col = selector.getSubjectAlternativeNames();
-            Iterator<List<?>> i = col.iterator();
-            while (i.hasNext()) {
-                Object o = i.next();
-                if (!(o instanceof List)) {
-                    fail("expected a List");
-                }
-            }
-
+            selector.getSubjectAlternativeNames();
         } catch (IOException e) {
             e.printStackTrace();
             fail("Unexpected IOException was thrown.");

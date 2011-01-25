@@ -45,7 +45,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
  *   }
  * </pre>
  */
-public class DirectoryString {
+public final class DirectoryString {
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
            ASN1StringType.TELETEXSTRING,

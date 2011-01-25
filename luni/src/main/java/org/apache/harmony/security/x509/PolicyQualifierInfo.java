@@ -48,7 +48,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
  * </pre>
  *
  */
-public class PolicyQualifierInfo {
+public final class PolicyQualifierInfo {
     // Contains only ASN1 DER decoder currently
     public static final ASN1Sequence ASN1 =
         new ASN1Sequence(new ASN1Type[] {ASN1Oid.getInstance(), ASN1Any.getInstance()}) {

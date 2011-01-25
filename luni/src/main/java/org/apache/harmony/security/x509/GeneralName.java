@@ -25,7 +25,6 @@ package org.apache.harmony.security.x509;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,7 +87,7 @@ import org.apache.harmony.security.x501.Name;
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
  */
-public class GeneralName {
+public final class GeneralName {
 
     /**
      * The values of the tags of fields
@@ -118,13 +117,13 @@ public class GeneralName {
         nameASN1[REG_ID] = ASN1Oid.getInstance();
     }
 
-    // the tag of the name type
+    /** the tag of the name type */
     private int tag;
-    // the name value (can be String or byte array)
+    /** the name value (can be String or byte array) */
     private Object name;
-    // the ASN.1 encoded form of GeneralName
+    /** the ASN.1 encoded form of GeneralName */
     private byte[] encoding;
-    // the ASN.1 encoded form of GeneralName's field
+    /** the ASN.1 encoded form of GeneralName's field */
     private byte[] name_encoding;
 
     /**
@@ -143,7 +142,6 @@ public class GeneralName {
      * To make the GeneralName object with such names use another constructor.
      * @param tag is an integer which value corresponds to the name type.
      * @param name is a name value corresponding to the tag.
-     * <pre>
      */
     public GeneralName(int tag, String name) throws IOException {
         if (name == null) {
@@ -185,37 +183,21 @@ public class GeneralName {
         }
     }
 
-    /**
-     * TODO
-     * @param   name:   OtherName
-     */
     public GeneralName(OtherName name) {
         this.tag = OTHER_NAME;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   ORAddress
-     */
     public GeneralName(ORAddress name) {
         this.tag = X400_ADDR;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   Name
-     */
     public GeneralName(Name name) {
         this.tag = DIR_NAME;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   EDIPartyName
-     */
     public GeneralName(EDIPartyName name) {
         this.tag = EDIP_NAME;
         this.name = name;
@@ -261,7 +243,6 @@ public class GeneralName {
 
     /**
      * Returns the tag of the name in the structure
-     * @return the tag of the name
      */
     public int getTag() {
         return tag;
@@ -290,16 +271,11 @@ public class GeneralName {
         return name;
     }
 
-    /**
-     * TODO
-     * @param   _gname: Object
-     * @return
-     */
-    public boolean equals(Object _gname) {
-        if (!(_gname instanceof GeneralName)) {
+    public boolean equals(Object other) {
+        if (!(other instanceof GeneralName)) {
             return false;
         }
-        GeneralName gname = (GeneralName) _gname;
+        GeneralName gname = (GeneralName) other;
         if (this.tag != gname.tag) {
             return false;
         }
@@ -322,7 +298,6 @@ public class GeneralName {
             default:
                 // should never happen
         }
-        //System.out.println(false);
         return false;
     }
 
@@ -459,8 +434,8 @@ public class GeneralName {
      * otherName, X400Address, ediPartyName returned as byte arrays
      * containing the ASN.1 DER encoded form of the name.
      */
-    public List getAsList() {
-        ArrayList result = new ArrayList();
+    public List<Object> getAsList() {
+        ArrayList<Object> result = new ArrayList<Object>();
         result.add(tag);
         switch (tag) {
             case OTHER_NAME:
@@ -492,10 +467,6 @@ public class GeneralName {
         return Collections.unmodifiableList(result);
     }
 
-    /**
-     * TODO
-     * @return
-     */
     public String toString() {
         String result = "";
         switch (tag) {
@@ -538,7 +509,6 @@ public class GeneralName {
 
     /**
      * Returns ASN.1 encoded form of this X.509 GeneralName value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -662,7 +632,7 @@ public class GeneralName {
      * IPv6 - in colon hexadecimal notation<br>
      * Also method works with the ranges of the addresses represented
      * as 2 addresses separated by '/' character.
-     * @param   address :   String representation of IP address
+     * @param   ip String representation of IP address
      * @return  byte representation of IP address
      */
     public static byte[] ipStrToBytes(String ip) throws IOException {
@@ -865,7 +835,7 @@ public class GeneralName {
             return  ((GeneralName) object).tag;
         }
 
-        public Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override public Object getDecodedObject(BerInputStream in) throws IOException {
             GeneralName result;
             switch (in.choiceIndex) {
                 case OTHER_NAME: // OtherName
