@@ -16,6 +16,13 @@
 
 package libcore.java.security;
 
+import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
+import com.android.org.bouncycastle.asn1.x509.KeyUsage;
+import com.android.org.bouncycastle.asn1.x509.X509Extensions;
+import com.android.org.bouncycastle.asn1.x509.X509Name;
+import com.android.org.bouncycastle.jce.X509Principal;
+import com.android.org.bouncycastle.jce.provider.BouncyCastleProvider;
+import com.android.org.bouncycastle.x509.X509V3CertificateGenerator;
 import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -49,13 +56,6 @@ import javax.net.ssl.TrustManagerFactory;
 import junit.framework.Assert;
 import libcore.javax.net.ssl.TestKeyManager;
 import libcore.javax.net.ssl.TestTrustManager;
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 /**
  * TestKeyStore is a convenience class for other tests that

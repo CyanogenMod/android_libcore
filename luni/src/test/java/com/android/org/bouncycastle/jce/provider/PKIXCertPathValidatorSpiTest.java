@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package org.bouncycastle.jce.provider;
+package com.android.org.bouncycastle.jce.provider;
 
+import com.android.org.bouncycastle.asn1.ASN1InputStream;
+import com.android.org.bouncycastle.asn1.ASN1Sequence;
+import com.android.org.bouncycastle.asn1.x509.X509CertificateStructure;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStoreException;
@@ -29,9 +32,6 @@ import junit.framework.TestCase;
 import org.apache.harmony.security.provider.cert.X509CertImpl;
 import org.apache.harmony.security.provider.cert.X509CertPathImpl;
 import org.apache.harmony.xnet.provider.jsse.IndexedPKIXParameters;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
 
 /**
  * Verify the behavior of PKIXCertPathValidatorSpi.

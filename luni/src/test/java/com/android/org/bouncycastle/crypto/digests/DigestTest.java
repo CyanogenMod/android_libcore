@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.bouncycastle.crypto.digests;
+package com.android.org.bouncycastle.crypto.digests;
 
 import junit.framework.TestCase;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.ExtendedDigest;
+import com.android.org.bouncycastle.crypto.Digest;
+import com.android.org.bouncycastle.crypto.ExtendedDigest;
 
 /**
  * Implements unit tests for our JNI wrapper around OpenSSL. We use the
