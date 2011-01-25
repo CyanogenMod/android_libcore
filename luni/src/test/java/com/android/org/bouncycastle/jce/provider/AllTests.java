@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bouncycastle.jce.provider;
+package com.android.org.bouncycastle.jce.provider;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

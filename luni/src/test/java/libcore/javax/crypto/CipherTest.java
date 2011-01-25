@@ -16,12 +16,12 @@
 
 package libcore.javax.crypto;
 
+import com.android.org.bouncycastle.asn1.x509.KeyUsage;
 import java.security.InvalidKeyException;
 import java.security.cert.Certificate;
 import javax.crypto.Cipher;
 import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
-import org.bouncycastle.asn1.x509.KeyUsage;
 
 public final class CipherTest extends TestCase {
 
