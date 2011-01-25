@@ -24,26 +24,18 @@ import org.apache.harmony.security.utils.Array;
  */
 public class ExtensionValue {
 
-    /**
-     * Encoded form of the extension.
-     */
+    /** Encoded form of the extension. */
     protected byte[] encoding;
 
-    /**
-     * Default constructor.
-     */
-    public ExtensionValue() { }
+    /** Default constructor. */
+    public ExtensionValue() {}
 
-    /**
-     * Creates the object on the base of its encoded form.
-     */
+    /** Creates the object on the base of its encoded form. */
     public ExtensionValue(byte[] encoding) {
         this.encoding = encoding;
     }
 
-    /**
-     * Returns encoded form of the object.
-     */
+    /** Returns encoded form of the object. */
     public byte[] getEncoded() {
         return encoding;
     }
@@ -70,6 +62,6 @@ public class ExtensionValue {
      */
     public void dumpValue(StringBuffer buffer) {
         dumpValue(buffer, "");
-    };
+    }
 }
 

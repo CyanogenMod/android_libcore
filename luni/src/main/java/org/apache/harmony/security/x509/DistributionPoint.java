@@ -64,17 +64,10 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *  }
  * </pre>
  */
-public class DistributionPoint {
-
+public final class DistributionPoint {
     private final DistributionPointName distributionPoint;
     private final ReasonFlags reasons;
     private final GeneralNames cRLIssuer;
-
-    public DistributionPoint() {
-        distributionPoint = null;
-        reasons = null;
-        cRLIssuer = null;
-    }
 
     public DistributionPoint(DistributionPointName distributionPoint,
             ReasonFlags reasons, GeneralNames cRLIssuer) {
@@ -124,13 +117,13 @@ public class DistributionPoint {
             setOptional(2);
         }
 
-        protected Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
             return new DistributionPoint((DistributionPointName) values[0],
                     (ReasonFlags) values[1], (GeneralNames) values[2]);
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             DistributionPoint dp = (DistributionPoint) object;
             values[0] = dp.distributionPoint;
             values[1] = dp.reasons;

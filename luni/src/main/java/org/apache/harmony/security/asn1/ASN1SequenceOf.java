@@ -23,9 +23,6 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -33,18 +30,11 @@ import java.util.List;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public class ASN1SequenceOf extends ASN1ValueCollection {
 
     public ASN1SequenceOf(ASN1Type type) {
         super(TAG_SEQUENCE, type);
     }
-
-    //
-    //
-    // Decode
-    //
-    //
 
     public Object decode(BerInputStream in) throws IOException {
         in.readSequenceOf(this);
@@ -55,40 +45,12 @@ public class ASN1SequenceOf extends ASN1ValueCollection {
         return getDecodedObject(in);
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-
     public final void encodeContent(BerOutputStream out) {
         out.encodeSequenceOf(this);
     }
 
     public final void setEncodingContent(BerOutputStream out) {
         out.getSequenceOfLength(this);
-    }
-
-    /**
-     * Creates array wrapper of provided ASN1 type
-     *
-     * @param type - ASN1 type to be wrapped
-     * @return - a wrapper for ASN1 set of type.
-     * @throws IOException
-     * @see org.apache.harmony.security.asn1.ASN1ValueCollection
-     */
-    public static ASN1SequenceOf asArrayOf(ASN1Type type) {
-
-        return new ASN1SequenceOf(type) {
-            public Object getDecodedObject(BerInputStream in)
-                    throws IOException {
-                return ((List) in.content).toArray();
-            }
-
-            public Collection getValues(Object object) {
-                return Arrays.asList((Object[]) object);
-            }
-        };
     }
 }
 

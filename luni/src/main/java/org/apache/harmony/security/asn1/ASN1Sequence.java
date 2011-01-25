@@ -30,20 +30,11 @@ import java.io.IOException;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public class ASN1Sequence extends ASN1TypeCollection {
 
     public ASN1Sequence(ASN1Type[] type) {
         super(TAG_SEQUENCE, type);
-
-        //FIXME optional components must be checked for distinct identifiers
     }
-
-    //
-    //
-    // Decode
-    //
-    //
 
     public Object decode(BerInputStream in) throws IOException {
         in.readSequence(this);
@@ -54,11 +45,6 @@ public class ASN1Sequence extends ASN1TypeCollection {
         return getDecodedObject(in);
     }
 
-    //
-    //
-    // Encode
-    //
-    //
     public final void encodeContent(BerOutputStream out) {
         out.encodeSequence(this);
     }

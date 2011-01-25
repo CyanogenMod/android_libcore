@@ -35,7 +35,7 @@ import org.apache.harmony.security.utils.Array;
  * </pre>
  * (as specified in RFC 3280 http://www.ietf.org/rfc/rfc3280.txt)
  */
-public class SubjectKeyIdentifier extends ExtensionValue {
+public final class SubjectKeyIdentifier extends ExtensionValue {
 
     // the value of key identifier
     private final byte[] keyIdentifier;
@@ -58,22 +58,14 @@ public class SubjectKeyIdentifier extends ExtensionValue {
         return res;
     }
 
-    /**
-     * Returns ASN.1 encoded form of extension.
-     * @return a byte array containing ASN.1 encoded form.
-     */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1OctetString.getInstance().encode(keyIdentifier);
         }
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
+    @Override public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix).append("SubjectKeyIdentifier: [\n");
         buffer.append(Array.toString(keyIdentifier, prefix));
         buffer.append(prefix).append("]\n");

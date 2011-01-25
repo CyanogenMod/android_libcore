@@ -30,7 +30,6 @@ import java.nio.charset.Charsets;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public abstract class ASN1StringType extends ASN1Type {
 
     // TODO: what about defining them as separate classes?
@@ -59,14 +58,12 @@ public abstract class ASN1StringType extends ASN1Type {
             TAG_UNIVERSALSTRING) {
     };
 
-    public static final ASN1StringType UTF8STRING = new ASN1StringType(
-            TAG_UTF8STRING) {
-
-        public Object getDecodedObject(BerInputStream in) throws IOException {
+    public static final ASN1StringType UTF8STRING = new ASN1StringType(TAG_UTF8STRING) {
+        @Override public Object getDecodedObject(BerInputStream in) throws IOException {
             return new String(in.buffer, in.contentOffset, in.length, Charsets.UTF_8);
         }
 
-        public void setEncodingContent(BerOutputStream out) {
+        @Override public void setEncodingContent(BerOutputStream out) {
             byte[] bytes = ((String) out.content).getBytes(Charsets.UTF_8);
             out.content = bytes;
             out.length = bytes.length;
@@ -77,26 +74,18 @@ public abstract class ASN1StringType extends ASN1Type {
         super(tagNumber);
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     /**
      * Tests provided identifier.
      *
-     * @param identifier -
-     *            identifier to be verified
-     * @return - true if identifier correspond to primitive or constructed
-     *         identifier of this ASN.1 string type, otherwise false
+     * @param identifier identifier to be verified
+     * @return true if identifier correspond to primitive or constructed
+     *     identifier of this ASN.1 string type, otherwise false
      */
     public final boolean checkTag(int identifier) {
         return this.id == identifier || this.constrId == identifier;
     }
 
     public Object decode(BerInputStream in) throws IOException {
-
         in.readString(this);
 
         if (in.isVerify) {
@@ -107,21 +96,12 @@ public abstract class ASN1StringType extends ASN1Type {
 
     /**
      * Extracts String object from BER input stream.
-     *
-     * @param in - BER input stream
-     * @return java.land.String object
      */
     public Object getDecodedObject(BerInputStream in) throws IOException {
         /* To ensure we get the correct encoding on non-ASCII platforms, specify
            that we wish to convert from ASCII to the default platform encoding */
         return new String(in.buffer, in.contentOffset, in.length, Charsets.ISO_8859_1);
     }
-
-    //
-    //
-    // Encode
-    //
-    //
 
     public void encodeASN(BerOutputStream out) {
         out.encodeTag(id);

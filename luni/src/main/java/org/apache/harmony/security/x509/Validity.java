@@ -42,19 +42,14 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *  }
  * </pre>
  */
-public class Validity {
-    // the value of notBefore field of the structure
+public final class Validity {
+    /** the value of notBefore field of the structure */
     private final Date notBefore;
-    // the value of notAfter field of the structure
+    /** the value of notAfter field of the structure */
     private final Date notAfter;
-    // the ASN.1 encoded form of Validity
+    /** the ASN.1 encoded form of Validity */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   notBefore:  Date
-     * @param   notAfter:   Date
-     */
     public Validity(Date notBefore, Date notAfter) {
         this.notBefore = notBefore;
         this.notAfter = notAfter;
@@ -62,7 +57,6 @@ public class Validity {
 
     /**
      * Returns the value of notBefore field of the structure.
-     * @return  notBefore
      */
     public Date getNotBefore() {
         return notBefore;
@@ -70,7 +64,6 @@ public class Validity {
 
     /**
      * Returns the value of notAfter field of the structure.
-     * @return  notAfter
      */
     public Date getNotAfter() {
         return notAfter;
@@ -78,7 +71,6 @@ public class Validity {
 
     /**
      * Returns ASN.1 encoded form of this X.509 Validity value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -93,15 +85,13 @@ public class Validity {
     public static final ASN1Sequence ASN1
         = new ASN1Sequence(new ASN1Type[] {Time.ASN1, Time.ASN1 }) {
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new Validity((Date) values[0], (Date) values[1]);
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             Validity validity = (Validity) object;
-
             values[0] = validity.notBefore;
             values[1] = validity.notAfter;
         }

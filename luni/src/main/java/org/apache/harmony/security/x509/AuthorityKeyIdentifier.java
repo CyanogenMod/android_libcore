@@ -51,8 +51,7 @@ import org.apache.harmony.security.utils.Array;
  *   KeyIdentifier ::= OCTET STRING
  * </pre>
  */
-public class AuthorityKeyIdentifier extends ExtensionValue {
-
+public final class AuthorityKeyIdentifier extends ExtensionValue {
     private final byte[] keyIdentifier;
     private final GeneralNames authorityCertIssuer;
     private final BigInteger authorityCertSerialNumber;
@@ -65,15 +64,13 @@ public class AuthorityKeyIdentifier extends ExtensionValue {
         this.authorityCertSerialNumber = authorityCertSerialNumber;
     }
 
-    public static AuthorityKeyIdentifier decode(byte[] encoding)
-            throws IOException {
-        AuthorityKeyIdentifier aki =
-            (AuthorityKeyIdentifier) ASN1.decode(encoding);
+    public static AuthorityKeyIdentifier decode(byte[] encoding) throws IOException {
+        AuthorityKeyIdentifier aki = (AuthorityKeyIdentifier) ASN1.decode(encoding);
         aki.encoding = encoding;
         return aki;
     }
 
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(this);
         }
@@ -84,7 +81,7 @@ public class AuthorityKeyIdentifier extends ExtensionValue {
      * Places the string representation of extension value
      * into the StringBuffer object.
      */
-    public void dumpValue(StringBuffer buffer, String prefix) {
+    @Override public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix).append("AuthorityKeyIdentifier [\n");
         if (keyIdentifier != null) {
             buffer.append(prefix).append("  keyIdentifier:\n");
@@ -114,7 +111,7 @@ public class AuthorityKeyIdentifier extends ExtensionValue {
             setOptional(2);
         }
 
-        protected Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
 
             byte[] enc = (byte[]) values[2];
@@ -127,10 +124,8 @@ public class AuthorityKeyIdentifier extends ExtensionValue {
                     (GeneralNames) values[1], authorityCertSerialNumber);
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             AuthorityKeyIdentifier akid = (AuthorityKeyIdentifier) object;
-
             values[0] = akid.keyIdentifier;
             values[1] = akid.authorityCertIssuer;
             if (akid.authorityCertSerialNumber != null) {

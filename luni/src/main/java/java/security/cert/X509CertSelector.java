@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
@@ -62,13 +61,13 @@ public class X509CertSelector implements CertSelector {
     private Date privateKeyValid;
     private byte[] subjectPublicKey;
     private boolean[] keyUsage;
-    private Set extendedKeyUsage;
+    private Set<String> extendedKeyUsage;
     private boolean matchAllNames = true;
     private int pathLen = -1;
-    private List[] subjectAltNames;
+    private List<GeneralName>[] subjectAltNames;
     private NameConstraints nameConstraints;
     private Set<String> policies;
-    private ArrayList pathToNames;
+    private ArrayList<GeneralName> pathToNames;
 
     // needed to avoid needless encoding/decoding work
     private PublicKey subjectPublicKeyImpl;
@@ -594,10 +593,8 @@ public class X509CertSelector implements CertSelector {
         if ((keyUsage == null) || (keyUsage.size() == 0)) {
             return;
         }
-        HashSet key_u = new HashSet();
-        Iterator it = keyUsage.iterator();
-        while (it.hasNext()) {
-            String usage = (String) it.next();
+        HashSet<String> key_u = new HashSet<String>();
+        for (String usage : keyUsage) {
             checkOID(usage);
             key_u.add(usage);
         }
@@ -661,16 +658,13 @@ public class X509CertSelector implements CertSelector {
      * @throws IOException
      *             if the decoding of a name fails.
      */
-    public void setSubjectAlternativeNames(Collection<List<?>> names)
-                                    throws IOException {
+    public void setSubjectAlternativeNames(Collection<List<Object>> names) throws IOException {
         subjectAltNames = null;
         if ((names == null) || (names.size() == 0)) {
             return;
         }
-        Iterator it = names.iterator();
-        while (it.hasNext()) {
-            List name = (List) it.next();
-            int tag = ((Integer) name.get(0)).intValue();
+        for (List<Object> name : names) {
+            int tag = (Integer) name.get(0);
             Object value = name.get(1);
             if (value instanceof String) {
                 addSubjectAlternativeName(tag, (String) value);
@@ -700,7 +694,7 @@ public class X509CertSelector implements CertSelector {
             subjectAltNames = new ArrayList[9];
         }
         if (subjectAltNames[tag] == null) {
-            subjectAltNames[tag] = new ArrayList();
+            subjectAltNames[tag] = new ArrayList<GeneralName>();
         }
         subjectAltNames[tag].add(alt_name);
     }
@@ -723,7 +717,7 @@ public class X509CertSelector implements CertSelector {
             subjectAltNames = new ArrayList[9];
         }
         if (subjectAltNames[tag] == null) {
-            subjectAltNames[tag] = new ArrayList();
+            subjectAltNames[tag] = new ArrayList<GeneralName>();
         }
         subjectAltNames[tag].add(alt_name);
     }
@@ -746,19 +740,13 @@ public class X509CertSelector implements CertSelector {
         if (subjectAltNames == null) {
             return null;
         }
-        ArrayList result = new ArrayList();
+        ArrayList<List<?>> result = new ArrayList<List<?>>();
         for (int tag=0; tag<9; tag++) {
             if (subjectAltNames[tag] != null) {
                 for (int name=0; name<subjectAltNames[tag].size(); name++) {
-                    Object neim = subjectAltNames[tag].get(name);
-                    if (neim instanceof byte[]) {
-                        byte[] arr_neim = (byte[]) neim;
-                        neim = new byte[arr_neim.length];
-                        System.arraycopy(arr_neim, 0, neim, 0, arr_neim.length);
-                    }
-                    List list = new ArrayList(2);
+                    List<Object> list = new ArrayList<Object>(2);
                     list.add(tag);
-                    list.add(neim);
+                    list.add(subjectAltNames[tag].get(name));
                     result.add(list);
                 }
             }
@@ -878,9 +866,7 @@ public class X509CertSelector implements CertSelector {
             return;
         }
         HashSet<String> pols = new HashSet<String>(policies.size());
-        Iterator<String> it = policies.iterator();
-        while (it.hasNext()) {
-            String certPolicyId = it.next();
+        for (String certPolicyId : policies) {
             checkOID(certPolicyId);
             pols.add(certPolicyId);
         }
@@ -902,6 +888,26 @@ public class X509CertSelector implements CertSelector {
     }
 
     /**
+     * Adds a {@literal "pathToName"} to the respective criterion.
+     *
+     * @param type
+     *            the type of the name.
+     * @param name
+     *            the name in string format.
+     * @throws IOException
+     *             if parsing fails.
+     * @see #setPathToNames
+     */
+    public void addPathToName(int type, String name) throws IOException {
+        GeneralName path_name = new GeneralName(type, name);
+        // create only if there was not any errors
+        if (pathToNames == null) {
+            pathToNames = new ArrayList<GeneralName>();
+        }
+        pathToNames.add(path_name);
+    }
+
+    /**
      * Sets the criterion for the pathToNames constraint.
      * <p>
      * This allows to specify the complete set of names, a certificate's name
@@ -919,15 +925,13 @@ public class X509CertSelector implements CertSelector {
      * @throws IOException
      *             if decoding fails.
      */
-    public void setPathToNames(Collection<List<?>> names) throws IOException {
+    public void setPathToNames(Collection<List<Object>> names) throws IOException {
         pathToNames = null;
         if ((names == null) || (names.size() == 0)) {
             return;
         }
-        Iterator it = names.iterator();
-        while (it.hasNext()) {
-            List name = (List) it.next();
-            int tag = ((Integer) name.get(0)).intValue();
+        for (List<?> name : names) {
+            int tag = (Integer) name.get(0);
             Object value = name.get(1);
             if (value instanceof String) {
                 addPathToName(tag, (String) value);
@@ -937,26 +941,6 @@ public class X509CertSelector implements CertSelector {
                 throw new IOException("name neither a String nor a byte[]");
             }
         }
-    }
-
-    /**
-     * Adds a {@literal "pathToName"} to the respective criterion.
-     *
-     * @param type
-     *            the type of the name.
-     * @param name
-     *            the name in string format.
-     * @throws IOException
-     *             if parsing fails.
-     * @see #setPathToNames
-     */
-    public void addPathToName(int type, String name) throws IOException {
-        GeneralName path_name = new GeneralName(type, name);
-        // create only if there was not any errors
-        if (pathToNames == null) {
-            pathToNames = new ArrayList();
-        }
-        pathToNames.add(path_name);
     }
 
     /**
@@ -974,7 +958,7 @@ public class X509CertSelector implements CertSelector {
         GeneralName path_name= new GeneralName(type, name);
         // create only if there was not any errors
         if (pathToNames == null) {
-            pathToNames = new ArrayList();
+            pathToNames = new ArrayList<GeneralName>();
         }
         pathToNames.add(path_name);
     }
@@ -993,10 +977,8 @@ public class X509CertSelector implements CertSelector {
         if (pathToNames == null) {
             return null;
         }
-        ArrayList result = new ArrayList();
-        Iterator it = pathToNames.iterator();
-        while (it.hasNext()) {
-            GeneralName name = (GeneralName) it.next();
+        Collection<List<?>> result = new ArrayList<List<?>>();
+        for (GeneralName name : pathToNames) {
             result.add(name.getAsList());
         }
         return result;
@@ -1017,39 +999,37 @@ public class X509CertSelector implements CertSelector {
         StringBuilder result = new StringBuilder();
         result.append("X509CertSelector: \n[");
         if (this.certificateEquals != null) {
-            result.append("\n  certificateEquals: " + certificateEquals);
+            result.append("\n  certificateEquals: ").append(certificateEquals);
         }
         if (this.serialNumber != null) {
-            //FIXME: needs DRL's BigInteger.toString implementation
-            //result.append("\n  serialNumber: " + serialNumber);
+            result.append("\n  serialNumber: ").append(serialNumber);
         }
         if (this.issuer != null) {
-            result.append("\n  issuer: " + issuer);
+            result.append("\n  issuer: ").append(issuer);
         }
         if (this.subject != null) {
-            result.append("\n  subject: " + subject);
+            result.append("\n  subject: ").append(subject);
         }
         if (this.subjectKeyIdentifier != null) {
-            result.append("\n  subjectKeyIdentifier: "
-                    + Array.getBytesAsString(subjectKeyIdentifier));
+            result.append("\n  subjectKeyIdentifier: ")
+                    .append(Array.getBytesAsString(subjectKeyIdentifier));
         }
         if (this.authorityKeyIdentifier != null) {
-            result.append("\n  authorityKeyIdentifier: "
-                    + Array.getBytesAsString(authorityKeyIdentifier));
+            result.append("\n  authorityKeyIdentifier: ")
+                    .append(Array.getBytesAsString(authorityKeyIdentifier));
         }
         if (this.certificateValid != null) {
-            result.append("\n  certificateValid: " + certificateValid);
+            result.append("\n  certificateValid: ").append(certificateValid);
         }
         if (this.subjectPublicKeyAlgID != null) {
-            result.append("\n  subjectPublicKeyAlgID: "
-                    + subjectPublicKeyAlgID);
+            result.append("\n  subjectPublicKeyAlgID: ").append(subjectPublicKeyAlgID);
         }
         if (this.privateKeyValid != null) {
-            result.append("\n  privateKeyValid: " + privateKeyValid);
+            result.append("\n  privateKeyValid: ").append(privateKeyValid);
         }
         if (this.subjectPublicKey != null) {
-            result.append("\n  subjectPublicKey: "
-                    + Array.getBytesAsString(subjectPublicKey));
+            result.append("\n  subjectPublicKey: ")
+                    .append(Array.getBytesAsString(subjectPublicKey));
         }
         if (this.keyUsage != null) {
             result.append("\n  keyUsage: \n  [");
@@ -1060,26 +1040,24 @@ public class X509CertSelector implements CertSelector {
             };
             for (int i=0; i<9; i++) {
                 if (keyUsage[i]) {
-                    result.append("\n    " + kuNames[i]);
+                    result.append("\n    ").append(kuNames[i]);
                 }
             }
             result.append("\n  ]");
         }
         if (this.extendedKeyUsage != null) {
-            result.append("\n  extendedKeyUsage: "
-                    + extendedKeyUsage.toString());
+            result.append("\n  extendedKeyUsage: ").append(extendedKeyUsage.toString());
         }
-        result.append("\n  matchAllNames: " + matchAllNames);
-        result.append("\n  pathLen: " + pathLen);
+        result.append("\n  matchAllNames: ").append(matchAllNames);
+        result.append("\n  pathLen: ").append(pathLen);
         if (this.subjectAltNames != null) {
             result.append("\n  subjectAltNames:  \n  [");
             for (int i=0; i<9; i++) {
-                List names = this.subjectAltNames[i];
+                List<GeneralName> names = subjectAltNames[i];
                 if (names != null) {
                     int size = names.size();
-                    for (int j=0; j<size; j++) {
-                        result.append("\n    "
-                            + ((GeneralName)names.get(j)).toString());
+                    for (GeneralName generalName : names) {
+                        result.append("\n    ").append(generalName.toString());
                     }
                 }
             }
@@ -1088,14 +1066,12 @@ public class X509CertSelector implements CertSelector {
         if (this.nameConstraints != null) {
         }
         if (this.policies != null) {
-            result.append("\n  policies: " + policies.toString());
+            result.append("\n  policies: ").append(policies.toString());
         }
         if (this.pathToNames != null) {
             result.append("\n  pathToNames:  \n  [");
-            int size = pathToNames.size();
-            for (int i = 0; i < size; i++) {
-                result.append("\n    "
-                    + ((GeneralName)pathToNames.get(i)).toString());
+            for (GeneralName generalName : pathToNames) {
+                result.append("\n    ").append(generalName.toString());
             }
         }
         result.append("\n]");
@@ -1261,7 +1237,7 @@ public class X509CertSelector implements CertSelector {
                 if (bytes == null) {
                     return false;
                 }
-                List sans = ((GeneralNames) GeneralNames.ASN1.decode(bytes))
+                List<GeneralName> sans = ((GeneralNames) GeneralNames.ASN1.decode(bytes))
                             .getNames();
                 if ((sans == null) || (sans.size() == 0)) {
                     return false;
@@ -1272,13 +1248,10 @@ public class X509CertSelector implements CertSelector {
                     map[i] = (subjectAltNames[i] == null)
                             ? EmptyArray.BOOLEAN : new boolean[subjectAltNames[i].size()];
                 }
-                Iterator it = sans.iterator();
-                while (it.hasNext()) {
-                    GeneralName name = (GeneralName) it.next();
+                for (GeneralName name : sans) {
                     int tag = name.getTag();
-                    for (int i=0; i<map[tag].length; i++) {
-                        if (((GeneralName) subjectAltNames[tag].get(i))
-                                                            .equals(name)) {
+                    for (int i = 0; i < map[tag].length; i++) {
+                        if (subjectAltNames[tag].get(i).equals(name)) {
                             if (!matchAllNames) {
                                 break PASSED;
                             }
@@ -1320,13 +1293,11 @@ public class X509CertSelector implements CertSelector {
             }
             PASSED:
             try {
-                List policyInformations = ((CertificatePolicies)
-                        CertificatePolicies.ASN1.decode(bytes))
+                List<PolicyInformation> policyInformations
+                        = ((CertificatePolicies) CertificatePolicies.ASN1.decode(bytes))
                         .getPolicyInformations();
-                Iterator it = policyInformations.iterator();
-                while (it.hasNext()) {
-                    if (policies.contains(((PolicyInformation) it.next())
-                                          .getPolicyIdentifier())) {
+                for (PolicyInformation policyInformation : policyInformations) {
+                    if (policies.contains(policyInformation.getPolicyIdentifier())) {
                         break PASSED;
                     }
                 }
@@ -1395,20 +1366,20 @@ public class X509CertSelector implements CertSelector {
         }
         result.extendedKeyUsage = (this.extendedKeyUsage == null)
             ? null
-            : new HashSet(this.extendedKeyUsage);
+            : new HashSet<String>(this.extendedKeyUsage);
         if (this.subjectAltNames != null) {
             result.subjectAltNames = new ArrayList[9];
             for (int i=0; i<9; i++) {
                 if (this.subjectAltNames[i] != null) {
                     result.subjectAltNames[i] =
-                        new ArrayList(this.subjectAltNames[i]);
+                        new ArrayList<GeneralName>(this.subjectAltNames[i]);
                 }
             }
         }
         result.policies = (this.policies == null) ? null : new HashSet<String>(this.policies);
         result.pathToNames = (this.pathToNames == null)
             ? null
-            : new ArrayList(this.pathToNames);
+            : new ArrayList<GeneralName>(this.pathToNames);
         return result;
     }
 }

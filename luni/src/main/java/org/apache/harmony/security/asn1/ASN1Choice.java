@@ -207,14 +207,14 @@ import java.util.TreeMap;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public abstract class ASN1Choice extends ASN1Type {
-
     public final ASN1Type[] type;
 
-    // identifiers table: [2][number of distinct identifiers]
-    // identifiers[0]: stores identifiers (includes nested choices)
-    // identifiers[1]: stores identifiers' indexes in array of types
+    /**
+     * identifiers table: [2][number of distinct identifiers]
+     * identifiers[0]: stores identifiers (includes nested choices)
+     * identifiers[1]: stores identifiers' indexes in array of types
+     */
     private final int[][] identifiers;
 
     /**
@@ -233,9 +233,8 @@ public abstract class ASN1Choice extends ASN1Type {
         }
 
         // create map of all identifiers
-        TreeMap map = new TreeMap();
+        TreeMap<BigInteger, BigInteger> map = new TreeMap<BigInteger, BigInteger>();
         for (int index = 0; index < type.length; index++) {
-
             ASN1Type t = type[index];
 
             if (t instanceof ASN1Any) {
@@ -266,30 +265,25 @@ public abstract class ASN1Choice extends ASN1Type {
         // fill identifiers array
         int size = map.size();
         identifiers = new int[2][size];
-        Iterator it = map.entrySet().iterator();
+        Iterator<Map.Entry<BigInteger, BigInteger>> it = map.entrySet().iterator();
 
         for (int i = 0; i < size; i++) {
-            Map.Entry entry = (Map.Entry) it.next();
-            BigInteger identifier = (BigInteger) entry.getKey();
+            Map.Entry<BigInteger, BigInteger> entry = it.next();
+            BigInteger identifier = entry.getKey();
 
             identifiers[0][i] = identifier.intValue();
-            identifiers[1][i] = ((BigInteger) entry.getValue()).intValue();
+            identifiers[1][i] = entry.getValue().intValue();
         }
 
         this.type = type;
     }
 
-    private void addIdentifier(TreeMap map, int identifier, int index){
+    private void addIdentifier(TreeMap<BigInteger, BigInteger> map, int identifier, int index){
         if (map.put(BigInteger.valueOf(identifier), BigInteger.valueOf(index)) != null) {
-            throw new IllegalArgumentException("ASN.1 choice type MUST have alternatives with distinct tags: " + getClass().getName()); // FIXME name
+            throw new IllegalArgumentException("ASN.1 choice type MUST have alternatives "
+                    + "with distinct tags: " + getClass().getName());
         }
     }
-
-    //
-    //
-    // DECODE
-    //
-    //
 
     /**
      * Tests whether one of choice alternatives has the same identifier or not.
@@ -304,7 +298,6 @@ public abstract class ASN1Choice extends ASN1Type {
     }
 
     public Object decode(BerInputStream in) throws IOException {
-
         int index = Arrays.binarySearch(identifiers[0], in.tag);
         if (index < 0) {
             throw new ASN1Exception("Failed to decode ASN.1 choice type.  No alternatives were found for " + getClass().getName());// FIXME message
@@ -323,12 +316,6 @@ public abstract class ASN1Choice extends ASN1Type {
         return getDecodedObject(in);
     }
 
-    //
-    //
-    // ENCODE
-    //
-    //
-
     public void encodeASN(BerOutputStream out) {
         encodeContent(out);
     }
@@ -337,12 +324,6 @@ public abstract class ASN1Choice extends ASN1Type {
         out.encodeChoice(this);
     }
 
-    /**
-     * TODO Put method description here
-     *
-     * @param object - an object to be encoded
-     * @return
-     */
     public abstract int getIndex(Object object);
 
     public abstract Object getObjectToEncode(Object object);

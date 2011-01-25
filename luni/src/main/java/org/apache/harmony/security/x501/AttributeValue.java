@@ -31,7 +31,7 @@ import org.apache.harmony.security.x509.Utils;
 /**
  * X.501 Attribute Value
  */
-public class AttributeValue {
+public final class AttributeValue {
 
     public final boolean wasEncoded;
 
@@ -47,8 +47,9 @@ public class AttributeValue {
 
     public boolean hasQE; // raw string contains '"' or '\'
 
-    public AttributeValue(String parsedString, boolean hasQorE) {
+    public String rawString;
 
+    public AttributeValue(String parsedString, boolean hasQorE) {
         wasEncoded = false;
 
         this.hasQE = hasQorE;
@@ -58,7 +59,6 @@ public class AttributeValue {
     }
 
     public AttributeValue(String hexString, byte[] encoded) {
-
         wasEncoded = true;
 
         this.hexString = hexString;
@@ -84,10 +84,7 @@ public class AttributeValue {
         }
     }
 
-    public String rawString;
-
     public AttributeValue(String rawString, byte[] encoded, int tag) {
-
         wasEncoded = true;
 
         this.encoded = encoded;
@@ -115,7 +112,6 @@ public class AttributeValue {
 
     public String getHexString() {
         if (hexString == null) {
-
             if (!wasEncoded) {
                 //FIXME optimize me: what about reusable OutputStream???
                 if (Utils.isPrintableString(rawString)) {
@@ -165,16 +161,15 @@ public class AttributeValue {
         buf.append('"');
     }
 
-    //
-    // Escapes:
-    // 1) chars ",", "+", """, "\", "<", ">", ";" (RFC 2253)
-    // 2) chars "#", "=" (required by RFC 1779)
-    // 3) a space char at the beginning or end
-    // 4) according to the requirement to be RFC 1779 compatible:
-    //    '#' char is escaped in any position
-    //
+    /**
+     * Escapes:
+     * 1) chars ",", "+", """, "\", "<", ">", ";" (RFC 2253)
+     * 2) chars "#", "=" (required by RFC 1779)
+     * 3) a space char at the beginning or end
+     * 4) according to the requirement to be RFC 1779 compatible:
+     *    '#' char is escaped in any position
+     */
     private String makeEscaped(String name) {
-
         int length = name.length();
         if (length == 0) {
             return name;
@@ -220,7 +215,6 @@ public class AttributeValue {
     }
 
     public String makeCanonical() {
-
         int length = rawString.length();
         if (length == 0) {
             return rawString;
@@ -236,11 +230,9 @@ public class AttributeValue {
 
         int bufLength;
         for (; index < length; index++) {
-
             char ch = rawString.charAt(index);
 
             switch (ch) {
-
             case ' ':
                 bufLength = buf.length();
                 if (bufLength == 0 || buf.charAt(bufLength - 1) == ' ') {

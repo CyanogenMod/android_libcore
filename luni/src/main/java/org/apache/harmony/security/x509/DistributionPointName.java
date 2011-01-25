@@ -66,11 +66,9 @@ import org.apache.harmony.security.x501.Name;
  *  }
  * </pre>
  */
-public class DistributionPointName {
-
+public final class DistributionPointName {
     private final GeneralNames fullName;
     private final Name nameRelativeToCRLIssuer;
-
 
     public DistributionPointName(GeneralNames fullName) {
         this.fullName = fullName;
@@ -110,7 +108,7 @@ public class DistributionPointName {
             return (dpn.fullName == null) ? 1 : 0;
         }
 
-        protected Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             DistributionPointName result = null;
             if (in.choiceIndex == 0) {
                 result = new DistributionPointName((GeneralNames) in.content);
