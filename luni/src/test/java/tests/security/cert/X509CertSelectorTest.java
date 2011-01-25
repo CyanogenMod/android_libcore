@@ -657,7 +657,7 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setPathToNames((Collection) sans);
+            selector.setPathToNames(sans);
             selector.getPathToNames();
         } catch (IOException e) {
             e.printStackTrace();
@@ -790,7 +790,7 @@ public class X509CertSelectorTest extends TestCase {
             assertNull("Selector should return null", selector
                     .getSubjectAlternativeNames());
 
-            selector.setSubjectAlternativeNames((Collection) sans.getPairsList());
+            selector.setSubjectAlternativeNames(sans.getPairsList());
             assertTrue("The certificate should match the selection criteria.",
                     selector.match(cert_1));
             selector.getSubjectAlternativeNames().clear();
@@ -1458,7 +1458,7 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setPathToNames((Collection) sans);
+            selector.setPathToNames(sans);
             selector.getPathToNames();
         } catch (IOException e) {
             e.printStackTrace();
@@ -1751,7 +1751,7 @@ public class X509CertSelectorTest extends TestCase {
 
             Collection<List<?>> sans = sans1.getPairsList();
 
-            selector.setSubjectAlternativeNames((Collection) sans);
+            selector.setSubjectAlternativeNames(sans);
 
             selector.getSubjectAlternativeNames();
         } catch (IOException e) {
