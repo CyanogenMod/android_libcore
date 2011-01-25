@@ -18,9 +18,11 @@
 package java.io;
 
 import dalvik.system.CloseGuard;
+
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
@@ -204,15 +206,15 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new IOException("byteCount < 0: " + byteCount);
         }
 
-        // The RI doesn't treat stdin as special. It throws IOException for
-        // all non-seekable streams, so we do too. If you did want to support
-        // non-seekable streams, the best way to do it would be to recognize
-        // when lseek(2) fails with ESPIPE and call super.skip(byteCount).
-        synchronized (repositioningLock) {
-            // Our seek returns the new offset, but we know it will throw an
-            // exception if it couldn't perform exactly the seek we asked for.
-            Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, IFileSystem.SEEK_CUR);
-            return byteCount;
+        try {
+            synchronized (repositioningLock) {
+                // Our seek returns the new offset, but we know it will throw an
+                // exception if it couldn't perform exactly the seek we asked for.
+                Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, IFileSystem.SEEK_CUR);
+                return byteCount;
+            }
+        } catch (IFileSystem.SeekPipeException e) {
+            return super.skip(byteCount);
         }
     }
 

@@ -103,4 +103,10 @@ public interface IFileSystem {
 
     public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
 
+    public static class SeekPipeException extends IOException {
+        public SeekPipeException(String message) {
+            super(message);
+        }
+    }
+
 }
