@@ -658,12 +658,12 @@ public class X509CertSelector implements CertSelector {
      * @throws IOException
      *             if the decoding of a name fails.
      */
-    public void setSubjectAlternativeNames(Collection<List<Object>> names) throws IOException {
+    public void setSubjectAlternativeNames(Collection<List<?>> names) throws IOException {
         subjectAltNames = null;
         if ((names == null) || (names.size() == 0)) {
             return;
         }
-        for (List<Object> name : names) {
+        for (List<?> name : names) {
             int tag = (Integer) name.get(0);
             Object value = name.get(1);
             if (value instanceof String) {
@@ -925,7 +925,7 @@ public class X509CertSelector implements CertSelector {
      * @throws IOException
      *             if decoding fails.
      */
-    public void setPathToNames(Collection<List<Object>> names) throws IOException {
+    public void setPathToNames(Collection<List<?>> names) throws IOException {
         pathToNames = null;
         if ((names == null) || (names.size() == 0)) {
             return;
