@@ -61,7 +61,8 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE, cipherSuites);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
+                                                  cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
         c.close();
     }
@@ -74,6 +75,7 @@ public class SSLEngineTest extends TestCase {
                                       null,
                                       "rsa-dsa-ec",
                                       TestKeyStore.localhost(),
+                                      0,
                                       true,
                                       null,
                                       null);

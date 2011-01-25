@@ -786,30 +786,35 @@ public class Cipher {
             boolean critical = false;
             if (ce != null && !ce.isEmpty()) {
                 for (String oid : ce) {
-                    if (oid.equals("2.5.29.15")) { //KeyUsage OID = 2.5.29.15
+                    if (oid.equals("2.5.29.15")) { // KeyUsage OID = 2.5.29.15
                         critical = true;
                         break;
                     }
                 }
                 if (critical) {
-                    boolean[] keyUsage = ((X509Certificate) certificate)
-                            .getKeyUsage();
-                    // As specified in RFC 3280 -
-                    // Internet X.509 Public Key Infrastructure
-                    // Certificate and Certificate Revocation List (CRL) Profile.
-                    // (http://www.ietf.org/rfc/rfc3280.txt)
+                    boolean[] keyUsage = ((X509Certificate) certificate).getKeyUsage();
+                    // As specified in RFC 3280:
+                    //   Internet X.509 Public Key Infrastructure
+                    //   Certificate and Certificate Revocation List (CRL) Profile.
+                    // Section 4.2.1.3  Key Usage
+                    // http://www.ietf.org/rfc/rfc3280.txt
                     //
                     // KeyUsage ::= BIT STRING {digitalSignature (0),
-                    //                          ...
-                    //                          encipherOnly (7),
-                    //                          decipherOnly (8) }
+                    //                          nonRepudiation   (1),
+                    //                          keyEncipherment  (2),
+                    //                          dataEncipherment (3),
+                    //                          keyAgreement     (4),
+                    //                          keyCertSign      (5),
+                    //                          cRLSign          (6),
+                    //                          encipherOnly     (7),
+                    //                          decipherOnly     (8) }
                     if (keyUsage != null) {
-                        if (opmode == ENCRYPT_MODE && (!keyUsage[7])) {
+                        if (opmode == ENCRYPT_MODE && !keyUsage[3]) {
                             throw new InvalidKeyException("The public key in the certificate "
                                                           + "cannot be used for ENCRYPT_MODE");
-                        } else if (opmode == DECRYPT_MODE && (!keyUsage[8])) {
+                        } else if (opmode == WRAP_MODE && !keyUsage[2]) {
                             throw new InvalidKeyException("The public key in the certificate "
-                                                          + "cannot be used for DECRYPT_MODE");
+                                                          + "cannot be used for WRAP_MODE");
                         }
                     }
                 }
