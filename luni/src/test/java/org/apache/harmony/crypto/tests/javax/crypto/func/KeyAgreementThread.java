@@ -15,6 +15,7 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
+import com.android.org.bouncycastle.util.Arrays;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -24,11 +25,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
-
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
-
-import org.bouncycastle.util.Arrays;
 
 public class KeyAgreementThread extends TestThread {
     class KeyAgreementGen {

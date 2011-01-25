@@ -27,7 +27,7 @@ public class AllTests {
         TestSuite suite = new TestSuite("All security test suites");
         // $JUnit-BEGIN$
         suite.addTest(org.apache.harmony.security.tests.java.security.AllTests.suite());
-        suite.addTest(org.bouncycastle.jce.provider.AllTests.suite());
+        suite.addTest(com.android.org.bouncycastle.jce.provider.AllTests.suite());
         suite.addTest(tests.api.java.security.AllTests.suite());
         suite.addTest(tests.java.security.AllTests.suite());
 
