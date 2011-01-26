@@ -417,7 +417,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
             if (responseCode != 401) {
                 readAscii(conn.getInputStream(), Integer.MAX_VALUE);
             }
-        } catch (IOException ignored) {
+        } catch (IOException expected) {
         }
 
         Set<URI> expectedCachedUris = shouldPut

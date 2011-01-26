@@ -116,7 +116,7 @@ public class OldThreadTest extends junit.framework.TestCase {
                     try {
                         Thread.sleep(100);
                         LockSupport.unpark(parker);
-                    } catch (InterruptedException ignored) {
+                    } catch (InterruptedException expected) {
                     }
                 }
             }

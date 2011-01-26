@@ -112,7 +112,7 @@ public final class OldPreferenceChangeEventTest extends TestCase {
         public synchronized void waitForEvent() {
             try {
                 wait(500);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException expected) {
             }
         }
 
