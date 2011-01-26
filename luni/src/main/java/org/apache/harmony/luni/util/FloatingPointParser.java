@@ -196,66 +196,29 @@ public final class FloatingPointParser {
         return new StringExponentPair(s, e, negative);
     }
 
-    /*
-     * Assumes the string is trimmed.
-     */
-    private static double parseDblName(String namedDouble, int length) {
-        // Valid strings are only +Nan, NaN, -Nan, +Infinity, Infinity,
-        // -Infinity.
-        if ((length != 3) && (length != 4) && (length != 8) && (length != 9)) {
-            throw invalidReal(namedDouble, true);
-        }
-
+    // Parses "+Nan", "NaN", "-Nan", "+Infinity", "Infinity", and "-Infinity", case-insensitively.
+    private static float parseName(String name, boolean isDouble) {
+        // Explicit sign?
         boolean negative = false;
         int i = 0;
-        char firstChar = namedDouble.charAt(i);
+        int length = name.length();
+        char firstChar = name.charAt(i);
         if (firstChar == '-') {
             negative = true;
             ++i;
+            --length;
         } else if (firstChar == '+') {
             ++i;
+            --length;
         }
 
-        if (namedDouble.regionMatches(false, i, "Infinity", 0, 8)) {
-            return negative ? Double.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
-        }
-
-        if (namedDouble.regionMatches(false, i, "NaN", 0, 3)) {
-            return Double.NaN;
-        }
-
-        throw invalidReal(namedDouble, true);
-    }
-
-    /*
-     * Assumes the string is trimmed.
-     */
-    private static float parseFltName(String namedFloat, int length) {
-        // Valid strings are only +Nan, NaN, -Nan, +Infinity, Infinity,
-        // -Infinity.
-        if ((length != 3) && (length != 4) && (length != 8) && (length != 9)) {
-            throw invalidReal(namedFloat, false);
-        }
-
-        boolean negative = false;
-        int i = 0;
-        char firstChar = namedFloat.charAt(i);
-        if (firstChar == '-') {
-            negative = true;
-            ++i;
-        } else if (firstChar == '+') {
-            ++i;
-        }
-
-        if (namedFloat.regionMatches(false, i, "Infinity", 0, 8)) {
+        if (length == 8 && name.regionMatches(false, i, "Infinity", 0, 8)) {
             return negative ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
         }
-
-        if (namedFloat.regionMatches(false, i, "NaN", 0, 3)) {
+        if (length == 3 && name.regionMatches(false, i, "NaN", 0, 3)) {
             return Float.NaN;
         }
-
-        throw invalidReal(namedFloat, false);
+        throw invalidReal(name, isDouble);
     }
 
     /**
@@ -278,8 +241,8 @@ public final class FloatingPointParser {
 
         // See if this could be a named double
         char last = s.charAt(length - 1);
-        if ((last == 'y') || (last == 'N')) {
-            return parseDblName(s, length);
+        if (last == 'y' || last == 'N') {
+            return parseName(s, true);
         }
 
         // See if it could be a hexadecimal representation.
@@ -320,8 +283,8 @@ public final class FloatingPointParser {
 
         // See if this could be a named float
         char last = s.charAt(length - 1);
-        if ((last == 'y') || (last == 'N')) {
-            return parseFltName(s, length);
+        if (last == 'y' || last == 'N') {
+            return parseName(s, false);
         }
 
         // See if it could be a hexadecimal representation

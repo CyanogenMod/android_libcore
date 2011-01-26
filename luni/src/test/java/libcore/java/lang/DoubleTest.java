@@ -19,9 +19,44 @@ package libcore.java.lang;
 import junit.framework.TestCase;
 
 public class DoubleTest extends TestCase {
-    // http://b/3238333
-    public void test3238333() throws Exception {
+    public void testDoubleToStringUnsignedDivide() throws Exception {
+        // http://b/3238333
         assertEquals("0.008", Double.toString(0.008));
         assertEquals("0.008366", Double.toString(0.008366));
+        // http://code.google.com/p/android/issues/detail?id=14033
+        assertEquals("0.009", Double.toString(0.009));
+        // http://code.google.com/p/android/issues/detail?id=14302
+        assertEquals("0.008567856012638986", Double.toString(0.008567856012638986));
+        assertEquals("0.010206713752229896", Double.toString(0.010206713752229896));
+    }
+
+    public void testNamedDoubles() throws Exception {
+        assertEquals(Double.NaN, Double.parseDouble("NaN"));
+        assertEquals(Double.NaN, Double.parseDouble("-NaN"));
+        assertEquals(Double.NaN, Double.parseDouble("+NaN"));
+        try {
+            Double.parseDouble("NNaN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Double.parseDouble("NaNN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("+Infinity"));
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("Infinity"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-Infinity"));
+        try {
+            Double.parseDouble("IInfinity");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Double.parseDouble("Infinityy");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
     }
 }

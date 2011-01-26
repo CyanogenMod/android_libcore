@@ -22,9 +22,40 @@ public class FloatTest extends junit.framework.TestCase {
         // http://code.google.com/p/android/issues/detail?id=4185
         assertEquals(2358.166016f, Float.valueOf("2358.166016"));
     }
+
     public void test_valueOf_String2() throws Exception {
         // This threw OutOfMemoryException.
         // http://code.google.com/p/android/issues/detail?id=3156
         assertEquals(-2.14748365E9f, Float.valueOf(String.valueOf(Integer.MIN_VALUE)));
+    }
+
+    public void testNamedFloats() throws Exception {
+        assertEquals(Float.NaN, Float.parseFloat("NaN"));
+        assertEquals(Float.NaN, Float.parseFloat("-NaN"));
+        assertEquals(Float.NaN, Float.parseFloat("+NaN"));
+        try {
+            Float.parseFloat("NNaN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Float.parseFloat("NaNN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+
+        assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("+Infinity"));
+        assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("Infinity"));
+        assertEquals(Float.NEGATIVE_INFINITY, Float.parseFloat("-Infinity"));
+        try {
+            Float.parseFloat("IInfinity");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Float.parseFloat("Infinityy");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
     }
 }
