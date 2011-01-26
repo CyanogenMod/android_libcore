@@ -387,12 +387,24 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         FormatTester test = new FormatTester();
         Calendar cal = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6);
 
-        format.setTimeZone(new SimpleTimeZone(60000, "ONE MINUTE"));
+        TimeZone tz0001 = new SimpleTimeZone(60000, "ONE MINUTE");
+        TimeZone tz0130 = new SimpleTimeZone(5400000, "ONE HOUR, THIRTY");
+        TimeZone tzMinus0130 = new SimpleTimeZone(-5400000, "NEG ONE HOUR, THIRTY");
+
+        format.setTimeZone(tz0001);
+        test.test(" Z", cal, " +0001", DateFormat.TIMEZONE_FIELD);
+        test.test(" ZZZZ", cal, " +0001", DateFormat.TIMEZONE_FIELD);
+        format.setTimeZone(tz0130);
+        test.test(" Z", cal, " +0130", DateFormat.TIMEZONE_FIELD);
+        format.setTimeZone(tzMinus0130);
+        test.test(" Z", cal, " -0130", DateFormat.TIMEZONE_FIELD);
+
+        format.setTimeZone(tz0001);
         test.test(" z", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
         test.test(" zzzz", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
-        format.setTimeZone(new SimpleTimeZone(5400000, "ONE HOUR, THIRTY"));
+        format.setTimeZone(tz0130);
         test.test(" z", cal, " GMT+01:30", DateFormat.TIMEZONE_FIELD);
-        format.setTimeZone(new SimpleTimeZone(-5400000, "NEG ONE HOUR, THIRTY"));
+        format.setTimeZone(tzMinus0130);
         test.test(" z", cal, " GMT-01:30", DateFormat.TIMEZONE_FIELD);
 
         format.setTimeZone(TimeZone.getTimeZone("America/New_York"));

@@ -17,6 +17,7 @@
 package libcore.java.util;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.SimpleTimeZone;
 
@@ -39,5 +40,15 @@ public class TimeZoneTest extends junit.framework.TestCase {
         stz.setStartYear(1000);
         stz.inDaylightTime(new Date());
         stz.clone();
+    }
+
+    // http://b/3049014
+    public void testCustomTimeZoneDisplayNames() {
+        TimeZone tz0001 = new SimpleTimeZone(60000, "ONE MINUTE");
+        TimeZone tz0130 = new SimpleTimeZone(5400000, "ONE HOUR, THIRTY");
+        TimeZone tzMinus0130 = new SimpleTimeZone(-5400000, "NEG ONE HOUR, THIRTY");
+        assertEquals("GMT+00:01", tz0001.getDisplayName(false, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT+01:30", tz0130.getDisplayName(false, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT-01:30", tzMinus0130.getDisplayName(false, TimeZone.SHORT, Locale.US));
     }
 }

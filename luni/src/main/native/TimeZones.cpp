@@ -62,8 +62,17 @@ static jobjectArray TimeZones_forCountryCode(JNIEnv* env, jclass, jstring countr
 }
 
 static jstring TimeZones_getDisplayNameImpl(JNIEnv* env, jclass, jstring javaZoneId, jboolean isDST, jint style, jstring localeId) {
+    // Get an ICU4C TimeZone* for the given id. Really, we want TimeZone::createSystemTimeZone,
+    // but that's not public. Instead, we have to check we got the time zone we wanted, rather
+    // than a clone of GMT. (http://b/3394198 asks for ICU to expose the more useful method.)
     ScopedJavaUnicodeString zoneId(env, javaZoneId);
     UniquePtr<TimeZone> zone(TimeZone::createTimeZone(zoneId.unicodeString()));
+    UnicodeString actualZoneId;
+    zone->getID(actualZoneId);
+    if (actualZoneId != zoneId.unicodeString()) {
+        return NULL;
+    }
+
     Locale locale = getLocale(env, localeId);
     // Try to get the display name of the TimeZone according to the Locale
     UnicodeString displayName;
