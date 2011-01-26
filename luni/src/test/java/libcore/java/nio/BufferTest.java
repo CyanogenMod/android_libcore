@@ -416,4 +416,39 @@ public class BufferTest extends TestCase {
         b.putShort((short) 0);
         assertEquals(2, b.position());
     }
+
+    // This test will fail on the RI. Our direct buffers are cooler than theirs.
+    // http://b/3384431
+    public void testDirectByteBufferHasArray() throws Exception {
+        ByteBuffer b = ByteBuffer.allocateDirect(10);
+        assertTrue(b.isDirect());
+        // Check the buffer has an array of the right size.
+        assertTrue(b.hasArray());
+        assertEquals(0, b.arrayOffset());
+        byte[] array = b.array();
+        assertEquals(10, array.length);
+        // Check that writes to the array show up in the buffer.
+        assertEquals(0, b.get(0));
+        array[0] = 1;
+        assertEquals(1, b.get(0));
+        // Check that writes to the buffer show up in the array.
+        assertEquals(1, array[0]);
+        b.put(0, (byte) 0);
+        assertEquals(0, array[0]);
+    }
+
+    public void testSliceOffset() throws Exception {
+        // Slicing changes the array offset.
+        ByteBuffer buffer = ByteBuffer.allocate(10);
+        buffer.get();
+        ByteBuffer slice = buffer.slice();
+        assertEquals(0, buffer.arrayOffset());
+        assertEquals(1, slice.arrayOffset());
+
+        ByteBuffer directBuffer = ByteBuffer.allocateDirect(10);
+        directBuffer.get();
+        ByteBuffer directSlice = directBuffer.slice();
+        assertEquals(0, directBuffer.arrayOffset());
+        assertEquals(1, directSlice.arrayOffset());
+    }
 }
