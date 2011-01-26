@@ -58,6 +58,10 @@ class MemoryBlock {
             this.array = array;
         }
 
+        @Override public byte[] array() {
+            return array;
+        }
+
         @Override public void free() {
             array = null;
             address = 0;
@@ -101,6 +105,11 @@ class MemoryBlock {
     private MemoryBlock(int address, long size) {
         this.address = address;
         this.size = size;
+    }
+
+    // Used to support array/arrayOffset/hasArray for direct buffers.
+    public byte[] array() {
+        return null;
     }
 
     public void free() {
