@@ -58,4 +58,56 @@ public class FloatTest extends junit.framework.TestCase {
         } catch (NumberFormatException expected) {
         }
     }
+
+    public void testSuffixParsing() throws Exception {
+        String[] badStrings = { "1ff", "1fd", "1df", "1dd" };
+        for (String string : badStrings) {
+            try {
+                Float.parseFloat(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+        assertEquals(1.0f, Float.parseFloat("1f"));
+        assertEquals(1.0f, Float.parseFloat("1d"));
+        assertEquals(1.0f, Float.parseFloat("1F"));
+        assertEquals(1.0f, Float.parseFloat("1D"));
+        assertEquals(1.0f, Float.parseFloat("1.D"));
+        assertEquals(1.0f, Float.parseFloat("1.E0D"));
+        assertEquals(1.0f, Float.parseFloat(".1E1D"));
+    }
+
+    public void testExponentParsing() throws Exception {
+        String[] strings = {
+            // Exponents missing integer values.
+            "1.0e", "1.0e+", "1.0e-",
+            // Exponents with too many explicit signs.
+            "1.0e++1", "1.0e+-1", "1.0e-+1", "1.0e--1"
+        };
+        for (String string : strings) {
+            try {
+                Float.parseFloat(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+
+        assertEquals(1.0e-45f, Float.parseFloat("1.0e-45"));
+        assertEquals(0.0f, Float.parseFloat("1.0e-46"));
+        assertEquals(-1.0e-45f, Float.parseFloat("-1.0e-45"));
+        assertEquals(-0.0f, Float.parseFloat("-1.0e-46"));
+
+        assertEquals(1.0e+38f, Float.parseFloat("1.0e+38"));
+        assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("1.0e+39"));
+        assertEquals(-1.0e+38f, Float.parseFloat("-1.0e+38"));
+        assertEquals(Float.NEGATIVE_INFINITY, Float.parseFloat("-1.0e+39"));
+
+        assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("1.0e+9999999999"));
+        assertEquals(Float.NEGATIVE_INFINITY, Float.parseFloat("-1.0e+9999999999"));
+        assertEquals(0.0f, Float.parseFloat("1.0e-9999999999"));
+        assertEquals(-0.0f, Float.parseFloat("-1.0e-9999999999"));
+
+        assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("320.0E+2147483647"));
+        assertEquals(-0.0f, Float.parseFloat("-1.4E-2147483314"));
+    }
 }

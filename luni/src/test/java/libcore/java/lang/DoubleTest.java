@@ -59,4 +59,56 @@ public class DoubleTest extends TestCase {
         } catch (NumberFormatException expected) {
         }
     }
+
+    public void testSuffixParsing() throws Exception {
+        String[] badStrings = { "1ff", "1fd", "1df", "1dd" };
+        for (String string : badStrings) {
+            try {
+                Double.parseDouble(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+        assertEquals(1.0, Double.parseDouble("1f"));
+        assertEquals(1.0, Double.parseDouble("1d"));
+        assertEquals(1.0, Double.parseDouble("1F"));
+        assertEquals(1.0, Double.parseDouble("1D"));
+        assertEquals(1.0, Double.parseDouble("1.D"));
+        assertEquals(1.0, Double.parseDouble("1.E0D"));
+        assertEquals(1.0, Double.parseDouble(".1E1D"));
+    }
+
+    public void testExponentParsing() throws Exception {
+        String[] strings = {
+            // Exponents missing integer values.
+            "1.0e", "1.0e+", "1.0e-",
+            // Exponents with too many explicit signs.
+            "1.0e++1", "1.0e+-1", "1.0e-+1", "1.0e--1"
+        };
+        for (String string : strings) {
+            try {
+                Double.parseDouble(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+
+        assertEquals(1.0e-323, Double.parseDouble("1.0e-323"));
+        assertEquals(0.0, Double.parseDouble("1.0e-324"));
+        assertEquals(-1.0e-323, Double.parseDouble("-1.0e-323"));
+        assertEquals(-0.0, Double.parseDouble("-1.0e-324"));
+
+        assertEquals(1.0e+308, Double.parseDouble("1.0e+308"));
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("1.0e+309"));
+        assertEquals(-1.0e+308, Double.parseDouble("-1.0e+308"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-1.0e+309"));
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("1.0e+9999999999"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-1.0e+9999999999"));
+        assertEquals(0.0, Double.parseDouble("1.0e-9999999999"));
+        assertEquals(-0.0, Double.parseDouble("-1.0e-9999999999"));
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("320.0e+2147483647"));
+        assertEquals(-0.0, Double.parseDouble("-1.4e-2147483314"));
+    }
 }

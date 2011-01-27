@@ -1100,7 +1100,7 @@ public final class Math {
     }
 
     /**
-     * Returns the exponent of float {@code f}.
+     * Returns the unbiased base-2 exponent of float {@code f}.
      * @since 1.6
      */
     public static int getExponent(float f) {
@@ -1110,7 +1110,7 @@ public final class Math {
     }
 
     /**
-     * Returns the exponent of double {@code d}.
+     * Returns the unbiased base-2 exponent of double {@code d}.
      * @since 1.6
      */
     public static int getExponent(double d) {

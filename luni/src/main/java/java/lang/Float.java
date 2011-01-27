@@ -74,7 +74,7 @@ public final class Float extends Number implements Comparable<Float> {
     public static final float MIN_NORMAL = 1.1754943508222875E-38f;
 
     /**
-     * Maximum exponent that a finite value of the {@code float} type may have.
+     * Maximum base-2 exponent that a finite value of the {@code float} type may have.
      * Equal to {@code Math.getExponent(Float.MAX_VALUE)}.
      *
      * @since 1.6
@@ -82,7 +82,7 @@ public final class Float extends Number implements Comparable<Float> {
     public static final int MAX_EXPONENT = 127;
 
     /**
-     * Minimum exponent that a normal value of the {@code float} type may have.
+     * Minimum base-2 exponent that a normal value of the {@code float} type may have.
      * Equal to {@code Math.getExponent(Float.MIN_NORMAL)}.
      *
      * @since 1.6

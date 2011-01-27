@@ -77,7 +77,7 @@ public final class Double extends Number implements Comparable<Double> {
     public static final double MIN_NORMAL = 2.2250738585072014E-308;
 
     /**
-     * Maximum exponent that a finite value of the {@code double} type may have.
+     * Maximum base-2 exponent that a finite value of the {@code double} type may have.
      * Equal to {@code Math.getExponent(Double.MAX_VALUE)}.
      *
      * @since 1.6
@@ -85,7 +85,7 @@ public final class Double extends Number implements Comparable<Double> {
     public static final int MAX_EXPONENT = 1023;
 
     /**
-     * Minimum exponent that a normal value of the {@code double} type may have.
+     * Minimum base-2 exponent that a normal value of the {@code double} type may have.
      * Equal to {@code Math.getExponent(Double.MIN_NORMAL)}.
      *
      * @since 1.6
