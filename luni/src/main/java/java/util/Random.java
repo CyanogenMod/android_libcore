@@ -133,7 +133,7 @@ public class Random implements Serializable {
     /**
      * Returns a pseudo-random (approximately) normally distributed
      * {@code double} with mean 0.0 and standard deviation 1.0.
-     * This method uses the <i>polar method<i> of G. E. P. Box, M.
+     * This method uses the <i>polar method</i> of G. E. P. Box, M.
      * E. Muller, and G. Marsaglia, as described by Donald E. Knuth in <i>The
      * Art of Computer Programming, Volume 2: Seminumerical Algorithms</i>,
      * section 3.4.1, subsection C, algorithm P.
