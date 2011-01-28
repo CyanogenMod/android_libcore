@@ -17,15 +17,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-import org.apache.harmony.crypto.tests.support.MyCipher;
-
-import tests.support.resource.Support_Resources;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +41,6 @@ import java.security.cert.CertificateFactory;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Arrays;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherSpi;
@@ -61,8 +51,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
+import org.apache.harmony.crypto.tests.support.MyCipher;
+import tests.support.resource.Support_Resources;
 
-@TestTargetClass(Cipher.class)
 public class CipherTest extends junit.framework.TestCase {
 
     static Key cipherKey;
@@ -92,69 +83,23 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests javax.crypto.Cipher#getInstance(java.lang.String)
+     * javax.crypto.Cipher#getInstance(java.lang.String)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getInstance",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetMode",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetPadding",
-            args = {java.lang.String.class}
-        )
-    })
     public void test_getInstanceLjava_lang_String() throws Exception {
         Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
         assertNotNull("Received a null Cipher instance", cipher);
 
         try {
             Cipher.getInstance("WrongAlgorithmName");
-            fail("NoSuchAlgorithmException expected");
-        } catch (NoSuchAlgorithmException e) {
-            //expected
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
-//        RI throws  NoSuchAlgorithmException for wrong padding.
     }
 
     /**
-     * @tests javax.crypto.Cipher#getInstance(java.lang.String,
+     * javax.crypto.Cipher#getInstance(java.lang.String,
      *        java.lang.String)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getInstance",
-            args = {java.lang.String.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetMode",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetPadding",
-            args = {java.lang.String.class}
-        )
-    })
     public void test_getInstanceLjava_lang_StringLjava_lang_String()
             throws Exception {
 
@@ -166,61 +111,31 @@ public class CipherTest extends junit.framework.TestCase {
             Cipher cipher = Cipher.getInstance("DES", providers[i].getName());
             assertNotNull("Cipher.getInstance() returned a null value", cipher);
 
-            // Exception case
             try {
                 cipher = Cipher.getInstance("DoBeDoBeDo", providers[i]);
-                fail("Should have thrown an NoSuchAlgorithmException");
-            } catch (NoSuchAlgorithmException e) {
-                // Expected
+                fail();
+            } catch (NoSuchAlgorithmException expected) {
             }
         }
 
-        // Exception case
         try {
             Cipher.getInstance("DES", (String) null);
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
-        // Exception case
         try {
             Cipher.getInstance("DES", "IHaveNotBeenConfigured");
-            fail("Should have thrown an NoSuchProviderException");
-        } catch (NoSuchProviderException e) {
-            // Expected
+            fail();
+        } catch (NoSuchProviderException expected) {
         }
-//      RI throws  NoSuchAlgorithmException for wrong padding.
     }
 
     /**
-     * @tests javax.crypto.Cipher#getInstance(java.lang.String,
+     * javax.crypto.Cipher#getInstance(java.lang.String,
      *        java.security.Provider)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getInstance",
-            args = {java.lang.String.class, java.security.Provider.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetMode",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineSetPadding",
-            args = {java.lang.String.class}
-        )
-    })
-    public void test_getInstanceLjava_lang_StringLjava_security_Provider()
-            throws Exception {
+    public void test_getInstanceLjava_lang_StringLjava_security_Provider() throws Exception {
 
         Provider[] providers = Security.getProviders("Cipher.DES");
 
@@ -231,33 +146,22 @@ public class CipherTest extends junit.framework.TestCase {
             assertNotNull("Cipher.getInstance() returned a null value", cipher);
         }
 
-        // Exception case
         try {
             Cipher.getInstance("DES", (Provider) null);
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
-        // Exception case
         try {
             Cipher.getInstance("WrongAlg", providers[0]);
-            fail("NoSuchAlgorithmException expected");
-        } catch (NoSuchAlgorithmException e) {
-            // Expected
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
-//      RI throws  NoSuchAlgorithmException for wrong padding.
     }
 
     /**
-     * @tests javax.crypto.Cipher#getProvider()
+     * javax.crypto.Cipher#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws Exception {
 
         Provider[] providers = Security.getProviders("Cipher.AES");
@@ -275,14 +179,8 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests javax.crypto.Cipher#getAlgorithm()
+     * javax.crypto.Cipher#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws Exception {
         final String algorithm = "DESede/CBC/PKCS5Padding";
 
@@ -292,23 +190,8 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests javax.crypto.Cipher#getBlockSize()
+     * javax.crypto.Cipher#getBlockSize()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getBlockSize",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineGetBlockSize",
-            args = {}
-        )
-    })
     public void test_getBlockSize() throws Exception {
         final String algorithm = "DESede/CBC/PKCS5Padding";
 
@@ -317,23 +200,8 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests javax.crypto.Cipher#getOutputSize(int)
+     * javax.crypto.Cipher#getOutputSize(int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getOutputSize",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineGetOutputSize",
-            args = {int.class}
-        )
-    })
     public void test_getOutputSizeI() throws Exception {
 
         SecureRandom sr = new SecureRandom();
@@ -341,9 +209,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             cipher.getOutputSize(25);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         cipher.init(Cipher.ENCRYPT_MODE, cipherKey, sr);
@@ -358,15 +225,9 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests javax.crypto.Cipher#init(int, java.security.Key)
+     * javax.crypto.Cipher#init(int, java.security.Key)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {int.class, java.security.Key.class}
-    )
-    public void test_initILjava_security_Key() throws Exception {
+    public void test_initWithKey() throws Exception {
         Cipher cipher = Cipher.getInstance(algorithm + "/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, cipherKey);
 
@@ -374,33 +235,16 @@ public class CipherTest extends junit.framework.TestCase {
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKey);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
     /**
-     * @tests javax.crypto.Cipher#init(int, java.security.Key,
+     * javax.crypto.Cipher#init(int, java.security.Key,
      *        java.security.SecureRandom)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {int.class, java.security.Key.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineInit",
-            args = {int.class, java.security.Key.class, java.security.SecureRandom.class}
-        )
-    })
-    public void test_initILjava_security_KeyLjava_security_SecureRandom()
-            throws Exception {
+    public void test_initWithSecureRandom() throws Exception {
         SecureRandom sr = new SecureRandom();
         Cipher cipher = Cipher.getInstance(algorithm + "/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, cipherKey, sr);
@@ -408,24 +252,16 @@ public class CipherTest extends junit.framework.TestCase {
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKey, sr);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
     /**
-     * @tests javax.crypto.Cipher#init(int, java.security.Key,
+     * javax.crypto.Cipher#init(int, java.security.Key,
      *        java.security.spec.AlgorithmParameterSpec)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {int.class, java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-    )
-    public void test_initILjava_security_KeyLjava_security_spec_AlgorithmParameterSpec()
-            throws Exception {
+    public void test_initWithAlgorithmParameterSpec() throws Exception {
         SecureRandom sr = new SecureRandom();
         Cipher cipher = null;
 
@@ -447,9 +283,8 @@ public class CipherTest extends junit.framework.TestCase {
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKey, ap);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
@@ -457,34 +292,17 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKeyDES, ap);
-            fail("InvalidAlgorithmParameterException expected");
-        } catch (InvalidAlgorithmParameterException e) {
-            //expected
+            fail();
+        } catch (InvalidAlgorithmParameterException expected) {
         }
     }
 
     /**
-     * @tests javax.crypto.Cipher#init(int, java.security.Key,
+     * javax.crypto.Cipher#init(int, java.security.Key,
      *        java.security.spec.AlgorithmParameterSpec,
      *        java.security.SecureRandom)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {int.class, java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineInit",
-            args = {int.class, java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        )
-    })
-    public void test_initILjava_security_KeyLjava_security_spec_AlgorithmParameterSpecLjava_security_SecureRandom()
-            throws Exception {
+    public void test_initWithKeyAlgorithmParameterSpecSecureRandom() throws Exception {
         SecureRandom sr = new SecureRandom();
         Cipher cipher = null;
 
@@ -505,9 +323,8 @@ public class CipherTest extends junit.framework.TestCase {
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKey, ap, sr);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
@@ -515,30 +332,14 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKeyDES, ap, sr);
-            fail("InvalidAlgorithmParameterException expected");
-        } catch (InvalidAlgorithmParameterException e) {
-            //expected
+            fail();
+        } catch (InvalidAlgorithmParameterException expected) {
         }
     }
 
     /**
-     * @tests javax.crypto.Cipher#update(byte[], int, int)
+     * javax.crypto.Cipher#update(byte[], int, int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void test_update$BII() throws Exception {
         for (int index = 1; index < 4; index++) {
             Cipher c = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
@@ -584,26 +385,19 @@ public class CipherTest extends junit.framework.TestCase {
                     + index + ".plaintext");
             assertTrue("Operation produced incorrect results", Arrays.equals(
                     plaintextBytes, decipheredCipherText));
-        }// end for
+        }
 
         Cipher cipher = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
         try {
             cipher.update(new byte[64], 0, 32);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
     }
 
     /**
-     * @tests javax.crypto.Cipher#doFinal()
+     * javax.crypto.Cipher#doFinal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doFinal",
-        args = {}
-    )
     public void test_doFinal() throws Exception {
         for (int index = 1; index < 4; index++) {
             Cipher c = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
@@ -647,7 +441,7 @@ public class CipherTest extends junit.framework.TestCase {
                     + ".ciphertext");
             assertTrue("Operation produced incorrect results", Arrays.equals(
                     encryptedPlaintext, cipherText));
-        }// end for
+        }
 
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -657,17 +451,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.update(b, 0, 10, b1, 5);
         try {
             c.doFinal();
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal();
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -685,46 +477,26 @@ public class CipherTest extends junit.framework.TestCase {
         c.update(b1, 0, 24, b, 0);
         try {
             c.doFinal();
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
     }
 
-    private byte[] loadBytes(String resPath) {
-        try {
-            File resources = Support_Resources.createTempFolder();
-            Support_Resources.copyFile(resources, null, resPath);
-            InputStream is = Support_Resources.getStream(resPath);
+    private byte[] loadBytes(String resPath) throws Exception {
+        File resources = Support_Resources.createTempFolder();
+        Support_Resources.copyFile(resources, null, resPath);
+        InputStream is = Support_Resources.getStream(resPath);
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buff = new byte[1024];
-            int readlen;
-            while ((readlen = is.read(buff)) > 0) {
-                out.write(buff, 0, readlen);
-            }
-            is.close();
-            return out.toByteArray();
-        } catch (IOException e) {
-            return null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buff = new byte[1024];
+        int readlen;
+        while ((readlen = is.read(buff)) > 0) {
+            out.write(buff, 0, readlen);
         }
+        is.close();
+        return out.toByteArray();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getParameters",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineGetParameters",
-            args = {}
-        )
-    })
     public void testGetParameters() throws Exception {
         Cipher c = Cipher.getInstance("DES");
         assertNull(c.getParameters());
@@ -733,21 +505,6 @@ public class CipherTest extends junit.framework.TestCase {
     /*
      * Class under test for int update(byte[], int, int, byte[], int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "update",
-            args = {byte[].class, int.class, int.class, byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class, byte[].class, int.class}
-        )
-    })
     public void testUpdatebyteArrayintintbyteArrayint() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10};
         byte[] b1 = new byte[6];
@@ -755,17 +512,15 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.update(b, 0, 10, b1, 5);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c.init(Cipher.ENCRYPT_MODE, cipherKey);
         try {
             c.update(b, 0, 10, b1, 5);
-            fail("ShortBufferException expected");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
 
         b1 = new byte[30];
@@ -775,21 +530,6 @@ public class CipherTest extends junit.framework.TestCase {
     /*
      * Class under test for int doFinal(byte[], int, int, byte[], int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "doFinal",
-            args = {byte[].class, int.class, int.class, byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineDoFinal",
-            args = {byte[].class, int.class, int.class, byte[].class, int.class}
-        )
-    })
     public void testDoFinalbyteArrayintintbyteArrayint() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -798,17 +538,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
             c.doFinal(b, 0, 10, b1, 5);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(b, 0, 10, b1, 5);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -825,9 +563,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.doFinal(b1, 0, 24, new byte[42], 0);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
 
         b1 = new byte[6];
@@ -835,117 +572,80 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKey);
         try {
             c.doFinal(b, 3, 6, b1, 5);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxAllowedKeyLength",
-        args = {java.lang.String.class}
-    )
-    public void testGetMaxAllowedKeyLength() throws NoSuchAlgorithmException {
+    public void testGetMaxAllowedKeyLength() throws Exception {
         try {
             Cipher.getMaxAllowedKeyLength(null);
-            fail("No expected NullPointerException");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            Cipher.getMaxAllowedKeyLength("");
+        } catch (NoSuchAlgorithmException expected) {
         }
         try {
             Cipher.getMaxAllowedKeyLength("//CBC/PKCS5Paddin");
-            fail("No expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
         try {
             Cipher.getMaxAllowedKeyLength("/DES/CBC/PKCS5Paddin/1");
-            fail("No expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
         assertTrue(Cipher.getMaxAllowedKeyLength("/DES/CBC/PKCS5Paddin") > 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxAllowedParameterSpec",
-        args = {java.lang.String.class}
-    )
-    public void testGetMaxAllowedParameterSpec()
-            throws NoSuchAlgorithmException, Exception {
+    public void testGetMaxAllowedParameterSpec() throws Exception {
         try {
             Cipher.getMaxAllowedParameterSpec(null);
-            fail("No expected NullPointerException");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
         }
         try {
             Cipher.getMaxAllowedParameterSpec("/DES//PKCS5Paddin");
-            fail("No expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
         try {
             Cipher.getMaxAllowedParameterSpec("/DES/CBC/ /1");
-            fail("No expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
         Cipher.getMaxAllowedParameterSpec("DES/CBC/PKCS5Paddin");
         Cipher.getMaxAllowedParameterSpec("RSA");
     }
 
     /**
-     * @tests javax.crypto.Cipher#Cipher(CipherSpi cipherSpi, Provider provider,
+     * javax.crypto.Cipher#Cipher(CipherSpi cipherSpi, Provider provider,
      *        String transformation)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Cipher",
-        args = {javax.crypto.CipherSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void test_Ctor() throws Exception {
         // Regression for Harmony-1184
         try {
             new testCipher(null, null, "s");
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         try {
             new testCipher(new MyCipher(), null, "s");
             fail("NullPointerException expected for 'null' provider");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
 
         try {
             new testCipher(null, new Provider("qwerty", 1.0, "qwerty") {}, "s");
             fail("NullPointerException expected for 'null' cipherSpi");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "doFinal",
-            args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineDoFinal",
-            args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
-        )
-    })
-    public void test_doFinalLjava_nio_ByteBufferLjava_nio_ByteBuffer ()
-    throws NoSuchAlgorithmException, NoSuchPaddingException,
-    InvalidKeyException, ShortBufferException, BadPaddingException,
-    IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    public void test_doFinalLjava_nio_ByteBufferLjava_nio_ByteBuffer() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         ByteBuffer bInput = ByteBuffer.allocate(64);
         ByteBuffer bOutput = ByteBuffer.allocate(64);
@@ -955,17 +655,15 @@ public class CipherTest extends junit.framework.TestCase {
         bInput.put(b, 0, 10);
         try {
             c.doFinal(bInput, bOutput);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(bInput, bOutput);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -985,9 +683,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.doFinal(bOutput, bInput);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -995,9 +692,8 @@ public class CipherTest extends junit.framework.TestCase {
         bInput.put(b, 0, 16);
         try {
             c.doFinal(bInput, bInput);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            //expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1005,9 +701,8 @@ public class CipherTest extends junit.framework.TestCase {
         bInput.put(b, 0, 16);
         try {
             c.doFinal(bInput, bOutput.asReadOnlyBuffer());
-            fail("ReadOnlyBufferException expected");
-        } catch (ReadOnlyBufferException e) {
-            //expected
+            fail();
+        } catch (ReadOnlyBufferException expected) {
         }
 
         bInput.rewind();
@@ -1017,21 +712,12 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKey);
         try {
             c.doFinal(bInput, bOutput);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {int.class, java.security.Key.class, java.security.AlgorithmParameters.class}
-    )
-    public void test_initILjava_security_KeyLjava_security_AlgorithmParameters ()
-    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-    InvalidAlgorithmParameterException {
+    public void test_initWithKeyAlgorithmParameters() throws Exception {
         SecureRandom sr = new SecureRandom();
         byte[] iv = new byte[8];
         sr.nextBytes(iv);
@@ -1043,37 +729,18 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKey, ap);
-            fail("InvalidKeyException e");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
 
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKeyDES, (AlgorithmParameters)null);
-            fail("InvalidAlgorithmParameterException e");
-        } catch (InvalidAlgorithmParameterException e) {
-            //expected
+            fail();
+        } catch (InvalidAlgorithmParameterException expected) {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {int.class, java.security.Key.class, java.security.AlgorithmParameters.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineInit",
-            args = {int.class, java.security.Key.class, java.security.AlgorithmParameters.class, java.security.SecureRandom.class}
-        )
-    })
-    public void test_initILjava_security_KeyLjava_security_AlgorithmParametersLjava_security_SecureRandom ()
-    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-    InvalidAlgorithmParameterException {
+    public void test_initWithKeyAlgorithmParametersSecureRandom() throws Exception {
         SecureRandom sr = new SecureRandom();
         byte[] iv = new byte[8];
         sr.nextBytes(iv);
@@ -1085,31 +752,21 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKey, ap, new SecureRandom());
-            fail("InvalidKeyException e");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
 
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKeyDES, (AlgorithmParameters)null, sr);
-            fail("InvalidAlgorithmParameterException e");
-        } catch (InvalidAlgorithmParameterException e) {
-            //expected
+            fail();
+        } catch (InvalidAlgorithmParameterException expected) {
         }
 
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap, (SecureRandom)null);
         assertNotNull(c.getParameters());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {int.class, java.security.cert.Certificate.class}
-    )
-    public void test_initILjava_security_cert_Certificate ()
-    throws MalformedURLException, IOException, CertificateException,
-    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    public void test_initWithCertificate() throws Exception {
 
     /* Certificate creation notes: certificate should be valid 37273 starting
      * from 13 Nov 2008
@@ -1126,6 +783,7 @@ public class CipherTest extends junit.framework.TestCase {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         Certificate cert = cf.generateCertificate(is);
+        is.close();
 
         Cipher c = Cipher.getInstance("RSA");
 
@@ -1133,21 +791,12 @@ public class CipherTest extends junit.framework.TestCase {
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         try {
             c.init(Cipher.ENCRYPT_MODE, cert);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {int.class, java.security.cert.Certificate.class, java.security.SecureRandom.class}
-    )
-    public void test_initILjava_security_cert_Certificate_java_security_SecureRandom ()
-    throws MalformedURLException, IOException, CertificateException,
-    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    public void test_initWithCertificateSecureRandom() throws Exception {
 
     /* Certificate creation notes: certificate should be valid 37273 starting
      * from 13 Nov 2008
@@ -1164,6 +813,7 @@ public class CipherTest extends junit.framework.TestCase {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         Certificate cert = cf.generateCertificate(is);
+        is.close();
 
         Cipher c = Cipher.getInstance("RSA");
 
@@ -1171,30 +821,12 @@ public class CipherTest extends junit.framework.TestCase {
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         try {
             c.init(Cipher.ENCRYPT_MODE, cert, new SecureRandom());
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "unwrap",
-            args = {byte[].class, java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                clazz = CipherSpi.class,
-                method = "engineUnwrap",
-                args = {byte[].class, java.lang.String.class, int.class}
-        )
-    })
-    public void test_unwrap$BLjava_lang_StringI () throws NoSuchAlgorithmException,
-    NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
-    IllegalBlockSizeException {
+    public void test_unwrap$BLjava_lang_StringI() throws Exception {
         SecureRandom sr = new SecureRandom();
         byte[] iv = new byte[8];
         sr.nextBytes(iv);
@@ -1208,9 +840,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.unwrap(arDES, "DES", Cipher.SECRET_KEY);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c.init(Cipher.UNWRAP_MODE, cipherKeyDES, ap, sr);
@@ -1219,39 +850,20 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.unwrap(arDES, "RSA38", Cipher.PUBLIC_KEY);
-            fail("NoSuchAlgorithmException expected");
-        } catch (NoSuchAlgorithmException e) {
-            //expected
+            fail();
+        } catch (NoSuchAlgorithmException expected) {
         }
 
         c = Cipher.getInstance("DESede/CBC/PKCS5Padding");
         c.init(Cipher.UNWRAP_MODE, cipherKey, ap, sr);
         try {
             c.unwrap(arDES, "DESede", Cipher.SECRET_KEY);
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "update",
-            args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                clazz = CipherSpi.class,
-                method = "engineUpdate",
-                args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
-        )
-    })
-    public void test_updateLjava_nio_ByteBufferLjava_nio_ByteBuffer () throws
-    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-    ShortBufferException, InvalidAlgorithmParameterException {
+    public void test_updateLjava_nio_ByteBufferLjava_nio_ByteBuffer() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         ByteBuffer bInput = ByteBuffer.allocate(256);
         ByteBuffer bOutput = ByteBuffer.allocate(256);
@@ -1266,9 +878,8 @@ public class CipherTest extends junit.framework.TestCase {
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.update(bInput, bOutput);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1294,9 +905,8 @@ public class CipherTest extends junit.framework.TestCase {
         bInput.rewind();
         try {
             c.update(bInput, bInput);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            //expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1306,9 +916,8 @@ public class CipherTest extends junit.framework.TestCase {
         bOutput.rewind();
         try {
             c.update(bInput, bOutput.asReadOnlyBuffer());
-            fail("ReadOnlyBufferException expected");
-        } catch (ReadOnlyBufferException e) {
-            //expected
+            fail();
+        } catch (ReadOnlyBufferException expected) {
         }
 
         bInput.rewind();
@@ -1319,9 +928,8 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKey);
         try {
             c.update(bInput, bOutput);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 
@@ -1340,25 +948,7 @@ public class CipherTest extends junit.framework.TestCase {
 
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "wrap",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                clazz = CipherSpi.class,
-                method = "engineWrap",
-                args = {java.security.Key.class}
-        )
-    })
-    public void test_wrap_java_security_Key () throws NoSuchAlgorithmException,
-    NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-    InvalidAlgorithmParameterException, MalformedURLException, IOException,
-    CertificateException {
+    public void test_wrap_java_security_Key() throws Exception {
         SecureRandom sr = new SecureRandom();
         byte[] iv = new byte[8];
         sr.nextBytes(iv);
@@ -1380,35 +970,26 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.WRAP_MODE, cipherKeyDES, ap, sr);
         try {
             assertNotNull(c.wrap(cert.getPublicKey()));
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap, sr);
 
         try {
             c.wrap(cipherKeyDES);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c.init(Cipher.WRAP_MODE, cipherKeyDES, ap, sr);
         try {
             c.wrap(new Mock_Key());
-            fail("InvalidKeyException expected");
-        } catch (InvalidKeyException e) {
-            //expected
+            fail();
+        } catch (InvalidKeyException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doFinal",
-        args = {byte[].class, int.class}
-    )
     public void test_doFinal$BI() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -1418,17 +999,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.update(b, 0, 10);
         try {
             c.doFinal(b1, 5);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(b1, 5);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1447,9 +1026,8 @@ public class CipherTest extends junit.framework.TestCase {
         c.update(b1, 0, 24);
         try {
             c.doFinal(b, 0);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
 
         b1 = new byte[6];
@@ -1458,18 +1036,11 @@ public class CipherTest extends junit.framework.TestCase {
         c.update(b, 3, 6);
         try {
             c.doFinal(b1, 5);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doFinal",
-        args = {byte[].class}
-    )
     public void test_doFinal$B() throws Exception {
         byte[] b1 = new byte[32];
         byte[] bI1 = {1,2,3,4,5,6,7,8,9,10};
@@ -1481,17 +1052,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
             c.doFinal(bI1);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(bI1);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1510,27 +1079,11 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.doFinal(b1);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "doFinal",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = CipherSpi.class,
-            method = "engineDoFinal",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void test_doFinal$BII() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -1539,17 +1092,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
             c.doFinal(b, 0, 10);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(b, 0, 10);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1568,18 +1119,11 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.doFinal(b1, 0, 24);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doFinal",
-        args = {byte[].class, int.class, int.class, byte[].class}
-    )
     public void test_doFinal$BII$B() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -1588,17 +1132,15 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
             c.doFinal(b, 0, 10, b1);
-            fail("IllegalBlockSizeException expected");
-        } catch (IllegalBlockSizeException e) {
-            //expected
+            fail();
+        } catch (IllegalBlockSizeException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             c.doFinal(b, 0, 10, b1);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1615,9 +1157,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.doFinal(b1, 0, 24, new byte[42]);
-            fail("BadPaddingException expected");
-        } catch (BadPaddingException e) {
-            //expected
+            fail();
+        } catch (BadPaddingException expected) {
         }
 
         b1 = new byte[6];
@@ -1625,34 +1166,20 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.ENCRYPT_MODE, cipherKey);
         try {
             c.doFinal(b, 3, 6, b1);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks exception",
-        method = "update",
-        args = {byte[].class}
-    )
     public void test_update$B() throws Exception {
         Cipher cipher = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
         try {
             cipher.update(new byte[64]);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class, int.class, int.class, byte[].class}
-    )
     public void test_() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
@@ -1661,9 +1188,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.update(b, 0, 10, b1);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            //expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -1674,9 +1200,8 @@ public class CipherTest extends junit.framework.TestCase {
 
         try {
             c.update(b, 3, 15, b1);
-            fail("No expected ShortBufferException");
-        } catch (ShortBufferException e) {
-            //expected
+            fail();
+        } catch (ShortBufferException expected) {
         }
     }
 

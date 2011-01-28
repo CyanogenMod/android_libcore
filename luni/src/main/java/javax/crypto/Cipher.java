@@ -327,6 +327,11 @@ public class Cipher {
     }
 
     private static String[] checkTransformation(String transformation) throws NoSuchAlgorithmException {
+        // ignore an extra prefix / characters such as in
+        // "/DES/CBC/PKCS5Paddin" http://b/3387688
+        if (transformation.startsWith("/")) {
+            transformation = transformation.substring(1);
+        }
         // 'transformation' should be of the form "algorithm/mode/padding".
         String[] pieces = transformation.split("/");
         if (pieces.length > 3) {
