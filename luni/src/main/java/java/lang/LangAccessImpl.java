@@ -34,8 +34,8 @@ import org.apache.harmony.kernel.vm.LangAccess;
 
     /** {@inheritDoc} */
     public <T> T[] getEnumValuesInOrder(Class<T> clazz) {
-        ClassCache<T> cache = clazz.getClassCache();
-        return cache.getEnumValuesInOrder();
+        ClassMembers<T> members = clazz.getClassMembers();
+        return members.getEnumValuesInOrder();
     }
 
     /** {@inheritDoc} */

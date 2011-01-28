@@ -17,9 +17,6 @@
 package java.lang;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * The superclass of all enumerated types. Actual enumeration types inherit from
@@ -168,7 +165,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
 
         enumType.checkPublicMemberAccess();
 
-        T result = enumType.getClassCache().getEnumValue(name);
+        T result = enumType.getClassMembers().getEnumValue(name);
         if (result == null) {
             if (!enumType.isEnum()) {
                 throw new IllegalArgumentException(enumType + " is not an enum type");

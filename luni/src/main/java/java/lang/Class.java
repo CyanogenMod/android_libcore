@@ -35,10 +35,9 @@ package java.lang;
 import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
-import static java.lang.ClassCache.*;
+import static java.lang.ClassMembers.*;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
-import java.lang.ref.SoftReference;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -120,12 +119,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * This field is initialized by dalvikvm when the class is loaded.
      */
     private transient ProtectionDomain pd;
-
-    /**
-     * null-ok; cache of reflective information, wrapped in a soft
-     * reference
-     */
-    private transient volatile SoftReference<ClassCache<T>> cacheRef;
 
     /**
      * Lazily computed name of this class; always prefer calling getName().
@@ -657,7 +650,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException {
         checkDeclaredMemberAccess();
 
-        Field[] fields = getClassCache().getDeclaredFields();
+        Field[] fields = getClassMembers().getDeclaredFields();
         Field field = findFieldByName(fields, name);
 
         /*
@@ -684,8 +677,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         checkDeclaredMemberAccess();
 
         // Return a copy of the private (to the package) array.
-        Field[] fields = getClassCache().getDeclaredFields();
-        return ClassCache.deepCopy(fields);
+        Field[] fields = getClassMembers().getDeclaredFields();
+        return ClassMembers.deepCopy(fields);
     }
 
     /*
@@ -722,7 +715,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             throws NoSuchMethodException, SecurityException {
         checkDeclaredMemberAccess();
 
-        Method[] methods = getClassCache().getDeclaredMethods();
+        Method[] methods = getClassMembers().getDeclaredMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
         /*
@@ -749,8 +742,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         checkDeclaredMemberAccess();
 
         // Return a copy of the private (to the package) array.
-        Method[] methods = getClassCache().getDeclaredMethods();
-        return ClassCache.deepCopy(methods);
+        Method[] methods = getClassMembers().getDeclaredMethods();
+        return ClassMembers.deepCopy(methods);
     }
 
     /**
@@ -760,27 +753,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     static native Method[] getDeclaredMethods(Class<?> clazz, boolean publicOnly);
 
     /**
-     * Gets the {@link ClassCache} for this instance.
-     *
-     * @return non-null; the cache object
+     * Returns the {@link ClassMembers} for this instance.
      */
-    /*package*/ ClassCache<T> getClassCache() {
-        /*
-         * Note: It is innocuous if two threads try to simultaneously
-         * create the cache, so we don't bother protecting against that.
-         */
-        ClassCache<T> cache = null;
-
-        if (cacheRef != null) {
-            cache = cacheRef.get();
-        }
-
-        if (cache == null) {
-            cache = new ClassCache<T>(this);
-            cacheRef = new SoftReference<ClassCache<T>>(cache);
-        }
-
-        return cache;
+    @SuppressWarnings("unchecked") // cache key and value types always agree
+    ClassMembers<T> getClassMembers() {
+        return (ClassMembers<T>) ClassMembers.cache.get(this);
     }
 
     /**
@@ -827,7 +804,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public T[] getEnumConstants() {
         if (isEnum()) {
             checkPublicMemberAccess();
-            T[] values = getClassCache().getEnumValuesInOrder();
+            T[] values = getClassMembers().getEnumValuesInOrder();
 
             // Copy the private (to the package) array.
             return values.clone();
@@ -855,7 +832,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public Field getField(String name) throws NoSuchFieldException, SecurityException {
         checkPublicMemberAccess();
 
-        Field[] fields = getClassCache().getAllPublicFields();
+        Field[] fields = getClassMembers().getAllPublicFields();
         Field field = findFieldByName(fields, name);
 
         /*
@@ -867,7 +844,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Finds and returns a field with a given name and signature. Use
-     * this with one of the field lists returned by instances of ClassCache.
+     * this with one of the field lists returned by instances of ClassMembers.
      *
      * @param list non-null; the list of fields to search through
      * @return non-null; the matching field
@@ -906,8 +883,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         checkPublicMemberAccess();
 
         // Return a copy of the private (to the package) array.
-        Field[] fields = getClassCache().getAllPublicFields();
-        return ClassCache.deepCopy(fields);
+        Field[] fields = getClassMembers().getAllPublicFields();
+        return ClassMembers.deepCopy(fields);
     }
 
     /**
@@ -973,7 +950,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             SecurityException {
         checkPublicMemberAccess();
 
-        Method[] methods = getClassCache().getMethods();
+        Method[] methods = getClassMembers().getMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
         /*
@@ -1004,8 +981,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         checkPublicMemberAccess();
 
         // Return a copy of the private (to the package) array.
-        Method[] methods = getClassCache().getMethods();
-        return ClassCache.deepCopy(methods);
+        Method[] methods = getClassMembers().getMethods();
+        return ClassMembers.deepCopy(methods);
     }
 
     /**
@@ -1514,7 +1491,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * access checks.
      *
      * <p><b>Note:</b> This method is implemented in native code, and,
-     * as such, is less efficient than using {@link ClassCache#REFLECT}
+     * as such, is less efficient than using {@link ClassMembers#REFLECT}
      * to achieve the same goal. This method exists solely to help
      * bootstrap the reflection bridge.</p>
      *
