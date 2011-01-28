@@ -113,4 +113,42 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // ...but not in the US.
         assertEquals(1293104697000L, parseDate(Locale.US, fmt, date).getTimeInMillis());
     }
+
+    // http://code.google.com/p/android/issues/detail?id=8258
+    public void testTimeZoneFormatting() throws Exception {
+        Date epoch = new Date(0);
+
+        // Create a SimpleDateFormat that defaults to America/Chicago...
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Chicago"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        // We should see something appropriate to America/Chicago...
+        assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
+        // We can set any TimeZone we want:
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
+
+        // A new SimpleDateFormat will default to America/Chicago...
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        // ...and parsing an America/Los_Angeles time will *not* change that...
+        sdf.parse("2010-12-03 00:00:00 -0800");
+        // ...so our time zone here is "America/Chicago":
+        assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
+        // We can set any TimeZone we want:
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = sdf.parse("2010-07-08 02:44:48");
+        assertEquals(1278557088000L, date.getTime());
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("2010-07-07T19:44:48-0700", sdf.format(date));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
+    }
 }
