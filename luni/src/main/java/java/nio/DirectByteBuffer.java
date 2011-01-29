@@ -205,7 +205,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         block.free();
     }
 
-    @Override final protected byte[] protectedArray() {
+    @Override protected byte[] protectedArray() {
         byte[] array = this.block.array();
         if (array == null) {
             throw new UnsupportedOperationException();
@@ -213,12 +213,12 @@ abstract class DirectByteBuffer extends BaseByteBuffer {
         return array;
     }
 
-    @Override final protected int protectedArrayOffset() {
+    @Override protected int protectedArrayOffset() {
         protectedArray(); // Check we have an array.
         return offset;
     }
 
-    @Override final protected boolean protectedHasArray() {
+    @Override protected boolean protectedHasArray() {
         return protectedArray() != null;
     }
 }

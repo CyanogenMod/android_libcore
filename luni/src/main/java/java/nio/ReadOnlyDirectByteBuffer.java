@@ -135,4 +135,16 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
     public ByteBuffer slice() {
         return new ReadOnlyDirectByteBuffer(block, remaining(), offset + position);
     }
+
+    @Override protected byte[] protectedArray() {
+        throw new ReadOnlyBufferException();
+    }
+
+    @Override protected int protectedArrayOffset() {
+        throw new ReadOnlyBufferException();
+    }
+
+    @Override protected boolean protectedHasArray() {
+        return false;
+    }
 }

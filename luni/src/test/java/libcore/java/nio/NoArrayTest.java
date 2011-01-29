@@ -21,22 +21,17 @@ import java.nio.ReadOnlyBufferException;
 import junit.framework.TestCase;
 
 public final class NoArrayTest extends TestCase {
-
-    public void testWrappedReadOnly() {
+    public void testReadOnly() {
+        // A read-only buffer must not expose its array.
         assertNoArray(ByteBuffer.wrap(new byte[32]).asReadOnlyBuffer());
-    }
-
-    public void testAllocatedReadOnly() {
         assertNoArray(ByteBuffer.allocate(32).asReadOnlyBuffer());
-    }
-
-    public void testAllocatedDirect() {
-        assertNoArray(ByteBuffer.allocateDirect(32));
+        assertNoArray(ByteBuffer.allocateDirect(32).asReadOnlyBuffer());
     }
 
     private void assertNoArray(ByteBuffer buf) {
+        assertFalse(buf.hasArray());
         try {
-            buf.asReadOnlyBuffer().array();
+            buf.array();
             fail();
         } catch (ReadOnlyBufferException expected) {
         } catch (UnsupportedOperationException expected) {
