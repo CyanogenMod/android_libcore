@@ -155,24 +155,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * Adds a {@code Thread} to this thread group. This should only be visible
-     * to class Thread, and should only be called when a new Thread is created
-     * and initialized by the constructor.
-     *
-     * @param thread Thread to add
-     * @throws IllegalThreadStateException if this group has been destroyed already
-     * @see #remove(Thread)
-     */
-    final void add(Thread thread) throws IllegalThreadStateException {
-        synchronized (threadRefs) {
-            if (isDestroyed) {
-                throw new IllegalThreadStateException();
-            }
-            threadRefs.add(new WeakReference<Thread>(thread));
-        }
-    }
-
-    /**
      * Adds a {@code ThreadGroup} to this thread group.
      *
      * @param g ThreadGroup to add
@@ -525,26 +507,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * Removes a {@code Thread} from this group. This should only be visible to class
-     * Thread, and should only be called when a Thread dies.
-     *
-     * @param thread Thread to remove
-     *
-     * @see #add(Thread)
-     */
-    final void remove(Thread thread) {
-        synchronized (threadRefs) {
-            for (Iterator<Thread> i = threads.iterator(); i.hasNext(); ) {
-                if (i.next().equals(thread)) {
-                    i.remove();
-                    break;
-                }
-            }
-        }
-        destroyIfEmptyDaemon();
-    }
-
-    /**
      * Removes an immediate subgroup.
      *
      * @param g ThreadGroup to remove
@@ -737,32 +699,29 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * Non-standard method for adding a thread to a group, required by Dalvik.
-     *
-     * @param thread Thread to add
-     *
-     * @throws IllegalThreadStateException if the thread has been destroyed
-     *         already
-     *
-     * @see #add(Thread)
-     * @see #removeThread(Thread)
+     * Called by the Thread constructor.
      */
-    void addThread(Thread thread) throws IllegalThreadStateException {
-        add(thread);
+    final void addThread(Thread thread) throws IllegalThreadStateException {
+        synchronized (threadRefs) {
+            if (isDestroyed) {
+                throw new IllegalThreadStateException();
+            }
+            threadRefs.add(new WeakReference<Thread>(thread));
+        }
     }
 
     /**
-     * Non-standard method for adding a thread to a group, required by Dalvik.
-     *
-     * @param thread Thread to add
-     *
-     * @throws IllegalThreadStateException if the thread has been destroyed
-     *         already
-     *
-     * @see #remove(Thread)
-     * @see #addThread(Thread)
+     * Called by the VM when a Thread dies.
      */
-    void removeThread(Thread thread) throws IllegalThreadStateException {
-        remove(thread);
+    final void removeThread(Thread thread) throws IllegalThreadStateException {
+        synchronized (threadRefs) {
+            for (Iterator<Thread> i = threads.iterator(); i.hasNext(); ) {
+                if (i.next().equals(thread)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+        destroyIfEmptyDaemon();
     }
 }
