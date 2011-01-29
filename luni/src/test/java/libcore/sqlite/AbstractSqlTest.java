@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
+package libcore.sqlite;
 
-package tests.SQLite;
-
-import SQLite.Callback;
-import SQLite.Database;
 import SQLite.Exception;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import junit.framework.TestCase;
 
 
 /**
  * This class provides SQL unit test, which can be used by subclasses eg. to
  * test JDBC drivers.
  */
-@TestTargetClass(Database.class)
 abstract class AbstractSqlTest extends TestCase {
 
     /**
@@ -93,8 +84,7 @@ abstract class AbstractSqlTest extends TestCase {
      * @exception Exception may be thrown by subclasses
      */
     @Override
-    protected void setUp() throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException, SQLException, Exception {
+    protected void setUp() throws java.lang.Exception {
         Class.forName(getDriverClassName()).newInstance();
         firstConnection = DriverManager.getConnection(getConnectionURL());
         firstConnection.setTransactionIsolation(getTransactionIsolation());
@@ -157,13 +147,6 @@ abstract class AbstractSqlTest extends TestCase {
         assertTrue(i == ones.length);
     }
 
-    @TestTargetNew(
-      level = TestLevel.PARTIAL_COMPLETE,
-      notes = "",
-      clazz = Database.class,
-      method = "exec",
-      args = {String.class, Callback.class}
-    )
     public void testAutoCommitInsertSelect() throws SQLException{
         autoCommitInsertSelect();
     }
@@ -178,13 +161,6 @@ abstract class AbstractSqlTest extends TestCase {
      *
      * @throws SQLException if there is a problem accessing the database
      */
-    @TestTargetNew(
-      level = TestLevel.PARTIAL_COMPLETE,
-      notes = "",
-      clazz = Database.class,
-      method = "exec",
-      args = {String.class, Callback.class}
-      )
     public void testUpdateSelectCommitSelect() throws SQLException {
         autoCommitInsertSelect();
         firstStmt.getConnection().setAutoCommit(false);
@@ -204,13 +180,6 @@ abstract class AbstractSqlTest extends TestCase {
      *
      * @throws SQLException if there is a problem accessing the database
      */
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            clazz = Database.class,
-            method = "exec",
-            args = {String.class, Callback.class}
-    )
     public void testUpdateSelectRollbackSelect() throws SQLException {
         autoCommitInsertSelect();
         firstStmt.getConnection().setAutoCommit(false);

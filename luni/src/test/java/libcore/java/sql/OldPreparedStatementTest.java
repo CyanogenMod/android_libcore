@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-package tests.sql;
+package libcore.java.sql;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -34,7 +27,6 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
@@ -44,15 +36,13 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-@TestTargetClass(PreparedStatement.class)
-public class PreparedStatementTest extends SQLTest {
+public final class OldPreparedStatementTest extends OldSQLTest {
 
     String queryAllSelect = "select * from type";
 
@@ -97,8 +87,6 @@ public class PreparedStatementTest extends SQLTest {
             for (int i = 0; i < queries.length; i++) {
                 st.execute(queries[i]);
             }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.toString());
         } finally {
             try {
                 st.close();
@@ -107,13 +95,11 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    public void tearDown() {
+    public void tearDown() throws SQLException {
         Statement st = null;
         try {
             st = conn.createStatement();
             st.execute("drop table if exists type");
-        } catch (SQLException e) {
-            fail("SQLException is thrown");
         } finally {
             try {
                 st.close();
@@ -123,15 +109,6 @@ public class PreparedStatementTest extends SQLTest {
         super.tearDown();
     }
 
-    /**
-     * @test java.sql.PreparedStatement#addBatch()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addBatch",
-        args = {}
-    )
     public void testAddBatch() throws SQLException {
         PreparedStatement ps = null;
         try {
@@ -160,8 +137,6 @@ public class PreparedStatementTest extends SQLTest {
                 } catch (SQLException ee) {
                 }
             }
-        } catch (SQLException e) {
-            fail("SQLException is thrown "+e.getMessage());
         } finally {
             try {
                 ps.close();
@@ -197,17 +172,8 @@ public class PreparedStatementTest extends SQLTest {
     }
 
 
-    /**
-     * @test java.sql.PreparedStatement#execute()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "execute",
-        args = {}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testExecute() {
+    // preparedStatement.execute() does not return false on update.
+    public void testExecute() throws SQLException {
         Statement st = null;
         PreparedStatement ps = null;
         try {
@@ -223,8 +189,6 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement("select * from zoo");
             assertTrue(ps.execute());
             assertEquals(3, getCount(ps.getResultSet()));
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
                 ps.close();
@@ -244,8 +208,6 @@ public class PreparedStatementTest extends SQLTest {
             ResultSet rs = st.getResultSet();
             rs.next();
             assertEquals("cat", rs.getString(1));
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
                 ps.close();
@@ -260,8 +222,6 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement(query);
             assertFalse(ps.execute());
             assertTrue(ps.getUpdateCount() > 0);
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
                 ps.close();
@@ -274,8 +234,6 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement(query);
             ps.setInt(1, 1);
             assertTrue(ps.execute());
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
                 ps.close();
@@ -287,8 +245,6 @@ public class PreparedStatementTest extends SQLTest {
             String query = "select name, family from zoo where id = ?";
             ps = conn.prepareStatement(query);
             ps.execute();
-        } catch (SQLException e) {
-            fail("SQLException is thrown");
         } finally {
             try {
                 ps.close();
@@ -312,18 +268,7 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-
-    /**
-     * @test java.sql.PreparedStatement#executeQuery()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "executeQuery",
-        args = {}
-    )
-      public void testExecuteQuery() {
-
+    public void testExecuteQuery() throws SQLException {
         String[] queries2 = {
                 "update zoo set name='Masha', family='cat' where id=;",
                 "insert into hutch (id, animal_id, address) values (1, ?,'Birds-house, 1');",
@@ -356,8 +301,6 @@ public class PreparedStatementTest extends SQLTest {
             assertEquals(1, rs.getInt(1));
             assertEquals("Kesha", rs.getString(2));
             assertEquals("parrot", rs.getString(3));
-        } catch (SQLException e) {
-            fail("SQLException is thrown for query");
         } finally {
             try {
                 ps.close();
@@ -371,8 +314,6 @@ public class PreparedStatementTest extends SQLTest {
             ResultSet rs = ps.executeQuery();
             assertNotNull(rs);
             assertFalse(rs.next());
-        } catch (SQLException e) {
-            fail("SQLException is thrown for query");
         } finally {
             try {
                 ps.close();
@@ -381,17 +322,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-     // TODO Crashes VM. Fix later.
-    /**
-     * @test {@link java.sql.PreparedStatement#executeUpdate()}
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "executeUpdate",
-        args = {}
-    )
-      public void testExecuteUpdate() {
+    // TODO Crashes VM. Fix later.
+    public void testExecuteUpdate() throws SQLException {
           String[] queries1 = { "insert into hutch (id, animal_id, address) values (1, ?, 'Birds-house, 1');",
                               "insert into hutch (id, animal_id, address) values (?, 1, 'Horse-house, 5');",
                               "create view address as select address from hutch where animal_id=2" };
@@ -421,8 +353,6 @@ public class PreparedStatementTest extends SQLTest {
               ps.setInt(1, 1);
               int updateCount1 = ps.executeUpdate();
               assertEquals(1, updateCount1);
-          } catch (SQLException e) {
-              fail("SQLException is thrown for query");
           } finally {
               try {
                   ps.close();
@@ -431,23 +361,10 @@ public class PreparedStatementTest extends SQLTest {
       }
 
     /**
-     * @test java.sql.PreparedStatement#getMetaData()
-     *
-     *  Test Fails:
-     * TODO Doesn't pass. according to Java docs:
-     * it is possible to invoke the method getMetaData on a
-     * PreparedStatement object before it is executed.
+     * TODO Doesn't pass. according to spec, it is possible to invoke the
+     * method getMetaData on a PreparedStatement object before it is executed.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMetaData",
-        args = {}
-    )
-    @KnownFailure("it is not possible to invoke the method getMetaData on a " +
-                  "PreparedStatement object before it is executed: got NullPointerException."+
-                  "Test passes on RI.")
-    public void testGetMetaData() {
+    public void testGetMetaData() throws SQLException {
         PreparedStatement ps = null;
 
         // Specification testing
@@ -458,12 +375,6 @@ public class PreparedStatementTest extends SQLTest {
             assertNotNull(ps);
             ResultSetMetaData meta = ps.getMetaData();
             assertNotNull(meta);
-        } catch (SQLException sqle) {
-            fail("SQLException is thrown: " + sqle.toString());
-            sqle.printStackTrace();
-        } catch (Exception e) {
-            fail("Unspecified Exception: " + e.toString());
-            e.printStackTrace();
         } finally {
             try {
                 ps.close();
@@ -478,8 +389,6 @@ public class PreparedStatementTest extends SQLTest {
             assertNotNull(rsmd);
             assertEquals(3, rsmd.getColumnCount());
             assertEquals("id", rsmd.getColumnName(1));
-        } catch (SQLException e) {
-            fail("SQLException is thrown");
         } finally {
             try {
                 ps.close();
@@ -502,7 +411,8 @@ public class PreparedStatementTest extends SQLTest {
         ps = conn.prepareStatement(query);
 
         try {
-            ParameterMetaData rsmd = ps.getParameterMetaData();
+            ps.getParameterMetaData();
+            fail();
         } catch (SQLException e) {
             assertEquals("not supported",e.getMessage());
         } finally {
@@ -524,17 +434,9 @@ public class PreparedStatementTest extends SQLTest {
 
 
     /**
-     * @test java.sql.PreparedStatement#clearParameters()
      * Test fails: clearparameters should be implemented with Stmt.reset()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Test fails: clearparameters should be implemented with Stmt.reset()",
-        method = "clearParameters",
-        args = {}
-    )
-    @KnownFailure("First Exception test fails: parameters not cleared.")
-     public void testClearParameters() {
+    public void testClearParameters() throws SQLException {
         PreparedStatement ps = null;
         try {
             String query = "select * from zoo where id = ? and family=?";
@@ -544,7 +446,6 @@ public class PreparedStatementTest extends SQLTest {
                 ps.execute();
                 fail("SQLException is not thrown during execute method after calling clearParameters()");
             } catch (SQLException sql) {
-
             }
             ps.setInt(1, 2);
             ps.setString(2, "dog");
@@ -571,27 +472,15 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 fail("SQLException is thrown during execute method after calling clearParameters() twice");
             }
-        } catch (SQLException e) {
-            fail("SQLException is thrown");
         } finally {
             try {
                 ps.close();
             } catch (SQLException ee) {
             }
         }
-
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setInt(int parameterIndex, int x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setInt",
-        args = {int.class, int.class}
-    )
-    @KnownFailure("exception test fails")
+    // exception test fails
     public void testSetInt() throws SQLException {
 
         PreparedStatement ps = null;
@@ -607,8 +496,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Integer.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -625,8 +512,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Integer.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -642,9 +527,6 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
 
@@ -654,17 +536,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setLong(int parameterIndex, long x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setLong",
-        args = {int.class, long.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetLong() {
+    // exception test fails
+    public void testSetLong() throws SQLException {
 
         PreparedStatement ps = null;
         try {
@@ -675,13 +548,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setLong(1, Long.MAX_VALUE);
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where LongVal="
-                                + Long.MAX_VALUE);
+                st.execute("select * from type where LongVal=" + Long.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -693,13 +562,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setLong(1, Long.MIN_VALUE);
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where LongVal="
-                                + Long.MAX_VALUE);
+                st.execute("select * from type where LongVal=" + Long.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -714,12 +579,8 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (SQLException ee) {
             }
@@ -727,17 +588,7 @@ public class PreparedStatementTest extends SQLTest {
 
     }
 
-    /**
-     * @throws SQLException
-     * @test java.sql.PreparedStatement#setFloat(int parameterIndex, float x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setFloat",
-        args = {int.class, float.class}
-    )
-    @KnownFailure("exception test fails")
+    // exception test fails
     public void testSetFloat() throws SQLException {
         float value1 = 12345678.12345689f;
         float value2 = -12345678.12345689f;
@@ -756,8 +607,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where FloatVal=" + value1);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -772,8 +621,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where FloatVal=" + value2);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -788,9 +635,6 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
 
@@ -800,19 +644,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @throws SQLException
-     * @test java.sql.PreparedStatement#setDouble(int parameterIndex, double x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDouble",
-        args = {int.class, double.class}
-    )
-    @KnownFailure("exception test fails")
+    // exception test fails
     public void testSetDouble() throws SQLException {
-
         PreparedStatement ps = null;
         String query = "insert into type (DoubleVal) values (?);";
         ps = conn.prepareStatement(query);
@@ -828,8 +661,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Double.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -845,8 +676,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Double.MIN_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -861,9 +690,6 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
 
@@ -871,23 +697,11 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setString(int parameterIndex, String x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setString",
-        args = {int.class, java.lang.String.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetString_charField() {
-
+    // exception test fails
+    public void testSetString_charField() throws SQLException {
         PreparedStatement ps = null;
-
         try {
             String query = "insert into type (charStr) values (?);";
             ps = conn.prepareStatement(query);
@@ -901,8 +715,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where charStr='" + str + "'");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -917,8 +729,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where charStr=''");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -930,12 +740,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setString(1, "                   ");
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where charStr='                   '");
+                st.execute("select * from type where charStr='                   '");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -943,20 +750,10 @@ public class PreparedStatementTest extends SQLTest {
                 }
             }
 
-            try {
-                ps.setString(1, " test & text * test % text * test ^ text ");
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown");
-            }
-
-            try {
-                ps.setString(1, null);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
+            ps.setString(1, " test & text * test % text * test ^ text ");
+            ps.execute();
+            ps.setString(1, null);
+            ps.execute();
             ps.close();
 
             try {
@@ -965,30 +762,16 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (SQLException ee) {
             }
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setString(int parameterIndex, String x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setString",
-        args = {int.class, java.lang.String.class}
-    )
-    @KnownFailure("statment.close() does not wrap up")
-    public void testSetString_tinyTextField() {
-
+    // statment.close() does not wrap up
+    public void testSetString_tinyTextField() throws SQLException {
         PreparedStatement ps = null;
         try {
             String str = "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test";
@@ -1002,8 +785,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where TText='" + str + "'");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1018,8 +799,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where TText=''");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1031,12 +810,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setString(1, "                   ");
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where TText='                   '");
+                st.execute("select * from type where TText='                   '");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1045,9 +821,8 @@ public class PreparedStatementTest extends SQLTest {
             }
 
             try {
-                ps.setString(
-                                1,
-                                "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test*test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test-test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test+test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test?test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test#test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test ");
+                ps.setString(1,
+                        "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test*test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test-test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test+test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test?test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test#test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test ");
                 ps.execute();
             } catch (SQLException sqle) {
                 fail("SQLException is thrown");
@@ -1068,30 +843,15 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (SQLException ee) {
             }
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setString(int parameterIndex, String x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setString",
-        args = {int.class, java.lang.String.class}
-    )
-    public void testSetString_textField() {
-
+    public void testSetString_textField() throws SQLException {
         PreparedStatement ps = null;
         try {
             String str = "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test";
@@ -1105,8 +865,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where TextVal='" + str + "'");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1121,8 +879,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where TextVal=''");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1134,12 +890,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setString(1, "                   ");
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where TextVal='                   '");
+                st.execute("select * from type where TextVal='                   '");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1147,25 +900,15 @@ public class PreparedStatementTest extends SQLTest {
                 }
             }
 
-
-            try {
-                String longString = " test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/";
-                for (int i = 0; i < 10; i++) {
-                    longString += longString;
-                }
-                ps.setString(1, longString);
-                ps.execute();
-
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown");
+            String longString = " test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/";
+            for (int i = 0; i < 10; i++) {
+                longString += longString;
             }
+            ps.setString(1, longString);
+            ps.execute();
 
-            try {
-                ps.setString(1, null);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
+            ps.setString(1, null);
+            ps.execute();
 
             ps.close();
 
@@ -1175,28 +918,15 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (SQLException ee) {
             }
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setString(int parameterIndex, String x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setString",
-        args = {int.class, java.lang.String.class}
-    )
-    public void testSetString_mediumTextField() {
-
+    public void testSetString_mediumTextField() throws SQLException {
         PreparedStatement ps = null;
         try {
             String str = "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test";
@@ -1210,8 +940,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where MText='" + str + "'");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1226,8 +954,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where MText=''");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1243,8 +969,6 @@ public class PreparedStatementTest extends SQLTest {
                         .execute("select * from type where MText='                   '");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1252,13 +976,8 @@ public class PreparedStatementTest extends SQLTest {
                 }
             }
 
-            try {
-                ps.setString(1, null);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
+            ps.setString(1, null);
+            ps.execute();
             ps.close();
 
             try {
@@ -1267,32 +986,16 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setString(int parameterIndex, String x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setString",
-        args = {int.class, java.lang.String.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetString_longTextField() {
-
+    // exception test fails
+    public void testSetString_longTextField() throws SQLException {
         PreparedStatement ps = null;
         try {
             String str = "test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test/test^text$test%test(text)test@text5test~test^text$test%test(text)test@text5test";
@@ -1306,8 +1009,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where LText='" + str + "'");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1322,8 +1023,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where LText=''");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1335,12 +1034,9 @@ public class PreparedStatementTest extends SQLTest {
                 ps.setString(1, "                   ");
                 ps.execute();
                 st = conn.createStatement();
-                st
-                        .execute("select * from type where LText='                   '");
+                st.execute("select * from type where LText='                   '");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1348,13 +1044,8 @@ public class PreparedStatementTest extends SQLTest {
                 }
             }
 
-            try {
-                ps.setString(1, null);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
+            ps.setString(1, null);
+            ps.execute();
             ps.close();
 
             try {
@@ -1363,31 +1054,16 @@ public class PreparedStatementTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setShort(int parameterIndex, short x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setShort",
-        args = {int.class, short.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetShort() {
-
+    // exception test fails
+    public void testSetShort() throws SQLException {
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         PreparedStatement ps2 = null;
@@ -1402,8 +1078,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where Sint=" + Short.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1418,8 +1092,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where Sint=" + Short.MIN_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1438,28 +1110,16 @@ public class PreparedStatementTest extends SQLTest {
 
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
-            try {
-                ps1.setShort(1, Short.MAX_VALUE);
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: "+sqle.getMessage());
-            }
+            ps1.setShort(1, Short.MAX_VALUE);
 
             String query2 = "insert into type (IntVal) values (?);";
             ps2 = conn.prepareStatement(query2);
-            try {
-                ps2.setShort(1, Short.MAX_VALUE);
-                ps2.execute();
-                st = conn.createStatement();
-                st
-                        .execute("select * from type where IntVal="
-                                + Short.MAX_VALUE);
-                ResultSet rs = st.getResultSet();
-                assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps2.setShort(1, Short.MAX_VALUE);
+            ps2.execute();
+            st = conn.createStatement();
+            st.execute("select * from type where IntVal=" + Short.MAX_VALUE);
+            ResultSet rs = st.getResultSet();
+            assertEquals(1, getCount(rs));
         } finally {
             try {
 
@@ -1471,19 +1131,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setBoolean(int parameterIndex, boolean
-     *       x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBoolean",
-        args = {int.class, boolean.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetBoolean() {
-
+    // exception test fails
+    public void testSetBoolean() throws SQLException {
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         try {
@@ -1497,8 +1146,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where BoolVal = 0");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1513,8 +1160,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where BoolVal= 1");
                 ResultSet rs = st.getResultSet();
                 assertEquals(2, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1533,15 +1178,8 @@ public class PreparedStatementTest extends SQLTest {
 
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
-            try {
-                ps1.setBoolean(1, true);
-                ps1.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setBoolean(1, true);
+            ps1.execute();
         } finally {
             try {
 
@@ -1552,18 +1190,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setByte(int parameterIndex, byte x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setByte",
-        args = {int.class, byte.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetByte() {
-
+    // exception test fails
+    public void testSetByte() throws SQLException {
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         try {
@@ -1577,8 +1205,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where Tint=" + Byte.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1593,8 +1219,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where Tint=" + Byte.MIN_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -1620,15 +1244,8 @@ public class PreparedStatementTest extends SQLTest {
 
             String query1 = "insert into type (IntVal) values (?);";
             ps1 = conn.prepareStatement(query1);
-            try {
-                ps1.setByte(1, Byte.MAX_VALUE);
-                ps1.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setByte(1, Byte.MAX_VALUE);
+            ps1.execute();
         } finally {
             try {
 
@@ -1639,20 +1256,9 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setBytes(int parameterIndex, byte[] x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBytes",
-        args = {int.class, byte[].class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testSetBytes() {
-
+    // preparedStatement.execute() does not return false on update.
+    public void testSetBytes() throws SQLException {
         byte[] bytesArray = {1, 0};
-
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         try {
@@ -1685,16 +1291,9 @@ public class PreparedStatementTest extends SQLTest {
             String query1 = "insert into type (TBlob) values (?);";
             ps1 = conn.prepareStatement(query1);
 
-            try {
-                ps.setBytes(1, bytesArray);
-                assertFalse(ps.execute());
-                assertTrue(ps.getUpdateCount() > 0);
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps.setBytes(1, bytesArray);
+            assertFalse(ps.execute());
+            assertTrue(ps.getUpdateCount() > 0);
         } finally {
             try {
 
@@ -1705,35 +1304,18 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setBigDecimal(int parameterIndex,
-     *       BigDecimal x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBigDecimal",
-        args = {int.class, java.math.BigDecimal.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testSetBigDecimal() {
-
+    // preparedStatement.execute() does not return false on update.
+    public void testSetBigDecimal() throws SQLException {
         BigDecimal bd = new BigDecimal("50");
-
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         try {
             String query = "insert into type (DecVal) values (?);";
             ps = conn.prepareStatement(query);
             Statement st = null;
-            try {
-                ps.setBigDecimal(1, bd);
-                assertFalse(ps.execute());
-                assertTrue(ps.getUpdateCount() > 0);
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
-
+            ps.setBigDecimal(1, bd);
+            assertFalse(ps.execute());
+            assertTrue(ps.getUpdateCount() > 0);
 
             try {
                 ps.setBigDecimal(2, bd);
@@ -1753,16 +1335,9 @@ public class PreparedStatementTest extends SQLTest {
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
 
-            try {
-                ps1.setBigDecimal(1, bd);
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown");
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setBigDecimal(1, bd);
         } finally {
             try {
-
                 if (ps != null) ps.close();
                 if (ps1 != null) ps1.close();
             } catch (SQLException ee) {
@@ -1771,24 +1346,14 @@ public class PreparedStatementTest extends SQLTest {
     }
 
     /**
-     * @test java.sql.PreparedStatement#setDate(int parameterIndex, Date x)
+     * preparedStatement.execute() does not return false on update. Setting a
+     * data for a declared INTEGER should throw Exception
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "First exception test fails: integer and date are incompatible"
-               +" by spec.",
-        method = "setDate",
-        args = {int.class, java.sql.Date.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update. "+
-            "Setting a data for a declared INTEGER should throw Exception")
-    public void testSetDate_int_Date() {
+    public void testSetDate_int_Date() throws SQLException {
         Calendar cal = new GregorianCalendar(1799, 5, 26);
-
         Date[] dates = {
                 new Date(cal.getTimeInMillis()), new Date(Integer.MAX_VALUE),
                 new Date(123456789)};
-
 
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -1797,13 +1362,9 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement(query);
 
             for (int i = 0; i < dates.length; i++) {
-                try {
-                    ps.setDate(1, dates[i]);
-                    assertFalse(ps.execute());
-                    assertTrue(ps.getUpdateCount() > 0);
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
-                }
+                ps.setDate(1, dates[i]);
+                assertFalse(ps.execute());
+                assertTrue(ps.getUpdateCount() > 0);
             }
 
             try {
@@ -1833,11 +1394,8 @@ public class PreparedStatementTest extends SQLTest {
                 assertEquals("SQLite.Exception: error in prepare", sqle
                         .getMessage());
             }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 if (ps != null) ps.close();
                 if (ps1 != null) ps1.close();
             } catch (SQLException ee) {
@@ -1845,19 +1403,8 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setDate(int parameterIndex, Date x,
-     *       Calendar cal)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDate",
-        args = {int.class, java.sql.Date.class, java.util.Calendar.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testSetDate_int_Date_Calendar() {
-
+    // preparedStatement.execute() does not return false on update.
+    public void testSetDate_int_Date_Calendar() throws SQLException {
         Calendar[] cals = { Calendar.getInstance(),
                 Calendar.getInstance(Locale.GERMANY),
                 Calendar.getInstance(TimeZone.getDefault()) };
@@ -1866,7 +1413,6 @@ public class PreparedStatementTest extends SQLTest {
         Date[] dates = { new Date(cal.getTimeInMillis()), new Date(Integer.MAX_VALUE),
                 new Date(123456789) };
 
-
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
         try {
@@ -1874,14 +1420,9 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement(query);
 
             for (int i = 0; i < dates.length; i++) {
-
-                try {
-                    ps.setDate(1, dates[i], cals[i]);
-                    assertFalse(ps.execute());
-                    assertTrue(ps.getUpdateCount() > 0);
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
-                }
+                ps.setDate(1, dates[i], cals[i]);
+                assertFalse(ps.execute());
+                assertTrue(ps.getUpdateCount() > 0);
             }
 
             try {
@@ -1903,18 +1444,10 @@ public class PreparedStatementTest extends SQLTest {
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
 
-            try {
-                ps1.setDate(1, dates[0], cals[2]);
-                ps1.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown");
-            }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setDate(1, dates[0], cals[2]);
+            ps1.execute();
         } finally {
             try {
-
                 if (ps != null) ps.close();
                 if (ps1 != null) ps1.close();
             } catch (SQLException ee) {
@@ -1923,18 +1456,9 @@ public class PreparedStatementTest extends SQLTest {
     }
 
     /**
-     * @test java.sql.PreparedStatement#setNull(int parameterIndex, int sqlType)
-     *
-     * this test doesn't passed on RI
+     * This test doesn't pass on RI
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setNull",
-        args = {int.class, int.class}
-    )
-    public void testSetNull_int_int() {
-
+    public void testSetNull_int_int() throws SQLException {
         PreparedStatement ps = null;
         try {
             String query = "insert into type (BoolVal, IntVal) values ('true', ?);";
@@ -1943,8 +1467,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setNull(1, Types.INTEGER);
                 ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -1958,8 +1480,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setNull(1, Types.BIGINT);
                 ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -1973,8 +1493,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setNull(1, Types.DECIMAL);
                 ps.execute();
-             } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -1988,8 +1506,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setNull(1, Types.DATE);
                 ps.execute();
-            } catch (SQLException sqle) {
-               fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -2003,8 +1519,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setNull(1, Types.BLOB);
                 ps.execute();
-            } catch (SQLException sqle) {
-               fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     ps.close();
@@ -2014,18 +1528,10 @@ public class PreparedStatementTest extends SQLTest {
 
             query = "insert into type (BoolVal, TextVal) values ('true', ?);";
             ps = conn.prepareStatement(query);
-
-            try {
-                ps.setNull(1, Types.CHAR);
-                ps.execute();
-            } catch (SQLException sqle) {
-               fail("SQLException is thrown: " + sqle.getMessage());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps.setNull(1, Types.CHAR);
+            ps.execute();
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
@@ -2033,20 +1539,12 @@ public class PreparedStatementTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.PreparedStatement#setNull(int, int, String)}
-     *
      * UDTs and Ref types not supported in SQLite v 3
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setNull",
-        args = {int.class, int.class, java.lang.String.class}
-    )
-    public void testSetNullIntintString() {
+    public void testSetNullIntintString() throws SQLException {
         // test UDT
         String typeCreationStmtUDT = "CREATE TYPE addressType AS "
-        +"( street INTEGER, zip TEXT);";
+                + "( street INTEGER, zip TEXT);";
         String personTableCreateUDT = "CREATE TABLE person (name TEXT, address addressType);";
         Statement st = null;
         PreparedStatement ps = null;
@@ -2069,10 +1567,9 @@ public class PreparedStatementTest extends SQLTest {
                 } catch (Exception ee) {
                 }
             }
-
         } catch (SQLException e) {
-         // UDTs or Ref types not supported
-           // ok
+            // UDTs or Ref types not supported
+            // ok
         } finally {
             try {
                 st.execute("drop table if exists person");
@@ -2083,86 +1580,61 @@ public class PreparedStatementTest extends SQLTest {
 
         // test non UDT REF type Exception checking
         String personTableCreate = "create table person (name TEXT, Address TEXT)";
+        try {
+            st = conn.createStatement();
+            st.execute(personTableCreate);
+            String insert
+                    = "insert into person (name, address) values (?, '1600 Amphitheatre Mountain View');";
+            ps = conn.prepareStatement(insert);
             try {
-
-                st = conn.createStatement();
-                st.execute(personTableCreate);
-                String insert = "insert into person (name, address) values (?, '1600 Amphitheatre Mountain View');";
-                ps = conn.prepareStatement(insert);
-                try {
-                    ps.setNull(1,1, "");
-                    ps.execute();
-                } catch (SQLException sqle) {
-                    assertEquals("SQLite.Exception: error in step",sqle.getMessage());
-                } finally {
-                    try {
-                        st.close();
-                    } catch (Exception ee) {
-                    }
-                }
-
-            } catch (SQLException e) {
-                fail("SQLException is thrown: " + e.getMessage());
-                e.printStackTrace();
+                ps.setNull(1, 1, "");
+                ps.execute();
+            } catch (SQLException sqle) {
+                assertEquals("SQLite.Exception: error in step", sqle.getMessage());
             } finally {
                 try {
-                    st.execute("drop table if exists person");
-                    ps.close();
+                    st.close();
                 } catch (Exception ee) {
                 }
             }
+        } finally {
+            try {
+                st.execute("drop table if exists person");
+                ps.close();
+            } catch (Exception ee) {
+            }
+        }
 
-         // test non UDT REF type OK
+        // test non UDT REF type OK
 
-            personTableCreate = "create table person (name TEXT, Address TEXT)";
+        personTableCreate = "create table person (name TEXT, Address TEXT)";
+        try {
+            st = conn.createStatement();
+            st.execute("drop table if exists person");
+            st.execute(personTableCreate);
+            String insert
+                    = "insert into person (name, address) values (?, '1600 Amphitheatre Mountain View');";
+            ps = conn.prepareStatement(insert);
+            try {
+                ps.setNull(1, 1, "");
+                ps.execute();
+            } finally {
                 try {
-
-                    st = conn.createStatement();
-                    st.execute("drop table if exists person");
-                    st.execute(personTableCreate);
-                    String insert = "insert into person (name, address) values (?, '1600 Amphitheatre Mountain View');";
-                    ps = conn.prepareStatement(insert);
-                    try {
-                        ps.setNull(1,1, "");
-                        ps.execute();
-                    } catch (SQLException sqle) {
-                        fail("SQLException is thrown: " + sqle.getMessage());
-                        sqle.printStackTrace();
-                    } finally {
-                        try {
-                            st.close();
-                        } catch (Exception ee) {
-                        }
-                    }
-
-                } catch (SQLException e) {
-                    fail("SQLException is thrown: " + e.getMessage());
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        st.execute("drop table if exists person");
-                        ps.close();
-                    } catch (Exception ee) {
-                    }
+                    st.close();
+                } catch (Exception ee) {
                 }
-
-
+            }
+        } finally {
+            try {
+                st.execute("drop table if exists person");
+                ps.close();
+            } catch (Exception ee) {
+            }
+        }
     }
 
-
-    /**
-     * @test java.sql.PreparedStatement#setObject(int parameterIndex, Object x)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setObject",
-        args = {int.class, java.lang.Object.class}
-    )
-    @KnownFailure("exception test fails")
-    public void testSetObject_int_Object() {
-
+    // exception test fails
+    public void testSetObject_int_Object() throws SQLException {
         PreparedStatement ps = null;
         try {
             String query = "insert into type (IntVal) values (?);";
@@ -2176,8 +1648,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Integer.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2195,8 +1665,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where LongVal='test text';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2226,8 +1694,6 @@ public class PreparedStatementTest extends SQLTest {
                         + d.getTime() + "';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2242,8 +1708,6 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setObject(1, null);
                 ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2251,11 +1715,8 @@ public class PreparedStatementTest extends SQLTest {
                 }
             }
 
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
@@ -2269,21 +1730,10 @@ public class PreparedStatementTest extends SQLTest {
 
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setObject(int parameterIndex, Object x,
-     *       int targetSqlType)
-     *
-     * this test doesn't pass on RI
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "not all types supported",
-        method = "setObject",
-        args = {int.class, java.lang.Object.class, int.class}
-    )
-    @KnownFailure("Fails for Types.DATE")
-    public void testSetObject_int_Object_int() {
-
+     /**
+      * This test doesn't pass on RI
+      */
+    public void testSetObject_int_Object_int() throws SQLException {
         PreparedStatement ps = null;
         try {
             String query = "insert into type (IntVal) values (?);";
@@ -2297,8 +1747,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Integer.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2316,8 +1764,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where LongVal='test text';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2327,18 +1773,12 @@ public class PreparedStatementTest extends SQLTest {
 
             query = "insert into type (DecVal) values (?);";
             ps = conn.prepareStatement(query);
-
-            try {
-                ps.setObject(1, new Object(), Types.DECIMAL);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.toString());
-            }
+            ps.setObject(1, new Object(), Types.DECIMAL);
+            ps.execute();
 
             query = "insert into type (dateVal) values (?);";
             ps = conn.prepareStatement(query);
             Date d = new Date(123456789);
-
 
             try {
                 ps.setObject(1, d, Types.DATE);
@@ -2348,8 +1788,6 @@ public class PreparedStatementTest extends SQLTest {
                         + d.getTime() + "';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2364,20 +1802,14 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setObject(1, "", Types.BLOB);
                 ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
                 } catch (Exception ee) {
                 }
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
@@ -2389,24 +1821,12 @@ public class PreparedStatementTest extends SQLTest {
         } catch (SQLException e) {
             // ok
         }
-
     }
 
     /**
-     * @test java.sql.PreparedStatement#setObject(int parameterIndex, Object x,
-     *       int targetSqlType, int scale)
-     *
-     * this test doesn't pass on RI
+     * This test doesn't pass on RI; Fails for Types.DATE
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setObject",
-        args = {int.class, java.lang.Object.class, int.class, int.class}
-    )
-    @KnownFailure("Fails for Types.DATE")
-    public void testSetObject_int_Object_int_int() {
-
+    public void testSetObject_int_Object_int_int() throws SQLException {
         PreparedStatement ps = null;
         try {
             String query = "insert into type (IntVal) values (?);";
@@ -2421,8 +1841,6 @@ public class PreparedStatementTest extends SQLTest {
                         + Integer.MAX_VALUE);
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2440,8 +1858,6 @@ public class PreparedStatementTest extends SQLTest {
                 st.execute("select * from type where LongVal='test text';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2452,13 +1868,8 @@ public class PreparedStatementTest extends SQLTest {
             query = "insert into type (DecVal) values (?);";
             ps = conn.prepareStatement(query);
             BigDecimal bd2 = new BigDecimal("12.21");
-
-            try {
-                ps.setObject(1, bd2, Types.DECIMAL, 2);
-                ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
-            }
+            ps.setObject(1, bd2, Types.DECIMAL, 2);
+            ps.execute();
 
             query = "insert into type (dateVal) values (?);";
             ps = conn.prepareStatement(query);
@@ -2471,8 +1882,6 @@ public class PreparedStatementTest extends SQLTest {
                         + d.getTime() + "';");
                 ResultSet rs = st.getResultSet();
                 assertEquals(1, getCount(rs));
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
@@ -2487,20 +1896,14 @@ public class PreparedStatementTest extends SQLTest {
             try {
                 ps.setObject(1, "", Types.BLOB, 0);
                 ps.execute();
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.getMessage());
             } finally {
                 try {
                     st.close();
                 } catch (Exception ee) {
                 }
             }
-
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
         } finally {
             try {
-
                 ps.close();
             } catch (Exception ee) {
             }
@@ -2514,21 +1917,10 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setTime(int parameterIndex, Time x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTime",
-        args = {int.class, java.sql.Time.class}
-    )
-    @KnownFailure("statment.close() does not wrap up")
-    public void testSetTimeint_Time() {
-
+    // statement.close() does not wrap up
+    public void testSetTimeint_Time() throws SQLException {
         Time[] times = { new Time(24, 25, 26), new Time(Integer.MAX_VALUE),
                 new Time(123456789) };
-
 
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -2545,8 +1937,6 @@ public class PreparedStatementTest extends SQLTest {
                             + times[i].getTime() + "'");
                     ResultSet rs = st.getResultSet();
                     assertEquals(1, getCount(rs));
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
                 } finally {
                     try {
                         st.close();
@@ -2572,19 +1962,10 @@ public class PreparedStatementTest extends SQLTest {
             }
             String query1 = "insert into type (Tint) values (?)";
             ps1 = conn.prepareStatement(query1);
-
-            try {
-                ps1.setTime(1, times[0]);
-                ps1.execute();
-
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.toString());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setTime(1, times[0]);
+            ps1.execute();
         } finally {
             try {
-
                 ps.close();
                 ps1.close();
             } catch (Exception ee) {
@@ -2592,26 +1973,14 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setTime(int parameterIndex, Time x,
-     *       Calendar cal)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTime",
-        args = {int.class, java.sql.Time.class, java.util.Calendar.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return False on update.")
-    public void testSetTime_int_Time_Calendar() {
-
+    // preparedStatement.execute() does not return False on update.
+    public void testSetTime_int_Time_Calendar() throws SQLException {
         Calendar[] cals = { Calendar.getInstance(),
                 Calendar.getInstance(Locale.GERMANY),
                 Calendar.getInstance(TimeZone.getDefault()) };
 
         Time[] times = { new Time(24, 25, 26), new Time(Integer.MAX_VALUE),
                 new Time(123456789) };
-
 
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -2624,8 +1993,6 @@ public class PreparedStatementTest extends SQLTest {
                     ps.setTime(1, times[i], cals[i]);
                     assertFalse(ps.execute());
                     assertTrue(ps.getUpdateCount() > 0);
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
                 } finally {
                     try {
                         st.close();
@@ -2651,19 +2018,10 @@ public class PreparedStatementTest extends SQLTest {
             }
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
-
-            try {
-                ps1.setTime(1, times[0], cals[2]);
-                ps1.execute();
-
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.toString());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setTime(1, times[0], cals[2]);
+            ps1.execute();
         } finally {
             try {
-
                 ps.close();
                 ps1.close();
             } catch (Exception ee) {
@@ -2671,22 +2029,10 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.PreparedStatement#setTimestamp(int parameterIndex,
-     *       Timestamp x)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTimestamp",
-        args = {int.class, java.sql.Timestamp.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testSetTimestamp_int_Timestamp() {
-
+    // preparedStatement.execute() does not return false on update.
+    public void testSetTimestamp_int_Timestamp() throws SQLException {
         Timestamp[] timestamps = { new Timestamp(2007, 10, 17, 19, 06, 50, 23),
                 new Timestamp(123) };
-
 
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -2695,13 +2041,9 @@ public class PreparedStatementTest extends SQLTest {
             ps = conn.prepareStatement(query);
 
             for (int i = 0; i < timestamps.length; i++) {
-                try {
-                    ps.setTimestamp(1, timestamps[i]);
-                    assertFalse(ps.execute());
-                    assertTrue(ps.getUpdateCount() > 0);
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
-                }
+                ps.setTimestamp(1, timestamps[i]);
+                assertFalse(ps.execute());
+                assertTrue(ps.getUpdateCount() > 0);
             }
 
             try {
@@ -2719,19 +2061,10 @@ public class PreparedStatementTest extends SQLTest {
             }
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
-
-            try {
-                ps1.setTimestamp(1, timestamps[0]);
-                ps1.execute();
-
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.toString());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setTimestamp(1, timestamps[0]);
+            ps1.execute();
         } finally {
             try {
-
                 ps.close();
                 ps1.close();
             } catch (Exception ee) {
@@ -2739,15 +2072,6 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setBlob(int, java.sql.Blob)}
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setBlob",
-        args = {int.class, java.sql.Blob.class}
-    )
     public void testSetBlob() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2762,15 +2086,6 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setClob(int, java.sql.Clob)}
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setClob",
-        args = {int.class, java.sql.Clob.class}
-    )
     public void testSetClob() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2785,25 +2100,14 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setTimestamp(int, Timestamp, Calendar)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTimestamp",
-        args = {int.class, java.sql.Timestamp.class, java.util.Calendar.class}
-    )
-    @KnownFailure("preparedStatement.execute() does not return false on update.")
-    public void testSetTimestampIntTimestampCalendar() {
+    // preparedStatement.execute() does not return false on update.
+    public void testSetTimestampIntTimestampCalendar() throws SQLException {
         Calendar[] cals = { Calendar.getInstance(),
                 Calendar.getInstance(Locale.GERMANY),
                 Calendar.getInstance(TimeZone.getDefault()) };
 
         Timestamp[] timestamps = { new Timestamp(2007, 10, 17, 19, 06, 50, 23),
                 new Timestamp(123) };
-
 
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -2816,8 +2120,6 @@ public class PreparedStatementTest extends SQLTest {
                     ps.setTimestamp(1, timestamps[i], cals[i]);
                     assertFalse(ps.execute());
                     assertTrue(ps.getUpdateCount() > 0);
-                } catch (SQLException sqle) {
-                    fail("SQLException is thrown: " + sqle.getMessage());
                 } finally {
                     try {
                         st.close();
@@ -2843,19 +2145,10 @@ public class PreparedStatementTest extends SQLTest {
             }
             String query1 = "insert into type (Tint) values (?);";
             ps1 = conn.prepareStatement(query1);
-
-            try {
-                ps1.setTimestamp(1, timestamps[0], cals[2]);
-                ps1.execute();
-
-            } catch (SQLException sqle) {
-                fail("SQLException is thrown: " + sqle.toString());
-            }
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
+            ps1.setTimestamp(1, timestamps[0], cals[2]);
+            ps1.execute();
         } finally {
             try {
-
                 ps.close();
                 ps1.close();
             } catch (Exception ee) {
@@ -2863,16 +2156,6 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setURL(int, java.net.URL)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setURL",
-        args = {int.class, java.net.URL.class}
-    )
     public void testSetURL() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2890,16 +2173,6 @@ public class PreparedStatementTest extends SQLTest {
 
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setArray(int, java.sql.Array)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setArray",
-        args = {int.class, java.sql.Array.class}
-    )
     public void testSetArray() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2918,16 +2191,6 @@ public class PreparedStatementTest extends SQLTest {
 
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setRef(int, java.sql.Ref)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setRef",
-        args = {int.class, java.sql.Ref.class}
-    )
     public void testSetRef() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2943,16 +2206,6 @@ public class PreparedStatementTest extends SQLTest {
 
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setUnicodeStream(int, java.io.InputStream, int)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setUnicodeStream",
-        args = {int.class, java.io.InputStream.class, int.class}
-    )
     public void testSetUnicodestream() {
         ResultSet res = null;
         PreparedStatement ps = null;
@@ -2971,41 +2224,21 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    public void testSetCharacterSteam() {
-        ResultSet res = null;
-        PreparedStatement ps = null;
-        try {
-            String query = "insert into type (TText) values (?);";
-            ps = conn.prepareStatement(query);
-            InputStream file = Class.forName(this.getClass().getName())
-            .getResourceAsStream("/blob.c");
-            assertNotNull("Error in test setup: file not found",file);
-            Reader reader = new InputStreamReader(file);
-            ps.setCharacterStream(1, reader, 100);
-        } catch (Exception e) {
-            fail("Error in test setup "+e.getMessage());
-            e.printStackTrace();
-        }
+    public void testSetCharacterSteam() throws SQLException {
+        String query = "insert into type (TText) values (?);";
+        PreparedStatement ps = conn.prepareStatement(query);
+        InputStream file = OldPreparedStatementTest.class.getResourceAsStream("/blob.c");
+        assertNotNull("Error in test setup: file not found",file);
+        Reader reader = new InputStreamReader(file);
+        ps.setCharacterStream(1, reader, 100);
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setAsciiStream(int, InputStream, int)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setAsciiStream",
-        args = {int.class, java.io.InputStream.class, int.class}
-    )
-    public void testSetAxciiStream() {
+    public void testSetAsciiStream() {
         ResultSet res = null;
-        PreparedStatement ps = null;
         try {
             String query = "insert into type (TText) values (?);";
-            ps = conn.prepareStatement(query);
-            InputStream file = Class.forName(this.getClass().getName())
-            .getResourceAsStream("/blob.c");
+            PreparedStatement ps = conn.prepareStatement(query);
+            InputStream file = OldPreparedStatementTest.class.getResourceAsStream("/blob.c");
             ps.setAsciiStream(0, file, 100);
             fail("Exception expected not supported");
         } catch (SQLException e) {
@@ -3016,112 +2249,76 @@ public class PreparedStatementTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.PreparedStatement#setBinaryStream(int, InputStream, int)}
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "setBinaryStream",
-        args = {int.class, java.io.InputStream.class, int.class}
-    )
-    public void testSetBinaryStream() {
-
-        ResultSet res = null;
-        PreparedStatement ps = null;
+    public void testSetBinaryStream() throws Exception {
         try {
             String query = "insert into type (TText) values (?);";
-            ps = conn.prepareStatement(query);
-            InputStream file = Class.forName(this.getClass().getName())
-            .getResourceAsStream("/blob.c");
+            PreparedStatement ps = conn.prepareStatement(query);
+            InputStream file = OldPreparedStatementTest.class.getResourceAsStream("/blob.c");
             ps.setBinaryStream(0, file, 100);
             fail("Exception expected not supported");
-        } catch (SQLException e) {
-            // ok
-        } catch (Exception e) {
-            fail("Error in test setup "+e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException expected) {
         }
     }
 
     private class MockRef implements Ref {
-
         public String getBaseTypeName() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Object getObject() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Object getObject(Map<String, Class<?>> map) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
-        public void setObject(Object value) throws SQLException {
-            // TODO Auto-generated method stub
-
-        }
-
+        public void setObject(Object value) throws SQLException {}
     }
 
     private class MockArray implements Array {
 
         public Object getArray() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Object getArray(long index, int count) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Object getArray(long index, int count, Map<String, Class<?>> map)
                 throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Object getArray(Map<String, Class<?>> map) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public int getBaseType() throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public String getBaseTypeName() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public ResultSet getResultSet() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public ResultSet getResultSet(long index, int count)
                 throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public ResultSet getResultSet(long index, int count,
                 Map<String, Class<?>> map) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public ResultSet getResultSet(Map<String, Class<?>> map)
                 throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
@@ -3131,48 +2328,39 @@ public class PreparedStatementTest extends SQLTest {
     private class MockBlob implements Blob {
 
         public InputStream getBinaryStream() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public byte[] getBytes(long pos, int length) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public long length() throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public long position(Blob pattern, long start) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public long position(byte[] pattern, long start) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public OutputStream setBinaryStream(long pos) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public int setBytes(long pos, byte[] theBytes) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public int setBytes(long pos, byte[] theBytes, int offset, int len)
                 throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public void truncate(long len) throws SQLException {
-            // TODO Auto-generated method stub
 
         }
 
@@ -3186,60 +2374,47 @@ public class PreparedStatementTest extends SQLTest {
     private class MockClob implements Clob {
 
         public InputStream getAsciiStream() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Reader getCharacterStream() throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public String getSubString(long pos, int length) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public long length() throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public long position(Clob searchstr, long start) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public long position(String searchstr, long start) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public OutputStream setAsciiStream(long pos) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Writer setCharacterStream(long pos) throws SQLException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public int setString(long pos, String str) throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         public int setString(long pos, String str, int offset, int len)
                 throws SQLException {
-            // TODO Auto-generated method stub
             return 0;
         }
 
-        public void truncate(long len) throws SQLException {
-            // TODO Auto-generated method stub
-
-        }
+        public void truncate(long len) throws SQLException {}
 
         public void free() throws SQLException {}
 

@@ -21,7 +21,7 @@ import java.sql.Timestamp;
 import java.util.TimeZone;
 import junit.framework.TestCase;
 
-public class OldTimestampTest extends TestCase {
+public final class OldTimestampTest extends TestCase {
 
     public void test_toString() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));

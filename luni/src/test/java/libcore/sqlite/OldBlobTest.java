@@ -14,49 +14,21 @@
  * limitations under the License.
  */
 
-package tests.SQLite;
+package libcore.sqlite;
 
 import SQLite.Blob;
 import SQLite.Database;
 import SQLite.Exception;
-import SQLite.Stmt;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-import junit.framework.TestCase;
-
-import tests.support.DatabaseCreator;
-import tests.support.Support_SQL;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import tests.support.Support_SQL;
 
-@TestTargetClass(Blob.class)
-public class BlobTest extends SQLiteTest {
+public final class OldBlobTest extends OldSQLiteTest {
 
     private static Blob testBlob = null;
 
-    private byte[] blobInput= null;
-
-    private static InputStream file = null;
-
     private static Database db = null;
-
-    private static Stmt st = null;
-
-    public class MockBlob extends Blob {
-        public void finalize() {
-            try {
-                super.finalize();
-            } catch (Throwable exception) {
-                fail("Test activity faild!");
-            }
-        }
-    }
 
     public void setUp() throws java.lang.Exception {
         super.setUp();
@@ -97,13 +69,14 @@ public class BlobTest extends SQLiteTest {
         */
     }
 
-    public void tearDown() {
-
+    @Override public void tearDown() throws java.lang.Exception {
         testBlob.close();
         super.tearDown();
     }
 
-    @KnownFailure("db.open_blob is not supported.")
+    /**
+     * db.open_blob is not supported.
+     */
     public void testBlob() throws Exception, IOException {
         byte[] b = new byte[4];
         byte[] b128 = new byte[128];
@@ -126,18 +99,8 @@ public class BlobTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @tests Blob.getInputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Exception test",
-        method = "getInputStream",
-        args = {}
-    )
     public void testGetInputStream() {
         InputStream in = testBlob.getInputStream();
-
         try {
             in.read();
             fail("Exception not thrown for invalid Blob.");
@@ -146,15 +109,6 @@ public class BlobTest extends SQLiteTest {
         }
     }
 
-    /**
-     * @tests Blob#getOutputStream()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Exception test",
-        method = "getOutputStream",
-        args = {}
-    )
     public void testGetOutputStream() {
         OutputStream out = testBlob.getOutputStream();
 

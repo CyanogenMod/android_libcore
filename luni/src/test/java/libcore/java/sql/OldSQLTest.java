@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package tests.sql;
-
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.TestCase;
+package libcore.java.sql;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import junit.framework.TestCase;
 
-@TestTargetClass(Statement.class)
-public class SQLTest extends TestCase {
+public abstract class OldSQLTest extends TestCase {
     static Connection conn;
 
-    @Override
-    public void setUp() throws Exception {
+    @Override public void setUp() throws Exception {
         getSQLiteConnection();
         createZoo();
     }
@@ -56,16 +50,13 @@ public class SQLTest extends TestCase {
         assertNotNull("Connection created ", conn);
     }
 
-    @Override
-    public void tearDown() {
+    @Override public void tearDown() throws SQLException {
         Statement st = null;
         try {
             if (! conn.isClosed()) {
                 st = conn.createStatement();
                 st.execute("drop table if exists zoo");
             }
-        } catch (SQLException e) {
-            fail("Couldn't drop table: " + e.getMessage());
         } finally {
             try {
                 if (st != null) {
@@ -78,8 +69,7 @@ public class SQLTest extends TestCase {
         }
     }
 
-    public void createZoo() {
-
+    public void createZoo() throws SQLException {
         String[] queries = {
                 "create table zoo(id smallint,  name varchar(10), family varchar(10))",
                 "insert into zoo values (1, 'Kesha', 'parrot')",
@@ -91,33 +81,11 @@ public class SQLTest extends TestCase {
             for (int i = 0; i < queries.length; i++) {
                 st.execute(queries[i]);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail("Unexpected exception: " + e.getMessage());
         } finally {
             try {
                 if (st != null) {
                     st.close();
                 }
-             } catch (SQLException ee) {}
-        }
-    }
-
-    public void createProcedure() {
-        String proc = "CREATE PROCEDURE welcomeAnimal (IN parameter1 integer, IN parameter2 char(20), IN parameter3 char(20)) "
-                + " BEGIN "
-                + " INSERT INTO zoo(id, name, family) VALUES (parameter1, parameter2, parameter3); "
-                + "SELECT * FROM zoo;" + " END;";
-        Statement st = null;
-        try {
-            st = conn.createStatement();
-            st.execute("DROP PROCEDURE IF EXISTS welcomeAnimal");
-            st.execute(proc);
-        } catch (SQLException e) {
-            fail("Unexpected exception: " + e.getMessage());
-        } finally {
-            try {
-                st.close();
              } catch (SQLException ee) {}
         }
     }

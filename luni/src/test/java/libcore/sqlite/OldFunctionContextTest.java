@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.SQLite;
+package libcore.sqlite;
 
 import SQLite.Database;
 import SQLite.Exception;
@@ -22,54 +22,25 @@ import SQLite.Function;
 import SQLite.FunctionContext;
 import SQLite.Stmt;
 import SQLite.TableResult;
-import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.TestCase;
-
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import tests.support.DatabaseCreator;
 
-@TestTargetClass(FunctionContext.class)
-public class FunctionContextTest extends SQLiteTest {
+public final class OldFunctionContextTest extends OldSQLiteTest {
 
     private Database db = null;
 
-    public void setUp() throws java.lang.Exception {
-        Statement st = null;
+    @Override public void setUp() throws java.lang.Exception {
         super.setUp();
         db = new Database();
         db.open(dbFile.getPath(), 0);
-        st = conn.createStatement();
+        Statement st = conn.createStatement();
         st.execute(DatabaseCreator.CREATE_TABLE2);
         st.execute(DatabaseCreator.CREATE_TABLE_SIMPLE1);
         st.close();
     }
 
-    /* (non-Javadoc)
-     * @see junit.framework.TestCase#tearDown()
-     */
-    public void tearDown() {
-        super.tearDown();
-    }
-
-    /**
-     * Test method for {@link SQLite.FunctionContext#set_result(java.lang.String)}.
-     * @throws Exception
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "indirectly tested invoking function",
-        method = "set_result",
-        args = {java.lang.String.class}
-    )
     public void testSet_resultString() throws Exception {
         TestFCString testString = new TestFCString();
         db.exec("insert into " + DatabaseCreator.TEST_TABLE2
@@ -83,16 +54,6 @@ public class FunctionContextTest extends SQLiteTest {
         assertEquals("TestInput", val);
     }
 
-    /**
-     * Test method for {@link SQLite.FunctionContext#set_result(int)}.
-     * @throws Exception
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "method test",
-        method = "set_result",
-        args = {int.class}
-    )
     public void testSet_resultInt() throws Exception {
         TestFCInt testInt = new TestFCInt();
         db.exec("insert into " + DatabaseCreator.SIMPLE_TABLE1
@@ -106,16 +67,6 @@ public class FunctionContextTest extends SQLiteTest {
         assertEquals(testInt.intVal, Integer.parseInt(val));
     }
 
-    /**
-     * Test method for {@link SQLite.FunctionContext#set_result(double)}.
-     * @throws Exception
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "indirectly tested",
-        method = "set_result",
-        args = {double.class}
-    )
     public void testSet_resultDouble() throws Exception {
         SinFunc testD = new SinFunc();
         db.exec("insert into " + DatabaseCreator.TEST_TABLE2
@@ -131,16 +82,6 @@ public class FunctionContextTest extends SQLiteTest {
         assertTrue(testD.functionCalled);
     }
 
-    /**
-     * Test method for {@link SQLite.FunctionContext#set_error(java.lang.String)}.
-     * @throws Exception
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "method test",
-        method = "set_error",
-        args = {java.lang.String.class}
-    )
     public void testSet_error() throws Exception {
         TestFCError testError = new TestFCError();
         SinFunc testD = new SinFunc();
@@ -159,17 +100,6 @@ public class FunctionContextTest extends SQLiteTest {
         assertFalse(testD.functionCalled);
     }
 
-    /**
-     * Test method for {@link SQLite.FunctionContext#set_result(byte[])}.
-     * @throws Exception
-     * @throws UnsupportedEncodingException
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "method test",
-        method = "set_result",
-        args = {byte[].class}
-    )
     public void testSet_resultByteArray() throws Exception, UnsupportedEncodingException {
         Stmt st = null;
         TestFCByteArray testBinArrayFnc = new TestFCByteArray();
@@ -203,17 +133,8 @@ public class FunctionContextTest extends SQLiteTest {
     }
 
     /**
-     * Test method for {@link SQLite.FunctionContext#set_result_zeroblob(int)}.
-     * @throws Exception
-     * @throws UnsupportedEncodingException
+     * ZeroBlob not supported
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "method test",
-        method = "set_result_zeroblob",
-        args = {int.class}
-    )
-    @KnownFailure("ZeroBlob not supported")
     public void testSet_result_zeroblob() throws Exception,
             UnsupportedEncodingException {
         Stmt st = null;
@@ -251,17 +172,8 @@ public class FunctionContextTest extends SQLiteTest {
     }
 
     /**
-     * Test method for {@link SQLite.FunctionContext#count()}.
-     * @throws SQLException
-     * @throws Exception
+     * Test Method results in a segmentation fault
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "method test",
-        method = "count",
-        args = {}
-    )
-    @AndroidOnly("Test Method results in a segmentation fault.")
     public void testCount() throws SQLException, Exception {
         TestFCCount countTest = new TestFCCount();
         int inputCount = 10;
@@ -293,15 +205,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_error(errorMsg);
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     class TestFCCount implements Function {
@@ -314,15 +219,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result(noOfRows);
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     class TestFCZeroBlob implements Function {
@@ -334,15 +232,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result_zeroblob(numBytes);
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     class TestFCString implements Function {
@@ -355,15 +246,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result(args[0]);
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     class TestFCInt implements Function {
@@ -376,15 +260,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result(Integer.parseInt(args[0]));
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     class TestFCByteArray implements Function {
@@ -397,19 +274,11 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result(args[0].getBytes());
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
-        class SinFunc implements Function {
-
+    class SinFunc implements Function {
         public Double testDouble = 3.0;
         public boolean functionCalled = false;
 
@@ -419,15 +288,8 @@ public class FunctionContextTest extends SQLiteTest {
             fc.set_result(d.doubleValue());
         }
 
-        public void last_step(FunctionContext fc) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void step(FunctionContext fc, String[] args) {
-            // TODO Auto-generated method stub
-
-        }
+        public void last_step(FunctionContext fc) {}
+        public void step(FunctionContext fc, String[] args) {}
     }
 
     static final byte[] HEX_CHAR_TABLE = {
@@ -437,7 +299,7 @@ public class FunctionContextTest extends SQLiteTest {
             (byte)'c', (byte)'d', (byte)'e', (byte)'f'
           };
 
-     public static String getHexString(byte[] raw)
+    public static String getHexString(byte[] raw)
             throws UnsupportedEncodingException {
         byte[] hex = new byte[2 * raw.length];
         int index = 0;
@@ -449,5 +311,4 @@ public class FunctionContextTest extends SQLiteTest {
         }
         return new String(hex, "ASCII");
     }
-
 }
