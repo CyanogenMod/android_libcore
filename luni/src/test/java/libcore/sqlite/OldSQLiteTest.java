@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package tests.SQLite;
-
-import junit.framework.TestCase;
+package libcore.sqlite;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.logging.Logger;
+import junit.framework.TestCase;
 
-public class SQLiteTest extends TestCase {
+public abstract class OldSQLiteTest extends TestCase {
+
     public static Connection conn;
+
     public static File dbFile = null;
 
-    public void setUp() throws Exception {
+    @Override public void setUp() throws Exception {
         String tmp = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(tmp);
         try {
@@ -43,32 +43,20 @@ public class SQLiteTest extends TestCase {
             Class.forName("SQLite.JDBCDriver").newInstance();
 
             if (!dbFile.exists()) {
-              Logger.global.severe("DB file could not be created. Tests can not be executed.");
+                Logger.global.severe("DB file could not be created. Tests can not be executed.");
             } else {
-            conn = DriverManager.getConnection("jdbc:sqlite:/"
-                    + dbFile.getPath());
+                conn = DriverManager.getConnection("jdbc:sqlite:/" + dbFile.getPath());
             }
-            assertNotNull("Error creating connection",conn);
+            assertNotNull("Error creating connection", conn);
         } catch (IOException e) {
             System.out.println("Problem creating test file in " + tmp);
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            fail("Exception: " + e.toString());
-        } catch (java.lang.Exception e) {
-            fail("Exception: " + e.toString());
         }
-
     }
 
-    public void tearDown() {
-        try {
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            fail("Couldn't close Connection: " + e.getMessage());
+    @Override public void tearDown() throws java.lang.Exception {
+        if (!conn.isClosed()) {
+            conn.close();
         }
-
+        super.tearDown();
     }
-
 }

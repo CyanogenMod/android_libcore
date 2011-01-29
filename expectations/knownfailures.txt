@@ -525,7 +525,7 @@
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_locatorsUpdateCopy",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsANSI92EntryLevelSQL",
@@ -536,445 +536,445 @@
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsSubqueriesInIns",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsTransactions",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_usesLocalFiles",
-    "tests.sql.ConnectionTest#testClearWarnings",
-    "tests.sql.ConnectionTest#testCreateStatementIntIntIntNotSupported"
+    "libcore.java.sql.OldConnectionTest#testClearWarnings",
+    "libcore.java.sql.OldConnectionTest#testCreateStatementIntIntIntNotSupported"
   ]
 },
 {
   description: "Scrolling on a forward only RS not allowed. conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testCreateStatement_int_int"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testCreateStatement_int_int"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testGetCatalog",
-    "tests.sql.ConnectionTest#testGetHoldability"
+    "libcore.java.sql.OldConnectionTest#testGetCatalog",
+    "libcore.java.sql.OldConnectionTest#testGetHoldability"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testGetMetaData"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testGetTransactionIsolation",
-    "tests.sql.ConnectionTest#testGetWarnings"
+    "libcore.java.sql.OldConnectionTest#testGetTransactionIsolation",
+    "libcore.java.sql.OldConnectionTest#testGetWarnings"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testIsReadOnly"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testIsReadOnly"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testPrepareStatementNotSupported",
-    "tests.sql.ConnectionTest#testPrepareStatement_String_int"
+    "libcore.java.sql.OldConnectionTest#testPrepareStatementNotSupported",
+    "libcore.java.sql.OldConnectionTest#testPrepareStatement_String_int"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testSetAutoCommit"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testSetAutoCommit"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testSetHoldability",
-    "tests.sql.ConnectionTest#testSetReadOnly"
+    "libcore.java.sql.OldConnectionTest#testSetHoldability",
+    "libcore.java.sql.OldConnectionTest#testSetReadOnly"
   ]
 },
 {
   description: "First Exception test fails: parameters not cleared.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testClearParameters"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testClearParameters"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testExecute"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testExecute"
 },
 {
   description: "it is not possible to invoke the method getMetaData on a PreparedStatement object before it is
                 executed: got NullPointerException.Test passes on RI.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testGetMetaData"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetBigDecimal"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetBigDecimal"
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetBoolean",
-    "tests.sql.PreparedStatementTest#testSetByte"
+    "libcore.java.sql.OldPreparedStatementTest#testSetBoolean",
+    "libcore.java.sql.OldPreparedStatementTest#testSetByte"
   ]
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetBytes"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetBytes"
 },
 {
   description: "preparedStatement.execute() does not return false on update. Setting a data for a declared
                 INTEGER should throw Exception",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetDate_int_Date"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetDate_int_Date"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetDate_int_Date_Calendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetDate_int_Date_Calendar"
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetDouble",
-    "tests.sql.PreparedStatementTest#testSetFloat",
-    "tests.sql.PreparedStatementTest#testSetInt",
-    "tests.sql.PreparedStatementTest#testSetLong",
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object"
+    "libcore.java.sql.OldPreparedStatementTest#testSetDouble",
+    "libcore.java.sql.OldPreparedStatementTest#testSetFloat",
+    "libcore.java.sql.OldPreparedStatementTest#testSetInt",
+    "libcore.java.sql.OldPreparedStatementTest#testSetLong",
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object"
   ]
 },
 {
   description: "Fails for Types.DATE",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object_int",
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object_int_int"
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object_int",
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object_int_int"
   ]
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetShort",
-    "tests.sql.PreparedStatementTest#testSetString_charField",
-    "tests.sql.PreparedStatementTest#testSetString_longTextField"
+    "libcore.java.sql.OldPreparedStatementTest#testSetShort",
+    "libcore.java.sql.OldPreparedStatementTest#testSetString_charField",
+    "libcore.java.sql.OldPreparedStatementTest#testSetString_longTextField"
   ]
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetString_tinyTextField"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetString_tinyTextField"
 },
 {
   description: "preparedStatement.execute() does not return False on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetTime_int_Time_Calendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetTime_int_Time_Calendar"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetTimeint_Time"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetTimeint_Time"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetTimestampIntTimestampCalendar",
-    "tests.sql.PreparedStatementTest#testSetTimestamp_int_Timestamp"
+    "libcore.java.sql.OldPreparedStatementTest#testSetTimestampIntTimestampCalendar",
+    "libcore.java.sql.OldPreparedStatementTest#testSetTimestamp_int_Timestamp"
   ]
 },
 {
   description: "last assertion fails: invalid conversion. Test passes on RI",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetGetterTests#testGetBytesStringBinary",
-    "tests.sql.ResultSetGetterTests#testGetBytesStringVarbinary"
+    "libcore.java.sql.OldResultSetGetterTests#testGetBytesStringBinary",
+    "libcore.java.sql.OldResultSetGetterTests#testGetBytesStringVarbinary"
   ]
 },
 {
   description: "Wrong value returned for Long: java.lang.String (VARCHAR)",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetMetaData"
 },
 {
   description: "Wrong value returned for Long: java.lang.String",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetGetterTests#testGetObjectInt",
-    "tests.sql.ResultSetGetterTests#testGetObjectString"
+    "libcore.java.sql.OldResultSetGetterTests#testGetObjectInt",
+    "libcore.java.sql.OldResultSetGetterTests#testGetObjectString"
   ]
 },
 {
   description: "If there is no current row 0 must be returned. res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetRow"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetRow"
 },
 {
   description: "According to spec info.getStatement should return null but an exception is thrown: stale result
                 set.",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetStatement"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetStatement"
 },
 {
   description: "getTime should return Time value for a TIMESTAMP type but returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeInt"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeInt"
 },
 {
   description: "getTime on TIMESTAMP value fails: returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeIntCalendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeIntCalendar"
 },
 {
   description: "getTime should return a Time value for a TIMESTAMP type but returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeString"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeString"
 },
 {
   description: "getTime on TIMESTAMP value fails: returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeStringCalendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeStringCalendar"
 },
 {
   description: "res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetType"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetType"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetCatalogName"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetCatalogName"
 },
 {
   description: "SQLException checking test fails",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetColumnCount"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnCount"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetColumnDisplaySize"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnDisplaySize"
 },
 {
   description: "Column label has format TABLE.COLUMN expected: COLUMN",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetMetaDataTest#testGetColumnLabel",
-    "tests.sql.ResultSetMetaDataTest#testGetColumnName"
+    "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnLabel",
+    "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnName"
   ]
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetPrecision"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetPrecision"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetScale"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetScale"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetSchema"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetSchema"
 },
 {
   description: "For int = 0, exception expected",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetTableName"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetTableName"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetMetaDataTest#testIsCaseSensitive",
-    "tests.sql.ResultSetMetaDataTest#testIsCurrency",
-    "tests.sql.ResultSetMetaDataTest#testIsDefinitlyWritable",
-    "tests.sql.ResultSetMetaDataTest#testIsNullable",
-    "tests.sql.ResultSetMetaDataTest#testIsReadOnly",
-    "tests.sql.ResultSetMetaDataTest#testIsSearchable",
-    "tests.sql.ResultSetMetaDataTest#testIsSigned",
-    "tests.sql.ResultSetMetaDataTest#testIsWritable",
-    "tests.sql.ResultSetMetaDataTest#testisAutoIncrement"
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsCaseSensitive",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsCurrency",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsDefinitlyWritable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsNullable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsReadOnly",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsSearchable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsSigned",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsWritable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testisAutoIncrement"
   ]
 },
 {
   description: "res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testAfterLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testAfterLast"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testBeforeFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testBeforeFirst"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testClearWarnings"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testClearWarnings"
 },
 {
   description: "Resultset.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetTest#testClose1",
-    "tests.sql.ResultSetTest#testNext"
+    "libcore.java.sql.OldResultSetTest#testClose1",
+    "libcore.java.sql.OldResultSetTest#testNext"
   ]
 },
 {
   description: "no exception is thrown when moving cursor backwards on forward only statement",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testRelative"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testRelative"
 },
 {
   description: "Scrollable resultSet. Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testRelativeScrollableResultSet"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testRelativeScrollableResultSet"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testUpdateObjectStringObject"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testUpdateObjectStringObject"
 },
 {
   description: "Feature not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testUpdateStringStringString"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testUpdateStringStringString"
 },
 {
   description: "the default tests, and exception tests fail.",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testWasNull"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testWasNull"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetTest#testtestFirst",
-    "tests.sql.ResultSetTest#testtestIsAfterLast"
+    "libcore.java.sql.OldResultSetTest#testtestFirst",
+    "libcore.java.sql.OldResultSetTest#testtestIsAfterLast"
   ]
 },
 {
   description: "In Second code block assertion fails. statement. close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsBeforeFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsBeforeFirst"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsFirst"
 },
 {
   description: "Second block first assertion fails. Is Last should evaluate true if the row on which the cursor
                 is actually provides a result.statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsLast"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestLast"
 },
 {
   description: "Bug in implementation of cancel: Does not fulfill spec.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testCancel"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testCancel"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testClose"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testClose"
 },
 {
   description: "Return value wrong for queries below.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecute"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecute"
 },
 {
   description: "always returns 1 for no. of updates",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteBatch"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteBatch"
 },
 {
   description: "Does throw an exception on non select statement.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteQuery_String"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteQuery_String"
 },
 {
   description: "Spec is not precise enough: should be: number of rows affected. eg. to be consistent for deletes:
                 'delete from s1;' should be different from 'delete from s1 where c1 = 1;'",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteUpdate_String"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteUpdate_String"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.StatementTest#testGetConnection",
-    "tests.sql.StatementTest#testGetFetchDirection",
-    "tests.sql.StatementTest#testGetFetchSize"
+    "libcore.java.sql.OldStatementTest#testGetConnection",
+    "libcore.java.sql.OldStatementTest#testGetFetchDirection",
+    "libcore.java.sql.OldStatementTest#testGetFetchSize"
   ]
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetMoreResults"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetMoreResults"
 },
 {
   description: "An other value is returned than was set (X * 1000)",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetQueryTimeout"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetQueryTimeout"
 },
 {
   description: "Does not return null on update count > 0 (not a select statement)",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSet"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSet"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetConcurrency"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetConcurrency"
 },
 {
   description: "Test for default value fails",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetHoldability"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetHoldability"
 },
 {
   description: "not fully supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetType"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetType"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetUpdateCount"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetUpdateCount"
 },
 {
   description: "Handshake Status is never finished. NPE in ClientSessionContext$HostAndPort.hashCode() when host
                 is null",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#testHandshake"
 },
 {
   description: "org.apache.harmony.xnet.provider.jsse.SSLEngineImpl#getDelegatedTask() throws NPE instead of
                 returning null",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_getDelegatedTask"
 },
 {
   description: "Fixed in DonutBurger, boundary checks missing",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_02"
 },
 {
   description: "Fixed on DonutBurger, Wrong Exception thrown",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_03",
     "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_04",
@@ -986,12 +986,12 @@
 },
 {
   description: "Fixed in DonutBurger, boundary checks missing",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_02"
 },
 {
   description: "Fixed on DonutBurger, Wrong Exception thrown",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_04",
     "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer$ByteBuffer_03",
@@ -1001,7 +1001,7 @@
 {
   description: "ManagerFactoryParameters object is not supported and InvalidAlgorithmParameterException was
                 thrown.",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
 },
 {
@@ -1031,58 +1031,67 @@
 },
 {
   description: "method test fails once in a while. Cannot be sure that exception is thrown in every test execution.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testBusy_handler"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testBusy_handler"
 },
 {
   description: "Database does not lock values",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testBusy_timeout"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testBusy_timeout"
 },
 {
   description: "Returns wrong number for updates: returns value > 1 for select.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testChanges"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testChanges"
 },
 {
   description: "Aggregation function not called",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testCreate_aggregate"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testCreate_aggregate"
 },
 {
   description: "Reason for failure unknown: Database should be locked. Specification of interrupt is scarce.",
   result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testInterrupt"
+  name: "libcore.sqlite.OldDatabaseTest#testInterrupt"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testOpen_blob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testOpen_blob"
 },
 {
   description: "Callback never made for authorization. Results of private table are returned without further checks.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testSet_authorizer"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testSet_authorizer"
 },
 {
   description: "ASCII encoding does not work: a UTF encoded val is returned. Spec is not sufficient. Might be that test impl is wrong or String constructor for the ASCII encoding.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testSet_encoding"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testSet_encoding"
 },
 {
   description: "db.open_blob is not supported.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.BlobTest#testBlob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldBlobTest#testBlob"
 },
 {
   description: "Wrong value is returned in case of a prepared statement to which a '*' bound",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.StmtTest#testColumn_count"
+  bug: 3403706,
+  name: "libcore.sqlite.OldStmtTest#testColumn_count"
 },
 {
   description: "ZeroBlob not supported",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.FunctionContextTest#testSet_result_zeroblob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldFunctionContextTest#testSet_result_zeroblob"
+},
+{
+  description: "SQLite test fail",
+  bug: 3403706,
+  names: [
+    "libcore.sqlite.OldDatabaseTest#testGet_tableString",
+    "libcore.sqlite.OldDatabaseTest#testGet_tableStringStringArrayTableResult",
+    "libcore.sqlite.OldStmtTest#testColumn_type"
+  ]
 },
 {
   modes: [ "jvm" ],

@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package tests.sql;
+package libcore.java.sql;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 
-@TestTargetClass(ResultSetMetaData.class)
-public class ResultSetMetaDataTest extends SQLTest {
+public final class OldResultSetMetaDataTest extends OldSQLTest {
 
     ResultSetMetaData rsmd = null;
     Statement st = null;
@@ -53,7 +45,7 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     @Override
-    public void tearDown() {
+    public void tearDown() throws SQLException {
         try {
             rs.close();
             st.close();
@@ -63,16 +55,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         super.tearDown();
     }
 
-    /**
-     * @test java.sql.ResultSetMetaData#getCatalogName(int column)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Catalog not supported.",
-        method = "getCatalogName",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
+    // not supported
     public void testGetCatalogName() throws SQLException {
         try {
             assertNotNull(rsmd.getCatalogName(1));
@@ -89,15 +72,6 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.ResultSetMetaData#getColumnClassName(int column)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getColumnClassName",
-        args = {int.class}
-    )
     public void testGetColumnClassName() {
         try {
             assertNotNull(rsmd);
@@ -123,16 +97,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.ResultSetMetaData#getColumnCount()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getColumnCount",
-        args = {}
-    )
-    @KnownFailure("SQLException checking test fails")
+    // SQLException checking test fails
     public void testGetColumnCount() {
         try {
             assertEquals(3, rsmd.getColumnCount());
@@ -150,16 +115,7 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     }
 
-    /**
-     * @test java.sql.ResultSetMetaData#getColumnLabel(int column)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getColumnLabel",
-        args = {int.class}
-    )
-    @KnownFailure("Column label has format TABLE.COLUMN expected: COLUMN")
+    // Column label has format TABLE.COLUMN expected: COLUMN
     public void testGetColumnLabel() {
         String[] labels = { "id", "name", "family" };
         try {
@@ -186,16 +142,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test java.sql.ResultSetMetaData#getColumnName(int column)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getColumnName",
-        args = {int.class}
-    )
-    @KnownFailure("Column label has format TABLE.COLUMN expected: COLUMN")
+    // Column label has format TABLE.COLUMN expected: COLUMN
     public void testGetColumnName() {
         String[] labels = { "id", "name", "family" };
         try {
@@ -223,16 +170,8 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test java.sql.ResultSetMetaData#getColumnType(int column)
-     *
-     * for extensive tests see: ResultSetGetterTest.testGetMetaData
+     * For extensive tests see: ResultSetGetterTest.testGetMetaData
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Not all types supported. More type checking done in ResultSetGetterTest.testGetMetaData",
-        method = "getColumnType",
-        args = {int.class}
-    )
     public void testGetColumnType() {
         int[] types = { Types.SMALLINT, Types.VARCHAR, Types.VARCHAR};
         try {
@@ -259,16 +198,8 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test java.sql.ResultSetMetaData#getColumnTypeName(int column)
-     *
      * for extensive tests see: ResultSetGetterTest.testGetMetaData
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "not all types supported: see ResultSetGetterTests.",
-        method = "getColumnTypeName",
-        args = {int.class}
-    )
     public void testGetColumnTypeName() {
         try {
             assertTrue("smallint".equalsIgnoreCase(rsmd.getColumnTypeName(1)));
@@ -292,17 +223,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @throws SQLException
-     * @test java.sql.ResultSetMetaData#getTableName(int column)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTableName",
-        args = {int.class}
-    )
-    @KnownFailure("For int = 0, exception expected")
+    // For int = 0, exception expected
     public void testGetTableName() throws SQLException {
         try {
             assertEquals("zoo", rsmd.getTableName(1));
@@ -348,16 +269,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#getPrecision(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fails: always returns 0, exception tests fail ,failing statements commented out",
-        method = "getPrecision",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
+    // not supported
     public void testGetPrecision() throws SQLException {
         Statement st2 = null;
         Statement st3 = null;
@@ -424,17 +336,11 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#getScale(int column)}
+     * Always returns 0, exception tests fail no positive test case for
+     * black-box test possible: no default value indicated.
+     *
+     * Not supported
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns 0, exception tests fail"+
-        " no positive test case for black-box test possible: no default"+
-        " value indicated",
-        method = "getScale",
-        args = {int.class}
-    )
-    @KnownFailure("Not supported")
     public void testGetScale() throws SQLException {
         try {
         int scale = 3;
@@ -481,26 +387,14 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#getSchemaName(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tests fail: always returns null. Feature only partially implemented. Missing: positive test.",
-        method = "getSchemaName",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
+    // not supported
     public void testGetSchema() {
-
         try {
             assertNull("Functionality is now supported. Change test",rsmd.getSchemaName(2));
         } catch (SQLException e1) {
             fail("ResultSetMetaDataTest.testGetScale()"+e1.getMessage());
             e1.printStackTrace();
         }
-
-
 
         try {
             rsmd.getSchemaName(0);
@@ -515,7 +409,6 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
 
-
         try {
             conn.close();
             rsmd.getSchemaName(2);
@@ -527,17 +420,12 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#isAutoIncrement(int column)}
+     * Tests fail: always returns false, failing statements commented out.
+     * Feature only partially implemented.Missing: Test positive case
+     *
+     * Not supported.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tests fail: always returns false, failing statements commented out. Feature only partially implemented.Missing: Test positive case",
-        method = "isAutoIncrement",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testisAutoIncrement() {
-
         try {
             assertFalse(rsmd.isAutoIncrement(1));
         } catch (SQLException e1) {
@@ -572,18 +460,8 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#isCaseSensitive(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns false. Exception tests fail, failing statements commented out. Feature only partially implemented.",
-        method = "isCaseSensitive",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
+    // not supported
     public void testIsCaseSensitive() {
-
         try {
             assertFalse(rsmd.isCaseSensitive(1));
             assertFalse(rsmd.isCaseSensitive(2));
@@ -620,17 +498,13 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#isCurrency(int column)}
+     * Tests fail: always returns false. Exceptions and tests non Numeric fields
+     * fail, failing statements commented out. Feature only partially
+     * implemented. May be an optional feature.
+     *
+     * Not supported.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tests fail: always returns false. Exceptions and tests non Numeric fields fail, failing statements commented out. Feature only partially implemented. May be an optional feature.",
-        method = "isCurrency",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testIsCurrency() {
-
         try {
             assertFalse(rsmd.isCurrency(1));
         } catch (SQLException e1) {
@@ -638,9 +512,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             e1.printStackTrace();
         }
 
-
         // Exception testing
-
         try {
             rsmd.isCurrency(0);
             fail("SQLException is not thrown");
@@ -654,7 +526,6 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
 
-
         try {
             rs.close();
             rsmd.isCurrency(1);
@@ -664,18 +535,8 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    /**
-     * @test {@link java.sql.ResultSetMetaData#isDefinitelyWritable(int column)}
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns true. Exceptions fail, Feature only partially implemented.",
-        method = "isDefinitelyWritable",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
+    // not supported
     public void testIsDefinitlyWritable() {
-
         try {
             assertTrue(rsmd.isDefinitelyWritable(1));
         } catch (SQLException e1) {
@@ -701,17 +562,13 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#isNullable(int column)}
+     * Tests fail: always returns ResultSetMetaData.columnNullableUnknown.
+     * Exceptions fail, failing statements commented out. Feature only
+     * partially implemented. May be an optional feature.
+     *
+     * Not supported.
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns ResultSetMetaData.columnNullableUnknown. Exceptions fail, failing statements commented out. Feature only partially implemented. May be an optional feature.",
-        method = "isNullable",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testIsNullable() {
-
         try {
             assertEquals(ResultSetMetaData.columnNullable, rsmd
                     .isNullable(1));
@@ -743,10 +600,11 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     }
 
-    // Cannot know from blackbox test if readonly or writable. Exceptions fail, Feature only partially implemented.
-    @KnownFailure("not supported")
+    /**
+     * Cannot know from blackbox test if readonly or writable. Exceptions fail,
+     * Feature only partially implemented.
+     */
     public void testIsReadOnly() {
-
         try {
             assertFalse(rsmd.isReadOnly(1));
         } catch (SQLException e1) {
@@ -765,17 +623,10 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#isSearchable(int column)}
+     * Tests fail: always returns false. Exceptions fail, Feature only partially
+     * implemented. Missing: test for searchable field.
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns false. Exceptions fail, Feature only partially implemented. Missing: test for searchable field.",
-        method = "isSearchable",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testIsSearchable() {
-
         try {
             assertTrue(rsmd.isSearchable(1));
             assertTrue(rsmd.isSearchable(2));
@@ -796,17 +647,11 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#isSigned(int column)}
+     * Tests fail: always returns false. Exceptions and tests on non numeric
+     * fields fail, Feature only partially implemented. Missing: test positive
+     * result
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail: always returns false. Exceptions and tests on non numeric fields fail, Feature only partially implemented. Missing: test positive result.",
-        method = "isSigned",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testIsSigned() {
-
         try {
             assertFalse(rsmd.isSigned(1));
         } catch (SQLException e1) {
@@ -824,10 +669,12 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
     }
 
-    // Analogous to is Readonly.  Exceptions and tests on non numeric fields fail, failing statements commented out. Feature only partially implemented.
-    @KnownFailure("not supported")
+    /**
+     * Analogous to is Readonly.  Exceptions and tests on non numeric fields
+     * fail, Failing statements commented out. Feature only partially
+     * implemented.
+     */
     public void testIsWritable() {
-
         try {
             assertTrue(rsmd.isWritable(1));
             assertTrue(rsmd.isWritable(2));
@@ -849,16 +696,8 @@ public class ResultSetMetaDataTest extends SQLTest {
 
 
     /**
-     * @test {@link java.sql.ResultSetMetaData#getColumnDisplaySize(int Column)}
+     * Tests fail. always returns 0. Missing case where display size greater than 0
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Tests fail. always returns 0. Missing case where display"+
-        " size greater than 0",
-        method = "getColumnDisplaySize",
-        args = {int.class}
-    )
-    @KnownFailure("not supported")
     public void testGetColumnDisplaySize() {
         try {
             for (int i = 0; i < rsmd.getColumnCount(); i++) {

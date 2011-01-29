@@ -14,40 +14,20 @@
  * limitations under the License.
  */
 
-package tests.SQLite;
+package libcore.sqlite;
 
 import SQLite.Database;
 import SQLite.Exception;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 
-import junit.framework.TestCase;
-
-@TestTargetClass(SQLite.Exception.class)
-public class ExceptionTest extends SQLiteTest {
+public final class OldExceptionTest extends OldSQLiteTest {
 
     private Database db = null;
 
-    public void setUp() throws java.lang.Exception {
+    @Override public void setUp() throws java.lang.Exception {
         super.setUp();
         db = new Database();
     }
 
-    public void tearDown() {
-        super.tearDown();
-    }
-
-    /**
-     * @tests {@link Exception#Exception(String)}
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "constructor test",
-        method = "Exception",
-        args = {java.lang.String.class}
-    )
     public void testException() {
         try {
             db.open(dbFile.getName(), 0);
@@ -56,5 +36,4 @@ public class ExceptionTest extends SQLiteTest {
             assertNotNull(e.getMessage());
         }
     }
-
 }

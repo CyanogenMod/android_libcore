@@ -14,73 +14,32 @@
  * limitations under the License.
  */
 
-package tests.SQLite;
-
-import SQLite.Exception;
-import SQLite.JDBCDriver;
-import dalvik.annotation.TestTargetClass;
+package libcore.sqlite;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
 /**
  * Tests the SQLite.JDBCDriver.
  */
-@TestTargetClass(JDBCDriver.class)
-public class JDBCDriverFunctionalTest extends AbstractSqlTest {
-
-
-
-    /**
-     * The SQLite db file.
-     */
+public class OldJDBCDriverFunctionalTest extends AbstractSqlTest {
     private  File dbFile = null;
-
     private String connectionURL = "empty";
 
-    /**
-     * Sets up an unit test by loading the SQLite.JDBCDriver, getting two
-     * connections and calling the setUp method of the super class.
-     * @throws Exception
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
-     */
-    @Override
-    public void setUp() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, Exception { // the Exception class needs to be fully
-        // qualified since there is an Exception
-        // class in the SQLite package.
-
-        super.setUp();
-    }
-
-    /**
-     * Tears down an unit test by calling the tearDown method of the super class
-     * and deleting the SQLite test db file.
-     */
-    @Override
-    protected void tearDown() throws SQLException {
+    @Override protected void tearDown() throws SQLException {
         super.tearDown();
         dbFile.delete();
     }
 
-
-    @Override
-    protected String getConnectionURL() {
+    @Override protected String getConnectionURL() {
         if (connectionURL.equals("empty")) {
             String tmp = System.getProperty("java.io.tmpdir");
             File tmpDir = new File(tmp);
             if (tmpDir.isDirectory()) {
                 try {
-                    dbFile = File.createTempFile("JDBCDriverFunctionalTest",
-                            ".db", tmpDir);
+                    dbFile = File.createTempFile("JDBCDriverFunctionalTest", ".db", tmpDir);
                 } catch (IOException e) {
                     System.err.println("error creating temporary DB file.");
                 }
@@ -90,21 +49,16 @@ public class JDBCDriverFunctionalTest extends AbstractSqlTest {
             }
 
             connectionURL = "jdbc:sqlite:/" + dbFile.getPath();
-
         }
 
         return connectionURL;
     }
 
-    @Override
-    protected String getDriverClassName() {
+    @Override protected String getDriverClassName() {
         return "SQLite.JDBCDriver";
     }
 
-    @Override
-    protected int getTransactionIsolation() {
+    @Override protected int getTransactionIsolation() {
         return Connection.TRANSACTION_SERIALIZABLE;
     }
-
-
 }
