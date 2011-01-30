@@ -27,24 +27,27 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import libcore.base.LruCache;
 import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 
 /**
- * Cache of per-class data, meant to help the performance of reflection
- * methods.
+ * Reflection data for a single Class.
  *
- * <p><b>Note:</b> None of the methods perform access checks. It is up
- * to the (package internal) clients of this code to perform such
- * checks as necessary.</p>
- *
- * <p><b>Also Note:</b> None of the returned array values are
- * protected in any way. It is up to the (again, package internal)
- * clients of this code to protect the arrays if they should ever
- * escape the package.</p>
+ * <p><b>Note:</b> None of the returned array values are protected. It is up to
+ * the (again, package internal) clients of this code to protect the arrays if
+ * they should ever escape the package.
  */
-/*package*/ class ClassCache<T> {
-    // TODO: Add caching for constructors and fields.
+/*package*/ class ClassMembers<T> {
+    // TODO: Add constructors and fields.
+
+    static final LruCache<Class<?>, ClassMembers<?>> cache
+            = new LruCache<Class<?>, ClassMembers<?>>(16) {
+        @SuppressWarnings("unchecked") // use raw types since javac forbids "new ClassCache<?>(key)"
+        @Override protected ClassMembers<?> create(Class<?> key) {
+            return new ClassMembers(key);
+        }
+    };
 
     /** non-null; comparator used for enumerated values */
     private static final EnumComparator ENUM_COMPARATOR =
@@ -122,7 +125,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      *
      * @param clazz non-null; class that this instance represents
      */
-    /*package*/ ClassCache(Class<T> clazz) {
+    /*package*/ ClassMembers(Class<T> clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz == null");
         }
@@ -213,7 +216,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      */
     private static void getMethodsRecursive(Class<?> clazz, List<Method> result) {
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
-            result.addAll(Arrays.asList(c.getClassCache().getDeclaredPublicMethods()));
+            result.addAll(Arrays.asList(c.getClassMembers().getDeclaredPublicMethods()));
         }
 
         for (Class<?> ifc : clazz.getInterfaces()) {
@@ -404,7 +407,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
 
         // Traverse class and superclasses, get rid of dupes by signature
         while (clazz != null) {
-            for (Field field : clazz.getClassCache().getDeclaredFields(publicOnly)) {
+            for (Field field : clazz.getClassMembers().getDeclaredFields(publicOnly)) {
                 String signature = field.toString();
                 if (!seen.contains(signature)) {
                     fields.add(field);
