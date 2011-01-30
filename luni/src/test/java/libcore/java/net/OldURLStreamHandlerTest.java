@@ -184,44 +184,43 @@ public class OldURLStreamHandlerTest extends TestCase {
 
     class MockURLStreamHandler extends URLStreamHandler {
 
-        @Override
-        protected URLConnection openConnection(URL arg0) throws IOException {
+        @Override protected URLConnection openConnection(URL arg0) throws IOException {
             return null;
         }
 
-        public boolean equals(URL u1, URL u2) {
-            return super.equals(u1, u2);
+        @Override public boolean equals(URL a, URL b) {
+            return super.equals(a, b);
         }
 
-        public int getDefaultPort() {
+        @Override public int getDefaultPort() {
             return super.getDefaultPort();
         }
 
-        public InetAddress getHostAddress(URL u) {
+        @Override public InetAddress getHostAddress(URL u) {
             return super.getHostAddress(u);
         }
 
-        public int hashCode(URL u) {
+        @Override public int hashCode(URL u) {
             return super.hashCode(u);
         }
 
-        public boolean hostsEqual(URL u1, URL u2) {
-            return super.hostsEqual(u1, u2);
+        @Override public boolean hostsEqual(URL a, URL b) {
+            return super.hostsEqual(a, b);
         }
 
-        public URLConnection openConnection(URL u, Proxy p) throws IOException {
+        @Override public URLConnection openConnection(URL u, Proxy p) throws IOException {
             return super.openConnection(u, p);
         }
 
-        public void parseURL(URL u, String spec, int start, int limit) {
+        @Override public void parseURL(URL u, String spec, int start, int limit) {
             super.parseURL(u, spec, start, limit);
         }
 
-        public boolean sameFile(URL u1, URL u2) {
-            return super.sameFile(u1, u2);
+        @Override public boolean sameFile(URL a, URL b) {
+            return super.sameFile(a, b);
         }
 
-        public void setURL(URL u,
+        @Override public void setURL(URL u,
                 String protocol,
                 String host,
                 int port,
@@ -230,7 +229,7 @@ public class OldURLStreamHandlerTest extends TestCase {
             super.setURL(u, protocol, host, port, file, ref);
         }
 
-        public void setURL(URL u,
+        @Override public void setURL(URL u,
                 String protocol,
                 String host,
                 int port,
@@ -243,7 +242,7 @@ public class OldURLStreamHandlerTest extends TestCase {
                     userInfo, path, query, ref);
         }
 
-        public String toExternalForm(URL u) {
+        @Override public String toExternalForm(URL u) {
             return super.toExternalForm(u);
         }
     }

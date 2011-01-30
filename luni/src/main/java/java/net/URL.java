@@ -453,21 +453,34 @@ public final class URL implements java.io.Serializable {
     }
 
     /**
-     * Compares this URL instance with the given argument {@code o} and
-     * determines if both are equal. Two URL instances are equal if all single
-     * parts are identical in their meaning. Compares the argument to the
-     * receiver, and returns true if they represent the same URL. Two URLs are
-     * equal if they have the same file, host, port, protocol, and reference
-     * components.
+     * Returns true if this URL equals {@code o}. URLs are equal if they have
+     * the same protocol, host, port, file, and reference.
      *
-     * @param o
-     *            the URL this instance has to be compared with.
-     * @return {@code true} if both instances represents the same URL, {@code
-     *         false} otherwise.
-     * @see #hashCode()
+     * <h3>Network I/O Warning</h3>
+     * <p>Some implementations of URL.equals() resolve host names over the
+     * network. This is problematic:
+     * <ul>
+     * <li><strong>The network may be slow.</strong> Many classes, including
+     * core collections like {@link java.util.Map Map} and {@link java.util.Set
+     * Set} expect that {@code equals} and {@code hashCode} will return quickly.
+     * By violating this assumption, this method posed potential performance
+     * problems.
+     * <li><strong>Equal IP addresses do not imply equal content.</strong>
+     * Virtual hosting permits unrelated sites to share an IP address. This
+     * method could report two otherwise unrelated URLs to be equal because
+     * they're hosted on the same server.</li>
+     * <li><strong>The network many not be available.</strong> Two URLs could be
+     * equal when a network is available and unequal otherwise.</li>
+     * <li><strong>The network may change.</strong> The IP address for a given
+     * host name varies by network and over time. This is problematic for mobile
+     * devices. Two URLs could be equal on some networks and unequal on
+     * others.</li>
+     * </ul>
+     * <p>This problem is fixed in Android in the Ice Cream Sandwich release. In
+     * that release, URLs are only equal if their host names are equal (ignoring
+     * case).
      */
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if (o == null) {
             return false;
         }
