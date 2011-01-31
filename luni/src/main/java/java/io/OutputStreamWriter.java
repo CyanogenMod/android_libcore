@@ -188,12 +188,11 @@ public class OutputStreamWriter extends Writer {
             }
         }
 
-        CoderResult result = encoder.encode(chars, bytes, false);
         while (true) {
+            CoderResult result = encoder.encode(chars, bytes, false);
             if (result.isOverflow()) {
                 // Make room and try again.
                 flushBytes(false);
-                result = encoder.encode(chars, bytes, false);
                 continue;
             } else if (result.isUnderflow() && chars.remaining() > 0) {
                 // Stash any remaining chars. This probably means we've seen half a surrogate
@@ -201,9 +200,7 @@ public class OutputStreamWriter extends Writer {
                 // Believe it or not, CharsetEncoder doesn't keep that character as part of its
                 // internal state.
                 underflowChars = CharBuffer.allocate(chars.remaining() + 1);
-                while (chars.hasRemaining()) {
-                    underflowChars.put(chars.get());
-                }
+                underflowChars.put(chars);
             } else if (result.isError()) {
                 result.throwException();
             }
@@ -215,13 +212,12 @@ public class OutputStreamWriter extends Writer {
         // TODO: is there any case where underflowChars is non-null and passing it to encode would
         // make any difference?
         CharBuffer chars = CharBuffer.allocate(0);
-        CoderResult result = encoder.encode(chars, bytes, true);
         while (true) {
+            CoderResult result = encoder.encode(chars, bytes, true);
             if (result.isError()) {
                 result.throwException();
             } else if (result.isOverflow()) {
                 flushBytes(false);
-                result = encoder.encode(chars, bytes, true);
                 continue;
             }
             break;
@@ -229,7 +225,7 @@ public class OutputStreamWriter extends Writer {
 
         // Some encoders (such as ISO-2022-JP) have stuff to write out after all the
         // characters (such as shifting back into a default state).
-        result = encoder.flush(bytes);
+        CoderResult result = encoder.flush(bytes);
         while (!result.isUnderflow()) {
             if (result.isOverflow()) {
                 flushBytes(false);

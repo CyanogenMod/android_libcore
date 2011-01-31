@@ -57,6 +57,7 @@ public class OutputStreamWriterTest extends TestCase {
         cs[cs.length - 1] = '\ud842'; // One half of a surrogate pair (the other being U+df9f).
         writer.write(cs, 0, cs.length);
         writer.flush();
+        assertEquals(8192, baos.size()); // Just the 'x's so far.
         if (includeSecondHalf) {
             writer.write(0xdf9f);
         }
