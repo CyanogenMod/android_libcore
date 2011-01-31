@@ -276,10 +276,8 @@ public class InputStreamReader extends Reader {
                 decoder.flush(out);
                 decoder.reset();
             }
-            if (result.isMalformed()) {
-                throw new MalformedInputException(result.length());
-            } else if (result.isUnmappable()) {
-                throw new UnmappableCharacterException(result.length());
+            if (result.isMalformed() || result.isUnmappable()) {
+                result.throwException();
             }
 
             return out.position() - offset == 0 ? -1 : out.position() - offset;

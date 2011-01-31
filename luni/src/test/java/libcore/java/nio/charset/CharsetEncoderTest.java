@@ -16,9 +16,11 @@
 
 package libcore.java.nio.charset;
 
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 
@@ -58,5 +60,71 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
     }
     public void test_defaultReplacementBytesUtf_8() throws Exception {
         assertReplacementBytesForEncoder("UTF-8", new byte[] { (byte) '?' });
+    }
+
+    public void testBrokenByDesign() throws Exception {
+        Charset cs = Charset.forName("UTF-32BE");
+        CharsetEncoder e;
+        ByteBuffer bb;
+        CoderResult cr;
+
+        // okay: surrogate pair seen all at once is decoded to U+20b9f.
+        e = cs.newEncoder();
+        bb = ByteBuffer.allocate(128);
+        cr = e.encode(CharBuffer.wrap(new char[] { '\ud842', '\udf9f' }), bb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(4, bb.position());
+        assertEquals((byte) 0x00, bb.get(0));
+        assertEquals((byte) 0x02, bb.get(1));
+        assertEquals((byte) 0x0b, bb.get(2));
+        assertEquals((byte) 0x9f, bb.get(3));
+
+        // malformed: low surrogate first.
+        e = cs.newEncoder();
+        bb = ByteBuffer.allocate(128);
+        cr = e.encode(CharBuffer.wrap(new char[] { '\udf9f' }), bb, false);
+        assertTrue(cr.toString(), cr.isMalformed());
+        assertEquals(1, cr.length());
+
+        // retarded: writing the surrogate pair in separate writes is an error because the
+        // CharsetEncoder doesn't remember its state! So IGNORE just ignores both characters,
+        // REPORT complains that the second is invalid (because it doesn't remember seeing the
+        // first), and REPLACE inserts a replacement character U+fffd when it sees the second
+        // character (because it doesn't remember seeing the first).
+        CodingErrorAction[] ceas = new CodingErrorAction[] {
+            CodingErrorAction.IGNORE, CodingErrorAction.REPORT, CodingErrorAction.REPLACE
+        };
+        for (CodingErrorAction cea : ceas) {
+            System.err.println(cea);
+            e = cs.newEncoder();
+            e.onMalformedInput(cea);
+            e.onUnmappableCharacter(cea);
+            bb = ByteBuffer.allocate(128);
+            cr = e.encode(CharBuffer.wrap(new char[] { '\ud842' }), bb, false);
+            assertEquals(CoderResult.UNDERFLOW, cr);
+            assertEquals(0, bb.position());
+            cr = e.encode(CharBuffer.wrap(new char[] { '\udf9f' }), bb, false);
+            if (cea == CodingErrorAction.REPORT) {
+                assertTrue(cr.toString(), cr.isMalformed());
+                assertEquals(1, cr.length());
+                continue;
+            }
+            assertEquals(CoderResult.UNDERFLOW, cr);
+            int expectedPosition = 0;
+            if (cea == CodingErrorAction.REPLACE) {
+                expectedPosition = 4;
+                assertEquals((byte) 0x00, bb.get(0));
+                assertEquals((byte) 0x00, bb.get(1));
+                assertEquals((byte) 0xff, bb.get(2));
+                assertEquals((byte) 0xfd, bb.get(3));
+            }
+            assertEquals(expectedPosition, bb.position());
+            cr = e.encode(CharBuffer.wrap(new char[] { }), bb, true);
+            assertEquals(CoderResult.UNDERFLOW, cr);
+            assertEquals(expectedPosition, bb.position());
+            cr = e.flush(bb);
+            assertEquals(CoderResult.UNDERFLOW, cr);
+            assertEquals(expectedPosition, bb.position());
+        }
     }
 }
