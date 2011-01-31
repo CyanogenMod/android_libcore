@@ -43,6 +43,7 @@ public class OutputStreamWriter extends Writer {
     private CharsetEncoder encoder;
 
     private ByteBuffer bytes = ByteBuffer.allocate(8192);
+    private CharBuffer underflowChars;
 
     /**
      * Constructs a new OutputStreamWriter using {@code out} as the target
@@ -137,9 +138,8 @@ public class OutputStreamWriter extends Writer {
     public void close() throws IOException {
         synchronized (lock) {
             if (encoder != null) {
-                encoder.flush(bytes);
-                flush();
-                out.flush();
+                drainEncoder();
+                flushBytes(false);
                 out.close();
                 encoder = null;
                 bytes = null;
@@ -157,15 +157,86 @@ public class OutputStreamWriter extends Writer {
      */
     @Override
     public void flush() throws IOException {
+        flushBytes(true);
+    }
+
+    private void flushBytes(boolean flushUnderlyingStream) throws IOException {
         synchronized (lock) {
             checkStatus();
-            int position;
-            if ((position = bytes.position()) > 0) {
+            int position = bytes.position();
+            if (position > 0) {
                 bytes.flip();
-                out.write(bytes.array(), 0, position);
+                out.write(bytes.array(), bytes.arrayOffset(), position);
                 bytes.clear();
             }
-            out.flush();
+            if (flushUnderlyingStream) {
+                out.flush();
+            }
+        }
+    }
+
+    private void convert(CharBuffer chars) throws IOException {
+        // Do we have anything left over from the previous write?
+        if (underflowChars != null) {
+            // Move the first character from 'chars' into 'underflowChars' and try to encode that.
+            if (chars.hasRemaining()) {
+                underflowChars.put(chars.get());
+                underflowChars.flip();
+                CharBuffer cb = underflowChars;
+                underflowChars = null;
+                convert(cb);
+            }
+        }
+
+        CoderResult result = encoder.encode(chars, bytes, false);
+        while (true) {
+            if (result.isOverflow()) {
+                // Make room and try again.
+                flushBytes(false);
+                result = encoder.encode(chars, bytes, false);
+                continue;
+            } else if (result.isUnderflow() && chars.remaining() > 0) {
+                // Stash any remaining chars. This probably means we've seen half a surrogate
+                // pair in CharBuffer and need to see the next char before we know what to do.
+                // Believe it or not, CharsetEncoder doesn't keep that character as part of its
+                // internal state.
+                underflowChars = CharBuffer.allocate(chars.remaining() + 1);
+                while (chars.hasRemaining()) {
+                    underflowChars.put(chars.get());
+                }
+            } else if (result.isError()) {
+                result.throwException();
+            }
+            break;
+        }
+    }
+
+    private void drainEncoder() throws IOException {
+        // TODO: is there any case where underflowChars is non-null and passing it to encode would
+        // make any difference?
+        CharBuffer chars = CharBuffer.allocate(0);
+        CoderResult result = encoder.encode(chars, bytes, true);
+        while (true) {
+            if (result.isError()) {
+                result.throwException();
+            } else if (result.isOverflow()) {
+                flushBytes(false);
+                result = encoder.encode(chars, bytes, true);
+                continue;
+            }
+            break;
+        }
+
+        // Some encoders (such as ISO-2022-JP) have stuff to write out after all the
+        // characters (such as shifting back into a default state).
+        result = encoder.flush(bytes);
+        while (!result.isUnderflow()) {
+            if (result.isOverflow()) {
+                flushBytes(false);
+                result = encoder.flush(bytes);
+            } else {
+                result.throwException();
+            }
         }
     }
 
@@ -216,21 +287,6 @@ public class OutputStreamWriter extends Writer {
             Arrays.checkOffsetAndCount(buffer.length, offset, count);
             CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
-        }
-    }
-
-    private void convert(CharBuffer chars) throws IOException {
-        CoderResult result = encoder.encode(chars, bytes, true);
-        while (true) {
-            if (result.isError()) {
-                throw new IOException(result.toString());
-            } else if (result.isOverflow()) {
-                // flush the output buffer
-                flush();
-                result = encoder.encode(chars, bytes, true);
-                continue;
-            }
-            break;
         }
     }
 
