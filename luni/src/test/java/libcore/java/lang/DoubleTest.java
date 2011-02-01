@@ -111,4 +111,18 @@ public class DoubleTest extends TestCase {
         assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("320.0e+2147483647"));
         assertEquals(-0.0, Double.parseDouble("-1.4e-2147483314"));
     }
+
+    /**
+     * This value has been known to cause javac and java to infinite loop.
+     * http://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308/
+     */
+    public void testParseLargestSubnormalDoublePrecision() {
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.2250738585072012e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("0.00022250738585072012e-304"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("00000002.2250738585072012e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.225073858507201200000e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.2250738585072012e-00308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.22507385850720129978001e-308"));
+        assertEquals(-2.2250738585072014E-308, Double.parseDouble("-2.2250738585072012e-308"));
+    }
 }
