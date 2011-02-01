@@ -107,25 +107,28 @@ public class NativeCryptoTest extends TestCase {
         NativeCrypto.SSL_CTX_free(c);
     }
 
-    private static final PrivateKeyEntry SERVER_PRIVATE_KEY_ENTRY
-            = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
-    private static final byte[] SERVER_PRIVATE_KEY
-            = SERVER_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
+    private static final PrivateKeyEntry SERVER_PRIVATE_KEY_ENTRY;
+    private static final byte[] SERVER_PRIVATE_KEY;
     private static final byte[][] SERVER_CERTIFICATES;
-
-    private static final PrivateKeyEntry CLIENT_PRIVATE_KEY_ENTRY
-            = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
-    private static final byte[] CLIENT_PRIVATE_KEY
-            = CLIENT_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
+    private static final PrivateKeyEntry CLIENT_PRIVATE_KEY_ENTRY;
+    private static final byte[] CLIENT_PRIVATE_KEY;
     private static final byte[][] CLIENT_CERTIFICATES;
 
     static {
         try {
-            CLIENT_CERTIFICATES = NativeCrypto.encodeCertificates(
-                    CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
+            SERVER_PRIVATE_KEY_ENTRY
+                    = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+            SERVER_PRIVATE_KEY
+                    = SERVER_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
             SERVER_CERTIFICATES = NativeCrypto.encodeCertificates(
                     SERVER_PRIVATE_KEY_ENTRY.getCertificateChain());
-        } catch (CertificateEncodingException e) {
+            CLIENT_PRIVATE_KEY_ENTRY
+                    = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
+            CLIENT_PRIVATE_KEY
+                    = CLIENT_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
+            CLIENT_CERTIFICATES = NativeCrypto.encodeCertificates(
+                    CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
