@@ -34,7 +34,6 @@ public class AllTests
 
         // Harmony-written test suites (often with Android tests added in).
         suite.addTest(tests.annotation.AllTests.suite());
-        suite.addTest(tests.concurrent.AllTests.suite());
         suite.addTest(tests.dom.AllTests.suite());
         suite.addTest(tests.luni.AllTestsIo.suite());
         suite.addTest(tests.luni.AllTestsLang.suite());
