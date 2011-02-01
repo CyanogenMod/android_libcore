@@ -86,29 +86,27 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
         assertEquals(1, cr.length());
     }
 
-    public void testCharsetEncoderSurrogatesBrokenByDesign_IGNORE() throws Exception {
-        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.IGNORE);
+    public void testCharsetEncoderSurrogatesBrokenByDesign_IGNORE_RI() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign_RI(CodingErrorAction.IGNORE);
     }
 
-    public void testCharsetEncoderSurrogatesBrokenByDesign_REPORT() throws Exception {
-        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.REPORT);
+    public void testCharsetEncoderSurrogatesBrokenByDesign_REPORT_RI() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign_RI(CodingErrorAction.REPORT);
     }
 
-    public void testCharsetEncoderSurrogatesBrokenByDesign_REPLACE() throws Exception {
-        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.REPLACE);
+    public void testCharsetEncoderSurrogatesBrokenByDesign_REPLACE_RI() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign_RI(CodingErrorAction.REPLACE);
     }
 
-    private void testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction cea) throws Exception {
-        // stupid: writing the two halves of the surrogate pair in separate writes is an error
-        // because the CharsetEncoder doesn't remember it's half-way through a surrogate pair
-        // across the two calls!
+    private void testCharsetEncoderSurrogatesBrokenByDesign_RI(CodingErrorAction cea) throws Exception {
+        // stupid: on the RI, writing the two halves of the surrogate pair in separate writes
+        // is an error because the CharsetEncoder doesn't remember it's half-way through a
+        // surrogate pair across the two calls!
 
         // IGNORE just ignores both characters, REPORT complains that the second is
         // invalid (because it doesn't remember seeing the first), and REPLACE inserts a
         // replacement character U+fffd when it sees the second character (because it too
         // doesn't remember seeing the first).
-
-        // Note that REPLACE and REPORT are both broken on Android.
 
         Charset cs = Charset.forName("UTF-32BE");
         CharsetEncoder e = cs.newEncoder();
@@ -136,6 +134,46 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
             assertEquals((byte) 0xfd, bb.get(3));
         }
         assertEquals(expectedPosition, bb.position());
+        cr = e.encode(CharBuffer.wrap(new char[] { }), bb, true);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(expectedPosition, bb.position());
+        cr = e.flush(bb);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(expectedPosition, bb.position());
+    }
+
+    public void testCharsetEncoderSurrogatesBrokenByDesign_IGNORE() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.IGNORE);
+    }
+
+    public void testCharsetEncoderSurrogatesBrokenByDesign_REPORT() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.REPORT);
+    }
+
+    public void testCharsetEncoderSurrogatesBrokenByDesign_REPLACE() throws Exception {
+        testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction.REPLACE);
+    }
+
+    private void testCharsetEncoderSurrogatesBrokenByDesign(CodingErrorAction cea) throws Exception {
+        // Writing the two halves of the surrogate pair in separate writes works just fine.
+        // This is true of Android and ICU, but not of the RI.
+        Charset cs = Charset.forName("UTF-32BE");
+        CharsetEncoder e = cs.newEncoder();
+        e.onMalformedInput(cea);
+        e.onUnmappableCharacter(cea);
+        ByteBuffer bb = ByteBuffer.allocate(128);
+        CoderResult cr = e.encode(CharBuffer.wrap(new char[] { '\ud842' }), bb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(0, bb.position());
+        cr = e.encode(CharBuffer.wrap(new char[] { '\udf9f' }), bb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        int expectedPosition = 4;
+        assertEquals(expectedPosition, bb.position());
+        System.err.println(Arrays.toString(Arrays.copyOfRange(bb.array(), 0, bb.position())));
+        assertEquals((byte) 0x00, bb.get(0));
+        assertEquals((byte) 0x02, bb.get(1));
+        assertEquals((byte) 0x0b, bb.get(2));
+        assertEquals((byte) 0x9f, bb.get(3));
         cr = e.encode(CharBuffer.wrap(new char[] { }), bb, true);
         assertEquals(CoderResult.UNDERFLOW, cr);
         assertEquals(expectedPosition, bb.position());

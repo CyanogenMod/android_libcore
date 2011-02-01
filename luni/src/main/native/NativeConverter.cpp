@@ -108,17 +108,11 @@ static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
     *sourceOffset = (mySource - uSource.get()) - *sourceOffset;
     *targetOffset = (reinterpret_cast<jbyte*>(cTarget) - uTarget.get()) - *targetOffset;
 
-    // Check how much more input is necessary to complete what's in the converter's internal buffer.
-    UErrorCode minorErrorCode = U_ZERO_ERROR;
-    int32_t pending = ucnv_fromUCountPending(cnv, &minorErrorCode);
-    if (U_SUCCESS(minorErrorCode)) {
-        myData[3] = pending;
-    }
-
     // If there was an error, count the problematic characters.
     if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND) {
         int8_t len = 32;
         UChar invalidUChars[32];
+        UErrorCode minorErrorCode = U_ZERO_ERROR;
         ucnv_getInvalidUChars(cnv, invalidUChars, &len, &minorErrorCode);
         if (U_SUCCESS(minorErrorCode)) {
             myData[2] = len;
@@ -230,32 +224,6 @@ static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
     UErrorCode errorCode = U_ZERO_ERROR;
     ucnv_toUnicode(cnv, &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, TRUE, &errorCode);
     *targetOffset = cTarget - uTarget.get() - *targetOffset;
-    return errorCode;
-}
-
-static jint NativeConverter_flushCharToByte(JNIEnv* env, jclass, jlong address,
-        jbyteArray target, jint targetEnd, jintArray data) {
-    UConverter* cnv = toUConverter(address);
-    if (cnv == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    ScopedByteArrayRW uTarget(env, target);
-    if (uTarget.get() == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    ScopedIntArrayRW myData(env, data);
-    if (myData.get() == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    jchar source = '\0';
-    jint* targetOffset = &myData[1];
-    const jchar* mySource = &source;
-    const UChar* mySourceLimit= &source;
-    char* cTarget = reinterpret_cast<char*>(uTarget.get() + *targetOffset);
-    const char* cTargetLimit = reinterpret_cast<char*>(uTarget.get() + targetEnd);
-    UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_fromUnicode(cnv, &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, TRUE, &errorCode);
-    *targetOffset = reinterpret_cast<jbyte*>(cTarget) - uTarget.get() - *targetOffset;
     return errorCode;
 }
 
@@ -671,7 +639,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeConverter, decode, "(J[BI[CI[IZ)I"),
     NATIVE_METHOD(NativeConverter, encode, "(J[CI[BI[IZ)I"),
     NATIVE_METHOD(NativeConverter, flushByteToChar, "(J[CI[I)I"),
-    NATIVE_METHOD(NativeConverter, flushCharToByte, "(J[BI[I)I"),
     NATIVE_METHOD(NativeConverter, getAvailableCharsetNames, "()[Ljava/lang/String;"),
     NATIVE_METHOD(NativeConverter, getAveBytesPerChar, "(J)F"),
     NATIVE_METHOD(NativeConverter, getAveCharsPerByte, "(J)F"),

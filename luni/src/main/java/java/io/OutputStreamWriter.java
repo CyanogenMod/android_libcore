@@ -43,7 +43,6 @@ public class OutputStreamWriter extends Writer {
     private CharsetEncoder encoder;
 
     private ByteBuffer bytes = ByteBuffer.allocate(8192);
-    private CharBuffer underflowChars;
 
     /**
      * Constructs a new OutputStreamWriter using {@code out} as the target
@@ -127,8 +126,8 @@ public class OutputStreamWriter extends Writer {
      * Closes this writer. This implementation flushes the buffer as well as the
      * target stream. The target stream is then closed and the resources for the
      * buffer and converter are released.
-     * <p>
-     * Only the first invocation of this method has any effect. Subsequent calls
+     *
+     * <p>Only the first invocation of this method has any effect. Subsequent calls
      * do nothing.
      *
      * @throws IOException
@@ -176,31 +175,12 @@ public class OutputStreamWriter extends Writer {
     }
 
     private void convert(CharBuffer chars) throws IOException {
-        // Do we have anything left over from the previous write?
-        if (underflowChars != null) {
-            // Move the first character from 'chars' into 'underflowChars' and try to encode that.
-            if (chars.hasRemaining()) {
-                underflowChars.put(chars.get());
-                underflowChars.flip();
-                CharBuffer cb = underflowChars;
-                underflowChars = null;
-                convert(cb);
-            }
-        }
-
         while (true) {
             CoderResult result = encoder.encode(chars, bytes, false);
             if (result.isOverflow()) {
                 // Make room and try again.
                 flushBytes(false);
                 continue;
-            } else if (result.isUnderflow() && chars.remaining() > 0) {
-                // Stash any remaining chars. This probably means we've seen half a surrogate
-                // pair in CharBuffer and need to see the next char before we know what to do.
-                // Believe it or not, CharsetEncoder doesn't keep that character as part of its
-                // internal state.
-                underflowChars = CharBuffer.allocate(chars.remaining() + 1);
-                underflowChars.put(chars);
             } else if (result.isError()) {
                 result.throwException();
             }
@@ -209,8 +189,10 @@ public class OutputStreamWriter extends Writer {
     }
 
     private void drainEncoder() throws IOException {
-        // TODO: is there any case where underflowChars is non-null and passing it to encode would
-        // make any difference?
+        // Strictly speaking, I think it's part of the CharsetEncoder contract that you call
+        // encode with endOfInput true before flushing. Our ICU-based implementations don't
+        // actually need this, and you'd hope that any reasonable implementation wouldn't either.
+        // CharsetEncoder.encode doesn't actually pass the boolean through to encodeLoop anyway!
         CharBuffer chars = CharBuffer.allocate(0);
         while (true) {
             CoderResult result = encoder.encode(chars, bytes, true);
@@ -224,7 +206,8 @@ public class OutputStreamWriter extends Writer {
         }
 
         // Some encoders (such as ISO-2022-JP) have stuff to write out after all the
-        // characters (such as shifting back into a default state).
+        // characters (such as shifting back into a default state). In our implementation,
+        // this is actually the first time ICU is told that we've run out of input.
         CoderResult result = encoder.flush(bytes);
         while (!result.isUnderflow()) {
             if (result.isOverflow()) {
@@ -243,11 +226,10 @@ public class OutputStreamWriter extends Writer {
     }
 
     /**
-     * Gets the name of the encoding that is used to convert characters to
-     * bytes.
-     *
-     * @return the string describing the converter or {@code null} if this
-     *         writer is closed.
+     * Returns the historical name of the encoding used by this writer to convert characters to
+     * bytes, or null if this writer has been closed. Most callers should probably keep
+     * track of the String or Charset they passed in; this method may not return the same
+     * name.
      */
     public String getEncoding() {
         if (encoder == null) {
