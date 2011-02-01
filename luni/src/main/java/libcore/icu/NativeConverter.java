@@ -66,21 +66,6 @@ public final class NativeConverter {
      * Writes any remaining output to the output buffer and resets the
      * converter to its initial state.
      *
-     * @param converterHandle Address of converter object created by C code
-     * @param output byte array to receive flushed output.
-     * @param outEnd stop writing to output array at this offset (exclusive).
-     * @return int error code returned by ICU
-     * @param data integer array containing the following data
-     *        data[0] = inputOffset
-     *        data[1] = outputOffset
-     * @internal ICU 2.4
-     */
-    public static native int flushCharToByte(long converterHandle, byte[] output, int outEnd, int[] data);
-
-    /**
-     * Writes any remaining output to the output buffer and resets the
-     * converter to its initial state.
-     *
      * @param converterHandle Address of converter object created by the native code
      * @param output char array to receive flushed output.
      * @param outEnd stop writing to output array at this offset (exclusive).
