@@ -17,11 +17,10 @@
 package libcore.javax.net.ssl;
 
 import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore;
+import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Provider;
 import java.security.Security;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.PKIXParameters;
@@ -41,16 +40,18 @@ public class TrustManagerFactoryTest extends TestCase {
 
     private static final String [] KEY_TYPES = new String[] { "RSA", "DSA", "EC", "EC_RSA" };
     // note the rare usage of DSA keys here in addition to RSA
-    private static final TestKeyStore TEST_KEY_STORE
-            = TestKeyStore.create(KEY_TYPES,
-                                  null,
-                                  null,
-                                  "rsa-dsa-ec",
-                                  TestKeyStore.localhost(),
-                                  0,
-                                  true,
-                                  null,
-                                  null);
+    private static final TestKeyStore TEST_KEY_STORE;
+    static {
+        try {
+            TEST_KEY_STORE = new TestKeyStore.Builder()
+                    .keyAlgorithms(KEY_TYPES)
+                    .aliasPrefix("rsa-dsa-ec")
+                    .ca(true)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void test_TrustManagerFactory_getDefaultAlgorithm() throws Exception {
         String algorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -59,7 +60,7 @@ public class TrustManagerFactoryTest extends TestCase {
         test_TrustManagerFactory(tmf, StandardNames.IS_RI);
     }
 
-    private static class UseslessManagerFactoryParameters implements ManagerFactoryParameters {}
+    private static class UselessManagerFactoryParameters implements ManagerFactoryParameters {}
 
     private void test_TrustManagerFactory(TrustManagerFactory tmf,
                                           boolean supportsManagerFactoryParameters)
@@ -84,7 +85,7 @@ public class TrustManagerFactoryTest extends TestCase {
 
         // init with useless ManagerFactoryParameters
         try {
-            tmf.init(new UseslessManagerFactoryParameters());
+            tmf.init(new UselessManagerFactoryParameters());
             fail();
         } catch (InvalidAlgorithmParameterException expected) {
         }
@@ -141,7 +142,7 @@ public class TrustManagerFactoryTest extends TestCase {
             assertNotNull(issuers);
             assertTrue(issuers.length > 1);
             assertNotSame(issuers, tm.getAcceptedIssuers());
-            boolean defaultTrustmanager
+            boolean defaultTrustManager
                     // RI de-duplicates certs from TrustedCertificateEntry and PrivateKeyEntry
                     = issuers.length > (StandardNames.IS_RI ? 1 : 2) * KEY_TYPES.length;
 
@@ -149,7 +150,7 @@ public class TrustManagerFactoryTest extends TestCase {
             String sigAlgName = TestKeyStore.signatureAlgorithm(keyType);
             PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
             X509Certificate[] chain = (X509Certificate[]) pke.getCertificateChain();
-            if (defaultTrustmanager) {
+            if (defaultTrustManager) {
                 try {
                     tm.checkClientTrusted(chain, keyType);
                     fail();

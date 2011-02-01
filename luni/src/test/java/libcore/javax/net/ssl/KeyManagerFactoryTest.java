@@ -23,9 +23,9 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.Security;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -40,16 +40,18 @@ import libcore.java.security.TestKeyStore;
 public class KeyManagerFactoryTest extends TestCase {
 
     // note the rare usage of DSA keys here in addition to RSA
-    private static final TestKeyStore TEST_KEY_STORE
-            = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
-                                  null,
-                                  null,
-                                  "rsa-dsa-ec",
-                                  TestKeyStore.localhost(),
-                                  0,
-                                  true,
-                                  null,
-                                  null);
+    private static final TestKeyStore TEST_KEY_STORE;
+
+    static {
+        try {
+            TEST_KEY_STORE = new TestKeyStore.Builder()
+                    .keyAlgorithms("RSA", "DSA", "EC", "EC_RSA")
+                    .aliasPrefix("rsa-dsa-ec")
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void test_KeyManagerFactory_getDefaultAlgorithm() throws Exception {
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
@@ -58,7 +60,7 @@ public class KeyManagerFactoryTest extends TestCase {
         test_KeyManagerFactory(kmf);
     }
 
-    private static class UseslessManagerFactoryParameters implements ManagerFactoryParameters {}
+    private static class UselessManagerFactoryParameters implements ManagerFactoryParameters {}
 
     private static boolean supportsManagerFactoryParameters(String algorithm) {
         // Only the "New" one supports ManagerFactoryParameters
@@ -94,7 +96,7 @@ public class KeyManagerFactoryTest extends TestCase {
 
         // init with useless ManagerFactoryParameters
         try {
-            kmf.init(new UseslessManagerFactoryParameters());
+            kmf.init(new UselessManagerFactoryParameters());
             fail();
         } catch (InvalidAlgorithmParameterException expected) {
         }
@@ -123,7 +125,8 @@ public class KeyManagerFactoryTest extends TestCase {
         test_KeyManagerFactory_getKeyManagers(kmf, false);
     }
 
-    private void test_KeyManagerFactory_getKeyManagers(KeyManagerFactory kmf, boolean empty) {
+    private void test_KeyManagerFactory_getKeyManagers(KeyManagerFactory kmf, boolean empty)
+            throws Exception {
         KeyManager[] keyManagers = kmf.getKeyManagers();
         assertNotNull(keyManagers);
         assertTrue(keyManagers.length > 0);
@@ -153,7 +156,8 @@ public class KeyManagerFactoryTest extends TestCase {
         // extra null at end requires no initialization
     }
 
-    private void test_X509KeyManager(X509KeyManager km, boolean empty, String algorithm) {
+    private void test_X509KeyManager(X509KeyManager km, boolean empty, String algorithm)
+            throws Exception {
         String[] keyTypes = keyTypes(algorithm);
         for (String keyType : keyTypes) {
             String[] aliases = km.getClientAliases(keyType, null);
@@ -196,7 +200,7 @@ public class KeyManagerFactoryTest extends TestCase {
     }
 
     private void test_X509ExtendedKeyManager(X509ExtendedKeyManager km,
-                                             boolean empty, String algorithm) {
+                                             boolean empty, String algorithm) throws Exception {
         String[] keyTypes = keyTypes(algorithm);
         String a = km.chooseEngineClientAlias(keyTypes, null, null);
         test_X509KeyManager_alias(km, a, null, true, empty);
@@ -215,7 +219,7 @@ public class KeyManagerFactoryTest extends TestCase {
                                            String alias,
                                            String keyType,
                                            boolean many,
-                                           boolean empty) {
+                                           boolean empty) throws Exception {
         if (empty || (!many && (keyType == null || keyType.isEmpty()))) {
             assertNull(keyType, alias);
             assertNull(keyType, km.getCertificateChain(alias));
@@ -251,8 +255,8 @@ public class KeyManagerFactoryTest extends TestCase {
         PrivateKeyEntry privateKeyEntry = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
         if (!"EC".equals(keyAlgName)) {
             assertEquals(keyType,
-                         Arrays.asList(privateKeyEntry.getCertificateChain()),
-                         Arrays.asList(certificateChain));
+                         Arrays.<Certificate>asList(privateKeyEntry.getCertificateChain()),
+                         Arrays.<Certificate>asList(certificateChain));
             assertEquals(keyType,
                          privateKeyEntry.getPrivateKey(), privateKey);
         }
