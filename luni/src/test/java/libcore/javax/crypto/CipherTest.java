@@ -49,9 +49,9 @@ public final class CipherTest extends TestCase {
         assertCipherInitWithKeyUsage(KeyUsage.keyAgreement | KeyUsage.decipherOnly,
                                                                 false, true, false, true);
 
-        // except when wraping a key is specifically allowed or
+        // except when wrapping a key is specifically allowed or
         assertCipherInitWithKeyUsage(KeyUsage.keyEncipherment,  false, true, true,  true);
-        // except when wraping data encryption is specifically allowed
+        // except when wrapping data encryption is specifically allowed
         assertCipherInitWithKeyUsage(KeyUsage.dataEncipherment, true,  true, false, true);
     }
 
@@ -100,16 +100,12 @@ public final class CipherTest extends TestCase {
         }
     }
 
-    private Certificate certificateWithKeyUsage(int keyUsage) {
+    private Certificate certificateWithKeyUsage(int keyUsage) throws Exception {
         // note the rare usage of non-zero keyUsage
-        return TestKeyStore.create(new String[] { "RSA" },
-                                   null,
-                                   null,
-                                   "rsa-dsa-ec",
-                                   TestKeyStore.localhost(),
-                                   keyUsage,
-                                   true,
-                                   null,
-                                   null).getPrivateKey("RSA", "RSA").getCertificate();
+        return new TestKeyStore.Builder()
+                .aliasPrefix("rsa-dsa-ec")
+                .keyUsage(keyUsage)
+                .build()
+                .getPrivateKey("RSA", "RSA").getCertificate();
     }
 }

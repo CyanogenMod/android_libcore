@@ -16,8 +16,6 @@
 
 package libcore.javax.net.ssl;
 
-import libcore.java.security.StandardNames;
-import libcore.java.security.TestKeyStore;
 import java.util.Arrays;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -27,6 +25,8 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
+import libcore.java.security.TestKeyStore;
 
 public class SSLEngineTest extends TestCase {
 
@@ -69,16 +69,11 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of non-RSA keys
-        TestKeyStore testKeyStore
-                = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
-                                      null,
-                                      null,
-                                      "rsa-dsa-ec",
-                                      TestKeyStore.localhost(),
-                                      0,
-                                      true,
-                                      null,
-                                      null);
+        TestKeyStore testKeyStore = new TestKeyStore.Builder()
+                .keyAlgorithms("RSA", "DSA", "EC", "EC_RSA")
+                .aliasPrefix("rsa-dsa-ec")
+                .ca(true)
+                .build();
         test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, false);
         if (StandardNames.IS_RI) {
             test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
