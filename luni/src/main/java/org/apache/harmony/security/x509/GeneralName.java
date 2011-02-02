@@ -23,8 +23,10 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,6 +85,10 @@ import org.apache.harmony.security.x501.Name;
  *   }
  *
  * </pre>
+ *
+ * <p>This class doesn't support masked addresses like "10.9.8.0/255.255.255.0".
+ * These are only necessary for NameConstraints, which are not exposed in the
+ * Java certificate API.
  *
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
@@ -389,8 +395,11 @@ public final class GeneralName {
                     return Arrays.equals(address, _address);
                 } else if (length == 2*_length) {
                     for (int i = 0; i < _address.length; i++) {
-                        if ((_address[i] < address[i])
-                                || (_address[i] > address[i+_length])) {
+                        // TODO: should the 2nd IP address be treated as a range or as a mask?
+                        int octet = _address[i] & 0xff;
+                        int min = address[i] & 0xff;
+                        int max = address[i + _length] & 0xff;
+                        if ((octet < min) || (octet > max)) {
                             return false;
                         }
                     }
@@ -626,194 +635,25 @@ public final class GeneralName {
     }
 
     /**
-     * Helper method. Converts the String representation of IP address
-     * to the array of bytes. IP addresses are expected in two versions:<br>
-     * IPv4 - in dot-decimal notation<br>
-     * IPv6 - in colon hexadecimal notation<br>
-     * Also method works with the ranges of the addresses represented
-     * as 2 addresses separated by '/' character.
-     * @param   ip String representation of IP address
-     * @return  byte representation of IP address
+     * Returns the bytes of the given IP address or masked IP address.
      */
     public static byte[] ipStrToBytes(String ip) throws IOException {
-        boolean isIPv4 = (ip.indexOf('.') > 0);
-        // number of components (should be 4 or 8)
-        int num_components = (isIPv4) ? 4 : 16;
-        if (ip.indexOf('/') > 0) {
-            num_components *= 2; // this is a range of addresses
+        if (!InetAddress.isNumeric(ip)) {
+            throw new IOException("Not an IP address: " + ip);
         }
-        // the resulting array
-        byte[] result = new byte[num_components];
-        int length = ip.length();
-        // number of address component to be read
-        int component = 0;
-        // if it is reading the second bound of a range
-        boolean reading_second_bound = false;
-        if (isIPv4) {
-            // IPv4 address is expected in the form of dot-decimal notation:
-            //      1.100.2.200
-            // or in the range form:
-            //      1.100.2.200/1.100.3.300
-            for (int i = 0; i < length; i++) {
-                int digits = 0;
-                // the value of the address component
-                int value = 0;
-                for (; i < length; i++) {
-                    int ch = ip.charAt(i);
-                    if ((ch < '0') || (ch > '9')) {
-                        break;
-                    }
-                    digits++;
-                    if (digits > 3) {
-                        throw new IOException("Component of IPv4 address should consist of no more than 3 decimal digits: " + ip);
-                    }
-                    value = 10 * value + (ch - '0');
-                    if (value > 255) {
-                        throw new IOException("Component of IPv4 address should not be more than 255: " + value);
-                    }
-                }
-                if (digits == 0) {
-                    // ch is not a number
-                    throw badIp(4, ip);
-                }
-                result[component] = (byte) value;
-                component++;
-                if (i == length) {
-                    // no more bytes
-                    break;
-                }
-                int ch = ip.charAt(i);
-                // check the reached delimiter
-                if ((ch != '.' && ch != '/')) {
-                    throw badIp(4, ip);
-                }
-                // check the correctness of the range
-                if (ch == '/') {
-                    if (reading_second_bound) {
-                        // more than 2 bounds in the range
-                        throw badIp(4, ip);
-                    }
-                    if (component != 4) {
-                        throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-                    }
-                    reading_second_bound = true;
-                }
-                // check the number of the components
-                if (component > ((reading_second_bound) ? 7 : 3)) {
-                    throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-                }
-            }
-            // check the number of read components
-            if (component != num_components) {
-                throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-            }
-        } else {
-            // IPv6 address is expected in the form of
-            // colon hexadecimal notation:
-            // 010a:020b:3337:1000:FFFA:ABCD:9999:0000
-            // or in a range form:
-            // 010a:020b:3337:1000:FFFA:ABCD:9999:0000/010a:020b:3337:1000:FFFA:ABCD:9999:1111
-            if (length != 39 && length != 79) {
-                // incorrect length of the string representation
-                throw badIp(6, ip);
-            }
-            int value = 0;
-            // indicates the reading of the second half of byte
-            boolean second_hex = false;
-            // if the delimiter (':' or '/') is expected
-            boolean expect_delimiter = false;
-            for (int i = 0; i < length; i++) {
-                char ch = ip.charAt(i);
-                int numericValue = (ch < 128) ? Character.getNumericValue(ch) : -1; // 128 for ASCII check
-                if (numericValue != -1 && numericValue <= 16) {
-                    value = numericValue;
-                } else if (second_hex) {
-                    // second hex value of a byte is expected but was not read
-                    // (it is the situation like: ...ABCD:A:ABCD...)
-                    throw badIp(6, ip);
-                } else if ((ch == ':') || (ch == '/')) {
-                    if (component % 2 == 1) {
-                        // second byte of the component is omitted
-                        // (it is the situation like: ... ABDC:AB:ABCD ...)
-                        throw badIp(6, ip);
-                    }
-                    if (ch == '/') {
-                        if (reading_second_bound) {
-                            // more than 2 bounds in the range
-                            throw badIp(6, ip);
-                        }
-                        if (component != 16) {
-                            // check the number of read components
-                            throw new IOException("IPv6 address should consist of 8 hexadecimal numbers: " + ip);
-                        }
-                        reading_second_bound = true;
-                    }
-                    expect_delimiter = false;
-                    continue;
-                } else {
-                    throw badIp(6, ip);
-                }
-                if (expect_delimiter) { // delimiter is expected but was not read
-                    throw badIp(6, ip);
-                }
-                if (!second_hex) {
-                    // first half of byte has been read
-                    result[component] = (byte) (value << 4);
-                    second_hex = true;
-                } else {
-                    // second half of byte has been read
-                    result[component] = (byte)
-                        ((result[component] & 0xFF) | value);
-                    // delimiter is expected if 2 bytes were read
-                    expect_delimiter = (component % 2 == 1);
-                    second_hex = false;
-                    component++;
-                }
-            }
-            // check the correctness of the read address:
-            if (second_hex || (component % 2 == 1)) {
-                throw badIp(6, ip);
-            }
-        }
-        return result;
-    }
-
-    private static IOException badIp(int v, String ip) throws IOException {
-        throw new IOException("Incorrect IPv" + v + " representation: " + ip);
+        return InetAddress.getByName(ip).getAddress();
     }
 
     /**
-     * Helper method. Converts the byte array representation of ip address
-     * to the String.
-     * @param   ip :   byte array representation of ip address
-     *  If the length of byte array 4 then it represents an IP v4
-     *  and the output String will be in the dotted quad form.
-     *  If the length is 16 then it represents an IP v6
-     *  and the output String will be returned in format "p1:p2:...:p8",
-     *  where p1-p8 are hexadecimal values representing the eight 16-bit
-     *  pieces of the address.
-     *  If the length is 8 or 32 then it represents an address range (RFC 1519)
-     *  and the output String will contain 2 IP address divided by "/"
-     * @return  String representation of ip address
+     * Returns the string form of the given IP address. Addresses of length 2x
+     * the canonical length are treated as a route/mask pair.
      */
     public static String ipBytesToStr(byte[] ip) {
-        String result = "";
-        if (ip.length < 9) { // IP v4
-            for (int i = 0; i < ip.length; i++) {
-                result += Integer.toString(ip[i] & 0xff);
-                if (i != ip.length-1) {
-                    result += (i == 3) ? "/": ".";
-                }
-            }
-        } else {
-            for (int i = 0; i < ip.length; i++) {
-                result += Integer.toHexString(0x00ff & ip[i]);
-                if ((i % 2 != 0) && (i != ip.length-1)) {
-                    result += (i == 15) ? "/": ":";
-                }
-            }
+        try {
+            return InetAddress.getByAddress(null, ip).getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Unexpected IP address: " + Arrays.toString(ip));
         }
-        return result;
     }
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
