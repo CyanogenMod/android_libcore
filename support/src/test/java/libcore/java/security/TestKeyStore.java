@@ -16,8 +16,13 @@
 
 package libcore.java.security;
 
+import com.android.org.bouncycastle.asn1.DEROctetString;
 import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
+import com.android.org.bouncycastle.asn1.x509.GeneralName;
+import com.android.org.bouncycastle.asn1.x509.GeneralNames;
+import com.android.org.bouncycastle.asn1.x509.GeneralSubtree;
 import com.android.org.bouncycastle.asn1.x509.KeyUsage;
+import com.android.org.bouncycastle.asn1.x509.NameConstraints;
 import com.android.org.bouncycastle.asn1.x509.X509Extensions;
 import com.android.org.bouncycastle.asn1.x509.X509Name;
 import com.android.org.bouncycastle.jce.X509Principal;
@@ -48,9 +53,12 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
@@ -68,13 +76,13 @@ import libcore.javax.net.ssl.TestTrustManager;
  */
 public final class TestKeyStore extends Assert {
 
-    private static final TestKeyStore ROOT_CA;
-    private static final TestKeyStore INTERMEDIATE_CA;
-    private static final TestKeyStore SERVER;
-    private static final TestKeyStore CLIENT;
-    private static final TestKeyStore CLIENT_CERTIFICATE;
-    private static final TestKeyStore ROOT_CA_2;
-    private static final TestKeyStore CLIENT_2;
+    private static TestKeyStore ROOT_CA;
+
+    private static TestKeyStore SERVER;
+    private static TestKeyStore CLIENT;
+    private static TestKeyStore CLIENT_CERTIFICATE;
+
+    private static TestKeyStore CLIENT_2;
 
     static {
         if (StandardNames.IS_RI) {
@@ -82,41 +90,6 @@ public final class TestKeyStore extends Assert {
             // algorithm come from the default providers
             Security.insertProviderAt(new BouncyCastleProvider(),
                                       Security.getProviders().length+1);
-        }
-
-        try {
-            ROOT_CA = new Builder()
-                    .aliasPrefix("RootCA")
-                    .subject("Test Root Certificate Authority")
-                    .ca(true)
-                    .build();
-            INTERMEDIATE_CA = new Builder()
-                    .aliasPrefix("IntermediateCA")
-                    .subject("Test Intermediate Certificate Authority")
-                    .ca(true)
-                    .signer(ROOT_CA.getPrivateKey("RSA", "RSA"))
-                    .rootCa(ROOT_CA.getRootCertificate("RSA"))
-                    .build();
-            SERVER = new Builder()
-                    .aliasPrefix("server")
-                    .signer(INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"))
-                    .rootCa(INTERMEDIATE_CA.getRootCertificate("RSA"))
-                    .build();
-            CLIENT = new TestKeyStore(createClient(INTERMEDIATE_CA.keyStore), null, null);
-            CLIENT_CERTIFICATE = new Builder()
-                    .aliasPrefix("client")
-                    .subject("test@user")
-                    .signer(INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"))
-                    .rootCa(INTERMEDIATE_CA.getRootCertificate("RSA"))
-                    .build();
-            ROOT_CA_2 = new Builder()
-                    .aliasPrefix("RootCA2")
-                    .subject("Test Root Certificate Authority 2")
-                    .ca(true)
-                    .build();
-            CLIENT_2 = new TestKeyStore(createClient(ROOT_CA_2.keyStore), null, null);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -157,10 +130,54 @@ public final class TestKeyStore extends Assert {
     }
 
     /**
+     * Lazily create shared test certificates.
+     */
+    private static synchronized void initCerts() {
+        if (ROOT_CA != null) {
+            return;
+        }
+        try {
+            ROOT_CA = new Builder()
+                    .aliasPrefix("RootCA")
+                    .subject("Test Root Certificate Authority")
+                    .ca(true)
+                    .build();
+            TestKeyStore intermediateCa = new Builder()
+                    .aliasPrefix("IntermediateCA")
+                    .subject("Test Intermediate Certificate Authority")
+                    .ca(true)
+                    .signer(ROOT_CA.getPrivateKey("RSA", "RSA"))
+                    .rootCa(ROOT_CA.getRootCertificate("RSA"))
+                    .build();
+            SERVER = new Builder()
+                    .aliasPrefix("server")
+                    .signer(intermediateCa.getPrivateKey("RSA", "RSA"))
+                    .rootCa(intermediateCa.getRootCertificate("RSA"))
+                    .build();
+            CLIENT = new TestKeyStore(createClient(intermediateCa.keyStore), null, null);
+            CLIENT_CERTIFICATE = new Builder()
+                    .aliasPrefix("client")
+                    .subject("test@user")
+                    .signer(intermediateCa.getPrivateKey("RSA", "RSA"))
+                    .rootCa(intermediateCa.getRootCertificate("RSA"))
+                    .build();
+            TestKeyStore rootCa2 = new Builder()
+                    .aliasPrefix("RootCA2")
+                    .subject("Test Root Certificate Authority 2")
+                    .ca(true)
+                    .build();
+            CLIENT_2 = new TestKeyStore(createClient(rootCa2.keyStore), null, null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Return a server keystore with a matched RSA certificate and
      * private key as well as a CA certificate.
      */
     public static TestKeyStore getServer() {
+        initCerts();
         return SERVER;
     }
 
@@ -168,6 +185,7 @@ public final class TestKeyStore extends Assert {
      * Return a keystore with a CA certificate
      */
     public static TestKeyStore getClient() {
+        initCerts();
         return CLIENT;
     }
 
@@ -176,6 +194,7 @@ public final class TestKeyStore extends Assert {
      * private key as well as a CA certificate.
      */
     public static TestKeyStore getClientCertificate() {
+        initCerts();
         return CLIENT_CERTIFICATE;
     }
 
@@ -185,6 +204,7 @@ public final class TestKeyStore extends Assert {
      * testing.
      */
     public static TestKeyStore getClientCA2() {
+        initCerts();
         return CLIENT_2;
     }
 
@@ -203,6 +223,10 @@ public final class TestKeyStore extends Assert {
         private boolean ca;
         private PrivateKeyEntry signer;
         private Certificate rootCa;
+        private final List<GeneralName> subjectAltNames = new ArrayList<GeneralName>();
+        private final Vector<GeneralSubtree> permittedNameConstraints
+                = new Vector<GeneralSubtree>();
+        private final Vector<GeneralSubtree> excludedNameConstraints = new Vector<GeneralSubtree>();
 
         public Builder() throws Exception {
             subject = localhost();
@@ -258,6 +282,30 @@ public final class TestKeyStore extends Assert {
         public Builder rootCa(Certificate rootCa) {
             this.rootCa = rootCa;
             return this;
+        }
+
+        private Builder addSubjectAltName(GeneralName generalName) {
+            subjectAltNames.add(generalName);
+            return this;
+        }
+
+        public Builder addSubjectAltNameIpAddress(byte[] ipAddress) {
+            return addSubjectAltName(
+                    new GeneralName(GeneralName.iPAddress, new DEROctetString(ipAddress)));
+        }
+
+        private Builder addNameConstraint(boolean permitted, GeneralName generalName) {
+            if (permitted) {
+                permittedNameConstraints.add(new GeneralSubtree(generalName));
+            } else {
+                excludedNameConstraints.add(new GeneralSubtree(generalName));
+            }
+            return this;
+        }
+
+        public Builder addNameConstraint(boolean permitted, byte[] ipAddress) {
+            return addNameConstraint(permitted,
+                    new GeneralName(GeneralName.iPAddress, new DEROctetString(ipAddress)));
         }
 
         public TestKeyStore build() throws Exception {
@@ -397,6 +445,15 @@ public final class TestKeyStore extends Assert {
                                         true,
                                         new BasicConstraints(true));
                 }
+                for (GeneralName subjectAltName : subjectAltNames) {
+                    x509cg.addExtension(X509Extensions.SubjectAlternativeName, false,
+                            new GeneralNames(subjectAltName).getEncoded());
+                }
+                if (!permittedNameConstraints.isEmpty() || !excludedNameConstraints.isEmpty()) {
+                    x509cg.addExtension(X509Extensions.NameConstraints, true,
+                            new NameConstraints(permittedNameConstraints, excludedNameConstraints));
+                }
+
                 PrivateKey signingKey = (caKey == null) ? privateKey : caKey;
                 if (signingKey instanceof ECPrivateKey) {
                     /*
