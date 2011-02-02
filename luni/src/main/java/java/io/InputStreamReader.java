@@ -150,11 +150,10 @@ public class InputStreamReader extends Reader {
     }
 
     /**
-     * Returns the name of the encoding used to convert bytes into characters.
-     * The value {@code null} is returned if this reader has been closed.
-     *
-     * @return the name of the character converter or {@code null} if this
-     *         reader is closed.
+     * Returns the historical name of the encoding used by this writer to convert characters to
+     * bytes, or null if this writer has been closed. Most callers should probably keep
+     * track of the String or Charset they passed in; this method may not return the same
+     * name.
      */
     public String getEncoding() {
         if (!isOpen()) {

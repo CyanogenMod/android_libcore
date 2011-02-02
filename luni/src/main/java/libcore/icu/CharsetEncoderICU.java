@@ -134,6 +134,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         try {
             // ICU needs to see an empty input.
             input = EmptyArray.CHAR;
+            inEnd = 0;
             data[INPUT_OFFSET] = 0;
 
             data[OUTPUT_OFFSET] = getArray(out);
