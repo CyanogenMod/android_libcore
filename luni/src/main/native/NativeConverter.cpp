@@ -201,32 +201,6 @@ static jfloat NativeConverter_getAveBytesPerChar(JNIEnv*, jclass, jlong address)
     return (cnv != NULL) ? ((ucnv_getMaxCharSize(cnv) + ucnv_getMinCharSize(cnv)) / 2.0) : -1;
 }
 
-static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
-        jcharArray target, jint targetEnd, jintArray data) {
-    UConverter* cnv = toUConverter(address);
-    if (cnv == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    ScopedCharArrayRW uTarget(env, target);
-    if (uTarget.get() == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    ScopedIntArrayRW myData(env, data);
-    if (myData.get() == NULL) {
-        return U_ILLEGAL_ARGUMENT_ERROR;
-    }
-    char source = '\0';
-    jint* targetOffset = &myData[1];
-    const char* mySource = &source;
-    const char* mySourceLimit = &source;
-    UChar* cTarget = uTarget.get() + *targetOffset;
-    const UChar* cTargetLimit = uTarget.get() + targetEnd;
-    UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_toUnicode(cnv, &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, TRUE, &errorCode);
-    *targetOffset = cTarget - uTarget.get() - *targetOffset;
-    return errorCode;
-}
-
 static jboolean NativeConverter_canEncode(JNIEnv*, jclass, jlong address, jint codeUnit) {
     UErrorCode errorCode = U_ZERO_ERROR;
     UConverter* cnv = toUConverter(address);
@@ -638,7 +612,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeConverter, contains, "(Ljava/lang/String;Ljava/lang/String;)Z"),
     NATIVE_METHOD(NativeConverter, decode, "(J[BI[CI[IZ)I"),
     NATIVE_METHOD(NativeConverter, encode, "(J[CI[BI[IZ)I"),
-    NATIVE_METHOD(NativeConverter, flushByteToChar, "(J[CI[I)I"),
     NATIVE_METHOD(NativeConverter, getAvailableCharsetNames, "()[Ljava/lang/String;"),
     NATIVE_METHOD(NativeConverter, getAveBytesPerChar, "(J)F"),
     NATIVE_METHOD(NativeConverter, getAveCharsPerByte, "(J)F"),

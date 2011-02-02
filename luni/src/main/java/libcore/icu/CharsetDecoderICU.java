@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import libcore.base.EmptyArray;
 
 public final class CharsetDecoderICU extends CharsetDecoder {
     private static final int MAX_CHARS_PER_BYTE = 2;
@@ -117,25 +118,17 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         }
     }
 
-    /**
-     * Flushes any characters saved in the converter's internal buffer and
-     * resets the converter.
-     * @param out action to be taken
-     * @return result of flushing action and completes the decoding all input.
-     *         Returns CoderResult.UNDERFLOW if the action succeeds.
-     * @stable ICU 2.4
-     */
-    protected final CoderResult implFlush(CharBuffer out) {
+    @Override protected final CoderResult implFlush(CharBuffer out) {
         try {
-            data[OUTPUT_OFFSET] = getArray(out);
-            ec = NativeConverter.flushByteToChar(
-                                            converterHandle,  /* Handle to ICU Converter */
-                                            output,           /* input array of chars */
-                                            outEnd,           /* input index+1 to be written */
-                                            data              /* contains data, inOff,outOff */
-                                            );
+            // ICU needs to see an empty input.
+            input = EmptyArray.BYTE;
+            inEnd = 0;
+            data[INPUT_OFFSET] = 0;
 
-            /* If we don't have room for the output, throw an exception*/
+            data[OUTPUT_OFFSET] = getArray(out);
+            data[INVALID_BYTES] = 0; // Make sure we don't see earlier errors.
+
+            ec = NativeConverter.decode(converterHandle, input, inEnd, output, outEnd, data, true);
             if (ErrorCode.isFailure(ec)) {
                 if (ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR) {
                     return CoderResult.OVERFLOW;
@@ -155,7 +148,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
        }
     }
 
-    protected void implReset() {
+    @Override protected void implReset() {
         NativeConverter.resetByteToChar(converterHandle);
         data[INPUT_OFFSET] = 0;
         data[OUTPUT_OFFSET] = 0;
@@ -171,25 +164,8 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         outEnd = 0;
     }
 
-    /**
-     * Decodes one or more bytes. The default behavior of the converter
-     * is stop and report if an error in input stream is encountered.
-     * To set different behavior use @see CharsetDecoder.onMalformedInput()
-     * This  method allows a buffer by buffer conversion of a data stream.
-     * The state of the conversion is saved between calls to convert.
-     * Among other things, this means multibyte input sequences can be
-     * split between calls. If a call to convert results in an Error, the
-     * conversion may be continued by calling convert again with suitably
-     * modified parameters.All conversions should be finished with a call to
-     * the flush method.
-     * @param in buffer to decode
-     * @param out buffer to populate with decoded result
-     * @return result of decoding action. Returns CoderResult.UNDERFLOW if the decoding
-     *         action succeeds or more input is needed for completing the decoding action.
-     * @stable ICU 2.4
-     */
-    protected CoderResult decodeLoop(ByteBuffer in, CharBuffer out){
-        if (!in.hasRemaining()){
+    @Override protected CoderResult decodeLoop(ByteBuffer in, CharBuffer out) {
+        if (!in.hasRemaining()) {
             return CoderResult.UNDERFLOW;
         }
 
@@ -198,15 +174,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         data[INPUT_HELD] = 0;
 
         try{
-            ec = NativeConverter.decode(
-                                converterHandle,  /* Handle to ICU Converter */
-                                input,            /* input array of bytes */
-                                inEnd,            /* last index+1 to be converted */
-                                output,           /* input array of chars */
-                                outEnd,           /* input index+1 to be written */
-                                data,             /* contains data, inOff,outOff */
-                                false             /* don't flush the data */
-                                );
+            ec = NativeConverter.decode(converterHandle, input, inEnd, output, outEnd, data, false);
 
             // Return an error.
             if (ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR) {
@@ -224,10 +192,6 @@ public final class CharsetDecoderICU extends CharsetDecoder {
         }
     }
 
-    /**
-     * Releases the system resources by cleanly closing ICU converter opened
-     * @stable ICU 2.4
-     */
     @Override protected void finalize() throws Throwable {
         try {
             NativeConverter.closeConverter(converterHandle);
@@ -236,10 +200,6 @@ public final class CharsetDecoderICU extends CharsetDecoder {
             super.finalize();
         }
     }
-
-    //------------------------------------------
-    // private utility methods
-    //------------------------------------------
 
     private int getArray(CharBuffer out) {
         if (out.hasArray()) {

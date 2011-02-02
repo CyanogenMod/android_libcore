@@ -181,4 +181,27 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
         assertEquals(CoderResult.UNDERFLOW, cr);
         assertEquals(expectedPosition, bb.position());
     }
+
+    public void testFlushWithoutEndOfInput() throws Exception {
+        Charset cs = Charset.forName("UTF-32BE");
+        CharsetEncoder e = cs.newEncoder();
+        ByteBuffer bb = ByteBuffer.allocate(128);
+        CoderResult cr = e.encode(CharBuffer.wrap(new char[] { 'x' }), bb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(4, bb.position());
+        try {
+            cr = e.flush(bb);
+        } catch (IllegalStateException expected) {
+            // you must call encode with endOfInput true before you can flush.
+        }
+
+        // We had a bug where we wouldn't reset inEnd before calling encode in implFlush.
+        // That would result in flush outputting garbage.
+        cr = e.encode(CharBuffer.wrap(new char[] { 'x' }), bb, true);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(8, bb.position());
+        cr = e.flush(bb);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(8, bb.position());
+    }
 }
