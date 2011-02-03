@@ -49,6 +49,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * data[INVALID_CHARS]  = number of invalid chars
      */
     private int[] data = new int[3];
+
     /* handle to the ICU converter that is opened */
     private long converterHandle=0;
 
@@ -101,8 +102,9 @@ public final class CharsetEncoderICU extends CharsetEncoder {
 
     @Override protected void implReplaceWith(byte[] newReplacement) {
         if (converterHandle != 0) {
-            if (newReplacement.length > NativeConverter.getMaxBytesPerChar(converterHandle)) {
-                throw new IllegalArgumentException("Number of replacement Bytes are greater than max bytes per char");
+            int max = NativeConverter.getMaxBytesPerChar(converterHandle);
+            if (newReplacement.length > max) {
+                throw new IllegalArgumentException("replacement length (" + newReplacement.length + ") > maximum (" + max + ")");
             }
             updateCallback();
         }
@@ -128,6 +130,13 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         data[INPUT_OFFSET] = 0;
         data[OUTPUT_OFFSET] = 0;
         data[INVALID_CHARS] = 0;
+        output = null;
+        input = null;
+        allocatedInput = null;
+        allocatedOutput = null;
+        ec = 0;
+        inEnd = 0;
+        outEnd = 0;
     }
 
     @Override protected CoderResult implFlush(ByteBuffer out) {
@@ -144,7 +153,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             if (ErrorCode.isFailure(ec)) {
                 if (ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR) {
                     return CoderResult.OVERFLOW;
-                } else if (ec == ErrorCode.U_TRUNCATED_CHAR_FOUND) {//CSDL: add this truncated character error handling
+                } else if (ec == ErrorCode.U_TRUNCATED_CHAR_FOUND) {
                     if (data[INPUT_OFFSET] > 0) {
                         return CoderResult.malformedForLength(data[INPUT_OFFSET]);
                     }
@@ -176,15 +185,14 @@ public final class CharsetEncoderICU extends CharsetEncoder {
                 } else if (ec == ErrorCode.U_INVALID_CHAR_FOUND) {
                     return CoderResult.unmappableForLength(data[INVALID_CHARS]);
                 } else if (ec == ErrorCode.U_ILLEGAL_CHAR_FOUND) {
-                    // in.position(in.position() - 1);
                     return CoderResult.malformedForLength(data[INVALID_CHARS]);
                 } else {
                     throw new AssertionError("unexpected failure: " + ec);
                 }
             }
+            // Decoding succeeded: give us more data.
             return CoderResult.UNDERFLOW;
         } finally {
-            /* save state */
             setPosition(in);
             setPosition(out);
         }
@@ -214,7 +222,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             return out.arrayOffset() + out.position();
         } else {
             outEnd = out.remaining();
-            if (allocatedOutput == null || (outEnd > allocatedOutput.length)) {
+            if (allocatedOutput == null || outEnd > allocatedOutput.length) {
                 allocatedOutput = new byte[outEnd];
             }
             // The array's start position is 0
@@ -245,10 +253,6 @@ public final class CharsetEncoderICU extends CharsetEncoder {
 
     private void setPosition(ByteBuffer out) {
         if (out.hasArray()) {
-            // in getArray method we accessed the
-            // array backing the buffer directly and wrote to
-            // it, so just just set the position and return.
-            // This is done to avoid the creation of temp array.
             out.position(out.position() + data[OUTPUT_OFFSET] - out.arrayOffset());
         } else {
             out.put(output, 0, data[OUTPUT_OFFSET]);
@@ -258,14 +262,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     private void setPosition(CharBuffer in) {
-        // Slightly rewired original code to make it cleaner. Also
-        // added a fix for the problem where input characters got
-        // lost when invalid characters were encountered. Not sure
-        // what happens when data[INVALID_CHARS] is > 1, though,
-        // since we never saw that happening.
-        int len = in.position() + data[INPUT_OFFSET];
-        len -= data[INVALID_CHARS]; // Otherwise position becomes wrong.
-        in.position(len);
+        in.position(in.position() + data[INPUT_OFFSET] - data[INVALID_CHARS]);
         // release reference to input array, which may not be ours
         input = null;
     }
