@@ -23,7 +23,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 public final class LruCacheTest extends TestCase {
-
     private int expectedCreateCount;
     private int expectedPutCount;
     private int expectedHitCount;
@@ -105,14 +104,12 @@ public final class LruCacheTest extends TestCase {
 
     public void testCreateOnCacheMiss() {
         LruCache<String, String> cache = newCreatingCache();
-
         String created = cache.get("aa");
         assertEquals("created-aa", created);
     }
 
     public void testNoCreateOnCacheHit() {
         LruCache<String, String> cache = newCreatingCache();
-
         cache.put("aa", "put-aa");
         assertEquals("put-aa", cache.get("aa"));
     }
@@ -206,6 +203,109 @@ public final class LruCacheTest extends TestCase {
         cache.put("b", "B2");
         assertEquals(expectedEvictionLog, evictionLog);
         assertSnapshot(cache, "a", "A", "c", "C", "b", "B2");
+    }
+
+    public void testCustomSizesImpactsSize() {
+        LruCache<String, String> cache = new LruCache<String, String>(10) {
+            @Override protected int sizeOf(String key, String value) {
+                return key.length() + value.length();
+            }
+        };
+
+        assertEquals(0, cache.size());
+        cache.put("a", "AA");
+        assertEquals(3, cache.size());
+        cache.put("b", "BBBB");
+        assertEquals(8, cache.size());
+        cache.put("a", "");
+        assertEquals(6, cache.size());
+    }
+
+    public void testEvictionWithCustomSizes() {
+        LruCache<String, String> cache = new LruCache<String, String>(4) {
+            @Override protected int sizeOf(String key, String value) {
+                return value.length();
+            }
+        };
+
+        cache.put("a", "AAAA");
+        assertSnapshot(cache, "a", "AAAA");
+        cache.put("b", "BBBB"); // should evict a
+        assertSnapshot(cache, "b", "BBBB");
+        cache.put("c", "CC"); // should evict b
+        assertSnapshot(cache, "c", "CC");
+        cache.put("d", "DD");
+        assertSnapshot(cache, "c", "CC", "d", "DD");
+        cache.put("e", "E"); // should evict c
+        assertSnapshot(cache, "d", "DD", "e", "E");
+        cache.put("f", "F");
+        assertSnapshot(cache, "d", "DD", "e", "E", "f", "F");
+        cache.put("g", "G"); // should evict d
+        assertSnapshot(cache, "e", "E", "f", "F", "g", "G");
+        cache.put("h", "H");
+        assertSnapshot(cache, "e", "E", "f", "F", "g", "G", "h", "H");
+        cache.put("i", "III"); // should evict e, f, and g
+        assertSnapshot(cache, "h", "H", "i", "III");
+        cache.put("j", "JJJ"); // should evict h and i
+        assertSnapshot(cache, "j", "JJJ");
+    }
+
+    public void testEvictionThrowsWhenSizesAreInconsistent() {
+        LruCache<String, int[]> cache = new LruCache<String, int[]>(4) {
+            @Override protected int sizeOf(String key, int[] value) {
+                return value[0];
+            }
+        };
+
+        int[] a = { 4 };
+        cache.put("a", a);
+
+        // get the cache size out of sync
+        a[0] = 1;
+        assertEquals(4, cache.size());
+
+        // evict something
+        try {
+            cache.put("b", new int[] { 2 });
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testEvictionThrowsWhenSizesAreNegative() {
+        LruCache<String, String> cache = new LruCache<String, String>(4) {
+            @Override protected int sizeOf(String key, String value) {
+                return -1;
+            }
+        };
+
+        try {
+            cache.put("a", "A");
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    /**
+     * Naive caches evict at most one element at a time. This is problematic
+     * because evicting a small element may be insufficient to make room for a
+     * large element.
+     */
+    public void testDifferentElementSizes() {
+        LruCache<String, String> cache = new LruCache<String, String>(10) {
+            @Override protected int sizeOf(String key, String value) {
+                return value.length();
+            }
+        };
+
+        cache.put("a", "1");
+        cache.put("b", "12345678");
+        cache.put("c", "1");
+        assertSnapshot(cache, "a", "1", "b", "12345678", "c", "1");
+        cache.put("d", "12345678"); // should evict a and b
+        assertSnapshot(cache, "c", "1", "d", "12345678");
+        cache.put("e", "12345678"); // should evict c and d
+        assertSnapshot(cache, "e", "12345678");
     }
 
     private LruCache<String, String> newCreatingCache() {

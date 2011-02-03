@@ -165,6 +165,15 @@ public class LinkedHashMap<K, V> extends HashMap<K, V> {
     }
 
     /**
+     * Returns the eldest entry in the map, or {@code null} if the map is empty.
+     * @hide
+     */
+    public Entry<K, V> eldest() {
+        LinkedEntry<K, V> eldest = header.nxt;
+        return eldest != header ? eldest : null;
+    }
+
+    /**
      * Evicts eldest entry if instructed, creates a new entry and links it in
      * as head of linked list. This method should call constructorNewEntry
      * (instead of duplicating code) if the performance of your VM permits.
