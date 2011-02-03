@@ -32,9 +32,23 @@ import java.util.Map;
  * <p>If cache values should be computed on demand for the corresponding keys,
  * override {@link #create}. This simplifies the calling code, allowing it to
  * assume a value will always be returned, even when there's a cache miss.
+ *
+ * <p>By default, the cache size is measured in the number of entries. Override
+ * {@link #sizeOf} to size the cache in different units. For, this cache is
+ * limited to 4MiB of bitmaps:
+ * <pre>   {@code
+ * int cacheSize = 4 * 1024 * 1024; // 4MiB
+ * LruCache<String, Bitmap> bitmapCache = new LruCache<String, Bitmap>(cacheSize) {
+ *     @Override protected int sizeOf(String key, Bitmap value) {
+ *         return value.getByteCount();
+ *     }
+ * }}</pre>
  */
 public class LruCache<K, V> {
-    private final Map<K, V> map;
+    private final LinkedHashMap<K, V> map;
+
+    /** Size of this cache in units. Not necessarily the number of elements. */
+    private int size;
     private final int maxSize;
 
     private int putCount;
@@ -43,25 +57,17 @@ public class LruCache<K, V> {
     private int hitCount;
     private int missCount;
 
-    public LruCache(final int maxSize) {
+    /**
+     * @param maxSize for caches that do not override {@link #sizeOf}, this is
+     *     the maximum number of entries in the cache. For all other caches,
+     *     this is the maximum sum of the sizes of the entries in this cache.
+     */
+    public LruCache(int maxSize) {
         if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
         }
         this.maxSize = maxSize;
-        this.map = new LinkedHashMap<K, V>(0, 0.75f, true) {
-            @Override protected boolean removeEldestEntry(Entry<K, V> eldest) {
-                // LinkedHashMap evicts after put, so size is always off by one
-                if (size() != maxSize + 1) {
-                    return false;
-                }
-
-                evictionCount++;
-
-                // TODO: release the lock while calling this potentially slow user code
-                entryEvicted(eldest.getKey(), eldest.getValue());
-                return true;
-            }
-        };
+        this.map = new LinkedHashMap<K, V>(0, 0.75f, true);
     }
 
     /**
@@ -88,7 +94,9 @@ public class LruCache<K, V> {
 
         if (result != null) {
             createCount++;
+            size += safeSizeOf(key, result);
             map.put(key, result);
+            trimToSize();
         }
         return result;
     }
@@ -106,7 +114,36 @@ public class LruCache<K, V> {
         }
 
         putCount++;
-        return map.put(key, value);
+        size += safeSizeOf(key, value);
+        V previous = map.put(key, value);
+        if (previous != null) {
+            size -= safeSizeOf(key, previous);
+        }
+        trimToSize();
+        return previous;
+    }
+
+    private void trimToSize() {
+        while (size > maxSize) {
+            Map.Entry<K, V> toEvict = map.eldest();
+            if (toEvict == null) {
+                break; // map is empty so size should be 0! Throw an error below
+            }
+
+            K key = toEvict.getKey();
+            V value = toEvict.getValue();
+            map.remove(key);
+            size -= safeSizeOf(key, value);
+            evictionCount++;
+
+            // TODO: release the lock while calling this potentially slow user code
+            entryEvicted(key, value);
+        }
+
+        if (size < 0 || (map.isEmpty() && size != 0)) {
+            throw new IllegalStateException(getClass().getName()
+                    + ".sizeOf() is reporting inconsistent results!");
+        }
     }
 
     /**
@@ -122,6 +159,34 @@ public class LruCache<K, V> {
      */
     protected V create(K key) {
         return null;
+    }
+
+    private int safeSizeOf(K key, V value) {
+        int result = sizeOf(key, value);
+        if (result < 0) {
+            throw new IllegalStateException("Negative size: " + key + "=" + value);
+        }
+        return result;
+    }
+
+    /**
+     * Returns the size of the entry for {@code key} and {@code value} in
+     * user-defined units.  The default implementation returns 1 so that size
+     * is the number of entries and max size is the maximum number of entries.
+     *
+     * <p>An entry's size must not change while it is in the cache.
+     */
+    protected int sizeOf(K key, V value) {
+        return 1;
+    }
+
+    /**
+     * For caches that do not override {@link #sizeOf}, this is the number of
+     * entries in the cache. For all other caches, this is the sum of the sizes
+     * of the entries in this cache.
+     */
+    public synchronized final int size() {
+        return size;
     }
 
     /**
