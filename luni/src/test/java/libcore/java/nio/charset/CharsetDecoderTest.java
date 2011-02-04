@@ -25,11 +25,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
-public class OldCharsetDecoderTest extends junit.framework.TestCase {
-    private static final String CHARSET = "UTF-16";
-
-    private static final String SAMPLE_STRING = "Android";
-
+public class CharsetDecoderTest extends junit.framework.TestCase {
     // None of the harmony or jtreg tests actually check that replaceWith does the right thing!
     public void test_replaceWith() throws Exception {
         CharsetDecoder d = Charset.forName("UTF-16").newDecoder();
@@ -42,8 +38,8 @@ public class OldCharsetDecoderTest extends junit.framework.TestCase {
 
     // http://code.google.com/p/android/issues/detail?id=4237
     public void test_ByteArray_decode_no_offset() throws Exception {
-        CharsetDecoder decoder = getCharsetDecoderUnderTest();
-        byte[] arr = getEncodedByteArrayFixture();
+        CharsetDecoder decoder = Charset.forName("UTF-16").newDecoder();
+        byte[] arr = encode("UTF-16", "Android");
         ByteBuffer inBuffer = ByteBuffer.wrap(arr, 0, arr.length).slice();
         CharBuffer outBuffer = CharBuffer.allocate(arr.length);
         decoder.reset();
@@ -51,13 +47,13 @@ public class OldCharsetDecoderTest extends junit.framework.TestCase {
         assertFalse(coderResult.toString(), coderResult.isError());
         decoder.flush(outBuffer);
         outBuffer.flip();
-        assertEquals(SAMPLE_STRING, outBuffer.toString().trim());
+        assertEquals("Android", outBuffer.toString().trim());
     }
 
     // http://code.google.com/p/android/issues/detail?id=4237
     public void test_ByteArray_decode_with_offset() throws Exception {
-        CharsetDecoder decoder = getCharsetDecoderUnderTest();
-        byte[] arr = getEncodedByteArrayFixture();
+        CharsetDecoder decoder = Charset.forName("UTF-16").newDecoder();
+        byte[] arr = encode("UTF-16", "Android");
         arr = prependByteToByteArray(arr, new Integer(1).byteValue());
         int offset = 1;
         ByteBuffer inBuffer = ByteBuffer.wrap(arr, offset, arr.length - offset).slice();
@@ -67,17 +63,17 @@ public class OldCharsetDecoderTest extends junit.framework.TestCase {
         assertFalse(coderResult.toString(), coderResult.isError());
         decoder.flush(outBuffer);
         outBuffer.flip();
-        assertEquals(SAMPLE_STRING, outBuffer.toString().trim());
+        assertEquals("Android", outBuffer.toString().trim());
     }
 
     // http://code.google.com/p/android/issues/detail?id=4237
     public void test_ByteArray_decode_with_offset_using_facade_method() throws Exception {
-        CharsetDecoder decoder = getCharsetDecoderUnderTest();
-        byte[] arr = getEncodedByteArrayFixture();
+        CharsetDecoder decoder = Charset.forName("UTF-16").newDecoder();
+        byte[] arr = encode("UTF-16", "Android");
         arr = prependByteToByteArray(arr, new Integer(1).byteValue());
         int offset = 1;
         CharBuffer outBuffer = decoder.decode(ByteBuffer.wrap(arr, offset, arr.length - offset));
-        assertEquals(SAMPLE_STRING, outBuffer.toString().trim());
+        assertEquals("Android", outBuffer.toString().trim());
     }
 
     private static byte[] prependByteToByteArray(byte[] arr, byte b) {
@@ -87,12 +83,26 @@ public class OldCharsetDecoderTest extends junit.framework.TestCase {
         return result;
     }
 
-    private static CharsetDecoder getCharsetDecoderUnderTest() {
-        return Charset.forName(CHARSET).newDecoder();
+    private static byte[] encode(String charsetName, String s) throws Exception {
+        CharsetEncoder encoder = Charset.forName(charsetName).newEncoder();
+        return encoder.encode(CharBuffer.wrap(s)).array();
     }
 
-    private byte[] getEncodedByteArrayFixture() throws CharacterCodingException {
-        CharsetEncoder encoder = Charset.forName(CHARSET).newEncoder();
-        return encoder.encode(CharBuffer.wrap(SAMPLE_STRING)).array();
+    public void testUtf8BytesSplitAcrossMultipleWrites() throws Exception {
+        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+        CharBuffer cb = CharBuffer.allocate(128);
+        CoderResult cr;
+        cr = decoder.decode(ByteBuffer.wrap(new byte[] { (byte) 0xe2 }), cb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        cr = decoder.decode(ByteBuffer.wrap(new byte[] { (byte) 0x98 }), cb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        cr = decoder.decode(ByteBuffer.wrap(new byte[] { (byte) 0x83 }), cb, false);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        cr = decoder.decode(ByteBuffer.wrap(new byte[0]), cb, true);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        cr = decoder.flush(cb);
+        assertEquals(CoderResult.UNDERFLOW, cr);
+        assertEquals(1, cb.position());
+        assertEquals('\u2603', cb.get(0));
     }
 }

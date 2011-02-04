@@ -110,12 +110,12 @@ static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
 
     // If there was an error, count the problematic characters.
     if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND) {
-        int8_t len = 32;
+        int8_t invalidUCharCount = 32;
         UChar invalidUChars[32];
         UErrorCode minorErrorCode = U_ZERO_ERROR;
-        ucnv_getInvalidUChars(cnv, invalidUChars, &len, &minorErrorCode);
+        ucnv_getInvalidUChars(cnv, invalidUChars, &invalidUCharCount, &minorErrorCode);
         if (U_SUCCESS(minorErrorCode)) {
-            myData[2] = len;
+            myData[2] = invalidUCharCount;
         }
     }
     return errorCode;
@@ -154,18 +154,14 @@ static jint NativeConverter_decode(JNIEnv* env, jclass, jlong address,
     *sourceOffset = mySource - reinterpret_cast<const char*>(uSource.get()) - *sourceOffset;
     *targetOffset = cTarget - uTarget.get() - *targetOffset;
 
-    // Check how much more input is necessary to complete what's in the converter's internal buffer.
-    UErrorCode minorErrorCode = U_ZERO_ERROR;
-    jint pending = ucnv_toUCountPending(cnv, &minorErrorCode);
-    myData[3] = pending;
-
     // If there was an error, count the problematic bytes.
     if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND) {
-        int8_t len = 32;
-        char invalidChars[32] = {'\0'};
-        ucnv_getInvalidChars(cnv, invalidChars, &len, &minorErrorCode);
+        int8_t invalidByteCount = 32;
+        char invalidBytes[32] = {'\0'};
+        UErrorCode minorErrorCode = U_ZERO_ERROR;
+        ucnv_getInvalidChars(cnv, invalidBytes, &invalidByteCount, &minorErrorCode);
         if (U_SUCCESS(minorErrorCode)) {
-            myData[2] = len;
+            myData[2] = invalidByteCount;
         }
     }
 
@@ -376,12 +372,9 @@ static void encoderReplaceCallback(const void* rawContext,
 
 static UConverterFromUCallback getFromUCallback(int32_t mode) {
     switch(mode) {
-    case NativeConverter_REPORT:
-        return UCNV_FROM_U_CALLBACK_STOP;
-    case NativeConverter_IGNORE:
-        return UCNV_FROM_U_CALLBACK_SKIP;
-    case NativeConverter_REPLACE:
-        return encoderReplaceCallback;
+    case NativeConverter_IGNORE: return UCNV_FROM_U_CALLBACK_SKIP;
+    case NativeConverter_REPLACE: return encoderReplaceCallback;
+    case NativeConverter_REPORT: return UCNV_FROM_U_CALLBACK_STOP;
     }
     abort();
 }
@@ -396,12 +389,12 @@ static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address
     const void* fromUOldContext = NULL;
     ucnv_getFromUCallBack(cnv, &fromUOldAction, const_cast<const void**>(&fromUOldContext));
 
-    /* fromUOldContext can only be DecodeCallbackContext since
+    /* fromUOldContext can only be EncoderCallbackContext since
      * the converter created is private data for the decoder
      * and callbacks can only be set via this method!
      */
-    EncoderCallbackContext* fromUNewContext=NULL;
-    UConverterFromUCallback fromUNewAction=NULL;
+    EncoderCallbackContext* fromUNewContext = NULL;
+    UConverterFromUCallback fromUNewAction = NULL;
     if (fromUOldContext == NULL) {
         fromUNewContext = new EncoderCallbackContext;
         fromUNewAction = CHARSET_ENCODER_CALLBACK;
@@ -487,7 +480,7 @@ static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address
     const void* toUOldContext;
     ucnv_getToUCallBack(cnv, &toUOldAction, &toUOldContext);
 
-    /* toUOldContext can only be DecodeCallbackContext since
+    /* toUOldContext can only be DecoderCallbackContext since
      * the converter created is private data for the decoder
      * and callbacks can only be set via this method!
      */
