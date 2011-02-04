@@ -18,9 +18,6 @@
 package libcore.java.nio.channels;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -40,7 +37,6 @@ import java.nio.channels.spi.SelectorProvider;
 import junit.framework.TestCase;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(SocketChannel.class)
 /**
  * Tests for SocketChannel and its default implementation.
  */
@@ -247,15 +243,6 @@ public class OldSocketChannelTest extends TestCase {
         return connected;
     }
 
-    /**
-     * @tests java.nio.channels.SocketChannel#read(ByteBuffer)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {java.nio.ByteBuffer.class}
-    )
     @BrokenTest("Occasionally fail in CTS, but works in CoreTestRunner")
     public void test_writeLjava_nio_ByteBuffer_Nonblocking_HugeData() throws IOException {
         // initialize write content
@@ -299,16 +286,6 @@ public class OldSocketChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @throws IOException
-     * @tests java.nio.channels.SocketChannel#read(ByteBuffer)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_socketChannel_read_DirectByteBuffer() throws InterruptedException, IOException {
 
         ServerThread server = new ServerThread();

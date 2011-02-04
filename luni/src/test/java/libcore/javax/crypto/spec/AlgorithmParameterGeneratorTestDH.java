@@ -16,9 +16,6 @@
 package libcore.javax.crypto.spec;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import tests.security.AlgorithmParameterGeneratorTest;
 import tests.security.AlgorithmParameterKeyAgreementHelper;
 
@@ -29,23 +26,6 @@ public class AlgorithmParameterGeneratorTestDH extends
         super("DH", new AlgorithmParameterKeyAgreementHelper("DH"));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="init",
-                args={int.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     @BrokenTest("Suffers from DH slowness, disabling for now")
     public void testAlgorithmParameterGenerator() {
         super.testAlgorithmParameterGenerator();

@@ -17,9 +17,6 @@
 
 package libcore.java.nio.channels;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -33,7 +30,6 @@ import tests.support.Support_PortManager;
 /*
  * test for ServerSocketChannel
  */
-@TestTargetClass(ServerSocketChannel.class)
 public class OldServerSocketChannelTest extends TestCase {
 
     private static final int TIME_UNIT = 200;
@@ -75,15 +71,6 @@ public class OldServerSocketChannelTest extends TestCase {
     // -------------------------------------------------------------------
     // Test for methods in abstract class.
     // -------------------------------------------------------------------
-    /*
-     * Test method for 'java.nio.channels.ServerSocketChannel()'
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ServerSocketChannel",
-        args = {java.nio.channels.spi.SelectorProvider.class}
-    )
     public void testConstructor() throws IOException {
         ServerSocketChannel channel =
                 SelectorProvider.provider().openServerSocketChannel();
@@ -91,24 +78,12 @@ public class OldServerSocketChannelTest extends TestCase {
         assertSame(SelectorProvider.provider(),channel.provider());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "isOpen",
-        args = {}
-    )
     public void testIsOpen() throws Exception {
         assertTrue(this.serverChannel.isOpen());
         this.serverChannel.close();
         assertFalse(this.serverChannel.isOpen());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies ClosedByInterruptException.",
-        method = "accept",
-        args = {}
-    )
     public void test_accept_Block_NoConnect_interrupt() throws IOException {
         assertTrue(this.serverChannel.isBlocking());
         ServerSocket gotSocket = this.serverChannel.socket();

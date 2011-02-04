@@ -23,9 +23,6 @@
 package libcore.java.security.cert;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.ByteArrayInputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
@@ -43,18 +40,8 @@ import tests.targets.security.KeyStoreTestPKCS12;
 /**
  * Tests for <code>PKIXParameters</code> fields and methods
  */
-@TestTargetClass(PKIXParameters.class)
 public class OldPKIXParametersTest extends TestCase {
 
-    /**
-     * Test for <code>clone()</code> method<br>
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public final void testClone() throws InvalidAlgorithmParameterException {
         Set<TrustAnchor> taSet = TestUtils.getTrustAnchorSet();
         if (taSet == null) {
@@ -112,12 +99,6 @@ public class OldPKIXParametersTest extends TestCase {
      *
      * @throws InvalidAlgorithmParameterException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isPolicyMappingInhibited",
-        args = {}
-    )
     public final void testIsPolicyMappingInhibited() throws Exception {
         Set<TrustAnchor> taSet = TestUtils.getTrustAnchorSet();
         if (taSet == null) {
@@ -146,12 +127,6 @@ public class OldPKIXParametersTest extends TestCase {
      *
      * @throws InvalidAlgorithmParameterException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isRevocationEnabled",
-        args = {}
-    )
     public final void testIsRevocationEnabled() throws Exception {
         Set<TrustAnchor> taSet = TestUtils.getTrustAnchorSet();
         if (taSet == null) {
@@ -176,12 +151,6 @@ public class OldPKIXParametersTest extends TestCase {
     /**
      * Test for <code>toString</code> method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public final void testToString() throws Exception {
         Set<TrustAnchor> taSet = TestUtils.getTrustAnchorSet();
         if (taSet == null) {
@@ -207,12 +176,6 @@ public class OldPKIXParametersTest extends TestCase {
      * @throws InvalidAlgorithmParameterException
      * @throws KeyStoreException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies everything except null argument",
-        method = "PKIXParameters",
-        args = {java.security.KeyStore.class}
-    )
     @BrokenTest("Fails in CTS environment, but passes in CoreTestRunner")
     public final void testPKIXParametersKeyStore04() throws Exception {
 

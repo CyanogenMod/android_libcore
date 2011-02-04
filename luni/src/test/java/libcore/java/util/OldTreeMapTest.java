@@ -17,9 +17,6 @@
 
 package libcore.java.util;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.Serializable;
 import java.text.CollationKey;
 import java.text.Collator;
@@ -33,7 +30,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import tests.support.Support_MapTest2;
 
-@TestTargetClass(TreeMap.class)
 public class OldTreeMapTest extends junit.framework.TestCase {
 
     public static class ReversedComparator implements Comparator {
@@ -84,15 +80,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
 
     Object objArray[] = new Object[1000];
 
-    /**
-     * @tests java.util.TreeMap#TreeMap()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeMap",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.TreeMap()
         new Support_MapTest2(new TreeMap()).runTest();
@@ -100,15 +87,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         assertTrue("New treeMap non-empty", new TreeMap().isEmpty());
     }
 
-    /**
-     * @tests java.util.TreeMap#TreeMap(java.util.Comparator)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeMap",
-        args = {java.util.Comparator.class}
-    )
     public void test_ConstructorLjava_util_Comparator() {
         // Test for method java.util.TreeMap(java.util.Comparator)
         Comparator comp = new ReversedComparator();
@@ -124,15 +102,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
 
     }
 
-    /**
-     * @tests java.util.TreeMap#TreeMap(java.util.Map)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeMap",
-        args = {java.util.Map.class}
-    )
     public void test_ConstructorLjava_util_Map() {
         // Test for method java.util.TreeMap(java.util.Map)
         TreeMap myTreeMap = new TreeMap(new HashMap(tm));
@@ -161,15 +130,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#TreeMap(java.util.SortedMap)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeMap",
-        args = {java.util.SortedMap.class}
-    )
     public void test_ConstructorLjava_util_SortedMap() {
         // Test for method java.util.TreeMap(java.util.SortedMap)
         Comparator comp = new ReversedComparator();
@@ -192,15 +152,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#containsKey(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsKey",
-        args = {java.lang.Object.class}
-    )
     public void test_containsKeyLjava_lang_Object() {
         // Test for method boolean
         // java.util.TreeMap.containsKey(java.lang.Object)
@@ -222,15 +173,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#firstKey()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "firstKey",
-        args = {}
-    )
     public void test_firstKey() {
         // Test for method java.lang.Object java.util.TreeMap.firstKey()
         assertEquals("Returned incorrect first key", "0", tm.firstKey());
@@ -243,15 +185,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#get(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_getLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.TreeMap.get(java.lang.Object)
@@ -274,15 +207,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#headMap(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "headMap",
-        args = {java.lang.Object.class}
-    )
     public void test_headMapLjava_lang_Object() {
         // Test for method java.util.SortedMap
         // java.util.TreeMap.headMap(java.lang.Object)
@@ -362,15 +286,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         assertEquals(0, treemap.headMap(null).size());
     }
 
-    /**
-     * @tests java.util.TreeMap#lastKey()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "lastKey",
-        args = {}
-    )
     public void test_lastKey() {
         // Test for method java.lang.Object java.util.TreeMap.lastKey()
         assertTrue("Returned incorrect last key", tm.lastKey().equals(
@@ -384,15 +299,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#put(java.lang.Object, java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.TreeMap.put(java.lang.Object, java.lang.Object)
@@ -435,15 +341,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#putAll(java.util.Map)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map() {
         // Test for method void java.util.TreeMap.putAll(java.util.Map)
         TreeMap x = new TreeMap();
@@ -472,15 +369,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#remove(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.TreeMap.remove(java.lang.Object)
@@ -502,15 +390,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#subMap(java.lang.Object, java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "subMap",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_subMapLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.util.SortedMap
         // java.util.TreeMap.subMap(java.lang.Object, java.lang.Object)
@@ -569,15 +448,6 @@ public class OldTreeMapTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeMap#tailMap(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "tailMap",
-        args = {java.lang.Object.class}
-    )
     public void test_tailMapLjava_lang_Object() {
         // Test for method java.util.SortedMap
         // java.util.TreeMap.tailMap(java.lang.Object)

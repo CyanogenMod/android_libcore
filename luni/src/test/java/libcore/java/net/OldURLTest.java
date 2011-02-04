@@ -16,9 +16,6 @@
 
 package libcore.java.net;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,7 +40,6 @@ import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;
 
-@TestTargetClass(URL.class)
 public class OldURLTest extends TestCase {
 
     private static final String helloWorldString = "Hello World";
@@ -56,15 +52,6 @@ public class OldURLTest extends TestCase {
         super.tearDown();
     }
 
-    /**
-     * @tests java.net.URL#URL(java.lang.String, java.lang.String, int, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Regression test.",
-        method = "URL",
-        args = {java.lang.String.class, java.lang.String.class, int.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_StringILjava_lang_String()
             throws MalformedURLException {
         // Regression for HARMONY-83
@@ -77,16 +64,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.net.URL#URL(java.lang.String, java.lang.String,
-     *        java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "URL",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_StringLjava_lang_String() throws MalformedURLException {
         // Strange behavior in reference, the hostname contains a ':' so it gets wrapped in '[', ']'
         URL testURL = new URL("http", "www.apache.org:8082", "test.html#anch");
@@ -104,16 +81,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.net.URL#URL(String, String, String)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test.",
-        method = "URL",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_java_protocol_handler_pkgs_prop() throws MalformedURLException {
         // Regression test for Harmony-3094
         final String HANDLER_PKGS = "java.protocol.handler.pkgs";
@@ -126,15 +93,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#hashCode()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() throws MalformedURLException {
         URL testURL1 = new URL("http", "www.apache.org:8080", "test.html#anch");
         URL testURL2 = new URL("http", "www.apache.org:8080", "test.html#anch");
@@ -146,15 +104,6 @@ public class OldURLTest extends TestCase {
                 .hashCode() == changedURL.hashCode());
     }
 
-    /**
-     * Test method for {@link java.net.URL#setURLStreamHandlerFactory(java.net.URLStreamHandlerFactory)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "cannot test since no sophisticated StreamHandlerFactory available.",
-        method = "setURLStreamHandlerFactory",
-        args = {java.net.URLStreamHandlerFactory.class}
-    )
     public void testSetURLStreamHandlerFactory() throws MalformedURLException, IOException, IllegalArgumentException, IllegalAccessException {
         URLStreamHandlerFactory factory = new MyURLStreamHandlerFactory();
         Field streamHandlerFactoryField = null;
@@ -199,15 +148,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#URL(java.lang.String)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "URL",
-        args = {java.lang.String.class}
-    )
     public void testURLString() throws MalformedURLException {
         URL testURL = new URL("ftp://myname@host.dom/etc/motd");
 
@@ -227,15 +167,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#URL(java.net.URL, java.lang.String)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "URL",
-        args = {java.net.URL.class, java.lang.String.class}
-    )
     public void testURLURLString() throws MalformedURLException {
 
         URL gamelan = new URL("http://www.gamelan.com/pages/");
@@ -282,15 +213,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#equals(java.lang.Object)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEqualsObject() throws MalformedURLException {
         URL testURL1 = new URL("http", "www.apache.org", 8080, "test.html");
         URL wrongProto = new URL("ftp", "www.apache.org", 8080, "test.html");
@@ -310,15 +232,6 @@ public class OldURLTest extends TestCase {
         assertTrue("Assert 4: error in equals: same", testURL3.equals(testURL4));
     }
 
-    /**
-     * Test method for {@link java.net.URL#sameFile(java.net.URL)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "non trivial reference test fails",
-        method = "sameFile",
-        args = {java.net.URL.class}
-    )
     public void testSameFile() throws MalformedURLException {
         URL gamelan = new URL("file:///pages/index.html");
         URL gamelanFalse = new URL("file:///pages/out/index.html");
@@ -335,15 +248,6 @@ public class OldURLTest extends TestCase {
         assertFalse(url.sameFile(url1));
     }
 
-    /**
-     * Test method for {@link java.net.URL#getContent()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "image and sound content not testable: mime types",
-        method = "getContent",
-        args = {}
-    )
     public void testGetContent() throws MalformedURLException {
 
         File sampleFile = createTempHelloWorldFile();
@@ -371,15 +275,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#openStream()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "openStream",
-        args = {}
-    )
     public void testOpenStream() throws MalformedURLException, IOException {
 
         File sampleFile = createTempHelloWorldFile();
@@ -422,15 +317,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#openConnection()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "openConnection",
-        args = {}
-    )
     public void testOpenConnection() throws MalformedURLException, IOException {
 
         File sampleFile = createTempHelloWorldFile();
@@ -458,15 +344,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#toURI()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toURI",
-        args = {}
-    )
     public void testToURI() throws MalformedURLException, URISyntaxException {
         String testHTTPURLString = "http://www.gamelan.com/pages/";
         String testFTPURLString = "ftp://myname@host.dom/etc/motd";
@@ -517,15 +394,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#toString()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
@@ -536,15 +404,6 @@ public class OldURLTest extends TestCase {
         assertEquals("http://www.gamelan.com/pages/", testHTTPURL.toString());
     }
 
-    /**
-     * Test method for {@link java.net.URL#toExternalForm()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "simple tests",
-        method = "toExternalForm",
-        args = {}
-    )
     public void testToExternalForm() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
@@ -555,15 +414,6 @@ public class OldURLTest extends TestCase {
         assertEquals("http://www.gamelan.com/pages/", testHTTPURL.toExternalForm());
     }
 
-    /**
-     * Test method for {@link java.net.URL#getFile()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFile",
-        args = {}
-    )
     public void testGetFile() throws MalformedURLException {
 
         File sampleFile = createTempHelloWorldFile();
@@ -574,15 +424,6 @@ public class OldURLTest extends TestCase {
         assertEquals(sampleFile.getPath(),fileURL.getFile());
     }
 
-    /**
-     * Test method for {@link java.net.URL#getPort()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPort",
-        args = {}
-    )
     public void testGetPort() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
@@ -595,15 +436,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#getProtocol()}.
-     */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getProtocol",
-      args = {}
-    )
     public void testGetProtocol() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testHTTPSURL = new URL("https://www.gamelan.com/pages/");
@@ -619,15 +451,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#getRef()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getRef",
-        args = {}
-    )
     public void testGetRef() throws MalformedURLException {
         URL gamelan = new URL("http://www.gamelan.com/pages/");
 
@@ -644,15 +467,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#getQuery()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getQuery",
-        args = {}
-    )
     public void testGetQuery() throws MalformedURLException {
         URL urlQuery = new URL(
                 "http://www.example.com/index.html?attrib1=value1&attrib2=value&attrib3#anchor");
@@ -665,15 +479,6 @@ public class OldURLTest extends TestCase {
         assertTrue(output == null || "".equals(output));
     }
 
-    /**
-     * Test method for {@link java.net.URL#getPath()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPath",
-        args = {}
-    )
     public void testGetPath() throws MalformedURLException {
         URL url = new URL("http://www.example.com");
         String output = url.getPath();
@@ -684,15 +489,6 @@ public class OldURLTest extends TestCase {
         assertEquals("/foo/index.html",url2.getPath());
     }
 
-    /**
-     * Test method for {@link java.net.URL#getUserInfo()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getUserInfo",
-        args = {}
-    )
     public void testGetUserInfo() throws MalformedURLException {
         URL urlNoUserInfo = new URL("http://www.java2s.com:8080");
         URL url = new URL("ftp://myUser:password@host.dom/etc/motd");
@@ -702,15 +498,6 @@ public class OldURLTest extends TestCase {
         assertTrue("".equals(userInfo) || null == userInfo);
     }
 
-    /**
-     * Test method for {@link java.net.URL#getAuthority()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAuthority",
-        args = {}
-    )
     public void testGetAuthority() throws MalformedURLException, URISyntaxException {
         // legal authority information userInfo (user,password),domain,port
 
@@ -727,15 +514,6 @@ public class OldURLTest extends TestCase {
         assertTrue("".equals(output) || null == output);
     }
 
-    /**
-     * Test method for {@link java.net.URL#getDefaultPort()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultPort",
-        args = {}
-    )
     public void testGetDefaultPort() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
@@ -873,15 +651,6 @@ public class OldURLTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link java.net.URL#URL(java.lang.String, java.lang.String, int, java.lang.String, java.net.URLStreamHandler)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch. No meaningful MalformedURLException foundwhich doesn't end as a NullPointerException.",
-        method = "URL",
-        args = {java.lang.String.class, java.lang.String.class, int.class, java.lang.String.class, java.net.URLStreamHandler.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_StringILjava_lang_StringLjava_net_URLStreamHandler()
             throws Exception {
         u = new URL("http", "www.yahoo.com", 8080, "test.html#foo", null);
@@ -918,15 +687,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#getContent(java.lang.Class[])}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "throws unexpected exception: NullPointerException in first execution",
-        method = "getContent",
-        args = {java.lang.Class[].class}
-    )
     public void test_getContent_LJavaLangClass() throws Exception {
 
         File sampleFile = createTempHelloWorldFile();
@@ -965,15 +725,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#URL(java.net.URL, java.lang.String, java.net.URLStreamHandler)}.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch",
-        method = "URL",
-        args = {java.net.URL.class, java.lang.String.class, java.net.URLStreamHandler.class}
-    )
     public void testURLURLStringURLStreamHandler() throws MalformedURLException {
         u = new URL("http://www.yahoo.com");
         // basic ones
@@ -1030,15 +781,6 @@ public class OldURLTest extends TestCase {
 
     }
 
-    /**
-     * Test method for {@link java.net.URL#toExternalForm()}.
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "From harmony branch",
-        method = "toExternalForm",
-        args = {}
-    )
     public void test_toExternalForm_Relative() throws MalformedURLException {
         String strURL = "http://a/b/c/d;p?q";
         String ref = "?y";
@@ -1046,12 +788,6 @@ public class OldURLTest extends TestCase {
         assertEquals("http://a/b/c/?y", url.toExternalForm());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "From harmony branch",
-        method = "toExternalForm",
-        args = {}
-    )
     public void test_toExternalForm_Absolute() throws MalformedURLException {
         String strURL = "http://localhost?name=value";
         URL url = new URL(strURL);

@@ -16,10 +16,6 @@
 
 package libcore.java.net;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,43 +39,15 @@ import tests.support.Support_PortManager;
 import tests.support.Support_TestWebData;
 import tests.support.Support_TestWebServer;
 
-@TestTargetClass(value = ResponseCache.class)
 public class OldResponseCacheTest extends TestCase {
 
 
 
-    /**
-     * @tests java.net.ResponseCache#getDefault()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getDefault method.",
-        method = "getDefault",
-        args = {}
-    )
     public void test_GetDefault() throws Exception {
         assertNull(ResponseCache.getDefault());
     }
 
-    /**
-     * @tests java.net.ResponseCache#setDefault(ResponseCache)
-     */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "This is a complete subset of tests for setDefault method.",
-            method = "setDefault",
-            args = {java.net.ResponseCache.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "This is a complete subset of tests for setDefault method.",
-            method = "ResponseCache",
-            args = {}
-        )
-    })
-    public void test_SetDefaultLjava_net_ResponseCache_Normal()
-            throws Exception {
+    public void test_SetDefaultLjava_net_ResponseCache_Normal() throws Exception {
         ResponseCache rc1 = new MockResponseCache();
         ResponseCache rc2 = new MockResponseCache();
         ResponseCache.setDefault(rc1);
@@ -90,12 +58,6 @@ public class OldResponseCacheTest extends TestCase {
         assertNull(ResponseCache.getDefault());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {URI.class, String.class, Map.class}
-    )
     public void test_get() throws Exception {
         String uri = "http://localhost/";
         URL url  = new URL(uri);
@@ -118,12 +80,6 @@ public class OldResponseCacheTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {URI.class, URLConnection.class}
-    )
     public void test_put() throws Exception {
         // Create test ResponseCache
         TestResponseCache cache = new TestResponseCache(

@@ -17,11 +17,9 @@
 
 package libcore.java.security;
 
-import dalvik.annotation.TestTargetClass;
 import java.security.AlgorithmParameterGenerator;
 import java.security.SecureRandom;
 
-@TestTargetClass(AlgorithmParameterGenerator.class)
 public class OldAlgorithmParameterGeneratorTest extends junit.framework.TestCase {
 
     public void test_initI() throws Exception {

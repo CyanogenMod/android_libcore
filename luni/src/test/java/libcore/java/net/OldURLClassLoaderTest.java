@@ -18,9 +18,6 @@
 package libcore.java.net;
 
 import dalvik.annotation.SideEffect;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,17 +40,6 @@ import tests.support.Support_TestWebData;
 import tests.support.Support_TestWebServer;
 import tests.support.resource.Support_Resources;
 
-@TestTargetClass(
-    value = URLClassLoader.class,
-    untestedMethods = {
-        @TestTargetNew(
-            level = TestLevel.NOT_NECESSARY,
-            notes = "findClass uses defineClass which is not implemented",
-            method = "findClass",
-            args = {java.lang.String.class}
-        )
-    }
-)
 public class OldURLClassLoaderTest extends junit.framework.TestCase {
 
     URLClassLoader ucl;
@@ -142,12 +128,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
         assertEquals("Incorrect number of resources returned", 2, i);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addURL",
-        args = { URL.class }
-    )
     public void test_addURLLjava_net_URL() throws MalformedURLException {
         URL[] u = new URL[0];
 
@@ -243,15 +223,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.net.URLClassLoader#findResource(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "findResource",
-        args = {java.lang.String.class}
-    )
     @SideEffect("Support_TestWebServer requires isolation.")
     public void test_findResourceLjava_lang_String() throws Exception {
         int port = Support_PortManager.getNextPort();
@@ -278,12 +249,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
     /**
      * Regression for Harmony-2237
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test",
-        method = "findResource",
-        args = {java.lang.String.class}
-    )
     @SideEffect("Support_TestWebServer requires isolation.")
     public void test_findResource_String() throws Exception {
         File tempFile1 = File.createTempFile("textFile", ".txt");

@@ -17,9 +17,6 @@
 package libcore.java.text;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.text.ChoiceFormat;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
@@ -31,18 +28,8 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import tests.support.Support_Locale;
 
-@TestTargetClass(NumberFormat.class)
 public class OldNumberFormatTest extends TestCase {
 
-    /**
-     * @tests java.text.NumberFormat#getIntegerInstance(java.util.Locale)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIntegerInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getIntegerInstanceLjava_util_Locale()
             throws ParseException {
         // Test for method java.text.NumberFormat
@@ -125,15 +112,6 @@ public class OldNumberFormatTest extends TestCase {
         format.isParseIntegerOnly());
     }
 
-    /**
-     * @tests java.text.NumberFormat#setMaximumIntegerDigits()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMaximumIntegerDigits",
-        args = {int.class}
-    )
     public void test_setMaximumIntegerDigits() {
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumIntegerDigits(2);
@@ -143,15 +121,6 @@ public class OldNumberFormatTest extends TestCase {
         assertEquals("Wrong result: case 2", "0", format.format(123));
     }
 
-    /**
-     * @tests java.text.NumberFormat#setCurrency(java.util.Currency)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setCurrency",
-        args = {java.util.Currency.class}
-    )
     public void test_setCurrencyLjava_util_Currency() {
         // Test for method void setCurrency(java.util.Currency)
         // a subclass that supports currency formatting
@@ -184,16 +153,6 @@ public class OldNumberFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.NumberFormat#parseObject(java.lang.String,
-     *        java.text.ParsePosition)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parseObject",
-        args = {java.lang.String.class, java.text.ParsePosition.class}
-    )
     public void test_parseObjectLjava_lang_StringLjava_text_ParsePosition() {
         Locale[] requiredLocales = {Locale.FRANCE};
         if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
@@ -262,15 +221,6 @@ public class OldNumberFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.NumberFormat#clone()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
 
         int max_digits = 100;
@@ -292,15 +242,6 @@ public class OldNumberFormatTest extends TestCase {
                 nf2.getMaximumIntegerDigits() == max_digits);
     }
 
-    /**
-     * @tests java.text.NumberFormat#equals(Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equals() {
 
         NumberFormat nf1 = NumberFormat.getInstance();
@@ -322,15 +263,6 @@ public class OldNumberFormatTest extends TestCase {
         assertFalse("Object is equal null", nf1.equals(null));
     }
 
-    /**
-     * @tests java.text.NumberFormat#format(double)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "format",
-        args = {double.class}
-    )
     public void test_formatLdouble() {
         Locale deLocale = new Locale("de", "CH");
         Locale[] requiredLocales = {Locale.US, deLocale};
@@ -367,15 +299,6 @@ public class OldNumberFormatTest extends TestCase {
         // END android-changed
     }
 
-    /**
-     * @tests java.text.NumberFormat#format(long)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "format",
-        args = {long.class}
-    )
     public void test_formatLlong() {
         Locale deLocale = new Locale("de", "CH");
         Locale[] requiredLocales = {Locale.US, deLocale};
@@ -413,15 +336,6 @@ public class OldNumberFormatTest extends TestCase {
         // END android-changed
     }
 
-    /**
-     * @tests java.text.NumberFormat#getAvailableLocales()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAvailableLocales",
-        args = {}
-    )
     public void test_getAvailableLocales() {
 
         Locale[] l = NumberFormat.getAvailableLocales();
@@ -439,15 +353,6 @@ public class OldNumberFormatTest extends TestCase {
         assertTrue("there is no Locale.US", isUS);
     }
 
-    /**
-     * @tests java.text.NumberFormat#getCurrencyInstance()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCurrencyInstance",
-        args = {}
-    )
     public void test_getCurrencyInstance() {
 
         Locale.setDefault(Locale.US);
@@ -471,15 +376,6 @@ public class OldNumberFormatTest extends TestCase {
                 "$1.00", format.format(0.999));
     }
 
-    /**
-     * @tests java.text.NumberFormat#getCurrencyInstance(java.util.Locale)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCurrencyInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getCurrencyInstanceLjava_util_Locale() {
         // BEGIN android-changed
         Locale usLocale = Locale.US;
@@ -551,15 +447,6 @@ public class OldNumberFormatTest extends TestCase {
         // END android-changed
     }
 
-    /**
-     * @tests java.text.NumberFormat#getInstance()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {}
-    )
     public void test_getInstance() {
         Locale.setDefault(Locale.US);
         NumberFormat format = NumberFormat.getInstance();
@@ -579,15 +466,6 @@ public class OldNumberFormatTest extends TestCase {
                 "123,456,789", format.format(123456789));
     }
 
-    /**
-     * @tests java.text.NumberFormat#getInstance(Locale)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getInstanceLjava_util_Locale() {
         Locale testLocale = new Locale("de", "CH");
         Locale[] requiredLocales = {Locale.US, testLocale};
@@ -633,15 +511,6 @@ public class OldNumberFormatTest extends TestCase {
         // END android-changed
     }
 
-    /**
-     * @tests java.text.NumberFormat#getNumberInstance()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getNumberInstance",
-        args = {}
-    )
     public void test_getNumberInstance() {
         Locale.setDefault(Locale.US);
         NumberFormat format = NumberFormat.getNumberInstance();
@@ -661,15 +530,6 @@ public class OldNumberFormatTest extends TestCase {
                 "123,456,789", format.format(123456789));
     }
 
-    /**
-     * @tests java.text.NumberFormat#getNumberInstance(Locale)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getNumberInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getNumberInstanceLjava_util_Locale() {
         Locale deLocale = new Locale("de", "CH");
         Locale[] requiredLocales = {Locale.US, deLocale};
@@ -710,21 +570,11 @@ public class OldNumberFormatTest extends TestCase {
         try {
             NumberFormat.getInstance(null);
             fail("java.lang.NullPointerException is not thrown");
-        } catch (java.lang.NullPointerException npe) {
-            // expested
+        } catch (java.lang.NullPointerException expected) {
         }
         // END android-changed
     }
 
-    /**
-     * @tests java.text.NumberFormat#getPercentInstance()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPercentInstance",
-        args = {}
-    )
     public void test_getPercentInstance() {
         Locale.setDefault(Locale.US);
         NumberFormat format = NumberFormat.getPercentInstance();
@@ -744,15 +594,6 @@ public class OldNumberFormatTest extends TestCase {
                 "12,345,678,900%", format.format(123456789));
     }
 
-    /**
-     * @tests java.text.NumberFormat#getPercentInstance(Locale)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPercentInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getPercentInstanceLjava_util_Locale() {
         Locale csLocale = new Locale("cs", "CZ");
         Locale[] requiredLocales = {Locale.US, csLocale};
@@ -779,20 +620,10 @@ public class OldNumberFormatTest extends TestCase {
         try {
             NumberFormat.getInstance(null);
             fail("java.lang.NullPointerException is not thrown");
-        } catch (java.lang.NullPointerException npe) {
-            // expested
+        } catch (java.lang.NullPointerException expected) {
         }
     }
 
-    /**
-     * @tests java.text.NumberFormat#getMaximumFractionDigits()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaximumFractionDigits",
-        args = {}
-    )
     public void test_getMaximumFractionDigits() {
         NumberFormat nf1 = NumberFormat.getInstance();
 
@@ -813,15 +644,6 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of Integer.MAX_VALUE", result == Integer.MAX_VALUE);
     }
 
-    /**
-     * @tests java.text.NumberFormat#getMinimumFractionDigits()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinimumFractionDigits",
-        args = {}
-    )
     public void test_getMinimumFractionDigits() {
         NumberFormat nf1 = NumberFormat.getInstance();
         nf1.setMinimumFractionDigits(Integer.MAX_VALUE);
@@ -841,15 +663,6 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of 52", result == 52);
     }
 
-    /**
-     * @tests java.text.NumberFormat#getMaximumIntegerDigits()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaximumIntegerDigits",
-        args = {}
-    )
     public void test_getMaximumIntegerDigits() {
         NumberFormat nf1 = NumberFormat.getInstance();
         nf1.setMaximumIntegerDigits(Integer.MAX_VALUE);
@@ -869,15 +682,6 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of Integer.MAX_VALUE", result == Integer.MAX_VALUE);
     }
 
-    /**
-     * @tests java.text.NumberFormat#getMinimumIntegerDigits()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinimumIntegerDigits",
-        args = {}
-    )
     public void test_getMinimumIntegernDigits() {
         NumberFormat nf1 = NumberFormat.getInstance();
         nf1.setMinimumIntegerDigits(Integer.MAX_VALUE);
@@ -897,15 +701,6 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of 5148", result == 73780);
     }
 
-    /**
-     * @tests java.text.NumberFormat#hashCode()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
 
         NumberFormat nf1 = NumberFormat.getInstance();
@@ -935,15 +730,6 @@ public class OldNumberFormatTest extends TestCase {
                 .hashCode());
     }
 
-    /**
-     * @tests java.text.NumberFormat#isGroupingUsed()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isGroupingUsed",
-        args = {}
-    )
     public void test_isGroupingUsed() {
         NumberFormat nf1 = NumberFormat.getInstance();
         assertTrue("grouping is not used for NumberFormat.getInstance", nf1
@@ -960,15 +746,6 @@ public class OldNumberFormatTest extends TestCase {
                 nf1.isGroupingUsed());
     }
 
-    /**
-     * @tests java.text.NumberFormat#setGroupingUsed(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setGroupingUsed",
-        args = {boolean.class}
-    )
     public void test_setGroupingUsed() {
         Locale csLocale = new Locale("cs", "CZ");
         Locale[] requiredLocales = {Locale.US, csLocale};
@@ -1033,15 +810,6 @@ public class OldNumberFormatTest extends TestCase {
                 "-123\u00a0456\u00a0789\u00a0010\u00a0%", nf2.format(-1234567890.1));
     }
 
-    /**
-     * @tests java.text.NumberFormat#isParseIntegerOnly()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isParseIntegerOnly",
-        args = {}
-    )
     public void test_isParseIntegerOnly() {
         NumberFormat nf1 = NumberFormat.getInstance();
         assertTrue("ParseIntegerOnly is not used for NumberFormat.getInstance",
@@ -1058,15 +826,6 @@ public class OldNumberFormatTest extends TestCase {
                 nf1.isParseIntegerOnly());
     }
 
-    /**
-     * @tests java.text.NumberFormat#setParseIntegerOnly(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setParseIntegerOnly",
-        args = {boolean.class}
-    )
     public void test_setParseIntegerOnly() {
         NumberFormat nf1 = NumberFormat.getInstance(Locale.US);
         nf1.setParseIntegerOnly(true);
@@ -1088,15 +847,6 @@ public class OldNumberFormatTest extends TestCase {
                 "-1,234,567,890", nf1.format(-1234567890.));
     }
 
-    /**
-     * @tests java.text.NumberFormat#setMaximumFractionDigits(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMaximumFractionDigits",
-        args = {int.class}
-    )
     public void test_setMaximumFractionDigits() {
         NumberFormat nf1 = NumberFormat.getInstance(Locale.US);
         nf1.setMaximumFractionDigits(Integer.MAX_VALUE);
@@ -1128,15 +878,6 @@ public class OldNumberFormatTest extends TestCase {
                 "1,234,567,890", nf1.format(1234567890.0987654321));
     }
 
-    /**
-     * @tests java.text.NumberFormat#setMinimumFractionDigits(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMinimumFractionDigits",
-        args = {int.class}
-    )
     public void test_setMinimumFractionDigits() {
 
         NumberFormat nf1 = NumberFormat.getInstance(Locale.US);
@@ -1167,15 +908,6 @@ public class OldNumberFormatTest extends TestCase {
                 "1,234,567,890.098", nf1.format(1234567890.098));
     }
 
-    /**
-     * @tests java.text.NumberFormat#setMinimumIntegerDigits(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMinimumIntegerDigits",
-        args = {int.class}
-    )
     public void test_setMinimumIntegerDigits() {
 
         NumberFormat nf1 = NumberFormat.getInstance(Locale.US);
@@ -1203,15 +935,6 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of Integer.MIN_VALUE", result == 0);
     }
 
-    /**
-     * @tests java.text.NumberFormat#parse(String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.lang.String.class}
-    )
     @BrokenTest("Fails in CTS, passes in CoreTestRunner")
     public void test_parseLjava_lang_String() {
         NumberFormat nf1 = NumberFormat.getInstance();
@@ -1274,15 +997,6 @@ public class OldNumberFormatTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.text.NumberFormat#NumberFormat()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NumberFormat",
-        args = {}
-    )
     public void test_constructor() {
         MyNumberFormat mf = new MyNumberFormat();
         assertFalse("Greated NumberFormat object is null", mf == null);
