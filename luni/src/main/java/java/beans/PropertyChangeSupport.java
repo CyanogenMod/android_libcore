@@ -43,9 +43,9 @@ public class PropertyChangeSupport implements Serializable {
 
     private static final long serialVersionUID = 6401253773779951803l;
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("source", Object.class),
-            new ObjectStreamField("children", Object.class),
-            new ObjectStreamField("propertyChangeSupportSerializedDataVersion", int.class)
+        new ObjectStreamField("source", Object.class),
+        new ObjectStreamField("children", Object.class),
+        new ObjectStreamField("propertyChangeSupportSerializedDataVersion", int.class),
     };
 
     private transient Object sourceBean;

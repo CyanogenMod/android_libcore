@@ -563,7 +563,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         this.exponentSeparator = value;
     }
 
-    private static ObjectStreamField[] serialPersistentFields = {
+    private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("currencySymbol", String.class),
         new ObjectStreamField("decimalSeparator", Character.TYPE),
         new ObjectStreamField("digit", Character.TYPE),

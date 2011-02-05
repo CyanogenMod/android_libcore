@@ -1268,10 +1268,11 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("defaultCenturyStart", Date.class),
-            new ObjectStreamField("formatData", DateFormatSymbols.class),
-            new ObjectStreamField("pattern", String.class),
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), };
+        new ObjectStreamField("defaultCenturyStart", Date.class),
+        new ObjectStreamField("formatData", DateFormatSymbols.class),
+        new ObjectStreamField("pattern", String.class),
+        new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

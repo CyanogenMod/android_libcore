@@ -376,11 +376,12 @@ public final class Inet6Address extends InetAddress {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("ipaddress", EmptyArray.BYTE.getClass()),
-            new ObjectStreamField("scope_id", Integer.TYPE),
-            new ObjectStreamField("scope_id_set", Boolean.TYPE),
-            new ObjectStreamField("scope_ifname_set", Boolean.TYPE),
-            new ObjectStreamField("ifname", String.class), };
+        new ObjectStreamField("ipaddress", EmptyArray.BYTE.getClass()),
+        new ObjectStreamField("scope_id", Integer.TYPE),
+        new ObjectStreamField("scope_id_set", Boolean.TYPE),
+        new ObjectStreamField("scope_ifname_set", Boolean.TYPE),
+        new ObjectStreamField("ifname", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

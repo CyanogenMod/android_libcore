@@ -1208,12 +1208,13 @@ public class MessageFormat extends Format {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("argumentNumbers", int[].class),
-            new ObjectStreamField("formats", Format[].class),
-            new ObjectStreamField("locale", Locale.class),
-            new ObjectStreamField("maxOffset", Integer.TYPE),
-            new ObjectStreamField("offsets", int[].class),
-            new ObjectStreamField("pattern", String.class), };
+        new ObjectStreamField("argumentNumbers", int[].class),
+        new ObjectStreamField("formats", Format[].class),
+        new ObjectStreamField("locale", Locale.class),
+        new ObjectStreamField("maxOffset", Integer.TYPE),
+        new ObjectStreamField("offsets", int[].class),
+        new ObjectStreamField("pattern", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

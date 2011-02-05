@@ -151,8 +151,9 @@ public final class PropertyPermission extends BasicPermission {
         return new PropertyPermissionCollection();
     }
 
-    private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-            "actions", String.class) };
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("actions", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

@@ -996,12 +996,6 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
 
     private static final long serialVersionUID = 362498820763181265L;
 
-    /**
-     * Serializable fields.
-     *
-     * @serialField loadFactor float
-     *              load factor for this HashMap
-     */
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("loadFactor", Float.TYPE)
     };

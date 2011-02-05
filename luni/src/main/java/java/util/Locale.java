@@ -598,10 +598,11 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("country", String.class),
-            new ObjectStreamField("hashcode", Integer.TYPE),
-            new ObjectStreamField("language", String.class),
-            new ObjectStreamField("variant", String.class) };
+        new ObjectStreamField("country", String.class),
+        new ObjectStreamField("hashcode", Integer.TYPE),
+        new ObjectStreamField("language", String.class),
+        new ObjectStreamField("variant", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

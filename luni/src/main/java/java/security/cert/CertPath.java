@@ -194,8 +194,8 @@ public abstract class CertPath implements Serializable {
         // Force default serialization to use writeUnshared/readUnshared
         // for cert path data
         private static final ObjectStreamField[] serialPersistentFields = {
-             new ObjectStreamField("type", String.class),
-             new ObjectStreamField("data", byte[].class, true)
+            new ObjectStreamField("type", String.class),
+            new ObjectStreamField("data", byte[].class, true),
         };
 
         /**
