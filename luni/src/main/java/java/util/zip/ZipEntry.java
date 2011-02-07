@@ -17,16 +17,14 @@
 
 package java.util.zip;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.charset.Charsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
 

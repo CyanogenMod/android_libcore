@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 public final class CharsetDecoderICU extends CharsetDecoder {
     private static final int MAX_CHARS_PER_BYTE = 2;

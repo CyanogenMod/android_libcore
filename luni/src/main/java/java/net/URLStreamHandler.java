@@ -19,7 +19,8 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.charset.Charsets;
-import libcore.base.Objects;
+import java.util.Locale;
+import libcore.util.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
 /**

@@ -22,7 +22,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * Default inoperative implementation of javax.net.ssl.SSLSocketFactory

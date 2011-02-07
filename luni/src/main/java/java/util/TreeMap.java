@@ -24,7 +24,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import static java.util.TreeMap.Bound.*;
 import static java.util.TreeMap.Relation.*;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * A map whose entries are sorted by their keys. All optional operations such as

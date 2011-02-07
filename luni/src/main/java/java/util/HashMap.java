@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * HashMap is an implementation of {@link Map}. All optional operations are supported.

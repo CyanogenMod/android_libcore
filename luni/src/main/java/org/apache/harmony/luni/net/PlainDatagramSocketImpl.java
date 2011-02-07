@@ -29,7 +29,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
 /**

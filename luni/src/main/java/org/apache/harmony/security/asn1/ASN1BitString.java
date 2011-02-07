@@ -23,7 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This class represents ASN.1 Bitstring type.

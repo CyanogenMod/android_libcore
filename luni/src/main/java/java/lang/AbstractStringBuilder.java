@@ -19,7 +19,7 @@ package java.lang;
 
 import java.io.InvalidObjectException;
 import java.util.Arrays;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating

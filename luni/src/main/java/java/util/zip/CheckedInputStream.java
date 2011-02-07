@@ -19,7 +19,7 @@ package java.util.zip;
 
 import java.io.IOException;
 import java.io.InputStream;
-import libcore.base.Streams;
+import libcore.io.Streams;
 
 /**
  * The {@code CheckedInputStream} class is used to maintain a checksum at the

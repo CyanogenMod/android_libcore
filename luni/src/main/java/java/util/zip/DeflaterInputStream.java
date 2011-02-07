@@ -21,7 +21,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import libcore.base.Streams;
+import libcore.io.Streams;
 
 /**
  * An {@code InputStream} filter to compress data. Callers read

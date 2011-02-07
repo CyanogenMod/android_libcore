@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A

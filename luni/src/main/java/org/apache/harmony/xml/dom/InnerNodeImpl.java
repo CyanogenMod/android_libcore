@@ -18,7 +18,7 @@ package org.apache.harmony.xml.dom;
 
 import java.util.ArrayList;
 import java.util.List;
-import libcore.base.Objects;
+import libcore.util.Objects;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;

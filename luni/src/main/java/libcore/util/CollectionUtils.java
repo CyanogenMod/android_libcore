@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.base;
+package libcore.util;
 
 import java.lang.ref.Reference;
 import java.util.Iterator;

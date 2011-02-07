@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * Returns a fixed string based on a numeric value. The class can be used in

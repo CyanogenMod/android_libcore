@@ -27,7 +27,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import junit.framework.TestCase;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import static tests.support.Support_Exec.execAndGetOutput;
 import tests.support.resource.Support_Resources;
 

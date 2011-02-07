@@ -24,7 +24,7 @@ import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.List;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 

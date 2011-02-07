@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
-import libcore.base.EmptyArray;
-import libcore.base.Objects;
+import libcore.util.EmptyArray;
+import libcore.util.Objects;
 
 /**
  * A thread-safe random-access list.

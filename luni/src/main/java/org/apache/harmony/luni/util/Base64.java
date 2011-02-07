@@ -22,7 +22,7 @@
 package org.apache.harmony.luni.util;
 
 import java.nio.charset.Charset;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This class implements Base64 encoding/decoding functionality

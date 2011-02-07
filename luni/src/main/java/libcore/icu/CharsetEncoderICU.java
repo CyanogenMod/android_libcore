@@ -22,7 +22,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.HashMap;
 import java.util.Map;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 public final class CharsetEncoderICU extends CharsetEncoder {
     private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();

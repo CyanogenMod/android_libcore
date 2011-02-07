@@ -28,7 +28,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * Manages a list of listeners to be notified when a property changes. Listeners

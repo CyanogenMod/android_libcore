@@ -20,7 +20,7 @@ package java.security;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * {@code Identity} represents an identity like a person or a company.

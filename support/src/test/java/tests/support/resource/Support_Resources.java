@@ -17,7 +17,7 @@
 
 package tests.support.resource;
 
-import libcore.base.Streams;
+import libcore.io.Streams;
 import tests.support.Support_Configuration;
 
 import java.io.File;

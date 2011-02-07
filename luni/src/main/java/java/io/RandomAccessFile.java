@@ -23,7 +23,6 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
-import libcore.base.Streams;
 import libcore.io.IoUtils;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.IFileSystem;

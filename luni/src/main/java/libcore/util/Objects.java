@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.base;
+package libcore.util;
 
 public final class Objects {
     private Objects() {}
