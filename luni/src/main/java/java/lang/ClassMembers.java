@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import libcore.base.LruCache;
+import libcore.base.BasicLruCache;
 import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 
@@ -41,8 +41,8 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
 /*package*/ class ClassMembers<T> {
     // TODO: Add constructors and fields.
 
-    static final LruCache<Class<?>, ClassMembers<?>> cache
-            = new LruCache<Class<?>, ClassMembers<?>>(16) {
+    static final BasicLruCache<Class<?>, ClassMembers<?>> cache
+            = new BasicLruCache<Class<?>, ClassMembers<?>>(16) {
         @SuppressWarnings("unchecked") // use raw types since javac forbids "new ClassCache<?>(key)"
         @Override protected ClassMembers<?> create(Class<?> key) {
             return new ClassMembers(key);
