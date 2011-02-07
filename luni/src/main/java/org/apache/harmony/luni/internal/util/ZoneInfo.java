@@ -16,13 +16,11 @@
 
 package org.apache.harmony.luni.internal.util;
 
-import java.nio.charset.Charsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.TimeZone;
-import libcore.base.Objects;
 
 final class ZoneInfo extends TimeZone {
 

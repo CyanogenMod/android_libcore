@@ -17,7 +17,7 @@
 
 package javax.crypto.spec;
 
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * The source of the label <code>L</code> as specified in <a

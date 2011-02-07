@@ -7,9 +7,8 @@
 
 package java.util.concurrent;
 import java.util.concurrent.locks.*;
-import java.util.concurrent.atomic.*;
 import java.util.*;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 // BEGIN android-note
 // removed link to collections framework docs

@@ -19,7 +19,7 @@ package java.io;
 
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.OSMemory;
 

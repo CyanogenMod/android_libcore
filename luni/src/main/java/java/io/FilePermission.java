@@ -21,7 +21,7 @@ import java.security.AccessController;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * A permission for accessing a file or directory. The FilePermission is made up

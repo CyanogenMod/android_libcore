@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.base;
+package libcore.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

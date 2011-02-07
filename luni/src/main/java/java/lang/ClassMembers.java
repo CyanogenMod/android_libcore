@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import libcore.base.BasicLruCache;
+import libcore.util.BasicLruCache;
 import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 

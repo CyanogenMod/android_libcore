@@ -40,7 +40,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * Framework for serialization testing. Subclasses only need to override

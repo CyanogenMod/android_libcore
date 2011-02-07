@@ -20,7 +20,7 @@ package java.net;
 import java.io.IOException;
 import java.nio.charset.Charsets;
 import java.util.Locale;
-import libcore.base.Objects;
+import libcore.util.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
 /**

@@ -24,7 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.SecureRandomSpi;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This class extends the SecureRandomSpi class implementing all its abstract methods. <BR>

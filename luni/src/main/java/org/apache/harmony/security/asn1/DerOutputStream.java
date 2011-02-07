@@ -22,7 +22,7 @@
 
 package org.apache.harmony.security.asn1;
 
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 
 /**

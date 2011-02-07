@@ -50,7 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
 

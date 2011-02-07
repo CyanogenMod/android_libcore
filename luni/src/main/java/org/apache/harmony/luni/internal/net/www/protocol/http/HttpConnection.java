@@ -32,7 +32,7 @@ import java.net.URI;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import libcore.base.Objects;
+import libcore.util.Objects;
 import libcore.io.IoUtils;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
 

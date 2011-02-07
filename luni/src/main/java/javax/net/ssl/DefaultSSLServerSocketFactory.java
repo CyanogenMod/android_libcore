@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * Default inoperative implementation of javax.net.ssl.SSLServerSocketFactory

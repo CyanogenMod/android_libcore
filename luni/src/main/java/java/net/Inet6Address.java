@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Arrays;
 import java.util.Enumeration;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * An IPv6 address. See {@link InetAddress}.

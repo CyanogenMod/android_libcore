@@ -19,7 +19,7 @@ package javax.crypto.spec;
 
 import java.security.spec.KeySpec;
 import java.util.Arrays;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * The key specification for a <i>password based encryption</i> key.

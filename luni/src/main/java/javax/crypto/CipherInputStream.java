@@ -21,7 +21,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import libcore.base.Streams;
+import libcore.io.Streams;
 
 /**
  * This class wraps an {@code InputStream} and a cipher so that {@code read()}
