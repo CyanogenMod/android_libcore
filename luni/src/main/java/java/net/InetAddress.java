@@ -975,9 +975,10 @@ public class InetAddress implements Serializable {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("address", Integer.TYPE),
-            new ObjectStreamField("family", Integer.TYPE),
-            new ObjectStreamField("hostName", String.class) };
+        new ObjectStreamField("address", Integer.TYPE),
+        new ObjectStreamField("family", Integer.TYPE),
+        new ObjectStreamField("hostName", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

@@ -43,7 +43,8 @@ final class BasicPermissionCollection extends PermissionCollection {
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("all_allowed", Boolean.TYPE),
         new ObjectStreamField("permissions", Hashtable.class),
-        new ObjectStreamField("permClass", Class.class), };
+        new ObjectStreamField("permClass", Class.class),
+    };
 
     //should be final, but because of writeObject() cannot be
     private transient Map<String, Permission> items = new HashMap<String, Permission>();

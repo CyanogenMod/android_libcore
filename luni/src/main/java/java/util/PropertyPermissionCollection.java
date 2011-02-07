@@ -76,8 +76,9 @@ class PropertyPermissionCollection extends PermissionCollection {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("permissions", Hashtable.class),
-            new ObjectStreamField("all_allowed", Boolean.TYPE) };
+        new ObjectStreamField("permissions", Hashtable.class),
+        new ObjectStreamField("all_allowed", Boolean.TYPE),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

@@ -76,8 +76,7 @@ class EmulatedFields {
      *            an array of ObjectStreamFields, which describe the declared
      *            fields.
      */
-    public EmulatedFields(ObjectStreamField[] fields,
-            ObjectStreamField[] declared) {
+    public EmulatedFields(ObjectStreamField[] fields, ObjectStreamField[] declared) {
         super();
         // We assume the slots are already sorted in the right shape for dumping
         buildSlots(fields);
@@ -145,7 +144,6 @@ class EmulatedFields {
      */
     private ObjectSlot findSlot(String fieldName, Class<?> fieldType) {
         boolean isPrimitive = fieldType != null && fieldType.isPrimitive();
-
         for (int i = 0; i < slotsToSerialize.length; i++) {
             ObjectSlot slot = slotsToSerialize[i];
             if (slot.field.getName().equals(fieldName)) {
@@ -172,10 +170,8 @@ class EmulatedFields {
             for (int i = 0; i < declaredFields.length; i++) {
                 ObjectStreamField field = declaredFields[i];
                 if (field.getName().equals(fieldName)) {
-                    if (isPrimitive ? field.getType() == fieldType
-                            : fieldType == null
-                                    || field.getType().isAssignableFrom(
-                                            fieldType)) {
+                    if (isPrimitive ? fieldType == field.getType() : fieldType == null ||
+                            field.getType().isAssignableFrom(fieldType)) {
                         ObjectSlot slot = new ObjectSlot();
                         slot.field = field;
                         slot.defaulted = true;

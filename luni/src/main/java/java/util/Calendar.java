@@ -1499,17 +1499,18 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("areFieldsSet", Boolean.TYPE),
-            new ObjectStreamField("fields", int[].class),
-            new ObjectStreamField("firstDayOfWeek", Integer.TYPE),
-            new ObjectStreamField("isSet", boolean[].class),
-            new ObjectStreamField("isTimeSet", Boolean.TYPE),
-            new ObjectStreamField("lenient", Boolean.TYPE),
-            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE),
-            new ObjectStreamField("nextStamp", Integer.TYPE),
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
-            new ObjectStreamField("time", Long.TYPE),
-            new ObjectStreamField("zone", TimeZone.class), };
+        new ObjectStreamField("areFieldsSet", Boolean.TYPE),
+        new ObjectStreamField("fields", int[].class),
+        new ObjectStreamField("firstDayOfWeek", Integer.TYPE),
+        new ObjectStreamField("isSet", boolean[].class),
+        new ObjectStreamField("isTimeSet", Boolean.TYPE),
+        new ObjectStreamField("lenient", Boolean.TYPE),
+        new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE),
+        new ObjectStreamField("nextStamp", Integer.TYPE),
+        new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+        new ObjectStreamField("time", Long.TYPE),
+        new ObjectStreamField("zone", TimeZone.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         complete();

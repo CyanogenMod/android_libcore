@@ -35,8 +35,9 @@ final class AllPermissionCollection extends PermissionCollection {
 
     private static final long serialVersionUID = -4023755556366636806L;
 
-    private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-        "all_allowed", Boolean.TYPE), };
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("all_allowed", Boolean.TYPE),
+    };
 
     // Single element of collection.
     private transient Permission all;
