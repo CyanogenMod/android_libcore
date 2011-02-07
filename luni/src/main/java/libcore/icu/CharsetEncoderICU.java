@@ -76,7 +76,6 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             byte[] replacement = makeReplacement(icuCanonicalName, address);
             CharsetEncoderICU result = new CharsetEncoderICU(cs, averageBytesPerChar, maxBytesPerChar, replacement, address);
             address = 0; // CharsetEncoderICU has taken ownership; its finalizer will do the free.
-            result.updateCallback();
             return result;
         } finally {
             if (address != 0) {
@@ -96,16 +95,20 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     private CharsetEncoderICU(Charset cs, float averageBytesPerChar, float maxBytesPerChar, byte[] replacement, long address) {
-        super(cs, averageBytesPerChar, maxBytesPerChar, replacement);
+        // We lie to our superclass and let it think we're using the default replacement...
+        super(cs, averageBytesPerChar, maxBytesPerChar);
         this.converterHandle = address;
+        // ...and then when our native peer is accessible, we tell it the truth.
+        // We still can't just call replaceWith because the RI enforces unnecessary restrictions
+        // on the replacement bytes. We trust ICU to know what it's doing. Doing so lets us support
+        // EUC-JP, SCSU, and Shift_JIS with ICU's suggested replacement bytes.
+        uncheckedReplaceWith(replacement);
     }
 
     @Override protected void implReplaceWith(byte[] newReplacement) {
+        // This hack is necessary because CharsetEncoder calls this abstract method from its
+        // constructor, and subclasses like CharsetEncoderICU aren't initialized at that point.
         if (converterHandle != 0) {
-            int max = NativeConverter.getMaxBytesPerChar(converterHandle);
-            if (newReplacement.length > max) {
-                throw new IllegalArgumentException("replacement length (" + newReplacement.length + ") > maximum (" + max + ")");
-            }
             updateCallback();
         }
     }

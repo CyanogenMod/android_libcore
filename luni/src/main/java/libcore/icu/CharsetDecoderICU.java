@@ -74,14 +74,7 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     }
 
     @Override protected void implReplaceWith(String newReplacement) {
-        if (converterHandle > 0) {
-            // TODO: is this the right test? we're providing characters.
-            int max = NativeConverter.getMaxBytesPerChar(converterHandle);
-            if (newReplacement.length() > max) {
-                throw new IllegalArgumentException("replacement length (" + newReplacement.length() + ") > maximum (" + max + ")");
-            }
-            updateCallback();
-        }
+        updateCallback();
      }
 
     @Override protected final void implOnMalformedInput(CodingErrorAction newAction) {

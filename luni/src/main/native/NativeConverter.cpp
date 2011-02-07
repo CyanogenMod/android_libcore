@@ -20,6 +20,7 @@
 #include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
@@ -35,16 +36,18 @@
 #define NativeConverter_IGNORE 1
 #define NativeConverter_REPLACE 2
 
+#define MAX_REPLACEMENT_LENGTH 32 // equivalent to UCNV_ERROR_BUFFER_LENGTH
+
 struct DecoderCallbackContext {
-    int length;
-    UChar subUChars[256];
+    UChar replacementChars[MAX_REPLACEMENT_LENGTH];
+    size_t replacementCharCount;
     UConverterToUCallback onUnmappableInput;
     UConverterToUCallback onMalformedInput;
 };
 
 struct EncoderCallbackContext {
-    int length;
-    char subBytes[256];
+    char replacementBytes[MAX_REPLACEMENT_LENGTH];
+    size_t replacementByteCount;
     UConverterFromUCallback onUnmappableInput;
     UConverterFromUCallback onMalformedInput;
 };
@@ -367,7 +370,7 @@ static void encoderReplaceCallback(const void* rawContext,
     }
     const EncoderCallbackContext* context = reinterpret_cast<const EncoderCallbackContext*>(rawContext);
     *err = U_ZERO_ERROR;
-    ucnv_cbFromUWriteBytes(fromArgs, context->subBytes, context->length, 0, err);
+    ucnv_cbFromUWriteBytes(fromArgs, context->replacementBytes, context->replacementByteCount, 0, err);
 }
 
 static UConverterFromUCallback getFromUCallback(int32_t mode) {
@@ -380,42 +383,34 @@ static UConverterFromUCallback getFromUCallback(int32_t mode) {
 }
 
 static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address,
-        jint onMalformedInput, jint onUnmappableInput, jbyteArray subBytes) {
+        jint onMalformedInput, jint onUnmappableInput, jbyteArray javaReplacement) {
     UConverter* cnv = toUConverter(address);
     if (!cnv) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
-    UConverterFromUCallback fromUOldAction = NULL;
-    const void* fromUOldContext = NULL;
-    ucnv_getFromUCallBack(cnv, &fromUOldAction, const_cast<const void**>(&fromUOldContext));
 
-    /* fromUOldContext can only be EncoderCallbackContext since
-     * the converter created is private data for the decoder
-     * and callbacks can only be set via this method!
-     */
-    EncoderCallbackContext* fromUNewContext = NULL;
-    UConverterFromUCallback fromUNewAction = NULL;
-    if (fromUOldContext == NULL) {
-        fromUNewContext = new EncoderCallbackContext;
-        fromUNewAction = CHARSET_ENCODER_CALLBACK;
-    } else {
-        fromUNewContext = const_cast<EncoderCallbackContext*>(
-                reinterpret_cast<const EncoderCallbackContext*>(fromUOldContext));
-        fromUNewAction = fromUOldAction;
-        fromUOldAction = NULL;
-        fromUOldContext = NULL;
+    UConverterFromUCallback oldCallback = NULL;
+    const void* oldCallbackContext = NULL;
+    ucnv_getFromUCallBack(cnv, &oldCallback, const_cast<const void**>(&oldCallbackContext));
+
+    EncoderCallbackContext* callbackContext = const_cast<EncoderCallbackContext*>(
+            reinterpret_cast<const EncoderCallbackContext*>(oldCallbackContext));
+    if (callbackContext == NULL) {
+        callbackContext = new EncoderCallbackContext;
     }
-    fromUNewContext->onMalformedInput = getFromUCallback(onMalformedInput);
-    fromUNewContext->onUnmappableInput = getFromUCallback(onUnmappableInput);
-    ScopedByteArrayRO sub(env, subBytes);
-    if (sub.get() == NULL) {
+
+    callbackContext->onMalformedInput = getFromUCallback(onMalformedInput);
+    callbackContext->onUnmappableInput = getFromUCallback(onUnmappableInput);
+
+    ScopedByteArrayRO replacementBytes(env, javaReplacement);
+    if (replacementBytes.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
-    fromUNewContext->length = sub.size();
-    memcpy(fromUNewContext->subBytes, sub.get(), sub.size());
+    memcpy(callbackContext->replacementBytes, replacementBytes.get(), replacementBytes.size());
+    callbackContext->replacementByteCount = replacementBytes.size();
+
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_setFromUCallBack(cnv, fromUNewAction, fromUNewContext, &fromUOldAction, &fromUOldContext,
-            &errorCode);
+    ucnv_setFromUCallBack(cnv, CHARSET_ENCODER_CALLBACK, callbackContext, NULL, NULL, &errorCode);
     return errorCode;
 }
 
@@ -433,7 +428,7 @@ static void decoderReplaceCallback(const void* rawContext,
     }
     const DecoderCallbackContext* context = reinterpret_cast<const DecoderCallbackContext*>(rawContext);
     *err = U_ZERO_ERROR;
-    ucnv_cbToUWriteUChars(toArgs,context->subUChars, context->length, 0, err);
+    ucnv_cbToUWriteUChars(toArgs,context->replacementChars, context->replacementCharCount, 0, err);
 }
 
 static UConverterToUCallback getToUCallback(int32_t mode) {
@@ -470,43 +465,34 @@ static void CHARSET_DECODER_CALLBACK(const void* rawContext, UConverterToUnicode
 }
 
 static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address,
-        jint onMalformedInput, jint onUnmappableInput, jcharArray subChars) {
+        jint onMalformedInput, jint onUnmappableInput, jstring javaReplacement) {
     UConverter* cnv = toUConverter(address);
     if (cnv == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
 
-    UConverterToUCallback toUOldAction;
-    const void* toUOldContext;
-    ucnv_getToUCallBack(cnv, &toUOldAction, &toUOldContext);
+    UConverterToUCallback oldCallback;
+    const void* oldCallbackContext;
+    ucnv_getToUCallBack(cnv, &oldCallback, &oldCallbackContext);
 
-    /* toUOldContext can only be DecoderCallbackContext since
-     * the converter created is private data for the decoder
-     * and callbacks can only be set via this method!
-     */
-    DecoderCallbackContext* toUNewContext = NULL;
-    UConverterToUCallback toUNewAction = NULL;
-    if (toUOldContext == NULL) {
-        toUNewContext = new DecoderCallbackContext;
-        toUNewAction = CHARSET_DECODER_CALLBACK;
-    } else {
-        toUNewContext = const_cast<DecoderCallbackContext*>(
-                reinterpret_cast<const DecoderCallbackContext*>(toUOldContext));
-        toUNewAction = toUOldAction;
-        toUOldAction = NULL;
-        toUOldContext = NULL;
+    DecoderCallbackContext* callbackContext = const_cast<DecoderCallbackContext*>(
+            reinterpret_cast<const DecoderCallbackContext*>(oldCallbackContext));
+    if (callbackContext == NULL) {
+        callbackContext = new DecoderCallbackContext;
     }
-    toUNewContext->onMalformedInput = getToUCallback(onMalformedInput);
-    toUNewContext->onUnmappableInput = getToUCallback(onUnmappableInput);
-    ScopedCharArrayRO sub(env, subChars);
-    if (sub.get() == NULL) {
+
+    callbackContext->onMalformedInput = getToUCallback(onMalformedInput);
+    callbackContext->onUnmappableInput = getToUCallback(onUnmappableInput);
+
+    ScopedStringChars replacement(env, javaReplacement);
+    if (replacement.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
-    toUNewContext->length = sub.size();
-    u_strncpy(toUNewContext->subUChars, sub.get(), sub.size());
+    u_strncpy(callbackContext->replacementChars, replacement.get(), replacement.size());
+    callbackContext->replacementCharCount = replacement.size();
+
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_setToUCallBack(cnv, toUNewAction, toUNewContext, &toUOldAction, &toUOldContext,
-            &errorCode);
+    ucnv_setToUCallBack(cnv, CHARSET_DECODER_CALLBACK, callbackContext, NULL, NULL, &errorCode);
     return errorCode;
 }
 
@@ -520,9 +506,9 @@ static jbyteArray NativeConverter_getSubstitutionBytes(JNIEnv* env, jclass, jlon
         return NULL;
     }
     UErrorCode status = U_ZERO_ERROR;
-    char subBytes[10];
-    int8_t len = sizeof(subBytes);
-    ucnv_getSubstChars(cnv, subBytes, &len, &status);
+    char replacementBytes[MAX_REPLACEMENT_LENGTH];
+    int8_t len = sizeof(replacementBytes);
+    ucnv_getSubstChars(cnv, replacementBytes, &len, &status);
     if (!U_SUCCESS(status)) {
         return env->NewByteArray(0);
     }
@@ -530,7 +516,7 @@ static jbyteArray NativeConverter_getSubstitutionBytes(JNIEnv* env, jclass, jlon
     if (result == NULL) {
         return NULL;
     }
-    env->SetByteArrayRegion(result, 0, len, reinterpret_cast<jbyte*>(subBytes));
+    env->SetByteArrayRegion(result, 0, len, reinterpret_cast<jbyte*>(replacementBytes));
     return result;
 }
 
@@ -614,7 +600,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeConverter, openConverter, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(NativeConverter, resetByteToChar, "(J)V"),
     NATIVE_METHOD(NativeConverter, resetCharToByte, "(J)V"),
-    NATIVE_METHOD(NativeConverter, setCallbackDecode, "(JII[C)I"),
+    NATIVE_METHOD(NativeConverter, setCallbackDecode, "(JIILjava/lang/String;)I"),
     NATIVE_METHOD(NativeConverter, setCallbackEncode, "(JII[B)I"),
 };
 int register_libcore_icu_NativeConverter(JNIEnv* env) {
