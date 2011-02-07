@@ -16,12 +16,10 @@
 
 package java.util.prefs;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,16 +27,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import libcore.base.EmptyArray;
 import libcore.io.IoUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -446,30 +442,20 @@ class XMLParser {
         return result;
     }
 
-    /***************************************************************************
-     * utilities for FilePreferencesImpl, which is default implementation of Linux platform
-     **************************************************************************/
     /**
-     * load preferences from file, if cannot load, create a new one FIXME: need
-     * lock or not?
-     *
-     * @param file    the XML file to be read
-     * @return Properties instance which indicates the preferences key-value pairs
+     * Returns the preferences from {@code xmlFile}. Returns empty properties if
+     * any errors occur.
      */
-    static Properties loadFilePrefs(final File file) {
+    static Properties readXmlPreferences(File xmlFile) {
         Properties result = new Properties();
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-        } else if (file.canRead()) {
+        if (!xmlFile.exists()) {
+            xmlFile.getParentFile().mkdirs();
+        } else if (xmlFile.canRead()) {
             Reader reader = null;
-            FileLock lock = null;
             try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                reader = new InputStreamReader(fileInputStream, "UTF-8");
-                FileChannel channel = fileInputStream.getChannel();
-                lock = channel.lock(0L, Long.MAX_VALUE, true);
-                Document doc = builder.parse(new InputSource(reader));
-                NodeList entries = selectNodeList(doc.getDocumentElement(), "entry");
+                reader = new InputStreamReader(new FileInputStream(xmlFile), "UTF-8");
+                Document document = builder.parse(new InputSource(reader));
+                NodeList entries = selectNodeList(document.getDocumentElement(), "entry");
                 int length = entries.getLength();
                 for (int i = 0; i < length; i++) {
                     Element node = (Element) entries.item(i);
@@ -477,55 +463,47 @@ class XMLParser {
                     String value = node.getAttribute("value");
                     result.setProperty(key, value);
                 }
-                return result;
-            } catch (IOException e) {
-            } catch (SAXException e) {
+            } catch (IOException ignored) {
+            } catch (SAXException ignored) {
             } finally {
-                releaseQuietly(lock);
                 IoUtils.closeQuietly(reader);
             }
         } else {
-            file.delete();
+            // TODO: why delete files that cannot be read? http://b/3431233
+            xmlFile.delete();
         }
         return result;
     }
 
-    static void flushFilePrefs(final File file, final Properties prefs) throws IOException {
+    /**
+     * Writes the preferences to {@code xmlFile}.
+     */
+    static void writeXmlPreferences(File xmlFile, Properties properties) throws IOException {
+        File parent = xmlFile.getParentFile();
+        File temporaryForWriting = new File(parent, "prefs-" + UUID.randomUUID() + ".xml.tmp");
+
         BufferedWriter out = null;
-        FileLock lock = null;
         try {
-            FileOutputStream ostream = new FileOutputStream(file);
-            out = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
-            FileChannel channel = ostream.getChannel();
-            lock = channel.lock();
+            out = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(temporaryForWriting), "UTF-8"));
             out.write(HEADER);
             out.newLine();
             out.write(FILE_PREFS);
             out.newLine();
-            if (prefs.size() == 0) {
-                exportEntries(EmptyArray.STRING, EmptyArray.STRING, out);
-            } else {
-                String[] keys = prefs.keySet().toArray(new String[prefs.size()]);
-                int length = keys.length;
-                String[] values = new String[length];
-                for (int i = 0; i < length; i++) {
-                    values[i] = prefs.getProperty(keys[i]);
-                }
-                exportEntries(keys, values, out);
+            String[] keys = properties.keySet().toArray(new String[properties.size()]);
+            int length = keys.length;
+            String[] values = new String[length];
+            for (int i = 0; i < length; i++) {
+                values[i] = properties.getProperty(keys[i]);
             }
-            out.flush();
+            exportEntries(keys, values, out);
+            out.close();
+            if (!temporaryForWriting.renameTo(xmlFile)) {
+                throw new IOException("Failed to write preferences to " + xmlFile);
+            }
         } finally {
-            releaseQuietly(lock);
             IoUtils.closeQuietly(out);
+            temporaryForWriting.delete(); // no-op unless something failed
         }
-    }
-
-    private static void releaseQuietly(FileLock lock) {
-        if (lock == null) {
-            return;
-        }
-        try {
-            lock.release();
-        } catch (IOException e) {}
     }
 }

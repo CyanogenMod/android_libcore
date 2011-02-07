@@ -90,7 +90,7 @@ class FilePreferencesImpl extends AbstractPreferences {
         dir = new File(path);
         newNode = !dir.exists();
         prefsFile = new File(path + File.separator + PREFS_FILE_NAME);
-        prefs = XMLParser.loadFilePrefs(prefsFile);
+        prefs = XMLParser.readXmlPreferences(prefsFile);
     }
 
     @Override
@@ -121,7 +121,7 @@ class FilePreferencesImpl extends AbstractPreferences {
                 return;
             }
             // reload
-            Properties currentPrefs = XMLParser.loadFilePrefs(prefsFile);
+            Properties currentPrefs = XMLParser.readXmlPreferences(prefsFile);
             // merge
             Iterator<String> it = removed.iterator();
             while (it.hasNext()) {
@@ -136,7 +136,7 @@ class FilePreferencesImpl extends AbstractPreferences {
             updated.clear();
             // flush
             prefs = currentPrefs;
-            XMLParser.flushFilePrefs(prefsFile, prefs);
+            XMLParser.writeXmlPreferences(prefsFile, prefs);
         } catch (Exception e) {
             throw new BackingStoreException(e);
         }
@@ -146,7 +146,7 @@ class FilePreferencesImpl extends AbstractPreferences {
     protected String getSpi(String key) {
         try {
             if (prefs == null) {
-                prefs = XMLParser.loadFilePrefs(prefsFile);
+                prefs = XMLParser.readXmlPreferences(prefsFile);
             }
             return prefs.getProperty(key);
         } catch (Exception e) {
