@@ -104,10 +104,11 @@ public final class VMRuntime {
     }
 
     /**
-     * Requests that the virtual machine collect available memory,
-     * and collects any SoftReferences that are not strongly-reachable.
+     * This method exists for binary compatibility.  It used to
+     * perform a garbage collection that cleared SoftReferences.
      */
-    public native void gcSoftReferences();
+    @Deprecated
+    public void gcSoftReferences() {}
 
     /**
      * Does not return until any pending finalizers have been called.
