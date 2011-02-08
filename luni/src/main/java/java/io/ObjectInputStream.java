@@ -1024,21 +1024,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         for (ObjectSlot element : slots) {
             element.defaulted = false;
             Class<?> type = element.field.getType();
-            if (type == Integer.TYPE) {
+            if (type == int.class) {
                 element.fieldValue = input.readInt();
-            } else if (type == Byte.TYPE) {
+            } else if (type == byte.class) {
                 element.fieldValue = input.readByte();
-            } else if (type == Character.TYPE) {
+            } else if (type == char.class) {
                 element.fieldValue = input.readChar();
-            } else if (type == Short.TYPE) {
+            } else if (type == short.class) {
                 element.fieldValue = input.readShort();
-            } else if (type == Boolean.TYPE) {
+            } else if (type == boolean.class) {
                 element.fieldValue = input.readBoolean();
-            } else if (type == Long.TYPE) {
+            } else if (type == long.class) {
                 element.fieldValue = input.readLong();
-            } else if (type == Float.TYPE) {
+            } else if (type == float.class) {
                 element.fieldValue = input.readFloat();
-            } else if (type == Double.TYPE) {
+            } else if (type == double.class) {
                 element.fieldValue = input.readDouble();
             } else {
                 // Either array or Object
@@ -1096,42 +1096,42 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // and do the other checking, so there's no null check on 'field' here.
             try {
                 Class<?> type = fieldDesc.getTypeInternal();
-                if (type == Byte.TYPE) {
+                if (type == byte.class) {
                     byte b = input.readByte();
                     if (field != null) {
                         field.setByte(obj, b);
                     }
-                } else if (type == Character.TYPE) {
+                } else if (type == char.class) {
                     char c = input.readChar();
                     if (field != null) {
                         field.setChar(obj, c);
                     }
-                } else if (type == Double.TYPE) {
+                } else if (type == double.class) {
                     double d = input.readDouble();
                     if (field != null) {
                         field.setDouble(obj, d);
                     }
-                } else if (type == Float.TYPE) {
+                } else if (type == float.class) {
                     float f = input.readFloat();
                     if (field != null) {
                         field.setFloat(obj, f);
                     }
-                } else if (type == Integer.TYPE) {
+                } else if (type == int.class) {
                     int i = input.readInt();
                     if (field != null) {
                         field.setInt(obj, i);
                     }
-                } else if (type == Long.TYPE) {
+                } else if (type == long.class) {
                     long j = input.readLong();
                     if (field != null) {
                         field.setLong(obj, j);
                     }
-                } else if (type == Short.TYPE) {
+                } else if (type == short.class) {
                     short s = input.readShort();
                     if (field != null) {
                         field.setShort(obj, s);
                     }
-                } else if (type == Boolean.TYPE) {
+                } else if (type == boolean.class) {
                     boolean z = input.readBoolean();
                     if (field != null) {
                         field.setBoolean(obj, z);
@@ -1474,40 +1474,40 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // the array first, and also call different methods depending on the
         // elements.
         if (componentType.isPrimitive()) {
-            if (componentType == Integer.TYPE) {
+            if (componentType == int.class) {
                 int[] intArray = (int[]) result;
                 for (int i = 0; i < size; i++) {
                     intArray[i] = input.readInt();
                 }
-            } else if (componentType == Byte.TYPE) {
+            } else if (componentType == byte.class) {
                 byte[] byteArray = (byte[]) result;
                 input.readFully(byteArray, 0, size);
-            } else if (componentType == Character.TYPE) {
+            } else if (componentType == char.class) {
                 char[] charArray = (char[]) result;
                 for (int i = 0; i < size; i++) {
                     charArray[i] = input.readChar();
                 }
-            } else if (componentType == Short.TYPE) {
+            } else if (componentType == short.class) {
                 short[] shortArray = (short[]) result;
                 for (int i = 0; i < size; i++) {
                     shortArray[i] = input.readShort();
                 }
-            } else if (componentType == Boolean.TYPE) {
+            } else if (componentType == boolean.class) {
                 boolean[] booleanArray = (boolean[]) result;
                 for (int i = 0; i < size; i++) {
                     booleanArray[i] = input.readBoolean();
                 }
-            } else if (componentType == Long.TYPE) {
+            } else if (componentType == long.class) {
                 long[] longArray = (long[]) result;
                 for (int i = 0; i < size; i++) {
                     longArray[i] = input.readLong();
                 }
-            } else if (componentType == Float.TYPE) {
+            } else if (componentType == float.class) {
                 float[] floatArray = (float[]) result;
                 for (int i = 0; i < size; i++) {
                     floatArray[i] = input.readFloat();
                 }
-            } else if (componentType == Double.TYPE) {
+            } else if (componentType == double.class) {
                 double[] doubleArray = (double[]) result;
                 for (int i = 0; i < size; i++) {
                     doubleArray[i] = input.readDouble();

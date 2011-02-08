@@ -823,22 +823,22 @@ public class SimpleTimeZone extends TimeZone {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("dstSavings", Integer.TYPE),
-        new ObjectStreamField("endDay", Integer.TYPE),
-        new ObjectStreamField("endDayOfWeek", Integer.TYPE),
-        new ObjectStreamField("endMode", Integer.TYPE),
-        new ObjectStreamField("endMonth", Integer.TYPE),
-        new ObjectStreamField("endTime", Integer.TYPE),
+        new ObjectStreamField("dstSavings", int.class),
+        new ObjectStreamField("endDay", int.class),
+        new ObjectStreamField("endDayOfWeek", int.class),
+        new ObjectStreamField("endMode", int.class),
+        new ObjectStreamField("endMonth", int.class),
+        new ObjectStreamField("endTime", int.class),
         new ObjectStreamField("monthLength", byte[].class),
-        new ObjectStreamField("rawOffset", Integer.TYPE),
-        new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
-        new ObjectStreamField("startDay", Integer.TYPE),
-        new ObjectStreamField("startDayOfWeek", Integer.TYPE),
-        new ObjectStreamField("startMode", Integer.TYPE),
-        new ObjectStreamField("startMonth", Integer.TYPE),
-        new ObjectStreamField("startTime", Integer.TYPE),
-        new ObjectStreamField("startYear", Integer.TYPE),
-        new ObjectStreamField("useDaylight", Boolean.TYPE),
+        new ObjectStreamField("rawOffset", int.class),
+        new ObjectStreamField("serialVersionOnStream", int.class),
+        new ObjectStreamField("startDay", int.class),
+        new ObjectStreamField("startDayOfWeek", int.class),
+        new ObjectStreamField("startMode", int.class),
+        new ObjectStreamField("startMonth", int.class),
+        new ObjectStreamField("startTime", int.class),
+        new ObjectStreamField("startYear", int.class),
+        new ObjectStreamField("useDaylight", boolean.class),
     };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {

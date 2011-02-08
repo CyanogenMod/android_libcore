@@ -599,7 +599,7 @@ public final class Locale implements Cloneable, Serializable {
 
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("country", String.class),
-        new ObjectStreamField("hashcode", Integer.TYPE),
+        new ObjectStreamField("hashcode", int.class),
         new ObjectStreamField("language", String.class),
         new ObjectStreamField("variant", String.class),
     };

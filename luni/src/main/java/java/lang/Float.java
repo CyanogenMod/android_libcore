@@ -98,8 +98,7 @@ public final class Float extends Number implements Comparable<Float> {
     @SuppressWarnings("unchecked")
     public static final Class<Float> TYPE
             = (Class<Float>) float[].class.getComponentType();
-
-    // Note: This can't be set to "float.class", since *that* is
+    // Note: Float.TYPE can't be set to "float.class", since *that* is
     // defined to be "java.lang.Float.TYPE";
 
     /**

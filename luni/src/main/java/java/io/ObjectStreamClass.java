@@ -393,7 +393,7 @@ public class ObjectStreamClass implements Serializable {
          */
         for (int i = 0; i < fields.length; i++) {
             final Field field = fields[i];
-            if (Long.TYPE == field.getType()) {
+            if (field.getType() == long.class) {
                 int modifiers = field.getModifiers();
                 if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
                     if (UID_FIELD_NAME.equals(field.getName())) {
@@ -1136,7 +1136,7 @@ public class ObjectStreamClass implements Serializable {
             Class<?>[] param) {
         try {
             Method method = cl.getDeclaredMethod(methodName, param);
-            if (Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == Void.TYPE) {
+            if (Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == void.class) {
                 method.setAccessible(true);
                 return method;
             }
@@ -1276,19 +1276,19 @@ public class ObjectStreamClass implements Serializable {
     }
 
     private int primitiveSize(Class<?> type) {
-        if (type == Byte.TYPE || type == Boolean.TYPE) {
+        if (type == byte.class || type == boolean.class) {
             return 1;
         }
-        if (type == Short.TYPE || type == Character.TYPE) {
+        if (type == short.class || type == char.class) {
             return 2;
         }
-        if (type == Integer.TYPE || type == Float.TYPE) {
+        if (type == int.class || type == float.class) {
             return 4;
         }
-        if (type == Long.TYPE || type == Double.TYPE) {
+        if (type == long.class || type == double.class) {
             return 8;
         }
-        return 0;
+        throw new AssertionError();
     }
 
     /**
