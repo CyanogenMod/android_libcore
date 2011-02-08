@@ -12,16 +12,14 @@
  *
  * @author Ram Viswanadha, IBM
  */
-package libcore.icu;
+package java.nio.charset;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 import java.util.HashMap;
 import java.util.Map;
+import libcore.icu.ErrorCode;
+import libcore.icu.NativeConverter;
 import libcore.util.EmptyArray;
 
 public final class CharsetEncoderICU extends CharsetEncoder {
@@ -95,22 +93,14 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     private CharsetEncoderICU(Charset cs, float averageBytesPerChar, float maxBytesPerChar, byte[] replacement, long address) {
-        // We lie to our superclass and let it think we're using the default replacement...
-        super(cs, averageBytesPerChar, maxBytesPerChar);
+        super(cs, averageBytesPerChar, maxBytesPerChar, replacement, true);
+        // Our native peer needs to know what just happened...
         this.converterHandle = address;
-        // ...and then when our native peer is accessible, we tell it the truth.
-        // We still can't just call replaceWith because the RI enforces unnecessary restrictions
-        // on the replacement bytes. We trust ICU to know what it's doing. Doing so lets us support
-        // EUC-JP, SCSU, and Shift_JIS with ICU's suggested replacement bytes.
-        uncheckedReplaceWith(replacement);
+        updateCallback();
     }
 
     @Override protected void implReplaceWith(byte[] newReplacement) {
-        // This hack is necessary because CharsetEncoder calls this abstract method from its
-        // constructor, and subclasses like CharsetEncoderICU aren't initialized at that point.
-        if (converterHandle != 0) {
-            updateCallback();
-        }
+        updateCallback();
     }
 
     @Override protected void implOnMalformedInput(CodingErrorAction newAction) {

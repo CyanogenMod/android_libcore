@@ -21,7 +21,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Arrays;
-import libcore.icu.CharsetEncoderICU;
 
 /**
  * Transforms a sequence of 16-bit Java characters to a byte sequence in some encoding.
@@ -129,8 +128,11 @@ public abstract class CharsetEncoder {
      * @throws IllegalArgumentException
      *             if any parameters are invalid.
      */
-    protected CharsetEncoder(Charset cs, float averageBytesPerChar,
-            float maxBytesPerChar, byte[] replacement) {
+    protected CharsetEncoder(Charset cs, float averageBytesPerChar, float maxBytesPerChar, byte[] replacement) {
+        this(cs, averageBytesPerChar, maxBytesPerChar, replacement, false);
+    }
+
+    CharsetEncoder(Charset cs, float averageBytesPerChar, float maxBytesPerChar, byte[] replacement, boolean trusted) {
         if (averageBytesPerChar <= 0 || maxBytesPerChar <= 0) {
             throw new IllegalArgumentException("averageBytesPerChar and maxBytesPerChar must both be positive");
         }
@@ -143,7 +145,13 @@ public abstract class CharsetEncoder {
         status = INIT;
         malformedInputAction = CodingErrorAction.REPORT;
         unmappableCharacterAction = CodingErrorAction.REPORT;
-        replaceWith(replacement);
+        if (trusted) {
+            // The RI enforces unnecessary restrictions on the replacement bytes. We trust ICU to
+            // know what it's doing. Doing so lets us support ICU's EUC-JP, SCSU, and Shift_JIS.
+            this.replacementBytes = replacement;
+        } else {
+            replaceWith(replacement);
+        }
     }
 
     /**
@@ -704,13 +712,6 @@ public abstract class CharsetEncoder {
         if (!isLegalReplacement(replacement)) {
             throw new IllegalArgumentException("bad replacement: " + Arrays.toString(replacement));
         }
-        return uncheckedReplaceWith(replacement);
-    }
-
-    /**
-     * @hide helps CharsetEncoderICU to work around the constructor's calls to replaceWith
-     */
-    public final CharsetEncoder uncheckedReplaceWith(byte[] replacement) {
         // It seems like a bug, but the RI doesn't clone, and we have tests that check we don't.
         this.replacementBytes = replacement;
         implReplaceWith(replacementBytes);

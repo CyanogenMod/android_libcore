@@ -7,11 +7,9 @@
 *******************************************************************************
 */
 
-package libcore.icu;
+package java.nio.charset;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
+import libcore.icu.NativeConverter;
 
 public final class CharsetICU extends Charset {
     private final String icuCanonicalName;
