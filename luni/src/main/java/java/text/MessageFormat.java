@@ -1210,7 +1210,7 @@ public class MessageFormat extends Format {
         new ObjectStreamField("argumentNumbers", int[].class),
         new ObjectStreamField("formats", Format[].class),
         new ObjectStreamField("locale", Locale.class),
-        new ObjectStreamField("maxOffset", Integer.TYPE),
+        new ObjectStreamField("maxOffset", int.class),
         new ObjectStreamField("offsets", int[].class),
         new ObjectStreamField("pattern", String.class),
     };

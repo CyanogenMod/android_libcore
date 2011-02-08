@@ -127,8 +127,7 @@ public final class Character implements Serializable, Comparable<Character> {
     @SuppressWarnings("unchecked")
     public static final Class<Character> TYPE
             = (Class<Character>) char[].class.getComponentType();
-
-    // Note: This can't be set to "char.class", since *that* is
+    // Note: Character.TYPE can't be set to "char.class", since *that* is
     // defined to be "java.lang.Character.TYPE";
 
     /**

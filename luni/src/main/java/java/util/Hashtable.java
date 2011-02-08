@@ -1093,8 +1093,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
     private static final long serialVersionUID = 1421746759512286392L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("threshold", Integer.TYPE),
-        new ObjectStreamField("loadFactor", Float.TYPE),
+        new ObjectStreamField("threshold", int.class),
+        new ObjectStreamField("loadFactor", float.class),
     };
 
     private synchronized void writeObject(ObjectOutputStream stream)

@@ -1271,7 +1271,7 @@ public class SimpleDateFormat extends DateFormat {
         new ObjectStreamField("defaultCenturyStart", Date.class),
         new ObjectStreamField("formatData", DateFormatSymbols.class),
         new ObjectStreamField("pattern", String.class),
-        new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+        new ObjectStreamField("serialVersionOnStream", int.class),
     };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {

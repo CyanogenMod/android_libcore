@@ -31,8 +31,7 @@ public final class Void {
      * The {@link Class} object that represents the primitive type {@code void}.
      */
     public static final Class<Void> TYPE = lookupType();
-
-    // Note: This can't be set to "void.class", since *that* is
+    // Note: Void.TYPE can't be set to "void.class", since *that* is
     // defined to be "java.lang.Void.TYPE";
 
     @SuppressWarnings("unchecked")

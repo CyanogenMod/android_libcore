@@ -680,17 +680,17 @@ public abstract class NumberFormat extends Format {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("groupingUsed", Boolean.TYPE),
-        new ObjectStreamField("maxFractionDigits", Byte.TYPE),
-        new ObjectStreamField("maximumFractionDigits", Integer.TYPE),
-        new ObjectStreamField("maximumIntegerDigits", Integer.TYPE),
-        new ObjectStreamField("maxIntegerDigits", Byte.TYPE),
-        new ObjectStreamField("minFractionDigits", Byte.TYPE),
-        new ObjectStreamField("minimumFractionDigits", Integer.TYPE),
-        new ObjectStreamField("minimumIntegerDigits", Integer.TYPE),
-        new ObjectStreamField("minIntegerDigits", Byte.TYPE),
-        new ObjectStreamField("parseIntegerOnly", Boolean.TYPE),
-        new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+        new ObjectStreamField("groupingUsed", boolean.class),
+        new ObjectStreamField("maxFractionDigits", byte.class),
+        new ObjectStreamField("maximumFractionDigits", int.class),
+        new ObjectStreamField("maximumIntegerDigits", int.class),
+        new ObjectStreamField("maxIntegerDigits", byte.class),
+        new ObjectStreamField("minFractionDigits", byte.class),
+        new ObjectStreamField("minimumFractionDigits", int.class),
+        new ObjectStreamField("minimumIntegerDigits", int.class),
+        new ObjectStreamField("minIntegerDigits", byte.class),
+        new ObjectStreamField("parseIntegerOnly", boolean.class),
+        new ObjectStreamField("serialVersionOnStream", int.class),
     };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {

@@ -40,7 +40,7 @@ public final class Boolean implements Serializable, Comparable<Boolean> {
     @SuppressWarnings("unchecked")
     public static final Class<Boolean> TYPE
              = (Class<Boolean>) boolean[].class.getComponentType();
-    // Note: This can't be set to "boolean.class", since *that* is
+    // Note: Boolean.TYPE can't be set to "boolean.class", since *that* is
     // defined to be "java.lang.Boolean.TYPE";
 
     /**

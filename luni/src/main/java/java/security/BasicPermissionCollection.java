@@ -41,7 +41,7 @@ final class BasicPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = 739301742472979399L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("all_allowed", Boolean.TYPE),
+        new ObjectStreamField("all_allowed", boolean.class),
         new ObjectStreamField("permissions", Hashtable.class),
         new ObjectStreamField("permClass", Class.class),
     };
