@@ -707,6 +707,9 @@ public abstract class CharsetEncoder {
         return uncheckedReplaceWith(replacement);
     }
 
+    /**
+     * @hide helps CharsetEncoderICU to work around the constructor's calls to replaceWith
+     */
     public final CharsetEncoder uncheckedReplaceWith(byte[] replacement) {
         // It seems like a bug, but the RI doesn't clone, and we have tests that check we don't.
         this.replacementBytes = replacement;
