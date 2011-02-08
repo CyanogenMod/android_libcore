@@ -20,7 +20,7 @@ import libcore.icu.ErrorCode;
 import libcore.icu.NativeConverter;
 import libcore.util.EmptyArray;
 
-public final class CharsetDecoderICU extends CharsetDecoder {
+final class CharsetDecoderICU extends CharsetDecoder {
     private static final int MAX_CHARS_PER_BYTE = 2;
 
     private static final int INPUT_OFFSET = 0;

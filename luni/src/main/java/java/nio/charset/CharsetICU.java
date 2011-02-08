@@ -11,7 +11,7 @@ package java.nio.charset;
 
 import libcore.icu.NativeConverter;
 
-public final class CharsetICU extends Charset {
+final class CharsetICU extends Charset {
     private final String icuCanonicalName;
 
     protected CharsetICU(String canonicalName, String icuCanonName, String[] aliases) {

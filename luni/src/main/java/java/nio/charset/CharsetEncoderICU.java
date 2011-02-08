@@ -22,7 +22,7 @@ import libcore.icu.ErrorCode;
 import libcore.icu.NativeConverter;
 import libcore.util.EmptyArray;
 
-public final class CharsetEncoderICU extends CharsetEncoder {
+final class CharsetEncoderICU extends CharsetEncoder {
     private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();
     static {
         // ICU has different default replacements to the RI in some cases. There are many
