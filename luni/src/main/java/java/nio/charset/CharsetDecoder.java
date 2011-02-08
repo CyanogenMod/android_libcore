@@ -82,37 +82,21 @@ import java.nio.CharBuffer;
  * @see java.nio.charset.CharsetEncoder
  */
 public abstract class CharsetDecoder {
-
-    /*
-     * internal status consts
-     */
     private static final int INIT = 0;
-
     private static final int ONGOING = 1;
-
     private static final int END = 2;
-
     private static final int FLUSH = 3;
 
-    // average number of chars for one byte
-    private float averChars;
+    private final float averageCharsPerByte;
+    private final float maxCharsPerByte;
 
-    // maximum number of chars for one byte
-    private float maxChars;
+    private final Charset cs;
 
-    // charset for this decoder
-    private Charset cs;
+    private CodingErrorAction malformedInputAction;
+    private CodingErrorAction unmappableCharacterAction;
 
-    // specify the action if malformed input error encountered
-    private CodingErrorAction malformAction;
+    private String replacementChars;
 
-    // specify the action if unmappable character error encountered
-    private CodingErrorAction unmapAction;
-
-    // the replacement string
-    private String replace;
-
-    // the current status
     private int status;
 
     /**
@@ -133,38 +117,32 @@ public abstract class CharsetDecoder {
      *             if <code>averageCharsPerByte</code> or
      *             <code>maxCharsPerByte</code> is negative.
      */
-    protected CharsetDecoder(Charset charset, float averageCharsPerByte,
-            float maxCharsPerByte) {
+    protected CharsetDecoder(Charset charset, float averageCharsPerByte, float maxCharsPerByte) {
         if (averageCharsPerByte <= 0 || maxCharsPerByte <= 0) {
             throw new IllegalArgumentException("averageCharsPerByte and maxCharsPerByte must be positive");
         }
         if (averageCharsPerByte > maxCharsPerByte) {
             throw new IllegalArgumentException("averageCharsPerByte is greater than maxCharsPerByte");
         }
-        averChars = averageCharsPerByte;
-        maxChars = maxCharsPerByte;
+        this.averageCharsPerByte = averageCharsPerByte;
+        this.maxCharsPerByte = maxCharsPerByte;
         cs = charset;
         status = INIT;
-        malformAction = CodingErrorAction.REPORT;
-        unmapAction = CodingErrorAction.REPORT;
-        replace = "\ufffd";
+        malformedInputAction = CodingErrorAction.REPORT;
+        unmappableCharacterAction = CodingErrorAction.REPORT;
+        replacementChars = "\ufffd";
     }
 
     /**
-     * Gets the average number of characters created by this decoder for a
+     * Returns the average number of characters created by this decoder for a
      * single input byte.
-     *
-     * @return the average number of characters created by this decoder for a
-     *         single input byte.
      */
     public final float averageCharsPerByte() {
-        return averChars;
+        return averageCharsPerByte;
     }
 
     /**
-     * Gets the <code>Charset</code> which this decoder uses.
-     *
-     * @return the <code>Charset</code> which this decoder uses.
+     * Returns the {@link Charset} which this decoder uses.
      */
     public final Charset charset() {
         return cs;
@@ -203,10 +181,9 @@ public abstract class CharsetDecoder {
      * @throws CharacterCodingException
      *             if another exception happened during the decode operation.
      */
-    public final CharBuffer decode(ByteBuffer in)
-            throws CharacterCodingException {
+    public final CharBuffer decode(ByteBuffer in) throws CharacterCodingException {
         reset();
-        int length = (int) (in.remaining() * averChars);
+        int length = (int) (in.remaining() * averageCharsPerByte);
         CharBuffer output = CharBuffer.allocate(length);
         CoderResult result = null;
         while (true) {
@@ -239,12 +216,10 @@ public abstract class CharsetDecoder {
     /*
      * checks the result whether it needs to throw CharacterCodingException.
      */
-    private void checkCoderResult(CoderResult result)
-            throws CharacterCodingException {
-        if (result.isMalformed() && malformAction == CodingErrorAction.REPORT) {
+    private void checkCoderResult(CoderResult result) throws CharacterCodingException {
+        if (result.isMalformed() && malformedInputAction == CodingErrorAction.REPORT) {
             throw new MalformedInputException(result.length());
-        } else if (result.isUnmappable()
-                && unmapAction == CodingErrorAction.REPORT) {
+        } else if (result.isUnmappable() && unmappableCharacterAction == CodingErrorAction.REPORT) {
             throw new UnmappableCharacterException(result.length());
         }
     }
@@ -368,16 +343,16 @@ public abstract class CharsetDecoder {
                 return result;
             }
             // set coding error handle action
-            action = malformAction;
+            action = malformedInputAction;
             if (result.isUnmappable()) {
-                action = unmapAction;
+                action = unmappableCharacterAction;
             }
             // If the action is IGNORE or REPLACE, we should continue decoding.
             if (action == CodingErrorAction.REPLACE) {
-                if (out.remaining() < replace.length()) {
+                if (out.remaining() < replacementChars.length()) {
                     return CoderResult.OVERFLOW;
                 }
-                out.put(replace);
+                out.put(replacementChars);
             } else {
                 if (action != CodingErrorAction.IGNORE)
                     return result;
@@ -585,25 +560,19 @@ public abstract class CharsetDecoder {
     }
 
     /**
-     * Gets this decoder's <code>CodingErrorAction</code> when malformed input
+     * Returns this decoder's <code>CodingErrorAction</code> when malformed input
      * occurred during the decoding process.
-     *
-     * @return this decoder's <code>CodingErrorAction</code> when malformed
-     *         input occurred during the decoding process.
      */
     public CodingErrorAction malformedInputAction() {
-        return malformAction;
+        return malformedInputAction;
     }
 
     /**
-     * Gets the maximum number of characters which can be created by this
+     * Returns the maximum number of characters which can be created by this
      * decoder for one input byte, must be positive.
-     *
-     * @return the maximum number of characters which can be created by this
-     *         decoder for one input byte, must be positive.
      */
     public final float maxCharsPerByte() {
-        return maxChars;
+        return maxCharsPerByte;
     }
 
     /**
@@ -623,7 +592,7 @@ public abstract class CharsetDecoder {
         if (newAction == null) {
             throw new IllegalArgumentException();
         }
-        malformAction = newAction;
+        malformedInputAction = newAction;
         implOnMalformedInput(newAction);
         return this;
     }
@@ -645,18 +614,16 @@ public abstract class CharsetDecoder {
         if (newAction == null) {
             throw new IllegalArgumentException();
         }
-        unmapAction = newAction;
+        unmappableCharacterAction = newAction;
         implOnUnmappableCharacter(newAction);
         return this;
     }
 
     /**
-     * Gets the replacement string, which is never null or empty.
-     *
-     * @return the replacement string, cannot be null or empty.
+     * Returns the replacement string, which is never null or empty.
      */
     public final String replacement() {
-        return replace;
+        return replacementChars;
     }
 
     /**
@@ -667,7 +634,7 @@ public abstract class CharsetDecoder {
      * {@link #implReplaceWith(String) implReplaceWith} method with the given
      * new replacement as argument.
      *
-     * @param newReplacement
+     * @param replacement
      *            the replacement string, cannot be null or empty. Its length
      *            cannot be larger than {@link #maxCharsPerByte()}.
      * @return this decoder.
@@ -675,15 +642,19 @@ public abstract class CharsetDecoder {
      *             if the given replacement cannot satisfy the requirement
      *             mentioned above.
      */
-    public final CharsetDecoder replaceWith(String newReplacement) {
-        if (newReplacement == null || newReplacement.isEmpty()) {
-            throw new IllegalArgumentException("Replacement string cannot be null or empty");
+    public final CharsetDecoder replaceWith(String replacement) {
+        if (replacement == null) {
+            throw new IllegalArgumentException("replacement == null");
         }
-        if (newReplacement.length() > maxChars) {
-            throw new IllegalArgumentException("Replacement string cannot be longer than max characters per byte");
+        if (replacement.isEmpty()) {
+            throw new IllegalArgumentException("replacement.isEmpty()");
         }
-        replace = newReplacement;
-        implReplaceWith(newReplacement);
+        if (replacement.length() > maxCharsPerByte()) {
+            throw new IllegalArgumentException("replacement length > maxCharsPerByte: " +
+                    replacement.length() + " > " + maxCharsPerByte());
+        }
+        replacementChars = replacement;
+        implReplaceWith(replacement);
         return this;
     }
 
@@ -701,13 +672,10 @@ public abstract class CharsetDecoder {
     }
 
     /**
-     * Gets this decoder's <code>CodingErrorAction</code> when an unmappable
+     * Returns this decoder's <code>CodingErrorAction</code> when an unmappable
      * character error occurred during the decoding process.
-     *
-     * @return this decoder's <code>CodingErrorAction</code> when an
-     *         unmappable character error occurred during the decoding process.
      */
     public CodingErrorAction unmappableCharacterAction() {
-        return unmapAction;
+        return unmappableCharacterAction;
     }
 }

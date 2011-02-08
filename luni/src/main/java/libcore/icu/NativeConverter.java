@@ -58,9 +58,9 @@ public final class NativeConverter {
         return setCallbackDecode(converterHandle,
                 translateCodingErrorAction(decoder.malformedInputAction()),
                 translateCodingErrorAction(decoder.unmappableCharacterAction()),
-                decoder.replacement().toCharArray());
+                decoder.replacement());
     }
-    private static native int setCallbackDecode(long converterHandle, int onMalformedInput, int onUnmappableInput, char[] subChars);
+    private static native int setCallbackDecode(long converterHandle, int onMalformedInput, int onUnmappableInput, String subChars);
 
     public static int setCallbackEncode(long converterHandle, CharsetEncoder encoder) {
         return setCallbackEncode(converterHandle,
