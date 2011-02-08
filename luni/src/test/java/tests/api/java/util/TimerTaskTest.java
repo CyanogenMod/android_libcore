@@ -27,13 +27,15 @@ import java.util.TimerTask;
 
 @TestTargetClass(TimerTask.class)
 public class TimerTaskTest extends junit.framework.TestCase {
-    Object sync = new Object(), start = new Object();
-
     /**
      * Warning: These tests have the possibility to leave a VM hanging if the
      * Timer is not cancelled.
      */
     class TimerTestTask extends TimerTask {
+
+        private final Object sync = new Object();
+        private final Object start = new Object();
+
         private int wasRun = 0;
 
         // Set this to true to see normal tests fail (or hang possibly)
@@ -166,10 +168,10 @@ public class TimerTaskTest extends junit.framework.TestCase {
             t = new Timer();
             testTask = new TimerTestTask();
             testTask.sleepInRun(true);
-            synchronized (start) {
+            synchronized (testTask.start) {
                 t.schedule(testTask, 0);
                 try {
-                    start.wait();
+                    testTask.start.wait();
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                 }
@@ -200,9 +202,9 @@ public class TimerTaskTest extends junit.framework.TestCase {
             TimerTestTask testTask = new TimerTestTask();
             t.schedule(testTask, 100);
             long time = System.currentTimeMillis() + 100;
-            synchronized (sync) {
+            synchronized (testTask.sync) {
                 try {
-                    sync.wait(500);
+                    testTask.sync.wait(500);
                 } catch (InterruptedException e) {
                 }
             }
@@ -218,9 +220,9 @@ public class TimerTaskTest extends junit.framework.TestCase {
             // Will wake in 100, and every 500 run again
             // We want to try to get it after it's run at least once but not
             // twice
-            synchronized (sync) {
+            synchronized (testTask.sync) {
                 try {
-                    sync.wait(500);
+                    testTask.sync.wait(500);
                 } catch (InterruptedException e) {
                 }
             }
