@@ -18,8 +18,6 @@
 package java.net;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
-import java.util.Locale;
 import libcore.util.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
@@ -313,26 +311,29 @@ public abstract class URLStreamHandler {
         if (authority != null && !authority.isEmpty()) {
             result.append("//");
             if (escapeIllegalCharacters) {
-                authority = URI.AUTHORITY_ENCODER.fixEncoding(authority);
+                URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, authority);
+            } else {
+                result.append(authority);
             }
-            result.append(authority);
         }
 
         String fileAndQuery = url.getFile();
         if (fileAndQuery != null) {
             if (escapeIllegalCharacters) {
-                fileAndQuery = URI.FILE_AND_QUERY_ENCODER.fixEncoding(fileAndQuery);
+                URI.FILE_AND_QUERY_ENCODER.appendPartiallyEncoded(result, fileAndQuery);
+            } else {
+                result.append(fileAndQuery);
             }
-            result.append(fileAndQuery);
         }
 
         String ref = url.getRef();
         if (ref != null) {
             result.append('#');
             if (escapeIllegalCharacters) {
-                ref = URI.ALL_LEGAL_ENCODER.fixEncoding(ref);
+                URI.ALL_LEGAL_ENCODER.appendPartiallyEncoded(result, ref);
+            } else {
+                result.append(ref);
             }
-            result.append(ref);
         }
 
         return result.toString();

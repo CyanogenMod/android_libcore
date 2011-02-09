@@ -20,7 +20,7 @@ package org.apache.harmony.luni.tests.java.net;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
+import java.nio.charset.UnsupportedCharsetException;
 import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 
@@ -53,6 +53,7 @@ public class URLEncoderTest extends TestCase {
             URLEncoder.encode("str", "unknown_enc");
             fail("Assert 0: Should throw UEE for invalid encoding");
         } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedCharsetException e) {
             // expected
         }
 

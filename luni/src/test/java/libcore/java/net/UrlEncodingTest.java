@@ -169,6 +169,19 @@ public final class UrlEncodingTest extends TestCase {
         assertDecoded("\ud842\udf9f", "%f0%a0%ae%9f");
     }
 
+    public void testDecodingNonUsDigits() throws Exception {
+        try {
+            new URI("http://foo#" + "%\u0664\u0661");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            URLDecoder.decode("%\u0664\u0661");
+            fail(); // RI fails this test returning "A"
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     /**
      * Android's URLEncoder.encode() failed for surrogate pairs, encoding them
      * as two replacement characters ("??"). http://b/3436051
