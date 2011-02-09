@@ -1123,14 +1123,19 @@ outer:
     }
 
     /**
-     * Searches an internal table of strings for a string equal to this string.
-     * If the string is not in the table, it is added. Returns the string
-     * contained in the table which is equal to this string. The same string
-     * object is always returned for strings which are equal.
+     * Returns an interned string equal to this string. The VM maintains an internal set of
+     * unique strings. All string literals found in loaded classes'
+     * constant pools are automatically interned. Manually-interned strings are only weakly
+     * referenced, so calling {@code intern} won't lead to unwanted retention.
      *
-     * @return the interned string equal to this string.
+     * <p>Interning is typically used because it guarantees that for interned strings
+     * {@code a} and {@code b}, {@code a.equals(b)} can be simplified to
+     * {@code a == b}. (This is not true of non-interned strings.)
+     *
+     * <p>Many applications find it simpler and more convenient to use an explicit
+     * {@link java.util.HashMap} to implement their own pools.
      */
-    native public String intern();
+    public native String intern();
 
     /**
      * Returns true if the length of this string is 0.
@@ -1142,14 +1147,9 @@ outer:
     }
 
     /**
-     * Searches in this string for the last index of the specified character.
+     * Returns the last index of the code point {@code c}, or -1.
      * The search for the character starts at the end and moves towards the
      * beginning of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int lastIndexOf(int c) {
         if (c > 0xffff) {
@@ -1167,16 +1167,9 @@ outer:
     }
 
     /**
-     * Searches in this string for the index of the specified character. The
-     * search for the character starts at the specified offset and moves towards
+     * Returns the last index of the code point {@code c}, or -1.
+     * The search for the character starts at offset {@code start} and moves towards
      * the beginning of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @param start
-     *            the starting offset.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int lastIndexOf(int c, int start) {
         if (c > 0xffff) {
