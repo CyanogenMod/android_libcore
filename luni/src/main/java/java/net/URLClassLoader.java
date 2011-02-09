@@ -224,13 +224,12 @@ public class URLClassLoader extends SecureClassLoader {
 
         URL targetURL(URL base, String name) {
             try {
-                String file = base.getFile() + URIEncoderDecoder.quoteIllegal(name,
-                        "/@" + URI.SOME_LEGAL);
+                StringBuilder fileBuilder = new StringBuilder();
+                fileBuilder.append(base.getFile());
+                URI.PATH_ENCODER.appendEncoded(fileBuilder, name);
+                String file = fileBuilder.toString();
 
-                return new URL(base.getProtocol(), base.getHost(), base.getPort(),
-                        file, null);
-            } catch (UnsupportedEncodingException e) {
-                return null;
+                return new URL(base.getProtocol(), base.getHost(), base.getPort(), file, null);
             } catch (MalformedURLException e) {
                 return null;
             }

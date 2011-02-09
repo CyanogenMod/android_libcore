@@ -21,6 +21,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import junit.framework.TestCase;
 
 public final class UrlEncodingTest extends TestCase {
@@ -106,6 +108,7 @@ public final class UrlEncodingTest extends TestCase {
         try {
             URLDecoder.decode("ab", null);
             fail();
+        } catch (IllegalCharsetNameException expected) {
         } catch (NullPointerException expected) {
         }
     }
@@ -114,18 +117,28 @@ public final class UrlEncodingTest extends TestCase {
         try {
             URLEncoder.encode("ab", null);
             fail();
+        } catch (IllegalCharsetNameException expected) {
         } catch (NullPointerException expected) {
         }
     }
 
+    /**
+     * The RI looks up the charset lazily; Android looks it up eagerly. Either
+     * behavior is acceptable.
+     */
     public void testUrlDecoderIgnoresUnnecessaryCharset() throws Exception {
-        assertEquals("ab", URLDecoder.decode("ab", "no such charset"));
+        try {
+            assertEquals("ab", URLDecoder.decode("ab", "no-such-charset"));
+            // no fail()
+        } catch (UnsupportedCharsetException expected) {
+        }
     }
 
     public void testUrlEncoderFailsOnInvalidCharset() throws Exception {
         try {
-            URLEncoder.encode("ab", "no such charset");
+            URLEncoder.encode("ab", "no-such-charset");
             fail();
+        } catch (UnsupportedCharsetException expected) {
         } catch (UnsupportedEncodingException expected) {
         }
     }
@@ -170,9 +183,15 @@ public final class UrlEncodingTest extends TestCase {
     }
 
     public void testUriDoesNotEncodeNonPrintableNonAsciiCharacters() throws Exception {
-        assertEquals("\u0000", new URI("http", "foo", "/", "\u0000").getRawFragment());
         assertEquals("\u20AC", new URI("http", "foo", "/", "\u20AC").getRawFragment());
         assertEquals("\ud842\udf9f", new URI("http", "foo", "/", "\ud842\udf9f").getRawFragment());
+    }
+
+    public void testUriEncodesControlCharacters() throws Exception {
+        assertEquals("%01", new URI("http", "foo", "/", "\u0001").getRawFragment());
+
+        // The RI fails this, encoding \u0001 but not \u0000
+        assertEquals("%00", new URI("http", "foo", "/", "\u0000").getRawFragment());
     }
 
     /**

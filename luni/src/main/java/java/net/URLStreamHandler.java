@@ -313,7 +313,7 @@ public abstract class URLStreamHandler {
         if (authority != null && !authority.isEmpty()) {
             result.append("//");
             if (escapeIllegalCharacters) {
-                authority = fixEncoding(authority, "$,;@&=+:[]");
+                authority = URI.AUTHORITY_ENCODER.fixEncoding(authority);
             }
             result.append(authority);
         }
@@ -321,7 +321,7 @@ public abstract class URLStreamHandler {
         String fileAndQuery = url.getFile();
         if (fileAndQuery != null) {
             if (escapeIllegalCharacters) {
-                fileAndQuery = fixEncoding(fileAndQuery, "$,;@&=+:/?");
+                fileAndQuery = URI.FILE_AND_QUERY_ENCODER.fixEncoding(fileAndQuery);
             }
             result.append(fileAndQuery);
         }
@@ -330,84 +330,12 @@ public abstract class URLStreamHandler {
         if (ref != null) {
             result.append('#');
             if (escapeIllegalCharacters) {
-                ref = fixEncoding(ref, "$,;@&=+:/?[]");
+                ref = URI.ALL_LEGAL_ENCODER.fixEncoding(ref);
             }
             result.append(ref);
         }
 
         return result.toString();
-    }
-
-    /**
-     * Escapes the unescaped characters of {@code s} that are not permitted.
-     * Permitted characters are:
-     * <ul>
-     *   <li>Unreserved characters in RFC 2396.
-     *   <li>{@code extraOkayChars},
-     *   <li>non-ASCII, non-control, non-whitespace characters
-     * </ul>
-     *
-     * <p>Unlike the methods in {@code URI}, this method ignores input that has
-     * already been escaped. For example, input of "hello%20world" is unchanged
-     * by this method but would be double-escaped to "hello%2520world" by URI.
-     *
-     * <p>UTF-8 is used to encode escaped characters. A single input character
-     * like "\u0080" may be encoded to multiple octets like %C2%80.
-     */
-    private String fixEncoding(String s, String extraPermittedChars) {
-        StringBuilder result = null;
-        int copiedCount = 0;
-
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-
-            if (c == '%') {
-                i += 2; // this is a 3-character sequence like "%20"
-                continue;
-            }
-
-            // unreserved characters: alphanum | mark
-            if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
-                    || c == '-' || c == '_' || c == '.' || c == '!' || c == '~'
-                    || c == '*' || c == '\'' || c == '(' || c == ')') {
-                continue;
-            }
-
-            // characters permitted in this context
-            if (extraPermittedChars.indexOf(c) != -1) {
-                continue;
-            }
-
-            // other characters
-            if (c > 0x7f && !Character.isISOControl(c) && !Character.isSpaceChar(c)) {
-                continue;
-            }
-
-            /*
-             * We've encountered a character that must be escaped.
-             */
-            if (result == null) {
-                result = new StringBuilder();
-            }
-            result.append(s, copiedCount, i);
-
-            if (c < 0x7f) {
-                URIEncoderDecoder.appendHex(result, (byte) c);
-            } else {
-                for (byte b : s.substring(i, i + 1).getBytes(Charsets.UTF_8)) {
-                    URIEncoderDecoder.appendHex(result, b);
-                }
-            }
-
-            copiedCount = i + 1;
-        }
-
-        if (result == null) {
-            return s;
-        } else {
-            result.append(s, copiedCount, s.length());
-            return result.toString();
-        }
     }
 
     /**

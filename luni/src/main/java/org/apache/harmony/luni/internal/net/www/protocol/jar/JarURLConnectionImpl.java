@@ -27,6 +27,7 @@ import java.net.ContentHandler;
 import java.net.ContentHandlerFactory;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import libcore.net.UriCodec;
 import java.net.URL;
 import java.security.Permission;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * This subclass extends {@code URLConnection}.
@@ -136,8 +136,8 @@ public class JarURLConnectionImpl extends JarURLConnection {
 
     JarFile openJarFile() throws IOException {
         if (jarFileURL.getProtocol().equals("file")) {
-            return new JarFile(new File(Util.decode(jarFileURL.getFile(), false,
-                    "UTF-8")), true, ZipFile.OPEN_READ);
+            String decodedFile = UriCodec.decode(jarFileURL.getFile());
+            return new JarFile(new File(decodedFile), true, ZipFile.OPEN_READ);
         } else {
             final InputStream is = jarFileURL.openConnection().getInputStream();
             try {

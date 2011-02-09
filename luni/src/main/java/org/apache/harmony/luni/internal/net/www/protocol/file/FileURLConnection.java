@@ -26,9 +26,9 @@ import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import libcore.net.UriCodec;
 import java.net.URL;
 import java.net.URLConnection;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * This subclass extends <code>URLConnection</code>.
@@ -60,7 +60,7 @@ public class FileURLConnection extends URLConnection {
         if (fileName == null) {
             fileName = "";
         }
-        fileName = Util.decode(fileName, false);
+        fileName = UriCodec.decode(fileName);
     }
 
     /**
