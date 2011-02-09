@@ -1028,8 +1028,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @return a {@code Calendar} subclass instance set to the current date and time in
      *         the specified timezone.
      */
-    public static synchronized Calendar getInstance(TimeZone timezone,
-            Locale locale) {
+    public static synchronized Calendar getInstance(TimeZone timezone, Locale locale) {
         return new GregorianCalendar(timezone, locale);
     }
 

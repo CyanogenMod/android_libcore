@@ -653,31 +653,23 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
     }
 
     /**
-     * Returns the string representation of this {@code Date} in GMT in the format: 22
-     * Jun 1999 13:02:00 GMT
-     *
-     * @return the string representation of this {@code Date} in GMT.
+     * Returns the string representation of this {@code Date} in GMT in the format
+     * {@code "22 Jun 1999 13:02:00 GMT"}.
      *
      * @deprecated use {@link DateFormat}
      */
     @Deprecated
     public String toGMTString() {
-        // TODO: why does this insert the year manually instead of using one SimpleDateFormat?
-        SimpleDateFormat format1 = new SimpleDateFormat("d MMM ", Locale.US);
-        SimpleDateFormat format2 = new SimpleDateFormat(" HH:mm:ss 'GMT'", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM y HH:mm:ss 'GMT'", Locale.US);
         TimeZone gmtZone = TimeZone.getTimeZone("GMT");
-        format1.setTimeZone(gmtZone);
-        format2.setTimeZone(gmtZone);
+        sdf.setTimeZone(gmtZone);
         GregorianCalendar gc = new GregorianCalendar(gmtZone);
         gc.setTimeInMillis(milliseconds);
-        return format1.format(this) + gc.get(Calendar.YEAR)
-                + format2.format(this);
+        return sdf.format(this);
     }
 
     /**
      * Returns the string representation of this {@code Date} for the default {@code Locale}.
-     *
-     * @return the string representation of this {@code Date} for the default {@code Locale}.
      *
      * @deprecated use {@link DateFormat}
      */
@@ -693,8 +685,6 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
      * like "Tue Jun 22 13:07:00 PDT 1999". The current default time zone and
      * locale are used. If you need control over the time zone or locale,
      * use {@code SimpleDateFormat} instead.
-     *
-     * @return the string representation of this {@code Date}.
      */
     @Override
     public String toString() {
