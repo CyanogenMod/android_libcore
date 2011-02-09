@@ -780,6 +780,9 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private void appendNumber(StringBuffer buffer, int count, int value) {
+        // TODO: we could avoid using the NumberFormat in most cases for a significant speedup.
+        // The only problem is that we expose the NumberFormat to third-party code, so we'd have
+        // some work to do to work out when the optimization is valid.
         int minimumIntegerDigits = numberFormat.getMinimumIntegerDigits();
         numberFormat.setMinimumIntegerDigits(count);
         numberFormat.format(Integer.valueOf(value), buffer, new FieldPosition(0));

@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import libcore.icu.LocaleData;
 
 /**
  * {@code Date} represents a specific moment in time, to the millisecond.
@@ -688,27 +689,36 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
      */
     @Override
     public String toString() {
-        // TODO: equivalent to the following one-liner, though that's currently 8x slower
-        // at 1655us versus 195us...
+        // TODO: equivalent to the following one-liner, though that's slower on stingray
+        // at 476us versus 69us...
         //   return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").format(d);
+        LocaleData localeData = LocaleData.get(Locale.US);
         Calendar cal = new GregorianCalendar(milliseconds);
         TimeZone tz = cal.getTimeZone();
-        return dayOfWeekNames[cal.get(Calendar.DAY_OF_WEEK) - 1] + " " + monthNames[cal.get(Calendar.MONTH)]
-                + " " + toTwoDigits(cal.get(Calendar.DAY_OF_MONTH)) + " " + toTwoDigits(cal.get(Calendar.HOUR_OF_DAY))
-                + ":" + toTwoDigits(cal.get(Calendar.MINUTE)) + ":" + toTwoDigits(cal.get(Calendar.SECOND))
-                + " " + tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT) + " " + cal.get(Calendar.YEAR);
+        StringBuilder result = new StringBuilder();
+        result.append(localeData.shortWeekdayNames[cal.get(Calendar.DAY_OF_WEEK)]);
+        result.append(' ');
+        result.append(localeData.shortMonthNames[cal.get(Calendar.MONTH)]);
+        result.append(' ');
+        appendTwoDigits(result, cal.get(Calendar.DAY_OF_MONTH));
+        result.append(' ');
+        appendTwoDigits(result, cal.get(Calendar.HOUR_OF_DAY));
+        result.append(':');
+        appendTwoDigits(result, cal.get(Calendar.MINUTE));
+        result.append(':');
+        appendTwoDigits(result, cal.get(Calendar.SECOND));
+        result.append(' ');
+        result.append(tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT));
+        result.append(' ');
+        result.append(cal.get(Calendar.YEAR));
+        return result.toString();
     }
-    private static final String[] dayOfWeekNames =
-            { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    private static final String[] monthNames =
-            { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-    private String toTwoDigits(int n) {
-        if (n >= 10) {
-            return Integer.toString(n);
-        } else {
-            return "0" + n;
+    private static void appendTwoDigits(StringBuilder sb, int n) {
+        if (n < 10) {
+            sb.append('0');
         }
+        sb.append(n);
     }
 
     /**
