@@ -40,6 +40,7 @@ public class DexClassLoaderTest extends TestCase {
     private static final File DEX_FILE = new File(TMP_DIR, DEX_NAME);
     private static final File JAR2_FILE = new File(TMP_DIR, JAR2_NAME);
     private static final File DEX2_FILE = new File(TMP_DIR, DEX2_NAME);
+    private static final File OPTIMIZED_DIR = new File(TMP_DIR, "optimized");
 
     private static enum Configuration {
         /** just one classpath element, a raw dex file */
@@ -57,6 +58,7 @@ public class DexClassLoaderTest extends TestCase {
 
     protected void setUp() throws IOException {
         TMP_DIR.mkdirs();
+        OPTIMIZED_DIR.mkdirs();
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
         copyResource(cl, JAR_NAME, JAR_FILE);
@@ -101,7 +103,7 @@ public class DexClassLoaderTest extends TestCase {
         }
 
         return new DexClassLoader(
-            path, TMP_DIR.getAbsolutePath(), null,
+            path, OPTIMIZED_DIR.getAbsolutePath(), null,
             ClassLoader.getSystemClassLoader());
     }
 
