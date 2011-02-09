@@ -51,8 +51,8 @@ public abstract class UriCodec {
                 if (i + 2 >= s.length()) {
                     throw new URISyntaxException(s, "Incomplete % sequence", i);
                 }
-                int d1 = Character.digit(s.charAt(i + 1), 16);
-                int d2 = Character.digit(s.charAt(i + 2), 16);
+                int d1 = hexToInt(s.charAt(i + 1));
+                int d2 = hexToInt(s.charAt(i + 2));
                 if (d1 == -1 || d2 == -1) {
                     throw new URISyntaxException(s, "Invalid % sequence: " +
                             s.substring(i, i + 3), i);
@@ -82,8 +82,14 @@ public abstract class UriCodec {
 
     /**
      * Encodes {@code s} and appends the result to {@code builder}.
+     *
+     * @param isPartiallyEncoded true to fix input that has already been
+     *     partially or fully encoded. For example, input of "hello%20world" is
+     *     unchanged with isPartiallyEncoded=true but would be double-escaped to
+     *     "hello%2520world" otherwise.
      */
-    public void appendEncoded(StringBuilder builder, String s, Charset charset) {
+    private void appendEncoded(StringBuilder builder, String s, Charset charset,
+            boolean isPartiallyEncoded) {
         if (s == null) {
             throw new NullPointerException();
         }
@@ -91,7 +97,9 @@ public abstract class UriCodec {
         int escapeStart = -1;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if ((c >= 'a' && c <= 'z')
+            if (isPartiallyEncoded && c == '%') {
+                i += 2; // this is a 3-character sequence like "%20"
+            } else if ((c >= 'a' && c <= 'z')
                     || (c >= 'A' && c <= 'Z')
                     || (c >= '0' && c <= '9')
                     || isRetained(c)) {
@@ -113,62 +121,19 @@ public abstract class UriCodec {
         }
     }
 
-    /**
-     * Encodes {@code s} and appends the result to {@code builder}.
-     */
-    public void appendEncoded(StringBuilder builder, String s) {
-        appendEncoded(builder, s, Charsets.UTF_8);
+    public String encode(String s, Charset charset) {
+        // Guess a bit larger for encoded form
+        StringBuilder builder = new StringBuilder(s.length() + 16);
+        appendEncoded(builder, s, charset, false);
+        return builder.toString();
     }
 
-    /**
-     * Unlike the methods in {@code URI}, this method ignores input that has
-     * already been escaped. For example, input of "hello%20world" is unchanged
-     * by this method but would be double-escaped to "hello%2520world" by URI.
-     */
-    public String fixEncoding(String s) {
-        StringBuilder result = null;
-        int copiedCount = 0;
+    public void appendEncoded(StringBuilder builder, String s) {
+        appendEncoded(builder, s, Charsets.UTF_8, false);
+    }
 
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-
-            if (c == '%') {
-                i += 2; // this is a 3-character sequence like "%20"
-                continue;
-            }
-
-            if ((c >= 'a' && c <= 'z')
-                    || (c >= 'A' && c <= 'Z')
-                    || (c >= '0' && c <= '9')
-                    || isRetained(c)) {
-                continue;
-            }
-
-            /*
-             * We've encountered a character that must be escaped.
-             */
-            if (result == null) {
-                result = new StringBuilder();
-            }
-            result.append(s, copiedCount, i);
-
-            if (c < 0x7f) {
-                appendHex(result, (byte) c);
-            } else {
-                for (byte b : s.substring(i, i + 1).getBytes(Charsets.UTF_8)) {
-                    appendHex(result, b);
-                }
-            }
-
-            copiedCount = i + 1;
-        }
-
-        if (result == null) {
-            return s;
-        } else {
-            result.append(s, copiedCount, s.length());
-            return result.toString();
-        }
+    public void appendPartiallyEncoded(StringBuilder builder, String s) {
+        appendEncoded(builder, s, Charsets.UTF_8, true);
     }
 
     /**
@@ -188,8 +153,8 @@ public abstract class UriCodec {
                     if (i + 2 >= s.length()) {
                         throw new IllegalArgumentException("Incomplete % sequence at: " + i);
                     }
-                    int d1 = Character.digit(s.charAt(i + 1), 16);
-                    int d2 = Character.digit(s.charAt(i + 2), 16);
+                    int d1 = hexToInt(s.charAt(i + 1));
+                    int d2 = hexToInt(s.charAt(i + 2));
                     if (d1 == -1 || d2 == -1) {
                         throw new IllegalArgumentException("Invalid % sequence " +
                                 s.substring(i, i + 3) + " at " + i);
@@ -208,6 +173,22 @@ public abstract class UriCodec {
             }
         }
         return result.toString();
+    }
+
+    /**
+     * Like {@link Character#digit}, but without support for non-ASCII
+     * characters.
+     */
+    private static int hexToInt(char c) {
+        if ('0' <= c && c <= '9') {
+            return c - '0';
+        } else if ('a' <= c && c <= 'f') {
+            return 10 + (c - 'a');
+        } else if ('A' <= c && c <= 'F') {
+            return 10 + (c - 'A');
+        } else {
+            return -1;
+        }
     }
 
     public static String decode(String s) {

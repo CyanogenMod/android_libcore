@@ -19,6 +19,7 @@ package java.net;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
 import libcore.net.UriCodec;
 
 /**
@@ -46,20 +47,13 @@ public class URLEncoder {
      */
     @Deprecated
     public static String encode(String s) {
-        try {
-            return encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError();
-        }
+        return ENCODER.encode(s, Charsets.UTF_8);
     }
 
     /**
      * Encodes {@code s} using the {@link Charset} named by {@code charsetName}.
      */
     public static String encode(String s, String charsetName) throws UnsupportedEncodingException {
-        // Guess a bit larger for encoded form
-        StringBuilder builder = new StringBuilder(s.length() + 16);
-        ENCODER.appendEncoded(builder, s, Charset.forName(charsetName));
-        return builder.toString();
+        return ENCODER.encode(s, Charset.forName(charsetName));
     }
 }
