@@ -75,20 +75,10 @@ public final class System {
      */
     public static final PrintStream err;
 
-    /**
-     * The System Properties table.
-     */
     private static Properties systemProperties;
 
-    /**
-     * Initialize all the slots in System on first use.
-     */
     static {
-        /*
-         * Set up standard in, out, and err. TODO err and out are
-         * String.ConsolePrintStream. All three are buffered in Harmony. Check
-         * and possibly change this later.
-         */
+        // TODO: all three streams are buffered in Harmony.
         err = new PrintStream(new FileOutputStream(FileDescriptor.err));
         out = new PrintStream(new FileOutputStream(FileDescriptor.out));
         in = new FileInputStream(FileDescriptor.in);
@@ -210,6 +200,11 @@ public final class System {
         return getEnvByName(name);
     }
 
+    private static String getenv(String name, String defaultValue) {
+        String value = getEnvByName(name);
+        return (value != null) ? value : defaultValue;
+    }
+
     /*
      * Returns an environment variable. No security checks are performed.
      * @param var the name of the environment variable
@@ -271,14 +266,67 @@ public final class System {
      * @return the system properties.
      */
     public static Properties getProperties() {
-        if (System.systemProperties == null) {
-            SystemProperties props = new SystemProperties();
-            props.preInit();
-            props.postInit();
-            System.systemProperties = props;
+        if (systemProperties == null) {
+            initSystemProperties();
         }
         return systemProperties;
     }
+
+    private static void initSystemProperties() {
+        Properties p = new Properties();
+
+        String projectUrl = "http://www.android.com/";
+        String projectName = "The Android Project";
+
+        p.put("java.class.version", "46.0");
+        p.put("java.compiler", "");
+        p.put("java.ext.dirs", "");
+
+        p.put("java.home", getenv("JAVA_HOME", "/system"));
+
+        p.put("java.io.tmpdir", "/tmp");
+        p.put("java.library.path", getenv("LD_LIBRARY_PATH"));
+
+        p.put("java.net.preferIPv6Addresses", "true");
+
+        p.put("java.specification.name", "Dalvik Core Library");
+        p.put("java.specification.vendor", projectName);
+        p.put("java.specification.version", "0.9");
+
+        p.put("java.vendor", projectName);
+        p.put("java.vendor.url", projectUrl);
+        p.put("java.version", "0");
+        p.put("java.vm.name", "Dalvik");
+        p.put("java.vm.specification.name", "Dalvik Virtual Machine Specification");
+        p.put("java.vm.specification.vendor", projectName);
+        p.put("java.vm.specification.version", "0.9");
+        p.put("java.vm.vendor", projectName);
+
+        p.put("file.separator", "/");
+        p.put("line.separator", "\n");
+        p.put("path.separator", ":");
+
+        p.put("java.runtime.name", "Android Runtime");
+        p.put("java.runtime.version", "0.9");
+        p.put("java.vm.vendor.url", projectUrl);
+
+        p.put("file.encoding", "UTF-8");
+        p.put("user.language", "en");
+        p.put("user.region", "US");
+
+        p.put("user.home", getenv("HOME", ""));
+        p.put("user.name", getenv("USER", ""));
+
+        // Unique to Android.
+        p.put("android.vm.dexfile", "true");
+
+        // VM-specific stuff.
+        initVmSystemProperties(p);
+
+        systemProperties = p;
+    }
+
+    private static native void initVmSystemProperties(Properties p);
 
     /**
      * Returns the value of a particular system property or {@code null} if no
@@ -475,10 +523,9 @@ public final class System {
     }
 
     /**
-     * Sets all system properties.
-     *
-     * @param p
-     *            the new system properties.
+     * Sets all system properties. This does not take a copy; the passed-in object is used
+     * directly. Passing null causes the VM to reinitialize the properties to how they were
+     * when the VM was started.
      */
     public static void setProperties(Properties p) {
         systemProperties = p;
@@ -556,17 +603,4 @@ public final class System {
             return (String) o;
         }
     }
-}
-
-/**
- * Internal class holding the System properties. Needed by the Dalvik VM for the
- * two native methods. Must not be a local class, since we don't have a System
- * instance.
- */
-class SystemProperties extends Properties {
-    // Dummy, just to make the compiler happy.
-
-    native void preInit();
-
-    native void postInit();
 }
