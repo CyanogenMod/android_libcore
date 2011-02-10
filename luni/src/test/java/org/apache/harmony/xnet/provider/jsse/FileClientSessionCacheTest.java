@@ -16,10 +16,10 @@
 
 package org.apache.harmony.xnet.provider.jsse;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.IOException;
+import junit.framework.TestCase;
+import libcore.javax.net.ssl.FakeSSLSession;
 
 public class FileClientSessionCacheTest extends TestCase {
 
@@ -40,17 +40,16 @@ public class FileClientSessionCacheTest extends TestCase {
                 @Override
                 public void run() {
                     for (int i = 0; i < iterations; i++) {
-                        cache.putSessionData(new FakeSession(id + "." + i),
-                                new byte[10]);
+                        cache.putSessionData(new FakeSSLSession(id + "" + i), new byte[10]);
                     }
                 }
             };
         }
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].start();
+        for (Thread thread : threads) {
+            thread.start();
         }
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].join();
+        for (Thread thread : threads) {
+            thread.join();
         }
         assertEquals(FileClientSessionCache.MAX_SIZE, cacheDir.list().length);
     }

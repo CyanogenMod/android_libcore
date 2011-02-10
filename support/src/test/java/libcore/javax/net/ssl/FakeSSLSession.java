@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.xnet.provider.jsse;
+package libcore.javax.net.ssl;
 
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import java.security.cert.Certificate;
 import java.security.Principal;
 
-class FakeSession implements SSLSession {
+public class FakeSSLSession implements SSLSession {
     final String host;
 
-    FakeSession(String host) {
+    public FakeSSLSession(String host) {
         this.host = host;
     }
 
