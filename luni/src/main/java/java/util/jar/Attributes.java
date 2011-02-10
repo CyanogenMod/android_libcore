@@ -18,11 +18,11 @@
 package java.util.jar;
 
 import java.nio.charset.Charsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.harmony.archive.util.Util;
 
 /**
  * The {@code Attributes} class is used to store values for manifest entries.
@@ -229,12 +229,13 @@ public class Attributes implements Cloneable, Map<Object, Object> {
          */
         @Override
         public boolean equals(Object object) {
-            if (object == null || object.getClass() != getClass()
-                    || object.hashCode() != hashCode()) {
+            if (object == null || object.getClass() != getClass()) {
                 return false;
             }
 
-            return Util.asciiEqualsIgnoreCase(name, ((Name) object).name);
+            byte[] otherName = ((Name) object).name;
+            return Arrays.equals(name, otherName) || new String(name, Charsets.US_ASCII)
+                    .equalsIgnoreCase(new String(otherName, Charsets.US_ASCII));
         }
 
         /**
