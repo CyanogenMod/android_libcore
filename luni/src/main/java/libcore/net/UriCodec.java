@@ -97,20 +97,23 @@ public abstract class UriCodec {
         int escapeStart = -1;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (isPartiallyEncoded && c == '%') {
-                i += 2; // this is a 3-character sequence like "%20"
-            } else if ((c >= 'a' && c <= 'z')
+            if ((c >= 'a' && c <= 'z')
                     || (c >= 'A' && c <= 'Z')
                     || (c >= '0' && c <= '9')
-                    || isRetained(c)) {
+                    || isRetained(c)
+                    || (c == '%' && isPartiallyEncoded)) {
                 if (escapeStart != -1) {
                     appendHex(builder, s.substring(escapeStart, i), charset);
                     escapeStart = -1;
                 }
-                if (c != ' ') {
-                    builder.append(c);
-                } else {
+                if (c == '%' && isPartiallyEncoded) {
+                    // this is an encoded 3-character sequence like "%20"
+                    builder.append(s, i, i + 3);
+                    i += 2;
+                } else if (c == ' ') {
                     builder.append('+');
+                } else {
+                    builder.append(c);
                 }
             } else if (escapeStart == -1) {
                 escapeStart = i;
