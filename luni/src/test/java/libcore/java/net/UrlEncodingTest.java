@@ -113,12 +113,30 @@ public final class UrlEncodingTest extends TestCase {
         }
     }
 
+    public void testUrlDecoderFailsOnEmptyCharset() {
+        try {
+            URLDecoder.decode("ab", "");
+            fail();
+        } catch (IllegalCharsetNameException expected) {
+        } catch (UnsupportedEncodingException expected) {
+        }
+    }
+
     public void testUrlEncoderFailsOnNullCharset() throws Exception {
         try {
             URLEncoder.encode("ab", null);
             fail();
         } catch (IllegalCharsetNameException expected) {
         } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testUrlEncoderFailsOnEmptyCharset() {
+        try {
+            URLEncoder.encode("ab", "");
+            fail();
+        } catch (IllegalCharsetNameException expected) {
+        } catch (UnsupportedEncodingException expected) {
         }
     }
 
@@ -207,6 +225,17 @@ public final class UrlEncodingTest extends TestCase {
         assertEquals("%00", new URI("http", "foo", "/", "\u0000").getRawFragment());
     }
 
+    public void testEncodeAndDecode() throws Exception {
+        assertRoundTrip("http://jcltest.apache.org/test?hl=en&q=te st",
+                "http%3A%2F%2Fjcltest.apache.org%2Ftest%3Fhl%3Den%26q%3Dte+st");
+        assertRoundTrip ("file://a b/c/d.e-f*g_ l",
+                "file%3A%2F%2Fa+b%2Fc%2Fd.e-f*g_+l");
+        assertRoundTrip("jar:file://a.jar !/b.c/\u1052",
+                "jar%3Afile%3A%2F%2Fa.jar+%21%2Fb.c%2F%E1%81%92");
+        assertRoundTrip("ftp://test:pwd@localhost:2121/%D0%9C",
+                "ftp%3A%2F%2Ftest%3Apwd%40localhost%3A2121%2F%25D0%259C");
+    }
+
     /**
      * Asserts that {@code original} decodes to {@code decoded} using both URI
      * and UrlDecoder.
@@ -225,5 +254,10 @@ public final class UrlEncodingTest extends TestCase {
         assertEquals(encoded, URLEncoder.encode(original, "UTF-8"));
         assertEquals(encoded, URLEncoder.encode(original));
         assertEquals(encoded, new URI("http", "foo", "/", original).getRawFragment());
+    }
+
+    private void assertRoundTrip(String original, String encoded) throws Exception {
+        assertEquals(encoded, URLEncoder.encode(original, "UTF-8"));
+        assertEquals(original, URLDecoder.decode(encoded, "UTF-8"));
     }
 }
