@@ -32,6 +32,7 @@
 
 package java.lang;
 
+import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
 import java.io.Console;
 import java.io.FileDescriptor;
@@ -273,10 +274,14 @@ public final class System {
     }
 
     private static void initSystemProperties() {
+        VMRuntime runtime = VMRuntime.getRuntime();
         Properties p = new Properties();
 
         String projectUrl = "http://www.android.com/";
         String projectName = "The Android Project";
+
+        p.put("java.boot.class.path", runtime.bootClassPath());
+        p.put("java.class.path", runtime.classPath());
 
         p.put("java.class.version", "46.0");
         p.put("java.compiler", "");
@@ -301,6 +306,7 @@ public final class System {
         p.put("java.vm.specification.vendor", projectName);
         p.put("java.vm.specification.version", "0.9");
         p.put("java.vm.vendor", projectName);
+        p.put("java.vm.version", runtime.vmVersion());
 
         p.put("file.separator", "/");
         p.put("line.separator", "\n");
@@ -317,16 +323,15 @@ public final class System {
         p.put("user.home", getenv("HOME", ""));
         p.put("user.name", getenv("USER", ""));
 
-        // Unique to Android.
-        p.put("android.vm.dexfile", "true");
-
-        // VM-specific stuff.
-        initVmSystemProperties(p);
+        for (String arg : runtime.properties()) {
+            int split = arg.indexOf('=');
+            String key = arg.substring(0, split);
+            String value = arg.substring(split + 1);
+            p.put(key, value);
+        }
 
         systemProperties = p;
     }
-
-    private static native void initVmSystemProperties(Properties p);
 
     /**
      * Returns the value of a particular system property or {@code null} if no

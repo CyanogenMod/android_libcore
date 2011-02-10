@@ -69,9 +69,6 @@ class TouchDexLoader extends ClassLoader {
         mZips = new ZipFile[mPaths.length];
         mDexs = new DexFile[mPaths.length];
 
-        boolean wantDex =
-            System.getProperty("android.vm.dexfile", "").equals("true");
-
         /* open all Zip and DEX files up front */
         for (int i = 0; i < mPaths.length; i++) {
             //System.out.println("My path is: " + mPaths[i]);
@@ -79,25 +76,11 @@ class TouchDexLoader extends ClassLoader {
             mFiles[i] = pathFile;
 
             if (pathFile.isFile()) {
-                if (false) {    //--------------------
+                /* we need both DEX and Zip, because dex has no resources */
                 try {
-                    mZips[i] = new ZipFile(pathFile);
-                }
-                catch (IOException ioex) {
-                    // expecting IOException and ZipException
-                    //System.out.println("Failed opening '" + archive + "': " + ioex);
-                    //ioex.printStackTrace();
-                }
-                }               //--------------------
-                if (wantDex) {
-                    /* we need both DEX and Zip, because dex has no resources */
-                    try {
-                        mDexs[i] = new DexFile(pathFile);
-                    }
-                    catch (IOException ioex) {
-                        System.err.println("Couldn't open " + mPaths[i]
-                            + " as DEX");
-                    }
+                    mDexs[i] = new DexFile(pathFile);
+                } catch (IOException ioex) {
+                    System.err.println("Couldn't open " + mPaths[i] + " as DEX");
                 }
             } else {
                 System.err.println("File not found: " + mPaths[i]);
