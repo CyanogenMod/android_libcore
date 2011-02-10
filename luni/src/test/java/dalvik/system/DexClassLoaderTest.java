@@ -44,16 +44,22 @@ public class DexClassLoaderTest extends TestCase {
 
     private static enum Configuration {
         /** just one classpath element, a raw dex file */
-        ONE_DEX,
+        ONE_DEX(1),
 
         /** just one classpath element, a jar file */
-        ONE_JAR,
+        ONE_JAR(1),
 
         /** two classpath elements, both raw dex files */
-        TWO_DEX,
+        TWO_DEX(2),
 
         /** two classpath elements, both jar files */
-        TWO_JAR;
+        TWO_JAR(2);
+
+        public final int expectedFiles;
+
+        Configuration(int expectedFiles) {
+            this.expectedFiles = expectedFiles;
+        }
     }
 
     protected void setUp() throws IOException {
@@ -131,19 +137,24 @@ public class DexClassLoaderTest extends TestCase {
 
     /**
      * Just a trivial test of construction. This one merely makes
-     * sure that a valid construction doesn't fail; it doesn't try
-     * to verify anything about the constructed instance. (Other
-     * tests will do that.)
+     * sure that a valid construction doesn't fail. It doesn't try
+     * to verify anything about the constructed instance, other than
+     * checking for the existence of optimized dex files.
      */
-    public static void test_init(Configuration config) {
+    private static void test_init(Configuration config) {
         createInstance(config);
+
+        int expectedFiles = config.expectedFiles;
+        int actualFiles = OPTIMIZED_DIR.listFiles().length;
+
+        assertSame(expectedFiles, actualFiles);
     }
 
     /**
      * Check that a class in the jar/dex file may be used successfully. In this
      * case, a trivial static method is called.
      */
-    public static void test_simpleUse(Configuration config) throws Exception {
+    private static void test_simpleUse(Configuration config) throws Exception {
         String result = (String)
             createInstanceAndCallStaticMethod(config, "test.Test1", "test");
 
@@ -155,61 +166,61 @@ public class DexClassLoaderTest extends TestCase {
      * that lives inside the loading-test dex/jar file.
      */
 
-    public static void test_constructor(Configuration config)
+    private static void test_constructor(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_constructor");
     }
 
-    public static void test_callStaticMethod(Configuration config)
+    private static void test_callStaticMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_callStaticMethod");
     }
 
-    public static void test_getStaticVariable(Configuration config)
+    private static void test_getStaticVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_getStaticVariable");
     }
 
-    public static void test_callInstanceMethod(Configuration config)
+    private static void test_callInstanceMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_callInstanceMethod");
     }
 
-    public static void test_getInstanceVariable(Configuration config)
+    private static void test_getInstanceVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_getInstanceVariable");
     }
 
-    public static void test_diff_constructor(Configuration config)
+    private static void test_diff_constructor(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_diff_constructor");
     }
 
-    public static void test_diff_callStaticMethod(Configuration config)
+    private static void test_diff_callStaticMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_diff_callStaticMethod");
     }
 
-    public static void test_diff_getStaticVariable(Configuration config)
+    private static void test_diff_getStaticVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_diff_getStaticVariable");
     }
 
-    public static void test_diff_callInstanceMethod(Configuration config)
+    private static void test_diff_callInstanceMethod(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_diff_callInstanceMethod");
     }
 
-    public static void test_diff_getInstanceVariable(Configuration config)
+    private static void test_diff_getInstanceVariable(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_diff_getInstanceVariable");
@@ -395,7 +406,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a given resource (by name) is retrievable and contains
      * the given expected contents.
      */
-    public static void test_directGetResourceAsStream(Configuration config,
+    private static void test_directGetResourceAsStream(Configuration config,
             String resourceName, String expectedContents)
             throws Exception {
         DexClassLoader dcl = createInstance(config);
@@ -410,7 +421,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in the jar file is retrievable and contains
      * the expected contents.
      */
-    public static void test_directGetResourceAsStream(Configuration config)
+    private static void test_directGetResourceAsStream(Configuration config)
             throws Exception {
         test_directGetResourceAsStream(
             config, "test/Resource1.txt", "Muffins are tasty!\n");
@@ -420,7 +431,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in the jar file can be retrieved from
      * a class within that jar file.
      */
-    public static void test_getResourceAsStream(Configuration config)
+    private static void test_getResourceAsStream(Configuration config)
             throws Exception {
         createInstanceAndCallStaticMethod(
             config, "test.TestMethods", "test_getResourceAsStream");
@@ -446,7 +457,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in the second jar file is retrievable and
      * contains the expected contents.
      */
-    public static void test_twoJar_diff_directGetResourceAsStream()
+    public void test_twoJar_diff_directGetResourceAsStream()
             throws Exception {
         test_directGetResourceAsStream(
             Configuration.TWO_JAR, "test2/Resource2.txt",
@@ -457,7 +468,7 @@ public class DexClassLoaderTest extends TestCase {
      * Check that a resource in a jar file can be retrieved from
      * a class within the other jar file.
      */
-    public static void test_twoJar_diff_getResourceAsStream()
+    public void test_twoJar_diff_getResourceAsStream()
             throws Exception {
         createInstanceAndCallStaticMethod(
             Configuration.TWO_JAR, "test.TestMethods",
