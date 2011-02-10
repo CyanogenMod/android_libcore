@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import libcore.io.Streams;
-import org.apache.harmony.archive.util.Util;
 
 /**
  * {@code JarFile} is used to read jar entries and their associated data from
@@ -331,7 +330,7 @@ public class JarFile extends ZipFile {
         for (ZipEntry entry : metaEntries) {
             String entryName = entry.getName();
             // Is this the entry for META-INF/MANIFEST.MF ?
-            if (manifestEntry == null && Util.asciiEqualsIgnoreCase(MANIFEST_NAME, entryName)) {
+            if (manifestEntry == null && entryName.equalsIgnoreCase(MANIFEST_NAME)) {
                 manifestEntry = entry;
                 // If there is no verifier then we don't need to look any further.
                 if (verifier == null) {
@@ -340,9 +339,9 @@ public class JarFile extends ZipFile {
             } else {
                 // Is this an entry that the verifier needs?
                 if (verifier != null
-                        && (Util.asciiEndsWithIgnoreCase(entryName, ".SF")
-                                || Util.asciiEndsWithIgnoreCase(entryName, ".DSA")
-                                || Util.asciiEndsWithIgnoreCase(entryName, ".RSA"))) {
+                        && (endsWithIgnoreCase(entryName, ".SF")
+                                || endsWithIgnoreCase(entryName, ".DSA")
+                                || endsWithIgnoreCase(entryName, ".RSA"))) {
                     signed = true;
                     InputStream is = super.getInputStream(entry);
                     try {
@@ -358,6 +357,10 @@ public class JarFile extends ZipFile {
         if (!signed) {
             verifier = null;
         }
+    }
+
+    private static boolean endsWithIgnoreCase(String s, String suffix) {
+        return s.regionMatches(true, s.length() - suffix.length(), suffix, 0, suffix.length());
     }
 
     /**
