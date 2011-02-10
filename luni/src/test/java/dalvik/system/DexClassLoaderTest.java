@@ -147,7 +147,7 @@ public class DexClassLoaderTest extends TestCase {
         int expectedFiles = config.expectedFiles;
         int actualFiles = OPTIMIZED_DIR.listFiles().length;
 
-        assertSame(expectedFiles, actualFiles);
+        assertEquals(expectedFiles, actualFiles);
     }
 
     /**
