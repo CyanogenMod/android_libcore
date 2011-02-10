@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.PropertyPermission;
 import java.util.Set;
+import libcore.icu.ICU;
 
 /**
  * Provides access to system-related information and resources including
@@ -323,6 +324,11 @@ public final class System {
         p.put("user.home", getenv("HOME", ""));
         p.put("user.name", getenv("USER", ""));
 
+        // Undocumented Android-only properties.
+        p.put("android.icu.library.version", ICU.getIcuVersion());
+        p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
+
+        // Override built-in properties with settings from the command line.
         for (String arg : runtime.properties()) {
             int split = arg.indexOf('=');
             String key = arg.substring(0, split);

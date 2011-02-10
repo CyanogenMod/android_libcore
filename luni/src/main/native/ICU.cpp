@@ -532,6 +532,24 @@ static jstring ICU_toUpperCase(JNIEnv* env, jclass, jstring javaString, jstring 
     return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
 
+static jstring versionString(JNIEnv* env, const UVersionInfo& version) {
+    char versionString[U_MAX_VERSION_STRING_LENGTH];
+    u_versionToString(const_cast<UVersionInfo&>(version), &versionString[0]);
+    return env->NewStringUTF(versionString);
+}
+
+static jstring ICU_getIcuVersion(JNIEnv* env, jclass) {
+    UVersionInfo icuVersion;
+    u_getVersion(icuVersion);
+    return versionString(env, icuVersion);
+}
+
+static jstring ICU_getUnicodeVersion(JNIEnv* env, jclass) {
+    UVersionInfo unicodeVersion;
+    u_getUnicodeVersion(unicodeVersion);
+    return versionString(env, unicodeVersion);
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getAvailableBreakIteratorLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableCalendarLocalesNative, "()[Ljava/lang/String;"),
@@ -549,6 +567,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getISO3LanguageNative, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOCountriesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOLanguagesNative, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getUnicodeVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, initLocaleDataImpl, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, toUpperCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
