@@ -55,7 +55,7 @@ public class BasicLruCache<K, V> {
 
         if (result != null) {
             map.put(key, result);
-            trimToSize();
+            trimToSize(maxSize);
         }
         return result;
     }
@@ -73,11 +73,11 @@ public class BasicLruCache<K, V> {
         }
 
         V previous = map.put(key, value);
-        trimToSize();
+        trimToSize(maxSize);
         return previous;
     }
 
-    private void trimToSize() {
+    private void trimToSize(int maxSize) {
         while (map.size() > maxSize) {
             Map.Entry<K, V> toEvict = map.eldest();
 
@@ -108,7 +108,14 @@ public class BasicLruCache<K, V> {
      * Returns a copy of the current contents of the cache, ordered from least
      * recently accessed to most recently accessed.
      */
-    public synchronized Map<K, V> snapshot() {
+    public synchronized final Map<K, V> snapshot() {
         return new LinkedHashMap<K, V>(map);
+    }
+
+    /**
+     * Clear the cache, calling {@link #entryEvicted} on each removed entry.
+     */
+    public synchronized final void evictAll() {
+        trimToSize(0);
     }
 }

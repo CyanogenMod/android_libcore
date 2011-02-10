@@ -17,8 +17,7 @@
 package java.net;
 
 import java.security.AccessController;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import libcore.util.BasicLruCache;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -32,16 +31,14 @@ class AddressCache {
      */
     private static final int MAX_ENTRIES = 512;
 
-    // This isn't used by our HashMap implementation, but the API demands it.
-    private static final float DEFAULT_LOAD_FACTOR = .75F;
-
     // Default time-to-live for positive cache entries. 600 seconds (10 minutes).
     private static final long DEFAULT_POSITIVE_TTL_NANOS = 600 * 1000000000L;
     // Default time-to-live for negative cache entries. 10 seconds.
     private static final long DEFAULT_NEGATIVE_TTL_NANOS = 10 * 1000000000L;
 
     // The actual cache.
-    private final Map<String, AddressCacheEntry> map;
+    private final BasicLruCache<String, AddressCacheEntry> cache
+            = new BasicLruCache<String, AddressCacheEntry>(MAX_ENTRIES);
 
     static class AddressCacheEntry {
         // Either an InetAddress[] for a positive entry,
@@ -62,25 +59,11 @@ class AddressCache {
         }
     }
 
-    public AddressCache() {
-        // We pass 'true' so removeEldestEntry removes the least-recently accessed entry, rather
-        // than the least-recently inserted.
-        map = new LinkedHashMap<String, AddressCacheEntry>(0, DEFAULT_LOAD_FACTOR, true) {
-            @Override protected boolean removeEldestEntry(Entry<String, AddressCacheEntry> eldest) {
-                // By the time this method is called, the new entry has already been inserted and
-                // the map will have grown to accommodate it. Using == lets us prevent resizing.
-                return size() == MAX_ENTRIES;
-            }
-        };
-    }
-
     /**
      * Removes all entries from the cache.
      */
     public void clear() {
-        synchronized (map) {
-            map.clear();
-        }
+        cache.evictAll();
     }
 
     /**
@@ -89,10 +72,7 @@ class AddressCache {
      * message if 'hostname' is known not to exist.
      */
     public Object get(String hostname) {
-        AddressCacheEntry entry;
-        synchronized (map) {
-            entry = map.get(hostname);
-        }
+        AddressCacheEntry entry = cache.get(hostname);
         // Do we have a valid cache entry?
         if (entry != null && entry.expiryNanos >= System.nanoTime()) {
             return entry.value;
@@ -136,9 +116,7 @@ class AddressCache {
             }
         }
         // Update the cache.
-        synchronized (map) {
-            map.put(hostname, new AddressCacheEntry(value, expiryNanos));
-        }
+        cache.put(hostname, new AddressCacheEntry(value, expiryNanos));
     }
 
     /**

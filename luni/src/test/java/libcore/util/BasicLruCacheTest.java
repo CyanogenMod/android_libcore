@@ -62,24 +62,6 @@ public final class BasicLruCacheTest extends TestCase {
         }
     }
 
-    public void testToString() {
-        BasicLruCache<String, String> cache = new BasicLruCache<String, String>(3);
-        assertEquals("LruCache[maxSize=3,hits=0,misses=0,hitRate=0%]", cache.toString());
-
-        cache.put("a", "A");
-        cache.put("b", "B");
-        cache.put("c", "C");
-        cache.put("d", "D");
-
-        cache.get("a"); // miss
-        cache.get("b"); // hit
-        cache.get("c"); // hit
-        cache.get("d"); // hit
-        cache.get("e"); // miss
-
-        assertEquals("LruCache[maxSize=3,hits=3,misses=2,hitRate=60%]", cache.toString());
-    }
-
     public void testEvictionWithSingletonCache() {
         BasicLruCache<String, String> cache = new BasicLruCache<String, String>(1);
         cache.put("a", "A");
@@ -127,6 +109,21 @@ public final class BasicLruCacheTest extends TestCase {
         assertSnapshot(cache, "a", "A", "c", "C", "b", "B2");
     }
 
+    public void testEvictAll() {
+        final List<String> evictionLog = new ArrayList<String>();
+        BasicLruCache<String, String> cache = new BasicLruCache<String, String>(10) {
+            @Override protected void entryEvicted(String key, String value) {
+                evictionLog.add(key + "=" + value);
+            }
+        };
+
+        cache.put("a", "A");
+        cache.put("b", "B");
+        cache.put("c", "C");
+        cache.evictAll();
+        assertSnapshot(cache);
+        assertEquals(Arrays.asList("a=A", "b=B", "c=C"), evictionLog);
+    }
 
     private BasicLruCache<String, String> newCreatingCache() {
         return new BasicLruCache<String, String>(3) {
