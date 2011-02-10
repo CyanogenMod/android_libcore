@@ -3,6 +3,25 @@
  */
 [
 {
+  description: "This test and testGetKeepAlive have been failing in our continuous build recently.",
+  names: [
+    "libcore.java.net.URLConnectionTest#testConnectTimeouts",
+    "libcore.java.net.URLConnectionTest#testGetKeepAlive"
+  ],
+  bug: 3441111
+},
+{
+  description: "on the RI, writing the two halves of the surrogate pair in separate writes
+          is an error because the CharsetEncoder doesn't remember it's half-way through a
+          surrogate pair across the two calls!",
+  result: EXEC_FAILED,
+  names: [
+    "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_IGNORE_RI",
+    "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_REPLACE_RI",
+    "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_REPORT_RI   "
+  ]
+},
+{
   description: "We're retiring the security manager. Unfortunately, tests all over the place
                 need to check that they're secure, so they all fail when we refuse to install
                 a security manager. This suppresses all of these failures.",

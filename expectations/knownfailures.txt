@@ -245,10 +245,6 @@
   modes: [ "host" ]
 },
 {
-  name: "libcore.java.net.URLConnectionTest#testConnectTimeouts",
-  bug: 3032900
-},
-{
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   name: "libcore.java.io.OldFileTest#test_deleteOnExit"
