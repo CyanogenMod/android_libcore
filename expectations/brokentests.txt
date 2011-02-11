@@ -18,7 +18,7 @@
   names: [
     "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_IGNORE_RI",
     "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_REPLACE_RI",
-    "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_REPORT_RI   "
+    "libcore.java.nio.charset.CharsetEncoderTest#testCharsetEncoderSurrogatesBrokenByDesign_REPORT_RI"
   ]
 },
 {
