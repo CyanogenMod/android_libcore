@@ -21,10 +21,6 @@
 
 #include <stdlib.h>
 
-namespace android {
-    extern int register_dalvik_system_TouchDex(JNIEnv* env);
-}
-
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
 extern int register_java_io_FileDescriptor(JNIEnv* env);
@@ -109,16 +105,15 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_icu_TimeZones(env) != -1 &&
             register_libcore_io_IoUtils(env) != -1 &&
             register_libcore_net_RawSocket(env) != -1 &&
+            register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSFileSystem(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSMemory(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
             register_org_apache_harmony_text_NativeBidi(env) != -1 &&
+            register_org_apache_harmony_xml_ExpatParser(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
-            // Initialize the Android classes last, as they have dependencies on the "corer" core classes.
-            android::register_dalvik_system_TouchDex(env) != -1 &&
-            register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
-            register_org_apache_harmony_xml_ExpatParser(env) != -1;
+            true;
 
     if (!result) {
         LOGE("Failed to initialize the core libraries; aborting...");
