@@ -17,7 +17,9 @@
 
 package libcore.java.lang;
 
-public class OldStringBufferTest extends junit.framework.TestCase {
+import junit.framework.TestCase;
+
+public class OldStringBufferTest extends TestCase {
 
     StringBuffer testBuffer = new StringBuffer("This is a test buffer");
 
@@ -38,19 +40,9 @@ public class OldStringBufferTest extends junit.framework.TestCase {
     }
 
     public void test_ensureCapacityI() {
-        // Test for method void java.lang.StringBuffer.ensureCapacity(int)
         StringBuffer sb = new StringBuffer(10);
-
         sb.ensureCapacity(-2);
         assertEquals("Failed to increase capacity.", 10, sb.capacity());
-
-
-        try {
-            sb.ensureCapacity(Integer.MAX_VALUE);
-            fail("OutOfMemoryError should be thrown.");
-        } catch(java.lang.OutOfMemoryError oome) {
-            //expected
-        }
     }
 
     public void test_getCharsII$CI() {

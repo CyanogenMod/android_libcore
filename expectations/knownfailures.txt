@@ -187,7 +187,10 @@
 },
 {
   description: "Double.parseDouble().toString does wrong rounding",
-  name: "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
+  names: [
+    "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
+    "libcore.java.lang.DoubleTest.testParseLargestSubnormalDoublePrecision"
+  ],
   bug: 1607938
 },
 {
@@ -268,10 +271,14 @@
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   names: [
-    "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls",
     "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
     "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion"
   ]
+},
+{
+  description: "Runtime.getRuntime().traceMethodCalls(true) doesn't return on the host, fails in CTS",
+  bug: 3447964,
+  name: "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls"
 },
 {
   description: "It's not allowed to pass null as parent class loader to a new ClassLoader anymore. Maybe we need
