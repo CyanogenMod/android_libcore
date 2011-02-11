@@ -16,20 +16,20 @@
 
 package org.apache.harmony.xnet.provider.jsse;
 
-import junit.framework.TestCase;
-
-import javax.net.ssl.SSLSession;
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+import javax.net.ssl.SSLSession;
+import junit.framework.TestCase;
+import libcore.javax.net.ssl.FakeSSLSession;
 
-public class ClientSessionContextTest extends TestCase {
+public final class ClientSessionContextTest extends TestCase {
 
     public void testGetSessionById() {
-        ClientSessionContext context = new ClientSessionContext(null, null);
+        ClientSessionContext context = new ClientSessionContext();
 
-        SSLSession a = new FakeSession("a");
-        SSLSession b = new FakeSession("b");
+        SSLSession a = new ValidSSLSession("a");
+        SSLSession b = new ValidSSLSession("b");
 
         context.putSession(a);
         context.putSession(b);
@@ -40,7 +40,7 @@ public class ClientSessionContextTest extends TestCase {
         assertSame(a, context.getSession("a", 443));
         assertSame(b, context.getSession("b", 443));
 
-        assertEquals(2, context.sessions.size());
+        assertEquals(2, context.size());
 
         Set<SSLSession> sessions = new HashSet<SSLSession>();
         Enumeration ids = context.getIds();
@@ -56,12 +56,12 @@ public class ClientSessionContextTest extends TestCase {
     }
 
     public void testTrimToSize() {
-        ClientSessionContext context = new ClientSessionContext(null, null);
+        ClientSessionContext context = new ClientSessionContext();
 
-        FakeSession a = new FakeSession("a");
-        FakeSession b = new FakeSession("b");
-        FakeSession c = new FakeSession("c");
-        FakeSession d = new FakeSession("d");
+        ValidSSLSession a = new ValidSSLSession("a");
+        ValidSSLSession b = new ValidSSLSession("b");
+        ValidSSLSession c = new ValidSSLSession("c");
+        ValidSSLSession d = new ValidSSLSession("d");
 
         context.putSession(a);
         context.putSession(b);
@@ -83,4 +83,12 @@ public class ClientSessionContextTest extends TestCase {
         assertEquals(expected, sessions);
     }
 
+    static class ValidSSLSession extends FakeSSLSession {
+        ValidSSLSession(String host) {
+            super(host);
+        }
+        @Override public boolean isValid() {
+            return true;
+        }
+    }
 }
