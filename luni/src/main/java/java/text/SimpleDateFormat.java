@@ -748,7 +748,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             // We can't call TimeZone.getDisplayName() because it would not use
             // the custom DateFormatSymbols of this SimpleDateFormat.
-            String custom = TimeZones.lookupDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
+            String custom = TimeZones.getDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
             if (custom != null) {
                 buffer.append(custom);
                 return;

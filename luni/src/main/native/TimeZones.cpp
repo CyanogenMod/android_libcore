@@ -16,7 +16,7 @@
 
 #define LOG_TAG "TimeZones"
 
-#include <set>
+#include <map>
 #include <vector>
 
 #include "ErrorCode.h"
@@ -61,25 +61,6 @@ static jobjectArray TimeZones_forCountryCode(JNIEnv* env, jclass, jstring countr
     return result;
 }
 
-static jstring TimeZones_getDisplayNameImpl(JNIEnv* env, jclass, jstring javaZoneId, jboolean isDST, jint style, jstring localeId) {
-    // Get an ICU4C TimeZone* for the given id. Really, we want TimeZone::createSystemTimeZone,
-    // but that's not public. Instead, we have to check we got the time zone we wanted, rather
-    // than a clone of GMT. (http://b/3394198 asks for ICU to expose the more useful method.)
-    ScopedJavaUnicodeString zoneId(env, javaZoneId);
-    UniquePtr<TimeZone> zone(TimeZone::createTimeZone(zoneId.unicodeString()));
-    UnicodeString actualZoneId;
-    zone->getID(actualZoneId);
-    if (actualZoneId != zoneId.unicodeString()) {
-        return NULL;
-    }
-
-    Locale locale = getLocale(env, localeId);
-    // Try to get the display name of the TimeZone according to the Locale
-    UnicodeString displayName;
-    zone->getDisplayName((UBool)isDST, (style == 0 ? TimeZone::SHORT : TimeZone::LONG), locale, displayName);
-    return env->NewString(displayName.getBuffer(), displayName.length());
-}
-
 struct TimeZoneNames {
     TimeZone* tz;
 
@@ -104,6 +85,10 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
     // because it creates a new SimpleDateFormat each time.
     // We're better off using SimpleDateFormat directly.
 
+    // We can't use DateFormatSymbols::getZoneStrings because that
+    // uses its own set of time zone ids and contains empty strings
+    // instead of GMT offsets (a pity, because it's a bit faster than this code).
+
     UErrorCode status = U_ZERO_ERROR;
     UnicodeString longPattern("zzzz", 4, US_INV);
     SimpleDateFormat longFormat(longPattern, locale, status);
@@ -124,7 +109,8 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
     // In the first pass, we get the long names for the time zone.
     // We also get any commonly-used abbreviations.
     std::vector<TimeZoneNames> table;
-    std::set<UnicodeString> usedAbbreviations;
+    typedef std::map<UnicodeString, UnicodeString*> AbbreviationMap;
+    AbbreviationMap usedAbbreviations;
     size_t idCount = env->GetArrayLength(timeZoneIds);
     for (size_t i = 0; i < idCount; ++i) {
         ScopedLocalRef<jstring> javaZoneId(env,
@@ -162,8 +148,8 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
         }
 
         table.push_back(row);
-        usedAbbreviations.insert(row.shortStd);
-        usedAbbreviations.insert(row.shortDst);
+        usedAbbreviations[row.shortStd] = &row.longStd;
+        usedAbbreviations[row.shortDst] = &row.longDst;
     }
 
     // In the second pass, we create the Java String[][].
@@ -185,12 +171,15 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
             }
 
             // If this abbreviation isn't already in use, we can use it.
-            if (usedAbbreviations.find(uncommonStd) == usedAbbreviations.end() &&
-                    usedAbbreviations.find(uncommonDst) == usedAbbreviations.end()) {
+            AbbreviationMap::iterator it = usedAbbreviations.find(uncommonStd);
+            if (it == usedAbbreviations.end() || *(it->second) == row.longStd) {
                 row.shortStd = uncommonStd;
+                usedAbbreviations[row.shortStd] = &row.longStd;
+            }
+            it = usedAbbreviations.find(uncommonDst);
+            if (it == usedAbbreviations.end() || *(it->second) == row.longDst) {
                 row.shortDst = uncommonDst;
-                usedAbbreviations.insert(uncommonStd);
-                usedAbbreviations.insert(uncommonDst);
+                usedAbbreviations[row.shortDst] = &row.longDst;
             }
         }
         // Fill in whatever we got.
@@ -209,7 +198,6 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(TimeZones, getDisplayNameImpl, "(Ljava/lang/String;ZILjava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(TimeZones, forCountryCode, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(TimeZones, getZoneStringsImpl, "(Ljava/lang/String;[Ljava/lang/String;)[[Ljava/lang/String;"),
 };

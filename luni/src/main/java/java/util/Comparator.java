@@ -32,7 +32,7 @@ public interface Comparator<T> {
     /**
      * Compares the two specified objects to determine their relative ordering. The ordering
      * implied by the return value of this method for all possible pairs of
-     * {@code (object1, object2)} should form an <i>equivalence relation</i>.
+     * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
      * This means that
      * <ul>
      * <li>{@code compare(a,a)} returns zero for all {@code a}</li>
@@ -43,16 +43,16 @@ public interface Comparator<T> {
      * (a,b,c)}</li>
      * </ul>
      *
-     * @param object1
+     * @param lhs
      *            an {@code Object}.
-     * @param object2
-     *            a second {@code Object} to compare with {@code object1}.
-     * @return an integer < 0 if {@code object1} is less than {@code object2}, 0 if they are
-     *         equal, and > 0 if {@code object1} is greater than {@code object2}.
+     * @param rhs
+     *            a second {@code Object} to compare with {@code lhs}.
+     * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+     *         equal, and > 0 if {@code lhs} is greater than {@code rhs}.
      * @throws ClassCastException
      *                if objects are not of the correct type.
      */
-    public int compare(T object1, T object2);
+    public int compare(T lhs, T rhs);
 
     /**
      * Compares this {@code Comparator} with the specified {@code Object} and indicates whether they

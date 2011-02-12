@@ -105,13 +105,26 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     // http://code.google.com/p/android/issues/detail?id=13420
-    public void testUncommonTimeZoneAbbreviations() {
+    public void testParsingUncommonTimeZoneAbbreviations() {
         String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
         String date = "2010-12-23 12:44:57.0 CET";
         // ICU considers "CET" (Central European Time) to be common in Britain...
         assertEquals(1293104697000L, parseDate(Locale.UK, fmt, date).getTimeInMillis());
-        // ...but not in the US.
+        // ...but not in the US. Check we can parse such a date anyway.
         assertEquals(1293104697000L, parseDate(Locale.US, fmt, date).getTimeInMillis());
+    }
+
+    public void testFormattingUncommonTimeZoneAbbreviations() {
+        // In Honeycomb, only one Olson id was associated with CET (or any
+        // other "uncommon" abbreviation).
+        String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
+        String date = "1970-01-01 01:00:00.000 CET";
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+        assertEquals(date, sdf.format(new Date(0)));
+        sdf = new SimpleDateFormat(fmt, Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+        assertEquals(date, sdf.format(new Date(0)));
     }
 
     // http://code.google.com/p/android/issues/detail?id=8258
@@ -150,5 +163,13 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals("2010-07-07T19:44:48-0700", sdf.format(date));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
+    }
+
+    public void testLocales() throws Exception {
+        // Just run through them all. Handy as a poor man's benchmark, and a sanity check.
+        for (Locale l : Locale.getAvailableLocales()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzzz", l);
+            sdf.format(new Date(0));
+        }
     }
 }
