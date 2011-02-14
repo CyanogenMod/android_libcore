@@ -16,10 +16,13 @@
 
 package libcore.icu;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+import libcore.util.BasicLruCache;
 
 /**
  * Provides access to ICU's time zone data.
@@ -27,87 +30,82 @@ import java.util.logging.Logger;
 public final class TimeZones {
     private static final String[] availableTimeZones = TimeZone.getAvailableIDs();
 
+    private static final ZoneStringsCache cachedZoneStrings = new ZoneStringsCache();
+    static {
+        // Ensure that we pull in the zone strings for en_US and the user's default locale.
+        // (All devices must support Locale.US, and it's used for things like HTTP headers.)
+        // This is especially useful on Android because we'll share this via the Zygote.
+        cachedZoneStrings.get(Locale.US);
+        cachedZoneStrings.get(Locale.getDefault());
+    }
+
+    public static class ZoneStringsCache extends BasicLruCache<Locale, String[][]> {
+        // De-duplicate the strings (http://b/2672057).
+        private final HashMap<String, String> internTable = new HashMap<String, String>();
+
+        public ZoneStringsCache() {
+            // We make room for all the time zones known to the system, since each set of strings
+            // isn't particularly large (and we remove duplicates), but is currently (Honeycomb)
+            // really expensive to compute.
+            // If you change this, you might want to change the scope of the intern table too.
+            super(availableTimeZones.length);
+        }
+
+        @Override protected String[][] create(Locale locale) {
+            long start, nativeStart;
+            start = nativeStart = System.currentTimeMillis();
+            String[][] result = getZoneStringsImpl(locale.toString(), availableTimeZones);
+            long nativeEnd = System.currentTimeMillis();
+            internStrings(result);
+            // Ending up in this method too often is an easy way to make your app slow, so we ensure
+            // it's easy to tell from the log (a) what we were doing, (b) how long it took, and
+            // (c) that it's all ICU's fault.
+            long end = System.currentTimeMillis();
+            long duration = end - start;
+            long nativeDuration = nativeEnd - nativeStart;
+            Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms" +
+                    " (" + nativeDuration + "ms in ICU).");
+            return result;
+        }
+
+        private synchronized void internStrings(String[][] result) {
+            for (int i = 0; i < result.length; ++i) {
+                for (int j = 1; j <= 4; ++j) {
+                    String original = result[i][j];
+                    String nonDuplicate = internTable.get(original);
+                    if (nonDuplicate == null) {
+                        internTable.put(original, original);
+                    } else {
+                        result[i][j] = nonDuplicate;
+                    }
+                }
+            }
+        }
+    }
+
+    private static final Comparator<String[]> ZONE_STRINGS_COMPARATOR = new Comparator<String[]>() {
+        public int compare(String[] lhs, String[] rhs) {
+            return lhs[0].compareTo(rhs[0]);
+        }
+    };
+
     private TimeZones() {}
 
     /**
-     * Implements TimeZone.getDisplayName by asking ICU.
+     * Returns the appropriate string from 'zoneStrings'. Used with getZoneStrings.
      */
-    public static String getDisplayName(String id, boolean daylight, int style, Locale locale) {
-        // If we already have the strings, linear search through them is 10x quicker than
-        // calling ICU for just the one we want.
-        if (CachedTimeZones.locale.equals(locale)) {
-            String result = lookupDisplayName(CachedTimeZones.names, id, daylight, style);
-            if (result != null) {
-                return result;
-            }
-        }
-        return getDisplayNameImpl(id, daylight, style, locale.toString());
-    }
-
-    public static String lookupDisplayName(String[][] zoneStrings, String id, boolean daylight, int style) {
-        for (String[] row : zoneStrings) {
-            if (row[0].equals(id)) {
-                if (daylight) {
-                    return (style == TimeZone.LONG) ? row[3] : row[4];
-                } else {
-                    return (style == TimeZone.LONG) ? row[1] : row[2];
-                }
+    public static String getDisplayName(String[][] zoneStrings, String id, boolean daylight, int style) {
+        String[] needle = new String[] { id };
+        int index = Arrays.binarySearch(zoneStrings, needle, ZONE_STRINGS_COMPARATOR);
+        if (index >= 0) {
+            String[] row = zoneStrings[index];
+            if (daylight) {
+                return (style == TimeZone.LONG) ? row[3] : row[4];
+            } else {
+                return (style == TimeZone.LONG) ? row[1] : row[2];
             }
         }
         return null;
-    }
-
-    /**
-     * Initialization holder for default time zone names. This class will
-     * be preloaded by the zygote to share the time and space costs of setting
-     * up the list of time zone names, so although it looks like the lazy
-     * initialization idiom, it's actually the opposite.
-     */
-    private static class CachedTimeZones {
-        /**
-         * Name of default locale at the time this class was initialized.
-         */
-        private static final Locale locale = Locale.getDefault();
-
-        /**
-         * Names of time zones for the default locale.
-         */
-        private static final String[][] names = createZoneStringsFor(locale);
-    }
-
-    /**
-     * Creates array of time zone names for the given locale.
-     */
-    private static String[][] createZoneStringsFor(Locale locale) {
-        // Don't be distracted by the code for de-duplication below: this is the expensive bit!
-        long start, nativeStart;
-        start = nativeStart = System.currentTimeMillis();
-        String[][] result = getZoneStringsImpl(locale.toString(), availableTimeZones);
-        long nativeEnd = System.currentTimeMillis();
-
-        // De-duplicate the strings (http://b/2672057).
-        HashMap<String, String> internTable = new HashMap<String, String>();
-        for (int i = 0; i < result.length; ++i) {
-            for (int j = 1; j <= 4; ++j) {
-                String original = result[i][j];
-                String nonDuplicate = internTable.get(original);
-                if (nonDuplicate == null) {
-                    internTable.put(original, original);
-                } else {
-                    result[i][j] = nonDuplicate;
-                }
-            }
-        }
-
-        // Ending up in this method too often is an easy way to make your app slow, so we ensure
-        // it's easy to tell from the log (a) what we were doing and (b) how long it took.
-        long end = System.currentTimeMillis();
-        long duration = end - start;
-        long nativeDuration = nativeEnd - nativeStart;
-        Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms" +
-                " (" + nativeDuration + "ms native).");
-
-        return result;
     }
 
     /**
@@ -117,21 +115,7 @@ public final class TimeZones {
         if (locale == null) {
             locale = Locale.getDefault();
         }
-
-        // TODO: We should force a reboot if the default locale changes.
-        if (CachedTimeZones.locale.equals(locale)) {
-            return clone2dStringArray(CachedTimeZones.names);
-        }
-
-        return createZoneStringsFor(locale);
-    }
-
-    public static String[][] clone2dStringArray(String[][] array) {
-        String[][] result = new String[array.length][];
-        for (int i = 0; i < array.length; ++i) {
-            result[i] = array[i].clone();
-        }
-        return result;
+        return cachedZoneStrings.get(locale);
     }
 
     /**
@@ -145,5 +129,4 @@ public final class TimeZones {
 
     private static native String[] forCountryCode(String countryCode);
     private static native String[][] getZoneStringsImpl(String locale, String[] timeZoneIds);
-    private static native String getDisplayNameImpl(String id, boolean isDST, int style, String locale);
 }

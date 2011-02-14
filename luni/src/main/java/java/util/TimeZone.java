@@ -170,10 +170,13 @@ public abstract class TimeZone implements Serializable, Cloneable {
 
         boolean useDaylight = daylightTime && useDaylightTime();
 
-        String result = TimeZones.getDisplayName(getID(), daylightTime, style, locale);
+        String[][] zoneStrings = TimeZones.getZoneStrings(locale);
+        String result = TimeZones.getDisplayName(zoneStrings, getID(), daylightTime, style);
         if (result != null) {
             return result;
         }
+
+        // TODO: do we ever get here?
 
         int offset = getRawOffset();
         if (useDaylight && this instanceof SimpleTimeZone) {
