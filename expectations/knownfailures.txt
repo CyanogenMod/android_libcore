@@ -24,6 +24,14 @@
   bug: 3325799
 },
 {
+  description: "KxmlPullParser doesn't enforce top-level document element",
+  names: [
+    "libcore.xml.KxmlPullParserDtdTest#testDoctypeInDocumentElement",
+    "libcore.xml.KxmlPullParserDtdTest#testDoctypeAfterDocumentElement"
+  ],
+  bug: 3452274
+},
+{
   description: "URLConnection fails on URLs containing {}",
   name: "libcore.java.net.URLConnectionTest#testMalformedUrl",
   bug: 1158780,

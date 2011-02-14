@@ -16,7 +16,6 @@
 
 package libcore.xml;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import junit.framework.TestCase;
@@ -44,20 +43,16 @@ public abstract class PullParserDtdTest extends TestCase {
     }
 
     public void testUsingParameterEntitiesInDtds() throws Exception {
-        String xml = "<!DOCTYPE foo ["
+        assertParseFailure("<!DOCTYPE foo ["
             + "  <!ENTITY % a \"android\">"
             + "  <!ENTITY b \"%a;\">"
-            + "]><foo></foo>";
-        XmlPullParser parser = newPullParser(xml);
-        assertParseFailure(parser);
+            + "]><foo></foo>");
     }
 
     public void testUsingParameterInDocuments() throws Exception {
-        String xml = "<!DOCTYPE foo ["
+        assertParseFailure("<!DOCTYPE foo ["
             + "  <!ENTITY % a \"android\">"
-            + "]><foo>&a;</foo>";
-        XmlPullParser parser = newPullParser(xml);
-        assertParseFailure(parser);
+            + "]><foo>&a;</foo>");
     }
 
     public void testGeneralAndParameterEntityWithTheSameName() throws Exception {
@@ -223,11 +218,9 @@ public abstract class PullParserDtdTest extends TestCase {
 
     public void testExternalIdIsCaseSensitive() throws Exception {
         // The spec requires 'SYSTEM' in upper case
-        String xml = "<!DOCTYPE foo ["
+        assertParseFailure("<!DOCTYPE foo ["
                 + "  <!ENTITY a system \"http://localhost:1/no-such-file.xml\">"
-                + "]><foo/>";
-        XmlPullParser parser = newPullParser(xml);
-        assertParseFailure(parser);
+                + "]><foo/>");
     }
 
     /**
@@ -381,15 +374,13 @@ public abstract class PullParserDtdTest extends TestCase {
     }
 
     public void testAttributeEntitiesExpandedEagerly() throws Exception {
-        String xml = "<!DOCTYPE foo [\n"
+        assertParseFailure("<!DOCTYPE foo [\n"
                 + "  <!ELEMENT foo ANY>\n"
                 + "  <!ATTLIST foo\n"
                 + "    bar CDATA \"abc &amp; def &g; jk\">"
                 + "  <!ENTITY g \"ghi\">"
                 + "]>"
-                + "<foo></foo>";
-        XmlPullParser parser = newPullParser(xml);
-        assertParseFailure(parser);
+                + "<foo></foo>");
     }
 
     public void testRequiredAttributesOmitted() throws Exception {
@@ -513,7 +504,17 @@ public abstract class PullParserDtdTest extends TestCase {
         assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
     }
 
-    private void assertParseFailure(XmlPullParser parser) throws IOException {
+    public void testDoctypeInDocumentElement() throws Exception {
+        assertParseFailure("<foo><!DOCTYPE foo></foo>");
+    }
+
+    public void testDoctypeAfterDocumentElement() throws Exception {
+        assertParseFailure("<foo/><!DOCTYPE foo>");
+    }
+
+    private void assertParseFailure(String xml) throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader(xml));
         try {
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
             }

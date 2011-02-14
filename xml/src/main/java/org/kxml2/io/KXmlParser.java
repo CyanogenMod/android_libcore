@@ -422,6 +422,10 @@ public class KXmlParser implements XmlPullParser, Closeable {
                 throw new XmlPullParserException("Unexpected token", this, null);
             }
 
+            if (depth == 0 && (type == ENTITY_REF || type == TEXT || type == CDSECT)) {
+                throw new XmlPullParserException("Unexpected token", this, null);
+            }
+
             if (justOneToken) {
                 return type;
             }
@@ -2027,7 +2031,6 @@ public class KXmlParser implements XmlPullParser, Closeable {
 
     public void require(int type, String namespace, String name)
             throws XmlPullParserException, IOException {
-
         if (type != this.type
                 || (namespace != null && !namespace.equals(getNamespace()))
                 || (name != null && !name.equals(getName()))) {
