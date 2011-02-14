@@ -469,7 +469,7 @@ class XMLParser {
                 IoUtils.closeQuietly(reader);
             }
         } else {
-            // TODO: why delete files that cannot be read? http://b/3431233
+            // the prefs API requires this to be hostile towards pre-existing files
             xmlFile.delete();
         }
         return result;
