@@ -52,6 +52,13 @@ import org.xml.sax.SAXParseException;
  * values to be used when a given key is not found in this {@code Properties}
  * instance.
  *
+ * <a name="character_encoding"><h3>Character Encoding</h3></a>
+ * <p>Note that in some cases {@code Properties} uses ISO-8859-1 instead of UTF-8.
+ * ISO-8859-1 is only capable of representing a tiny subset of Unicode.
+ * Use either the {@code loadFromXML}/{@code storeToXML} methods (which use UTF-8 by
+ * default) or the {@code load}/{@code store} overloads that take
+ * an {@code OutputStreamWriter} (so you can supply a UTF-8 instance) instead.
+ *
  * @see Hashtable
  * @see java.lang.System#getProperties
  */
@@ -252,8 +259,9 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     /**
-     * Loads properties from the specified {@code InputStream}. The encoding is
-     * ISO-8859-1.
+     * Loads properties from the specified {@code InputStream}, assumed to be ISO-8859-1.
+     * See "<a href="#character_encoding">Character Encoding</a>".
+     *
      * @param in the {@code InputStream}
      * @throws IOException
      */
@@ -528,9 +536,8 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     /**
-     * Stores the mappings in this {@code Properties} object to {@code out},
-     * putting the specified comment at the beginning. The encoding is
-     * ISO-8859-1.
+     * Stores properties to the specified {@code OutputStream}, using ISO-8859-1.
+     * See "<a href="#character_encoding">Character Encoding</a>".
      *
      * @param out the {@code OutputStream}
      * @param comment an optional comment to be written, or null
