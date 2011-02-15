@@ -76,4 +76,26 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(new Date(0));
     }
+
+    public void test_getZoneStrings() throws Exception {
+        // Check that corrupting our array doesn't affect other callers.
+
+        // Kill a row.
+        {
+            String[][] originalZoneStrings = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
+            assertNotNull(originalZoneStrings[0]);
+            originalZoneStrings[0] = null;
+            String[][] currentZoneStrings = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
+            assertNotNull(currentZoneStrings[0]);
+        }
+
+        // Kill an element.
+        {
+            String[][] originalZoneStrings = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
+            assertNotNull(originalZoneStrings[0][0]);
+            originalZoneStrings[0][0] = null;
+            String[][] currentZoneStrings = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
+            assertNotNull(currentZoneStrings[0][0]);
+        }
+    }
 }
