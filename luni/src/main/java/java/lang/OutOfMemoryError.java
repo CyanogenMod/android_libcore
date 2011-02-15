@@ -22,7 +22,7 @@ package java.lang;
  * available platform resources. Such a request may be made by both the running
  * application or by an internal function of the virtual machine.
  */
-public class OutOfMemoryError extends java.lang.VirtualMachineError {
+public class OutOfMemoryError extends VirtualMachineError {
 
     private static final long serialVersionUID = 8228564086184010517L;
 

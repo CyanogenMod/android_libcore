@@ -21,7 +21,7 @@ package java.lang;
  * Thrown when the virtual machine notices that a program tries to reference,
  * on a class or object, a field that does not exist.
  */
-public class NoSuchFieldException extends java.lang.Exception {
+public class NoSuchFieldException extends Exception {
 
     private static final long serialVersionUID = -6143714805279938260L;
 

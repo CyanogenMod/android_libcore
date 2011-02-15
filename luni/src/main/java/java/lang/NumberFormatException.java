@@ -21,7 +21,7 @@ package java.lang;
  * Thrown when an invalid value is passed to a string-to-number conversion
  * method.
  */
-public class NumberFormatException extends java.lang.IllegalArgumentException {
+public class NumberFormatException extends IllegalArgumentException {
 
     private static final long serialVersionUID = -2848938806368998894L;
 
