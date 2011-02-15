@@ -516,9 +516,8 @@ public class SimpleTimeZone extends TimeZone {
                 && endTime == tz.endTime && endMode == tz.endMode;
     }
 
-    @Override
-    public boolean inDaylightTime(Date time) {
-        return useDaylightTime() && getOffset(time.getTime()) != rawOffset;
+    @Override public boolean inDaylightTime(Date time) {
+        return useDaylightTime() && getOffset(time.getTime()) != getRawOffset();
     }
 
     private boolean isLeapYear(int year) {

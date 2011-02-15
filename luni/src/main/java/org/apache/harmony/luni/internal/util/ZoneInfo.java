@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Formatter;
 import java.util.TimeZone;
 
-final class ZoneInfo extends TimeZone {
+public final class ZoneInfo extends TimeZone {
 
     private static final long MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
     private static final long MILLISECONDS_PER_400_YEARS =
@@ -40,6 +40,8 @@ final class ZoneInfo extends TimeZone {
 
     private int mRawOffset;
 
+    private final int mEarliestRawOffset;
+
     private final int[] mTransitions;
     private final int[] mOffsets;
     private final byte[] mTypes;
@@ -55,7 +57,7 @@ final class ZoneInfo extends TimeZone {
         // Use the latest non-daylight offset (if any) as the raw offset.
         int lastStd;
         for (lastStd = mTransitions.length - 1; lastStd >= 0; lastStd--) {
-            if (mIsDsts[mTypes[lastStd] & 0xFF] == 0) {
+            if (mIsDsts[mTypes[lastStd] & 0xff] == 0) {
                 break;
             }
         }
@@ -65,8 +67,19 @@ final class ZoneInfo extends TimeZone {
         if (lastStd >= mTypes.length) {
             mRawOffset = gmtOffsets[0];
         } else {
-            mRawOffset = gmtOffsets[mTypes[lastStd] & 0xFF];
+            mRawOffset = gmtOffsets[mTypes[lastStd] & 0xff];
         }
+
+        // Cache the oldest known raw offset, in case we're asked about times that predate our
+        // transition data.
+        int firstStd = -1;
+        for (int i = 0; i < mTransitions.length; ++i) {
+            if (mIsDsts[mTypes[i] & 0xff] == 0) {
+                firstStd = i;
+                break;
+            }
+        }
+        int earliestRawOffset = (firstStd != -1) ? gmtOffsets[mTypes[firstStd] & 0xff] : mRawOffset;
 
         // Rather than keep offsets from UTC, we use offsets from local time, so the raw offset
         // can be changed and automatically affect all the offsets.
@@ -95,6 +108,7 @@ final class ZoneInfo extends TimeZone {
         mUseDst = usesDst;
 
         mRawOffset *= 1000;
+        mEarliestRawOffset = earliestRawOffset * 1000;
     }
 
     @Override
@@ -129,45 +143,45 @@ final class ZoneInfo extends TimeZone {
     @Override
     public int getOffset(long when) {
         int unix = (int) (when / 1000);
-        int trans = Arrays.binarySearch(mTransitions, unix);
-
-        if (trans == ~0) {
-            return mRawOffset + mOffsets[0] * 1000;
+        int transition = Arrays.binarySearch(mTransitions, unix);
+        if (transition < 0) {
+            transition = ~transition - 1;
+            if (transition < 0) {
+                // Assume that all times before our first transition correspond to the
+                // oldest-known non-daylight offset. The obvious alternative would be to
+                // use the current raw offset, but that seems like a greater leap of faith.
+                return mEarliestRawOffset;
+            }
         }
-        if (trans < 0) {
-            trans = ~trans - 1;
-        }
-
-        return mRawOffset + mOffsets[mTypes[trans] & 0xFF] * 1000;
+        return mRawOffset + mOffsets[mTypes[transition] & 0xff] * 1000;
     }
 
-    @Override
-    public int getRawOffset() {
+    @Override public boolean inDaylightTime(Date time) {
+        long when = time.getTime();
+        int unix = (int) (when / 1000);
+        int transition = Arrays.binarySearch(mTransitions, unix);
+        if (transition < 0) {
+            transition = ~transition - 1;
+            if (transition < 0) {
+                // Assume that all times before our first transition are non-daylight.
+                // Transition data tends to start with a transition to daylight, so just
+                // copying the first transition would assume the opposite.
+                // http://code.google.com/p/android/issues/detail?id=14395
+                return false;
+            }
+        }
+        return mIsDsts[mTypes[transition] & 0xff] == 1;
+    }
+
+    @Override public int getRawOffset() {
         return mRawOffset;
     }
 
-    @Override
-    public void setRawOffset(int off) {
+    @Override public void setRawOffset(int off) {
         mRawOffset = off;
     }
 
-    @Override
-    public boolean inDaylightTime(Date when) {
-        int unix = (int) (when.getTime() / 1000);
-        int trans = Arrays.binarySearch(mTransitions, unix);
-
-        if (trans == ~0) {
-            return mIsDsts[0] != 0;
-        }
-        if (trans < 0) {
-            trans = ~trans - 1;
-        }
-
-        return mIsDsts[mTypes[trans] & 0xFF] != 0;
-    }
-
-    @Override
-    public boolean useDaylightTime() {
+    @Override public boolean useDaylightTime() {
         return mUseDst;
     }
 
@@ -227,7 +241,7 @@ final class ZoneInfo extends TimeZone {
             String localTime = formatTime(mTransitions[i], this);
             int offset = mOffsets[type];
             int gmtOffset = mRawOffset/1000 + offset;
-            f.format("%4d : time=%10d %s = %s isDst=%d offset=%5d gmtOffset=%d\n",
+            f.format("%4d : time=%11d %s = %s isDst=%d offset=%5d gmtOffset=%d\n",
                     i, mTransitions[i], utcTime, localTime, mIsDsts[type], offset, gmtOffset);
         }
         return sb.toString();
