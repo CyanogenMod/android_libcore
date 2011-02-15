@@ -79,8 +79,7 @@ public final class ZoneInfoDB {
     private ZoneInfoDB() {}
 
     /**
-     * Reads the file indicating the database version in use.  If the file is not
-     * present or is unreadable, we assume a version of "2007h".
+     * Reads the file indicating the database version in use.
      */
     private static String readVersion() {
         try {
