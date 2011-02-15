@@ -19,7 +19,7 @@ package java.util;
 
 import java.io.Serializable;
 import libcore.icu.TimeZones;
-import org.apache.harmony.luni.internal.util.ZoneInfoDB;
+import libcore.util.ZoneInfoDB;
 
 /**
  * {@code TimeZone} represents a time zone, primarily used for configuring a {@link Calendar} or

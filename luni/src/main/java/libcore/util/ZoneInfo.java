@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.util;
+package libcore.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -22,8 +22,12 @@ import java.util.Date;
 import java.util.Formatter;
 import java.util.TimeZone;
 
+/**
+ * Our concrete TimeZone implementation, backed by zoneinfo data.
+ *
+ * @hide - used to implement TimeZone
+ */
 public final class ZoneInfo extends TimeZone {
-
     private static final long MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
     private static final long MILLISECONDS_PER_400_YEARS =
             MILLISECONDS_PER_DAY * (400 * 365 + 100 - 3);

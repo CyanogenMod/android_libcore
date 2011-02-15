@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.util;
+package libcore.util;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -30,6 +30,9 @@ import libcore.io.BufferIterator;
 import libcore.io.IoUtils;
 import libcore.io.MemoryMappedFile;
 
+// TODO: repackage this class, used by frameworks/base.
+import org.apache.harmony.luni.internal.util.TimezoneGetter;
+
 /**
  * A class used to initialize the time zone database.  This implementation uses the
  * 'zoneinfo' database as the source of time zone information.  However, to conserve
@@ -37,7 +40,7 @@ import libcore.io.MemoryMappedFile;
  * second file is used to indicate the starting position of each time zone record.  A
  * third file indicates the version of the zoneinfo database used to generate the data.
  *
- * {@hide}
+ * @hide - used to implement TimeZone
  */
 public final class ZoneInfoDB {
     /**

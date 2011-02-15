@@ -74,7 +74,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         // The "Asia/Saigon" time zone has just a few transitions, and hasn't changed in a
         // long time, which is convenient for testing:
         //
-        // org.apache.harmony.luni.internal.util.ZoneInfo[Asia/Saigon,mRawOffset=25200000,mUseDst=false]
+        // libcore.util.ZoneInfo[Asia/Saigon,mRawOffset=25200000,mUseDst=false]
         // 0 : time=-2005974400 Fri Jun 08 16:53:20 1906 GMT+00:00 = Fri Jun 08 23:59:40 1906 ICT isDst=0 offset=  380 gmtOffset=25580
         // 1 : time=-1855983920 Fri Mar 10 16:54:40 1911 GMT+00:00 = Fri Mar 10 23:54:40 1911 ICT isDst=0 offset=    0 gmtOffset=25200
         // 2 : time=-1819954800 Tue Apr 30 17:00:00 1912 GMT+00:00 = Wed May 01 01:00:00 1912 ICT isDst=0 offset= 3600 gmtOffset=28800
@@ -101,7 +101,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
 
         // There are plenty more examples. "Africa/Bissau" is one:
         //
-        // org.apache.harmony.luni.internal.util.ZoneInfo[Africa/Bissau,mRawOffset=0,mUseDst=false]
+        // libcore.util.ZoneInfo[Africa/Bissau,mRawOffset=0,mUseDst=false]
         // 0 : time=-1849388260 Fri May 26 01:02:20 1911 GMT+00:00 = Fri May 26 00:02:20 1911 GMT isDst=0 offset=-3600 gmtOffset=-3600
         // 1 : time=  157770000 Wed Jan 01 01:00:00 1975 GMT+00:00 = Wed Jan 01 01:00:00 1975 GMT isDst=0 offset=    0 gmtOffset=0
         tz = TimeZone.getTimeZone("Africa/Bissau");
