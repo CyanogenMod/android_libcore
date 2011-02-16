@@ -20,11 +20,14 @@ import java.net.InetAddress;
 
 public class InetAddressTest extends junit.framework.TestCase {
     public void test_parseNumericAddress() throws Exception {
-        InetAddress.parseNumericAddress("1.2.3.4");
-        InetAddress.parseNumericAddress("1.2.3");
-        InetAddress.parseNumericAddress("1.2");
-        InetAddress.parseNumericAddress("1");
-        InetAddress.parseNumericAddress("2001:4860:800d::68");
+        // Regular IPv4.
+        assertEquals("/1.2.3.4", InetAddress.parseNumericAddress("1.2.3.4").toString());
+        // Regular IPv6.
+        assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("2001:4860:800d::68").toString());
+        // Weird IPv4 special cases.
+        assertEquals("/1.2.0.3", InetAddress.parseNumericAddress("1.2.3").toString());
+        assertEquals("/1.0.0.2", InetAddress.parseNumericAddress("1.2").toString());
+        assertEquals("/0.0.0.1", InetAddress.parseNumericAddress("1").toString());
         try {
             // Almost numeric but invalid...
             InetAddress.parseNumericAddress("1.");
