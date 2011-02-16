@@ -20,8 +20,6 @@
 #include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
-#include "java_lang_Float.h"
-#include "java_lang_Double.h"
 
 #include <byteswap.h>
 #include <errno.h>

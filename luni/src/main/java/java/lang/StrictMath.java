@@ -992,21 +992,10 @@ public final class StrictMath {
      * @return the size of a ulp of the argument.
      */
     public static float ulp(float f) {
-        // special cases
-        if (Float.isNaN(f)) {
-            return Float.NaN;
-        } else if (Float.isInfinite(f)) {
-            return Float.POSITIVE_INFINITY;
-        } else if (f == Float.MAX_VALUE || f == -Float.MAX_VALUE) {
-            return (float) pow(2, 104);
-        }
-        f = Math.abs(f);
-        return nextafterf(f, Float.MAX_VALUE) - f;
+        return Math.ulp(f);
     }
 
-    private native static double nextafter(double x, double y);
-
-    private native static float nextafterf(float x, float y);
+    private static native double nextafter(double x, double y);
 
     /**
      * Returns a double with the given magnitude and the sign of {@code sign}.

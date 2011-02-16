@@ -583,12 +583,7 @@ outer:
      * @throws IndexOutOfBoundsException
      *             if {@code index < 0} or {@code index >= length()}.
      */
-    public char charAt(int index) {
-        if (index >= 0 && index < count) {
-            return value[offset + index];
-        }
-        throw indexAndLength(index);
-    }
+    public native char charAt(int index);
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
         throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
@@ -636,18 +631,7 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public int compareTo(String string) {
-        // Code adapted from K&R, pg 101
-        int o1 = offset, o2 = string.offset, result;
-        int end = offset + (count < string.count ? count : string.count);
-        char[] target = string.value;
-        while (o1 < end) {
-            if ((result = value[o1++] - target[o2++]) != 0) {
-                return result;
-            }
-        }
-        return count - string.count;
-    }
+    public native int compareTo(String string);
 
     /**
      * Compares the specified string to this string using the Unicode values of
@@ -768,32 +752,7 @@ outer:
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-        if (object instanceof String) {
-            String s = (String) object;
-            int hashCode1 = hashCode;
-            int hashCode2 = s.hashCode;
-            if (count != s.count || (hashCode1 != hashCode2 && hashCode1 != 0 && hashCode2 != 0)) {
-                return false;
-            }
-            // inline 'return regionMatches(0, s, 0, count)'
-            // omitting unnecessary bounds checks
-            int o1 = offset, o2 = s.offset;
-            char[] value1 = value;
-            char[] value2 = s.value;
-            for (int i = 0; i < count; ++i) {
-                if (value1[o1 + i] != value2[o2 + i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
+    @Override public native boolean equals(Object object);
 
     /**
      * Compares the specified string to this string ignoring the case of the
@@ -1005,23 +964,7 @@ outer:
         return fastIndexOf(c, start);
     }
 
-    private int fastIndexOf(int c, int start) {
-        int _count = count;
-        if (start < _count) {
-            if (start < 0) {
-                start = 0;
-            }
-            int _offset = offset;
-            int last = _offset + count;
-            char[] _value = value;
-            for (int i = _offset + start; i < last; i++) {
-                if (_value[i] == c) {
-                    return i - _offset;
-                }
-            }
-        }
-        return -1;
-    }
+    private native int fastIndexOf(int c, int start);
 
     private int indexOfSupplementary(int c, int start) {
         if (!Character.isSupplementaryCodePoint(c)) {
@@ -1142,9 +1085,7 @@ outer:
      *
      * @since 1.6
      */
-    public boolean isEmpty() {
-        return count == 0;
-    }
+    public native boolean isEmpty();
 
     /**
      * Returns the last index of the code point {@code c}, or -1.
@@ -1268,9 +1209,7 @@ outer:
      *
      * @return the number of characters in this string.
      */
-    public int length() {
-        return count;
-    }
+    public native int length();
 
     /**
      * Compares the specified string to this string and compares the specified
