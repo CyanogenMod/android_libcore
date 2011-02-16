@@ -45,8 +45,7 @@ public class AssertionError extends Error {
      */
     public AssertionError(Object detailMessage) {
         super(String.valueOf(detailMessage),
-                (detailMessage instanceof Throwable ? (Throwable) detailMessage
-                        : null));
+                (detailMessage instanceof Throwable ? (Throwable) detailMessage : null));
     }
 
     /**
