@@ -26,7 +26,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
  * A class for turning a byte stream into a character stream. Data read from the
@@ -159,7 +158,7 @@ public class InputStreamReader extends Reader {
         if (!isOpen()) {
             return null;
         }
-        return HistoricalNamesUtil.getHistoricalName(decoder.charset().name());
+        return HistoricalCharsetNames.get(decoder.charset());
     }
 
     /**

@@ -14,13 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.harmony.luni.util;
+package java.io;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class HistoricalNamesUtil {
-    private static HashMap<String, String> historicalNames = new HashMap<String, String>();
-
+/**
+ * This could have been in Charset or Charsets, but all code uses those classes whereas no code
+ * should need to use this, so let's not make good code pay to initialize this map.
+ */
+class HistoricalCharsetNames {
+    private static final HashMap<String, String> historicalNames = new HashMap<String, String>();
     static {
         historicalNames.put("Big5-HKSCS", "Big5_HKSCS");
         historicalNames.put("EUC-JP", "EUC_JP");
@@ -163,8 +167,9 @@ public class HistoricalNamesUtil {
         historicalNames.put("x-windows-950", "MS950");
     }
 
-    public static String getHistoricalName(String name) {
-        String result = historicalNames.get(name);
-        return (result != null) ? result : name;
+    public static String get(Charset charset) {
+        String modernName = charset.name();
+        String result = historicalNames.get(modernName);
+        return (result != null) ? result : modernName;
     }
 }

@@ -24,7 +24,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
  * A class for turning a character stream into a byte stream. Data written to
@@ -235,7 +234,7 @@ public class OutputStreamWriter extends Writer {
         if (encoder == null) {
             return null;
         }
-        return HistoricalNamesUtil.getHistoricalName(encoder.charset().name());
+        return HistoricalCharsetNames.get(encoder.charset());
     }
 
     /**
