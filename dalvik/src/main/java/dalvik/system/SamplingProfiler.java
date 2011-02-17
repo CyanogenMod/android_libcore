@@ -266,8 +266,11 @@ public final class SamplingProfiler {
             }
 
             @Override public boolean equals(Object o) {
+                if (!(o instanceof Sample)) {
+                    return false;
+                }
                 Sample s = (Sample) o;
-                return stackTrace.equals(s.stackTrace) && count == s.count;
+                return count == s.count && stackTrace.equals(s.stackTrace);
             }
 
             @Override public String toString() {

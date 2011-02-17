@@ -115,7 +115,7 @@ public final class BlockGuard {
     /**
      * The default, permissive policy that doesn't prevent any operations.
      */
-    public static Policy LAX_POLICY = new Policy() {
+    public static final Policy LAX_POLICY = new Policy() {
             public void onWriteToDisk() {}
             public void onReadFromDisk() {}
             public void onNetwork() {}
