@@ -21,7 +21,6 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "java_lang_Float.h"
 
 static jdouble StrictMath_sin(JNIEnv*, jclass, jdouble a) {
     return ieee_sin(a);
