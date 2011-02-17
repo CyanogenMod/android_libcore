@@ -58,11 +58,7 @@ public final class Math {
      *            the value whose absolute value has to be computed.
      * @return the absolute value of the argument.
      */
-    public static double abs(double d) {
-        long bits = Double.doubleToLongBits(d);
-        bits &= 0x7fffffffffffffffL;
-        return Double.longBitsToDouble(bits);
-    }
+    public static native double abs(double d);
 
     /**
      * Returns the absolute value of the argument.
@@ -80,11 +76,7 @@ public final class Math {
      * @return the argument if it is positive, otherwise the negation of the
      *         argument.
      */
-    public static float abs(float f) {
-        int bits = Float.floatToIntBits(f);
-        bits &= 0x7fffffff;
-        return Float.intBitsToFloat(bits);
-    }
+    public static native float abs(float f);
 
     /**
      * Returns the absolute value of the argument.
@@ -97,9 +89,7 @@ public final class Math {
      * @return the argument if it is positive, otherwise the negation of the
      *         argument.
      */
-    public static int abs(int i) {
-        return i >= 0 ? i : -i;
-    }
+    public static native int abs(int i);
 
     /**
      * Returns the absolute value of the argument. If the argument is {@code
@@ -110,9 +100,7 @@ public final class Math {
      * @return the argument if it is positive, otherwise the negation of the
      *         argument.
      */
-    public static long abs(long l) {
-        return l >= 0 ? l : -l;
-    }
+    public static native long abs(long l);
 
     /**
      * Returns the closest double approximation of the arc cosine of the
@@ -552,9 +540,7 @@ public final class Math {
      *            the second argument.
      * @return the larger of {@code i1} and {@code i2}.
      */
-    public static int max(int i1, int i2) {
-        return i1 > i2 ? i1 : i2;
-    }
+    public static native int max(int i1, int i2);
 
     /**
      * Returns the most positive (closest to positive infinity) of the two
@@ -654,9 +640,7 @@ public final class Math {
      *            the second argument.
      * @return the smaller of {@code i1} and {@code i2}.
      */
-    public static int min(int i1, int i2) {
-        return i1 < i2 ? i1 : i2;
-    }
+    public static native int min(int i1, int i2);
 
     /**
      * Returns the most negative (closest to negative infinity) of the two
@@ -1037,6 +1021,8 @@ public final class Math {
         return nextafter(d, Double.MAX_VALUE) - d;
     }
 
+    private static native double nextafter(double x, double y);
+
     /**
      * Returns the argument's ulp (unit in the last place). The size of a ulp of
      * a float value is the positive distance between this value and the float
@@ -1065,13 +1051,20 @@ public final class Math {
         } else if (f == Float.MAX_VALUE || f == -Float.MAX_VALUE) {
             return (float) pow(2, 104);
         }
-        f = abs(f);
-        return nextafterf(f, Float.MAX_VALUE) - f;
+
+        f = Math.abs(f);
+        int hx = Float.floatToRawIntBits(f);
+        int hy = Float.floatToRawIntBits(Float.MAX_VALUE);
+        if ((hx & 0x7fffffff) == 0) { /* f == 0 */
+            return Float.intBitsToFloat((hy & 0x80000000) | 0x1);
+        }
+        if ((hx > 0) ^ (hx > hy)) { /* |f| < |Float.MAX_VALUE| */
+            hx += 1;
+        } else {
+            hx -= 1;
+        }
+        return Float.intBitsToFloat(hx) - f;
     }
-
-    private native static double nextafter(double x, double y);
-
-    private native static float nextafterf(float x, float y);
 
     /**
      * Returns a double with the given magnitude and the sign of {@code sign}.
