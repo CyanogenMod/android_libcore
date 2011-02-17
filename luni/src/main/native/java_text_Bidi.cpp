@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "NativeBidi"
+#define LOG_TAG "Bidi"
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
@@ -64,15 +64,15 @@ static UBiDi* uBiDi(jlong ptr) {
     return reinterpret_cast<BiDiData*>(static_cast<uintptr_t>(ptr))->uBiDi();
 }
 
-static jlong NativeBidi_ubidi_open(JNIEnv*, jclass) {
+static jlong Bidi_ubidi_open(JNIEnv*, jclass) {
     return reinterpret_cast<uintptr_t>(new BiDiData(ubidi_open()));
 }
 
-static void NativeBidi_ubidi_close(JNIEnv*, jclass, jlong ptr) {
+static void Bidi_ubidi_close(JNIEnv*, jclass, jlong ptr) {
     delete biDiData(ptr);
 }
 
-static void NativeBidi_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray text, jint length, jint paraLevel, jbyteArray newEmbeddingLevels) {
+static void Bidi_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray text, jint length, jint paraLevel, jbyteArray newEmbeddingLevels) {
     BiDiData* data = biDiData(ptr);
     // Copy the new embedding levels from the Java heap to the native heap.
     if (newEmbeddingLevels != NULL) {
@@ -91,7 +91,7 @@ static void NativeBidi_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray 
     icu4jni_error(env, err);
 }
 
-static jlong NativeBidi_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start, jint limit) {
+static jlong Bidi_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start, jint limit) {
     UErrorCode err = U_ZERO_ERROR;
     UBiDi* sized = ubidi_openSized(limit - start, 0, &err);
     if (icu4jni_error(env, err) != FALSE) {
@@ -103,19 +103,19 @@ static jlong NativeBidi_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start
     return reinterpret_cast<uintptr_t>(lineData.release());
 }
 
-static jint NativeBidi_ubidi_getDirection(JNIEnv*, jclass, jlong ptr) {
+static jint Bidi_ubidi_getDirection(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getDirection(uBiDi(ptr));
 }
 
-static jint NativeBidi_ubidi_getLength(JNIEnv*, jclass, jlong ptr) {
+static jint Bidi_ubidi_getLength(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getLength(uBiDi(ptr));
 }
 
-static jbyte NativeBidi_ubidi_getParaLevel(JNIEnv*, jclass, jlong ptr) {
+static jbyte Bidi_ubidi_getParaLevel(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getParaLevel(uBiDi(ptr));
 }
 
-static jbyteArray NativeBidi_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
+static jbyteArray Bidi_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
     UErrorCode err = U_ZERO_ERROR;
     const UBiDiLevel* levels = ubidi_getLevels(uBiDi(ptr), &err);
     if (icu4jni_error(env, err)) {
@@ -127,14 +127,17 @@ static jbyteArray NativeBidi_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
     return result;
 }
 
-static jint NativeBidi_ubidi_countRuns(JNIEnv* env, jclass, jlong ptr) {
+static jint Bidi_ubidi_countRuns(JNIEnv* env, jclass, jlong ptr) {
     UErrorCode err = U_ZERO_ERROR;
     int count = ubidi_countRuns(uBiDi(ptr), &err);
     icu4jni_error(env, err);
     return count;
 }
 
-static jobjectArray NativeBidi_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
+/**
+ * TODO: if we care about performance, we might just want to use an int[] instead of a Run[].
+ */
+static jobjectArray Bidi_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     UBiDi* ubidi = uBiDi(ptr);
     UErrorCode err = U_ZERO_ERROR;
     int runCount = ubidi_countRuns(ubidi, &err);
@@ -155,7 +158,7 @@ static jobjectArray NativeBidi_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     return runs;
 }
 
-static jintArray NativeBidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
+static jintArray Bidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
     ScopedByteArrayRO levelBytes(env, javaLevels);
     if (levelBytes.get() == NULL) {
         return NULL;
@@ -172,19 +175,18 @@ static jintArray NativeBidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray 
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NativeBidi, ubidi_close, "(J)V"),
-    NATIVE_METHOD(NativeBidi, ubidi_countRuns, "(J)I"),
-    NATIVE_METHOD(NativeBidi, ubidi_getDirection, "(J)I"),
-    NATIVE_METHOD(NativeBidi, ubidi_getLength, "(J)I"),
-    NATIVE_METHOD(NativeBidi, ubidi_getLevels, "(J)[B"),
-    NATIVE_METHOD(NativeBidi, ubidi_getParaLevel, "(J)B"),
-    NATIVE_METHOD(NativeBidi, ubidi_getRuns, "(J)[Lorg/apache/harmony/text/BidiRun;"),
-    NATIVE_METHOD(NativeBidi, ubidi_open, "()J"),
-    NATIVE_METHOD(NativeBidi, ubidi_reorderVisual, "([BI)[I"),
-    NATIVE_METHOD(NativeBidi, ubidi_setLine, "(JII)J"),
-    NATIVE_METHOD(NativeBidi, ubidi_setPara, "(J[CII[B)V"),
+    NATIVE_METHOD(Bidi, ubidi_close, "(J)V"),
+    NATIVE_METHOD(Bidi, ubidi_countRuns, "(J)I"),
+    NATIVE_METHOD(Bidi, ubidi_getDirection, "(J)I"),
+    NATIVE_METHOD(Bidi, ubidi_getLength, "(J)I"),
+    NATIVE_METHOD(Bidi, ubidi_getLevels, "(J)[B"),
+    NATIVE_METHOD(Bidi, ubidi_getParaLevel, "(J)B"),
+    NATIVE_METHOD(Bidi, ubidi_getRuns, "(J)[Ljava/text/Bidi$Run;"),
+    NATIVE_METHOD(Bidi, ubidi_open, "()J"),
+    NATIVE_METHOD(Bidi, ubidi_reorderVisual, "([BI)[I"),
+    NATIVE_METHOD(Bidi, ubidi_setLine, "(JII)J"),
+    NATIVE_METHOD(Bidi, ubidi_setPara, "(J[CII[B)V"),
 };
-int register_org_apache_harmony_text_NativeBidi(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "org/apache/harmony/text/NativeBidi",
-            gMethods, NELEM(gMethods));
+int register_java_text_Bidi(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "java/text/Bidi", gMethods, NELEM(gMethods));
 }

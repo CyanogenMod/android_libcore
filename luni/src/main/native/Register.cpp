@@ -36,6 +36,7 @@ extern int register_java_net_InetAddress(JNIEnv* env);
 extern int register_java_net_NetworkInterface(JNIEnv* env);
 extern int register_java_nio_ByteOrder(JNIEnv* env);
 extern int register_java_nio_charset_Charsets(JNIEnv* env);
+extern int register_java_text_Bidi(JNIEnv* env);
 extern int register_java_util_regex_Matcher(JNIEnv* env);
 extern int register_java_util_regex_Pattern(JNIEnv* env);
 extern int register_java_util_zip_Adler32(JNIEnv* env);
@@ -58,7 +59,6 @@ extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
-extern int register_org_apache_harmony_text_NativeBidi(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
 
@@ -84,6 +84,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_net_NetworkInterface(env) != -1 &&
             register_java_nio_ByteOrder(env) != -1 &&
             register_java_nio_charset_Charsets(env) != -1 &&
+            register_java_text_Bidi(env) != -1 &&
             register_java_util_regex_Matcher(env) != -1 &&
             register_java_util_regex_Pattern(env) != -1 &&
             register_java_util_zip_Adler32(env) != -1 &&
@@ -106,7 +107,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_luni_platform_OSMemory(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
-            register_org_apache_harmony_text_NativeBidi(env) != -1 &&
             register_org_apache_harmony_xml_ExpatParser(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
             true;
