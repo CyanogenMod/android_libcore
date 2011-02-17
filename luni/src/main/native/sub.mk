@@ -10,7 +10,6 @@ LOCAL_SRC_FILES := \
 	JniConstants.cpp \
 	JniException.cpp \
 	NativeBN.cpp \
-	NativeBidi.cpp \
 	NativeBreakIterator.cpp \
 	NativeCollation.cpp \
 	NativeConverter.cpp \
@@ -38,6 +37,7 @@ LOCAL_SRC_FILES := \
 	java_net_NetworkInterface.cpp \
 	java_nio_ByteOrder.cpp \
 	java_nio_charset_Charsets.cpp \
+	java_text_Bidi.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \

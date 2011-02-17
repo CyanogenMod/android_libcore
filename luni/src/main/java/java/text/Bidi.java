@@ -21,20 +21,16 @@ import java.awt.font.NumericShaper;
 import java.awt.font.TextAttribute;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.apache.harmony.text.BidiRun;
-import org.apache.harmony.text.NativeBidi;
 
 /**
- * Provides the Unicode Bidirectional Algorithm. The algorithm is
- * defined in the Unicode Standard Annex #9, version 13, also described in The
- * Unicode Standard, Version 4.0 .
+ * Implements the <a href="http://unicode.org/reports/tr9/">Unicode Bidirectional Algorithm</a>.
  *
- * Use a {@code Bidi} object to get the information on the position reordering of a
+ * <p>Use a {@code Bidi} object to get the information on the position reordering of a
  * bidirectional text, such as Arabic or Hebrew. The natural display ordering of
  * horizontal text in these languages is from right to left, while they order
  * numbers from left to right.
  *
- * If the text contains multiple runs, the information of each run can be
+ * <p>If the text contains multiple runs, the information of each run can be
  * obtained from the run index. The level of any particular run indicates the
  * direction of the text as well as the nesting level. Left-to-right runs have
  * even levels while right-to-left runs have odd levels.
@@ -61,6 +57,33 @@ public final class Bidi {
      * Constant that specifies the default base level as 1 (right-to-left).
      */
     public static final int DIRECTION_RIGHT_TO_LEFT = 1;
+
+    /**
+     * TODO: if we care about performance, we might just want to use an int[] instead of a Run[].
+     */
+    static class Run {
+        private final int start;
+        private final int limit;
+        private final int level;
+
+        public Run(int start, int limit, int level) {
+            this.start = start;
+            this.limit = limit;
+            this.level = level;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public int getStart() {
+            return start;
+        }
+    }
 
     /**
      * Creates a {@code Bidi} object from the {@code
@@ -148,7 +171,7 @@ public final class Bidi {
             bidi = createUBiDi(text, 0, embeddings, 0, length, flags);
             readBidiInfo(bidi);
         } finally {
-            NativeBidi.ubidi_close(bidi);
+            ubidi_close(bidi);
         }
     }
 
@@ -213,7 +236,7 @@ public final class Bidi {
             bidi = createUBiDi(text, textStart, embeddings, embStart, paragraphLength, flags);
             readBidiInfo(bidi);
         } finally {
-            NativeBidi.ubidi_close(bidi);
+            ubidi_close(bidi);
         }
     }
 
@@ -262,11 +285,11 @@ public final class Bidi {
                 for (int i = 0; i < paragraphLength; i++) {
                     byte e = embeddings[i];
                     if (e < 0) {
-                        realEmbeddings[i] = (byte) (NativeBidi.UBIDI_LEVEL_OVERRIDE - e);
+                        realEmbeddings[i] = (byte) (UBIDI_LEVEL_OVERRIDE - e);
                     } else if (e > 0) {
                         realEmbeddings[i] = e;
                     } else {
-                        realEmbeddings[i] |= (byte) NativeBidi.UBIDI_LEVEL_OVERRIDE;
+                        realEmbeddings[i] |= (byte) UBIDI_LEVEL_OVERRIDE;
                     }
                 }
             }
@@ -279,12 +302,12 @@ public final class Bidi {
         long bidi = 0;
         boolean needsDeletion = true;
         try {
-            bidi = NativeBidi.ubidi_open();
-            NativeBidi.ubidi_setPara(bidi, realText, paragraphLength, flags, realEmbeddings);
+            bidi = ubidi_open();
+            ubidi_setPara(bidi, realText, paragraphLength, flags, realEmbeddings);
             needsDeletion = false;
         } finally {
             if (needsDeletion) {
-                NativeBidi.ubidi_close(bidi);
+                ubidi_close(bidi);
             }
         }
         return bidi;
@@ -297,20 +320,20 @@ public final class Bidi {
 
     // read info from the native UBiDi struct
     private void readBidiInfo(long pBidi) {
-        length = NativeBidi.ubidi_getLength(pBidi);
+        length = ubidi_getLength(pBidi);
 
-        offsetLevel = (length == 0) ? null : NativeBidi.ubidi_getLevels(pBidi);
+        offsetLevel = (length == 0) ? null : ubidi_getLevels(pBidi);
 
-        baseLevel = NativeBidi.ubidi_getParaLevel(pBidi);
+        baseLevel = ubidi_getParaLevel(pBidi);
 
-        int runCount = NativeBidi.ubidi_countRuns(pBidi);
+        int runCount = ubidi_countRuns(pBidi);
         if (runCount == 0) {
             unidirectional = true;
             runs = null;
         } else if (runCount < 0) {
             runs = null;
         } else {
-            runs = NativeBidi.ubidi_getRuns(pBidi);
+            runs = ubidi_getRuns(pBidi);
 
             // Simplified case for one run which has the base level
             if (runCount == 1 && runs[0].getLevel() == baseLevel) {
@@ -319,7 +342,7 @@ public final class Bidi {
             }
         }
 
-        direction = NativeBidi.ubidi_getDirection(pBidi);
+        direction = ubidi_getDirection(pBidi);
     }
 
     private int baseLevel;
@@ -328,7 +351,7 @@ public final class Bidi {
 
     private byte[] offsetLevel;
 
-    private BidiRun[] runs;
+    private Run[] runs;
 
     private int direction;
 
@@ -380,9 +403,9 @@ public final class Bidi {
             if (lineStart == lineLimit) {
                 return createEmptyLineBidi(parent);
             }
-            return new Bidi(NativeBidi.ubidi_setLine(parent, lineStart, lineLimit));
+            return new Bidi(ubidi_setLine(parent, lineStart, lineLimit));
         } finally {
-            NativeBidi.ubidi_close(parent);
+            ubidi_close(parent);
         }
     }
 
@@ -423,7 +446,7 @@ public final class Bidi {
      */
     public int getLevelAt(int offset) {
         try {
-            return offsetLevel[offset] & ~NativeBidi.UBIDI_LEVEL_OVERRIDE;
+            return offsetLevel[offset] & ~UBIDI_LEVEL_OVERRIDE;
         } catch (RuntimeException e) {
             return baseLevel;
         }
@@ -479,7 +502,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isLeftToRight() {
-        return direction == NativeBidi.UBiDiDirection_UBIDI_LTR;
+        return direction == UBiDiDirection_UBIDI_LTR;
     }
 
     /**
@@ -489,7 +512,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isMixed() {
-        return direction == NativeBidi.UBiDiDirection_UBIDI_MIXED;
+        return direction == UBiDiDirection_UBIDI_MIXED;
     }
 
     /**
@@ -500,7 +523,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isRightToLeft() {
-        return direction == NativeBidi.UBiDiDirection_UBIDI_RTL;
+        return direction == UBiDiDirection_UBIDI_RTL;
     }
 
     /**
@@ -538,7 +561,7 @@ public final class Bidi {
         byte[] realLevels = new byte[count];
         System.arraycopy(levels, levelStart, realLevels, 0, count);
 
-        int[] indices = NativeBidi.ubidi_reorderVisual(realLevels, count);
+        int[] indices = ubidi_reorderVisual(realLevels, count);
 
         ArrayList<Object> result = new ArrayList<Object>(count);
         for (int i = 0; i < count; i++) {
@@ -574,16 +597,29 @@ public final class Bidi {
         return !bidi.isLeftToRight();
     }
 
-    /**
-     * Returns the internal message of the {@code Bidi} object, used in
-     * debugging.
-     *
-     * @return a string containing the internal message.
-     */
     @Override
     public String toString() {
         return getClass().getName()
                 + "[direction: " + direction + " baseLevel: " + baseLevel
                 + " length: " + length + " runs: " + Arrays.toString(runs) + "]";
     }
+
+    // ICU4C constants.
+    private static final int UBIDI_LEVEL_OVERRIDE = 0x80;
+    private static final int UBiDiDirection_UBIDI_LTR = 0;
+    private static final int UBiDiDirection_UBIDI_RTL = 1;
+    private static final int UBiDiDirection_UBIDI_MIXED = 2;
+
+    // ICU4C functions.
+    private static native long ubidi_open();
+    private static native void ubidi_close(long pBiDi);
+    private static native void ubidi_setPara(long pBiDi, char[] text, int length, int paraLevel, byte[] embeddingLevels);
+    private static native long ubidi_setLine(final long pParaBiDi, int start, int limit);
+    private static native int ubidi_getDirection(final long pBiDi);
+    private static native int ubidi_getLength(final long pBiDi);
+    private static native byte ubidi_getParaLevel(final long pBiDi);
+    private static native byte[] ubidi_getLevels(long pBiDi);
+    private static native int ubidi_countRuns(long pBiDi);
+    private static native Bidi.Run[] ubidi_getRuns(long pBidi);
+    private static native int[] ubidi_reorderVisual(byte[] levels, int length);
 }
