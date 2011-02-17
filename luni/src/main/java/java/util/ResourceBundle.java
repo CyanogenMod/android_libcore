@@ -880,7 +880,7 @@ public abstract class ResourceBundle {
             final String bundleName = toBundleName(baseName, locale);
             final ClassLoader clsloader = loader;
             ResourceBundle ret;
-            if (JAVACLASS == format) {
+            if (format.equals(JAVACLASS)) {
                 Class<?> cls = null;
                 try {
                     cls = clsloader.loadClass(bundleName);
@@ -898,7 +898,7 @@ public abstract class ResourceBundle {
                     return null;
                 }
             }
-            if (JAVAPROPERTIES == format) {
+            if (format.equals(JAVAPROPERTIES)) {
                 InputStream streams = null;
                 final String resourceName = toResourceName(bundleName, "properties");
                 if (reload) {
@@ -972,10 +972,10 @@ public abstract class ResourceBundle {
             }
             String bundleName = toBundleName(baseName, locale);
             String suffix = format;
-            if (JAVACLASS == format) {
+            if (format.equals(JAVACLASS)) {
                 suffix = "class";
             }
-            if (JAVAPROPERTIES == format) {
+            if (format.equals(JAVAPROPERTIES)) {
                 suffix = "properties";
             }
             String urlname = toResourceName(bundleName, suffix);
