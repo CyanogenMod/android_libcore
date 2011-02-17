@@ -18,7 +18,7 @@
 package java.io;
 
 import java.util.Arrays;
-import org.apache.harmony.luni.util.SneakyThrow;
+import libcore.util.SneakyThrow;
 
 /**
  * Wraps an existing {@link Writer} and <em>buffers</em> the output. Expensive

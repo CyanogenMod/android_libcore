@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.util;
+package libcore.util;
 
 /**
  * Exploits a weakness in the runtime to throw an arbitrary throwable without
