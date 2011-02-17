@@ -25,7 +25,7 @@ import java.lang.reflect.TypeVariable;
 
 /**
  * Implements a parser for the generics signature attribute.
- * Uses a top-down, resursive descent parsing approach for the following grammar:
+ * Uses a top-down, recursive descent parsing approach for the following grammar:
  * <pre>
  * ClassSignature ::=
  *     OptFormalTypeParams SuperclassSignature {SuperinterfaceSignature}.
