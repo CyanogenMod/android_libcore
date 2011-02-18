@@ -626,6 +626,7 @@ public class BerInputStream {
                 values.add(type.decode(this));
             }
 
+            values.trimToSize();
             content = values;
 
             tagOffset = seqTagOffset; //retrieve tag offset
