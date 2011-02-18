@@ -51,6 +51,7 @@ import java.util.Properties;
 import java.util.PropertyPermission;
 import java.util.Set;
 import libcore.icu.ICU;
+import libcore.util.ZoneInfoDB;
 
 /**
  * Provides access to system-related information and resources including
@@ -327,16 +328,33 @@ public final class System {
         // Undocumented Android-only properties.
         p.put("android.icu.library.version", ICU.getIcuVersion());
         p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
+        // TODO: it would be nice to have this but currently it causes circularity.
+        // p.put("android.tzdata.version", ZoneInfoDB.getVersion());
+        parsePropertyAssignments(p, specialProperties());
 
         // Override built-in properties with settings from the command line.
-        for (String arg : runtime.properties()) {
-            int split = arg.indexOf('=');
-            String key = arg.substring(0, split);
-            String value = arg.substring(split + 1);
-            p.put(key, value);
-        }
+        parsePropertyAssignments(p, runtime.properties());
 
         systemProperties = p;
+    }
+
+    /**
+     * Returns an array of "key=value" strings containing information not otherwise
+     * easily available, such as the various uname(2) strings and library versions.
+     */
+    private static native String[] specialProperties();
+
+    /**
+     * Adds each element of 'assignments' to 'p', treating each element as an
+     * assignment in the form "key=value".
+     */
+    private static void parsePropertyAssignments(Properties p, String[] assignments) {
+        for (String assignment : assignments) {
+            int split = assignment.indexOf('=');
+            String key = assignment.substring(0, split);
+            String value = assignment.substring(split + 1);
+            p.put(key, value);
+        }
     }
 
     /**
