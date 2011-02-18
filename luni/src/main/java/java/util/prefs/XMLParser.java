@@ -314,9 +314,6 @@ class XMLParser {
             case '&':
                 sb.append("&amp;");
                 break;
-            case '\\':
-                sb.append("&apos;");
-                break;
             case '"':
                 sb.append("&quot;");
                 break;

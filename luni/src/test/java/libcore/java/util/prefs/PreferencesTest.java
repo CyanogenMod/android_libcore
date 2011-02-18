@@ -16,6 +16,7 @@
 
 package libcore.java.util.prefs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.prefs.Preferences;
@@ -42,5 +43,18 @@ public final class PreferencesTest extends TestCase {
         userPreferences.flush();
         assertTrue("Expected to exist " + userPrefs, userPrefs.exists());
         assertTrue("Expected file to be clobbered", oldLength != userPrefs.length());
+    }
+
+    public void testHtmlEncoding() throws Exception {
+        Preferences parent = Preferences.userNodeForPackage(this.getClass());
+        Preferences p = parent.node("testHtmlEncoding");
+        p.put("key", "a<>&'\"\\b");
+        p.flush();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        p.exportNode(baos);
+
+        String s = new String(baos.toByteArray(), "UTF-8");
+        assertTrue(s, s.contains("value=\"a&lt;&gt;&amp;'&quot;\\b\""));
     }
 }

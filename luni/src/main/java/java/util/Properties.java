@@ -663,7 +663,7 @@ public class Properties extends Hashtable<Object, Object> {
             for (int i = 0; i < entriesListLength; i++) {
                 Element entry = (Element) entries.item(i);
                 String key = entry.getAttribute("key");
-                String value = getTextContent(entry);
+                String value = entry.getTextContent();
 
                 /*
                  * key != null & value != null but key or(and) value can be
@@ -777,28 +777,12 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     private String substitutePredefinedEntries(String s) {
-
-        /*
-         * substitution for predefined character entities to use them safely in
-         * XML
-         */
-        return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(
-                ">", "&gt;").replaceAll("\u0027", "&apos;").replaceAll("\"",
-                "&quot;");
+        // substitution for predefined character entities to use them safely in XML.
+        s = s.replaceAll("&", "&amp;");
+        s = s.replaceAll("<", "&lt;");
+        s = s.replaceAll(">", "&gt;");
+        s = s.replaceAll("'", "&apos;");
+        s = s.replaceAll("\"", "&quot;");
+        return s;
     }
-
-    // BEGIN android-added: our SAX parser still doesn't do this for us.
-    private String getTextContent(Node node) {
-        String result = (node instanceof Text ? ((Text) node).getData() : "");
-
-        Node child = node.getFirstChild();
-        while (child != null) {
-            result = result + getTextContent(child);
-            child = child.getNextSibling();
-        }
-
-        return result;
-    }
-    // END android-added
-
 }
