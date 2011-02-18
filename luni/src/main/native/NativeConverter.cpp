@@ -24,11 +24,15 @@
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
+#include "toStringArray.h"
 #include "unicode/ucnv.h"
 #include "unicode/ucnv_cb.h"
 #include "unicode/uniset.h"
 #include "unicode/ustring.h"
 #include "unicode/utypes.h"
+
+#include <vector>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -271,10 +275,19 @@ static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
 static jobjectArray NativeConverter_getAvailableCharsetNames(JNIEnv* env, jclass) {
     int32_t num = ucnv_countAvailable();
     jobjectArray result = env->NewObjectArray(num, JniConstants::stringClass, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
     for (int i = 0; i < num; ++i) {
         const char* name = ucnv_getAvailableName(i);
         ScopedLocalRef<jstring> javaCanonicalName(env, getJavaCanonicalName(env, name));
+        if (javaCanonicalName.get() == NULL) {
+            return NULL;
+        }
         env->SetObjectArrayElement(result, i, javaCanonicalName.get());
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
     }
     return result;
 }
@@ -283,7 +296,7 @@ static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
     // Get an upper bound on the number of aliases...
     const char* myEncName = icuCanonicalName;
     UErrorCode error = U_ZERO_ERROR;
-    int32_t aliasCount = ucnv_countAliases(myEncName, &error);
+    size_t aliasCount = ucnv_countAliases(myEncName, &error);
     if (aliasCount == 0 && myEncName[0] == 'x' && myEncName[1] == '-') {
         myEncName = myEncName + 2;
         aliasCount = ucnv_countAliases(myEncName, &error);
@@ -293,26 +306,18 @@ static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
     }
 
     // Collect the aliases we want...
-    const char* aliasArray[aliasCount];
-    int actualAliasCount = 0;
-    for(int i = 0; i < aliasCount; ++i) {
-        const char* name = ucnv_getAlias(myEncName, (uint16_t) i, &error);
+    std::vector<std::string> aliases;
+    for (size_t i = 0; i < aliasCount; ++i) {
+        const char* name = ucnv_getAlias(myEncName, i, &error);
         if (!U_SUCCESS(error)) {
             return NULL;
         }
         // TODO: why do we ignore these ones?
         if (strchr(name, '+') == 0 && strchr(name, ',') == 0) {
-            aliasArray[actualAliasCount++]= name;
+            aliases.push_back(name);
         }
     }
-
-    // Convert our C++ char*[] into a Java String[]...
-    jobjectArray result = env->NewObjectArray(actualAliasCount, JniConstants::stringClass, NULL);
-    for (int i = 0; i < actualAliasCount; ++i) {
-        ScopedLocalRef<jstring> alias(env, env->NewStringUTF(aliasArray[i]));
-        env->SetObjectArrayElement(result, i, alias.get());
-    }
-    return result;
+    return toStringArray(env, aliases);
 }
 
 static const char* getICUCanonicalName(const char* name) {

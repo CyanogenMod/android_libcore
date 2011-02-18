@@ -20,8 +20,8 @@
 #include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-
 #include "openssl/opensslv.h"
+#include "toStringArray.h"
 #include "zlib.h"
 
 #include <string>
@@ -32,15 +32,6 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-
-static jobjectArray toStringArray(JNIEnv* env, const std::vector<std::string>& strings) {
-    jobjectArray result = env->NewObjectArray(strings.size(), JniConstants::stringClass, NULL);
-    for (size_t i = 0; i < strings.size(); ++i) {
-        ScopedLocalRef<jstring> s(env, env->NewStringUTF(strings[i].c_str()));
-        env->SetObjectArrayElement(result, i, s.get());
-    }
-    return result;
-}
 
 static jstring System_getEnvByName(JNIEnv* env, jclass, jstring javaName) {
     ScopedUtfChars name(env, javaName);

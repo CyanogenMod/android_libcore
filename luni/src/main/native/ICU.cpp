@@ -25,6 +25,7 @@
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
+#include "toStringArray.h"
 #include "unicode/calendar.h"
 #include "unicode/datefmt.h"
 #include "unicode/dcfmtsym.h"
@@ -43,11 +44,12 @@
 #include "unicode/ustring.h"
 #include "ureslocs.h"
 #include "valueOf.h"
-#include <string>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -207,19 +209,6 @@ static jstring ICU_getISO3LanguageNative(JNIEnv* env, jclass, jstring locale) {
     return env->NewStringUTF(loc.getISO3Language());
 }
 
-static jobjectArray toStringArray(JNIEnv* env, const char* const* strings) {
-    size_t count = 0;
-    while (strings[count] != NULL) {
-        ++count;
-    }
-    jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
-    for (size_t i = 0; i < count; ++i) {
-        ScopedLocalRef<jstring> s(env, env->NewStringUTF(strings[i]));
-        env->SetObjectArrayElement(result, i, s.get());
-    }
-    return result;
-}
-
 static jobjectArray ICU_getISOCountriesNative(JNIEnv* env, jclass) {
     return toStringArray(env, Locale::getISOCountries());
 }
@@ -228,39 +217,28 @@ static jobjectArray ICU_getISOLanguagesNative(JNIEnv* env, jclass) {
     return toStringArray(env, Locale::getISOLanguages());
 }
 
-template <typename Counter, typename Getter>
-static jobjectArray getAvailableLocales(JNIEnv* env, Counter* counter, Getter* getter) {
-    size_t count = (*counter)();
-    jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
-    for (size_t i = 0; i < count; ++i) {
-        ScopedLocalRef<jstring> s(env, env->NewStringUTF((*getter)(i)));
-        env->SetObjectArrayElement(result, i, s.get());
-    }
-    return result;
-}
-
 static jobjectArray ICU_getAvailableLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, uloc_countAvailable, uloc_getAvailable);
+    return toStringArray(env, uloc_countAvailable, uloc_getAvailable);
 }
 
 static jobjectArray ICU_getAvailableBreakIteratorLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, ubrk_countAvailable, ubrk_getAvailable);
+    return toStringArray(env, ubrk_countAvailable, ubrk_getAvailable);
 }
 
 static jobjectArray ICU_getAvailableCalendarLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, ucal_countAvailable, ucal_getAvailable);
+    return toStringArray(env, ucal_countAvailable, ucal_getAvailable);
 }
 
 static jobjectArray ICU_getAvailableCollatorLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, ucol_countAvailable, ucol_getAvailable);
+    return toStringArray(env, ucol_countAvailable, ucol_getAvailable);
 }
 
 static jobjectArray ICU_getAvailableDateFormatLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, udat_countAvailable, udat_getAvailable);
+    return toStringArray(env, udat_countAvailable, udat_getAvailable);
 }
 
 static jobjectArray ICU_getAvailableNumberFormatLocalesNative(JNIEnv* env, jclass) {
-    return getAvailableLocales(env, unum_countAvailable, unum_getAvailable);
+    return toStringArray(env, unum_countAvailable, unum_getAvailable);
 }
 
 static bool getDayIntVector(JNIEnv*, UResourceBundle* gregorian, int* values) {
@@ -282,54 +260,55 @@ static bool getDayIntVector(JNIEnv*, UResourceBundle* gregorian, int* values) {
     return true;
 }
 
+// This allows you to leave extra space at the beginning or end of the array to support the
+// month names and day names arrays.
+static jobjectArray toStringArray(JNIEnv* env, UResourceBundle* rb, size_t size, int capacity, size_t offset) {
+    if (capacity == -1) {
+        capacity = size;
+    }
+    jobjectArray result = env->NewObjectArray(capacity, JniConstants::stringClass, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
+    UErrorCode status = U_ZERO_ERROR;
+    for (size_t i = 0; i < size; ++i) {
+        int charCount;
+        const jchar* chars = ures_getStringByIndex(rb, i, &charCount, &status);
+        if (U_FAILURE(status)) {
+            return NULL;
+        }
+        ScopedLocalRef<jstring> s(env, env->NewString(chars, charCount));
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(result, offset + i, s.get());
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+    }
+    return result;
+}
+
 static jobjectArray getAmPmMarkers(JNIEnv* env, UResourceBundle* gregorian) {
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle gregorianElems(ures_getByKey(gregorian, "AmPmMarkers", NULL, &status));
+    ScopedResourceBundle amPmMarkers(ures_getByKey(gregorian, "AmPmMarkers", NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
-
-    int lengthAm, lengthPm;
-    const jchar* am = ures_getStringByIndex(gregorianElems.get(), 0, &lengthAm, &status);
-    const jchar* pm = ures_getStringByIndex(gregorianElems.get(), 1, &lengthPm, &status);
-
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    jobjectArray amPmMarkers = env->NewObjectArray(2, JniConstants::stringClass, NULL);
-    ScopedLocalRef<jstring> amU(env, env->NewString(am, lengthAm));
-    env->SetObjectArrayElement(amPmMarkers, 0, amU.get());
-    ScopedLocalRef<jstring> pmU(env, env->NewString(pm, lengthPm));
-    env->SetObjectArrayElement(amPmMarkers, 1, pmU.get());
-
-    return amPmMarkers;
+    return toStringArray(env, amPmMarkers.get(), ures_getSize(amPmMarkers.get()), -1, 0);
 }
 
 static jobjectArray getEras(JNIEnv* env, UResourceBundle* gregorian) {
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle gregorianElems(ures_getByKey(gregorian, "eras", NULL, &status));
+    ScopedResourceBundle eras(ures_getByKey(gregorian, "eras", NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
-
-    ScopedResourceBundle eraElems(ures_getByKey(gregorianElems.get(), "abbreviated", NULL, &status));
+    ScopedResourceBundle abbreviatedEras(ures_getByKey(eras.get(), "abbreviated", NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
-
-    int eraCount = ures_getSize(eraElems.get());
-    jobjectArray eras = env->NewObjectArray(eraCount, JniConstants::stringClass, NULL);
-    for (int i = 0; i < eraCount; ++i) {
-        int eraLength;
-        const jchar* era = ures_getStringByIndex(eraElems.get(), i, &eraLength, &status);
-        if (U_FAILURE(status)) {
-            return NULL;
-        }
-        ScopedLocalRef<jstring> eraU(env, env->NewString(era, eraLength));
-        env->SetObjectArrayElement(eras, i, eraU.get());
-    }
-    return eras;
+    return toStringArray(env, abbreviatedEras.get(), ures_getSize(abbreviatedEras.get()), -1, 0);
 }
 
 enum NameType { REGULAR, STAND_ALONE };
@@ -346,18 +325,9 @@ static jobjectArray getNames(JNIEnv* env, UResourceBundle* namesBundle, bool mon
 
     // The months array has a trailing empty string. The days array has a leading empty string.
     int count = ures_getSize(valuesBundle.get());
-    jobjectArray result = env->NewObjectArray(count + 1, JniConstants::stringClass, NULL);
+    int offset = months ? 0 : 1;
+    jobjectArray result = toStringArray(env, valuesBundle.get(), count, count + 1, offset);
     env->SetObjectArrayElement(result, months ? count : 0, env->NewStringUTF(""));
-    int arrayOffset = months ? 0 : 1;
-    for (int i = 0; i < count; ++i) {
-        int nameLength;
-        const jchar* name = ures_getStringByIndex(valuesBundle.get(), i, &nameLength, &status);
-        if (U_FAILURE(status)) {
-            return NULL;
-        }
-        ScopedLocalRef<jstring> nameString(env, env->NewString(name, nameLength));
-        env->SetObjectArrayElement(result, arrayOffset++, nameString.get());
-    }
     return result;
 }
 

@@ -27,8 +27,10 @@
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
 #include "readlink.h"
+#include "toStringArray.h"
 
 #include <string>
+#include <vector>
 
 #include <dirent.h>
 #include <errno.h>
@@ -263,66 +265,7 @@ private:
     void operator=(const ScopedReaddir&);
 };
 
-// DirEntry and DirEntries is a minimal equivalent of std::forward_list
-// for the filenames.
-struct DirEntry {
-    DirEntry(const char* filename) : name(strlen(filename)) {
-        strcpy(&name[0], filename);
-        next = NULL;
-    }
-    // On Linux, the ext family all limit the length of a directory entry to
-    // less than 256 characters.
-    LocalArray<256> name;
-    DirEntry* next;
-};
-
-class DirEntries {
-public:
-    DirEntries() : mSize(0), mHead(NULL) {
-    }
-
-    ~DirEntries() {
-        while (mHead) {
-            pop_front();
-        }
-    }
-
-    bool push_front(const char* name) {
-        DirEntry* oldHead = mHead;
-        mHead = new DirEntry(name);
-        if (mHead == NULL) {
-            return false;
-        }
-        mHead->next = oldHead;
-        ++mSize;
-        return true;
-    }
-
-    const char* front() const {
-        return &mHead->name[0];
-    }
-
-    void pop_front() {
-        DirEntry* popped = mHead;
-        if (popped != NULL) {
-            mHead = popped->next;
-            --mSize;
-            delete popped;
-        }
-    }
-
-    size_t size() const {
-        return mSize;
-    }
-
-private:
-    size_t mSize;
-    DirEntry* mHead;
-
-    // Disallow copy and assignment.
-    DirEntries(const DirEntries&);
-    void operator=(const DirEntries&);
-};
+typedef std::vector<std::string> DirEntries;
 
 // Reads the directory referred to by 'pathBytes', adding each directory entry
 // to 'entries'.
@@ -339,10 +282,8 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
     const char* filename;
     while ((filename = dir.next()) != NULL) {
         if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
-            if (!entries.push_front(filename)) {
-                jniThrowOutOfMemoryError(env, NULL);
-                return false;
-            }
+            // TODO: this hides allocation failures from us. Push directory iteration up into Java?
+            entries.push_back(filename);
         }
     }
     return true;
@@ -350,23 +291,12 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
 
 static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     // Read the directory entries into an intermediate form.
-    DirEntries files;
-    if (!readDirectory(env, javaPath, files)) {
+    DirEntries entries;
+    if (!readDirectory(env, javaPath, entries)) {
         return NULL;
     }
     // Translate the intermediate form into a Java String[].
-    jobjectArray result = env->NewObjectArray(files.size(), JniConstants::stringClass, NULL);
-    for (int i = 0; files.size() != 0; files.pop_front(), ++i) {
-        ScopedLocalRef<jstring> javaFilename(env, env->NewStringUTF(files.front()));
-        if (env->ExceptionCheck()) {
-            return NULL;
-        }
-        env->SetObjectArrayElement(result, i, javaFilename.get());
-        if (env->ExceptionCheck()) {
-            return NULL;
-        }
-    }
-    return result;
+    return toStringArray(env, entries);
 }
 
 static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {

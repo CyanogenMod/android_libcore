@@ -53,6 +53,7 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	readlink.cpp \
 	realpath.cpp \
+	toStringArray.cpp \
 	valueOf.cpp
 
 LOCAL_C_INCLUDES += \
