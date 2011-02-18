@@ -41,7 +41,6 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
 
     private final byte[] key;
     private final String algorithm;
-    private final String format = "RAW";
 
     /**
      * Creates a new <code>SecretKeySpec</code> for the specified key data and
@@ -127,7 +126,7 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      * @return the format name "RAW".
      */
     public String getFormat() {
-        return format;
+        return "RAW";
     }
 
     /**

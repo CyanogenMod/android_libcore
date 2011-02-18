@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import java.security.SecureClassLoader;
@@ -72,10 +73,9 @@ public class URLClassLoader extends SecureClassLoader {
             try {
                 // Add mappings from resource to jar file
                 String parentURLString = getParentURL(url).toExternalForm();
-                String prefix = "jar:"
-                        + parentURLString + "/";
+                String prefix = "jar:" + parentURLString + "/";
                 is = jf.getInputStream(indexEntry);
-                in = new BufferedReader(new InputStreamReader(is, "UTF8"));
+                in = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
                 HashMap<String, ArrayList<URL>> pre_map = new HashMap<String, ArrayList<URL>>();
                 // Ignore the 2 first lines (index version)
                 if (in.readLine() == null) return null;

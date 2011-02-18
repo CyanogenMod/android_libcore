@@ -256,14 +256,18 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * @return string representation of this annotation
      */
     public String toString() {
-        String res = "@" + klazz.getName() + "(";
-        for(int i = 0; i < elements.length; i++) {
-            if ( i != 0 ) {
-                res += ", ";
+        StringBuilder result = new StringBuilder();
+        result.append('@');
+        result.append(klazz.getName());
+        result.append('(');
+        for(int i = 0; i < elements.length; ++i) {
+            if (i != 0) {
+                result.append(", ");
             }
-            res += elements[i].toString();;
+            result.append(elements[i]);
         }
-        return res + ")";
+        result.append(')');
+        return result.toString();
     }
 
     /**

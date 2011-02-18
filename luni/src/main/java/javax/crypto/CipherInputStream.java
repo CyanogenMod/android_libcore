@@ -35,8 +35,9 @@ import libcore.io.Streams;
  */
 public class CipherInputStream extends FilterInputStream {
 
+    private static final int I_BUFFER_SIZE = 20;
+
     private final Cipher cipher;
-    private final int I_BUFFER_SIZE = 20;
     private final byte[] i_buffer = new byte[I_BUFFER_SIZE];
     private int index; // index of the bytes to return from o_buffer
     private byte[] o_buffer;

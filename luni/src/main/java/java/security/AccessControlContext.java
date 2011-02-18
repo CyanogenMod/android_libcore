@@ -50,9 +50,6 @@ public final class AccessControlContext {
 
     DomainCombiner combiner;
 
-    // An AccessControlContext inherited by the current thread from its parent
-    private AccessControlContext inherited;
-
     /**
      * Constructs a new instance of {@code AccessControlContext} with the
      * specified {@code AccessControlContext} and {@code DomainCombiner}.
@@ -140,9 +137,6 @@ public final class AccessControlContext {
             if (!context[i].implies(perm)) {
                 throw new AccessControlException("Permission check failed " + perm, perm);
             }
-        }
-        if (inherited != null) {
-            inherited.checkPermission(perm);
         }
     }
 

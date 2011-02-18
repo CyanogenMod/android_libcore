@@ -104,7 +104,7 @@ public final class ZoneInfo extends TimeZone {
         long currentUnixTime = System.currentTimeMillis() / 1000;
         if (mTransitions.length > 0) {
             // (We're really dealing with uint32_t values, so long is most convenient in Java.)
-            long latestScheduleTime = mTransitions[mTransitions.length - 1] & 0xffffffff;
+            long latestScheduleTime = ((long) mTransitions[mTransitions.length - 1]) & 0xffffffff;
             if (currentUnixTime < latestScheduleTime) {
                 usesDst = true;
             }

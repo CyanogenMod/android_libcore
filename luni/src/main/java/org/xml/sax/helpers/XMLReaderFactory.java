@@ -10,6 +10,7 @@ package org.xml.sax.helpers;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charsets;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
@@ -125,7 +126,7 @@ final public class XMLReaderFactory
             in = loader.getResourceAsStream (service);
 
         if (in != null) {
-            reader = new BufferedReader (new InputStreamReader (in, "UTF8"));
+            reader = new BufferedReader (new InputStreamReader (in, Charsets.UTF_8));
             className = reader.readLine ();
             in.close ();
         }

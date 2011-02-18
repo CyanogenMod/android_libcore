@@ -64,7 +64,7 @@ public class ModifiedUtf8 {
     }
 
     /**
-     * Returns the number of bytes the modified UTF8 representation of 's' would take. Note
+     * Returns the number of bytes the modified UTF-8 representation of 's' would take. Note
      * that this is just the space for the bytes representing the characters, not the length
      * which precedes those bytes, because different callers represent the length differently,
      * as two, four, or even eight bytes. If {@code shortLength} is true, we'll throw an

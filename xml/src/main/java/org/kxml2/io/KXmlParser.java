@@ -38,11 +38,11 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class KXmlParser implements XmlPullParser, Closeable {
 
-    private final String PROPERTY_XMLDECL_VERSION
+    private static final String PROPERTY_XMLDECL_VERSION
             = "http://xmlpull.org/v1/doc/properties.html#xmldecl-version";
-    private final String PROPERTY_XMLDECL_STANDALONE
+    private static final String PROPERTY_XMLDECL_STANDALONE
             = "http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone";
-    private final String PROPERTY_LOCATION = "http://xmlpull.org/v1/doc/properties.html#location";
+    private static final String PROPERTY_LOCATION = "http://xmlpull.org/v1/doc/properties.html#location";
     private static final String FEATURE_RELAXED = "http://xmlpull.org/v1/doc/features.html#relaxed";
 
     private static final Map<String, String> DEFAULT_ENTITIES = new HashMap<String, String>();
