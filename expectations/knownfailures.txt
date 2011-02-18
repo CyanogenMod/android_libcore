@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "CipherTest.test_doFinal() is flaky",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#test_doFinal",
+  bug: 3469872
+},
+{
   name: "libcore.java.lang.StringTest#testCaseMapping_en_US",
   bug: 3387655
 },
@@ -197,7 +202,7 @@
   description: "Double.parseDouble().toString does wrong rounding",
   names: [
     "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
-    "libcore.java.lang.DoubleTest.testParseLargestSubnormalDoublePrecision"
+    "libcore.java.lang.DoubleTest#testParseLargestSubnormalDoublePrecision"
   ],
   bug: 1607938
 },
