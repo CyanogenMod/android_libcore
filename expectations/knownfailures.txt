@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "KeyAgreementFunctionalTest times out even with an absurdly long timeout",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest#test_KeyAgreement",
+  bug: 3473300
+},
+{
   description: "CipherTest.test_doFinal() is flaky",
   name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#test_doFinal",
   bug: 3469872
