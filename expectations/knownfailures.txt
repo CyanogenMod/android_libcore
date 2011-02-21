@@ -8,8 +8,14 @@
   bug: 3474648
 },
 {
-  description: "DHPrivateKeyTest#test_getParams times out",
-  name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
+  description: "java.math.NativeBN.BN_generate_prime_ex takes far too long, causes tests to time out",
+  names: [
+    "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePublicLjava_security_spec_KeySpec",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_getKeySpecLjava_security_KeyLjava_lang_Class",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_translateKeyLjava_security_Key"
+  ],
   bug: 3474446
 },
 {
