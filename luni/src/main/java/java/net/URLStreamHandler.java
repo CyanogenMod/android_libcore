@@ -531,7 +531,7 @@ public abstract class URLStreamHandler {
      */
     private static String getHost(URL url) {
         String host = url.getHost();
-        if ("file".equals(url.getProtocol()) && host.isEmpty()) {
+        if ("file".equals(url.getProtocol()) && host != null && host.isEmpty()) {
             host = "localhost";
         }
         return host;
