@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "Test fails, Intermediate certificate lacks BasicConstraints",
+  name: "com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpiTest#testTrustAndRemoteCertificatesWithDifferentEncodings",
+  bug: 3474648
+},
+{
   description: "DHPrivateKeyTest#test_getParams times out",
   name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
   bug: 3474446
