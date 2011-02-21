@@ -210,37 +210,6 @@ public class PKIXBuilderParametersTest extends TestCase {
     }
 
     /**
-     * Test #6 for <code>PKIXBuilderParameters(Set, CertSelector)</code>
-     * constructor<br>
-     * Assertion: <code>ClassCastException</code> -
-     * if any of the elements in the <code>Set</code> are not of type
-     * <code>java.security.cert.TrustAnchor</code>
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies ClassCastException.",
-        method = "PKIXBuilderParameters",
-        args = {java.util.Set.class, java.security.cert.CertSelector.class}
-    )
-    @SuppressWarnings("unchecked")
-    public final void testPKIXBuilderParametersSetCertSelector06()
-            throws Exception {
-        Set taSet = TestUtils.getTrustAnchorSet();
-        if (taSet == null) {
-            fail(getName() + ": not performed (could not create test TrustAnchor set)");
-        }
-
-        // add wrong object to valid set
-        assertTrue(taSet.add(new Object()));
-
-        try {
-            new PKIXBuilderParameters(taSet, null);
-            fail("ClassCastException expected");
-        } catch (ClassCastException e) {
-        }
-    }
-
-    /**
      * Test #1 for <code>PKIXBuilderParameters(KeyStore, CertSelector)</code>
      * constructor<br>
      * Assertion: <code>NullPointerException</code> - if the
