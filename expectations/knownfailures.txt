@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "DHPrivateKeyTest#test_getParams times out",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
+  bug: 3474446
+},
+{
   description: "KeyAgreementFunctionalTest times out even with an absurdly long timeout",
   name: "org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest#test_KeyAgreement",
   bug: 3473300
