@@ -557,53 +557,49 @@ int register_libcore_icu_ICU(JNIEnv* env) {
     path += "/";
     path += U_ICUDATA_NAME;
     path += ".dat";
-    LOGI("Assuming ICU data is '%s'", path.c_str());
+
+    #define FAIL_WITH_STRERROR(s) \
+        LOGE("Couldn't " s " '%s': %s", path.c_str(), strerror(errno)); \
+        return -1;
+    #define MAYBE_FAIL_WITH_ICU_ERROR(s) \
+        if (status != U_ZERO_ERROR) {\
+            LOGE("Couldn't initialize ICU (" s "): %s (%s)", u_errorName(status), path.c_str()); \
+            return -1; \
+        }
 
     // Open the file and get its length.
     ScopedFd fd(open(path.c_str(), O_RDONLY));
     if (fd.get() == -1) {
-        LOGE("Couldn't open '%s': %s", path.c_str(), strerror(errno));
-        return -1;
+        FAIL_WITH_STRERROR("open");
     }
     struct stat sb;
     if (fstat(fd.get(), &sb) == -1) {
-        LOGE("Couldn't stat '%s': %s", path.c_str(), strerror(errno));
-        return -1;
+        FAIL_WITH_STRERROR("stat");
     }
 
     // Map it.
     void* data = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd.get(), 0);
     if (data == MAP_FAILED) {
-        LOGE("Couldn't map ICU data '%s': %s", path.c_str(), strerror(errno));
-        return -1;
+        FAIL_WITH_STRERROR("mmap");
     }
 
     // Tell the kernel that accesses are likely to be random rather than sequential.
     if (madvise(data, sb.st_size, MADV_RANDOM) == -1) {
-        LOGW("madvise(MADV_RANDOM) on the ICU data failed: %s", strerror(errno));
+        FAIL_WITH_STRERROR("madvise(MADV_RANDOM)");
     }
 
     // Tell ICU to use our memory-mapped data.
     UErrorCode status = U_ZERO_ERROR;
     udata_setCommonData(data, &status);
-    if (status != U_ZERO_ERROR) {
-        LOGE("Couldn't initialize ICU (udata_setCommonData): %s", u_errorName(status));
-        return -1;
-    }
+    MAYBE_FAIL_WITH_ICU_ERROR("udata_setCommonData");
     // Tell ICU it can *only* use our memory-mapped data.
     udata_setFileAccess(UDATA_NO_FILES, &status);
-    if (status != U_ZERO_ERROR) {
-        LOGE("Couldn't initialize ICU (udata_setFileAccess): %s", u_errorName(status));
-        return -1;
-    }
+    MAYBE_FAIL_WITH_ICU_ERROR("udata_setFileAccess");
 
     // Failures to find the ICU data tend to be somewhat obscure because ICU loads its data on first
     // use, which can be anywhere. Force initialization up front so we can report a nice clear error
     // and bail.
     u_init(&status);
-    if (status != U_ZERO_ERROR) {
-        LOGE("Couldn't initialize ICU (u_init): %s", u_errorName(status));
-        return -1;
-    }
+    MAYBE_FAIL_WITH_ICU_ERROR("u_init");
     return jniRegisterNativeMethods(env, "libcore/icu/ICU", gMethods, NELEM(gMethods));
 }
