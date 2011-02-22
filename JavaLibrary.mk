@@ -93,6 +93,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-junit
 include $(BUILD_JAVA_LIBRARY)
@@ -104,6 +105,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core core-junit
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-junitrunner
 include $(BUILD_JAVA_LIBRARY)
@@ -114,6 +116,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := sqlite-jdbc
 include $(BUILD_JAVA_LIBRARY)
@@ -133,6 +136,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-dalvik
 include $(BUILD_JAVA_LIBRARY)
@@ -143,6 +147,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-dom
 include $(BUILD_JAVA_LIBRARY)
@@ -153,6 +158,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-json
 include $(BUILD_JAVA_LIBRARY)
@@ -177,6 +183,7 @@ LOCAL_JAVA_LIBRARIES := \
         core-tests-xml \
         sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
 
@@ -191,6 +198,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit core-junitrunner
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-support
 include $(BUILD_JAVA_LIBRARY)
@@ -201,6 +209,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-xml
 include $(BUILD_JAVA_LIBRARY)
@@ -212,6 +221,7 @@ LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit core-junitrunner
 LOCAL_DX_FLAGS := --core-library
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-supportlib
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -308,6 +318,7 @@ include $(LOCAL_PATH)/Docs.mk
 LOCAL_SRC_FILES:=$(call find-other-java-files, $(libcore_to_document))
 # rerun doc generation without recompiling the java
 LOCAL_JAVA_LIBRARIES:=
+LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 
 LOCAL_MODULE := libcore
