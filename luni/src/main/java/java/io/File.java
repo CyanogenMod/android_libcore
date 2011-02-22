@@ -334,9 +334,19 @@ public class File implements Serializable, Comparable<File> {
     private static native boolean deleteImpl(String path);
 
     /**
-     * Schedules this file to be automatically deleted once the virtual machine
-     * terminates. This will only happen when the virtual machine terminates
-     * normally as described by the Java Language Specification section 12.9.
+     * Schedules this file to be automatically deleted when the VM terminates normally.
+     *
+     * <p><i>Note that on Android, the application lifecycle does not include VM termination,
+     * so calling this method will not ensure that files are deleted</i>. Instead, you should
+     * use the most appropriate out of:
+     * <ul>
+     * <li>Use a {@code finally} clause to manually invoke {@link #delete}.
+     * <li>Maintain your own set of files to delete, and process it at an appropriate point
+     * in your application's lifecycle.
+     * <li>Use the Unix trick of deleting the file as soon as all readers and writers have
+     * opened it. No new readers/writers will be able to access the file, but all existing
+     * ones will still have access until the last one closes the file.
+     * </ul>
      */
     public void deleteOnExit() {
         DeleteOnExit.getInstance().addFile(getAbsoluteName());
@@ -965,7 +975,8 @@ public class File implements Serializable, Comparable<File> {
      * Creates an empty temporary file in the given directory using the given
      * prefix and suffix as part of the file name. If {@code suffix} is null, {@code .tmp} is used.
      *
-     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}.
+     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}, but see the
+     * documentation for that method before you call it manually.
      *
      * @param prefix
      *            the prefix to the temp file name.

@@ -515,28 +515,26 @@ public class Runtime {
     }
 
     /**
-     * Registers a virtual-machine shutdown hook. A shutdown hook is a
+     * Registers a VM shutdown hook. A shutdown hook is a
      * {@code Thread} that is ready to run, but has not yet been started. All
-     * registered shutdown hooks will be executed once the virtual machine shuts
-     * down properly. A proper shutdown happens when either the
-     * {@link #exit(int)} method is called or the surrounding system decides to
-     * terminate the application, for example in response to a {@code CTRL-C} or
-     * a system-wide shutdown. A termination of the virtual machine due to the
-     * {@link #halt(int)} method, an {@link Error} or a {@code SIGKILL}, in
-     * contrast, is not considered a proper shutdown. In these cases the
-     * shutdown hooks will not be run.
-     * <p>
-     * Shutdown hooks are run concurrently and in an unspecified order. Hooks
+     * registered shutdown hooks will be executed when the virtual machine
+     * terminates normally (typically when the {@link #exit(int)} method is called).
+     *
+     * <p><i>Note that on Android, the application lifecycle does not include VM termination,
+     * so calling this method will not ensure that your code is run</i>. Instead, you should
+     * use the most appropriate lifecycle notification ({@code Activity.onPause}, say).
+     *
+     * <p>Shutdown hooks are run concurrently and in an unspecified order. Hooks
      * failing due to an unhandled exception are not a problem, but the stack
      * trace might be printed to the console. Once initiated, the whole shutdown
      * process can only be terminated by calling {@code halt()}.
-     * <p>
-     * If {@link #runFinalizersOnExit(boolean)} has been called with a {@code
+     *
+     * <p>If {@link #runFinalizersOnExit(boolean)} has been called with a {@code
      * true} argument, garbage collection and finalization will take place after
      * all hooks are either finished or have failed. Then the virtual machine
      * terminates.
-     * <p>
-     * It is recommended that shutdown hooks do not do any time-consuming
+     *
+     * <p>It is recommended that shutdown hooks do not do any time-consuming
      * activities, in order to not hold up the shutdown process longer than
      * necessary.
      *
