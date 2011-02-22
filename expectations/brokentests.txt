@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "Without no security manager, we don't care if checkPermission's argument is null",
+  name: "org.apache.harmony.security.tests.java.security.AccessController2Test#test_checkPermission_NullParameter",
+  result: EXEC_FAILED
+},
+{
   description: "This test and testGetKeepAlive have been failing in our continuous build recently.",
   names: [
     "libcore.java.net.URLConnectionTest#testConnectTimeouts",
