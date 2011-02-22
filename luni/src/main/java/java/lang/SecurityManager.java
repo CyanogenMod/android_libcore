@@ -265,7 +265,6 @@ public class SecurityManager {
      */
     @Deprecated
     protected ClassLoader currentClassLoader() {
-
         /*
          * First, check if AllPermission is allowed. If so, then we are
          * effectively running in an unsafe environment, so just answer null
@@ -282,13 +281,7 @@ public class SecurityManager {
          * to the first privileged method (or the end of the stack.
          */
         Class<?>[] classes = VMStack.getClasses(-1, true);
-        for (int i = 0; i < classes.length; i++) {
-            ClassLoader cl = classes[i].getClassLoaderImpl();
-            if (!cl.isSystemClassLoader()) {
-                return cl;
-            }
-        }
-        return null;
+        return classes.length > 0 ? classes[0].getClassLoaderImpl() : null;
     }
 
     /**
@@ -317,13 +310,7 @@ public class SecurityManager {
          * to the first privileged method (or the end of the stack.
          */
         Class<?>[] classes = VMStack.getClasses(-1, true);
-        for (int i = 0; i < classes.length; i++) {
-            ClassLoader cl = classes[i].getClassLoaderImpl();
-            if (!cl.isSystemClassLoader()) {
-                return i;
-            }
-        }
-        return -1;
+        return classes.length > 0 ? 0 : -1;
     }
 
     /**

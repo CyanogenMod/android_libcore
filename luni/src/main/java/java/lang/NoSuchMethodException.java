@@ -18,7 +18,7 @@
 package java.lang;
 
 /**
- * Thrown when the virtual machine notices that a program tries to reference,
+ * Thrown when the VM notices that a program tries to reference,
  * on a class or object, a method that does not exist.
  */
 public class NoSuchMethodException extends Exception {

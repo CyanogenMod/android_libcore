@@ -166,7 +166,7 @@ public final class System {
     public static native long nanoTime();
 
     /**
-     * Causes the virtual machine to stop running and the program to exit. If
+     * Causes the VM to stop running and the program to exit. If
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
@@ -179,7 +179,7 @@ public final class System {
     }
 
     /**
-     * Indicates to the virtual machine that it would be a good time to run the
+     * Indicates to the VM that it would be a good time to run the
      * garbage collector. Note that this is a hint only. There is no guarantee
      * that the garbage collector will actually be run.
      */
@@ -361,7 +361,7 @@ public final class System {
      * Returns the value of a particular system property or {@code null} if no
      * such property exists.
      *
-     * <p>The following properties are always provided by the virtual machine:
+     * <p>The following properties are always provided by the Dalvik VM:
      * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
      * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
      *     <td><b>Name</b></td>        <td><b>Meaning</b></td>                    <td><b>Example</b></td></tr>
@@ -573,7 +573,7 @@ public final class System {
     private static native void log(char type, String message, Throwable th);
 
     /**
-     * Provides a hint to the virtual machine that it would be useful to attempt
+     * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
      */
     public static void runFinalization() {
@@ -581,7 +581,7 @@ public final class System {
     }
 
     /**
-     * Ensures that, when the virtual machine is about to exit, all objects are
+     * Ensures that, when the VM is about to exit, all objects are
      * finalized. Note that all finalization which occurs when the system is
      * exiting is performed after all running threads have been terminated.
      *

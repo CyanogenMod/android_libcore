@@ -322,8 +322,8 @@ public interface PreparedStatement extends Statement {
      * java.sql.Date} value, using a supplied {@code Calendar} to map the Date.
      * The {@code Calendar} allows the application to control the timezone used
      * to compute the SQL {@code DATE} in the database - without the supplied
-     * {@code Calendar}, the driver uses the default timezone of the Java
-     * virtual machine.
+     * {@code Calendar}, the driver uses the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
@@ -592,7 +592,8 @@ public interface PreparedStatement extends Statement {
      * <p>
      * The driver uses the supplied {@code Calendar} to create the SQL {@code
      * TIME} value, which allows it to use a custom timezone - otherwise the
-     * driver uses the default timezone of the Java virtual machine.
+     * driver uses the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
@@ -633,7 +634,8 @@ public interface PreparedStatement extends Statement {
      * <p>
      * The driver uses the supplied {@code Calendar} to create the SQL {@code
      * TIMESTAMP} value, which allows it to use a custom timezone - otherwise
-     * the driver uses the default timezone of the Java virtual machine.
+     * the driver uses the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has

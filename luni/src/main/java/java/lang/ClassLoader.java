@@ -339,7 +339,7 @@ public abstract class ClassLoader {
 
     /**
      * Returns the class with the specified name if it has already been loaded
-     * by the virtual machine or {@code null} if it has not yet been loaded.
+     * by the VM or {@code null} if it has not yet been loaded.
      *
      * @param className
      *            the name of the class to look for.
@@ -519,28 +519,6 @@ public abstract class ClassLoader {
      */
     protected final void resolveClass(Class<?> clazz) {
         // no-op, doesn't make sense on android.
-    }
-
-    /**
-     * Indicates whether this class loader is the system class loader. This
-     * method must be provided by the virtual machine vendor, as it is used by
-     * other provided class implementations in this package. A sample
-     * implementation of this method is provided by the reference
-     * implementation. This method is used by
-     * SecurityManager.classLoaderDepth(), currentClassLoader() and
-     * currentLoadedClass(). Returns true if the receiver is a system class
-     * loader.
-     * <p>
-     * Note that this method has package visibility only. It is defined here to
-     * avoid the security manager check in getSystemClassLoader, which would be
-     * required to implement this method anywhere else.
-     * </p>
-     *
-     * @return {@code true} if the receiver is a system class loader
-     * @see Class#getClassLoaderImpl()
-     */
-    final boolean isSystemClassLoader() {
-        return false;
     }
 
     /**

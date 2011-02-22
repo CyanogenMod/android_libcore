@@ -247,7 +247,7 @@ public class Runtime {
     }
 
     /**
-     * Causes the virtual machine to stop running and the program to exit. If
+     * Causes the VM to stop running and the program to exit. If
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
@@ -303,7 +303,7 @@ public class Runtime {
     public native long freeMemory();
 
     /**
-     * Indicates to the virtual machine that it would be a good time to run the
+     * Indicates to the VM that it would be a good time to run the
      * garbage collector. Note that this is a hint only. There is no guarantee
      * that the garbage collector will actually be run.
      */
@@ -412,7 +412,7 @@ public class Runtime {
     private native void runFinalization(boolean forced);
 
     /**
-     * Provides a hint to the virtual machine that it would be useful to attempt
+     * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
      *
      */
@@ -422,7 +422,7 @@ public class Runtime {
 
     /**
      * Sets the flag that indicates whether all objects are finalized when the
-     * virtual machine is about to exit. Note that all finalization which occurs
+     * VM is about to exit. Note that all finalization which occurs
      * when the system is exiting is performed after all running threads have
      * been terminated.
      *
@@ -517,7 +517,7 @@ public class Runtime {
     /**
      * Registers a VM shutdown hook. A shutdown hook is a
      * {@code Thread} that is ready to run, but has not yet been started. All
-     * registered shutdown hooks will be executed when the virtual machine
+     * registered shutdown hooks will be executed when the VM
      * terminates normally (typically when the {@link #exit(int)} method is called).
      *
      * <p><i>Note that on Android, the application lifecycle does not include VM termination,
@@ -531,7 +531,7 @@ public class Runtime {
      *
      * <p>If {@link #runFinalizersOnExit(boolean)} has been called with a {@code
      * true} argument, garbage collection and finalization will take place after
-     * all hooks are either finished or have failed. Then the virtual machine
+     * all hooks are either finished or have failed. Then the VM
      * terminates.
      *
      * <p>It is recommended that shutdown hooks do not do any time-consuming
@@ -544,7 +544,7 @@ public class Runtime {
      *             if the hook has already been started or if it has already
      *             been registered.
      * @throws IllegalStateException
-     *             if the virtual machine is already shutting down.
+     *             if the VM is already shutting down.
      */
     public void addShutdownHook(Thread hook) {
         // Sanity checks
@@ -570,14 +570,14 @@ public class Runtime {
     }
 
     /**
-     * Unregisters a previously registered virtual machine shutdown hook.
+     * Unregisters a previously registered VM shutdown hook.
      *
      * @param hook
      *            the shutdown hook to remove.
      * @return {@code true} if the hook has been removed successfully; {@code
      *         false} otherwise.
      * @throws IllegalStateException
-     *             if the virtual machine is already shutting down.
+     *             if the VM is already shutting down.
      */
     public boolean removeShutdownHook(Thread hook) {
         // Sanity checks
@@ -595,7 +595,7 @@ public class Runtime {
     }
 
     /**
-     * Causes the virtual machine to stop running, and the program to exit.
+     * Causes the VM to stop running, and the program to exit.
      * Neither shutdown hooks nor finalizers are run before.
      *
      * @param code
@@ -612,7 +612,7 @@ public class Runtime {
 
 
     /**
-     * Returns the number of processors available to the virtual machine.
+     * Returns the number of processors available to the VM.
      *
      * @return the number of available processors, at least 1.
      */
@@ -622,9 +622,8 @@ public class Runtime {
      * Returns the maximum amount of memory that may be used by the virtual
      * machine, or {@code Long.MAX_VALUE} if there is no such limit.
      *
-     * @return the maximum amount of memory that the virtual machine will try to
+     * @return the maximum amount of memory that the VM will try to
      *         allocate, measured in bytes.
      */
     public native long maxMemory();
-
 }

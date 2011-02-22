@@ -130,8 +130,9 @@ public abstract class SelectorProvider {
     public abstract SocketChannel openSocketChannel() throws IOException;
 
     /**
-     * Returns the channel inherited from the instance that created this
-     * virtual machine.
+     * Returns the channel inherited from the process that created this VM.
+     * On Android, this method always returns null because stdin and stdout are
+     * never connected to a socket.
      *
      * @return the channel.
      * @throws IOException

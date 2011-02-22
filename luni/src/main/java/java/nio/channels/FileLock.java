@@ -41,11 +41,11 @@ import java.io.IOException;
  * Once a lock is acquired, it is immutable in all its state except {@code
  * isValid()}. The lock will initially be valid, but may be rendered invalid by
  * explicit removal of the lock, using {@code release()}, or implicitly by
- * closing the channel or exiting the process (terminating the virtual machine).
+ * closing the channel or exiting the process (terminating the VM).
  * <h3>Platform dependencies</h3>
  * <p>
  * Locks are intended to be true platform operating system file locks, and
- * therefore locks held by the virtual machine process will be visible to other
+ * therefore locks held by the VM will be visible to other
  * operating system processes.
  * <p>
  * The characteristics of the underlying operating system locks will show

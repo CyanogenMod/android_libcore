@@ -20,7 +20,7 @@ package java.lang;
 
 /**
  * {@code VirtualMachineError} is the superclass of all error classes that occur
- * during the operation of the virtual machine.
+ * during the operation of the VM.
  *
  * @see Error
  */

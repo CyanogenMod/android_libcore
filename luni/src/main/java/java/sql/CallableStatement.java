@@ -289,10 +289,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DATE} parameter as a {@code
      * java.sql.Date}, using the specified {@code Calendar} to construct the date.
-     * <p>
-     * The JDBC driver uses the calendar to create the Date using a particular
-     * timezone and locale. The default behavior of the driver is to use the Java
-     * virtual machine default settings.
+     *
+     * <p>The JDBC driver uses the calendar to create the Date using a particular
+     * timezone and locale. The default behavior of the driver is to use the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
@@ -324,10 +324,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DATE} parameter as a {@code
      * java.sql.Date}, using the specified {@code Calendar} to construct the date.
-     * <p>
-     * The JDBC driver uses the calendar to create the date using a particular
-     * timezone and locale. The default behavior of the driver is to use the Java
-     * virtual machine default settings.
+     *
+     * <p>The JDBC driver uses the calendar to create the date using a particular
+     * timezone and locale. The default behavior of the driver is to use the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterName
      *            the name of the desired parameter.
@@ -1301,11 +1301,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of the parameter named {@code parameterName} to the value
      * of the supplied {@code java.sql.Time} using the supplied calendar.
-     * <p>
-     * The driver uses the supplied {@code Calendar} to create the SQL
+     *
+     * <p>The driver uses the supplied {@code Calendar} to create the SQL
      * {@code TIME} value, which allows it to use a custom timezone -
-     * otherwise the driver uses the default timezone of the Java
-     * virtual machine.
+     * otherwise the driver uses the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterName
      *            the parameter name.
@@ -1338,10 +1338,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code
      * java.sql.Timestamp} value, using the supplied calendar.
-     * <p>
-     * The driver uses the supplied calendar to create the SQL {@code TIMESTAMP}
+     *
+     * <p>The driver uses the supplied calendar to create the SQL {@code TIMESTAMP}
      * value, which allows it to use a custom timezone - otherwise the driver
-     * uses the default timezone of the Java virtual machine.
+     * uses the VM defaults.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param parameterName
      *            the parameter name.

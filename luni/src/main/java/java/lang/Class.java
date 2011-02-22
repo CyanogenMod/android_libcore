@@ -389,7 +389,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * bootstrap ClassLoader.
      *
      * @return the ClassLoader
-     * @see ClassLoader#isSystemClassLoader()
      */
     ClassLoader getClassLoaderImpl() {
         ClassLoader loader = getClassLoader(this);

@@ -18,7 +18,7 @@
 package java.lang;
 
 /**
- * Thrown when the virtual machine is unable to locate a class which it has been
+ * Thrown when the VM is unable to locate a class which it has been
  * asked to load.
  */
 public class NoClassDefFoundError extends LinkageError {

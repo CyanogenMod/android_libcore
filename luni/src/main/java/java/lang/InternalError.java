@@ -18,8 +18,7 @@
 package java.lang;
 
 /**
- * Thrown when the virtual machine notices that it has gotten into an undefined
- * state.
+ * Thrown when the VM notices that it has gotten into an undefined state.
  */
 public class InternalError extends VirtualMachineError {
 

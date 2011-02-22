@@ -126,7 +126,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     /**
      * Constructs a new {@code PrintStream} with {@code file} as its target. The
-     * virtual machine's default character set is used for character encoding.
+     * VM's default character set is used for character encoding.
      *
      * @param file
      *            the target file. If the file already exists, its contents are
@@ -168,7 +168,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     /**
      * Constructs a new {@code PrintStream} with the file identified by
-     * {@code fileName} as its target. The virtual machine's default character
+     * {@code fileName} as its target. The VM's default character
      * set is used for character encoding.
      *
      * @param fileName
@@ -315,8 +315,10 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     /**
      * Prints a formatted string. The behavior of this method is the same as
-     * this stream's {@code #format(String, Object...)} method. For the locale,
-     * the default value of the current virtual machine instance is used.
+     * this stream's {@code #format(String, Object...)} method.
+     *
+     * <p>The {@code Locale} used is the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param format the format string (see {@link java.util.Formatter#format})
      * @param args

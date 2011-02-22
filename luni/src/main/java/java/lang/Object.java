@@ -259,7 +259,7 @@ public class Object {
      * Causes a thread which is waiting on this object's monitor (by means of
      * calling one of the {@code wait()} methods) to be woken up. If more than
      * one thread is waiting, one of them is chosen at the discretion of the
-     * virtual machine. The chosen thread will not run immediately. The thread
+     * VM. The chosen thread will not run immediately. The thread
      * that called {@code notify()} has to release the object's monitor first.
      * Also, the chosen thread still has to compete against other threads that
      * try to synchronize on the same object.

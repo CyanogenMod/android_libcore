@@ -136,13 +136,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
     }
 
-    /**
-     * Frees any resources allocated for this stream before it is garbage
-     * collected. This method is called from the Java Virtual Machine.
-     *
-     * @throws IOException
-     *             if an error occurs attempting to finalize this stream.
-     */
     @Override protected void finalize() throws IOException {
         try {
             if (guard != null) {

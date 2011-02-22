@@ -115,7 +115,7 @@ public class PrintWriter extends Writer {
 
     /**
      * Constructs a new {@code PrintWriter} with {@code file} as its target. The
-     * virtual machine's default character set is used for character encoding.
+     * VM's default character set is used for character encoding.
      * The print writer does not automatically flush its contents to the target
      * file when a newline is encountered. The output to the file is buffered.
      *
@@ -155,7 +155,7 @@ public class PrintWriter extends Writer {
 
     /**
      * Constructs a new {@code PrintWriter} with the file identified by {@code
-     * fileName} as its target. The virtual machine's default character set is
+     * fileName} as its target. The VM's default character set is
      * used for character encoding. The print writer does not automatically
      * flush its contents to the target file when a newline is encountered. The
      * output to the file is buffered.
@@ -317,8 +317,10 @@ public class PrintWriter extends Writer {
 
     /**
      * Prints a formatted string. The behavior of this method is the same as
-     * this writer's {@code #format(String, Object...)} method. For the locale,
-     * the default value of the current virtual machine instance is used.
+     * this writer's {@code #format(String, Object...)} method.
+     *
+     * <p>The {@code Locale} used is the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param format the format string (see {@link java.util.Formatter#format})
      * @param args

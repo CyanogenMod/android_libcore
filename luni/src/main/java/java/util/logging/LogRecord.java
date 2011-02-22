@@ -141,7 +141,7 @@ public class LogRecord implements Serializable {
      * Constructs a {@code LogRecord} object using the supplied the logging
      * level and message. The millis property is set to the current time. The
      * sequence property is set to a new unique value, allocated in increasing
-     * order within the virtual machine. The thread ID is set to a unique value
+     * order within the VM. The thread ID is set to a unique value
      * for the current thread. All other properties are set to {@code null}.
      *
      * @param level

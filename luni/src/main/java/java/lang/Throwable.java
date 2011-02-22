@@ -23,7 +23,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * The superclass of all classes which can be thrown by the virtual machine. The
+ * The superclass of all classes which can be thrown by the VM. The
  * two direct subclasses are recoverable exceptions ({@code Exception}) and
  * unrecoverable errors ({@code Error}). This class provides common methods for
  * accessing a string message which provides extra information about the
