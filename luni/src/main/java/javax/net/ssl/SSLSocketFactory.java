@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.SocketFactory;
 
 /**
@@ -57,7 +55,7 @@ public abstract class SSLSocketFactory extends SocketFactory {
                     final Class<?> sfc = Class.forName(defaultName, true, cl);
                     defaultSocketFactory = (SocketFactory) sfc.newInstance();
                 } catch (Exception e) {
-                    log("SSLSocketFactory", "Problem creating " + defaultName, e);
+                    System.logE("Problem creating " + defaultName, e);
                 }
             }
         }
@@ -78,11 +76,6 @@ public abstract class SSLSocketFactory extends SocketFactory {
             defaultSocketFactory = new DefaultSSLSocketFactory("No SSLSocketFactory installed");
         }
         return defaultSocketFactory;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void log(String tag, String msg, Throwable throwable) {
-        Logger.getLogger(tag).log(Level.INFO, msg, throwable);
     }
 
     /**

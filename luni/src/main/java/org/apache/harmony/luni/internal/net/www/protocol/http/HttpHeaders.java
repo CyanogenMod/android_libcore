@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 
 /**
  * The HTTP status and header lines of a single HTTP message. This class
@@ -77,8 +76,7 @@ public final class HttpHeaders implements Cloneable {
              * "Accept\r\n". For platform compatibility and HTTP compliance, we
              * print a warning and ignore null values.
              */
-            Logger.getAnonymousLogger().warning(
-                    "Ignoring HTTP header field " + key + " because its value is null.");
+            System.logW("Ignoring HTTP header field '" + key + "' because its value is null");
             return;
         }
         alternatingKeysAndValues.add(key);

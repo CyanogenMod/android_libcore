@@ -23,8 +23,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
@@ -211,9 +209,7 @@ import java.util.zip.ZipFile;
                 try {
                     dex = loadDexFile(file, optimizedDirectory);
                 } catch (IOException ex) {
-                    Logger.global.log(Level.SEVERE,
-                            "Unable to load dex file: " + file,
-                            ex);
+                    System.logE("Unable to load dex file: " + file, ex);
                 }
             } else if (name.endsWith(APK_SUFFIX) || name.endsWith(JAR_SUFFIX)
                     || name.endsWith(ZIP_SUFFIX)) {
@@ -226,9 +222,7 @@ import java.util.zip.ZipFile;
                      * (e.g. if the file isn't actually a zip/jar
                      * file).
                      */
-                    Logger.global.log(Level.SEVERE,
-                            "Unable to open zip file: " + file,
-                            ex);
+                    System.logE("Unable to open zip file: " + file, ex);
                 }
 
                 try {
@@ -243,7 +237,7 @@ import java.util.zip.ZipFile;
                      */
                 }
             } else {
-                Logger.global.warning("Unknown file type for: " + file);
+                System.logW("Unknown file type for: " + file);
             }
 
             if ((zip != null) || (dex != null)) {

@@ -28,8 +28,6 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import libcore.io.IoUtils;
 
 /**
@@ -269,8 +267,7 @@ final class ProcessManager {
             try {
                 kill(this.id);
             } catch (IOException e) {
-                Logger.getLogger(Process.class.getName()).log(Level.FINE,
-                        "Failed to destroy process " + id + ".", e);
+                System.logI("Failed to destroy process " + id, e);
             }
             IoUtils.closeQuietly(inputStream);
             IoUtils.closeQuietly(errorStream);

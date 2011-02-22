@@ -20,6 +20,7 @@
 #include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
+#include "android/log.h"
 #include "openssl/opensslv.h"
 #include "toStringArray.h"
 #include "zlib.h"
@@ -45,6 +46,30 @@ static jstring System_getEnvByIndex(JNIEnv* env, jclass, jint index) {
     // Pointer to complete environment.
     extern char** environ;
     return env->NewStringUTF(environ[index]);
+}
+
+static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jthrowable exception) {
+    ScopedUtfChars message(env, javaMessage);
+    if (message.c_str() == NULL) {
+        // Since this function is used for last-gasp debugging output, be noisy on failure.
+        LOGE("message.c_str() == NULL");
+        return;
+    }
+    int priority;
+    switch (type) {
+    case 'D': case 'd': priority = ANDROID_LOG_DEBUG;   break;
+    case 'E': case 'e': priority = ANDROID_LOG_ERROR;   break;
+    case 'F': case 'f': priority = ANDROID_LOG_FATAL;   break;
+    case 'I': case 'i': priority = ANDROID_LOG_INFO;    break;
+    case 'S': case 's': priority = ANDROID_LOG_SILENT;  break;
+    case 'V': case 'v': priority = ANDROID_LOG_VERBOSE; break;
+    case 'W': case 'w': priority = ANDROID_LOG_WARN;    break;
+    default:            priority = ANDROID_LOG_DEFAULT; break;
+    }
+    LOG_PRI(priority, LOG_TAG, "%s", message.c_str());
+    if (exception != NULL) {
+        jniLogException(env, priority, LOG_TAG, exception);
+    }
 }
 
 // Sets a field via JNI. Used for the standard streams, which are read-only otherwise.
@@ -83,6 +108,7 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(System, getEnvByIndex, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(System, getEnvByName, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
 };

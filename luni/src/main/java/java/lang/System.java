@@ -529,6 +529,50 @@ public final class System {
     }
 
     /**
+     * @hide internal use only
+     */
+    public static void logE(String message) {
+        log('E', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logE(String message, Throwable th) {
+        log('E', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message) {
+        log('I', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message, Throwable th) {
+        log('I', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message) {
+        log('W', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message, Throwable th) {
+        log('W', message, th);
+    }
+
+    private static native void log(char type, String message, Throwable th);
+
+    /**
      * Provides a hint to the virtual machine that it would be useful to attempt
      * to perform any outstanding object finalization.
      */

@@ -836,20 +836,14 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Resumes a suspended Thread. This is a no-op if the receiver was never
-     * suspended, or suspended and already resumed. If the receiver is
-     * suspended, however, makes it resume to the point where it was when it was
-     * suspended.
+     * Throws {@code UnsupportedOperationException}.
      *
      * @see Thread#suspend()
      * @deprecated Used with deprecated method {@link Thread#suspend}
      */
     @Deprecated
     public final void resume() {
-        VMThread vmt = this.vmThread;
-        if (vmt != null) {
-            vmt.resume();
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1048,12 +1042,8 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Requests the receiver Thread to stop and throw the
-     * <code>throwable()</code>. The Thread is resumed if it was suspended
-     * and awakened if it was sleeping, so that it can proceed to throw the
-     * <code>throwable()</code>.
+     * Throws {@code UnsupportedOperationException}.
      *
-     * @param throwable Throwable object to be thrown by the Thread
      * @throws NullPointerException if <code>throwable()</code> is
      *         <code>null</code>
      * @deprecated because stopping a thread in this manner is unsafe and can
@@ -1061,32 +1051,18 @@ public class Thread implements Runnable {
      */
     @Deprecated
     public final synchronized void stop(Throwable throwable) {
-        if (throwable == null) {
-            throw new NullPointerException();
-        }
-
-        VMThread vmt = this.vmThread;
-        if (vmt != null) {
-            vmt.stop(throwable);
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * Suspends this Thread. This is a no-op if the receiver is suspended. If
-     * the receiver <code>isAlive()</code> however, suspended it until <code>
-     * resume()</code> is sent to it. Suspend requests are not queued, which
-     * means that N requests are equivalent to just one - only one resume
-     * request is needed in this case.
+     * Throws {@code UnsupportedOperationException}.
      *
      * @see Thread#resume()
      * @deprecated May cause deadlocks.
      */
     @Deprecated
     public final void suspend() {
-        VMThread vmt = this.vmThread;
-        if (vmt != null) {
-            vmt.suspend();
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**

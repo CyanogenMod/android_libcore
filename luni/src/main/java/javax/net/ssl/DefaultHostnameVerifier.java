@@ -27,8 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A HostnameVerifier that works the same way as Curl and Firefox.
@@ -182,8 +180,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
         try {
             subjectAlternativeNames = cert.getSubjectAlternativeNames();
         } catch (CertificateParsingException cpe) {
-            Logger.getLogger(DefaultHostnameVerifier.class.getName())
-                    .log(Level.FINE, "Error parsing certificate.", cpe);
+            System.logI("Error parsing certificate", cpe);
             return Collections.emptyList();
         }
 

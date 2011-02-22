@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 import libcore.util.BasicLruCache;
 
 /**
@@ -63,8 +62,8 @@ public final class TimeZones {
             long end = System.currentTimeMillis();
             long duration = end - start;
             long nativeDuration = nativeEnd - nativeStart;
-            Logger.global.info("Loaded time zone names for " + locale + " in " + duration + "ms" +
-                    " (" + nativeDuration + "ms in ICU).");
+            System.logI("Loaded time zone names for " + locale + " in " + duration + "ms" +
+                    " (" + nativeDuration + "ms in ICU)");
             return result;
         }
 

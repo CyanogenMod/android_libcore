@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.SecurityAccess;
 import org.apache.harmony.security.fortress.Services;
@@ -58,7 +56,7 @@ public final class Security {
             loaded = true;
             configStream.close();
         } catch (Exception ex) {
-            Logger.global.log(Level.SEVERE, "Could not load Security properties.", ex);
+            System.logE("Could not load 'security.properties'", ex);
         }
         if (!loaded) {
             registerDefaultProviders();
