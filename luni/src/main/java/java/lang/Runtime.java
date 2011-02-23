@@ -34,7 +34,6 @@ package java.lang;
 
 import dalvik.system.VMDebug;
 import dalvik.system.VMStack;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

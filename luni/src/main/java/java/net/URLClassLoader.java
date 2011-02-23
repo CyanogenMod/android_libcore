@@ -18,7 +18,6 @@
 package java.net;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,6 +43,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import libcore.io.IoUtils;
+import libcore.io.Streams;
 
 /**
  * This class loader is responsible for loading classes and resources from a
@@ -607,13 +607,7 @@ public class URLClassLoader extends SecureClassLoader {
      * @return byte[] the byte array
      */
     private static byte[] getBytes(InputStream is) throws IOException {
-        byte[] buf = new byte[4096];
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
-        int count;
-        while ((count = is.read(buf)) > 0) {
-            bos.write(buf, 0, count);
-        }
-        return bos.toByteArray();
+        return Streams.readFully(is);
     }
 
     /**

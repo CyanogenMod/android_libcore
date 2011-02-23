@@ -170,7 +170,7 @@ public final class ZoneInfoDB {
      * Rather than open, read, and close the big data file each time we look up a time zone,
      * we map the big data file during startup, and then just use the MemoryMappedFile.
      *
-     * At the moment, this "big" data file is about 160 KiB. At some point, that will be small
+     * At the moment, this "big" data file is about 500 KiB. At some point, that will be small
      * enough that we'll just keep the byte[] in memory.
      */
     private static MemoryMappedFile mapData() {
