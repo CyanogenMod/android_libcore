@@ -62,12 +62,8 @@ public final class CRLNumber extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CRL Number: [ ").append(number).append(" ]\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("CRL Number: [ ").append(number).append(" ]\n");
     }
 
     /**

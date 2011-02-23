@@ -58,13 +58,7 @@ public final class InhibitAnyPolicy extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Inhibit Any-Policy: ")
-            .append(skipCerts).append('\n');
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Inhibit Any-Policy: ").append(skipCerts).append('\n');
     }
 }
-

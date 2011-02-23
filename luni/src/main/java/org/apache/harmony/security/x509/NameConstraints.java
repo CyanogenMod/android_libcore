@@ -235,23 +235,23 @@ public final class NameConstraints extends ExtensionValue {
         return true;
     }
 
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Name Constraints: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Name Constraints: [\n");
         if (permittedSubtrees != null) {
-            buffer.append(prefix).append("  Permitted: [\n");
+            sb.append(prefix).append("  Permitted: [\n");
             for (GeneralSubtree generalSubtree : permittedSubtrees.getSubtrees()) {
-                generalSubtree.dumpValue(buffer, prefix + "    ");
+                generalSubtree.dumpValue(sb, prefix + "    ");
             }
-            buffer.append(prefix).append("  ]\n");
+            sb.append(prefix).append("  ]\n");
         }
         if (excludedSubtrees != null) {
-            buffer.append(prefix).append("  Excluded: [\n");
+            sb.append(prefix).append("  Excluded: [\n");
             for (GeneralSubtree generalSubtree : excludedSubtrees.getSubtrees()) {
-                generalSubtree.dumpValue(buffer, prefix + "    ");
+                generalSubtree.dumpValue(sb, prefix + "    ");
             }
-            buffer.append(prefix).append("  ]\n");
+            sb.append(prefix).append("  ]\n");
         }
-        buffer.append('\n').append(prefix).append("]\n");
+        sb.append('\n').append(prefix).append("]\n");
     }
 
     /**

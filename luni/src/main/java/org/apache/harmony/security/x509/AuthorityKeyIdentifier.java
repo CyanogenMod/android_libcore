@@ -77,26 +77,22 @@ public final class AuthorityKeyIdentifier extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("AuthorityKeyIdentifier [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("AuthorityKeyIdentifier [\n");
         if (keyIdentifier != null) {
-            buffer.append(prefix).append("  keyIdentifier:\n");
-            buffer.append(Array.toString(keyIdentifier, prefix + "    "));
+            sb.append(prefix).append("  keyIdentifier:\n");
+            sb.append(Array.toString(keyIdentifier, prefix + "    "));
         }
         if (authorityCertIssuer != null) {
-            buffer.append(prefix).append("  authorityCertIssuer: [\n");
-            authorityCertIssuer.dumpValue(buffer, prefix + "    ");
-            buffer.append(prefix).append("  ]\n");
+            sb.append(prefix).append("  authorityCertIssuer: [\n");
+            authorityCertIssuer.dumpValue(sb, prefix + "    ");
+            sb.append(prefix).append("  ]\n");
         }
         if (authorityCertSerialNumber != null) {
-            buffer.append(prefix).append("  authorityCertSerialNumber: ")
-                .append(authorityCertSerialNumber).append('\n');
+            sb.append(prefix).append("  authorityCertSerialNumber: ");
+            sb.append(authorityCertSerialNumber).append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     public static final ASN1Type ASN1 = new ASN1Sequence(
@@ -134,4 +130,3 @@ public final class AuthorityKeyIdentifier extends ExtensionValue {
         }
     };
 }
-

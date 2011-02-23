@@ -87,16 +87,16 @@ public final class Certificate {
     }
 
     @Override public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("X.509 Certificate:\n[\n");
-        tbsCertificate.dumpValue(buffer);
-        buffer.append("\n  Algorithm: [");
-        signatureAlgorithm.dumpValue(buffer);
-        buffer.append(']');
-        buffer.append("\n  Signature Value:\n");
-        buffer.append(Array.toString(signatureValue, ""));
-        buffer.append(']');
-        return buffer.toString();
+        StringBuilder result = new StringBuilder();
+        result.append("X.509 Certificate:\n[\n");
+        tbsCertificate.dumpValue(result);
+        result.append("\n  Algorithm: [");
+        signatureAlgorithm.dumpValue(result);
+        result.append(']');
+        result.append("\n  Signature Value:\n");
+        result.append(Array.toString(signatureValue, ""));
+        result.append(']');
+        return result.toString();
     }
 
     /**
@@ -133,4 +133,3 @@ public final class Certificate {
         }
     };
 }
-

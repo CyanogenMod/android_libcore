@@ -90,19 +90,15 @@ public final class CertificatePolicies extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CertificatePolicies [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("CertificatePolicies [\n");
         for (PolicyInformation policyInformation : policyInformations) {
-            buffer.append(prefix);
-            buffer.append("  ");
-            policyInformation.dumpValue(buffer);
-            buffer.append('\n');
+            sb.append(prefix);
+            sb.append("  ");
+            policyInformation.dumpValue(sb);
+            sb.append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**
@@ -119,4 +115,3 @@ public final class CertificatePolicies extends ExtensionValue {
         }
     };
 }
-

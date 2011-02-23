@@ -166,7 +166,7 @@ public final class Name {
      * the format requested, format is int value
      */
     private String getName0(String format) {
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
 
         // starting with the last element and moving to the first.
         for (int i = rdn.size() - 1; i >= 0; i--) {

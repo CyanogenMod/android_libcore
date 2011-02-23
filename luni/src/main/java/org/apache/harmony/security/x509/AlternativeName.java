@@ -59,15 +59,9 @@ public final class AlternativeName extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append((which) ? "Subject" : "Issuer")
-            .append(" Alternative Names [\n");
-        alternativeNames.dumpValue(buffer, prefix + "  ");
-        buffer.append(prefix).append("]\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append((which) ? "Subject" : "Issuer").append(" Alternative Names [\n");
+        alternativeNames.dumpValue(sb, prefix + "  ");
+        sb.append(prefix).append("]\n");
     }
 }
-

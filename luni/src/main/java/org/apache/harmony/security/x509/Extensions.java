@@ -329,18 +329,14 @@ public final class Extensions {
         return hashCode;
     }
 
-    /**
-     * Places the string representation into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
+    public void dumpValue(StringBuilder sb, String prefix) {
         if (extensions == null) {
             return;
         }
         int num = 1;
         for (Extension extension: extensions) {
-            buffer.append('\n').append(prefix)
-                .append('[').append(num++).append("]: ");
-            extension.dumpValue(buffer, prefix);
+            sb.append('\n').append(prefix).append('[').append(num++).append("]: ");
+            extension.dumpValue(sb, prefix);
         }
     }
 

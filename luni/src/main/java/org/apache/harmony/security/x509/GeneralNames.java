@@ -107,18 +107,14 @@ public final class GeneralNames {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
+    public void dumpValue(StringBuilder sb, String prefix) {
         if (generalNames == null) {
             return;
         }
         for (GeneralName generalName : generalNames) {
-            buffer.append(prefix);
-            buffer.append(generalName);
-            buffer.append('\n');
+            sb.append(prefix);
+            sb.append(generalName);
+            sb.append('\n');
         }
     }
 

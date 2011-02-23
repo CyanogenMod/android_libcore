@@ -107,26 +107,18 @@ public final class IssuingDistributionPoint extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Issuing Distribution Point: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Issuing Distribution Point: [\n");
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, "  " + prefix);
+            distributionPoint.dumpValue(sb, "  " + prefix);
         }
-        buffer.append(prefix).append("  onlyContainsUserCerts: ")
-            .append(onlyContainsUserCerts).append('\n');
-        buffer.append(prefix).append("  onlyContainsCACerts: ")
-            .append(onlyContainsCACerts).append('\n');
+        sb.append(prefix).append("  onlyContainsUserCerts: ").append(onlyContainsUserCerts).append('\n');
+        sb.append(prefix).append("  onlyContainsCACerts: ").append(onlyContainsCACerts).append('\n');
         if (onlySomeReasons != null) {
-            onlySomeReasons.dumpValue(buffer, prefix + "  ");
+            onlySomeReasons.dumpValue(sb, prefix + "  ");
         }
-        buffer.append(prefix).append("  indirectCRL: ")
-            .append(indirectCRL).append('\n');
-        buffer.append(prefix).append("  onlyContainsAttributeCerts: ")
-            .append(onlyContainsAttributeCerts).append('\n');
+        sb.append(prefix).append("  indirectCRL: ").append(indirectCRL).append('\n');
+        sb.append(prefix).append("  onlyContainsAttributeCerts: ").append(onlyContainsAttributeCerts).append('\n');
     }
 
     /**
@@ -183,4 +175,3 @@ public final class IssuingDistributionPoint extends ExtensionValue {
     };
 
 }
-

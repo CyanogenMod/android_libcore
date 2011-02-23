@@ -72,12 +72,8 @@ public final class BasicConstraints extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("BasicConstraints [\n").append(prefix)
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("BasicConstraints [\n").append(prefix)
             .append("  CA: ").append(ca)
             .append("\n  ").append(prefix).append("pathLenConstraint: ")
             .append(pathLenConstraint).append('\n').append(prefix)

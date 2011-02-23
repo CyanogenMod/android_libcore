@@ -40,28 +40,19 @@ public class ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Unparseable extension value:\n");
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Unparseable extension value:\n");
         if (encoding == null) {
             encoding = getEncoded();
         }
         if (encoding == null) {
-            buffer.append("NULL\n");
+            sb.append("NULL\n");
         } else {
-            buffer.append(Array.toString(encoding, prefix));
+            sb.append(Array.toString(encoding, prefix));
         }
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        dumpValue(buffer, "");
+    public void dumpValue(StringBuilder sb) {
+        dumpValue(sb, "");
     }
 }
-

@@ -125,18 +125,15 @@ public final class AlgorithmIdentifier {
         return algorithm.hashCode() * 37 + (parameters != null ? parameters.hashCode() : 0);
     }
 
-    /**
-     * Places the string representation into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append(getAlgorithmName());
+    public void dumpValue(StringBuilder sb) {
+        sb.append(getAlgorithmName());
         if (parameters == null) {
-            buffer.append(", no params, ");
+            sb.append(", no params, ");
         } else {
-            buffer.append(", params unparsed, ");
+            sb.append(", params unparsed, ");
         }
-        buffer.append("OID = ");
-        buffer.append(getAlgorithm());
+        sb.append("OID = ");
+        sb.append(getAlgorithm());
     }
 
     /**

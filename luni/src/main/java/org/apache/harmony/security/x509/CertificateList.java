@@ -89,11 +89,11 @@ public final class CertificateList {
     }
 
     @Override public String toString() {
-        StringBuffer res = new StringBuffer();
-        tbsCertList.dumpValue(res);
-        res.append("\nSignature Value:\n");
-        res.append(Array.toString(signatureValue, ""));
-        return res.toString();
+        StringBuilder result = new StringBuilder();
+        tbsCertList.dumpValue(result);
+        result.append("\nSignature Value:\n");
+        result.append(Array.toString(signatureValue, ""));
+        return result.toString();
     }
 
     /**
@@ -132,4 +132,3 @@ public final class CertificateList {
         }
     };
 }
-

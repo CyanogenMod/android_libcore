@@ -194,45 +194,36 @@ public final class TBSCertificate {
         return encoding;
     }
 
-    /**
-     * Places the string representation into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append('[');
-        buffer.append("\n  Version: V").append(version+1);
-        buffer.append("\n  Subject: ")
-            .append(subject.getName(X500Principal.RFC2253));
-        buffer.append("\n  Signature Algorithm: ");
-        signature.dumpValue(buffer);
-        buffer.append("\n  Key: ");
-        buffer.append(subjectPublicKeyInfo.getPublicKey().toString());
-        buffer.append("\n  Validity: [From: ");
-        buffer.append(validity.getNotBefore());
-        buffer.append("\n               To: ");
-        buffer.append(validity.getNotAfter()).append(']');
-        buffer.append("\n  Issuer: ");
-        buffer.append(issuer.getName(X500Principal.RFC2253));
-        buffer.append("\n  Serial Number: ");
-        buffer.append(serialNumber);
+    public void dumpValue(StringBuilder sb) {
+        sb.append('[');
+        sb.append("\n  Version: V").append(version+1);
+        sb.append("\n  Subject: ").append(subject.getName(X500Principal.RFC2253));
+        sb.append("\n  Signature Algorithm: ");
+        signature.dumpValue(sb);
+        sb.append("\n  Key: ").append(subjectPublicKeyInfo.getPublicKey().toString());
+        sb.append("\n  Validity: [From: ").append(validity.getNotBefore());
+        sb.append("\n               To: ").append(validity.getNotAfter()).append(']');
+        sb.append("\n  Issuer: ").append(issuer.getName(X500Principal.RFC2253));
+        sb.append("\n  Serial Number: ").append(serialNumber);
         if (issuerUniqueID != null) {
-            buffer.append("\n  Issuer Id: ");
+            sb.append("\n  Issuer Id: ");
             for (boolean b : issuerUniqueID) {
-                buffer.append(b ? '1' : '0');
+                sb.append(b ? '1' : '0');
             }
         }
         if (subjectUniqueID != null) {
-            buffer.append("\n  Subject Id: ");
+            sb.append("\n  Subject Id: ");
             for (boolean b : subjectUniqueID) {
-                buffer.append(b ? '1' : '0');
+                sb.append(b ? '1' : '0');
             }
         }
         if (extensions != null) {
-            buffer.append("\n\n  Extensions: ");
-            buffer.append("[\n");
-            extensions.dumpValue(buffer, "    ");
-            buffer.append("  ]");
+            sb.append("\n\n  Extensions: ");
+            sb.append("[\n");
+            extensions.dumpValue(sb, "    ");
+            sb.append("  ]");
         }
-        buffer.append("\n]");
+        sb.append("\n]");
     }
 
     /**

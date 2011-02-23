@@ -75,13 +75,8 @@ public final class PolicyInformation {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append("Policy Identifier [")
-            .append(policyIdentifier).append(']');
+    public void dumpValue(StringBuilder sb) {
+        sb.append("Policy Identifier [").append(policyIdentifier).append(']');
     }
 
     /**
@@ -104,4 +99,3 @@ public final class PolicyInformation {
         }
     };
 }
-

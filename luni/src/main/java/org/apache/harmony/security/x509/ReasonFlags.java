@@ -76,21 +76,16 @@ public final class ReasonFlags {
         this.flags = flags;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix);
-        buffer.append("ReasonFlags [\n");
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix);
+        sb.append("ReasonFlags [\n");
         for (int i=0; i<flags.length; i++) {
             if (flags[i]) {
-                buffer.append(prefix).append("  ")
-                    .append(REASONS[i]).append('\n');
+                sb.append(prefix).append("  ").append(REASONS[i]).append('\n');
             }
         }
-        buffer.append(prefix);
-        buffer.append("]\n");
+        sb.append(prefix);
+        sb.append("]\n");
     }
 
     /**
@@ -108,4 +103,3 @@ public final class ReasonFlags {
         }
     };
 }
-

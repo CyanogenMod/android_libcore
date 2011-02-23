@@ -82,17 +82,13 @@ public final class InfoAccessSyntax extends ExtensionValue {
         return res.toString();
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("AccessDescriptions:\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("AccessDescriptions:\n");
         if (accessDescriptions == null || accessDescriptions.isEmpty()) {
-            buffer.append("NULL\n");
+            sb.append("NULL\n");
         } else {
             for (Object accessDescription : accessDescriptions) {
-                buffer.append(accessDescription.toString());
+                sb.append(accessDescription.toString());
             }
         }
     }

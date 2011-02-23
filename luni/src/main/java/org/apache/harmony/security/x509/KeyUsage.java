@@ -80,15 +80,14 @@ public final class KeyUsage extends ExtensionValue {
         return encoding;
     }
 
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("KeyUsage [\n");
-        for (int i=0; i<keyUsage.length; i++) {
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("KeyUsage [\n");
+        for (int i = 0; i < keyUsage.length; i++) {
             if (keyUsage[i]) {
-                buffer.append(prefix).append("  ")
-                    .append(USAGES[i]).append('\n');
+                sb.append(prefix).append("  ").append(USAGES[i]).append('\n');
             }
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**

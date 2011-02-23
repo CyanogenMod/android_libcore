@@ -71,41 +71,41 @@ public final class ReasonCode extends ExtensionValue {
         return encoding;
     }
 
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Reason Code: [ ");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Reason Code: [ ");
         switch (code) {
-            case UNSPECIFIED:
-                buffer.append("unspecified");
-                break;
-            case KEY_COMPROMISE:
-                buffer.append("keyCompromise");
-                break;
-            case CA_COMPROMISE:
-                buffer.append("cACompromise");
-                break;
-            case AFFILIATION_CHANGED:
-                buffer.append("affiliationChanged");
-                break;
-            case SUPERSEDED:
-                buffer.append("superseded");
-                break;
-            case CESSATION_OF_OPERATION:
-                buffer.append("cessationOfOperation");
-                break;
-            case CERTIFICATE_HOLD:
-                buffer.append("certificateHold");
-                break;
-            case REMOVE_FROM_CRL:
-                buffer.append("removeFromCRL");
-                break;
-            case PRIVILEGE_WITHDRAWN:
-                buffer.append("privilegeWithdrawn");
-                break;
-            case AA_COMPROMISE:
-                buffer.append("aACompromise");
-                break;
+        case UNSPECIFIED:
+            sb.append("unspecified");
+            break;
+        case KEY_COMPROMISE:
+            sb.append("keyCompromise");
+            break;
+        case CA_COMPROMISE:
+            sb.append("cACompromise");
+            break;
+        case AFFILIATION_CHANGED:
+            sb.append("affiliationChanged");
+            break;
+        case SUPERSEDED:
+            sb.append("superseded");
+            break;
+        case CESSATION_OF_OPERATION:
+            sb.append("cessationOfOperation");
+            break;
+        case CERTIFICATE_HOLD:
+            sb.append("certificateHold");
+            break;
+        case REMOVE_FROM_CRL:
+            sb.append("removeFromCRL");
+            break;
+        case PRIVILEGE_WITHDRAWN:
+            sb.append("privilegeWithdrawn");
+            break;
+        case AA_COMPROMISE:
+            sb.append("aACompromise");
+            break;
         }
-        buffer.append(" ]\n");
+        sb.append(" ]\n");
     }
 
     /**

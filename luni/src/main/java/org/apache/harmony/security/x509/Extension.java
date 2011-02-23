@@ -286,12 +286,8 @@ public final class Extension {
         }
     }
 
-    /**
-     * Places the string representation into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append("OID: ").append(getExtnID())
-            .append(", Critical: ").append(critical).append('\n');
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append("OID: ").append(getExtnID()).append(", Critical: ").append(critical).append('\n');
         if (!valueDecoded) {
             try {
                 decodeExtensionValue();
@@ -299,57 +295,56 @@ public final class Extension {
             }
         }
         if (extnValueObject != null) {
-            extnValueObject.dumpValue(buffer, prefix);
+            extnValueObject.dumpValue(sb, prefix);
             return;
         }
         // else: dump unparsed hex representation
-        buffer.append(prefix);
+        sb.append(prefix);
         if (Arrays.equals(extnID, SUBJ_DIRECTORY_ATTRS)) {
-            buffer.append("Subject Directory Attributes Extension");
+            sb.append("Subject Directory Attributes Extension");
         } else if (Arrays.equals(extnID, SUBJ_KEY_ID)) {
-            buffer.append("Subject Key Identifier Extension");
+            sb.append("Subject Key Identifier Extension");
         } else if (Arrays.equals(extnID, KEY_USAGE)) {
-            buffer.append("Key Usage Extension");
+            sb.append("Key Usage Extension");
         } else if (Arrays.equals(extnID, PRIVATE_KEY_USAGE_PERIOD)) {
-            buffer.append("Private Key Usage Period Extension");
+            sb.append("Private Key Usage Period Extension");
         } else if (Arrays.equals(extnID, SUBJECT_ALT_NAME)) {
-            buffer.append("Subject Alternative Name Extension");
+            sb.append("Subject Alternative Name Extension");
         } else if (Arrays.equals(extnID, ISSUER_ALTERNATIVE_NAME)) {
-            buffer.append("Issuer Alternative Name Extension");
+            sb.append("Issuer Alternative Name Extension");
         } else if (Arrays.equals(extnID, BASIC_CONSTRAINTS)) {
-            buffer.append("Basic Constraints Extension");
+            sb.append("Basic Constraints Extension");
         } else if (Arrays.equals(extnID, NAME_CONSTRAINTS)) {
-            buffer.append("Name Constraints Extension");
+            sb.append("Name Constraints Extension");
         } else if (Arrays.equals(extnID, CRL_DISTR_POINTS)) {
-            buffer.append("CRL Distribution Points Extension");
+            sb.append("CRL Distribution Points Extension");
         } else if (Arrays.equals(extnID, CERTIFICATE_POLICIES)) {
-            buffer.append("Certificate Policies Extension");
+            sb.append("Certificate Policies Extension");
         } else if (Arrays.equals(extnID, POLICY_MAPPINGS)) {
-            buffer.append("Policy Mappings Extension");
+            sb.append("Policy Mappings Extension");
         } else if (Arrays.equals(extnID, AUTH_KEY_ID)) {
-            buffer.append("Authority Key Identifier Extension");
+            sb.append("Authority Key Identifier Extension");
         } else if (Arrays.equals(extnID, POLICY_CONSTRAINTS)) {
-            buffer.append("Policy Constraints Extension");
+            sb.append("Policy Constraints Extension");
         } else if (Arrays.equals(extnID, EXTENDED_KEY_USAGE)) {
-            buffer.append("Extended Key Usage Extension");
+            sb.append("Extended Key Usage Extension");
         } else if (Arrays.equals(extnID, INHIBIT_ANY_POLICY)) {
-            buffer.append("Inhibit Any-Policy Extension");
+            sb.append("Inhibit Any-Policy Extension");
         } else if (Arrays.equals(extnID, AUTHORITY_INFO_ACCESS)) {
-            buffer.append("Authority Information Access Extension");
+            sb.append("Authority Information Access Extension");
         } else if (Arrays.equals(extnID, SUBJECT_INFO_ACCESS)) {
-            buffer.append("Subject Information Access Extension");
+            sb.append("Subject Information Access Extension");
         } else if (Arrays.equals(extnID, INVALIDITY_DATE)) {
-            buffer.append("Invalidity Date Extension");
+            sb.append("Invalidity Date Extension");
         } else if (Arrays.equals(extnID, CRL_NUMBER)) {
-            buffer.append("CRL Number Extension");
+            sb.append("CRL Number Extension");
         } else if (Arrays.equals(extnID, REASON_CODE)) {
-            buffer.append("Reason Code Extension");
+            sb.append("Reason Code Extension");
         } else {
-            buffer.append("Unknown Extension");
+            sb.append("Unknown Extension");
         }
-        buffer.append('\n').append(prefix)
-            .append("Unparsed Extension Value:\n");
-        buffer.append(Array.toString(extnValue, prefix));
+        sb.append('\n').append(prefix).append("Unparsed Extension Value:\n");
+        sb.append(Array.toString(extnValue, prefix));
     }
 
 

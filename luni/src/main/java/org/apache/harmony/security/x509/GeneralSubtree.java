@@ -83,20 +83,14 @@ public final class GeneralSubtree {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("General Subtree: [\n");
-        buffer.append(prefix).append("  base: ").append(base).append('\n');
-        buffer.append(prefix).append("  minimum: ")
-            .append(minimum).append('\n');
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("General Subtree: [\n");
+        sb.append(prefix).append("  base: ").append(base).append('\n');
+        sb.append(prefix).append("  minimum: ").append(minimum).append('\n');
         if (maximum >= 0) {
-            buffer.append(prefix).append("  maximum: ")
-                .append(maximum).append('\n');
+            sb.append(prefix).append("  maximum: ").append(maximum).append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**

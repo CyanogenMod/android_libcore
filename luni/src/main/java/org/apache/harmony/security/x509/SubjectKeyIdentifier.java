@@ -65,10 +65,9 @@ public final class SubjectKeyIdentifier extends ExtensionValue {
         return encoding;
     }
 
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("SubjectKeyIdentifier: [\n");
-        buffer.append(Array.toString(keyIdentifier, prefix));
-        buffer.append(prefix).append("]\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("SubjectKeyIdentifier: [\n");
+        sb.append(Array.toString(keyIdentifier, prefix));
+        sb.append(prefix).append("]\n");
     }
 }
-

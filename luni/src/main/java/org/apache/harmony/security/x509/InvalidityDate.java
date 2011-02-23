@@ -60,13 +60,8 @@ public final class InvalidityDate extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Invalidity Date: [ ")
-            .append(date).append(" ]\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Invalidity Date: [ ").append(date).append(" ]\n");
     }
 
     /**
@@ -74,4 +69,3 @@ public final class InvalidityDate extends ExtensionValue {
      */
     public static final ASN1Type ASN1 = ASN1GeneralizedTime.getInstance();
 }
-

@@ -228,31 +228,30 @@ public final class AttributeTypeAndValue {
      * Appends AttributeTypeAndValue string representation
      *
      * @param attrFormat - format of DN
-     * @param buf - string buffer to be used
      */
-    public void appendName(String attrFormat, StringBuffer buf) {
+    public void appendName(String attrFormat, StringBuilder sb) {
         boolean hexFormat = false;
         if (X500Principal.RFC1779.equals(attrFormat)) {
             if (RFC1779_NAMES == oid.getGroup()) {
-                buf.append(oid.getName());
+                sb.append(oid.getName());
             } else {
-                buf.append(oid.toOIDString());
+                sb.append(oid.toOIDString());
             }
 
-            buf.append('=');
+            sb.append('=');
             if (value.escapedString == value.getHexString()) {
-                buf.append(value.getHexString().toUpperCase(Locale.US));
+                sb.append(value.getHexString().toUpperCase(Locale.US));
             } else if (value.escapedString.length() != value.rawString.length()) {
                 // was escaped
-                value.appendQEString(buf);
+                value.appendQEString(sb);
             } else {
-                buf.append(value.escapedString);
+                sb.append(value.escapedString);
             }
         } else {
             Object group = oid.getGroup();
             // RFC2253 includes names from RFC1779
             if (RFC1779_NAMES == group || RFC2253_NAMES == group) {
-                buf.append(oid.getName());
+                sb.append(oid.getName());
 
                 if (X500Principal.CANONICAL.equals(attrFormat)) {
                     // only PrintableString and UTF8String in string format
@@ -267,19 +266,19 @@ public final class AttributeTypeAndValue {
                 }
 
             } else {
-                buf.append(oid.toString());
+                sb.append(oid.toString());
                 hexFormat = true;
             }
 
-            buf.append('=');
+            sb.append('=');
 
             if (hexFormat) {
-                buf.append(value.getHexString());
+                sb.append(value.getHexString());
             } else {
                 if (X500Principal.CANONICAL.equals(attrFormat)) {
-                    buf.append(value.makeCanonical());
+                    sb.append(value.makeCanonical());
                 } else {
-                    buf.append(value.escapedString);
+                    sb.append(value.escapedString);
                 }
             }
         }

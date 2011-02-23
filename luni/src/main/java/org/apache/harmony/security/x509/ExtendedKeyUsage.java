@@ -70,25 +70,25 @@ public final class ExtendedKeyUsage extends ExtensionValue {
         return encoding;
     }
 
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Extended Key Usage: ");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Extended Key Usage: ");
         if (keys == null) {
             try {
                 keys = getExtendedKeyUsage();
             } catch (IOException e) {
                 // incorrect extension value encoding
-                super.dumpValue(buffer);
+                super.dumpValue(sb);
                 return;
             }
         }
-        buffer.append('[');
+        sb.append('[');
         for (Iterator<?> it = keys.iterator(); it.hasNext();) {
-            buffer.append(" \"").append(it.next()).append('"');
+            sb.append(" \"").append(it.next()).append('"');
             if (it.hasNext()) {
-                buffer.append(',');
+                sb.append(',');
             }
         }
-        buffer.append(" ]\n");
+        sb.append(" ]\n");
     }
 
     /**

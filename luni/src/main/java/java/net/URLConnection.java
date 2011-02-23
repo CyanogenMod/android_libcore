@@ -797,15 +797,15 @@ public abstract class URLConnection {
      * @return the string to be parsed
      */
     private String parseTypeString(String typeString) {
-        StringBuilder typeStringBuffer = new StringBuilder(typeString);
-        for (int i = 0; i < typeStringBuffer.length(); i++) {
+        StringBuilder result = new StringBuilder(typeString);
+        for (int i = 0; i < result.length(); i++) {
             // if non-alphanumeric, replace it with '_'
-            char c = typeStringBuffer.charAt(i);
+            char c = result.charAt(i);
             if (!(Character.isLetter(c) || Character.isDigit(c) || c == '.')) {
-                typeStringBuffer.setCharAt(i, '_');
+                result.setCharAt(i, '_');
             }
         }
-        return typeStringBuffer.toString();
+        return result.toString();
     }
 
     /**

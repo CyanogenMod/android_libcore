@@ -175,7 +175,7 @@ public class XmlPullParserFactory {
         if (parserClasses.size() == 0) throw new XmlPullParserException
                 ("No valid parser classes found in "+classNamesLocation);
 
-        final StringBuffer issues = new StringBuffer ();
+        final StringBuilder issues = new StringBuilder();
 
         for (int i = 0; i < parserClasses.size(); i++) {
             final Class ppClass = (Class) parserClasses.get(i);
@@ -221,7 +221,7 @@ public class XmlPullParserFactory {
                 ("No valid serializer classes found in "+classNamesLocation);
         }
 
-        final StringBuffer issues = new StringBuffer ();
+        final StringBuilder issues = new StringBuilder ();
 
         for (int i = 0; i < serializerClasses.size (); i++) {
             final Class ppClass = (Class) serializerClasses.get(i);
@@ -269,7 +269,7 @@ public class XmlPullParserFactory {
                 if (is == null) throw new XmlPullParserException
                         ("resource not found: "+RESOURCE_NAME
                              +" make sure that parser implementing XmlPull API is available");
-                final StringBuffer sb = new StringBuffer();
+                final StringBuilder sb = new StringBuilder();
 
                 while (true) {
                     final int ch = is.read();

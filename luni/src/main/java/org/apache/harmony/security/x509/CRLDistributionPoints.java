@@ -87,18 +87,14 @@ public final class CRLDistributionPoints extends ExtensionValue {
         return (CRLDistributionPoints) ASN1.decode(encoding);
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CRL Distribution Points: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("CRL Distribution Points: [\n");
         int number = 0;
         for (DistributionPoint distributionPoint : distributionPoints) {
-            buffer.append(prefix).append("  [").append(++number).append("]\n");
-            distributionPoint.dumpValue(buffer, prefix + "  ");
+            sb.append(prefix).append("  [").append(++number).append("]\n");
+            distributionPoint.dumpValue(sb, prefix + "  ");
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**

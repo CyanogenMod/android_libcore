@@ -155,20 +155,13 @@ public final class TBSCertList {
                     + (crlEntryExtensions == null ? 0 : crlEntryExtensions.hashCode());
         }
 
-        /**
-         * Places the string representation of extension value
-         * into the StringBuffer object.
-         */
-        public void dumpValue(StringBuffer buffer, String prefix) {
-            buffer.append(prefix).append("Certificate Serial Number: ")
-                .append(userCertificate).append('\n');
-            buffer.append(prefix).append("Revocation Date: ")
-                .append(revocationDate);
+        public void dumpValue(StringBuilder sb, String prefix) {
+            sb.append(prefix).append("Certificate Serial Number: ").append(userCertificate).append('\n');
+            sb.append(prefix).append("Revocation Date: ").append(revocationDate);
             if (crlEntryExtensions != null) {
-                buffer.append('\n').append(prefix)
-                    .append("CRL Entry Extensions: [");
-                crlEntryExtensions.dumpValue(buffer, prefix + "  ");
-                buffer.append(prefix).append(']');
+                sb.append('\n').append(prefix).append("CRL Entry Extensions: [");
+                crlEntryExtensions.dumpValue(sb, prefix + "  ");
+                sb.append(prefix).append(']');
             }
         }
 
@@ -299,34 +292,28 @@ public final class TBSCertList {
                 + (int)thisUpdate.getTime() / 1000;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append("X.509 CRL v").append(version);
-        buffer.append("\nSignature Algorithm: [");
-        signature.dumpValue(buffer);
-        buffer.append(']');
-        buffer.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253));
-        buffer.append("\n\nThis Update: ").append(thisUpdate);
-        buffer.append("\nNext Update: ").append(nextUpdate).append('\n');
+    public void dumpValue(StringBuilder sb) {
+        sb.append("X.509 CRL v").append(version);
+        sb.append("\nSignature Algorithm: [");
+        signature.dumpValue(sb);
+        sb.append(']');
+        sb.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253));
+        sb.append("\n\nThis Update: ").append(thisUpdate);
+        sb.append("\nNext Update: ").append(nextUpdate).append('\n');
         if (revokedCertificates != null) {
-            buffer.append("\nRevoked Certificates: ")
-                .append(revokedCertificates.size()).append(" [");
+            sb.append("\nRevoked Certificates: ").append(revokedCertificates.size()).append(" [");
             int number = 1;
             for (RevokedCertificate revokedCertificate : revokedCertificates) {
-                buffer.append("\n  [").append(number++).append(']');
-                revokedCertificate.dumpValue(buffer, "  ");
-                buffer.append('\n');
+                sb.append("\n  [").append(number++).append(']');
+                revokedCertificate.dumpValue(sb, "  ");
+                sb.append('\n');
             }
-            buffer.append("]\n");
+            sb.append("]\n");
         }
         if (crlExtensions != null) {
-            buffer.append("\nCRL Extensions: ")
-                .append(crlExtensions.size()).append(" [");
-            crlExtensions.dumpValue(buffer, "  ");
-            buffer.append("]\n");
+            sb.append("\nCRL Extensions: ").append(crlExtensions.size()).append(" [");
+            crlExtensions.dumpValue(sb, "  ");
+            sb.append("]\n");
         }
     }
 

@@ -90,21 +90,15 @@ public final class PolicyConstraints extends ExtensionValue {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    @Override public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("PolicyConstraints: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("PolicyConstraints: [\n");
         if (requireExplicitPolicy != null) {
-            buffer.append(prefix).append("  requireExplicitPolicy: ")
-                .append(requireExplicitPolicy).append('\n');
+            sb.append(prefix).append("  requireExplicitPolicy: ").append(requireExplicitPolicy).append('\n');
         }
         if (inhibitPolicyMapping != null) {
-            buffer.append(prefix).append("  inhibitPolicyMapping: ")
-                .append(inhibitPolicyMapping).append('\n');
+            sb.append(prefix).append("  inhibitPolicyMapping: ").append(inhibitPolicyMapping).append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**
