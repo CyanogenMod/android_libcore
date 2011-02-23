@@ -35,7 +35,7 @@ package java.lang;
 import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
-import static java.lang.ClassMembers.*;
+import static java.lang.ClassMembers.REFLECT;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AccessibleObject;
@@ -427,7 +427,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
-        return getMatchingConstructor(getDeclaredConstructors(this, true), parameterTypes);
+        return (Constructor) ClassMembers.getConstructorOrMethod(
+                this, "<init>", false, true, parameterTypes);
     }
 
     /**
@@ -522,7 +523,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
             throws NoSuchMethodException {
-        return getMatchingConstructor(getDeclaredConstructors(this, false), parameterTypes);
+        return (Constructor) ClassMembers.getConstructorOrMethod(
+                this, "<init>", false, false, parameterTypes);
     }
 
     /**
@@ -548,40 +550,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the list of constructors
      */
     private static native <T> Constructor<T>[] getDeclaredConstructors(Class<T> clazz, boolean publicOnly);
-
-    /*
-     * Finds a constructor with a given signature.
-     *
-     * @param list the list of constructors to search through
-     * @param parameterTypes the formal parameter list
-     * @return the matching constructor
-     * @throws NoSuchMethodException if the constructor does not exist.
-     */
-    private Constructor<T> getMatchingConstructor(
-            Constructor<T>[] constructors, Class<?>[] parameterTypes)
-            throws NoSuchMethodException {
-        for (Constructor<T> constructor : constructors) {
-            if (compareClassLists(constructor.getParameterTypes(), parameterTypes)) {
-                return constructor;
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(getSimpleName());
-        sb.append('(');
-        boolean first = true;
-        if (parameterTypes != null) {
-            for (Class<?> p : parameterTypes) {
-                if (!first) {
-                    sb.append(',');
-                }
-                first = false;
-                sb.append(p.getSimpleName());
-            }
-        }
-        sb.append(')');
-        throw new NoSuchMethodException(sb.toString());
-    }
 
     /**
      * Returns a {@code Field} object for the field with the specified name
@@ -650,14 +618,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException {
-        Method[] methods = getClassMembers().getDeclaredMethods();
-        Method method = findMethodByName(methods, name, parameterTypes);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(method);
+        Member member = ClassMembers.getConstructorOrMethod(
+                this, name, false, false, parameterTypes);
+        if (member instanceof Constructor) {
+            throw new NoSuchMethodException(name);
+        }
+        return (Method) member;
     }
 
     /**
@@ -681,6 +647,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * first. If no methods exist, an empty array is returned.
      */
     static native Method[] getDeclaredMethods(Class<?> clazz, boolean publicOnly);
+
+    /**
+     * Returns the constructor or method if it is defined by {@code clazz}; null
+     * otherwise. This may return a non-public member.
+     *
+     * @param name the method name, or "<init>" to get a constructor.
+     */
+    static native Member getDeclaredConstructorOrMethod(
+            Class clazz, String name, Class[] args);
 
     /**
      * Returns the {@link ClassMembers} for this instance.
@@ -843,7 +818,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public native Class<?>[] getInterfaces();
 
-    // Changed to raw type to be closer to the RI
     /**
      * Returns a {@code Method} object which represents the public method with
      * the specified name and parameter types. This method first searches the
@@ -862,14 +836,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethod(String, Class[])
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
-        Method[] methods = getClassMembers().getMethods();
-        Method method = findMethodByName(methods, name, parameterTypes);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(method);
+        Member member = ClassMembers.getConstructorOrMethod(this, name, true, true, parameterTypes);
+        if (member instanceof Constructor) {
+            throw new NoSuchMethodException(name);
+        }
+        return (Method) member;
     }
 
     /**
