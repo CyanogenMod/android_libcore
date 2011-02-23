@@ -163,8 +163,6 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
             throw new NullPointerException("enumType == null || name == null");
         }
 
-        enumType.checkPublicMemberAccess();
-
         T result = enumType.getClassMembers().getEnumValue(name);
         if (result == null) {
             if (!enumType.isEnum()) {

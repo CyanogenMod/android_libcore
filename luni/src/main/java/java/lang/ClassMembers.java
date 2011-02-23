@@ -19,7 +19,9 @@ package java.lang;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import libcore.util.BasicLruCache;
+import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 
@@ -39,8 +42,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
  * they should ever escape the package.
  */
 /*package*/ class ClassMembers<T> {
-    // TODO: Add constructors and fields.
-
     static final BasicLruCache<Class<?>, ClassMembers<?>> cache
             = new BasicLruCache<Class<?>, ClassMembers<?>>(16) {
         @SuppressWarnings("unchecked") // use raw types since javac forbids "new ClassCache<?>(key)"
@@ -180,15 +181,9 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         /*
          * Remove methods defined by multiple types, preferring to keep methods
          * declared by derived types.
-         *
-         * Classes may define multiple methods with the same name and parameter
-         * types due to covariant return types. In this case both are returned,
-         * with the non-synthetic method first because it is preferred by
-         * getMethod(String,Class[]).
          */
         Collections.sort(allMethods, Method.ORDER_BY_SIGNATURE);
-        List<Method> natural = new ArrayList<Method>(allMethods.size());
-        List<Method> synthetic = new ArrayList<Method>(allMethods.size());
+        List<Method> result = new ArrayList<Method>(allMethods.size());
         Method previous = null;
         for (Method method : allMethods) {
             if (previous != null
@@ -196,16 +191,9 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
                     && method.getDeclaringClass() != previous.getDeclaringClass()) {
                 continue;
             }
-            if (method.isSynthetic()) {
-                synthetic.add(method);
-            } else {
-                natural.add(method);
-            }
+            result.add(method);
             previous = method;
         }
-        List<Method> result = new ArrayList<Method>(allMethods.size());
-        result.addAll(natural);
-        result.addAll(synthetic);
         return result.toArray(new Method[result.size()]);
     }
 
@@ -224,63 +212,52 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         }
     }
 
-    /**
-     * Finds and returns a method with a given name and signature. Use
-     * this with one of the method lists returned by instances of this class.
-     *
-     * @param list non-null; the list of methods to search through
-     * @param parameterTypes non-null; the formal parameter list
-     * @return non-null; the matching method
-     * @throws NoSuchMethodException thrown if the method does not exist
-     */
-    public static Method findMethodByName(Method[] list, String name,
-            Class<?>[] parameterTypes) throws NoSuchMethodException {
+    public static Member getConstructorOrMethod(Class<?> clazz, String name, boolean recursive,
+            boolean publicOnly, Class<?>[] parameterTypes) throws NoSuchMethodException {
+        if (recursive && !publicOnly) {
+            throw new AssertionError(); // can't lookup non-public members recursively
+        }
         if (name == null) {
             throw new NullPointerException("name == null");
         }
-        for (Method method : list) {
-            if (method.getName().equals(name)
-                    && compareClassLists(method.getParameterTypes(), parameterTypes)) {
-                return method;
+        if (parameterTypes == null) {
+            parameterTypes = EmptyArray.CLASS;
+        }
+        for (Class<?> c : parameterTypes) {
+            if (c == null) {
+                throw new NoSuchMethodException("parameter type is null");
             }
         }
-
-        throw new NoSuchMethodException(name);
+        Member result = recursive
+                ? getPublicConstructorOrMethodRecursive(clazz, name, parameterTypes)
+                : Class.getDeclaredConstructorOrMethod(clazz, name, parameterTypes);
+        if (result == null || publicOnly && (result.getModifiers() & Modifier.PUBLIC) == 0) {
+            throw new NoSuchMethodException(name + " " + Arrays.toString(parameterTypes));
+        }
+        return result;
     }
 
-    /**
-     * Compares two class lists for equality. Empty and
-     * <code>null</code> lists are considered equal. This is useful
-     * for matching methods and constructors.
-     *
-     * <p>TODO: Take into account assignment compatibility?</p>
-     *
-     * @param a null-ok; the first list of types
-     * @param b null-ok; the second list of types
-     * @return true if and only if the lists are equal
-     */
-    public static boolean compareClassLists(Class<?>[] a, Class<?>[] b) {
-        if (a == null) {
-            return (b == null) || (b.length == 0);
-        }
-
-        int length = a.length;
-
-        if (b == null) {
-            return (length == 0);
-        }
-
-        if (length != b.length) {
-            return false;
-        }
-
-        for (int i = length - 1; i >= 0; i--) {
-            if (a[i] != b[i]) {
-                return false;
+    private static Member getPublicConstructorOrMethodRecursive(
+            Class<?> clazz, String name, Class<?>[] parameterTypes) {
+        // search superclasses
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            Member result = Class.getDeclaredConstructorOrMethod(c, name, parameterTypes);
+            if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                return result;
             }
         }
 
-        return true;
+        // search implemented interfaces
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                Member result = getPublicConstructorOrMethodRecursive(ifc, name, parameterTypes);
+                if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -540,17 +517,8 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      */
     @SuppressWarnings("unchecked")
     private T[] callEnumValues() {
-        Method method;
-
-        try {
-            Method[] methods = getDeclaredPublicMethods();
-            method = findMethodByName(methods, "values", null);
-            method = REFLECT.accessibleClone(method);
-        } catch (NoSuchMethodException ex) {
-            // This shouldn't happen if the class is a well-formed enum.
-            throw new UnsupportedOperationException(ex);
-        }
-
+        Method method = (Method) Class.getDeclaredConstructorOrMethod(
+                clazz, "values", EmptyArray.CLASS);
         try {
             return (T[]) method.invoke((Object[]) null);
         } catch (IllegalAccessException ex) {
@@ -581,19 +549,11 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
          * initialization. So instead, we do a direct call into the
          * native side.
          */
-        Method[] methods = Class.getDeclaredMethods(AccessibleObject.class, false);
-
         try {
-            Method method = findMethodByName(methods, "getReflectionAccess", null);
+            Method method = (Method) Class.getDeclaredConstructorOrMethod(
+                    AccessibleObject.class, "getReflectionAccess", EmptyArray.CLASS);
             Class.setAccessibleNoCheck(method, true);
             return (ReflectionAccess) method.invoke((Object[]) null);
-        } catch (NoSuchMethodException ex) {
-            /*
-             * This shouldn't happen because the method
-             * AccessibleObject.getReflectionAccess() really is defined
-             * in this module.
-             */
-            throw new Error(ex);
         } catch (IllegalAccessException ex) {
             // This shouldn't happen because the method is "accessible."
             throw new Error(ex);
