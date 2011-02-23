@@ -73,4 +73,9 @@ public class URLTest extends TestCase {
         assertFalse(new URL("http://localhost/foo?bar=baz#quux").equals(
                 new URL("http://localhost/foo?bar=baz#QUUX")));
     }
+
+    public void testEqualsWithNullHost() throws Exception {
+        assertFalse(new URL("file", null, -1, "/a/").equals(new URL("file:/a/")));
+        assertFalse(new URL("http", null, 80, "/a/").equals(new URL("http:/a/")));
+    }
 }
