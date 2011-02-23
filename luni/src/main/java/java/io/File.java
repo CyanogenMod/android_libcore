@@ -30,19 +30,18 @@ import org.apache.harmony.luni.util.DeleteOnExit;
  * pathname. The pathname may be absolute (relative to the root directory
  * of the file system) or relative to the current directory in which the program
  * is running.
- * <p>
- * The actual file referenced by a {@code File} may or may not exist. It may
+ *
+ * <p>The actual file referenced by a {@code File} may or may not exist. It may
  * also, despite the name {@code File}, be a directory or other non-regular
  * file.
- * <p>
- * This class provides limited functionality for getting/setting file
+ *
+ * <p>This class provides limited functionality for getting/setting file
  * permissions, file type, and last modified time.
- * <p>
- * Although Java doesn't specify a character encoding for filenames, on Android
- * Java strings are converted to UTF-8 byte sequences when sending filenames to
- * the operating system, and byte sequences returned by the operating system
- * (from the various {@code list} methods) are converted to Java strings by
- * decoding them as UTF-8 byte sequences.
+ *
+ * <p>On Android strings are converted to UTF-8 byte sequences when sending filenames to
+ * the operating system, and byte sequences returned by the operating system (from the
+ * various {@code list} methods) are converted to strings by decoding them as UTF-8
+ * byte sequences.
  *
  * @see java.io.Serializable
  * @see java.lang.Comparable
@@ -50,6 +49,12 @@ import org.apache.harmony.luni.util.DeleteOnExit;
 public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
+
+    /**
+     * Reusing a Random makes temporary filenames slightly harder to predict.
+     * (Random is thread-safe.)
+     */
+    private static final Random tempFileRandom = new Random();
 
     /**
      * The system-dependent character used to separate components in filenames ('/').
@@ -248,12 +253,8 @@ public class File implements Serializable, Comparable<File> {
     }
 
     /**
-     * Lists the file system roots. The Java platform may support zero or more
-     * file systems, each with its own platform-dependent root. Further, the
-     * {@link #getCanonicalPath canonical} path of any file on the system will
-     * always begin with one of the returned file system roots.
-     *
-     * @return the array of file system roots.
+     * Returns the file system roots. On Android and other Unix systems, there is
+     * a single root, {@code /}.
      */
     public static File[] listRoots() {
         return new File[] { new File("/") };
@@ -1010,7 +1011,7 @@ public class File implements Serializable, Comparable<File> {
         }
         File result;
         do {
-            result = new File(tmpDirFile, prefix + new Random().nextInt() + suffix);
+            result = new File(tmpDirFile, prefix + tempFileRandom.nextInt() + suffix);
         } while (!result.createNewFile());
         return result;
     }

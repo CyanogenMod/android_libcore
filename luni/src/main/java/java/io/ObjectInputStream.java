@@ -359,8 +359,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *             can be read.
      */
     public ObjectInputStream(InputStream input) throws StreamCorruptedException, IOException {
-        final Class<?> implementationClass = getClass();
-        final Class<?> thisClass = ObjectInputStream.class;
         this.input = (input instanceof DataInputStream)
                 ? (DataInputStream) input : new DataInputStream(input);
         primitiveTypes = new DataInputStream(this);
@@ -1137,9 +1135,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                         field.setBoolean(obj, z);
                     }
                 } else {
-                    String fieldName = fieldDesc.getName();
                     boolean setBack = false;
-                    ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
                     if (mustResolve && fieldDesc == null) {
                         setBack = true;
                         mustResolve = false;
@@ -1155,6 +1151,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                             // from the stream's supplied data. That's the field
                             // we'll be setting, so that's the one that needs to be
                             // validated.
+                            String fieldName = fieldDesc.getName();
+                            ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
                             Class<?> fieldType = localFieldDesc.getTypeInternal();
                             Class<?> valueType = toSet.getClass();
                             if (!fieldType.isAssignableFrom(valueType)) {
