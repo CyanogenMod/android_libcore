@@ -17,8 +17,9 @@
 package libcore.java.lang.reflect;
 
 import java.lang.reflect.Constructor;
+import junit.framework.TestCase;
 
-public class ConstructorTest extends junit.framework.TestCase {
+public final class ConstructorTest extends TestCase {
     public void test_getExceptionTypes() throws Exception {
         Constructor<?> constructor = ConstructorTestHelper.class.getConstructor(new Class[0]);
         Class[] exceptions = constructor.getExceptionTypes();
@@ -44,8 +45,36 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertEquals(expectedParameters[0], parameters[0]);
     }
 
+    public void testGetConstructorWithNullArgumentsArray() throws Exception {
+        Constructor<?> constructor = ConstructorTestHelper.class.getConstructor((Class[]) null);
+        assertEquals(0, constructor.getParameterTypes().length);
+    }
+
+    public void testGetConstructorWithNullArgument() throws Exception {
+        try {
+            ConstructorTestHelper.class.getConstructor(new Class[] { null });
+            fail();
+        } catch (NoSuchMethodException expected) {
+        }
+    }
+
+    public void testGetConstructorReturnsDoesNotReturnPrivateConstructor() throws Exception {
+        try {
+            ConstructorTestHelper.class.getConstructor(Object.class, Object.class);
+            fail();
+        } catch (NoSuchMethodException expected) {
+        }
+    }
+
+    public void testGetDeclaredConstructorReturnsPrivateConstructor() throws Exception {
+        Constructor<?> constructor = ConstructorTestHelper.class.getDeclaredConstructor(
+                Object.class, Object.class);
+        assertEquals(2, constructor.getParameterTypes().length);
+    }
+
     static class ConstructorTestHelper {
         public ConstructorTestHelper() throws IndexOutOfBoundsException { }
         public ConstructorTestHelper(Object o) { }
+        private ConstructorTestHelper(Object a, Object b) { }
     }
 }
