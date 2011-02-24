@@ -41,21 +41,6 @@ import libcore.math.MathUtils;
 public class BigDecimal extends Number implements Comparable<BigDecimal>, Serializable {
 
     /**
-     * The constant zero as a {@code BigDecimal}.
-     */
-    public static final BigDecimal ZERO = new BigDecimal(0, 0);
-
-    /**
-     * The constant one as a {@code BigDecimal}.
-     */
-    public static final BigDecimal ONE = new BigDecimal(1, 0);
-
-    /**
-     * The constant ten as a {@code BigDecimal}.
-     */
-    public static final BigDecimal TEN = new BigDecimal(10, 0);
-
-    /**
      * Rounding mode where positive values are rounded towards positive infinity
      * and negative values towards negative infinity.
      *
@@ -137,13 +122,13 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * An array with powers of five that fit in the type <code>long</code>
      * (<code>5^0,5^1,...,5^27</code>).
      */
-    private static final BigInteger FIVE_POW[];
+    private static final BigInteger[] FIVE_POW;
 
     /**
      * An array with powers of ten that fit in the type <code>long</code>
      * (<code>10^0,10^1,...,10^18</code>).
      */
-    private static final BigInteger TEN_POW[];
+    private static final BigInteger[] TEN_POW;
 
     private static final long[] LONG_FIVE_POW = new long[]
     {   1L,
@@ -184,41 +169,50 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * An array with the first <code>BigInteger</code> scaled by zero.
      * (<code>[0,0],[1,0],...,[10,0]</code>).
      */
-    private static final BigDecimal BI_SCALED_BY_ZERO[] = new BigDecimal[BI_SCALED_BY_ZERO_LENGTH];
+    private static final BigDecimal[] BI_SCALED_BY_ZERO = new BigDecimal[BI_SCALED_BY_ZERO_LENGTH];
 
     /**
      * An array with the zero number scaled by the first positive scales.
      * (<code>0*10^0, 0*10^1, ..., 0*10^10</code>).
      */
-    private static final BigDecimal ZERO_SCALED_BY[] = new BigDecimal[11];
+    private static final BigDecimal[] ZERO_SCALED_BY = new BigDecimal[11];
 
     /** An array filled with characters <code>'0'</code>. */
     private static final char[] CH_ZEROS = new char[100];
 
     static {
-        // To fill all static arrays.
-        int i = 0;
+        Arrays.fill(CH_ZEROS, '0');
 
-        for (; i < ZERO_SCALED_BY.length; i++) {
+        for (int i = 0; i < ZERO_SCALED_BY.length; ++i) {
             BI_SCALED_BY_ZERO[i] = new BigDecimal(i, 0);
             ZERO_SCALED_BY[i] = new BigDecimal(0, i);
-            CH_ZEROS[i] = '0';
         }
-
-        for (; i < CH_ZEROS.length; i++) {
-            CH_ZEROS[i] = '0';
+        for (int i = 0; i < LONG_FIVE_POW_BIT_LENGTH.length; ++i) {
+            LONG_FIVE_POW_BIT_LENGTH[i] = bitLength(LONG_FIVE_POW[i]);
         }
-        for(int j=0; j<LONG_FIVE_POW_BIT_LENGTH.length; j++) {
-            LONG_FIVE_POW_BIT_LENGTH[j] = bitLength(LONG_FIVE_POW[j]);
-        }
-        for(int j=0; j<LONG_POWERS_OF_TEN_BIT_LENGTH.length; j++) {
-            LONG_POWERS_OF_TEN_BIT_LENGTH[j] = bitLength(MathUtils.LONG_POWERS_OF_TEN[j]);
+        for (int i = 0; i < LONG_POWERS_OF_TEN_BIT_LENGTH.length; ++i) {
+            LONG_POWERS_OF_TEN_BIT_LENGTH[i] = bitLength(MathUtils.LONG_POWERS_OF_TEN[i]);
         }
 
         // Taking the references of useful powers.
         TEN_POW = Multiplication.bigTenPows;
         FIVE_POW = Multiplication.bigFivePows;
     }
+
+    /**
+     * The constant zero as a {@code BigDecimal}.
+     */
+    public static final BigDecimal ZERO = new BigDecimal(0, 0);
+
+    /**
+     * The constant one as a {@code BigDecimal}.
+     */
+    public static final BigDecimal ONE = new BigDecimal(1, 0);
+
+    /**
+     * The constant ten as a {@code BigDecimal}.
+     */
+    public static final BigDecimal TEN = new BigDecimal(10, 0);
 
     /**
      * The arbitrary precision integer (unscaled value) in the internal
