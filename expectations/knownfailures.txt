@@ -3,19 +3,21 @@
  */
 [
 {
+  description: "Encoded bytes don't match for EC elliptic curve keys created through KeyFactory.generatePrivate()",
+  names: [
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_getKeySpecLjava_security_KeyLjava_lang_Class"
+  ],
+  bug: 3483365
+},
+{
   description: "Test fails, Intermediate certificate lacks BasicConstraints",
   name: "com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpiTest#testTrustAndRemoteCertificatesWithDifferentEncodings",
   bug: 3474648
 },
 {
-  description: "java.math.NativeBN.BN_generate_prime_ex takes far too long, causes tests to time out",
-  names: [
-    "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePublicLjava_security_spec_KeySpec",
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_getKeySpecLjava_security_KeyLjava_lang_Class",
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_translateKeyLjava_security_Key"
-  ],
+  description: "DHParametersHelper.generateSafePrimes sometimes takes long time, other times takes a very long time",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
   bug: 3474446
 },
 {
