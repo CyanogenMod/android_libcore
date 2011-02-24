@@ -605,7 +605,7 @@ public class SimpleDateFormat extends DateFormat {
                  *     http://unicode.org/reports/tr35/
                  */
                 if (count == 2) {
-                    appendNumber(buffer, 2, year %= 100);
+                    appendNumber(buffer, 2, year % 100);
                 } else {
                     appendNumber(buffer, count, year);
                 }
