@@ -30,7 +30,10 @@ static void IoUtils_close(JNIEnv* env, jclass, jobject fileDescriptor) {
     int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
     jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
 
-    jint rc = TEMP_FAILURE_RETRY(close(fd));
+    // Even if close(2) fails with EINTR, the fd will have been closed.
+    // Using TEMP_FAILURE_RETRY will either lead to EBADF or closing someone else's fd.
+    // http://lkml.indiana.edu/hypermail/linux/kernel/0509.1/0877.html
+    jint rc = close(fd);
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
