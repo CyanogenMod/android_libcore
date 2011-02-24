@@ -162,14 +162,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         // check the address
         InetSocketAddress inetSocketAddress = validateAddress(socketAddress);
         InetAddress normalAddr = inetSocketAddress.getAddress();
+        int port = inetSocketAddress.getPort();
 
         // When connecting, map ANY address to Localhost
         if (normalAddr.isAnyLocalAddress()) {
             normalAddr = InetAddress.getLocalHost();
         }
-
-        int port = inetSocketAddress.getPort();
-        String hostName = normalAddr.getHostName();
 
         // connect result
         int result = EOF;
