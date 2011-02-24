@@ -283,10 +283,11 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
             // Ignore
         }
 
-        // No-op in Android. Must neither have an effect nor throw an exception.
-        Thread.State state = thread.getState();
-        group.resume();
-        assertEquals(state, thread.getState());
+        try {
+            group.resume();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     private Thread launchFiveSecondDummyThread(ThreadGroup group) {

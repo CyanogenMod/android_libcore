@@ -394,10 +394,11 @@ public class OldThreadTest extends junit.framework.TestCase {
             // Ignore
         }
 
-        // No-op in Android. Must neither have an effect nor throw an exception.
-        Thread.State state = thread.getState();
-        thread.stop();
-        assertEquals(state, thread.getState());
+        try {
+            thread.stop();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     public void test_start() {
@@ -429,10 +430,11 @@ public class OldThreadTest extends junit.framework.TestCase {
             // Ignore
         }
 
-        // No-op in Android. Must neither have an effect nor throw an exception.
-        Thread.State state = thread.getState();
-        thread.stop(new Exception("Oops!"));
-        assertEquals(state, thread.getState());
+        try {
+            thread.stop(new Exception("Oops!"));
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -445,10 +447,11 @@ public class OldThreadTest extends junit.framework.TestCase {
             // Ignore
         }
 
-        // No-op in Android. Must neither have an effect nor throw an exception.
-        Thread.State state = thread.getState();
-        thread.suspend();
-        assertEquals(state, thread.getState());
+        try {
+            thread.suspend();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     Thread st, ct, spinner;
