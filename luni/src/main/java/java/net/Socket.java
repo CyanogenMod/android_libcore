@@ -77,21 +77,10 @@ public class Socket {
      * @see SocketImpl
      */
     public Socket(Proxy proxy) {
-        this.proxy = proxy;
         if (proxy == null || proxy.type() == Proxy.Type.HTTP) {
-            throw new IllegalArgumentException("Proxy is null or invalid type");
+            throw new IllegalArgumentException("Invalid proxy: " + proxy);
         }
-        InetSocketAddress address = (InetSocketAddress) proxy.address();
-        if (address != null) {
-            InetAddress addr = address.getAddress();
-            String host;
-            if (addr != null) {
-                host = addr.getHostAddress();
-            } else {
-                host = address.getHostName();
-            }
-            int port = address.getPort();
-        }
+        this.proxy = proxy;
         this.impl = factory != null ? factory.createSocketImpl() : new PlainSocketImpl(proxy);
     }
 
