@@ -281,10 +281,11 @@ public abstract class Charset implements Comparable<Charset> {
             }
         }
 
-        // Is this a built-in charset supported by ICU?
         if (charsetName == null) {
-            throw new IllegalCharsetNameException(charsetName);
+            throw new IllegalCharsetNameException(null);
         }
+
+        // Is this a built-in charset supported by ICU?
         checkCharsetName(charsetName);
         cs = NativeConverter.charsetForName(charsetName);
         if (cs != null) {
