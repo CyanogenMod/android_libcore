@@ -877,7 +877,6 @@ public abstract class URLConnection {
      *
      * @param newValue
      *            the default value of the flag to be used for new connections.
-     * @see #defaultUseCaches
      * @see #useCaches
      */
     public void setDefaultUseCaches(boolean newValue) {
