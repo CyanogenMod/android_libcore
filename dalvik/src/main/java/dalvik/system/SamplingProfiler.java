@@ -1376,6 +1376,36 @@ public final class SamplingProfiler {
      */
     private final ThreadSet threadSet;
 
+    /*
+     *  Real hprof output examples don't start the thread and trace
+     *  identifiers at one but seem to start at these arbitrary
+     *  constants. It certainly seems useful to have relatively unique
+     *  identifers when manual searching hprof output.
+     */
+    private int nextThreadId = 200001;
+    private int nextStackTraceId = 300001;
+    private int nextObjectId = 1;
+
+    /**
+     * The threads currently known to the profiler for detecting
+     * thread start and end events.
+     */
+    private Thread[] currentThreads = new Thread[0];
+
+    /**
+     * Map of currently active threads to their identifiers. When
+     * threads disappear they are removed and only referenced by their
+     * identifiers to prevent retaining garbage threads.
+     */
+    private final Map<Thread, Integer> threadIds = new HashMap<Thread, Integer>();
+
+    /**
+     * Mutable StackTrace that is used for probing stackTraces Map
+     * without allocating a StackTrace. If addStackTrace needs to
+     * be thread safe, this would need to be reconsidered.
+     */
+    private final HprofData.StackTrace mutableStackTrace = new HprofData.StackTrace();
+
     /**
      * Create a sampling profiler that collects stacks with the
      * specified depth from the threads specified by the specified
@@ -1561,31 +1591,6 @@ public final class SamplingProfiler {
     private class Sampler extends TimerTask {
 
         private Thread timerThread;
-        private Thread[] currentThreads = new Thread[0];
-
-        /*
-         *  Real hprof output examples don't start the thread and trace
-         *  identifiers at one but seem to start at these arbitrary
-         *  constants. It certainly seems useful to have relatively unique
-         *  identifers when manual searching hprof output.
-         */
-        private int nextThreadId = 200001;
-        private int nextStackTraceId = 300001;
-        private int nextObjectId = 1;
-
-        /**
-         * Map of currently active threads to their identifiers. When
-         * threads disappear they are removed and only referenced by their
-         * identifiers to prevent retaining garbage threads.
-         */
-        private final Map<Thread, Integer> threadIds = new HashMap<Thread, Integer>();
-
-        /**
-         * Mutable StackTrace that is used for probing stackTraces Map
-         * without allocating a StackTrace. If addStackTrace needs to
-         * be thread safe, this would need to be reconsidered.
-         */
-        private final HprofData.StackTrace mutableStackTrace = new HprofData.StackTrace();
 
         public void run() {
             if (timerThread == null) {
