@@ -1135,32 +1135,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
                         field.setBoolean(obj, z);
                     }
                 } else {
-                    boolean setBack = false;
-                    if (mustResolve && fieldDesc == null) {
-                        setBack = true;
-                        mustResolve = false;
-                    }
-                    boolean unshared = fieldDesc != null && fieldDesc.isUnshared();
-                    Object toSet = unshared ? readUnshared() : readObject();
-                    if (setBack) {
-                        mustResolve = true;
-                    }
-                    if (fieldDesc != null) {
-                        if (toSet != null) {
-                            // Get the field type from the local field rather than
-                            // from the stream's supplied data. That's the field
-                            // we'll be setting, so that's the one that needs to be
-                            // validated.
-                            String fieldName = fieldDesc.getName();
-                            ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
-                            Class<?> fieldType = localFieldDesc.getTypeInternal();
-                            Class<?> valueType = toSet.getClass();
-                            if (!fieldType.isAssignableFrom(valueType)) {
-                                throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
-                            }
-                            if (field != null) {
-                                field.set(obj, toSet);
-                            }
+                    Object toSet = fieldDesc.isUnshared() ? readUnshared() : readObject();
+                    if (toSet != null) {
+                        // Get the field type from the local field rather than
+                        // from the stream's supplied data. That's the field
+                        // we'll be setting, so that's the one that needs to be
+                        // validated.
+                        String fieldName = fieldDesc.getName();
+                        ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
+                        Class<?> fieldType = localFieldDesc.getTypeInternal();
+                        Class<?> valueType = toSet.getClass();
+                        if (!fieldType.isAssignableFrom(valueType)) {
+                            throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
+                        }
+                        if (field != null) {
+                            field.set(obj, toSet);
                         }
                     }
                 }
