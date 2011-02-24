@@ -255,11 +255,7 @@ public class InetAddress implements Serializable {
      */
     static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
-            if (preferIPv6Addresses()) {
-                return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
-            } else {
-                return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
-            }
+            return loopbackAddresses();
         }
 
         // Special-case "0" for legacy IPv4 applications.
@@ -576,6 +572,9 @@ public class InetAddress implements Serializable {
      * @throws IllegalArgumentException if {@code numericAddress} is not a numeric address
      */
     public static InetAddress parseNumericAddress(String numericAddress) {
+        if (numericAddress == null || numericAddress.isEmpty()) {
+            return loopbackAddresses()[0];
+        }
         byte[] bytes = ipStringToByteArray(numericAddress);
         if (bytes == null) {
             throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
@@ -585,6 +584,14 @@ public class InetAddress implements Serializable {
         } catch (UnknownHostException ex) {
             // UnknownHostException can't be thrown if you pass null to makeInetAddress.
             throw new AssertionError(ex);
+        }
+    }
+
+    private static InetAddress[] loopbackAddresses() {
+        if (preferIPv6Addresses()) {
+            return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
+        } else {
+            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
         }
     }
 

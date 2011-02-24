@@ -40,5 +40,8 @@ public class InetAddressTest extends junit.framework.TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+        // Strange special cases, for compatibility with InetAddress.getByName.
+        assertTrue(InetAddress.parseNumericAddress(null).isLoopbackAddress());
+        assertTrue(InetAddress.parseNumericAddress("").isLoopbackAddress());
     }
 }
