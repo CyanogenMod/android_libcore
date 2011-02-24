@@ -265,8 +265,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      *             header
      */
     public ObjectOutputStream(OutputStream output) throws IOException {
-        Class<?> implementationClass = getClass();
-        Class<?> thisClass = ObjectOutputStream.class;
         this.output = (output instanceof DataOutputStream) ? (DataOutputStream) output
                 : new DataOutputStream(output);
         this.enableReplace = false;
@@ -920,7 +918,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
     private void writeFieldValues(EmulatedFieldsForDumping emulatedFields) throws IOException {
         // Access internal fields which we can set/get. Users can't do this.
         EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
-        EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
         for (EmulatedFields.ObjectSlot slot : accessibleSimulatedFields.slots()) {
             Object fieldValue = slot.getFieldValue();
             Class<?> type = slot.getField().getType();
