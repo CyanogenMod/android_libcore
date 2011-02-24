@@ -73,10 +73,9 @@ public class DHPrivateKeyTest extends TestCase {
           args = {}
         )
     })
-    @BrokenTest("Too slow - disabling for now")
     public void test_getParams() throws Exception {
         KeyPairGenerator kg = KeyPairGenerator.getInstance("DH");
-        kg.initialize(1024);
+        kg.initialize(192);
         KeyPair kp1 = kg.genKeyPair();
         KeyPair kp2 = kg.genKeyPair();
         DHPrivateKey pk1 = (DHPrivateKey) kp1.getPrivate();
