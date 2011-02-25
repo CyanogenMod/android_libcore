@@ -229,7 +229,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 "[amPmStrings=" + Arrays.toString(ampms) +
                 ",customZoneStrings=" + customZoneStrings +
                 ",eras=" + Arrays.toString(eras) +
-                ",localPatternChars=" + new String(localPatternChars) +
+                ",localPatternChars=" + localPatternChars +
                 ",months=" + Arrays.toString(months) +
                 ",shortMonths=" + Arrays.toString(shortMonths) +
                 ",shortWeekdays=" + Arrays.toString(shortWeekdays) +
