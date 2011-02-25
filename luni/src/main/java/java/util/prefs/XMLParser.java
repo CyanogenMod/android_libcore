@@ -417,8 +417,7 @@ class XMLParser {
             for(int i = 0; i < childNodes.getLength(); i++) {
                 Object next = childNodes.item(i);
                 if(next instanceof Element) {
-                    if(((Element) next).getNodeName().equals(path[0])
-                            && next instanceof Node) {
+                    if(((Element) next).getNodeName().equals(path[0])) {
                         NodeList nextChildNodes = ((Node)next).getChildNodes();
                         for(int j = 0; j < nextChildNodes.getLength(); j++) {
                             Object subnext = nextChildNodes.item(j);
