@@ -85,10 +85,8 @@ public class XmlPullParserFactory {
      * @param state if true feature will be set; if false will be ignored
      */
 
-    public void setFeature(String name,
-                           boolean state) throws XmlPullParserException {
-
-        features.put(name, new Boolean(state));
+    public void setFeature(String name, boolean state) throws XmlPullParserException {
+        features.put(name, state);
     }
 
 
@@ -116,7 +114,7 @@ public class XmlPullParserFactory {
      */
 
     public void setNamespaceAware(boolean awareness) {
-        features.put (XmlPullParser.FEATURE_PROCESS_NAMESPACES, new Boolean (awareness));
+        features.put (XmlPullParser.FEATURE_PROCESS_NAMESPACES, awareness);
     }
 
     /**
@@ -143,7 +141,7 @@ public class XmlPullParserFactory {
      */
 
     public void setValidating(boolean validating) {
-        features.put (XmlPullParser.FEATURE_VALIDATION, new Boolean (validating));
+        features.put (XmlPullParser.FEATURE_VALIDATION, validating);
     }
 
     /**
