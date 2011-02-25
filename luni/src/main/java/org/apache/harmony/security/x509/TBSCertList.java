@@ -288,7 +288,7 @@ public final class TBSCertList {
 
     @Override public int hashCode() {
         return ((version * 37 + signature.hashCode()) * 37
-                + issuer.getEncoded().hashCode()) * 37
+                + Arrays.hashCode(issuer.getEncoded())) * 37
                 + (int)thisUpdate.getTime() / 1000;
     }
 
