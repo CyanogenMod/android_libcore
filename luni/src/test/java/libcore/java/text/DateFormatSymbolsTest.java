@@ -22,7 +22,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -77,7 +79,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         return sdf.format(new Date(0));
     }
 
-    public void test_getZoneStrings() throws Exception {
+    public void test_getZoneStrings_cloning() throws Exception {
         // Check that corrupting our array doesn't affect other callers.
 
         // Kill a row.
@@ -97,5 +99,28 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
             String[][] currentZoneStrings = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
             assertNotNull(currentZoneStrings[0][0]);
         }
+    }
+
+    public void test_getZoneStrings_UTC() throws Exception {
+        HashMap<String, String[]> zoneStrings = new HashMap<String, String[]>();
+        for (String[] row : DateFormatSymbols.getInstance(Locale.US).getZoneStrings()) {
+            zoneStrings.put(row[0], row);
+        }
+
+        assertUtc(zoneStrings.get("Etc/UCT"));
+        assertUtc(zoneStrings.get("Etc/UTC"));
+        assertUtc(zoneStrings.get("Etc/Universal"));
+        assertUtc(zoneStrings.get("Etc/Zulu"));
+
+        assertUtc(zoneStrings.get("UCT"));
+        assertUtc(zoneStrings.get("UTC"));
+        assertUtc(zoneStrings.get("Universal"));
+        assertUtc(zoneStrings.get("Zulu"));
+    }
+    private static void assertUtc(String[] row) {
+        // Element 0 is the Olson id. The short names should be "UTC".
+        // On the RI, the long names are localized. ICU doesn't have those, so we just use UTC.
+        assertEquals(Arrays.toString(row), "UTC", row[2]);
+        assertEquals(Arrays.toString(row), "UTC", row[4]);
     }
 }

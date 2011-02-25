@@ -78,6 +78,21 @@ static void setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const 
     env->SetObjectArrayElement(array, i, javaString.get());
 }
 
+static bool isUtc(const UnicodeString& id) {
+    static UnicodeString etcUct("Etc/UCT", 7, US_INV);
+    static UnicodeString etcUtc("Etc/UTC", 7, US_INV);
+    static UnicodeString etcUniversal("Etc/Universal", 13, US_INV);
+    static UnicodeString etcZulu("Etc/Zulu", 8, US_INV);
+
+    static UnicodeString uct("UCT", 3, US_INV);
+    static UnicodeString utc("UTC", 3, US_INV);
+    static UnicodeString universal("Universal", 9, US_INV);
+    static UnicodeString zulu("Zulu", 4, US_INV);
+
+    return id == etcUct || id == etcUtc || id == etcUniversal || id == etcZulu ||
+            id == uct || id == utc || id == universal || id == zulu;
+}
+
 static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring localeName, jobjectArray timeZoneIds) {
     Locale locale = getLocale(env, localeName);
 
@@ -99,6 +114,8 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
     UnicodeString allShortPattern("V", 1, US_INV);
     SimpleDateFormat allShortFormat(allShortPattern, locale, status);
 
+    UnicodeString utc("UTC", 3, US_INV);
+
     // TODO: use of fixed dates prevents us from using the correct historical name when formatting dates.
     // TODO: use of dates not in the current year could cause us to output obsoleted names.
     // 15th January 2008
@@ -119,8 +136,18 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
         UnicodeString id(zoneId.unicodeString());
 
         TimeZoneNames row;
-        row.tz = TimeZone::createTimeZone(id);
+        if (isUtc(id)) {
+            // ICU doesn't have names for the UTC zones; it just says "GMT+00:00" for both
+            // long and short names. We don't want this. The best we can do is use "UTC"
+            // for everything (since we don't know how to say "Universal Coordinated Time").
+            row.tz = NULL;
+            row.longStd = row.shortStd = row.longDst = row.shortDst = utc;
+            table.push_back(row);
+            usedAbbreviations[utc] = &utc;
+            continue;
+        }
 
+        row.tz = TimeZone::createTimeZone(id);
         longFormat.setTimeZone(*row.tz);
         shortFormat.setTimeZone(*row.tz);
 

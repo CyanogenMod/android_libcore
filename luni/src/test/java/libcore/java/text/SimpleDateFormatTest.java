@@ -172,4 +172,10 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
             sdf.format(new Date(0));
         }
     }
+
+    // http://code.google.com/p/android/issues/detail?id=14963
+    public void testParseTimezoneOnly() throws Exception {
+        new SimpleDateFormat("z", Locale.FRANCE).parse("UTC");
+        new SimpleDateFormat("z", Locale.US).parse("UTC");
+    }
 }
