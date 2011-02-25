@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.SecureRandomSpi;
+import libcore.io.Streams;
 import libcore.util.EmptyArray;
 
 /**
@@ -523,7 +524,6 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
         }
 
         nextBIndex = ois.readInt();
-        ois.read(nextBytes, nextBIndex, HASHBYTES_TO_USE - nextBIndex);
+        Streams.readFully(ois, nextBytes, nextBIndex, HASHBYTES_TO_USE - nextBIndex);
     }
-
 }

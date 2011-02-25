@@ -195,7 +195,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
 
     private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
         if (hasDD) {
-            in.read(hdrBuf, 0, EXTHDR);
+            Streams.readFully(in, hdrBuf, 0, EXTHDR);
             int sig = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
             if (sig != (int) EXTSIG) {
                 throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));

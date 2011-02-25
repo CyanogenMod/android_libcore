@@ -30,7 +30,17 @@ public final class Streams {
     private Streams() {}
 
     /**
-     * Implements {@link java.io.DataInputStream#readFully(byte[], int, int)}.
+     * Fills 'dst' with bytes from 'in', throwing EOFException if insufficient bytes are available.
+     */
+    public static void readFully(InputStream in, byte[] dst) throws IOException {
+        readFully(in, dst, 0, dst.length);
+    }
+
+    /**
+     * Reads exactly 'byteCount' bytes from 'in' (into 'dst' at offset 'offset'), and throws
+     * EOFException if insufficient bytes are available.
+     *
+     * Used to implement {@link java.io.DataInputStream#readFully(byte[], int, int)}.
      */
     public static void readFully(InputStream in, byte[] dst, int offset, int byteCount) throws IOException {
         if (byteCount == 0) {

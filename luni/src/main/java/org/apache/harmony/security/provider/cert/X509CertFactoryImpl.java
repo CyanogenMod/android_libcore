@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import libcore.io.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.security.asn1.ASN1Constants;
 import org.apache.harmony.security.asn1.BerInputStream;
@@ -642,7 +643,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 if (encoding.length < CERT_CACHE_SEED_LENGTH) {
                     throw new CertificateException("Bad Certificate encoding");
                 }
-                inStream.read(encoding);
+                Streams.readFully(inStream, encoding);
                 Certificate res = (Certificate) CERT_CACHE.get(hash, encoding);
                 if (res != null) {
                     return res;
@@ -713,7 +714,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 if (encoding.length < CRL_CACHE_SEED_LENGTH) {
                     throw new CRLException("Bad CRL encoding");
                 }
-                inStream.read(encoding);
+                Streams.readFully(inStream, encoding);
                 CRL res = (CRL) CRL_CACHE.get(hash, encoding);
                 if (res != null) {
                     return res;

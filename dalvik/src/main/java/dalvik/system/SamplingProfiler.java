@@ -41,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import libcore.util.Objects;
 import libcore.io.IoUtils;
+import libcore.io.Streams;
 
 /**
  * A sampling profiler. It currently is implemented without any
@@ -1054,7 +1055,7 @@ public final class SamplingProfiler {
         private void parseStringInUtf8(int recordLength) throws IOException {
             int stringId = in.readInt();
             byte[] bytes = new byte[recordLength - BinaryHprof.ID_SIZE];
-            in.read(bytes);
+            Streams.readFully(in, bytes);
             String string = new String(bytes, "UTF-8");
             if (TRACE) {
                 System.out.println("\tstring=" + string);
