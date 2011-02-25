@@ -330,7 +330,7 @@ public abstract class Charset implements Comparable<Charset> {
      */
     public static boolean isSupported(String charsetName) {
         try {
-            Charset cs = forName(charsetName);
+            forName(charsetName);
             return true;
         } catch (UnsupportedCharsetException ex) {
             return false;
