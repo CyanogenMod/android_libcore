@@ -319,7 +319,7 @@ public final class GeneralName {
         case X400_ADDR:
         case OTHER_NAME:
         case EDIP_NAME:
-            return getEncoded().hashCode();
+            return Arrays.hashCode(getEncoded());
         default:
             return super.hashCode();
         }

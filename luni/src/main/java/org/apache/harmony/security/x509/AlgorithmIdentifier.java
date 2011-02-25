@@ -122,7 +122,7 @@ public final class AlgorithmIdentifier {
     }
 
     @Override public int hashCode() {
-        return algorithm.hashCode() * 37 + (parameters != null ? parameters.hashCode() : 0);
+        return algorithm.hashCode() * 37 + (parameters != null ? Arrays.hashCode(parameters) : 0);
     }
 
     public void dumpValue(StringBuilder sb) {

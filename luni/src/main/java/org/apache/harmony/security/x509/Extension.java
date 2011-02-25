@@ -198,7 +198,7 @@ public final class Extension {
     }
 
     @Override public int hashCode() {
-        return (extnID.hashCode() * 37 + (critical ? 1 : 0)) * 37 + extnValue.hashCode();
+        return (Arrays.hashCode(extnID) * 37 + (critical ? 1 : 0)) * 37 + Arrays.hashCode(extnValue);
     }
 
     public ExtensionValue getDecodedExtensionValue() throws IOException {
