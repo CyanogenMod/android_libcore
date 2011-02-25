@@ -439,7 +439,7 @@ public class XMLReaderAdapter implements Parser, ContentHandler
     /**
      * Internal class to wrap a SAX2 Attributes object for SAX1.
      */
-    final class AttributesAdapter implements AttributeList
+    static final class AttributesAdapter implements AttributeList
     {
     AttributesAdapter ()
     {
