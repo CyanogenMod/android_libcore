@@ -69,7 +69,8 @@ public abstract class DatatypeFactory {
      *
      * <p>Default value is <code>org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl</code>.</p>
      */
-    public static final String DATATYPEFACTORY_IMPLEMENTATION_CLASS = "org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl";
+    // This uses "new String" to avoid being inlined as a constant.
+    public static final String DATATYPEFACTORY_IMPLEMENTATION_CLASS = new String("org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl");
 
     /**
      * <p>Protected constructor to prevent instantiation outside of package.</p>
