@@ -1514,7 +1514,7 @@ public final class Character implements Serializable, Comparable<Character> {
                         blockName.equals("CombiningMarksforSymbols")) {
                     return COMBINING_MARKS_FOR_SYMBOLS;
                 }
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Bad block name: " + blockName);
             }
             return BLOCKS[block];
         }
@@ -1544,14 +1544,11 @@ public final class Character implements Serializable, Comparable<Character> {
          * @return the {@code UnicodeBlock} constant for the block that contains
          *         {@code codePoint}, or {@code null} if {@code codePoint} does
          *         not belong to any defined block.
-         * @throws IllegalArgumentException
-         *             if {@code codePoint} is not a valid Unicode code point.
+         * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
          * @since 1.5
          */
         public static UnicodeBlock of(int codePoint) {
-            if (!isValidCodePoint(codePoint)) {
-                throw new IllegalArgumentException();
-            }
+            checkValidCodePoint(codePoint);
             int block = ofImpl(codePoint);
             if (block == -1 || block >= BLOCKS.length) {
                 return null;
@@ -1588,6 +1585,12 @@ public final class Character implements Serializable, Comparable<Character> {
         return value;
     }
 
+    private static void checkValidCodePoint(int codePoint) {
+        if (!isValidCodePoint(codePoint)) {
+            throw new IllegalArgumentException("Invalid code point: " + codePoint);
+        }
+    }
+
     /**
      * Compares this object to the specified character object to determine their
      * relative order.
@@ -1603,7 +1606,17 @@ public final class Character implements Serializable, Comparable<Character> {
      * @since 1.2
      */
     public int compareTo(Character c) {
-        return value - c.value;
+        return compare(value, c.value);
+    }
+
+    /**
+     * Compares two {@code char} values.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int compare(char lhs, char rhs) {
+        return lhs - rhs;
     }
 
     /**
@@ -1689,6 +1702,15 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static boolean isLowSurrogate(char ch) {
         return (MIN_LOW_SURROGATE <= ch && MAX_LOW_SURROGATE >= ch);
+    }
+
+    /**
+     * Tests whether the given character is a high or low surrogate.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static boolean isSurrogate(char ch) {
+        return ch >= MIN_SURROGATE && ch <= MAX_SURROGATE;
     }
 
     /**
@@ -2019,8 +2041,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @param dstIndex
      *            the index in {@code dst} from where to start copying.
      * @return the number of {@code char} value units copied into {@code dst}.
-     * @throws IllegalArgumentException
-     *             if {@code codePoint} is not a valid Unicode code point.
+     * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
      * @throws NullPointerException
      *             if {@code dst} is {@code null}.
      * @throws IndexOutOfBoundsException
@@ -2031,9 +2052,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @since 1.5
      */
     public static int toChars(int codePoint, char[] dst, int dstIndex) {
-        if (!isValidCodePoint(codePoint)) {
-            throw new IllegalArgumentException();
-        }
+        checkValidCodePoint(codePoint);
         if (dst == null) {
             throw new NullPointerException();
         }
@@ -2069,15 +2088,11 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@link #isSupplementaryCodePoint(int) supplementary code point},
      *         then the returned array contains two characters, otherwise it
      *         contains just one character.
-     * @throws IllegalArgumentException
-     *             if {@code codePoint} is not a valid Unicode code point.
+     * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
      * @since 1.5
      */
     public static char[] toChars(int codePoint) {
-        if (!isValidCodePoint(codePoint)) {
-            throw new IllegalArgumentException();
-        }
-
+        checkValidCodePoint(codePoint);
         if (isSupplementaryCodePoint(codePoint)) {
             int cpPrime = codePoint - 0x10000;
             int high = 0xD800 | ((cpPrime >> 10) & 0x3FF);
@@ -2417,6 +2432,38 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
+     * Returns the name of the given code point, or null if the code point is unassigned.
+     *
+     * <p>As a fallback mechanism this method returns strings consisting of the Unicode
+     * block name (with underscores replaced by spaces), a single space, and the uppercase
+     * hex value of the code point, using as few digits as necessary.
+     *
+     * <p>Examples:
+     * <ul>
+     * <li>{@code Character.getName(0)} returns "NULL".
+     * <li>{@code Character.getName('e')} returns "LATIN SMALL LETTER E".
+     * <li>{@code Character.getName('\u0666')} returns "ARABIC-INDIC DIGIT SIX".
+     * <li>{@code Character.getName(0xe000)} returns "PRIVATE USE AREA E000".
+     * </ul>
+     *
+     * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
+     */
+    public static String getName(int codePoint) {
+        checkValidCodePoint(codePoint);
+        if (getType(codePoint) == Character.UNASSIGNED) {
+            return null;
+        }
+        String result = getNameImpl(codePoint);
+        if (result == null) {
+            String blockName = Character.UnicodeBlock.of(codePoint).toString().replace('_', ' ');
+            result = blockName + " " + IntegralToString.intToHexString(codePoint, true);
+        }
+        return result;
+    }
+
+    private static native String getNameImpl(int codePoint);
+
+    /**
      * Returns the numeric value of the specified Unicode character.
      * See {@link #getNumericValue(int)}.
      *
@@ -2564,6 +2611,36 @@ public final class Character implements Serializable, Comparable<Character> {
     @Override
     public int hashCode() {
         return value;
+    }
+
+    /**
+     * Returns the high surrogate for the given code point. The result is meaningless if
+     * the given code point is not a supplementary character.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static char highSurrogate(int codePoint) {
+        return (char) ((codePoint >> 10) + 0xd7c0);
+    }
+
+    /**
+     * Returns the low surrogate for the given code point. The result is meaningless if
+     * the given code point is not a supplementary character.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static char lowSurrogate(int codePoint) {
+        return (char) ((codePoint & 0x3ff) | 0xdc00);
+    }
+
+    /**
+     * Tests whether the given code point is in the Basic Multilingual Plane (BMP).
+     * Such code points can be represented by a single {@code char}.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static boolean isBmpCodePoint(int codePoint) {
+        return codePoint >= 0 && codePoint <= 0xffff;
     }
 
     /**

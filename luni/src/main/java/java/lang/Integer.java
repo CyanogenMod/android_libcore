@@ -410,7 +410,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the hexadecimal string representation of {@code i}.
      */
     public static String toHexString(int i) {
-        return IntegralToString.intToHexString(i);
+        return IntegralToString.intToHexString(i, false);
     }
 
     /**

@@ -462,13 +462,14 @@ public final class IntegralToString {
         return new String(0, 2, buf);
     }
 
-    public static String intToHexString(int i) {
+    public static String intToHexString(int i, boolean upperCase) {
         int bufLen = 8;  // Max number of hex digits in an int
         char[] buf = new char[bufLen];
         int cursor = bufLen;
 
+        char[] digits = upperCase ? UPPER_CASE_DIGITS : DIGITS;
         do {
-            buf[--cursor] = DIGITS[i & 0xf];
+            buf[--cursor] = digits[i & 0xf];
         } while ((i >>>= 4) != 0);
 
         return new String(cursor, bufLen - cursor, buf);
@@ -477,7 +478,7 @@ public final class IntegralToString {
     public static String longToHexString(long v) {
         int i = (int) v;
         if (v >= 0 && i == v) {
-            return intToHexString(i);
+            return intToHexString(i, false);
         }
 
         int bufLen = 16;  // Max number of hex digits in a long
