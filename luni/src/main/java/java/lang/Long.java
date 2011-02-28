@@ -107,9 +107,17 @@ public final class Long extends Number implements Comparable<Long> {
      * @since 1.2
      */
     public int compareTo(Long object) {
-        long thisValue = this.value;
-        long thatValue = object.value;
-        return thisValue < thatValue ? -1 : (thisValue == thatValue ? 0 : 1);
+        return compare(value, object.value);
+    }
+
+    /**
+     * Compares two {@code long} values.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int compare(long lhs, long rhs) {
+        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }
 
     private static NumberFormatException invalidLong(String s) {

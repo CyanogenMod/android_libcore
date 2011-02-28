@@ -105,7 +105,17 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @since 1.2
      */
     public int compareTo(Byte object) {
-        return value > object.value ? 1 : (value < object.value ? -1 : 0);
+        return compare(value, object.value);
+    }
+
+    /**
+     * Compares two {@code byte} values.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int compare(byte lhs, byte rhs) {
+        return lhs > rhs ? 1 : (lhs < rhs ? -1 : 0);
     }
 
     /**
