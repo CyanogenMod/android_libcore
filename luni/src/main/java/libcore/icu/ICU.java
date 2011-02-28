@@ -16,6 +16,7 @@
 
 package libcore.icu;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
 
 /**
@@ -80,11 +81,14 @@ public final class ICU {
     }
 
     public static Locale[] localesFromStrings(String[] localeNames) {
-        Locale[] result = new Locale[localeNames.length];
-        for (int i = 0; i < result.length; ++i) {
-            result[i] = localeFromString(localeNames[i]);
+        // We need to remove duplicates caused by the conversion of "he" to "iw", et cetera.
+        // Java needs the obsolete code, ICU needs the modern code, but we let ICU know about
+        // both so that we never need to convert back when talking to it.
+        LinkedHashSet<Locale> set = new LinkedHashSet<Locale>();
+        for (String localeName : localeNames) {
+            set.add(localeFromString(localeName));
         }
-        return result;
+        return set.toArray(new Locale[set.size()]);
     }
 
     private static Locale[] availableLocalesCache;
