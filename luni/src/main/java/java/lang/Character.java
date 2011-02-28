@@ -2447,6 +2447,8 @@ public final class Character implements Serializable, Comparable<Character> {
      * </ul>
      *
      * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
+     * @since 1.7
+     * @hide 1.7
      */
     public static String getName(int codePoint) {
         checkValidCodePoint(codePoint);
