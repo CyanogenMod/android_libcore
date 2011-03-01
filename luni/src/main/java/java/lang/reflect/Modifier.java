@@ -111,6 +111,51 @@ public class Modifier {
     }
 
     /**
+     * Returns a mask of all the modifiers that may be applied to classes.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int classModifiers() {
+        return PUBLIC | PROTECTED | PRIVATE | ABSTRACT | STATIC | FINAL | STRICT;
+    }
+
+    /**
+     * Returns a mask of all the modifiers that may be applied to constructors.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int constructorModifiers() {
+        return PUBLIC | PROTECTED | PRIVATE;
+    }
+
+    /**
+     * Returns a mask of all the modifiers that may be applied to fields.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int fieldModifiers() {
+        return PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL | TRANSIENT | VOLATILE;
+    }
+
+    /**
+     * Returns a mask of all the modifiers that may be applied to interfaces.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int interfaceModifiers() {
+        return PUBLIC | PROTECTED | PRIVATE | ABSTRACT | STATIC | STRICT;
+    }
+
+    /**
+     * Returns a mask of all the modifiers that may be applied to methods.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int methodModifiers() {
+        return PUBLIC | PROTECTED | PRIVATE | ABSTRACT | STATIC | FINAL | SYNCHRONIZED | NATIVE | STRICT;
+    }
+
+    /**
      * Indicates whether or not the specified modifiers contain the {@code
      * abstract} modifier.
      *
