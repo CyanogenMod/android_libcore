@@ -60,7 +60,7 @@ import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
  * that value is more predictable to an attacker than the default seed.
  *
  * <p>Calling {@link #setSeed} on a {@code SecureRandom} <i>after</i> it has
- * been used to generate random numbers (ie. calling {#link nextBytes}) will
+ * been used to generate random numbers (ie. calling {@link #nextBytes}) will
  * supplement the existing seed. This does not cause the instance to return a
  * predictable numbers, nor does it harm the security of the numbers generated.
  */
