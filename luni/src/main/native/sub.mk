@@ -6,21 +6,10 @@
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
 	ErrorCode.cpp \
-	ICU.cpp \
 	JniConstants.cpp \
 	JniException.cpp \
-	NativeBN.cpp \
-	NativeBreakIterator.cpp \
-	NativeCollation.cpp \
-	NativeConverter.cpp \
-	NativeCrypto.cpp \
-	NativeDecimalFormat.cpp \
-	NativeIDN.cpp \
-	NativeNormalizer.cpp \
-	NativePluralRules.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
-	TimeZones.cpp \
 	cbigint.cpp \
 	ifaddrs-android.cpp \
 	java_io_Console.cpp \
@@ -33,6 +22,7 @@ LOCAL_SRC_FILES := \
 	java_lang_RealToString.cpp \
 	java_lang_StrictMath.cpp \
 	java_lang_System.cpp \
+	java_math_NativeBN.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
 	java_nio_ByteOrder.cpp \
@@ -44,6 +34,15 @@ LOCAL_SRC_FILES := \
 	java_util_zip_CRC32.cpp \
 	java_util_zip_Deflater.cpp \
 	java_util_zip_Inflater.cpp \
+	libcore_icu_ICU.cpp \
+	libcore_icu_NativeBreakIterator.cpp \
+	libcore_icu_NativeCollation.cpp \
+	libcore_icu_NativeConverter.cpp \
+	libcore_icu_NativeDecimalFormat.cpp \
+	libcore_icu_NativeIDN.cpp \
+	libcore_icu_NativeNormalizer.cpp \
+	libcore_icu_NativePluralRules.cpp \
+	libcore_icu_TimeZones.cpp \
 	libcore_io_IoUtils.cpp \
 	libcore_net_RawSocket.cpp \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
@@ -51,6 +50,7 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
+	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
 	readlink.cpp \
 	realpath.cpp \
 	toStringArray.cpp \
