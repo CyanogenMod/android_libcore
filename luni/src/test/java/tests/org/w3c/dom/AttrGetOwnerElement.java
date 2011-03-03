@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,7 +9,6 @@ import org.w3c.dom.NamedNodeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
-@TestTargetClass(Attr.class)
 public final class AttrGetOwnerElement extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -61,12 +55,6 @@ public final class AttrGetOwnerElement extends DOMTestCase {
 //        assertEquals("attrgetownerelement01", "emp:employee", ownerElementName);
 //
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that getOwnerElement returns null if an attribute is not in use.",
-        method = "getOwnerElement",
-        args = {}
-    )
     public void testGetOwnerElement2() throws Throwable {
         Document doc;
         Element element;
@@ -82,12 +70,6 @@ public final class AttrGetOwnerElement extends DOMTestCase {
         ownerElementName = ownerElement.getNodeName();
         assertEquals("attrgetownerelement02", "root", ownerElementName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getOwnerElement returns null if an attribute is not in use.",
-        method = "getOwnerElement",
-        args = {}
-    )
     public void testGetOwnerElement3() throws Throwable {
         Document doc;
         Node ownerElement;
@@ -97,12 +79,6 @@ public final class AttrGetOwnerElement extends DOMTestCase {
         ownerElement = attr.getOwnerElement();
         assertNull("attrgetownerelement03", ownerElement);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getOwnerElement returns null if an attribute is not in use.",
-        method = "getOwnerElement",
-        args = {}
-    )
     public void testGetOwnerElement4() throws Throwable {
         Document doc;
         Document docImp;
@@ -124,12 +100,6 @@ public final class AttrGetOwnerElement extends DOMTestCase {
         ownerElement = attrImp.getOwnerElement();
         assertNull("attrgetownerelement04", ownerElement);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that getOwnerElement returns null if an attribute is not in use.",
-        method = "getOwnerElement",
-        args = {}
-    )
     public void testGetOwnerElement5() throws Throwable {
         Document doc;
         Node element;

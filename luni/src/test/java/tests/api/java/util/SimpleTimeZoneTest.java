@@ -17,18 +17,12 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
-@TestTargetClass(SimpleTimeZone.class)
 public class SimpleTimeZoneTest extends junit.framework.TestCase {
 
     SimpleTimeZone st1;
@@ -36,14 +30,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     SimpleTimeZone st2;
 
     /**
-     * @tests java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String)
+     * java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SimpleTimeZone",
-        args = {int.class, java.lang.String.class}
-    )
     public void test_ConstructorILjava_lang_String() {
         // Test for method java.util.SimpleTimeZone(int, java.lang.String)
 
@@ -56,15 +44,9 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
+     * java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
      *        int, int, int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SimpleTimeZone",
-        args = {int.class, java.lang.String.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorILjava_lang_StringIIIIIIII() {
         // Test for method java.util.SimpleTimeZone(int, java.lang.String, int,
         // int, int, int, int, int, int, int)
@@ -119,15 +101,9 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
+     * java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
      *        int, int, int, int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SimpleTimeZone",
-        args = {int.class, java.lang.String.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorILjava_lang_StringIIIIIIIII() {
         // Test for method java.util.SimpleTimeZone(int, java.lang.String, int,
         // int, int, int, int, int, int, int, int)
@@ -184,15 +160,9 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
+     * java.util.SimpleTimeZone#SimpleTimeZone(int, java.lang.String,
      *        int, int, int, int, int, int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SimpleTimeZone",
-        args = {int.class, java.lang.String.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorILjava_lang_StringIIIIIIIIIII() {
         // Test for method java.util.SimpleTimeZone(int, java.lang.String, int,
         // int, int, int, int, int, int, int, int, int, int)
@@ -267,14 +237,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#clone()
+     * java.util.SimpleTimeZone#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.SimpleTimeZone.clone()
         SimpleTimeZone st1 = new SimpleTimeZone(1000, "TEST",
@@ -290,14 +254,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#equals(java.lang.Object)
+     * java.util.SimpleTimeZone#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean
         // java.util.SimpleTimeZone.equals(java.lang.Object)
@@ -310,14 +268,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#getDSTSavings()
+     * java.util.SimpleTimeZone#getDSTSavings()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDSTSavings",
-        args = {}
-    )
     public void test_getDSTSavings() {
         // Test for method int java.util.SimpleTimeZone.getDSTSavings()
         st1 = new SimpleTimeZone(0, "TEST");
@@ -338,14 +290,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#getOffset(int, int, int, int, int, int)
+     * java.util.SimpleTimeZone#getOffset(int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOffset",
-        args = {int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_getOffsetIIIIII() {
         // Test for method int java.util.SimpleTimeZone.getOffset(int, int, int,
         // int, int, int)
@@ -403,14 +349,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#getRawOffset()
+     * java.util.SimpleTimeZone#getRawOffset()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getRawOffset",
-        args = {}
-    )
     public void test_getRawOffset() {
         // Test for method int java.util.SimpleTimeZone.getRawOffset()
         st1 = new SimpleTimeZone(TimeZone.getTimeZone("EST").getRawOffset(), "EST");
@@ -420,14 +360,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#hashCode()
+     * java.util.SimpleTimeZone#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         // Test for method int java.util.SimpleTimeZone.hashCode()
         // For lack of a better test.
@@ -439,14 +373,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#hasSameRules(java.util.TimeZone)
+     * java.util.SimpleTimeZone#hasSameRules(java.util.TimeZone)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hasSameRules",
-        args = {java.util.TimeZone.class}
-    )
     public void test_hasSameRulesLjava_util_TimeZone() {
         // Test for method boolean
         // java.util.SimpleTimeZone.hasSameRules(java.util.TimeZone)
@@ -466,14 +394,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#inDaylightTime(java.util.Date)
+     * java.util.SimpleTimeZone#inDaylightTime(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "inDaylightTime",
-        args = {java.util.Date.class}
-    )
     public void test_inDaylightTimeLjava_util_Date() {
         // Test for method boolean
         // java.util.SimpleTimeZone.inDaylightTime(java.util.Date)
@@ -512,14 +434,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setDSTSavings(int)
+     * java.util.SimpleTimeZone#setDSTSavings(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDSTSavings",
-        args = {int.class}
-    )
     public void test_setDSTSavingsI() {
         // Test for method void java.util.SimpleTimeZone.setDSTSavings(int)
         SimpleTimeZone st = new SimpleTimeZone(1000, "Test_TZ");
@@ -530,14 +446,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setEndRule(int, int, int)
+     * java.util.SimpleTimeZone#setEndRule(int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setEndRule",
-        args = {int.class, int.class, int.class}
-    )
     public void test_setEndRuleIII() {
         SimpleTimeZone st = new SimpleTimeZone(1000, "Test_TZ");
         st.setStartRule(Calendar.NOVEMBER, 1, 0);
@@ -573,14 +483,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setEndRule(int, int, int, int)
+     * java.util.SimpleTimeZone#setEndRule(int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setEndRule",
-        args = {int.class, int.class, int.class, int.class}
-    )
     public void test_setEndRuleIIII() {
         // Test for method void java.util.SimpleTimeZone.setEndRule(int, int,
         // int, int)
@@ -627,14 +531,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setEndRule(int, int, int, int, boolean)
+     * java.util.SimpleTimeZone#setEndRule(int, int, int, int, boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setEndRule",
-        args = {int.class, int.class, int.class, int.class, boolean.class}
-    )
     public void test_setEndRuleIIIIZ() {
         // Test for method void java.util.SimpleTimeZone.setEndRule(int, int,
         // int, int, boolean)
@@ -687,14 +585,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setRawOffset(int)
+     * java.util.SimpleTimeZone#setRawOffset(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setRawOffset",
-        args = {int.class}
-    )
     public void test_setRawOffsetI() {
         // Test for method void java.util.SimpleTimeZone.setRawOffset(int)
 
@@ -707,14 +599,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setStartRule(int, int, int)
+     * java.util.SimpleTimeZone#setStartRule(int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setStartRule",
-        args = {int.class, int.class, int.class}
-    )
     public void test_setStartRuleIII() {
         // Test for method void java.util.SimpleTimeZone.setStartRule(int, int,
         // int)
@@ -754,14 +640,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setStartRule(int, int, int, int)
+     * java.util.SimpleTimeZone#setStartRule(int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setStartRule",
-        args = {int.class, int.class, int.class, int.class}
-    )
     public void test_setStartRuleIIII() {
         // Test for method void java.util.SimpleTimeZone.setStartRule(int, int,
         // int, int)
@@ -808,14 +688,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setStartRule(int, int, int, int, boolean)
+     * java.util.SimpleTimeZone#setStartRule(int, int, int, int, boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setStartRule",
-        args = {int.class, int.class, int.class, int.class, boolean.class}
-    )
     public void test_setStartRuleIIIIZ() {
         // Test for method void java.util.SimpleTimeZone.setStartRule(int, int,
         // int, int, boolean)
@@ -868,14 +742,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#setStartYear(int)
+     * java.util.SimpleTimeZone#setStartYear(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setStartYear",
-        args = {int.class}
-    )
     public void test_setStartYearI() {
         // Test for method void java.util.SimpleTimeZone.setStartYear(int)
         SimpleTimeZone st = new SimpleTimeZone(1000, "Test_TZ");
@@ -894,14 +762,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#toString()
+     * java.util.SimpleTimeZone#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String java.util.SimpleTimeZone.toString()
         String string = TimeZone.getTimeZone("EST").toString();
@@ -910,14 +772,8 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.SimpleTimeZone#useDaylightTime()
+     * java.util.SimpleTimeZone#useDaylightTime()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "useDaylightTime",
-        args = {}
-    )
     public void test_useDaylightTime() {
         // Test for method boolean java.util.SimpleTimeZone.useDaylightTime()
         SimpleTimeZone st = new SimpleTimeZone(1000, "Test_TZ");
@@ -931,12 +787,6 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
                 .useDaylightTime());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOffset",
-        args = {long.class}
-    )
     public void test_getOffsetJ() {
         Calendar cal = Calendar.getInstance();
         cal.set(1998, Calendar.NOVEMBER, 11, 0, 0);

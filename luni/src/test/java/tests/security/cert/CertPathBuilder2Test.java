@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import tests.security.cert.myCertPathBuilder.MyProvider;
@@ -45,7 +40,6 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
  * Tests for CertPathBuilder class constructors and methods
  *
  */
-@TestTargetClass(CertPathBuilder.class)
 public class CertPathBuilder2Test extends TestCase {
     private static final String defaultAlg = "CertPB";
     private static final String CertPathBuilderProviderClass = "org.apache.harmony.security.tests.support.cert.MyCertPathBuilderSpi";
@@ -115,12 +109,6 @@ public class CertPathBuilder2Test extends TestCase {
      * throws NoSuchAlgorithmException when algorithm  is not correct
      * returns CertPathBuilder object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance01() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, CertPathBuilderException {
         try {
@@ -155,12 +143,6 @@ public class CertPathBuilder2Test extends TestCase {
      * throws NoSuchProviderException when provider is available;
      * returns CertPathBuilder object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance02() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             InvalidAlgorithmParameterException, CertPathBuilderException {
@@ -225,12 +207,6 @@ public class CertPathBuilder2Test extends TestCase {
      * throws NoSuchAlgorithmException when algorithm  is not correct
      * returns CertPathBuilder object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance03() throws NoSuchAlgorithmException,
             IllegalArgumentException,
             InvalidAlgorithmParameterException, CertPathBuilderException {

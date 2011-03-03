@@ -27,7 +27,7 @@ import tests.support.Support_Configuration;
 public class URLEncoderTest extends TestCase {
 
     /**
-     * @tests java.net.URLEncoder#encode(java.lang.String)
+     * java.net.URLEncoder#encode(java.lang.String)
      */
     @SuppressWarnings("deprecation")
     public void test_encodeLjava_lang_String() {
@@ -44,7 +44,7 @@ public class URLEncoderTest extends TestCase {
     }
 
     /**
-     * @tests URLEncoder#encode(String, String)
+     * URLEncoder#encode(String, String)
      */
     public void test_encodeLjava_lang_StringLjava_lang_String()
             throws Exception {

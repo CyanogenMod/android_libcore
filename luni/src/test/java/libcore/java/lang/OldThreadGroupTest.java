@@ -232,7 +232,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
     }
 
     /**
-     * @tests java.lang.ThreadGroup#interrupt()
+     * java.lang.ThreadGroup#interrupt()
      */
     private static boolean interrupted = false;
     public void test_interrupt() {

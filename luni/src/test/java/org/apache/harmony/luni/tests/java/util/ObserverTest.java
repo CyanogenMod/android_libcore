@@ -16,17 +16,11 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.Observable;
 import java.util.Observer;
 
-@TestTargetClass(Observer.class)
 public class ObserverTest extends TestCase {
 
     class Mock_Observer implements Observer {
@@ -51,12 +45,6 @@ public class ObserverTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {java.util.Observable.class, java.lang.Object.class}
-    )
     public void testUpdate() {
         TestObservable observable = new TestObservable();
         Mock_Observer observer = null;

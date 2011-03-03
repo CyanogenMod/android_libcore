@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -44,7 +39,6 @@ import org.apache.harmony.crypto.tests.support.MyExemptionMechanismSpi;
 import junit.framework.TestCase;
 
 
-@TestTargetClass(ExemptionMechanismSpi.class)
 /**
  * Tests for <code>ExemptionMechanismSpi</code> class constructors and
  * methods.
@@ -93,12 +87,6 @@ class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi{
      * constructs ExemptionMechanismSpi
      * @throws Exception
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ExemptionMechanismSpi",
-        args = {}
-    )
     public void testExemptionMechanismSpi01() throws Exception {
         Mock_ExemptionMechanismSpi emSpi = new Mock_ExemptionMechanismSpi(){};
         int len = MyExemptionMechanismSpi.getLength();

@@ -17,11 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.callback.Callback;
@@ -31,18 +26,11 @@ import javax.security.auth.callback.CallbackHandler;
  * Tests for <code>CallbackHandler</code> class constructors and methods.
  *
  */
-@TestTargetClass(CallbackHandler.class)
 public class CallbackHandlerTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.callback.CallbackHandler#handle(Callback[] callbacks)
+     * javax.security.auth.callback.CallbackHandler#handle(Callback[] callbacks)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "handle",
-        args = {Callback[].class}
-    )
     public void test_CallbackHandler() {
         CallbackHandlerImpl ch = new CallbackHandlerImpl();
         assertFalse(ch.called);

@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.DOMException;
@@ -28,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS</a>
  */
-@TestTargetClass(Document.class)
 public final class DocumentCreateElementNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -58,12 +52,6 @@ public final class DocumentCreateElementNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "createElementNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateElementNS1() throws Throwable {
         Document doc;
         Element element;
@@ -88,12 +76,6 @@ public final class DocumentCreateElementNS extends DOMTestCase {
         assertEquals("documentcreateelementNS01_prefix", "XML", prefix);
         assertEquals("documentcreateelementNS01_tagName", "XML:XML", tagName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createElementNS throws DOMException with INVALID_CHARACTER_ERR code.",
-        method = "createElementNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateElementNS2() throws Throwable {
         Document doc;
 
@@ -112,12 +94,6 @@ public final class DocumentCreateElementNS extends DOMTestCase {
             assertTrue("documentcreateelementNS02", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createElementNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createElementNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateElementNS5() throws Throwable {
         Document doc;
 
@@ -136,12 +112,6 @@ public final class DocumentCreateElementNS extends DOMTestCase {
             assertTrue("documentcreateelementNS05", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createElementNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createElementNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateElementNS6() throws Throwable {
         Document doc;
         Document newDoc;

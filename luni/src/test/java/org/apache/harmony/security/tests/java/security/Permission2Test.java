@@ -17,16 +17,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.SecurityPermission;
 
-@TestTargetClass(Permission.class)
 public class Permission2Test extends junit.framework.TestCase {
     static class ConcretePermission extends Permission {
         public ConcretePermission() {
@@ -51,14 +45,8 @@ public class Permission2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Permission#Permission(java.lang.String)
+     * java.security.Permission#Permission(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Permission",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         // test method java.security.permission.Permission(string)
         try {
@@ -87,14 +75,8 @@ public class Permission2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Permission#checkGuard(java.lang.Object)
+     * java.security.Permission#checkGuard(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkGuard",
-        args = {java.lang.Object.class}
-    )
     public void test_checkGuardLjava_lang_Object() {
         // test method java.security.permission.checkGuard(object)
         SecurityPermission permi = new SecurityPermission(
@@ -108,14 +90,8 @@ public class Permission2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Permission#getName()
+     * java.security.Permission#getName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         // test method java.security.permission.getName()
         SecurityPermission permi = new SecurityPermission("testing getName()");
@@ -129,14 +105,8 @@ public class Permission2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Permission#newPermissionCollection()
+     * java.security.Permission#newPermissionCollection()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newPermissionCollection",
-        args = {}
-    )
     public void test_newPermissionCollection() {
         // test method java.security.permission.newPermissionCollection
         Permission permi = new ConcretePermission();
@@ -147,14 +117,8 @@ public class Permission2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Permission#toString()
+     * java.security.Permission#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // test method java.security.permission.toString
         // test for permission with no action

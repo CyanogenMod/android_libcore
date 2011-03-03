@@ -17,10 +17,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.SideEffect;
 
 import java.math.BigInteger;
@@ -48,12 +44,10 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(ExemptionMechanism.class)
 /**
  * Tests for <code>ExemptionMechanism</code> class constructors and methods
  *
  */
-
 public class ExemptionMechanismTest extends TestCase {
 
     private static final String srvExemptionMechanism = "ExemptionMechanism";
@@ -66,12 +60,6 @@ public class ExemptionMechanismTest extends TestCase {
      * Test for <code>ExemptionMechanism</code> constructor
      * Assertion: creates new object using provider and mechanism name
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ExemptionMechanism",
-        args = {javax.crypto.ExemptionMechanismSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testExemptionMechanism() throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -108,15 +96,9 @@ public class ExemptionMechanismTest extends TestCase {
     }
 
     /**
-     * @tests javax/crypto/ExemptionMechanism#getInstance(String algorithm, String provider)
+     * javax/crypto/ExemptionMechanism#getInstance(String algorithm, String provider)
      * Checks exception order
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance() throws Exception {
         //Regression for HARMONY-762
         try {
@@ -136,12 +118,6 @@ public class ExemptionMechanismTest extends TestCase {
     /**
      * Test for <code>isCryptoAllowed(Key key)</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isCryptoAllowed",
-        args = {java.security.Key.class}
-    )
     public void testIsCryptoAllowed() throws Exception {
 
         //Regression for HARMONY-1029
@@ -175,12 +151,6 @@ public class ExemptionMechanismTest extends TestCase {
     /**
      * Test for <code>genExemptionBlob((byte[] output, int outputOffset)</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test",
-        method = "genExemptionBlob",
-        args = {byte[].class, int.class}
-    )
     public void testGenExemptionBlob() throws Exception {
         //Regression for HARMONY-1029
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -216,12 +186,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "finalize",
-        args = {}
-    )
     @SideEffect("Causes OutOfMemoryError to test finalization")
     public void test_finalize () {
         Mock_ExemptionMechanism mem = new Mock_ExemptionMechanism(null, null, "Name");
@@ -268,21 +232,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "genExemptionBlob",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineGenExemptionBlob",
-            args = {}
-        )
-    })
     public void test_genExemptionBlob() throws InvalidKeyException,
     ExemptionMechanismException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -321,12 +270,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "genExemptionBlob",
-        args = {byte[].class}
-    )
     public void test_genExemptionBlob$B() throws InvalidKeyException,
     ExemptionMechanismException, ShortBufferException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -367,21 +310,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "genExemptionBlob",
-            args = {byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineGenExemptionBlob",
-            args = {byte[].class, int.class}
-        )
-    })
     public void test_genExemptionBlob$BI() throws InvalidKeyException,
     ExemptionMechanismException, ShortBufferException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -422,12 +350,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tests Exceptions",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() throws Exception {
         try {
             ExemptionMechanism.getInstance((String) null);
@@ -453,12 +375,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Tests Exceptions",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider()
     throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -492,12 +408,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -513,21 +423,6 @@ public class ExemptionMechanismTest extends TestCase {
         assertEquals(defaultAlg, em.getName());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getOutputSize",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineGetOutputSize",
-            args = {int.class}
-        )
-    })
     public void test_getOutputSizeI() throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -551,12 +446,6 @@ public class ExemptionMechanismTest extends TestCase {
         assertEquals(10, em.getOutputSize(10));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -572,21 +461,6 @@ public class ExemptionMechanismTest extends TestCase {
         assertEquals(mProv, em.getProvider());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class}
-        )
-    })
     public void test_initLjava_security_Key() throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -620,21 +494,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {java.security.Key.class, java.security.AlgorithmParameters.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.AlgorithmParameters.class}
-        )
-    })
     public void test_initLjava_security_KeyLjava_security_AlgorithmParameters()
             throws Exception {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
@@ -676,21 +535,6 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = ExemptionMechanismSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        )
-    })
     public void test_initLjava_security_KeyLjava_security_spec_AlgorithmParameterSpec()
             throws Exception{
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",

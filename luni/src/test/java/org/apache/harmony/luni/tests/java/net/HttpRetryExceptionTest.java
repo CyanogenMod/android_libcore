@@ -46,7 +46,7 @@ public class HttpRetryExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
         SerializationTest.verifySelf(new HttpRetryException(DETAIL, 100,
@@ -54,7 +54,7 @@ public class HttpRetryExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
         SerializationTest.verifyGolden(this, new HttpRetryException(DETAIL,

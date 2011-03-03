@@ -16,74 +16,19 @@
 
 package org.apache.harmony.nio.tests.java.nio.channels.spi;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.nio.channels.spi.SelectorProvider;
 
 import junit.framework.TestCase;
-@TestTargetClass(SelectorProvider.class)
+
 public class SelectorProviderTest extends TestCase {
 
     /**
-     * @tests SelectorProvider#openDatagramChannel()
-     * @tests SelectorProvider#openPipe()
-     * @tests SelectorProvider#openServerSocketChannel()
-     * @tests SelectorProvider#openSocketChannel()
-     * @tests SelectorProvider#openSelector()
+     * SelectorProvider#openDatagramChannel()
+     * SelectorProvider#openPipe()
+     * SelectorProvider#openServerSocketChannel()
+     * SelectorProvider#openSocketChannel()
+     * SelectorProvider#openSelector()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "SelectorProvider",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "provider",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "inheritedChannel",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "openDatagramChannel",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "openPipe",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "openServerSocketChannel",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "openSocketChannel",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "openSelector",
-            args = {}
-        )
-    })
     public void test_open_methods() throws Exception {
         // calling #provider to see if it returns without Exception.
         assertNotNull(SelectorProvider.provider());

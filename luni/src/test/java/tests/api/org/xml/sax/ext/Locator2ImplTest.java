@@ -16,18 +16,12 @@
 
 package tests.api.org.xml.sax.ext;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.xml.sax.Locator;
 import org.xml.sax.ext.Locator2Impl;
 import org.xml.sax.helpers.LocatorImpl;
 
-@TestTargetClass(Locator2Impl.class)
 public class Locator2ImplTest extends TestCase {
 
     public static final String SYS = "mySystemID";
@@ -42,11 +36,6 @@ public class Locator2ImplTest extends TestCase {
 
     public static final String XML = "1.0";
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "Locator2Impl",
-        args = { }
-    )
     public void testLocatorImpl() {
         Locator2Impl l = new Locator2Impl();
 
@@ -59,11 +48,6 @@ public class Locator2ImplTest extends TestCase {
         assertEquals(null, l.getXMLVersion());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "Locator2Impl",
-        args = { Locator.class }
-    )
     public void testLocatorImplLocator() {
         Locator2Impl inner = new Locator2Impl();
 
@@ -106,18 +90,6 @@ public class Locator2ImplTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setXMLVersion",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getXMLVersion",
-            args = { }
-        )
-    })
     public void testSetXMLVersionGetXMLVersion() {
         Locator2Impl l = new Locator2Impl();
 
@@ -128,18 +100,6 @@ public class Locator2ImplTest extends TestCase {
         assertEquals(null, l.getXMLVersion());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setEncoding",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getEncoding",
-            args = { }
-        )
-    })
     public void testSetEncodingGetEncoding() {
         Locator2Impl l = new Locator2Impl();
 

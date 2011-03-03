@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IllegalFormatCodePointExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.IllegalFormatCodePointException.IllegalFormatCodePointException(int)
+     * java.util.IllegalFormatCodePointException.IllegalFormatCodePointException(int)
      */
     public void test_illegalFormatCodePointException() {
         IllegalFormatCodePointException illegalFormatCodePointException = new IllegalFormatCodePointException(
@@ -36,7 +36,7 @@ public class IllegalFormatCodePointExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatCodePointException.getCodePoint()
+     * java.util.IllegalFormatCodePointException.getCodePoint()
      */
     public void test_getCodePoint() {
         int codePoint = 12345;
@@ -46,7 +46,7 @@ public class IllegalFormatCodePointExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatCodePointException.getMessage()
+     * java.util.IllegalFormatCodePointException.getMessage()
      */
     public void test_getMessage() {
         int codePoint = 12345;
@@ -72,7 +72,7 @@ public class IllegalFormatCodePointExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -81,7 +81,7 @@ public class IllegalFormatCodePointExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

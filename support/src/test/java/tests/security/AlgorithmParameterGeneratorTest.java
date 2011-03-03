@@ -15,9 +15,6 @@
  */
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.NoSuchAlgorithmException;
@@ -33,23 +30,6 @@ public abstract class AlgorithmParameterGeneratorTest extends TestCase {
         this.helper = helper;
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="init",
-                args={int.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testAlgorithmParameterGenerator() {
         AlgorithmParameterGenerator generator = null;
         try {

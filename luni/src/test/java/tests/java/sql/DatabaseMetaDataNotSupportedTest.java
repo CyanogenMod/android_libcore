@@ -17,9 +17,6 @@
 package tests.java.sql;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -37,7 +34,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 
-@TestTargetClass(DatabaseMetaData.class)
 public class DatabaseMetaDataNotSupportedTest extends TestCase {
 
     private static String VIEW_NAME = "myView";
@@ -130,7 +126,7 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#allProceduresAreCallable()
+     * java.sql.DatabaseMetaData#allProceduresAreCallable()
      */
     public void test_allProceduresAreCallable() throws SQLException {
         assertFalse(meta.allProceduresAreCallable());
@@ -178,28 +174,28 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#dataDefinitionCausesTransactionCommit()
+     * java.sql.DatabaseMetaData#dataDefinitionCausesTransactionCommit()
      */
     public void test_dataDefinitionCausesTransactionCommit() throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#dataDefinitionIgnoredInTransactions()
+     * java.sql.DatabaseMetaData#dataDefinitionIgnoredInTransactions()
      */
     public void test_dataDefinitionIgnoredInTransactions() throws SQLException {
         assertFalse(meta.dataDefinitionIgnoredInTransactions());
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#deletesAreDetected(int)
+     * java.sql.DatabaseMetaData#deletesAreDetected(int)
      */
     public void test_deletesAreDetectedI() throws SQLException {
         assertFalse(meta.deletesAreDetected(0));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#doesMaxRowSizeIncludeBlobs()
+     * java.sql.DatabaseMetaData#doesMaxRowSizeIncludeBlobs()
      */
     @KnownFailure("not supported")
     public void test_doesMaxRowSizeIncludeBlobs() throws SQLException {
@@ -207,7 +203,7 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getAttributes(java.lang.String,
+     * java.sql.DatabaseMetaData #getAttributes(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
      */
     public void test_getAttributesLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String()
@@ -228,42 +224,24 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getCatalogSeparator()
+     * java.sql.DatabaseMetaData#getCatalogSeparator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getCatalogSeparator",
-        args = {}
-    )
     public void test_getCatalogSeparator() throws SQLException {
         assertTrue("Incorrect catalog separator", "".equals(meta
                 .getCatalogSeparator().trim()));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getCatalogTerm()
+     * java.sql.DatabaseMetaData#getCatalogTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getCatalogTerm",
-        args = {}
-    )
     public void test_getCatalogTerm() throws SQLException {
         assertTrue("Incorrect catalog term", "".equals(meta
                 .getCatalogSeparator().trim()));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getExtraNameCharacters()
+     * java.sql.DatabaseMetaData#getExtraNameCharacters()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getExtraNameCharacters",
-        args = {}
-    )
     public void test_getExtraNameCharacters() throws SQLException {
         assertNotNull("Incorrect extra name characters", meta
                 .getExtraNameCharacters());
@@ -426,14 +404,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getProcedureTerm()
+     * java.sql.DatabaseMetaData#getProcedureTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProcedureTerm",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getProcedureTerm() throws SQLException {
         assertTrue("Incorrect procedure term", "".equals(meta
@@ -451,14 +423,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSchemaTerm()
+     * java.sql.DatabaseMetaData#getSchemaTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getSchemaTerm",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getSchemaTerm() throws SQLException {
         String term = meta.getSchemaTerm();
@@ -611,14 +577,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#isCatalogAtStart()
+     * java.sql.DatabaseMetaData#isCatalogAtStart()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isCatalogAtStart",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_isCatalogAtStart() throws SQLException {
         assertFalse(
@@ -662,14 +622,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#ownDeletesAreVisible(int)
+     * java.sql.DatabaseMetaData#ownDeletesAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Not Fully Supported.",
-        method = "ownDeletesAreVisible",
-        args = {int.class}
-    )
     public void test_ownDeletesAreVisibleI() throws SQLException {
         // NOT_FEASIBLE not supported
 //        assertFalse(
@@ -686,14 +640,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#ownInsertsAreVisible(int)
+     * java.sql.DatabaseMetaData#ownInsertsAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "not supported.",
-        method = "ownInsertsAreVisible",
-        args = {int.class}
-    )
     public void test_ownInsertsAreVisibleI() throws SQLException {
 //        assertFalse(
 //                "result set's own inserts are visible for TYPE_FORWARD_ONLY type",
@@ -986,235 +934,133 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxBinaryLiteralLength()
+     * java.sql.DatabaseMetaData#getMaxBinaryLiteralLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxBinaryLiteralLength",
-        args = {}
-    )
     public void test_getMaxBinaryLiteralLength() throws SQLException {
         assertTrue("Incorrect binary literal length", meta
                 .getMaxBinaryLiteralLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxCatalogNameLength()
+     * java.sql.DatabaseMetaData#getMaxCatalogNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCatalogNameLength",
-        args = {}
-    )
     public void test_getMaxCatalogNameLength() throws SQLException {
         assertTrue("Incorrect name length", meta.getMaxCatalogNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxCharLiteralLength()
+     * java.sql.DatabaseMetaData#getMaxCharLiteralLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCharLiteralLength",
-        args = {}
-    )
     public void test_getMaxCharLiteralLength() throws SQLException {
         assertTrue("Incorrect char literal length", meta
                 .getMaxCharLiteralLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnNameLength()
+     * java.sql.DatabaseMetaData#getMaxColumnNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnNameLength",
-        args = {}
-    )
     public void test_getMaxColumnNameLength() throws SQLException {
         assertTrue("Incorrect column name length", meta
                 .getMaxColumnNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInGroupBy()
+     * java.sql.DatabaseMetaData#getMaxColumnsInGroupBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInGroupBy",
-        args = {}
-    )
     public void test_getMaxColumnsInGroupBy() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInGroupBy() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInIndex()
+     * java.sql.DatabaseMetaData#getMaxColumnsInIndex()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInIndex",
-        args = {}
-    )
     public void test_getMaxColumnsInIndex() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInIndex() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInOrderBy()
+     * java.sql.DatabaseMetaData#getMaxColumnsInOrderBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInOrderBy",
-        args = {}
-    )
     public void test_getMaxColumnsInOrderBy() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInOrderBy() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInSelect()
+     * java.sql.DatabaseMetaData#getMaxColumnsInSelect()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInSelect",
-        args = {}
-    )
     public void test_getMaxColumnsInSelect() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInSelect() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInTable()
+     * java.sql.DatabaseMetaData#getMaxColumnsInTable()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInTable",
-        args = {}
-    )
     public void test_getMaxColumnsInTable() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInTable() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxConnections()
+     * java.sql.DatabaseMetaData#getMaxConnections()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxConnections",
-        args = {}
-    )
     public void test_getMaxConnections() throws SQLException {
         assertTrue("Incorrect number of connections",
                 meta.getMaxConnections() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxIndexLength()
+     * java.sql.DatabaseMetaData#getMaxIndexLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxIndexLength",
-        args = {}
-    )
     public void test_getMaxIndexLength() throws SQLException {
         assertTrue("Incorrect length of index", meta.getMaxIndexLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxProcedureNameLength()
+     * java.sql.DatabaseMetaData#getMaxProcedureNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxProcedureNameLength",
-        args = {}
-    )
     public void test_getMaxProcedureNameLength() throws SQLException {
         assertTrue("Incorrect length of procedure name", meta
                 .getMaxProcedureNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxRowSize()
+     * java.sql.DatabaseMetaData#getMaxRowSize()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxRowSize",
-        args = {}
-    )
     public void test_getMaxRowSize() throws SQLException {
         assertTrue("Incorrect size of row", meta.getMaxRowSize() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxSchemaNameLength()
+     * java.sql.DatabaseMetaData#getMaxSchemaNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxSchemaNameLength",
-        args = {}
-    )
     public void test_getMaxSchemaNameLength() throws SQLException {
         assertTrue("Incorrect length of schema name", meta
                 .getMaxSchemaNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxStatementLength()
+     * java.sql.DatabaseMetaData#getMaxStatementLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxStatementLength",
-        args = {}
-    )
     public void test_getMaxStatementLength() throws SQLException {
         assertTrue("Incorrect length of statement", meta
                 .getMaxStatementLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxStatements()
+     * java.sql.DatabaseMetaData#getMaxStatements()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxStatements",
-        args = {}
-    )
     public void test_getMaxStatements() throws SQLException {
         assertTrue("Incorrect number of statements",
                 meta.getMaxStatements() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxTableNameLength()
+     * java.sql.DatabaseMetaData#getMaxTableNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxTableNameLength",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxTableNameLength() throws SQLException {
         assertTrue("Now supported", meta
@@ -1232,14 +1078,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxTablesInSelect()
+     * java.sql.DatabaseMetaData#getMaxTablesInSelect()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxTablesInSelect",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxTablesInSelect() throws SQLException {
         assertTrue("Tables in select is now supported: change test implementation\"",
@@ -1257,14 +1097,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxUserNameLength()
+     * java.sql.DatabaseMetaData#getMaxUserNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "usernames not supported",
-        method = "getMaxUserNameLength",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxUserNameLength() throws SQLException {
         assertTrue("Usernames are now supported: change test implementation",

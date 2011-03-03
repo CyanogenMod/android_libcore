@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.cert.CRL;
@@ -38,7 +33,6 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
  * Tests for <code>java.security.cert.CRL</code> fields and methods
  *
  */
-@TestTargetClass(CRL.class)
 public class CRLTest extends TestCase {
 
     public static final String[] validValues = { "X.509", "x.509" };
@@ -52,12 +46,6 @@ public class CRLTest extends TestCase {
     /**
      * Test for <code>CRL(String type)</code> constructor<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CRL",
-        args = {java.lang.String.class}
-    )
     public final void testConstructor() {
         for (int i = 0; i< validValues.length; i++) {
             CRL crl = new MyCRL(validValues[i]);
@@ -81,12 +69,6 @@ public class CRLTest extends TestCase {
      * Test #1 for <code>getType()</code> method<br>
      * Assertion: returns <code>CRL</code> type
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public final void testGetType01() {
         CRL crl = new MyCRL("TEST_TYPE");
         assertEquals("TEST_TYPE", crl.getType());
@@ -96,12 +78,6 @@ public class CRLTest extends TestCase {
      * Test #2 for <code>getType()</code> method<br>
      * Assertion: returns <code>CRL</code> type
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "getType",
-        args = {}
-    )
     public final void testGetType02() {
         CRL crl = new MyCRL(null);
         assertNull(crl.getType());
@@ -116,12 +92,6 @@ public class CRLTest extends TestCase {
     /**
      * Test for <code>toString()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public final void testToString() {
         CRL crl = new MyCRL("TEST_TYPE");
         crl.toString();
@@ -130,12 +100,6 @@ public class CRLTest extends TestCase {
     /**
      * Test for <code>isRevoked()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isRevoked",
-        args = {java.security.cert.Certificate.class}
-    )
     public final void testIsRevoked() {
         CRL crl = new MyCRL("TEST_TYPE");
         crl.isRevoked(null);

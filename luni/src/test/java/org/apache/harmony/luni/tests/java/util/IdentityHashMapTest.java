@@ -32,10 +32,10 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IdentityHashMapTest extends junit.framework.TestCase {
 
 	/**
-	 * @tests java.util.IdentityHashMap#containsKey(java.lang.Object)
-	 * @tests java.util.IdentityHashMap#containsValue(java.lang.Object)
-	 * @tests java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
-	 * @tests java.util.IdentityHashMap#get(java.lang.Object)
+	 * java.util.IdentityHashMap#containsKey(java.lang.Object)
+	 * java.util.IdentityHashMap#containsValue(java.lang.Object)
+	 * java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
+	 * java.util.IdentityHashMap#get(java.lang.Object)
 	 */
 	public void test_null_Keys_and_Values() {
 		// tests with null keys and values
@@ -90,7 +90,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
+     * java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
      */
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         IdentityHashMap<Object, Object> map = new IdentityHashMap<Object, Object>();
@@ -107,8 +107,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.IdentityHashMap#remove(java.lang.Object)
-	 * @tests java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#remove(java.lang.Object)
+	 * java.util.IdentityHashMap#keySet()
 	 */
 	public void test_remove() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -127,7 +127,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.IdentityHashMapTest#remove(java.lang.Object)
+     * java.util.IdentityHashMapTest#remove(java.lang.Object)
      */
     public void test_removeLjava_lang_Object() {
         // Regression for HARMONY-37
@@ -146,9 +146,9 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.IdentityHashMap#entrySet()
-	 * @tests java.util.IdentityHashMap#keySet()
-	 * @tests java.util.IdentityHashMap#values()
+	 * java.util.IdentityHashMap#entrySet()
+	 * java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#values()
 	 */
 	public void test_sets() {
 		// tests with null keys and values
@@ -182,8 +182,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#entrySet()
-	 * @tests java.util.IdentityHashMap#remove(java.lang.Object)
+	 * java.util.IdentityHashMap#entrySet()
+	 * java.util.IdentityHashMap#remove(java.lang.Object)
 	 */
 	public void test_entrySet_removeAll() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -201,8 +201,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#keySet()
-	 * @tests java.util.IdentityHashMap#clear()
+	 * java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#clear()
 	 */
 	public void test_keySet_clear() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -220,7 +220,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#values()
+	 * java.util.IdentityHashMap#values()
 	 */
 	public void test_values() {
 
@@ -270,8 +270,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#keySet()
-	 * @tests java.util.IdentityHashMap#remove(java.lang.Object)
+	 * java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#remove(java.lang.Object)
 	 */
 	public void test_keySet_removeAll() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -289,7 +289,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#keySet()
 	 */
 	public void test_keySet_retainAll() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -314,8 +314,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.IdentityHashMap#keySet()
-	 * @tests java.util.IdentityHashMap#remove(java.lang.Object)
+	 * java.util.IdentityHashMap#keySet()
+	 * java.util.IdentityHashMap#remove(java.lang.Object)
 	 */
 	public void test_keyset_remove() {
 		IdentityHashMap map = new IdentityHashMap();
@@ -423,7 +423,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     };
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
         IdentityHashMap<String, String> identityHashMap = new IdentityHashMap<String, String>();

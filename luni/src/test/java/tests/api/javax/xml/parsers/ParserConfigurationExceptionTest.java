@@ -18,19 +18,9 @@ package tests.api.javax.xml.parsers;
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(ParserConfigurationException.class)
 public class ParserConfigurationExceptionTest extends TestCase{
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ParserConfigurationException",
-        args = {}
-    )
     public void test_Constructor() {
         ParserConfigurationException pce = new ParserConfigurationException();
         assertNull(pce.getMessage());
@@ -38,12 +28,6 @@ public class ParserConfigurationExceptionTest extends TestCase{
         assertNull(pce.getCause());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ParserConfigurationException",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         ParserConfigurationException pce =
             new ParserConfigurationException("Oops!");

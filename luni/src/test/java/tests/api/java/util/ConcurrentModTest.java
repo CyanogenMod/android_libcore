@@ -17,11 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,18 +26,11 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AbstractList.class)
 public class ConcurrentModTest extends TestCase {
 
     /*
      * Test method for 'java.util.AbstractList.subList(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Doesn't verify IndexOutOfBoundsException.",
-        method = "get",
-        args = {int.class}
-    )
     public void testGet() {
         AbstractList al = new ArrayList();
         Double one = new Double(1.0);
@@ -87,12 +75,6 @@ public class ConcurrentModTest extends TestCase {
     /*
      * Test method for 'java.util.AbstractList.subList(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException, ClassCastException, IllegalArgumentException, IndexOutOfBoundsException.",
-        method = "set",
-        args = {int.class, java.lang.Object.class}
-    )
     public void testSet() {
         AbstractList al = new ArrayList();
         Double one = new Double(1.0);
@@ -123,12 +105,6 @@ public class ConcurrentModTest extends TestCase {
     /*
      * Test method for 'java.util.AbstractList.subList(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException, ClassCastException, IllegalArgumentException, IndexOutOfBoundsException.",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void testAdd() {
         AbstractList al = new ArrayList();
         Double one = new Double(1.0);
@@ -159,12 +135,6 @@ public class ConcurrentModTest extends TestCase {
     /*
      * Test method for 'java.util.AbstractList.subList(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {int.class}
-    )
     public void testRemove() {
         AbstractList al = new ArrayList();
         Double one = new Double(1.0);
@@ -231,12 +201,6 @@ public class ConcurrentModTest extends TestCase {
     /*
      * Test method for 'java.util.AbstractList.subList(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException, ClassCastException, IllegalArgumentException,  NullPointerException.",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void testAddAll() {
         AbstractList al = new ArrayList();
         Double one = new Double(1.0);
@@ -267,12 +231,6 @@ public class ConcurrentModTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract - test testing simplest implementation.",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void test_addLjava_lang_Object() {
         AbstractList abstr = new AbstractList() {
 
@@ -348,20 +306,6 @@ public class ConcurrentModTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "add",
-            args = {int.class, java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AbstractList",
-            args = {}
-        )
-    })
     public void test_addILjava_lang_Object() {
         AbstractList abstr = new AbstractList() {
 
@@ -456,12 +400,6 @@ public class ConcurrentModTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void test_addAllILjava_util_Collection() {
         Collection c = new Vector();
         c.add(new Double(33));
@@ -571,12 +509,6 @@ public class ConcurrentModTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         AbstractList abstr = new ArrayList();
 
@@ -590,12 +522,6 @@ public class ConcurrentModTest extends TestCase {
         assertEquals(0, abstr.size());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         Collection c = new Vector();
         c.add(new Double(33));
@@ -614,12 +540,6 @@ public class ConcurrentModTest extends TestCase {
         assertTrue(abstr.equals(abstr1));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {int.class, java.lang.Object.class}
-    )
     public void test_setILjava_lang_Object() {
         Collection c = new Vector();
         c.add(new Double(33));
@@ -729,12 +649,6 @@ public class ConcurrentModTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeRange",
-        args = {int.class, int.class}
-    )
     public void test_removeRangeII() {
         Mock_ArrayList al1 = new Mock_ArrayList();
         al1.add(1);

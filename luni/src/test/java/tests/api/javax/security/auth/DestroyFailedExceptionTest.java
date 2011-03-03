@@ -17,10 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.DestroyFailedException;
@@ -29,7 +25,6 @@ import javax.security.auth.DestroyFailedException;
  * Tests for <code>DestroyFailedException</code> class constructors and methods.
  *
  */
-@TestTargetClass(DestroyFailedException.class)
 public class DestroyFailedExceptionTest extends TestCase {
 
     public static void main(String[] args) {
@@ -51,15 +46,9 @@ public class DestroyFailedExceptionTest extends TestCase {
 
 
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException()
+     * javax.security.auth.DestroyFailedException#DestroyFailedException()
      * Assertion: constructs DestroyFailedException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DestroyFailedException",
-        args = {}
-    )
     public void testDestroyFailedException01() {
         DestroyFailedException dfE = new DestroyFailedException();
         assertNull("getMessage() must return null.", dfE.getMessage());
@@ -67,15 +56,9 @@ public class DestroyFailedExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
+     * javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
      * Assertion: constructs with not null parameter.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "DestroyFailedException",
-        args = {String.class}
-    )
     public void testDestroyFailedException02() {
         DestroyFailedException dfE;
         for (int i = 0; i < msgs.length; i++) {
@@ -86,15 +69,9 @@ public class DestroyFailedExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
+     * javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
      * Assertion: constructs with null parameter.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "DestroyFailedException",
-        args = {String.class}
-    )
     public void testDestroyFailedException03() {
         String msg = null;
         DestroyFailedException dfE = new DestroyFailedException(msg);

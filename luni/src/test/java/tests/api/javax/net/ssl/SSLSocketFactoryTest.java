@@ -15,11 +15,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,7 +27,6 @@ import junit.framework.TestCase;
 
 import tests.support.Support_PortManager;
 
-@TestTargetClass(SSLSocketFactory.class)
 public class SSLSocketFactoryTest extends TestCase {
 
     private ServerSocket ss;
@@ -48,14 +42,8 @@ public class SSLSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocketFactory#SSLSocketFactory()
+     * javax.net.ssl.SSLSocketFactory#SSLSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocketFactory",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             SocketFactory sf = SSLSocketFactory.getDefault();
@@ -66,28 +54,16 @@ public class SSLSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocketFactory#getDefault()
+     * javax.net.ssl.SSLSocketFactory#getDefault()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefault",
-        args = {}
-    )
     public void test_getDefault() {
         assertNotNull("Incorrect default socket factory",
                 SSLSocketFactory.getDefault());
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocketFactory#createSocket(Socket s, String host, int port, boolean autoClose)
+     * javax.net.ssl.SSLSocketFactory#createSocket(Socket s, String host, int port, boolean autoClose)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createSocket",
-        args = {java.net.Socket.class, java.lang.String.class, int.class, boolean.class}
-    )
     public void test_createSocket() {
         SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
         int sport = startServer("test_createSocket()");
@@ -138,14 +114,8 @@ public class SSLSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocketFactory#getDefaultCipherSuites()
+     * javax.net.ssl.SSLSocketFactory#getDefaultCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultCipherSuites",
-        args = {}
-    )
     public void test_getDefaultCipherSuites() {
         try {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
@@ -157,14 +127,8 @@ public class SSLSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocketFactory#getSupportedCipherSuites()
+     * javax.net.ssl.SSLSocketFactory#getSupportedCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedCipherSuites",
-        args = {}
-    )
     public void test_getSupportedCipherSuites() {
         try {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();

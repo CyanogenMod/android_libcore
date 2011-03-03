@@ -22,18 +22,12 @@
 
 package tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AllPermission;
 import java.security.BasicPermission;
 import java.security.PermissionCollection;
 import java.security.UnresolvedPermission;
 
 import junit.framework.TestCase;
-@TestTargetClass(AllPermission.class)
 /**
  * Tests for <code>AllPermission</code>
  *
@@ -43,20 +37,6 @@ public class AllPermissionTest extends TestCase {
     /**
      * Test all constructors: an object is created, name and actions are ignored
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AllPermission",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AllPermission",
-            args = {java.lang.String.class, java.lang.String.class}
-        )
-    })
     public void testCtor()
     {
         AllPermission a1 = new AllPermission();
@@ -73,12 +53,6 @@ public class AllPermissionTest extends TestCase {
     }
 
     /** Any of AllPermission instances are equal and have the same hash code */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals()
     {
         AllPermission a1 = new AllPermission();
@@ -90,12 +64,6 @@ public class AllPermissionTest extends TestCase {
     }
 
     /** AllPermission implies any other permission */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Null parameter checking missed",
-        method = "implies",
-        args = {java.security.Permission.class}
-    )
     public void testImplies()
     {
         AllPermission a1 = new AllPermission();
@@ -105,12 +73,6 @@ public class AllPermissionTest extends TestCase {
     }
 
     /** newPermissionCollection() returns a new AllPermissionCollection on every invocation. */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newPermissionCollection",
-        args = {}
-    )
     public void testCollection()
     {
         AllPermission a1 = new AllPermission();

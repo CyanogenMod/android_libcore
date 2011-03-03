@@ -15,9 +15,6 @@
  */
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.Certificate;
@@ -39,23 +36,6 @@ public abstract class CertificateFactoryTest extends TestCase {
         super.setUp();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="generateCertificate",
-                args={InputStream.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testCertificateFactory() throws Exception {
         CertificateFactory certificateFactory = CertificateFactory.getInstance(
                 algorithmName);

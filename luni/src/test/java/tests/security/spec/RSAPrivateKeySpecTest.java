@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -37,7 +32,6 @@ import java.security.spec.RSAPrivateKeySpec;
  * Tests for <code>RSAPrivateKeySpec</code> class fields and methods
  *
  */
-@TestTargetClass(RSAPrivateKeySpec.class)
 public class RSAPrivateKeySpecTest extends TestCase {
 
     /**
@@ -45,12 +39,6 @@ public class RSAPrivateKeySpecTest extends TestCase {
      * Assertion: constructs <code>RSAPrivateKeySpec</code>
      * object using valid parameters
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "RSAPrivateKeySpec",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAPrivateKeySpec() {
         KeySpec ks = new RSAPrivateKeySpec(BigInteger.valueOf(1234567890L),
                                            BigInteger.valueOf(3L));
@@ -61,12 +49,6 @@ public class RSAPrivateKeySpecTest extends TestCase {
      * Test for <code>getModulus()</code> method<br>
      * Assertion: returns modulus
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModulus",
-        args = {}
-    )
     public final void testGetModulus() {
         RSAPrivateKeySpec rpks =
             new RSAPrivateKeySpec(BigInteger.valueOf(1234567890L),
@@ -78,12 +60,6 @@ public class RSAPrivateKeySpecTest extends TestCase {
      * Test for <code>getPrivateExponent()</code> method<br>
      * Assertion: returns private exponent
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrivateExponent",
-        args = {}
-    )
     public final void testGetPrivateExponent() {
         RSAPrivateKeySpec rpks =
             new RSAPrivateKeySpec(BigInteger.valueOf(1234567890L),

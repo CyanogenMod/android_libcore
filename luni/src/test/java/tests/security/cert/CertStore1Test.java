@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -51,7 +46,6 @@ import java.util.Collection;
  * methods.
  *
  */
-@TestTargetClass(CertStore.class)
 public class CertStore1Test extends TestCase {
 
     public static final String srvCertStore = "CertStore";
@@ -133,12 +127,6 @@ public class CertStore1Test extends TestCase {
      * Test for <code>getDefaultType()</code> method
      * Assertion: returns security property "certstore.type" or "LDAP"
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultType",
-        args = {}
-    )
     public void testCertStore01() {
         if (!LDAPSupport) {
             return;
@@ -163,12 +151,6 @@ public class CertStore1Test extends TestCase {
      * <code>CertStore</code> constructor
      * Assertion: returns CertStore object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertStore",
-        args = {java.security.cert.CertStoreSpi.class, java.security.Provider.class, java.lang.String.class, java.security.cert.CertStoreParameters.class}
-    )
     public void testCertStore02() throws InvalidAlgorithmParameterException, CertStoreException {
         if (!initParams()) {
             return;
@@ -202,12 +184,6 @@ public class CertStore1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws NoSuchAlgorithmException when type is incorrect;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies NoSuchAlgorithmException and NullPointerException. InvalidAlgorithmParameterException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class}
-    )
     public void testCertStore03() throws InvalidAlgorithmParameterException {
         if (!initParams()) {
             return;
@@ -231,12 +207,6 @@ public class CertStore1Test extends TestCase {
      * Test for <code>getInstance(String type, CertStoreParameters params)</code> method
      * Assertion: return CertStore object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidAlgorithmParameterException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class}
-    )
     public void testCertStore05()
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         if (!initParams()) {
@@ -255,12 +225,6 @@ public class CertStore1Test extends TestCase {
      * Assertion: throws IllegalArgumentException when provider is null or empty
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies IllegalArgumentException. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.lang.String.class}
-    )
     public void testCertStore06()
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException,
                 NoSuchProviderException {
@@ -286,12 +250,6 @@ public class CertStore1Test extends TestCase {
      * <code>getInstance(String type, CertStoreParameters params, String provider)</code>
      * Assertion: throws NoSuchProviderException when provider has invalid value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies NoSuchProviderException. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.lang.String.class}
-    )
     public void testCertStore07()
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         if (!initParams()) {
@@ -314,12 +272,6 @@ public class CertStore1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws NoSuchAlgorithmException when type is incorrect;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies NoSuchAlgorithmException and NullPointerException. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.lang.String.class}
-    )
     public void testCertStore08() throws InvalidAlgorithmParameterException,
             NoSuchProviderException {
         if (!initParams()) {
@@ -345,12 +297,6 @@ public class CertStore1Test extends TestCase {
      * <code>getInstance(String type, CertStoreParameters params, String provider)</code>
      * Assertion: return CertStore object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies positive case. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.lang.String.class}
-    )
     public void testCertStore10()
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         if (!initParams()) {
@@ -369,12 +315,6 @@ public class CertStore1Test extends TestCase {
      * <code>getInstance(String type, CertStoreParameters params, Provider provider)</code>
      * Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getInstance throws IllegalArgumentException when provider is null. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.security.Provider.class}
-    )
     public void testCertStore11() throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException {
         if (!initParams()) {
@@ -395,12 +335,6 @@ public class CertStore1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws NoSuchAlgorithmException when type is incorrect;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies NullPointerException and NoSuchAlgorithmException. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.security.Provider.class}
-    )
     public void testCertStore12() throws InvalidAlgorithmParameterException {
         if (!initParams()) {
             return;
@@ -425,12 +359,6 @@ public class CertStore1Test extends TestCase {
      * <code>getInstance(String type, CertStoreParameters params, Provider provider)</code>
      * Assertion: return CertStore object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies positive case. InvalidAlgorithmParameterException checking missed.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.cert.CertStoreParameters.class, java.security.Provider.class}
-    )
     public void testCertStore14()
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         if (!initParams()) {
@@ -449,20 +377,6 @@ public class CertStore1Test extends TestCase {
      * <code>getCRLs(CRLSelector selector)</code>
      * Assertion: returns empty Collection when selector is null
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies that these methods return empty Collection when selector is null.",
-            method = "getCertificates",
-            args = {java.security.cert.CertSelector.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies that these methods return empty Collection when selector is null.",
-            method = "getCRLs",
-            args = {java.security.cert.CRLSelector.class}
-        )
-    })
     public void testCertStore15() throws CertStoreException {
         if (!initParams()) {
             return;
@@ -481,11 +395,6 @@ public class CertStore1Test extends TestCase {
     /**
      * Test for <code>getType()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = {}
-    )
     public void testCertStore16() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         if (!initParams()) {
@@ -518,12 +427,6 @@ public class CertStore1Test extends TestCase {
     /**
      * Test for <code>getProvider()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void testCertStore17() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         if (!initParams()) {
@@ -555,12 +458,6 @@ public class CertStore1Test extends TestCase {
     /**
      * Test for <code>getCertStoreParameters()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertStoreParameters",
-        args = {}
-    )
     public void testCertStore18() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         if (!initParams()) {

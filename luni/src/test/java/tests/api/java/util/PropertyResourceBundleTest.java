@@ -17,44 +17,26 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.Vector;
 
-@TestTargetClass(PropertyResourceBundle.class)
 public class PropertyResourceBundleTest extends junit.framework.TestCase {
 
     static PropertyResourceBundle prb;
 
     /**
-     * @tests java.util.PropertyResourceBundle#PropertyResourceBundle(java.io.InputStream)
+     * java.util.PropertyResourceBundle#PropertyResourceBundle(java.io.InputStream)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PropertyResourceBundle",
-        args = {java.io.InputStream.class}
-    )
     public void test_ConstructorLjava_io_InputStream() {
         // Test for method java.util.PropertyResourceBundle(java.io.InputStream)
         assertTrue("Used to test", true);
     }
 
     /**
-     * @tests java.util.PropertyResourceBundle#getKeys()
+     * java.util.PropertyResourceBundle#getKeys()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKeys",
-        args = {}
-    )
     public void test_getKeys() {
         Enumeration keyEnum = prb.getKeys();
         Vector test = new Vector();
@@ -70,14 +52,8 @@ public class PropertyResourceBundleTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.PropertyResourceBundle#handleGetObject(java.lang.String)
+     * java.util.PropertyResourceBundle#handleGetObject(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "handleGetObject",
-        args = {java.lang.String.class}
-    )
     public void test_handleGetObjectLjava_lang_String() {
         // Test for method java.lang.Object
         // java.util.PropertyResourceBundle.handleGetObject(java.lang.String)

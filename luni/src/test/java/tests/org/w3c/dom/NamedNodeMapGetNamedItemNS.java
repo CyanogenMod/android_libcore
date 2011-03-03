@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,7 +46,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html">http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -103,12 +97,6 @@ public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
 //        notation = (Notation) notations.getNamedItemNS(nullNS, "notation1");
 //        assertNotNull("notationNull", notation);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetNamedItemNS2() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -126,12 +114,6 @@ public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
         attrName = attribute.getNodeName();
         assertEquals("namednodemapgetnameditemns02", "emp:domestic", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetNamedItemNS3() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -153,12 +135,6 @@ public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
         attrName = attribute.getNodeName();
         assertEquals("namednodemapgetnameditemns03", "L2:att", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetNamedItemNS4() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -178,12 +154,6 @@ public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
         attrName = attribute.getNodeName();
         assertEquals("namednodemapgetnameditemns04", "street", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetNamedItemNS5() throws Throwable {
         Document doc;
         NamedNodeMap attributes;

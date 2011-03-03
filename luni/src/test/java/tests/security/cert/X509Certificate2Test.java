@@ -17,11 +17,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import org.apache.harmony.security.tests.support.cert.TestUtils;
 
 import java.io.ByteArrayInputStream;
@@ -41,18 +36,11 @@ import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
-@TestTargetClass(X509Certificate.class)
 public class X509Certificate2Test extends junit.framework.TestCase {
 
     /**
      * Test for X.509 Certificate provider
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws Exception {
 
         // Regression for HARMONY-3384
@@ -70,14 +58,8 @@ public class X509Certificate2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#X509Certificate()
+     * java.security.cert.X509Certificate#X509Certificate()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509Certificate",
-        args = {}
-    )
     public void test_X509Certificate() {
         MyX509Certificate s = null;
         try {
@@ -88,110 +70,6 @@ public class X509Certificate2Test extends junit.framework.TestCase {
         assertEquals("X.509", s.getType());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "checkValidity",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "checkValidity",
-            args = {java.util.Date.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getBasicConstraints",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getIssuerDN",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getIssuerUniqueID",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getKeyUsage",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNotAfter",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNotBefore",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSerialNumber",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgName",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgOID",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgParams",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSignature",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSubjectDN",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSubjectUniqueID",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getTBSCertificate",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getVersion",
-            args = {}
-        )
-    })
     public void testAbstractMethods() {
         MyX509Certificate s = new MyX509Certificate();
         try {
@@ -395,27 +273,15 @@ public class X509Certificate2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#getType()
+     * java.security.cert.X509Certificate#getType()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public void testGetType() {
         assertEquals("X.509", new MyX509Certificate().getType());
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#getIssuerX500Principal()
+     * java.security.cert.X509Certificate#getIssuerX500Principal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuerX500Principal",
-        args = {}
-    )
     public void testGetIssuerX500Principal() {
         // return valid encoding
         MyX509Certificate cert = new MyX509Certificate() {
@@ -430,14 +296,8 @@ public class X509Certificate2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#getSubjectX500Principal()
+     * java.security.cert.X509Certificate#getSubjectX500Principal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectX500Principal",
-        args = {}
-    )
     public void testGetSubjectX500Principal() {
         // return valid encoding
         MyX509Certificate cert = new MyX509Certificate() {
@@ -453,14 +313,8 @@ public class X509Certificate2Test extends junit.framework.TestCase {
 
     /**
      * @throws CertificateException
-     * @tests java.security.cert.X509Certificate#getExtendedKeyUsage()
+     * java.security.cert.X509Certificate#getExtendedKeyUsage()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Doesn't verify CertificateParsingException.",
-        method = "getExtendedKeyUsage",
-        args = {}
-    )
     public void testGetExtendedKeyUsage() throws CertificateException {
         assertNull(new MyX509Certificate().getExtendedKeyUsage());
 
@@ -490,14 +344,8 @@ public class X509Certificate2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#getSubjectAlternativeNames()
+     * java.security.cert.X509Certificate#getSubjectAlternativeNames()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "",
-        method = "getSubjectAlternativeNames",
-        args = {}
-    )
     public void testGetSubjectAlternativeNames()
             throws CertificateParsingException {
 
@@ -526,14 +374,8 @@ public class X509Certificate2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509Certificate#getIssuerAlternativeNames()
+     * java.security.cert.X509Certificate#getIssuerAlternativeNames()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Doesn't verify CertificateParsingException.",
-        method = "getIssuerAlternativeNames",
-        args = {}
-    )
     public void testGetIssuerAlternativeNames()
             throws CertificateParsingException {
 
@@ -560,13 +402,6 @@ public class X509Certificate2Test extends junit.framework.TestCase {
         assertTrue(coll.size() < 10);
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            clazz = CertificateException.class,
-            method = "CertificateException",
-            args = {}
-        )
     public void testCerficateException() {
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");

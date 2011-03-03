@@ -17,10 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLPermission;
 import junit.framework.TestCase;
 
@@ -29,18 +25,11 @@ import junit.framework.TestCase;
  * Tests for <code>SSLPermission</code> class constructors.
  *
  */
-@TestTargetClass(SSLPermission.class)
 public class SSLPermissionTest extends TestCase {
 
     /*
      * Class under test for void SSLPermission(String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLPermission",
-        args = {String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         try {
             SSLPermission p = new SSLPermission("name");
@@ -58,12 +47,6 @@ public class SSLPermissionTest extends TestCase {
     /*
      * Class under test for void SSLPermission(String, String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLPermission",
-        args = {String.class, String.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_String() {
         try {
             SSLPermission p = new SSLPermission("name", "value");

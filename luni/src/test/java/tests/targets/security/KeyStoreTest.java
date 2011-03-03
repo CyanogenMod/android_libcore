@@ -15,9 +15,6 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,23 +48,6 @@ public class KeyStoreTest extends TestCase {
         this.keyStorePassword = keyStorePassword;
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="load",
-                args={InputStream.class,char[].class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.PARTIAL_COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testKeyStoreLoad() {
         KeyStore keyStore = null;
         try {
@@ -95,28 +75,6 @@ public class KeyStoreTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="load",
-                args={InputStream.class,char[].class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="setEntry",
-                args={String.class,Entry.class,ProtectionParameter.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.PARTIAL_COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testKeyStoreCreate() {
         KeyStore keyStore = null;
         try {

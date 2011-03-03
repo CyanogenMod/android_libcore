@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.spec.EncodedKeySpec;
@@ -37,7 +32,6 @@ import java.util.Arrays;
  * Tests for <code>PKCS8EncodedKeySpec</code> class fields and methods.
  *
  */
-@TestTargetClass(PKCS8EncodedKeySpec.class)
 public class PKCS8EncodedKeySpecTest extends TestCase {
 
     //
@@ -49,12 +43,6 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
      * Assertion: constructs new <code>PKCS8EncodedKeySpec</code>
      * object using valid parameter
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PKCS8EncodedKeySpec",
-        args = {byte[].class}
-    )
     public final void testPKCS8EncodedKeySpec() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
 
@@ -73,12 +61,6 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
      * Test for <code>getEncoded()</code> method<br>
      * Assertion: returns encoded key
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testGetEncoded() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
 
@@ -93,12 +75,6 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
      * Test for <code>getFormat()</code> method
      * Assertion: returns format name (always "PKCS#8")
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFormat",
-        args = {}
-    )
     public final void testGetFormat() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
 
@@ -112,12 +88,6 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
      * can not be changed by modifying initial
      * array value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testIsStatePreserved1() {
         // Reference array
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
@@ -142,12 +112,6 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
      * can not be modified using returned value
      * of <code>getEncoded()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testIsStatePreserved2() {
         // Reference array
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};

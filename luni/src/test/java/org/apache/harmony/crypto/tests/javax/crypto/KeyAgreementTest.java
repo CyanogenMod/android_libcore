@@ -22,12 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -54,12 +48,10 @@ import org.apache.harmony.security.tests.support.TestKeyPair;
 import junit.framework.TestCase;
 
 
-@TestTargetClass(KeyAgreement.class)
 /**
  * Tests for KeyAgreement constructor and methods
  *
  */
-
 public class KeyAgreementTest extends TestCase {
 
     public static final String srvKeyAgreement = "KeyAgreement";
@@ -124,12 +116,6 @@ public class KeyAgreementTest extends TestCase {
      * throws NullPointerException when algorithm is null throws
      * NoSuchAlgorithmException when algorithm isnot available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstanceString01() throws NoSuchAlgorithmException {
         try {
             KeyAgreement.getInstance(null);
@@ -150,12 +136,6 @@ public class KeyAgreementTest extends TestCase {
      * Test for <code> getInstance(String algorithm) </code> method Assertions:
      * returns KeyAgreement object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstanceString02() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -174,12 +154,6 @@ public class KeyAgreementTest extends TestCase {
      * method Assertions: throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString01()
             throws NoSuchAlgorithmException, IllegalArgumentException,
             NoSuchProviderException {
@@ -208,12 +182,6 @@ public class KeyAgreementTest extends TestCase {
      * or empty throws NoSuchProviderException when provider has not be
      * configured
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString02()
             throws IllegalArgumentException, NoSuchAlgorithmException,
             NoSuchProviderException {
@@ -249,12 +217,6 @@ public class KeyAgreementTest extends TestCase {
      * Test for <code> getInstance(String algorithm, String provider)</code>
      * method Assertions: returns KeyAgreement object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString03()
             throws IllegalArgumentException, NoSuchAlgorithmException,
             NoSuchProviderException {
@@ -278,12 +240,6 @@ public class KeyAgreementTest extends TestCase {
      * method Assertions: throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm isnot available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider01()
             throws NoSuchAlgorithmException, IllegalArgumentException {
         if (!DEFSupported) {
@@ -309,12 +265,6 @@ public class KeyAgreementTest extends TestCase {
      * Test for <code> getInstance(String algorithm, Provider provider)</code>
      * method Assertions: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider02()
             throws NoSuchAlgorithmException, IllegalArgumentException {
         if (!DEFSupported) {
@@ -335,12 +285,6 @@ public class KeyAgreementTest extends TestCase {
      * Test for <code> getInstance(String algorithm, Provider provider)</code>
      * method Assertions: returns KeyAgreement object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider03()
             throws IllegalArgumentException, NoSuchAlgorithmException {
         if (!DEFSupported) {
@@ -366,53 +310,6 @@ public class KeyAgreementTest extends TestCase {
      * sharedsecret in buffer and return numbers of bytes; returns SecretKey
      * object
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            method = "init",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            method = "generateSecret",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            method = "generateSecret",
-            args = {byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            method = "generateSecret",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineGenerateSecret",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineGenerateSecret",
-            args = {byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality only.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineGenerateSecret",
-            args = {java.lang.String.class}
-        )
-    })
     public void testGenerateSecret03() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -441,21 +338,6 @@ public class KeyAgreementTest extends TestCase {
      * Test for <code>doPhase(Key key, boolean lastPhase)</code> method
      * Assertion: throws InvalidKeyException if key is not appropriate
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "doPhase",
-            args = {java.security.Key.class, boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyAgreementSpi.class,
-            method = "engineDoPhase",
-            args = {java.security.Key.class, boolean.class}
-        )
-    })
     public void testDoPhase() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -503,34 +385,6 @@ public class KeyAgreementTest extends TestCase {
      * <code>init(Key key, AlgorithmParameterSpec params, SecureRandom random)</code>
      * Assertion: throws InvalidKeyException when key is inappropriate
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidKeyException.",
-            method = "init",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidKeyException.",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidKeyException.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidKeyException.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.SecureRandom.class}
-        )
-    })
     public void testInit01() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -584,21 +438,6 @@ public class KeyAgreementTest extends TestCase {
      * Assertion: throws AlgorithmParameterException when params are
      * inappropriate
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidAlgorithmParameterException.This is a complete subset of tests for exceptions checking for init methods group",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks InvalidAlgorithmParameterException.This is a complete subset of tests for exceptions checking for init methods group",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        )
-    })
     public void testInit02() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -638,47 +477,6 @@ public class KeyAgreementTest extends TestCase {
      * <code>generateSecret()</code>
      * Assertions: initializes KeyAgreement and returns byte array
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "init",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "init",
-            args = {java.security.Key.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "generateSecret",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineGenerateSecret",
-            args = {}
-        )
-    })
     public void testInit03() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -724,47 +522,6 @@ public class KeyAgreementTest extends TestCase {
      * <code>generateSecret()</code>
      * Assertions: initializes KeyAgreement and returns byte array
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Checks functionality.",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks functionality.",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Checks functionality.",
-            method = "generateSecret",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Checks functionality.",
-            clazz = KeyAgreementSpi.class,
-            method = "engineGenerateSecret",
-            args = {}
-        )
-    })
     public void testInit04() throws Exception,
             InvalidAlgorithmParameterException {
         if (!DEFSupported) {
@@ -826,22 +583,10 @@ public class KeyAgreementTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyAgreement",
-        args = {javax.crypto.KeyAgreementSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void test_constructor() {
         assertNotNull(new Mock_KeyAgreement(null, null, null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws NoSuchAlgorithmException {
         Mock_KeyAgreement mka = new Mock_KeyAgreement(null, null, null);
         assertNull(mka.getAlgorithm());
@@ -854,12 +599,6 @@ public class KeyAgreementTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws NoSuchAlgorithmException {
         KeyAgreement keyA;
         for (int i = 0; i < validValues.length; i++) {
@@ -868,20 +607,6 @@ public class KeyAgreementTest extends TestCase {
         }
     }
 
-@TestTargets({
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "generateSecret",
-        args = {byte[].class, int.class}
-    ),
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        clazz = KeyAgreementSpi.class,
-        method = "engineGenerateSecret",
-        args = {byte[].class, int.class}
-    )})
     public void test_generateSecret$BI() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -908,20 +633,6 @@ public class KeyAgreementTest extends TestCase {
         }
     }
 
-@TestTargets({
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "generateSecret",
-            args = {java.lang.String.class}
-        ),
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        clazz = KeyAgreementSpi.class,
-        method = "engineGenerateSecret",
-        args = {java.lang.String.class}
-    )})
     public void test_generateSecretLjava_lang_String() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -948,12 +659,6 @@ public class KeyAgreementTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {java.security.Key.class, java.security.SecureRandom.class}
-        )
     public void test_initLjava_security_KeyLjava_security_SecureRandom() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);

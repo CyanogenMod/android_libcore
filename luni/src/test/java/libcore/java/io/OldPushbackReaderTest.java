@@ -30,7 +30,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     String pbString = "Hello World";
 
     /**
-     * @tests java.io.PushbackReader#PushbackReader(java.io.Reader)
+     * java.io.PushbackReader#PushbackReader(java.io.Reader)
      */
     public void test_ConstructorLjava_io_Reader() {
         // Test for method java.io.PushbackReader(java.io.Reader)
@@ -53,7 +53,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#PushbackReader(java.io.Reader, int)
+     * java.io.PushbackReader#PushbackReader(java.io.Reader, int)
      */
     public void test_ConstructorLjava_io_ReaderI() throws IOException {
         PushbackReader tobj;
@@ -78,7 +78,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#close()
+     * java.io.PushbackReader#close()
      */
     public void test_close() throws IOException {
         PushbackReader tobj;
@@ -97,7 +97,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#markSupported()
+     * java.io.PushbackReader#markSupported()
      */
     public void test_markSupported() {
         assertFalse("Test 1: markSupported() must return false.",
@@ -105,7 +105,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#read()
+     * java.io.PushbackReader#read()
      */
     public void test_read() throws IOException {
         PushbackReader tobj;
@@ -122,7 +122,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#read(char[], int, int)
+     * java.io.PushbackReader#read(char[], int, int)
      */
     public void test_read$CII() throws IOException {
         PushbackReader tobj;
@@ -156,7 +156,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#read(char[], int, int)
+     * java.io.PushbackReader#read(char[], int, int)
      */
     public void test_read_$CII_Exception() throws IOException {
         pbr = new PushbackReader(new StringReader(pbString), 10);
@@ -224,7 +224,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#ready()
+     * java.io.PushbackReader#ready()
      */
     public void test_ready() throws IOException {
         PushbackReader tobj;
@@ -240,7 +240,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
         }
     }
     /**
-     * @tests java.io.PushbackReader#unread(char[])
+     * java.io.PushbackReader#unread(char[])
      */
     public void test_unread$C() throws IOException {
         PushbackReader tobj;
@@ -281,7 +281,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.io.PushbackReader#skip(long)
+     * java.io.PushbackReader#skip(long)
      */
     public void test_skip$J() throws IOException {
         PushbackReader tobj;
@@ -300,7 +300,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#unread(char[], int, int)
+     * java.io.PushbackReader#unread(char[], int, int)
      */
     public void test_unread$CII() throws IOException {
         PushbackReader tobj;
@@ -345,7 +345,7 @@ public class OldPushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.PushbackReader#unread(int)
+     * java.io.PushbackReader#unread(int)
      */
     public void test_unreadI() throws IOException {
         PushbackReader tobj;

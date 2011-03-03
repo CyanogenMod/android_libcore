@@ -17,9 +17,6 @@
 package tests.api.java.lang;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
@@ -31,19 +28,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-@TestTargetClass(Process.class)
 public class ProcessManagerTest extends TestCase {
 
     Thread thread = null;
     Process process = null;
     boolean isThrown = false;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOutputStream",
-        args = {}
-    )
     public void testCat() throws IOException, InterruptedException {
         String[] commands = { "cat" };
         Process process = Runtime.getRuntime().exec(commands, null, null);
@@ -57,12 +47,6 @@ public class ProcessManagerTest extends TestCase {
         assertEquals(greeting, readLine(process));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "waitFor",
-        args = {}
-    )
     @BrokenTest("Sporadic failures in CTS, but not in CoreTestRunner")
     public void testSleep() throws IOException {
         String[] commands = { "sleep", "1" };
@@ -127,12 +111,6 @@ public class ProcessManagerTest extends TestCase {
         assertTrue(isThrown);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInputStream",
-        args = {}
-    )
     public void testPwd() throws IOException, InterruptedException {
         String[] commands = { "sh", "-c", "pwd" };
         Process process = Runtime.getRuntime().exec(
@@ -141,12 +119,6 @@ public class ProcessManagerTest extends TestCase {
         assertEquals("/", readLine(process));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInputStream",
-        args = {}
-    )
     public void testEnvironment() throws IOException, InterruptedException {
         String[] commands = { "sh", "-c", "echo $FOO" };
 
@@ -184,12 +156,6 @@ public class ProcessManagerTest extends TestCase {
         thread.start();
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Stress test.",
-        method = "waitFor",
-        args = {}
-    )
     public void testHeavyLoad() {
         int i;
         for (i = 0; i < 100; i++)
@@ -212,13 +178,6 @@ public class ProcessManagerTest extends TestCase {
 
     InputStream in;
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Check non standard fd behavior",
-        clazz = Runtime.class,
-        method = "exec",
-        args = {String[].class, String[].class, java.io.File.class}
-    )
     public void testCloseNonStandardFds()
             throws IOException, InterruptedException {
         String[] commands = { "ls", "/proc/self/fd" };
@@ -254,13 +213,6 @@ public class ProcessManagerTest extends TestCase {
         return count;
     }
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Check non standard fd behavior",
-        clazz = Runtime.class,
-        method = "exec",
-        args = {String[].class, String[].class, java.io.File.class}
-    )
     public void testInvalidCommand()
             throws IOException, InterruptedException {
         try {

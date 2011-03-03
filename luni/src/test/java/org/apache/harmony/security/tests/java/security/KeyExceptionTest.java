@@ -22,15 +22,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyException;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyException.class)
+
 /**
  * Tests for <code>KeyException</code> class constructors and methods.
  *
@@ -48,12 +43,6 @@ public class KeyExceptionTest extends TestCase {
      * Test for <code>KeyException()</code> constructor Assertion: constructs
      * KeyException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {}
-    )
     public void testKeyException01() {
         KeyException tE = new KeyException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -65,12 +54,6 @@ public class KeyExceptionTest extends TestCase {
      * constructs KeyException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class}
-    )
     public void testKeyException02() {
         KeyException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -85,12 +68,6 @@ public class KeyExceptionTest extends TestCase {
      * Test for <code>KeyException(String)</code> constructor Assertion:
      * constructs KeyException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class}
-    )
     public void testKeyException03() {
         String msg = null;
         KeyException tE = new KeyException(msg);
@@ -102,12 +79,6 @@ public class KeyExceptionTest extends TestCase {
      * Test for <code>KeyException(Throwable)</code> constructor Assertion:
      * constructs KeyException when <code>cause</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.Throwable.class}
-    )
     public void testKeyException04() {
         Throwable cause = null;
         KeyException tE = new KeyException(cause);
@@ -119,12 +90,6 @@ public class KeyExceptionTest extends TestCase {
      * Test for <code>KeyException(Throwable)</code> constructor Assertion:
      * constructs KeyException when <code>cause</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.Throwable.class}
-    )
     public void testKeyException05() {
         KeyException tE = new KeyException(tCause);
         if (tE.getMessage() != null) {
@@ -143,12 +108,6 @@ public class KeyExceptionTest extends TestCase {
      * Assertion: constructs KeyException when <code>cause</code> is null
      * <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testKeyException06() {
         KeyException tE = new KeyException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -160,12 +119,6 @@ public class KeyExceptionTest extends TestCase {
      * Assertion: constructs KeyException when <code>cause</code> is null
      * <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testKeyException07() {
         KeyException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -181,12 +134,6 @@ public class KeyExceptionTest extends TestCase {
      * Assertion: constructs KeyException when <code>cause</code> is not null
      * <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testKeyException08() {
         KeyException tE = new KeyException(null, tCause);
         if (tE.getMessage() != null) {
@@ -205,12 +152,6 @@ public class KeyExceptionTest extends TestCase {
      * Assertion: constructs KeyException when <code>cause</code> is not null
      * <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "KeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testKeyException09() {
         KeyException tE;
         for (int i = 0; i < msgs.length; i++) {

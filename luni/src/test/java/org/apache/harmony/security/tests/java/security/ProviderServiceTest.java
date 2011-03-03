@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Provider.Service;
@@ -38,19 +33,13 @@ import java.util.Map;
 import org.apache.harmony.security.tests.support.RandomImpl;
 
 import junit.framework.TestCase;
-@TestTargetClass(Service.class)
+
 /**
  * Tests for <code>Provider.Service</code> constructor and methods
  *
  */
 public class ProviderServiceTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Service",
-        args = {java.security.Provider.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.util.List.class, java.util.Map.class}
-    )
     public void testService() {
         Provider p = new MyProvider();
         try {
@@ -95,12 +84,6 @@ public class ProviderServiceTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAttribute",
-        args = {java.lang.String.class}
-    )
     public void testGetAttribute() {
         Provider p = new MyProvider();
         Provider.Service s = new Provider.Service(p, "type", "algorithm",
@@ -132,12 +115,6 @@ public class ProviderServiceTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.Object.class}
-    )
     public void testNewInstance() throws Exception {
         Provider p = new MyProvider();
         Provider.Service s = new Provider.Service(p, "SecureRandom",
@@ -156,12 +133,6 @@ public class ProviderServiceTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void testGetAlgorithm() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
@@ -174,12 +145,6 @@ public class ProviderServiceTest extends TestCase {
         assertTrue(s2.getAlgorithm().equals("algorithm"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getClassName",
-        args = {}
-    )
     public void testGetClassName() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
@@ -192,12 +157,6 @@ public class ProviderServiceTest extends TestCase {
         assertTrue(s2.getClassName().equals("tests.java.security.support.RandomImpl"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void testGetProvider() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
@@ -210,12 +169,6 @@ public class ProviderServiceTest extends TestCase {
         assertTrue(s2.getProvider() == p);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public void testGetType() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
@@ -228,12 +181,6 @@ public class ProviderServiceTest extends TestCase {
         assertTrue(s2.getType().equals("SecureRandom"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "supportsParameter",
-        args = {java.lang.Object.class}
-    )
     public void testSupportsParameter() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
@@ -242,12 +189,6 @@ public class ProviderServiceTest extends TestCase {
         assertTrue(s1.supportsParameter(new Object()));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         Provider p = new MyProvider();
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",

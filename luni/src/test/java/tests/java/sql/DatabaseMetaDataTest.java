@@ -16,10 +16,6 @@
 package tests.java.sql;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -44,7 +40,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-@TestTargetClass(DatabaseMetaData.class)
 public class DatabaseMetaDataTest extends TestCase {
     private static String VIEW_NAME = "myView";
 
@@ -163,15 +158,9 @@ public class DatabaseMetaDataTest extends TestCase {
     */
 
     /**
-     * @tests {@link java.sql.DatabaseMetaData #getBestRowIdentifier(java.lang.String,
+     * {@link java.sql.DatabaseMetaData #getBestRowIdentifier(java.lang.String,
      *        java.lang.String, java.lang.String, int, boolean) }
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Not all variants of parameters can be tested: updates on resultSets are not supported.",
-        method = "getBestRowIdentifier",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, int.class, boolean.class}
-    )
     public void test_getBestRowIdentifierLjava_lang_StringLjava_lang_StringLjava_lang_StringIZ()
             throws SQLException {
         ResultSet result = statementForward.executeQuery("SELECT * FROM "
@@ -229,16 +218,10 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
+     * java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Tests Columns and search for arbitrary columns. test fails: Columns Name's not according to spec.",
-        method = "getColumns",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("Not supported : pattern with %")
     public void test_getColumnsArbitrary() throws SQLException {
         ResultSet setAllNull = null;
@@ -278,16 +261,10 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
+     * java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Tests getColumns with no Catalog and Schema. test fails on arguments: '', '', '%', '%'",
-        method = "getColumns",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("Not supported ops applied: test fails on arguments: '', '', '%', '%' ")
     public void test_getColumnsTableWithNoCatalogSchema() throws SQLException{
 
@@ -351,16 +328,10 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
+     * java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "tests for specific tables. test fails: invalid nullable value.",
-        method = "getColumns",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("Wildcard operator does not seem wo work correctly.")
     public void test_getColumnsSpecific() throws SQLException {
         String[] tablesName = {
@@ -447,14 +418,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#getConnection()
+     * java.sql.DatabaseMetaData#getConnection()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getConnection",
-        args = {}
-    )
     public void test_getConnection() throws SQLException {
         assertEquals("Incorrect connection value", conn, meta.getConnection());
 
@@ -470,16 +435,10 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getCrossReference(java.lang.String,
+     * java.sql.DatabaseMetaData #getCrossReference(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String,
      *        java.lang.String, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Test fails: Foreign keys not supported",
-        method = "getCrossReference",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("(Ticket 91) Tables apply foreign key constraint. Catalogs not supported")
     public void test_getCrossReferenceLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -558,14 +517,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDatabaseMajorVersion()
+     * java.sql.DatabaseMetaData#getDatabaseMajorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDatabaseMajorVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDatabaseMajorVersion() throws SQLException {
         assertTrue("Incorrdct database major version", meta
@@ -584,14 +537,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDatabaseMinorVersion()
+     * java.sql.DatabaseMetaData#getDatabaseMinorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDatabaseMinorVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDatabaseMinorVersion() throws SQLException {
         assertTrue("Incorrect database minor version", meta
@@ -609,14 +556,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDatabaseProductName()
+     * java.sql.DatabaseMetaData#getDatabaseProductName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDatabaseProductName",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDatabaseProductName() throws SQLException {
         assertTrue("Incorrect database product name", !"".equals(meta
@@ -635,14 +576,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDatabaseProductVersion()
+     * java.sql.DatabaseMetaData#getDatabaseProductVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDatabaseProductVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDatabaseProductVersion() throws SQLException {
         assertTrue("Incorrect database product version", !"".equals(meta
@@ -659,14 +594,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDefaultTransactionIsolation()
+     * java.sql.DatabaseMetaData#getDefaultTransactionIsolation()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDefaultTransactionIsolation",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDefaultTransactionIsolation() throws SQLException {
         int defaultLevel = meta.getDefaultTransactionIsolation();
@@ -694,42 +623,24 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDriverMajorVersion()
+     * java.sql.DatabaseMetaData#getDriverMajorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDriverMajorVersion",
-        args = {}
-    )
     public void test_getDriverMajorVersion()  throws SQLException {
         assertTrue("Incorrect driver major version", meta
                 .getDriverMajorVersion() >= 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDriverMinorVersion()
+     * java.sql.DatabaseMetaData#getDriverMinorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDriverMinorVersion",
-        args = {}
-    )
     public void test_getDriverMinorVersion() {
         assertTrue("Incorrect driver minor version", meta
                 .getDriverMinorVersion() >= 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDriverName()
+     * java.sql.DatabaseMetaData#getDriverName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getDriverName",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDriverName() throws SQLException {
         String driverName = meta.getDriverName();
@@ -748,14 +659,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getDriverVersion()
+     * java.sql.DatabaseMetaData#getDriverVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDriverVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getDriverVersion() throws SQLException {
         assertTrue("Incorrect driver version", !"".equals(meta
@@ -838,14 +743,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxCursorNameLength()
+     * java.sql.DatabaseMetaData#getMaxCursorNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCursorNameLength",
-        args = {}
-    )
     public void test_getMaxCursorNameLength() throws SQLException {
         int nameLength = meta.getMaxCursorNameLength();
         if (nameLength > 0) {
@@ -861,14 +760,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getJDBCMinorVersion()
+     * java.sql.DatabaseMetaData#getJDBCMinorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getJDBCMinorVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getJDBCMinorVersion() throws SQLException {
         assertTrue("Incorrect JDBC minor version",
@@ -887,14 +780,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getJDBCMajorVersion()
+     * java.sql.DatabaseMetaData#getJDBCMajorVersion()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getJDBCMajorVersion",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getJDBCMajorVersion() throws SQLException {
         assertTrue("Incorrect JDBC major version",
@@ -914,14 +801,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#getNumericFunctions()
+     * java.sql.DatabaseMetaData#getNumericFunctions()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Test fails. Not implemented correctly. SQLException checking test fails",
-        method = "getNumericFunctions",
-        args = {}
-    )
     @KnownFailure("Not supported feature, Ticket 98. Broken because "+
             "NUMERIC_FUNCTIONS not complete. When fixed change to @KnownFailure")
     public void test_getNumericFunctions() throws SQLException {
@@ -941,15 +822,9 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getPrimaryKeys(java.lang.String,
+     * java.sql.DatabaseMetaData #getPrimaryKeys(java.lang.String,
      *        java.lang.String, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Functionality test fails: keys and catalogs are not supported.",
-        method = "getPrimaryKeys",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure(" Ticket 91 : relies on not supported features: getCatalog, keys")
     public void test_getPrimaryKeysLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -991,14 +866,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getResultSetHoldability()
+     * java.sql.DatabaseMetaData#getResultSetHoldability()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getResultSetHoldability",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getResultSetHoldability() throws SQLException {
         int hdb = meta.getResultSetHoldability();
@@ -1026,14 +895,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSQLKeywords()
+     * java.sql.DatabaseMetaData#getSQLKeywords()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getSQLKeywords",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getSQLKeywords() throws SQLException {
         assertTrue("Incorrect SQL keywords", !"".equals(meta.getSQLKeywords()
@@ -1052,14 +915,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSQLStateType()
+     * java.sql.DatabaseMetaData#getSQLStateType()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getSQLStateType",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getSQLStateType() throws SQLException {
         int type = meta.getSQLStateType();
@@ -1086,14 +943,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSchemas()
+     * java.sql.DatabaseMetaData#getSchemas()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getSchemas",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getSchemas() throws SQLException {
         ResultSet rs = meta.getSchemas();
@@ -1122,14 +973,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSearchStringEscape()
+     * java.sql.DatabaseMetaData#getSearchStringEscape()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getSearchStringEscape",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getSearchStringEscape() throws SQLException {
         assertTrue("Incorrect search string escape", !"".equals(meta
@@ -1148,14 +993,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getStringFunctions()
+     * java.sql.DatabaseMetaData#getStringFunctions()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Functionality test fails. SQLException checking test fails",
-        method = "getStringFunctions",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_getStringFunctions() throws SQLException {
         escapedFunctions(STRING_FUNCTIONS, meta.getStringFunctions());
@@ -1176,14 +1015,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSystemFunctions()
+     * java.sql.DatabaseMetaData#getSystemFunctions()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Functionality test fails. SQLException checking test fails",
-        method = "getSystemFunctions",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_getSystemFunctions() throws SQLException {
         escapedFunctions(SYSTEM_FUNCTIONS, meta.getSystemFunctions());
@@ -1203,14 +1036,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#getTableTypes()
+     * java.sql.DatabaseMetaData#getTableTypes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getTableTypes",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getTableTypes() throws SQLException {
         String[] tableTypes = { "LOCAL TEMPORARY", "TABLE", "VIEW" };
@@ -1236,15 +1063,9 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getTables(java.lang.String,
+     * java.sql.DatabaseMetaData #getTables(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Test fails.",
-        method = "getTables",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String[].class}
-    )
     @KnownFailure("If no schema is associated: returns empty string where actually null be returned?. Ticket 98")
     public void test_getTablesLjava_lang_StringLjava_lang_StringLjava_lang_String$Ljava_lang_String()
             throws SQLException {
@@ -1318,14 +1139,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getTimeDateFunctions()
+     * java.sql.DatabaseMetaData#getTimeDateFunctions()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Does not return any functions. test fails. SQLException checking test fails",
-        method = "getTimeDateFunctions",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_getTimeDateFunctions() throws SQLException {
 
@@ -1344,14 +1159,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getTypeInfo()
+     * java.sql.DatabaseMetaData#getTypeInfo()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getTypeInfo",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_getTypeInfo() throws SQLException {
         insertNewRecord();
@@ -1401,14 +1210,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#getURL()
+     * java.sql.DatabaseMetaData#getURL()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "getURL",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_getURL() throws SQLException {
         assertEquals("Wrong url", Support_SQL.sqlUrl, meta.getURL());
@@ -1443,14 +1246,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#insertsAreDetected(int)
+     * java.sql.DatabaseMetaData#insertsAreDetected(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "insertsAreDetected",
-        args = {int.class}
-    )
     @KnownFailure("Ticket 98")
     public void test_insertsAreDetectedI() throws SQLException {
         assertFalse(
@@ -1477,14 +1274,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#isReadOnly()
+     * java.sql.DatabaseMetaData#isReadOnly()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "isReadOnly",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_isReadOnly() throws SQLException {
         assertFalse("database is not read-only", meta.isReadOnly());
@@ -1502,14 +1293,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#othersDeletesAreVisible(int)
+     * java.sql.DatabaseMetaData#othersDeletesAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails.",
-        method = "othersDeletesAreVisible",
-        args = {int.class}
-    )
     @KnownFailure("Ticket 98")
     public void test_othersDeletesAreVisibleI() throws SQLException {
         assertFalse(
@@ -1537,14 +1322,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#othersInsertsAreVisible(int)
+     * java.sql.DatabaseMetaData#othersInsertsAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "othersInsertsAreVisible",
-        args = {int.class}
-    )
     @KnownFailure("Ticket 98")
     public void test_othersInsertsAreVisibleI() throws SQLException {
         assertFalse(
@@ -1572,14 +1351,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#othersUpdatesAreVisible(int)
+     * java.sql.DatabaseMetaData#othersUpdatesAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = " Verification with invalid parameters missed.",
-        method = "othersUpdatesAreVisible",
-        args = {int.class}
-    )
     @KnownFailure("Ticket 98")
     public void test_othersUpdatesAreVisibleI() throws SQLException {
         assertFalse(
@@ -1604,22 +1377,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#storesMixedCaseQuotedIdentifiers()
+     * java.sql.DatabaseMetaData#storesMixedCaseQuotedIdentifiers()
      */
-    @TestTargets ({
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "storesMixedCaseQuotedIdentifiers",
-        args = {}
-    ),
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "SQLException checking test fails",
-            method = "storesMixedCaseIdentifiers",
-            args = {}
-        )
-    })
     public void test_storesMixedCaseQuotedIdentifiers() throws SQLException {
         String quote = meta.getIdentifierQuoteString();
 
@@ -1663,12 +1422,6 @@ public class DatabaseMetaDataTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "Exception test fails.",
-      method = "getIdentifierQuoteString",
-      args = {}
-    )
     @KnownFailure("Ticket 98")
     public void testGetIdentifierQuoteString() throws SQLException {
        assertNotNull(
@@ -1690,14 +1443,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsColumnAliasing()
+     * java.sql.DatabaseMetaData#supportsColumnAliasing()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsColumnAliasing",
-        args = {}
-    )
     @KnownFailure("not supported. SQLException checking test fails")
     public void test_supportsColumnAliasing() throws SQLException {
         insertNewRecord();
@@ -1733,14 +1480,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsExpressionsInOrderBy()
+     * java.sql.DatabaseMetaData#supportsExpressionsInOrderBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsExpressionsInOrderBy",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsExpressionsInOrderBy() throws SQLException {
         insertNewRecord();
@@ -1773,14 +1514,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsGroupBy()
+     * java.sql.DatabaseMetaData#supportsGroupBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsGroupBy",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsGroupBy() throws SQLException {
         insertNewRecord();
@@ -1813,14 +1548,8 @@ public class DatabaseMetaDataTest extends TestCase {
 
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsGroupByUnrelated()
+     * java.sql.DatabaseMetaData#supportsGroupByUnrelated()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsGroupByUnrelated",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsGroupByUnrelated() throws SQLException {
         insertNewRecord();
@@ -1852,14 +1581,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsNonNullableColumns()
+     * java.sql.DatabaseMetaData#supportsNonNullableColumns()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException thrown",
-        method = "supportsNonNullableColumns",
-        args = {}
-    )
     @KnownFailure("Ticket 98")
     public void test_supportsNonNullableColumns() throws SQLException {
         assertTrue(
@@ -1882,14 +1605,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsOrderByUnrelated()
+     * java.sql.DatabaseMetaData#supportsOrderByUnrelated()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsOrderByUnrelated",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsOrderByUnrelated() throws SQLException {
         insertNewRecord();
@@ -1921,14 +1638,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsSelectForUpdate()
+     * java.sql.DatabaseMetaData#supportsSelectForUpdate()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsSelectForUpdate",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsSelectForUpdate() throws SQLException {
         insertNewRecord();
@@ -1961,14 +1672,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsSubqueriesInExists()
+     * java.sql.DatabaseMetaData#supportsSubqueriesInExists()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsSubqueriesInExists",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsSubqueriesInExists() throws SQLException {
         insertNewRecord();
@@ -2003,14 +1708,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsTableCorrelationNames()
+     * java.sql.DatabaseMetaData#supportsTableCorrelationNames()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SQLException checking test fails",
-        method = "supportsTableCorrelationNames",
-        args = {}
-    )
     @KnownFailure("exception test fails")
     public void test_supportsTableCorrelationNames() throws SQLException {
 
@@ -2048,14 +1747,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#supportsTransactionIsolationLevel(int)
+     * java.sql.DatabaseMetaData#supportsTransactionIsolationLevel(int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = " Not all Transaction isolation levels supported.",
-        method = "supportsTransactionIsolationLevel",
-        args = {int.class}
-    )
     public void test_supportsTransactionIsolationLevelI() throws SQLException {
         assertFalse("database supports TRANSACTION_NONE isolation level", meta
                 .supportsTransactionIsolationLevel(Connection.TRANSACTION_NONE));
@@ -2089,14 +1782,8 @@ public class DatabaseMetaDataTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#updatesAreDetected(int)
+     * java.sql.DatabaseMetaData#updatesAreDetected(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = " Verification with invalid parameters missed.",
-        method = "updatesAreDetected",
-        args = {int.class}
-    )
     public void test_updatesAreDetectedI() throws SQLException {
         assertFalse(
                 "visible row update can be detected for TYPE_FORWARD_ONLY type",
@@ -2557,12 +2244,6 @@ public class DatabaseMetaDataTest extends TestCase {
       *
       * @throws SQLException
       */
-     @TestTargetNew(
-             level = TestLevel.PARTIAL_COMPLETE,
-             notes = "Derby test for getSchema",
-             method = "getSchemas",
-             args = {}
-         )
      public void testGetSchemasReadOnly() throws SQLException {
 
          ResultSet rs = meta.getSchemas();

@@ -41,7 +41,7 @@ public class IncompleteAnnotationExceptionTest extends TestCase {
 
     /**
      * @throws Exception
-     * @tests java.lang.annotation.IncompleteAnnotationException#IncompleteAnnotationException(Class,
+     * java.lang.annotation.IncompleteAnnotationException#IncompleteAnnotationException(Class,
      *        String)
      */
     @SuppressWarnings("nls")

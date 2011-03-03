@@ -37,7 +37,7 @@ public class VectorTest extends junit.framework.TestCase {
 	private String vString = "[Test 0, Test 1, Test 2, Test 3, Test 4, Test 5, Test 6, Test 7, Test 8, Test 9, Test 10, Test 11, Test 12, Test 13, Test 14, Test 15, Test 16, Test 17, Test 18, Test 19, Test 20, Test 21, Test 22, Test 23, Test 24, Test 25, Test 26, Test 27, Test 28, Test 29, Test 30, Test 31, Test 32, Test 33, Test 34, Test 35, Test 36, Test 37, Test 38, Test 39, Test 40, Test 41, Test 42, Test 43, Test 44, Test 45, Test 46, Test 47, Test 48, Test 49, Test 50, Test 51, Test 52, Test 53, Test 54, Test 55, Test 56, Test 57, Test 58, Test 59, Test 60, Test 61, Test 62, Test 63, Test 64, Test 65, Test 66, Test 67, Test 68, Test 69, Test 70, Test 71, Test 72, Test 73, Test 74, Test 75, Test 76, Test 77, Test 78, Test 79, Test 80, Test 81, Test 82, Test 83, Test 84, Test 85, Test 86, Test 87, Test 88, Test 89, Test 90, Test 91, Test 92, Test 93, Test 94, Test 95, Test 96, Test 97, Test 98, Test 99]";
 
 	/**
-	 * @tests java.util.Vector#Vector()
+	 * java.util.Vector#Vector()
 	 */
 	public void test_Constructor() {
 		// Test for method java.util.Vector()
@@ -58,7 +58,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#Vector(int)
+	 * java.util.Vector#Vector(int)
 	 */
 	public void test_ConstructorI() {
 		// Test for method java.util.Vector(int)
@@ -69,7 +69,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#Vector(int, int)
+	 * java.util.Vector#Vector(int, int)
 	 */
 	public void test_ConstructorII() {
 		// Test for method java.util.Vector(int, int)
@@ -106,7 +106,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#Vector(java.util.Collection)
+	 * java.util.Vector#Vector(java.util.Collection)
 	 */
 	public void test_ConstructorLjava_util_Collection() {
 		// Test for method java.util.Vector(java.util.Collection)
@@ -122,7 +122,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#add(int, java.lang.Object)
+	 * java.util.Vector#add(int, java.lang.Object)
 	 */
 	public void test_addILjava_lang_Object() {
 		// Test for method void java.util.Vector.add(int, java.lang.Object)
@@ -142,7 +142,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#add(java.lang.Object)
+	 * java.util.Vector#add(java.lang.Object)
 	 */
 	public void test_addLjava_lang_Object() {
 		// Test for method boolean java.util.Vector.add(java.lang.Object)
@@ -157,7 +157,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#addAll(int, java.util.Collection)
+	 * java.util.Vector#addAll(int, java.util.Collection)
 	 */
 	public void test_addAllILjava_util_Collection() {
 		// Test for method boolean java.util.Vector.addAll(int,
@@ -209,7 +209,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#addAll(java.util.Collection)
+	 * java.util.Vector#addAll(java.util.Collection)
 	 */
 	public void test_addAllLjava_util_Collection() {
 		// Test for method boolean java.util.Vector.addAll(java.util.Collection)
@@ -247,7 +247,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#addElement(java.lang.Object)
+	 * java.util.Vector#addElement(java.lang.Object)
 	 */
 	public void test_addElementLjava_lang_Object() {
 		// Test for method void java.util.Vector.addElement(java.lang.Object)
@@ -262,7 +262,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#addElement(java.lang.Object)
+	 * java.util.Vector#addElement(java.lang.Object)
 	 */
 	public void test_addElementLjava_lang_Object_subtest0() {
 		// Test for method void java.util.Vector.addElement(java.lang.Object)
@@ -277,7 +277,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#capacity()
+	 * java.util.Vector#capacity()
 	 */
 	public void test_capacity() {
 		// Test for method int java.util.Vector.capacity()
@@ -287,7 +287,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#clear()
+	 * java.util.Vector#clear()
 	 */
 	public void test_clear() {
 		// Test for method void java.util.Vector.clear()
@@ -309,7 +309,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#clone()
+	 * java.util.Vector#clone()
 	 */
 	public void test_clone() {
 		// Test for method java.lang.Object java.util.Vector.clone()
@@ -329,7 +329,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#contains(java.lang.Object)
+	 * java.util.Vector#contains(java.lang.Object)
 	 */
 	public void test_containsLjava_lang_Object() {
 		// Test for method boolean java.util.Vector.contains(java.lang.Object)
@@ -345,7 +345,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#containsAll(java.util.Collection)
+	 * java.util.Vector#containsAll(java.util.Collection)
 	 */
 	public void test_containsAllLjava_util_Collection() {
 		// Test for method boolean
@@ -369,7 +369,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#copyInto(java.lang.Object[])
+	 * java.util.Vector#copyInto(java.lang.Object[])
 	 */
 	public void test_copyInto$Ljava_lang_Object() {
 		// Test for method void java.util.Vector.copyInto(java.lang.Object [])
@@ -383,7 +383,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#elementAt(int)
+	 * java.util.Vector#elementAt(int)
 	 */
 	public void test_elementAtI() {
 		// Test for method java.lang.Object java.util.Vector.elementAt(int)
@@ -396,7 +396,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#elements()
+	 * java.util.Vector#elements()
 	 */
 	public void test_elements() {
 		// Test for method java.util.Enumeration java.util.Vector.elements()
@@ -412,7 +412,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#elements()
+	 * java.util.Vector#elements()
 	 */
 	public void test_elements_subtest0() {
 		final int iterations = 10000;
@@ -443,7 +443,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#ensureCapacity(int)
+	 * java.util.Vector#ensureCapacity(int)
 	 */
 	public void test_ensureCapacityI() {
 		// Test for method void java.util.Vector.ensureCapacity(int)
@@ -484,7 +484,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#equals(java.lang.Object)
+	 * java.util.Vector#equals(java.lang.Object)
 	 */
 	public void test_equalsLjava_lang_Object() {
 		// Test for method boolean java.util.Vector.equals(java.lang.Object)
@@ -505,7 +505,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#firstElement()
+	 * java.util.Vector#firstElement()
 	 */
 	public void test_firstElement() {
 		// Test for method java.lang.Object java.util.Vector.firstElement()
@@ -525,7 +525,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#get(int)
+	 * java.util.Vector#get(int)
 	 */
 	public void test_getI() {
 		// Test for method java.lang.Object java.util.Vector.get(int)
@@ -537,7 +537,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#hashCode()
+	 * java.util.Vector#hashCode()
 	 */
 	public void test_hashCode() {
 		// Test for method int java.util.Vector.hashCode()
@@ -552,7 +552,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#indexOf(java.lang.Object)
+	 * java.util.Vector#indexOf(java.lang.Object)
 	 */
 	public void test_indexOfLjava_lang_Object() {
 		// Test for method int java.util.Vector.indexOf(java.lang.Object)
@@ -566,7 +566,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#indexOf(java.lang.Object, int)
+	 * java.util.Vector#indexOf(java.lang.Object, int)
 	 */
 	public void test_indexOfLjava_lang_ObjectI() {
 		// Test for method int java.util.Vector.indexOf(java.lang.Object, int)
@@ -600,7 +600,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#insertElementAt(java.lang.Object, int)
+	 * java.util.Vector#insertElementAt(java.lang.Object, int)
 	 */
 	public void test_insertElementAtLjava_lang_ObjectI() {
 		// Test for method void
@@ -645,7 +645,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#isEmpty()
+	 * java.util.Vector#isEmpty()
 	 */
 	public void test_isEmpty() {
 		// Test for method boolean java.util.Vector.isEmpty()Vector
@@ -656,7 +656,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#isEmpty()
+	 * java.util.Vector#isEmpty()
 	 */
 	public void test_isEmpty_subtest0() {
 		final Vector v = new Vector();
@@ -687,7 +687,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#lastElement()
+	 * java.util.Vector#lastElement()
 	 */
 	public void test_lastElement() {
 		// Test for method java.lang.Object java.util.Vector.lastElement()
@@ -707,7 +707,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#lastIndexOf(java.lang.Object)
+	 * java.util.Vector#lastIndexOf(java.lang.Object)
 	 */
 	public void test_lastIndexOfLjava_lang_Object() {
 		// Test for method int java.util.Vector.lastIndexOf(java.lang.Object)
@@ -723,7 +723,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#lastIndexOf(java.lang.Object, int)
+	 * java.util.Vector#lastIndexOf(java.lang.Object, int)
 	 */
 	public void test_lastIndexOfLjava_lang_ObjectI() {
 		// Test for method int java.util.Vector.lastIndexOf(java.lang.Object,
@@ -767,7 +767,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#remove(int)
+	 * java.util.Vector#remove(int)
 	 */
 	public void test_removeI() {
 		// Test for method java.lang.Object java.util.Vector.remove(int)
@@ -809,7 +809,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#remove(java.lang.Object)
+	 * java.util.Vector#remove(java.lang.Object)
 	 */
 	public void test_removeLjava_lang_Object() {
 		// Test for method boolean java.util.Vector.remove(java.lang.Object)
@@ -826,7 +826,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#removeAll(java.util.Collection)
+	 * java.util.Vector#removeAll(java.util.Collection)
 	 */
 	public void test_removeAllLjava_util_Collection() {
 		// Test for method boolean
@@ -858,7 +858,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#removeAllElements()
+	 * java.util.Vector#removeAllElements()
 	 */
 	public void test_removeAllElements() {
 		// Test for method void java.util.Vector.removeAllElements()
@@ -868,7 +868,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#removeElement(java.lang.Object)
+	 * java.util.Vector#removeElement(java.lang.Object)
 	 */
 	public void test_removeElementLjava_lang_Object() {
 		// Test for method boolean
@@ -886,7 +886,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#removeElementAt(int)
+	 * java.util.Vector#removeElementAt(int)
 	 */
 	public void test_removeElementAtI() {
 		// Test for method void java.util.Vector.removeElementAt(int)
@@ -921,7 +921,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests {@link java.util.Vector#removeRange(int, int)}
+     * {@link java.util.Vector#removeRange(int, int)}
      */
     public void test_removeRange() {
         MockVector myVector = new MockVector();
@@ -973,7 +973,7 @@ public class VectorTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.Vector#retainAll(java.util.Collection)
+	 * java.util.Vector#retainAll(java.util.Collection)
 	 */
 	public void test_retainAllLjava_util_Collection() {
 		// Test for method boolean
@@ -989,7 +989,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#set(int, java.lang.Object)
+	 * java.util.Vector#set(int, java.lang.Object)
 	 */
 	public void test_setILjava_lang_Object() {
 		// Test for method java.lang.Object java.util.Vector.set(int,
@@ -1039,7 +1039,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#setElementAt(java.lang.Object, int)
+	 * java.util.Vector#setElementAt(java.lang.Object, int)
 	 */
 	public void test_setElementAtLjava_lang_ObjectI() {
 		// Test for method void java.util.Vector.setElementAt(java.lang.Object,
@@ -1082,7 +1082,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#setSize(int)
+	 * java.util.Vector#setSize(int)
 	 */
 	public void test_setSizeI() {
 		// Test for method void java.util.Vector.setSize(int)
@@ -1116,7 +1116,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#size()
+	 * java.util.Vector#size()
 	 */
 	public void test_size() {
 		// Test for method int java.util.Vector.size()
@@ -1150,7 +1150,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#subList(int, int)
+	 * java.util.Vector#subList(int, int)
 	 */
 	public void test_subListII() {
 		// Test for method java.util.List java.util.Vector.subList(int, int)
@@ -1166,7 +1166,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#toArray()
+	 * java.util.Vector#toArray()
 	 */
 	public void test_toArray() {
 		// Test for method java.lang.Object [] java.util.Vector.toArray()
@@ -1175,7 +1175,7 @@ public class VectorTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Vector#toArray(java.lang.Object[])
+	 * java.util.Vector#toArray(java.lang.Object[])
 	 */
 	public void test_toArray$Ljava_lang_Object() {
 		// Test for method java.lang.Object []
@@ -1210,7 +1210,7 @@ public class VectorTest extends junit.framework.TestCase {
         }
 
         /**
-         * @tests java.util.Vector#add(Object)
+         * java.util.Vector#add(Object)
          */
         @SuppressWarnings("nls")
         public void test_add() {
@@ -1223,7 +1223,7 @@ public class VectorTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Vector#toString()
+     * java.util.Vector#toString()
      */
     public void test_toString() {
         // Ensure toString works with self-referencing elements.
@@ -1264,7 +1264,7 @@ public class VectorTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.Vector#trimToSize()
+	 * java.util.Vector#trimToSize()
 	 */
 	public void test_trimToSize() {
 		// Test for method void java.util.Vector.trimToSize()

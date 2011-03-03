@@ -37,16 +37,10 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.crypto.tests.support.MyKeyAgreementSpi;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(KeyAgreementSpi.class)
 /**
  * Tests for <code>KeyAgreementSpi</code> class constructors and methods.
  *
  */
-
 public class KeyAgreementSpiTest extends TestCase {
     class Mock_KeyAgreementSpi extends MyKeyAgreementSpi {
 
@@ -90,12 +84,6 @@ public class KeyAgreementSpiTest extends TestCase {
      * Test for <code>KeyAgreementSpi</code> constructor Assertion: constructs
      * KeyAgreementSpi
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyAgreementSpi",
-        args = {}
-    )
     public void testKeyAgreementSpi01() throws InvalidKeyException,
             ShortBufferException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {

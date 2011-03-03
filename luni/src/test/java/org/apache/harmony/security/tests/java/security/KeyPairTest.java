@@ -22,18 +22,13 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 import junit.framework.TestCase;
-@TestTargetClass( KeyPair.class)
+
 /**
  * Tests for fields and methods of class <code>KeyPair</code>
  *
@@ -75,12 +70,6 @@ public class KeyPairTest extends TestCase {
      * Assertion: creates new <code>KeyPair</code> instance using valid
      * parameters (both <code>null</code>)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification when parameter is null",
-        method = "KeyPair",
-        args = {java.security.PublicKey.class, java.security.PrivateKey.class}
-    )
     public final void testKeyPair01() {
         Object kp = new KeyPair(null, null);
         assertTrue(kp instanceof KeyPair);
@@ -97,12 +86,6 @@ public class KeyPairTest extends TestCase {
      * parameters (both valid keys)
      * @throws InvalidKeySpecException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification when parameter is not null",
-        method = "KeyPair",
-        args = {java.security.PublicKey.class, java.security.PrivateKey.class}
-    )
     public final void testKeyPair02() throws InvalidKeySpecException {
         Object kp = new KeyPair(TestKeyPair.getPublic(), TestKeyPair.getPrivate());
         assertTrue(kp instanceof KeyPair);
@@ -112,12 +95,6 @@ public class KeyPairTest extends TestCase {
      * Test #1 for <code>getPrivate()</code> method<br>
      * Assertion: returns private key (<code>null</code> in this case)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPrivate",
-        args = {}
-    )
     public final void testGetPrivate01() {
         KeyPair kp = new KeyPair(null, null);
         assertNull(kp.getPrivate());
@@ -128,12 +105,6 @@ public class KeyPairTest extends TestCase {
      * Assertion: returns private key (valid private key in this case)
      * @throws InvalidKeySpecException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPrivate",
-        args = {}
-    )
     public final void testGetPrivate02() throws InvalidKeySpecException {
         PrivateKey pk = TestKeyPair.getPrivate();
         KeyPair kp = new KeyPair(null, pk);
@@ -144,12 +115,6 @@ public class KeyPairTest extends TestCase {
      * Test #1 for <code>getPublic()</code> method<br>
      * Assertion: returns public key (<code>null</code> in this case)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPublic",
-        args = {}
-    )
     public final void testGetPublic01() {
         KeyPair kp = new KeyPair(null, null);
         assertNull(kp.getPublic());
@@ -160,12 +125,6 @@ public class KeyPairTest extends TestCase {
      * Assertion: returns public key (valid public key in this case)
      * @throws InvalidKeySpecException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPublic",
-        args = {}
-    )
     public final void testGetPublic02() throws InvalidKeySpecException {
         PublicKey pk = TestKeyPair.getPublic();
         KeyPair kp = new KeyPair(pk, null);

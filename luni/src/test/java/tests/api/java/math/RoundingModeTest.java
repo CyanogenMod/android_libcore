@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 public class RoundingModeTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.math.RoundingMode#valueOf(int)
+     * java.math.RoundingMode#valueOf(int)
      */
     public void test_valueOfI() {
         assertEquals("valueOf failed for ROUND_CEILING", RoundingMode.valueOf(BigDecimal.ROUND_CEILING), RoundingMode.CEILING);

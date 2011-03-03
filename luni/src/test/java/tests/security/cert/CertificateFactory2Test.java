@@ -22,10 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -50,7 +46,6 @@ import java.util.List;
  * Tests for CertificateFactory class constructors and methods
  *
  */
-@TestTargetClass(CertificateFactory.class)
 public class CertificateFactory2Test extends TestCase {
     private static final String defaultAlg = "CertFac";
     private static final String CertificateFactoryProviderClass = "org.apache.harmony.security.tests.support.cert.MyCertificateFactorySpi";
@@ -315,60 +310,24 @@ public class CertificateFactory2Test extends TestCase {
             checkResult(cerF,  mode);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance01() throws CertificateException, CRLException {
         GetInstance01(true);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance02() throws CertificateException,
         NoSuchProviderException, IllegalArgumentException, CRLException {
         GetInstance02(true);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance03() throws CertificateException,
         IllegalArgumentException, CRLException {
         GetInstance03(true);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance04() throws CertificateException, CRLException {
         GetInstance01(false);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance05() throws CertificateException,
         NoSuchProviderException, IllegalArgumentException, CRLException {
         GetInstance02(false);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance06() throws CertificateException,
         IllegalArgumentException, CRLException {
         GetInstance03(false);

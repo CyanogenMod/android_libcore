@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.IdentityScope;
 import java.security.InvalidParameterException;
 import java.security.KeyManagementException;
@@ -48,7 +43,6 @@ import junit.framework.TestCase;
  *
  */
 @SuppressWarnings("deprecation")
-@TestTargetClass(Signer.class)
 public class SignerTest extends TestCase {
 
     public static class MySecurityManager extends SecurityManager {
@@ -59,14 +53,8 @@ public class SignerTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Signer#toString()
+     * java.security.Signer#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws Exception {
         Signer s1 = new SignerStub("testToString1");
         assertEquals("[Signer]testToString1", s1.toString());
@@ -86,12 +74,6 @@ public class SignerTest extends TestCase {
     /**
      * verify Signer() creates instance
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Signer",
-        args = {}
-    )
     public void testSigner() {
         Signer s = new SignerStub();
         assertNotNull(s);
@@ -102,12 +84,6 @@ public class SignerTest extends TestCase {
     /**
      * verify Signer(String) creates instance
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Signer",
-        args = {java.lang.String.class}
-    )
     public void testSignerString() throws Exception {
         Signer s = new SignerStub("sss3");
         assertNotNull(s);
@@ -122,12 +98,6 @@ public class SignerTest extends TestCase {
     /**
      * verify  Signer(String, IdentityScope) creates instance
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Signer",
-        args = {java.lang.String.class, java.security.IdentityScope.class}
-    )
     public void testSignerStringIdentityScope() throws Exception {
         Signer s = new SignerStub("sss4", IdentityScope.getSystemScope());
         assertNotNull(s);
@@ -152,12 +122,6 @@ public class SignerTest extends TestCase {
     /**
      * verify Signer.getPrivateKey() returns null or private key
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getPrivateKey",
-        args = {}
-    )
     public void testGetPrivateKey() throws Exception {
         byte [] privateKeyData = { 1, 2, 3, 4, 5};
         PrivateKeyStub privateKey = new PrivateKeyStub("private", "fff", privateKeyData);
@@ -173,14 +137,8 @@ public class SignerTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Signer#setKeyPair(java.security.KeyPair)
+     * java.security.Signer#setKeyPair(java.security.KeyPair)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "KeyException checking missed",
-        method = "setKeyPair",
-        args = {java.security.KeyPair.class}
-    )
     public void test_setKeyPairLjava_security_KeyPair() throws Exception {
 
         // Regression for HARMONY-2408

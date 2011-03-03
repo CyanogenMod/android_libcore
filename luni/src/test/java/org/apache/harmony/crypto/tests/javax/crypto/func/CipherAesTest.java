@@ -15,20 +15,10 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 public class CipherAesTest extends TestCase {
 // 216 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_AesNoISO() {
         CipherSymmetricKeyThread aesNoISO = new CipherSymmetricKeyThread("AES",
                 new int[] {128, 192, 256}, // Keysize must be 128, 192, 256.
@@ -48,12 +38,6 @@ public class CipherAesTest extends TestCase {
     }
 
 // 108 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_AesISO() {
         CipherSymmetricKeyThread aesISO = new CipherSymmetricKeyThread("AES",
                 new int[] {128, 192, 256}, // Keysize must be 128, 192, 256.

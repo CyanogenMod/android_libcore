@@ -22,10 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.spec.MyEncodedKeySpec;
@@ -37,18 +33,11 @@ import java.util.Arrays;
  * Tests for <code>EncodedKeySpec</code> class fields and methods.
  *
  */
-@TestTargetClass(EncodedKeySpec.class)
 public class EncodedKeySpecTest extends TestCase {
 
     /**
      * Tests for constructor <code>EncodedKeySpec(byte[])</code><br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "EncodedKeySpec",
-        args = {byte[].class}
-    )
     public final void testEncodedKeySpec() {
         byte[] encodedKey = new byte[] { (byte) 1, (byte) 2, (byte) 3, (byte) 4 };
         EncodedKeySpec eks = new MyEncodedKeySpec(encodedKey);
@@ -69,12 +58,6 @@ public class EncodedKeySpecTest extends TestCase {
     /**
      * Tests that <code>getEncoded()</code> method returns valid byte array
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testGetEncoded() {
 
         byte[] encodedKey = new byte[] { (byte) 1, (byte) 2, (byte) 3, (byte) 4 };
@@ -99,12 +82,6 @@ public class EncodedKeySpecTest extends TestCase {
      * Tests that internal state of the object can not be modified by modifying
      * initial array value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testIsStatePreserved1() {
         /* Create initial byte array */
         byte[] encodedKey = new byte[] { (byte) 1, (byte) 2, (byte) 3, (byte) 4 };
@@ -125,12 +102,6 @@ public class EncodedKeySpecTest extends TestCase {
      * Tests that internal state of the object can not be modified using
      * returned value of <code>getEncoded()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public final void testIsStatePreserved2() {
 
         byte[] encodedKey = new byte[] { (byte) 1, (byte) 2, (byte) 3, (byte) 4 };

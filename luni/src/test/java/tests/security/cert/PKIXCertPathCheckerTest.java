@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.cert.CertPathValidatorException;
@@ -43,18 +38,11 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
  * Tests for <code>PKIXCertPathChecker</code>
  *
  */
-@TestTargetClass(PKIXCertPathChecker.class)
 public class PKIXCertPathCheckerTest extends TestCase {
 
     //
     // Tests
     //
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PKIXCertPathChecker",
-        args = {}
-    )
     public final void testConstructor() {
         try {
             new MyPKIXCertPathChecker();
@@ -62,12 +50,6 @@ public class PKIXCertPathCheckerTest extends TestCase {
             fail("Unexpected exception " + e.getMessage());
         }
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public final void testClone() {
         PKIXCertPathChecker pc1 = TestUtils.getTestCertPathChecker();
         PKIXCertPathChecker pc2 = (PKIXCertPathChecker) pc1.clone();
@@ -79,43 +61,19 @@ public class PKIXCertPathCheckerTest extends TestCase {
     // that are abstract in <code>PKIXCertPathChecker</code>
     // (So they just like signature tests)
     //
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isForwardCheckingSupported",
-        args = {}
-    )
     public final void testIsForwardCheckingSupported() {
         PKIXCertPathChecker pc = TestUtils.getTestCertPathChecker();
         pc.isForwardCheckingSupported();
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {boolean.class}
-    )
     public final void testInit()
         throws CertPathValidatorException {
         PKIXCertPathChecker pc = TestUtils.getTestCertPathChecker();
         pc.init(true);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedExtensions",
-        args = {}
-    )
     public final void testGetSupportedExtensions() {
         PKIXCertPathChecker pc = TestUtils.getTestCertPathChecker();
         pc.getSupportedExtensions();
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "check",
-        args = {java.security.cert.Certificate.class, java.util.Collection.class}
-    )
     public final void testCheck() throws CertPathValidatorException {
         PKIXCertPathChecker pc = TestUtils.getTestCertPathChecker();
         pc.check(new MyCertificate("", null), new HashSet<String>());

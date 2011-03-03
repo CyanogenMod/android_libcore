@@ -16,7 +16,6 @@
 
 package tests.xml;
 
-import dalvik.annotation.TestTargetClass;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,7 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@TestTargetClass(Node.class)
 public class NodeTest extends TestCase {
 
     /**

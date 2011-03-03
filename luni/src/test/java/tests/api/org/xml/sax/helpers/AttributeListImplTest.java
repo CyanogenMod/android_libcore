@@ -21,12 +21,7 @@ import junit.framework.TestCase;
 import org.xml.sax.AttributeList;
 import org.xml.sax.helpers.AttributeListImpl;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 @SuppressWarnings("deprecation")
-@TestTargetClass(AttributeListImpl.class)
 public class AttributeListImplTest extends TestCase {
 
     private AttributeListImpl empty = new AttributeListImpl();
@@ -40,21 +35,11 @@ public class AttributeListImplTest extends TestCase {
         multi.addAttribute("answer", "int", "42");
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "AttributeListImpl",
-        args = { }
-    )
     public void testAttributeListImpl() {
         assertEquals(0, empty.getLength());
         assertEquals(3, multi.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "AttributeListImpl",
-        args = { AttributeList.class }
-    )
     public void testAttributeListImplAttributeList() {
         // Ordinary case
         AttributeListImpl ai = new AttributeListImpl(empty);
@@ -74,11 +59,6 @@ public class AttributeListImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setAttributeList",
-        args = { AttributeList.class }
-    )
     public void testSetAttributeList() {
         // Ordinary cases
         AttributeListImpl attrs = new AttributeListImpl();
@@ -106,11 +86,6 @@ public class AttributeListImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "addAttribute",
-        args = { String.class, String.class, String.class }
-    )
     public void testAddAttribute() {
         // Ordinary case
         multi.addAttribute("doe", "boolean", "false");
@@ -133,11 +108,6 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(null, multi.getValue(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "removeAttribute",
-        args = { String.class }
-    )
     public void testRemoveAttribute() {
         // Ordinary case
         multi.removeAttribute("foo");
@@ -154,22 +124,12 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(2, multi.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "clear",
-        args = { }
-    )
     public void testClear() {
         assertEquals(3, multi.getLength());
         multi.clear();
         assertEquals(0, multi.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getLength",
-        args = { }
-    )
     public void testGetLength() {
         AttributeListImpl ai = new AttributeListImpl(empty);
         assertEquals(0, ai.getLength());
@@ -183,11 +143,6 @@ public class AttributeListImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getName",
-        args = { int.class }
-    )
     public void testGetName() {
         // Ordinary cases
         assertEquals("foo", multi.getName(0));
@@ -199,11 +154,6 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(null, multi.getName(3));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = { int.class }
-    )
     public void testGetTypeInt() {
         // Ordinary cases
         assertEquals("string", multi.getType(0));
@@ -215,11 +165,6 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(null, multi.getType(3));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getValue",
-        args = { int.class }
-    )
     public void testGetValueInt() {
         // Ordinary cases
         assertEquals("abc", multi.getValue(0));
@@ -231,11 +176,6 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(null, multi.getValue(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = { String.class }
-    )
     public void testGetTypeString() {
         // Ordinary cases
         assertEquals("string", multi.getType("foo"));
@@ -249,11 +189,6 @@ public class AttributeListImplTest extends TestCase {
         assertEquals(null, multi.getType(null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getValue",
-        args = { String.class }
-    )
     public void testGetValueString() {
         // Ordinary cases
         assertEquals("abc", multi.getValue("foo"));

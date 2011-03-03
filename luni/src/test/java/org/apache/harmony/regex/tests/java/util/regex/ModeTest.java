@@ -16,11 +16,6 @@
 
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import junit.framework.TestCase;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -30,23 +25,8 @@ import java.util.regex.PatternSyntaxException;
  * Tests Pattern compilation modes and modes triggered in pattern strings
  *
  */
-@TestTargetClass(Pattern.class)
 public class ModeTest extends TestCase {
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies compile(String regex) and compile(String regex, int flags) methods with Pattern.CASE_INSENSITIVE mode.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies compile(String regex) and compile(String regex, int flags) methods with Pattern.CASE_INSENSITIVE mode.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testCase() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -75,20 +55,6 @@ public class ModeTest extends TestCase {
         assertEquals("doG", m.group(1));
         assertFalse(m.find());
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies compile(String regex) and compile(String regex, int flags) methods with Pattern.MULTILINE mode.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "The test verifies compile(String regex) and compile(String regex, int flags) methods with Pattern.MULTILINE mode.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testMultiline() throws PatternSyntaxException {
         Pattern p;
         Matcher m;

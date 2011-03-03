@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.lang.NullPointerException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
@@ -37,30 +32,14 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(DESedeKeySpec.class)
 /**
  */
-
 public class DESedeKeySpecTest extends TestCase {
 
     /**
      * Constructors testing. Tests behavior of each of two constructors
      * in the cases of: null array, short array, normal array.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks both constructors.",
-            method = "DESedeKeySpec",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks both constructors.",
-            method = "DESedeKeySpec",
-            args = {byte[].class, int.class}
-        )
-    })
     public void testDESedeKeySpec() {
         try {
             new DESedeKeySpec((byte []) null);
@@ -122,12 +101,6 @@ public class DESedeKeySpecTest extends TestCase {
      * the key with the key specified in the constructor. The object under
      * the test is created by different constructors.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKey",
-        args = {}
-    )
     public void testGetKey() {
         byte[] key = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2,
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2};
@@ -168,12 +141,6 @@ public class DESedeKeySpecTest extends TestCase {
      * it returns false on the key which is not parity adjusted, and if
      * it returns true on parity adjusted key.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isParityAdjusted",
-        args = {byte[].class, int.class}
-    )
     public void testIsParityAdjusted() {
         try {
             DESedeKeySpec.isParityAdjusted(null, 1);

@@ -22,15 +22,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.SignatureException;
 
 import junit.framework.TestCase;
-@TestTargetClass(SignatureException.class)
+
 /**
  * Tests for <code>SignatureException</code> class constructors and methods.
  *
@@ -48,12 +43,6 @@ public class SignatureExceptionTest extends TestCase {
      * Test for <code>SignatureException()</code> constructor Assertion:
      * constructs SignatureException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {}
-    )
     public void testSignatureException01() {
         SignatureException tE = new SignatureException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -65,12 +54,6 @@ public class SignatureExceptionTest extends TestCase {
      * constructs SignatureException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class}
-    )
     public void testSignatureException02() {
         SignatureException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -85,12 +68,6 @@ public class SignatureExceptionTest extends TestCase {
      * Test for <code>SignatureException(String)</code> constructor Assertion:
      * constructs SignatureException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class}
-    )
     public void testSignatureException03() {
         String msg = null;
         SignatureException tE = new SignatureException(msg);
@@ -103,12 +80,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.Throwable.class}
-    )
     public void testSignatureException04() {
         Throwable cause = null;
         SignatureException tE = new SignatureException(cause);
@@ -121,12 +92,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is not
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.Throwable.class}
-    )
     public void testSignatureException05() {
         SignatureException tE = new SignatureException(tCause);
         if (tE.getMessage() != null) {
@@ -145,12 +110,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is
      * null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSignatureException06() {
         SignatureException tE = new SignatureException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -162,12 +121,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is
      * null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSignatureException07() {
         SignatureException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -183,12 +136,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is not
      * null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSignatureException08() {
         SignatureException tE = new SignatureException(null, tCause);
         if (tE.getMessage() != null) {
@@ -207,12 +154,6 @@ public class SignatureExceptionTest extends TestCase {
      * Assertion: constructs SignatureException when <code>cause</code> is not
      * null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SignatureException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSignatureException09() {
         SignatureException tE;
         for (int i = 0; i < msgs.length; i++) {

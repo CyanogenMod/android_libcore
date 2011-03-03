@@ -17,10 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -38,7 +34,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-@TestTargetClass(AbstractMap.class)
 public class AbstractMapTest extends junit.framework.TestCase {
 
     static final String specialKey = "specialKey".intern();
@@ -76,14 +71,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#keySet()
+     * java.util.AbstractMap#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify returned set of keys.",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet() {
         AbstractMap map1 = new HashMap(0);
         assertSame("HashMap(0)", map1.keySet(), map1.keySet());
@@ -108,14 +97,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#remove(java.lang.Object)
+     * java.util.AbstractMap#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException.",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         Object key = new Object();
         Object value = new Object();
@@ -152,14 +135,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#values()
+     * java.util.AbstractMap#values()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify returned Collection.",
-        method = "values",
-        args = {}
-    )
     public void test_values() {
         AbstractMap map1 = new HashMap(0);
         assertSame("HashMap(0)", map1.values(), map1.values());
@@ -184,14 +161,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#clone()
+     * java.util.AbstractMap#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CloneNotSupportedException.",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         class MyMap extends AbstractMap implements Cloneable {
             private Map map = new HashMap();
@@ -286,14 +257,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.AbstractMap#putAll(Map)}
+     * {@link java.util.AbstractMap#putAll(Map)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify exceptions.",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLMap() {
         Hashtable ht  = new Hashtable();
         AMT amt = new AMT();

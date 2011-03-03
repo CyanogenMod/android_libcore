@@ -16,18 +16,13 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AuthProvider;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 
 import junit.framework.TestCase;
-@TestTargetClass(AuthProvider.class)
+
 public class AuthProviderTest extends TestCase {
 
     protected void setUp() throws Exception {
@@ -39,34 +34,8 @@ public class AuthProviderTest extends TestCase {
     }
 
     /**
-     * @tests java.security.AuthProvider#AuthProvider(String, double, String)
+     * java.security.AuthProvider#AuthProvider(String, double, String)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AuthProvider",
-            args = {java.lang.String.class, double.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "login",
-            args = {javax.security.auth.Subject.class, javax.security.auth.callback.CallbackHandler.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "logout",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setCallbackHandler",
-            args = {javax.security.auth.callback.CallbackHandler.class}
-        )
-    })
     public void testConstructor01() {
         AuthProviderStub ap = new AuthProviderStub("name", 1.0, "info");
         CallbackHandler handler = null;

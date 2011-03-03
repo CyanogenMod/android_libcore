@@ -1,9 +1,5 @@
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.MyProvider;
@@ -29,7 +25,6 @@ import java.security.KeyStore.ProtectionParameter;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
-@TestTargetClass(KeyStore.class)
 public class KeyStore4Test extends TestCase {
 
     Provider provider = new MyProvider();
@@ -66,11 +61,6 @@ public class KeyStore4Test extends TestCase {
         Security.removeProvider(provider.getName());
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class}
-    )
     public void testGetInstanceString() {
         try {
             KeyStore ks = KeyStore.getInstance("TestKeyStore");
@@ -97,11 +87,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, String.class}
-    )
     public void testGetInstanceStringString() {
         try {
             KeyStore ks = KeyStore.getInstance("TestKeyStore", provider.getName());
@@ -165,11 +150,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, Provider.class}
-    )
     public void testGetInstanceStringProvider() {
         try {
             KeyStore ks = KeyStore.getInstance("TestKeyStore", provider);
@@ -206,11 +186,6 @@ public class KeyStore4Test extends TestCase {
     }
 
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getKey",
-            args={String.class, char[].class}
-    )
     public void testGetKey() {
         try {
             Key key = keyStore.getKey("keyalias", null);
@@ -270,11 +245,6 @@ public class KeyStore4Test extends TestCase {
     }
 
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getCertificateAlias",
-            args={Certificate.class}
-    )
     public void testGetCertificateAlias() {
         try {
             String alias = keyStore.getCertificateAlias(TestKeyStoreSpi.CERT);
@@ -308,11 +278,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="store",
-            args={OutputStream.class, char[].class}
-    )
     public void testStoreOutputStreamCharArray() {
         OutputStream os = new ByteArrayOutputStream();
         char[] password = "PASSWORD".toCharArray();
@@ -386,11 +351,6 @@ public class KeyStore4Test extends TestCase {
 
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="store",
-            args={KeyStore.LoadStoreParameter.class}
-    )
     public void testStoreLoadStoreParameter() {
         try {
             keyStore.store(new KeyStore.LoadStoreParameter() {
@@ -486,11 +446,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="load",
-            args={InputStream.class, char[].class}
-    )
     public void testLoadInputStreamCharArray() {
         InputStream is = new ByteArrayInputStream("DATA".getBytes());
         char[] password = "PASSWORD".toCharArray();
@@ -541,11 +496,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="load",
-            args={KeyStore.LoadStoreParameter.class}
-    )
     public void testLoadLoadStoreParameter() {
         try {
             keyStore.load(null);
@@ -609,11 +559,6 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.SUFFICIENT,
-            method="getEntry",
-            args={String.class, KeyStore.ProtectionParameter.class}
-    )
     public void testGetEntry() {
         try {
             Entry entry = keyStore.getEntry("certalias", null);
@@ -681,18 +626,10 @@ public class KeyStore4Test extends TestCase {
 
 
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getType"
-    )
     public void testGetType() {
         assertEquals(KEY_STORE_TYPE, keyStore.getType());
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getProvider"
-    )
     public void testGetProvider() {
         assertNotNull(keyStore.getProvider());
         assertEquals("not equal", provider, keyStore.getProvider());

@@ -15,11 +15,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.KeyManagerFactorySpi;
 import javax.net.ssl.KeyStoreBuilderParameters;
 import java.security.KeyStore;
@@ -28,18 +23,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(KeyStoreBuilderParameters.class)
 public class KeyStoreBuilderParametersTest extends TestCase {
 
     /**
-     * @tests javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(KeyStore.Builder builder)
+     * javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(KeyStore.Builder builder)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyStoreBuilderParameters",
-        args = {java.security.KeyStore.Builder.class}
-    )
     public void test_Constructor01() {
         KeyStore.Builder bld = null;
 
@@ -64,14 +52,8 @@ public class KeyStoreBuilderParametersTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(List parameters)
+     * javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(List parameters)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyStoreBuilderParameters",
-        args = {java.util.List.class}
-    )
     public void test_Constructor02() {
 
         //Null parameter
@@ -105,14 +87,8 @@ public class KeyStoreBuilderParametersTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.KeyStoreBuilderParameters#getParameters()
+     * javax.net.ssl.KeyStoreBuilderParameters#getParameters()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameters",
-        args = {}
-    )
     public void test_getParameters() {
         String[] param = {"Parameter1", "Parameter2", "Parameter3"};
         List ls = new ArrayList<String>();

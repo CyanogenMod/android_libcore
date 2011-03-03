@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -36,7 +31,6 @@ import java.security.spec.RSAOtherPrimeInfo;
  * Tests for <code>RSAOtherPrimeInfo</code> class fields and methods.
  *
  */
-@TestTargetClass(RSAOtherPrimeInfo.class)
 public class RSAOtherPrimeInfoTest extends TestCase {
 
     /**
@@ -44,12 +38,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Assertion: constructs <code>RSAOtherPrimeInfo</code>
      * object using valid parameter
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies constructor with valid parameters.",
-        method = "RSAOtherPrimeInfo",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAOtherPrimeInfo01() {
         Object o =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
@@ -62,12 +50,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test #2 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if prime is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "RSAOtherPrimeInfo",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAOtherPrimeInfo02() {
         try {
             new RSAOtherPrimeInfo(null,
@@ -82,12 +64,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test #3 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if primeExponent is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "RSAOtherPrimeInfo",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAOtherPrimeInfo03() {
         try {
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
@@ -102,12 +78,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test #4 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if crtCoefficient is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "RSAOtherPrimeInfo",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAOtherPrimeInfo04() {
         try {
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
@@ -122,12 +92,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test #5 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if prime and crtCoefficient is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "RSAOtherPrimeInfo",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAOtherPrimeInfo05() {
         try {
             new RSAOtherPrimeInfo(null,
@@ -142,12 +106,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test for <code>getCrtCoefficient()</code> method<br>
      * Assertion: returns CRT coefficient value
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCrtCoefficient",
-        args = {}
-    )
     public final void testGetCrtCoefficient() {
         RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
@@ -160,12 +118,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test for <code>getPrime()</code> method<br>
      * Assertion: returns prime value
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrime",
-        args = {}
-    )
     public final void testGetPrime() {
         RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
@@ -178,12 +130,6 @@ public class RSAOtherPrimeInfoTest extends TestCase {
      * Test for <code>getExponent()</code> method<br>
      * Assertion: returns prime exponent value
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getExponent",
-        args = {}
-    )
     public final void testGetExponent() {
         RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),

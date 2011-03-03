@@ -23,10 +23,6 @@
 package org.apache.harmony.crypto.tests.javax.crypto.interfaces;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 import junit.framework.TestCase;
 
@@ -43,17 +39,11 @@ import javax.crypto.spec.DHParameterSpec;
  * Tests for <code>DHPublicKey</code> class field
  *
  */
-@TestTargetClass(DHPublicKey.class)
 public class DHPublicKeyTest extends TestCase {
 
     /**
      * Test for <code>serialVersionUID</code> field
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "tests serialVersionUID for a fixed value",
-        method = "!field:serialVersionUID"
-    )
     public void testField() {
         checkDHPublicKey key = new checkDHPublicKey();
         assertEquals("Incorrect serialVersionUID",
@@ -61,19 +51,6 @@ public class DHPublicKeyTest extends TestCase {
                 -6628103563352519193L);
     }
 
-@TestTargets({
-    @TestTargetNew(
-          level = TestLevel.COMPLETE,
-          method = "getY",
-          args = {}
-        ),
-    @TestTargetNew(
-          level = TestLevel.COMPLETE,
-          clazz = DHKey.class,
-          method = "getParams",
-          args = {}
-        )
-    })
     @BrokenTest("Too slow - disabling for now")
     public void test_getParams() throws Exception {
         KeyPairGenerator kg = KeyPairGenerator.getInstance("DH");

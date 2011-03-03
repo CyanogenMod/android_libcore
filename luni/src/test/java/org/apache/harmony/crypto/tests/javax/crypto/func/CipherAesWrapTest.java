@@ -15,9 +15,6 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 public class CipherAesWrapTest extends TestCase {
@@ -27,12 +24,6 @@ public class CipherAesWrapTest extends TestCase {
     }
 
     // 3 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_AesWrap() {
         CipherWrapThread aesWrap = new CipherWrapThread("AESWrap", new int[] {
                 128, 192, 256}, // Keysize must be 128, 192, 256.

@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +49,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix</a>
  */
-@TestTargetClass(Node.class)
 public final class NodeSetPrefix extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -84,12 +78,6 @@ public final class NodeSetPrefix extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix1() throws Throwable {
         Document doc;
         DocumentFragment docFragment;
@@ -134,12 +122,6 @@ public final class NodeSetPrefix extends DOMTestCase {
 //        assertEquals("nodesetprefix02_attrName", "dmstc:domestic", attrName);
 //        assertEquals("nodesetprefix02_newAttrName", "dom:address", newAttrName);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NAMESPACE_ERR code.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix3() throws Throwable {
         Document doc;
         Element element;
@@ -181,12 +163,6 @@ public final class NodeSetPrefix extends DOMTestCase {
 //            assertTrue("nodesetprefix04", success);
 //        }
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NAMESPACE_ERR code.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix5() throws Throwable {
         Document doc;
         Element element;
@@ -215,12 +191,6 @@ public final class NodeSetPrefix extends DOMTestCase {
             }
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NAMESPACE_ERR code.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix6() throws Throwable {
         Document doc;
         Element element;
@@ -238,12 +208,6 @@ public final class NodeSetPrefix extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NAMESPACE_ERR code.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix7() throws Throwable {
         Document doc;
         Attr attribute;
@@ -261,12 +225,6 @@ public final class NodeSetPrefix extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NAMESPACE_ERR.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void testSetPrefix8() throws Throwable {
         Document doc;
         Element element;
@@ -287,12 +245,6 @@ public final class NodeSetPrefix extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with INVALID_CHARACTER_ERR code.",
-        method = "setPrefix",
-        args = {java.lang.String.class}
-    )
     public void _testSetPrefix9() throws Throwable {
         Document doc;
         String value = "#$%&'()@";

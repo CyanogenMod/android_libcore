@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyFactorySpi;
 import java.security.PrivateKey;
 import java.security.spec.KeySpec;
@@ -35,45 +30,12 @@ import junit.framework.TestCase;
  * and methods.
  *
  */
-@TestTargetClass(KeyFactorySpi.class)
 public class KeyFactorySpiTest extends TestCase {
 
     /**
      * Test for <code>KeyFactorySpi</code> constructor
      * Assertion: constructs KeyFactorySpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "KeyFactorySpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGeneratePrivate",
-            args = {java.security.spec.KeySpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGeneratePublic",
-            args = {java.security.spec.KeySpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineTranslateKey",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetKeySpec",
-            args = {java.security.Key.class, java.lang.Class.class}
-        )
-    })
     public void testKeyFactorySpi() {
         MyKeyFactorySpi keyFSpi = new MyKeyFactorySpi();
         assertTrue(keyFSpi instanceof KeyFactorySpi);

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  */
 public class AnnotationFormatErrorTest extends TestCase {
     /**
-     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String)
+     * java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String)
      */
     @SuppressWarnings("nls")
     public void test_constructorLjava_lang_String() {
@@ -35,7 +35,7 @@ public class AnnotationFormatErrorTest extends TestCase {
     }
 
     /**
-     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(Throwable)
+     * java.lang.annotation.AnnotationFormatError#AnnotationFormatError(Throwable)
      */
     public void test_constructorLjava_lang_Throwable() {
         IllegalArgumentException iae = new IllegalArgumentException();
@@ -44,7 +44,7 @@ public class AnnotationFormatErrorTest extends TestCase {
     }
 
     /**
-     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String,Throwable)
+     * java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String,Throwable)
      */
     @SuppressWarnings("nls")
     public void test_constructorLjava_lang_StringLjava_lang_Throwable() {

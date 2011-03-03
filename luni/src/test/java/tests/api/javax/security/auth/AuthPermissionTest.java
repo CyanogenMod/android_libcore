@@ -17,10 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.AuthPermission;
@@ -30,18 +26,11 @@ import javax.security.auth.AuthPermission;
  * Tests for <code>AuthPermission</code> class constructors and methods.
  *
  */
-@TestTargetClass(AuthPermission.class)
 public class AuthPermissionTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.AuthPermission#AuthPermission(String name)
+     * javax.security.auth.AuthPermission#AuthPermission(String name)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "AuthPermission",
-        args = {String.class}
-    )
     public void test_Constructor_01() {
         String[] strParam = {"", null};
 
@@ -62,14 +51,8 @@ public class AuthPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.AuthPermission#AuthPermission(String name, String actions)
+     * javax.security.auth.AuthPermission#AuthPermission(String name, String actions)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "AuthPermission",
-        args = {String.class, String.class}
-    )
     public void test_Constructor_02() {
         String[] strParam = {"", null};
         String[] actionParam = {"", null, "ActionName"};

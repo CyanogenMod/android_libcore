@@ -16,10 +16,6 @@
 
 package tests.security.interfaces;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -31,7 +27,6 @@ import java.security.InvalidParameterException;
 
 import org.apache.harmony.security.tests.support.interfaces.DSAKeyPairGeneratorImpl;
 
-@TestTargetClass(DSAKeyPairGenerator.class)
 public class DSAKeyPairGeneratorTest extends TestCase {
 
     private final BigInteger p = new BigInteger("4");
@@ -46,15 +41,9 @@ public class DSAKeyPairGeneratorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.interfaces.DSAKeyPairGenerator
+     * java.security.interfaces.DSAKeyPairGenerator
      * #initialize(DSAParams params, SecureRandom random)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initialize",
-        args = {java.security.interfaces.DSAParams.class, java.security.SecureRandom.class}
-    )
     public void test_DSAKeyPairGenerator01() {
         DSAParams dsaParams = new DSAParameterSpec(p, q, g);
         SecureRandom random = null;
@@ -90,15 +79,9 @@ public class DSAKeyPairGeneratorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.interfaces.DSAKeyPairGenerator
+     * java.security.interfaces.DSAKeyPairGenerator
      * #initialize(int modlen, boolean genParams, SecureRandom randomm)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initialize",
-        args = {int.class, boolean.class, java.security.SecureRandom.class}
-    )
     public void test_DSAKeyPairGenerator02() {
         int[] invalidLen = {-1, 0, 511, 513, 650, 1023, 1025};
         DSAParams dsaParams = new DSAParameterSpec(p, q, g);

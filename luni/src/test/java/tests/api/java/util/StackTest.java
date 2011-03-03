@@ -17,42 +17,24 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.EmptyStackException;
 import java.util.Stack;
 
-@TestTargetClass(Stack.class)
 public class StackTest extends junit.framework.TestCase {
 
     Stack s;
 
     /**
-     * @tests java.util.Stack#Stack()
+     * java.util.Stack#Stack()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Stack",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.Stack()
         assertEquals("Stack creation failed", 0, s.size());
     }
 
     /**
-     * @tests java.util.Stack#empty()
+     * java.util.Stack#empty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "empty",
-        args = {}
-    )
     public void test_empty() {
         // Test for method boolean java.util.Stack.empty()
         assertTrue("New stack answers non-empty", s.empty());
@@ -66,14 +48,8 @@ public class StackTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Stack#peek()
+     * java.util.Stack#peek()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "peek",
-        args = {}
-    )
     public void test_peek() {
         // Test for method java.lang.Object java.util.Stack.peek()
         String item1 = "Ichi";
@@ -102,14 +78,8 @@ public class StackTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Stack#pop()
+     * java.util.Stack#pop()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "pop",
-        args = {}
-    )
     public void test_pop() {
         // Test for method java.lang.Object java.util.Stack.pop()
         String item1 = "Ichi";
@@ -154,14 +124,8 @@ public class StackTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Stack#push(java.lang.Object)
+     * java.util.Stack#push(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "push",
-        args = {java.lang.Object.class}
-    )
     public void test_pushLjava_lang_Object() {
         Object [] array = {new Integer(0), new Object(),
                            new Float(0), new String()};
@@ -176,14 +140,8 @@ public class StackTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Stack#search(java.lang.Object)
+     * java.util.Stack#search(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "search",
-        args = {java.lang.Object.class}
-    )
     public void test_searchLjava_lang_Object() {
         // Test for method int java.util.Stack.search(java.lang.Object)
         String item1 = "Ichi";

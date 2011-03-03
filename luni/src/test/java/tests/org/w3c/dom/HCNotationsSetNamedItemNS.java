@@ -18,11 +18,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -41,7 +36,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class HCNotationsSetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -71,12 +65,6 @@ public final class HCNotationsSetNamedItemNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that setNamedItemNS throws DOMException.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testNotationsSetNamedItemNS() throws Throwable {
         Document doc;
         NamedNodeMap notations;

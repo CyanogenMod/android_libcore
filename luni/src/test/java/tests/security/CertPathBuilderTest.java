@@ -15,9 +15,6 @@
  */
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathBuilder;
 import java.security.cert.CertPathBuilderResult;
@@ -42,29 +39,6 @@ public abstract class CertPathBuilderTest extends TestCase {
     public abstract CertPathParameters getCertPathParameters() throws Exception;
     public abstract void validateCertPath(CertPath path);
 
-    @TestTargets({
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="getInstance",
-                args={String.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                method="build",
-                args={CertPathParameters.class}
-        ),
-        @TestTargetNew(
-                level=TestLevel.ADDITIONAL,
-                clazz=CertPathBuilderResult.class,
-                method="getCertPath",
-                args={}
-        ),
-        @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-        )
-    })
     public void testCertPathBuilder() throws Exception {
         CertPathBuilder pathBuilder = CertPathBuilder.getInstance(
                 algorithmName);

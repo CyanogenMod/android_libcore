@@ -21,20 +21,10 @@ import junit.framework.TestCase;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(SAXException.class)
 public class SAXExceptionTest extends TestCase {
 
     public static final String ERR = "Houston, we have a problem";
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXException",
-        args = { }
-    )
     public void testSAXParseException() {
         SAXException e = new SAXException();
 
@@ -42,11 +32,6 @@ public class SAXExceptionTest extends TestCase {
         assertNull(e.getException());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXException",
-        args = { String.class, Exception.class }
-    )
     public void testSAXException_String_Exception() {
         Exception c = new Exception();
 
@@ -69,11 +54,6 @@ public class SAXExceptionTest extends TestCase {
         assertNull(e.getException());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXException",
-        args = { String.class }
-    )
     public void testSAXException_String() {
         // Ordinary case
         SAXException e = new SAXException(ERR);
@@ -88,11 +68,6 @@ public class SAXExceptionTest extends TestCase {
         assertNull(e.getException());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXException",
-        args = { Exception.class }
-    )
     public void testSAXException_Exception() {
         Exception c = new Exception();
 
@@ -109,11 +84,6 @@ public class SAXExceptionTest extends TestCase {
         assertNull(e.getException());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "toString",
-        args = { }
-    )
     public void testToString() {
         // Ordinary case
         SAXException e = new SAXException(ERR);

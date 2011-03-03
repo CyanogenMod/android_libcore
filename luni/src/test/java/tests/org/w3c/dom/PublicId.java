@@ -22,11 +22,6 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Document;
 
@@ -43,7 +38,6 @@ import javax.xml.parsers.DocumentBuilder;
 * @author Mary Brady
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId</a>
 */
-@TestTargetClass(DocumentType.class)
 public final class PublicId extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -71,12 +65,6 @@ public final class PublicId extends DOMTestCase {
     * Runs the test case.
     * @throws Throwable Any uncaught exception causes test to fail
     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPublicId",
-        args = {}
-    )
    public void testGetPublicId() throws Throwable {
       Document doc;
       DocumentType docType;

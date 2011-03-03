@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -47,7 +42,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS</a>
  */
-@TestTargetClass(Element.class)
 public final class ElementHasAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -77,12 +71,6 @@ public final class ElementHasAttributeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "hasAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void _testHasAttributeNS1() throws Throwable {
         Document doc;
         Element element;
@@ -95,12 +83,6 @@ public final class ElementHasAttributeNS extends DOMTestCase {
                 .hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns");
         assertTrue("elementhasattributens01", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "hasAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasAttributeNS2() throws Throwable {
         Document doc;
         Element element;
@@ -114,12 +96,6 @@ public final class ElementHasAttributeNS extends DOMTestCase {
         state = element.hasAttributeNS("http://www.w3.org/DOM", "domestic");
         assertTrue("hasDomesticAttr", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "hasAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasAttributeNS3() throws Throwable {
         Document doc;
         Element element;

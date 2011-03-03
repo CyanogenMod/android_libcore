@@ -247,7 +247,7 @@ public class UUIDTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
         SerializationTest.verifySelf(new UUID(0xf81d4fae7dec11d0L,
@@ -255,7 +255,7 @@ public class UUIDTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
         SerializationTest.verifyGolden(this, new UUID(0xf81d4fae7dec11d0L,
@@ -357,7 +357,7 @@ public class UUIDTest extends TestCase {
     }
 
 	/**
-	 * @tests java.util.UUID#fromString(String)
+	 * java.util.UUID#fromString(String)
 	 */
 	public void test_fromString_LString_Exception() {
 

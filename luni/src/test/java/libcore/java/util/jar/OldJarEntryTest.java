@@ -50,7 +50,7 @@ public class OldJarEntryTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.jar.JarEntry#JarEntry(java.util.jar.JarEntry)
+     * java.util.jar.JarEntry#JarEntry(java.util.jar.JarEntry)
      */
     public void test_ConstructorLjava_util_jar_JarEntry_on_null() throws IOException {
         JarEntry newJarEntry = new JarEntry(jarFile.getJarEntry(entryName));
@@ -66,7 +66,7 @@ public class OldJarEntryTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarEntry#JarEntry(java.util.zip.ZipEntry)
+     * java.util.jar.JarEntry#JarEntry(java.util.zip.ZipEntry)
      */
     public void test_ConstructorLjava_util_zip_ZipEntry() {
         assertNotNull("Jar file is null", jarFile);
@@ -81,7 +81,7 @@ public class OldJarEntryTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarEntry#getAttributes()
+     * java.util.jar.JarEntry#getAttributes()
      */
     public void test_getAttributes() {
         JarFile attrJar = null;

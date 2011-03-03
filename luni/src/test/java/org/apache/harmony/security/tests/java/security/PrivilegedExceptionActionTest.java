@@ -1,9 +1,5 @@
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -11,7 +7,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-@TestTargetClass(PrivilegedExceptionAction.class)
 public class PrivilegedExceptionActionTest extends TestCase {
 
     protected void setUp() throws Exception {
@@ -48,10 +43,6 @@ public class PrivilegedExceptionActionTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="run"
-    )
     public void testRun() {
         MyPrivilegedExceptionAction action1 = new MyPrivilegedExceptionAction();
         try {

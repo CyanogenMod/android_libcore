@@ -82,7 +82,7 @@ public class OldZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#close()
+     * java.util.zip.ZipFile#close()
      */
     public void test_close() throws IOException {
         // Test for method void java.util.zip.ZipFile.close()
@@ -125,7 +125,7 @@ public class OldZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#getInputStream(java.util.zip.ZipEntry)
+     * java.util.zip.ZipFile#getInputStream(java.util.zip.ZipEntry)
      */
     public void test_getInputStreamLjava_util_zip_ZipEntry() throws IOException {
         // Test for method java.io.InputStream

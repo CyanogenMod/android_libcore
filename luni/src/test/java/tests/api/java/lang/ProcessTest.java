@@ -18,26 +18,16 @@
 package tests.api.java.lang;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@TestTargetClass(Process.class)
 public class ProcessTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.lang.Process#getInputStream()
+     * java.lang.Process#getInputStream()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInputStream",
-        args = {}
-    )
     public void test_getInputStream() {
         try {
             // Test for:
@@ -78,14 +68,8 @@ public class ProcessTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.Process#getOutputStream()
+     * java.lang.Process#getOutputStream()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOutputStream",
-        args = {}
-    )
     public void test_getOutputStream() {
         try {
             String[] commands = { "sleep", "1"};
@@ -126,12 +110,6 @@ public class ProcessTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "exitValue",
-        args = {}
-    )
     public void test_exitValue() {
         try {
             String[] commands = { "ls" };
@@ -163,23 +141,11 @@ public class ProcessTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Process",
-        args = {}
-    )
     public void test_Constructor() {
         ProcessClass pc = new ProcessClass();
         assertTrue(pc.exitValue() == 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "destroy",
-        args = {}
-    )
     @BrokenTest("Sporadic timeouts in CTS, but not in CoreTestRunner")
     public void test_destroy() {
         String[] commands = { "ls"};

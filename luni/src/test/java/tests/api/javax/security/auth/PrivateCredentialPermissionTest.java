@@ -19,10 +19,6 @@ package tests.api.javax.security.auth;
 
 import java.security.Permission;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.PrivateCredentialPermission;
@@ -32,7 +28,6 @@ import javax.security.auth.PrivateCredentialPermission;
  * Tests for <code>PrivateCredentialPermission</code> class constructors and methods.
  *
  */
-@TestTargetClass(PrivateCredentialPermission.class)
 public class PrivateCredentialPermissionTest extends TestCase {
 
     private final static String cred_class1 = "a.b.Credential";
@@ -48,14 +43,8 @@ public class PrivateCredentialPermissionTest extends TestCase {
     private final static String name3 = cred_class1 + " " + pc1 + " \"" + pn1 + "\" " + pc2 + " \"" + pn2 + "\"";
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#PrivateCredentialPermission(String name, String actions)
+     * javax.security.auth.PrivateCredentialPermission#PrivateCredentialPermission(String name, String actions)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PrivateCredentialPermission",
-        args = {String.class, String.class}
-    )
     public void test_Constructor_01() {
         PrivateCredentialPermission ap = new PrivateCredentialPermission(name1, "read");
 
@@ -94,28 +83,16 @@ public class PrivateCredentialPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#getActions()
+     * javax.security.auth.PrivateCredentialPermission#getActions()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getActions",
-        args = {}
-    )
     public void test_getActions() {
         PrivateCredentialPermission ap = new PrivateCredentialPermission(name1, "read");
         assertEquals("getActions() must alway return \"read\"", "read", ap.getActions());
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#implies()
+     * javax.security.auth.PrivateCredentialPermission#implies()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "implies",
-        args = { Permission.class }
-    )
     public void test_implies() {
         PrivateCredentialPermission p1 = new PrivateCredentialPermission("* P1 \"abc\"", "read");
         PrivateCredentialPermission p2 = new PrivateCredentialPermission("a.b.Credential P1 \"abc\"", "read");
@@ -142,28 +119,16 @@ public class PrivateCredentialPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#getCredentialClass()
+     * javax.security.auth.PrivateCredentialPermission#getCredentialClass()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCredentialClass",
-        args = {}
-    )
     public void test_getCredentialClass() {
         PrivateCredentialPermission ap = new PrivateCredentialPermission(name1, "read");
         assertEquals("getCredentialClass() returned wrong name", cred_class1, ap.getCredentialClass());
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#getPrincipals()
+     * javax.security.auth.PrivateCredentialPermission#getPrincipals()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrincipals",
-        args = {}
-    )
     public void test_getPrincipals() {
 
         PrivateCredentialPermission ap = new PrivateCredentialPermission(name3, "read");
@@ -179,14 +144,8 @@ public class PrivateCredentialPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#equals()
+     * javax.security.auth.PrivateCredentialPermission#equals()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = { Object.class }
-    )
     public void test_equals() {
         PrivateCredentialPermission p1 = new PrivateCredentialPermission(name3, "read");
         PrivateCredentialPermission p2 = new PrivateCredentialPermission(name3, "read");
@@ -214,14 +173,8 @@ public class PrivateCredentialPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#hashCode()
+     * javax.security.auth.PrivateCredentialPermission#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         PrivateCredentialPermission p1 = new PrivateCredentialPermission(name1, "read");
         PrivateCredentialPermission p2 = new PrivateCredentialPermission(name1, "read");
@@ -244,14 +197,8 @@ public class PrivateCredentialPermissionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.PrivateCredentialPermission#newPermissionCollection()
+     * javax.security.auth.PrivateCredentialPermission#newPermissionCollection()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newPermissionCollection",
-        args = {}
-    )
     public void test_newPermissionCollection() {
         PrivateCredentialPermission ap = new PrivateCredentialPermission(name1, "read");
         assertNull("newPermissionCollection must always return null", ap.newPermissionCollection());

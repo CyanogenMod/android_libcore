@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -41,27 +36,12 @@ import org.apache.harmony.security.tests.support.cert.MyCertPathBuilderSpi;
  * Tests for <code>CertPathBuilderSpi</code> class constructors and methods.
  *
  */
-@TestTargetClass(CertPathBuilderSpi.class)
 public class CertPathBuilderSpiTest extends TestCase {
 
     /**
      * Test for <code>CertPathBuilderSpi</code> constructor Assertion:
      * constructs CertPathBuilderSpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "CertPathBuilderSpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineBuild",
-            args = {java.security.cert.CertPathParameters.class}
-        )
-    })
     public void testCertPathBuilderSpi01() throws CertPathBuilderException,
             InvalidAlgorithmParameterException {
         CertPathBuilderSpi certPathBuilder = new MyCertPathBuilderSpi();

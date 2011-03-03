@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,10 +40,8 @@ import javax.crypto.Cipher;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(CipherOutputStream.class)
 /**
  */
-
 public class CipherOutputStream1Test extends TestCase {
 
     private static class TestOutputStream extends ByteArrayOutputStream {
@@ -68,12 +61,6 @@ public class CipherOutputStream1Test extends TestCase {
      * CipherOutputStream uses NullCipher if Cipher is not specified
      * in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CipherOutputStream",
-        args = {java.io.OutputStream.class}
-    )
     public void testCipherOutputStream() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -90,12 +77,6 @@ public class CipherOutputStream1Test extends TestCase {
      * write(int b) method testing. Tests that method writes correct values to
      * the underlying output stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "write",
-        args = {int.class}
-    )
     public void testWrite1() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -114,12 +95,6 @@ public class CipherOutputStream1Test extends TestCase {
      * write(byte[] b) method testing. Tests that method writes correct values
      * to the underlying output stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "write",
-        args = {byte[].class}
-    )
     public void testWrite2() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -142,12 +117,6 @@ public class CipherOutputStream1Test extends TestCase {
     /**
      * write(byte[] b, int off, int len) method testing.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testWrite3() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -163,14 +132,8 @@ public class CipherOutputStream1Test extends TestCase {
     }
 
     /**
-     * @tests write(byte[] b, int off, int len)
+     * write(byte[] b, int off, int len)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test. IllegalArgumentException checked.",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testWrite4() throws Exception {
         //Regression for HARMONY-758
         try {
@@ -180,14 +143,8 @@ public class CipherOutputStream1Test extends TestCase {
     }
 
     /**
-     * @tests write(byte[] b, int off, int len)
+     * write(byte[] b, int off, int len)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "write",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testWrite5() throws Exception {
         //Regression for HARMONY-758
         Cipher cf = Cipher.getInstance("DES/CBC/PKCS5Padding");
@@ -203,12 +160,6 @@ public class CipherOutputStream1Test extends TestCase {
      * flush() method testing. Tests that method flushes the data to the
      * underlying output stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "flush",
-        args = {}
-    )
     public void testFlush() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -225,12 +176,6 @@ public class CipherOutputStream1Test extends TestCase {
      * close() method testing. Tests that the method calls the close() method of
      * the underlying input stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "close",
-        args = {}
-    )
     public void testClose() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestOutputStream tos = new TestOutputStream();
@@ -245,12 +190,6 @@ public class CipherOutputStream1Test extends TestCase {
                 + "of its underlying output stream.", tos.wasClosed());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CipherOutputStream",
-        args = {java.io.OutputStream.class, javax.crypto.Cipher.class}
-    )
     public void test_ConstructorLjava_io_OutputStreamLjavax_crypto_Cipher() throws
     NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

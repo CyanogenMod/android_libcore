@@ -30,11 +30,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.HashSet;
 import java.util.Set;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(Method.class)
 public class MethodTest extends junit.framework.TestCase {
 
     static class TestMethod {
@@ -195,14 +190,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#equals(java.lang.Object)
+     * java.lang.reflect.Method#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean
         // java.lang.reflect.Method.equals(java.lang.Object)
@@ -228,15 +217,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.Class#getMethod(java.lang.String, java.lang.Class[])
+     * java.lang.Class#getMethod(java.lang.String, java.lang.Class[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMethod",
-        args = {java.lang.String.class, java.lang.Class[].class},
-        clazz = java.lang.Class.class
-    )
     public void test_getMethod() throws NoSuchMethodException, SecurityException {
         // Check that getMethod treats null parameterTypes the same as an empty array.
         Method m1 = TestMethod.class.getMethod("invokeInstanceTest", new Class[0]);
@@ -245,15 +227,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.Class#getDeclaredMethod(java.lang.String, java.lang.Class[])
+     * java.lang.Class#getDeclaredMethod(java.lang.String, java.lang.Class[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaredMethod",
-        args = {java.lang.String.class, java.lang.Class[].class},
-        clazz = java.lang.Class.class
-    )
     public void test_getDeclaredMethod() throws NoSuchMethodException, SecurityException {
         // Check that getDeclaredMethod treats null parameterTypes the same as an empty array.
         Method m1 = TestMethod.class.getDeclaredMethod("invokeInstanceTest", new Class[0]);
@@ -262,14 +237,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getDeclaringClass()
+     * java.lang.reflect.Method#getDeclaringClass()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaringClass",
-        args = {}
-    )
     public void test_getDeclaringClass() {
         // Test for method java.lang.Class
         // java.lang.reflect.Method.getDeclaringClass()
@@ -288,14 +257,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getExceptionTypes()
+     * java.lang.reflect.Method#getExceptionTypes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getExceptionTypes",
-        args = {}
-    )
     public void test_getExceptionTypes() {
         // Test for method java.lang.Class []
         // java.lang.reflect.Method.getExceptionTypes()
@@ -318,14 +281,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getModifiers()
+     * java.lang.reflect.Method#getModifiers()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModifiers",
-        args = {}
-    )
     public void test_getModifiers() {
         // Test for method int java.lang.reflect.Method.getModifiers()
 
@@ -378,14 +335,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getName()
+     * java.lang.reflect.Method#getName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         // Test for method java.lang.String java.lang.reflect.Method.getName()
         Method mth = null;
@@ -399,14 +350,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#isVarArgs()
+     * java.lang.reflect.Method#isVarArgs()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isVarArgs",
-        args = {}
-    )
     public void test_isVarArgs() throws Exception {
         Method mth = TestMethod.class.getMethod("publicVoidVarargs",
                 Object[].class);
@@ -418,14 +363,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#isBridge()
+     * java.lang.reflect.Method#isBridge()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isBridge",
-        args = {}
-    )
     public void test_isBridge() throws Exception {
         Method[] declaredMethods = BrigeTest.class.getDeclaredMethods();
         assertEquals("Bridge method not generated.", 2, declaredMethods.length);
@@ -441,14 +380,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#isSynthetic()
+     * java.lang.reflect.Method#isSynthetic()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isSynthetic",
-        args = {}
-    )
     public void test_isSynthetic() throws Exception {
         Method[] declaredMethods = BrigeTest.class.getDeclaredMethods();
         assertEquals("Synthetic method not generated.", 2,
@@ -464,14 +397,8 @@ public class MethodTest extends junit.framework.TestCase {
         assertTrue("Synthetic method not found.", foundSyntheticMethod);
     }
     /**
-     * @tests java.lang.reflect.Method#getParameterAnnotations()
+     * java.lang.reflect.Method#getParameterAnnotations()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameterAnnotations",
-        args = {}
-    )
     public void test_getParameterAnnotations() throws Exception {
         Method method = TestMethod.class.getDeclaredMethod(
                 "annotatedParameter", new Class[] {
@@ -502,14 +429,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getDeclaredAnnotations()
+     * java.lang.reflect.Method#getDeclaredAnnotations()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaredAnnotations",
-        args = {}
-    )
     public void test_getDeclaredAnnotations() throws Exception {
         Method method = TestMethod.class.getDeclaredMethod("annotatedMethod");
         Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
@@ -525,14 +446,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getDefaultValue()
+     * java.lang.reflect.Method#getDefaultValue()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException",
-        method = "getDefaultValue",
-        args = {}
-    )
     public void test_getDefaultValue() throws Exception {
         Method method = TestAnno.class.getDeclaredMethod("value");
         assertEquals("Wrong default value returned", TestAnno.DEFAULT_VALUE,
@@ -540,14 +455,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getDefaultValue()
+     * java.lang.reflect.Method#getDefaultValue()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for GenericSignatureFormatError,TypeNotPresentException, MalformedParameterizedTypeException",
-        method = "getGenericExceptionTypes",
-        args = {}
-    )
     public void test_getGenericExceptionTypes() throws Exception {
         Method method = ExceptionTest.class.getDeclaredMethod("exceptionTest");
         Type[] genericExceptionTypes = method.getGenericExceptionTypes();
@@ -560,14 +469,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getGenericReturnType()
+     * java.lang.reflect.Method#getGenericReturnType()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for GenericSignatureFormatError,TypeNotPresentException, MalformedParameterizedTypeException",
-        method = "getGenericReturnType",
-        args = {}
-    )
     public void test_getGenericReturnType() throws Exception {
         Method method = GenericReturnType.class
                 .getDeclaredMethod("returnGeneric");
@@ -582,14 +485,8 @@ public class MethodTest extends junit.framework.TestCase {
 
 
     /**
-     * @tests java.lang.reflect.Method#toGenericString()
+     * java.lang.reflect.Method#toGenericString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toGenericString",
-        args = {}
-    )
     public void test_toGenericString() throws Exception {
         Method method = GenericString.class.getDeclaredMethod("genericString",
                 Object.class);
@@ -603,14 +500,8 @@ public class MethodTest extends junit.framework.TestCase {
 
 
     /**
-     * @tests java.lang.reflect.Method#hashCode()
+     * java.lang.reflect.Method#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() throws Exception {
         Method mth0 = TestMethod.class.getMethod("hashCodeTest", String.class);
         Method mth1 = TestMethod.class.getDeclaredMethod("hashCodeTest",
@@ -620,14 +511,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getParameterTypes()
+     * java.lang.reflect.Method#getParameterTypes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameterTypes",
-        args = {}
-    )
     public void test_getParameterTypes() {
         // Test for method java.lang.Class []
         // java.lang.reflect.Method.getParameterTypes()
@@ -680,14 +565,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#getReturnType()
+     * java.lang.reflect.Method#getReturnType()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getReturnType",
-        args = {}
-    )
     public void test_getReturnType() {
         // Test for method java.lang.Class
         // java.lang.reflect.Method.getReturnType()
@@ -760,15 +639,9 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#invoke(java.lang.Object,
+     * java.lang.reflect.Method#invoke(java.lang.Object,
      *        java.lang.Object[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "invoke",
-        args = {java.lang.Object.class, java.lang.Object[].class}
-    )
     public void test_invokeLjava_lang_Object$Ljava_lang_Object() throws Exception{
         // Test for method java.lang.Object
         // java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object
@@ -969,14 +842,8 @@ public class MethodTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Method#toString()
+     * java.lang.reflect.Method#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String java.lang.reflect.Method.toString()
         Method mth = null;

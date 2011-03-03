@@ -22,10 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Security;
@@ -37,18 +33,11 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 
-@TestTargetClass(Security.class)
 public class SecurityTest extends TestCase {
 
     /**
-     * @tests java.security.Security#insertProviderAt(Provider, int)
+     * java.security.Security#insertProviderAt(Provider, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed",
-        method = "insertProviderAt",
-        args = {java.security.Provider.class, int.class}
-    )
     public final void test_insertProviderAtLjava_security_ProviderLI() {
 
         try {
@@ -91,14 +80,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#addProvider(Provider)
+     * java.security.Security#addProvider(Provider)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed",
-        method = "addProvider",
-        args = {java.security.Provider.class}
-    )
     public final void test_addProviderLjava_security_Provider() {
 
         try {
@@ -124,17 +107,11 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getAlgorithmProperty(String algName, String
+     * java.security.Security#getAlgorithmProperty(String algName, String
      *        propName)
      * @disabled because Security.getAlgorithmProperty looks for
      *           "propName.algName" instead of "Alg.propName.algName"
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithmProperty",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     @SuppressWarnings("deprecation")
     public final void testGetAlgorithmPropertyLjava_lang_String_java_lang_String() {
 
@@ -157,14 +134,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getAlgorithms(String serviceName)
+     * java.security.Security#getAlgorithms(String serviceName)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithms",
-        args = {java.lang.String.class}
-    )
     public final void testGetAlgorithmsLjava_lang_String() {
         String[] servicesNames = { "Signature", "MessageDigest", "Cipher",
                 "Mac", "KeyStore" };
@@ -182,12 +153,6 @@ public class SecurityTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "removeProvider",
-        args = {java.lang.String.class}
-    )
     public final void testRemoveProvider() {
         Provider[] providers;
         Provider[] providers1;
@@ -213,22 +178,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProvider(String)
+     * java.security.Security#getProvider(String)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getProvider",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getProviders",
-            args = {}
-        )
-    })
     public final void test_getProviderLjava_lang_String() {
 
         // Returns null if no provider with the specified name is installed
@@ -258,14 +209,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProviders(String)
+     * java.security.Security#getProviders(String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProviders",
-        args = {java.lang.String.class}
-    )
     public void test_getProvidersLjava_lang_String() {
         try {
             Security.getProviders("");
@@ -332,14 +277,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProviders(java.util.Map)
+     * java.security.Security#getProviders(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProviders",
-        args = {java.util.Map.class}
-    )
     public void test_getProvidersLjava_util_Map() {
 
         Map<String, String> m = new HashMap<String, String>();
@@ -410,14 +349,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProviders()
+     * java.security.Security#getProviders()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProviders",
-        args = {}
-    )
     public void test_getProviders() {
         Provider[] prv;
 
@@ -445,14 +378,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProperty(String)
+     * java.security.Security#getProperty(String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification of null parameter only.",
-        method = "getProperty",
-        args = {java.lang.String.class}
-    )
     public void test_getPropertyLjava_lang_String() {
 
         try {
@@ -466,14 +393,8 @@ public class SecurityTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Security#setProperty(String,String)
+     * java.security.Security#setProperty(String,String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed",
-        method = "setProperty",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_setPropertyLjava_lang_StringLjava_lang_String() {
 
         try {

@@ -16,11 +16,6 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.AbstractSequentialList;
@@ -29,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
-@TestTargetClass(AbstractSet.class)
 public class AbstractSetTest extends TestCase {
 
     class Mock_AbstractSet extends AbstractSet{
@@ -56,31 +50,11 @@ public class AbstractSetTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         AbstractSet as = new Mock_AbstractSet();
         assertNotNull(as.hashCode());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "equals",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AbstractSet",
-            args = {}
-        )
-    })
     public void testEquals() {
         AbstractSet as1 = new Mock_AbstractSet();
         AbstractSet as2 = new Mock_AbstractSet();
@@ -88,12 +62,6 @@ public class AbstractSetTest extends TestCase {
         assertTrue(as1.equals(as2));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeAll",
-        args = {java.util.Collection.class}
-    )
     public void testRemoveAll() {
         AbstractSet as = new AbstractSet(){
             @Override

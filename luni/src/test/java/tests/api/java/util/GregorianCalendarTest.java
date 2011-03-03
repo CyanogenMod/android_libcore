@@ -18,10 +18,6 @@
 package tests.api.java.util;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.KnownFailure;
 import tests.support.Support_Locale;
 
 import java.util.BitSet;
@@ -34,18 +30,11 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 
-@TestTargetClass(GregorianCalendar.class)
 public class GregorianCalendarTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar()
+     * java.util.GregorianCalendar#GregorianCalendar()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.GregorianCalendar()
         assertTrue("Constructed incorrect calendar", (new GregorianCalendar()
@@ -53,14 +42,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(int, int, int)
+     * java.util.GregorianCalendar#GregorianCalendar(int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {int.class, int.class, int.class}
-    )
     public void test_ConstructorIII() {
         // Test for method java.util.GregorianCalendar(int, int, int)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER, 13);
@@ -75,15 +58,9 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(int, int, int, int,
+     * java.util.GregorianCalendar#GregorianCalendar(int, int, int, int,
      *        int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorIIIII() {
         // Test for method java.util.GregorianCalendar(int, int, int, int, int)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER,
@@ -109,15 +86,9 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(int, int, int, int,
+     * java.util.GregorianCalendar#GregorianCalendar(int, int, int, int,
      *        int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorIIIIII() {
         // Test for method java.util.GregorianCalendar(int, int, int, int, int,
         // int)
@@ -141,14 +112,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(java.util.Locale)
+     * java.util.GregorianCalendar#GregorianCalendar(java.util.Locale)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {java.util.Locale.class}
-    )
     public void test_ConstructorLjava_util_Locale() {
         Locale[] requiredLocales = {Locale.US, Locale.FRANCE};
         if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
@@ -168,14 +133,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(java.util.TimeZone)
+     * java.util.GregorianCalendar#GregorianCalendar(java.util.TimeZone)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {java.util.TimeZone.class}
-    )
     public void test_ConstructorLjava_util_TimeZone() {
         // Test for method java.util.GregorianCalendar(java.util.TimeZone)
         Date date = new Date();
@@ -205,15 +164,9 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#GregorianCalendar(java.util.TimeZone,
+     * java.util.GregorianCalendar#GregorianCalendar(java.util.TimeZone,
      *        java.util.Locale)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "GregorianCalendar",
-        args = {java.util.TimeZone.class, java.util.Locale.class}
-    )
     public void test_ConstructorLjava_util_TimeZoneLjava_util_Locale() {
         // Test for method java.util.GregorianCalendar(java.util.TimeZone,
         // java.util.Locale)
@@ -245,14 +198,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#add(int, int)
+     * java.util.GregorianCalendar#add(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {int.class, int.class}
-    )
     @AndroidOnly("This test fails on the RI with version 1.5 but succeeds"
             + "on the RI with version 1.6")
     public void test_addII() {
@@ -337,14 +284,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#equals(java.lang.Object)
+     * java.util.GregorianCalendar#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean
         // java.util.GregorianCalendar.equals(java.lang.Object)
@@ -358,14 +299,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getActualMaximum(int)
+     * java.util.GregorianCalendar#getActualMaximum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getActualMaximum",
-        args = {int.class}
-    )
     public void test_getActualMaximumI() {
         // Test for method int java.util.GregorianCalendar.getActualMaximum(int)
         GregorianCalendar gc1 = new GregorianCalendar(1900, 1, 1);
@@ -419,14 +354,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getActualMinimum(int)
+     * java.util.GregorianCalendar#getActualMinimum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getActualMinimum",
-        args = {int.class}
-    )
     public void test_getActualMinimumI() {
         // Test for method int java.util.GregorianCalendar.getActualMinimum(int)
         GregorianCalendar gc1 = new GregorianCalendar(1900, 1, 1);
@@ -448,14 +377,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getGreatestMinimum(int)
+     * java.util.GregorianCalendar#getGreatestMinimum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGreatestMinimum",
-        args = {int.class}
-    )
     public void test_getGreatestMinimumI() {
         // Test for method int
         // java.util.GregorianCalendar.getGreatestMinimum(int)
@@ -480,14 +403,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getGregorianChange()
+     * java.util.GregorianCalendar#getGregorianChange()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGregorianChange",
-        args = {}
-    )
     public void test_getGregorianChange() {
         // Test for method java.util.Date
         // java.util.GregorianCalendar.getGregorianChange()
@@ -504,14 +421,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getLeastMaximum(int)
+     * java.util.GregorianCalendar#getLeastMaximum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLeastMaximum",
-        args = {int.class}
-    )
     public void test_getLeastMaximumI() {
         // Test for method int java.util.GregorianCalendar.getLeastMaximum(int)
         GregorianCalendar gc = new GregorianCalendar();
@@ -547,14 +458,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getMaximum(int)
+     * java.util.GregorianCalendar#getMaximum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaximum",
-        args = {int.class}
-    )
     public void test_getMaximumI() {
         // Test for method int java.util.GregorianCalendar.getMaximum(int)
         GregorianCalendar gc = new GregorianCalendar();
@@ -582,14 +487,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getMinimum(int)
+     * java.util.GregorianCalendar#getMinimum(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinimum",
-        args = {int.class}
-    )
     public void test_getMinimumI() {
         // Test for method int java.util.GregorianCalendar.getMinimum(int)
         GregorianCalendar gc = new GregorianCalendar();
@@ -613,14 +512,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#isLeapYear(int)
+     * java.util.GregorianCalendar#isLeapYear(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isLeapYear",
-        args = {int.class}
-    )
     public void test_isLeapYearI() {
         // Test for method boolean java.util.GregorianCalendar.isLeapYear(int)
         GregorianCalendar gc = new GregorianCalendar(1998, 11, 6);
@@ -632,14 +525,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#roll(int, int)
+     * java.util.GregorianCalendar#roll(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "roll",
-        args = {int.class, int.class}
-    )
     public void test_rollII() {
         // Test for method void java.util.GregorianCalendar.roll(int, int)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER, 8,
@@ -661,14 +548,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#roll(int, boolean)
+     * java.util.GregorianCalendar#roll(int, boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "roll",
-        args = {int.class, boolean.class}
-    )
     public void test_rollIZ() {
         // Test for method void java.util.GregorianCalendar.roll(int, boolean)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER,
@@ -715,14 +596,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#setGregorianChange(java.util.Date)
+     * java.util.GregorianCalendar#setGregorianChange(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setGregorianChange",
-        args = {java.util.Date.class}
-    )
     public void test_setGregorianChangeLjava_util_Date() {
         // Test for method void
         // java.util.GregorianCalendar.setGregorianChange(java.util.Date)
@@ -736,14 +611,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#clone()
+     * java.util.GregorianCalendar#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
 
         // Regression for HARMONY-498
@@ -762,14 +631,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#getMinimalDaysInFirstWeek()
+     * java.util.GregorianCalendar#getMinimalDaysInFirstWeek()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinimalDaysInFirstWeek",
-        args = {}
-    )
     public void test_getMinimalDaysInFirstWeek() {
         // Regression for Harmony-1037
         GregorianCalendar g = new GregorianCalendar(TimeZone
@@ -789,14 +652,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#computeTime()
+     * java.util.GregorianCalendar#computeTime()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks computeTime indirectly.",
-        method = "computeTime",
-        args = {}
-    )
     public void test_computeTime() {
 
         // Regression for Harmony-493
@@ -832,12 +689,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks computeFields indirectly.",
-        method = "computeFields",
-        args = {}
-    )
     public void test_computeFields() {
         GregorianCalendar g = new GregorianCalendar(
             TimeZone.getTimeZone("Europe/London"),
@@ -854,14 +705,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.GregorianCalendar#get(int)
+     * java.util.GregorianCalendar#get(int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify ArrayIndexOutOfBoundsException.",
-        method = "get",
-        args = {int.class}
-    )
     @SuppressWarnings("deprecation")
     public void test_getI() {
         // Regression test for HARMONY-2959
@@ -880,12 +725,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         assertEquals(11, gc.get(Calendar.MONTH));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         GregorianCalendar g = new GregorianCalendar(
                 TimeZone.getTimeZone("Europe/London"),
@@ -901,12 +740,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
             assertNotSame(g.hashCode(), g1.hashCode());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setFirstDayOfWeek",
-        args = {int.class}
-    )
     public void test_setFirstDayOfWeekI() {
         GregorianCalendar g = new GregorianCalendar(
                 TimeZone.getTimeZone("Europe/London"),
@@ -921,12 +754,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         g.setFirstDayOfWeek(-10);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMinimalDaysInFirstWeek",
-        args = {int.class}
-    )
     public void test_setMinimalDaysInFirstWeekI() {
         GregorianCalendar g = new GregorianCalendar(
                 TimeZone.getTimeZone("Europe/London"),

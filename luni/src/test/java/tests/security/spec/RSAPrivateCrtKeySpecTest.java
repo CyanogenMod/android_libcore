@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -38,7 +33,6 @@ import java.security.spec.RSAPrivateKeySpec;
  * Tests for <code>RSAPrivateCrtKeySpec</code> class fields and methods
  *
  */
-@TestTargetClass(RSAPrivateCrtKeySpec.class)
 public class RSAPrivateCrtKeySpecTest extends TestCase {
 
     /**
@@ -46,12 +40,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Assertion: Constructs <code>RSAPrivateCrtKeySpec</code>
      * object using valid parameters
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies constructor with valid parameters.",
-        method = "RSAPrivateCrtKeySpec",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAPrivateCrtKeySpec01() {
         KeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -70,12 +58,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Assertion: Constructs <code>RSAPrivateCrtKeySpec</code>
      * object using valid parameters
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies constructor with valid parameters.",
-        method = "RSAPrivateCrtKeySpec",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAPrivateCrtKeySpec02() {
         KeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -94,12 +76,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Assertion: Constructs <code>RSAPrivateCrtKeySpec</code>
      * object using valid parameters
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as parameters.",
-        method = "RSAPrivateCrtKeySpec",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testRSAPrivateCrtKeySpec03() {
         new RSAPrivateCrtKeySpec(
                 null,
@@ -116,12 +92,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getCrtCoefficient()</code> method<br>
      * Assertion: returns crt coefficient
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCrtCoefficient",
-        args = {}
-    )
     public final void testGetCrtCoefficient() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -139,12 +109,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPrimeExponentP()</code> method<br>
      * Assertion: returns prime exponent P
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrimeExponentP",
-        args = {}
-    )
     public final void testGetPrimeExponentP() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -162,12 +126,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPrimeExponentQ()</code> method<br>
      * Assertion: returns prime exponent Q
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrimeExponentQ",
-        args = {}
-    )
     public final void testGetPrimeExponentQ() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -185,12 +143,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPrimeP()</code> method<br>
      * Assertion: returns prime P
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrimeP",
-        args = {}
-    )
     public final void testGetPrimeP() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -208,12 +160,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPrimeQ()</code> method<br>
      * Assertion: returns prime Q
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrimeQ",
-        args = {}
-    )
     public final void testGetPrimeQ() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -231,12 +177,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPublicExponent()</code> method<br>
      * Assertion: returns public exponent
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPublicExponent",
-        args = {}
-    )
     public final void testGetPublicExponent() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,
@@ -258,12 +198,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getModulus()</code> method<br>
      * Assertion: returns modulus
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModulus",
-        args = {}
-    )
     public final void testGetModulus() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.valueOf(5L),
@@ -281,12 +215,6 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
      * Test for <code>getPrivateExponent()</code> method<br>
      * Assertion: returns private exponent
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrivateExponent",
-        args = {}
-    )
     public final void testGetPrivateExponent() {
         RSAPrivateCrtKeySpec ks = new RSAPrivateCrtKeySpec(
                 BigInteger.ONE,

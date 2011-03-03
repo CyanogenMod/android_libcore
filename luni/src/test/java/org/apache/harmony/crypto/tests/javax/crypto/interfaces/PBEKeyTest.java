@@ -22,10 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.interfaces;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -37,18 +33,12 @@ import javax.crypto.interfaces.PBEKey;
  * Tests for <code>PBEKey</code> class field
  *
  */
-@TestTargetClass(PBEKey.class)
 public class PBEKeyTest extends TestCase {
 
 
     /**
      * Test for <code>serialVersionUID</code> field
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "tests serialVersionUID for a fixed value",
-        method = "!field:serialVersionUID"
-    )
     public void testField() {
         checkPBEKey key = new checkPBEKey();
         assertEquals("Incorrect serialVersionUID",
@@ -56,33 +46,18 @@ public class PBEKeyTest extends TestCase {
                 -1430015993304333921L);
     }
 
-@TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getIterationCount",
-        args = {}
-      )
     public void test_getIterationCount() throws Exception {
         checkPBEKey key = new checkPBEKey();
 
         key.getIterationCount();
     }
 
-@TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getPassword",
-        args = {}
-      )
     public void test_getPassword() throws Exception {
         checkPBEKey key = new checkPBEKey();
 
         key.getPassword();
     }
 
-@TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getSalt",
-        args = {}
-      )
     public void test_getSalt() throws Exception {
         checkPBEKey key = new checkPBEKey();
 

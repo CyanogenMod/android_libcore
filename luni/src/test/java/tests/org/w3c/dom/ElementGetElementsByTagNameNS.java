@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -23,7 +18,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS</a>
  */
-@TestTargetClass(Element.class)
 public final class ElementGetElementsByTagNameNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -53,12 +47,6 @@ public final class ElementGetElementsByTagNameNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS1() throws Throwable {
         Document doc;
         Element element;
@@ -69,12 +57,6 @@ public final class ElementGetElementsByTagNameNS extends DOMTestCase {
         assertEquals("elementgetelementsbytagnamens02", 0, elementList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS4() throws Throwable {
         Document doc;
         Element element;
@@ -102,12 +84,6 @@ public final class ElementGetElementsByTagNameNS extends DOMTestCase {
         assertEquals("elementgetelementsbytagnamens04_2", 3, elementList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS5() throws Throwable {
         Document doc;
         Element element;

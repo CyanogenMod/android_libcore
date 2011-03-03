@@ -16,11 +16,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -29,7 +24,6 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 
-@TestTargetClass(ECParameterSpec.class)
 public class ECParameterSpecTest extends TestCase {
 
     EllipticCurve curve;
@@ -63,12 +57,6 @@ public class ECParameterSpecTest extends TestCase {
      * case 5: IllegalArgumentException - if n is not positive
      * case 6: IllegalArgumentException - if h is not positive
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ECParameterSpec",
-        args = {java.security.spec.EllipticCurve.class, java.security.spec.ECPoint.class, java.math.BigInteger.class, int.class}
-    )
     public void test_constructorLjava_security_spec_EllipticCurveLjava_security_spec_ECPointLjava_math_BigIntegerI() {
 
         // case 1: creating object with valid parameters
@@ -123,12 +111,6 @@ public class ECParameterSpecTest extends TestCase {
     /**
      * test for getCurve() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCurve",
-        args = {}
-    )
     public void test_GetCurve() {
         assertEquals("wrong elliptic curve", curve, ecps.getCurve());
     }
@@ -136,12 +118,6 @@ public class ECParameterSpecTest extends TestCase {
     /**
      * test for getGenerator() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGenerator",
-        args = {}
-    )
     public void test_GetGenerator() {
         assertEquals("wrong generator was returned", ecpoint, ecps
                 .getGenerator());
@@ -150,12 +126,6 @@ public class ECParameterSpecTest extends TestCase {
     /**
      * test for getOrder() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOrder",
-        args = {}
-    )
     public void test_GetOrder() {
         assertEquals("wrong order was reteurned", BigInteger.valueOf(1), ecps
                 .getOrder());
@@ -164,12 +134,6 @@ public class ECParameterSpecTest extends TestCase {
     /**
      * test for getCofactor() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCofactor",
-        args = {}
-    )
     public void test_GetCofactor() {
         assertEquals("wrong cofactor was returned", 1, ecps.getCofactor());
     }

@@ -15,10 +15,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AccessController;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
@@ -35,19 +31,12 @@ import junit.framework.TestCase;
 import org.apache.harmony.xnet.tests.support.TrustManagerFactorySpiImpl;
 import org.apache.harmony.xnet.tests.support.MyTrustManagerFactorySpi.Parameters;
 
-@TestTargetClass(TrustManagerFactorySpi.class)
 public class TrustManagerFactorySpiTest extends TestCase {
 
     private TrustManagerFactorySpiImpl factory = new TrustManagerFactorySpiImpl();
     /**
-     * @tests javax.net.ssl.TrustManagerFactorySpi#TrustManagerFactorySpi()
+     * javax.net.ssl.TrustManagerFactorySpi#TrustManagerFactorySpi()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TrustManagerFactorySpi",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             TrustManagerFactorySpiImpl tmf = new TrustManagerFactorySpiImpl();
@@ -59,14 +48,8 @@ public class TrustManagerFactorySpiTest extends TestCase {
     /**
      * @throws NoSuchAlgorithmException
      * @throws KeyStoreException
-     * @tests javax.net.ssl.TrustManagerFactorySpi#engineInit(KeyStore ks)
+     * javax.net.ssl.TrustManagerFactorySpi#engineInit(KeyStore ks)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineInit",
-        args = {java.security.KeyStore.class}
-    )
     public void test_engineInit_01() throws NoSuchAlgorithmException,
             KeyStoreException {
         factory.reset();
@@ -92,14 +75,8 @@ public class TrustManagerFactorySpiTest extends TestCase {
     /**
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.TrustManagerFactorySpi#engineInit(ManagerFactoryParameters spec)
+     * javax.net.ssl.TrustManagerFactorySpi#engineInit(ManagerFactoryParameters spec)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineInit",
-        args = {javax.net.ssl.ManagerFactoryParameters.class}
-    )
     public void test_engineInit_02() throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException {
         factory.reset();
@@ -125,14 +102,8 @@ public class TrustManagerFactorySpiTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.TrustManagerFactorySpi#engineGetTrustManagers()
+     * javax.net.ssl.TrustManagerFactorySpi#engineGetTrustManagers()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineGetTrustManagers",
-        args = {}
-    )
     public void test_engineGetTrustManagers() throws NoSuchAlgorithmException {
         factory.reset();
         Provider provider = new MyProvider();

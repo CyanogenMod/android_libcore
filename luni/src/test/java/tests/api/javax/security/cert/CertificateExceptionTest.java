@@ -22,11 +22,6 @@
 
 package tests.api.javax.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import javax.security.cert.CertificateException;
@@ -36,7 +31,6 @@ import javax.security.cert.CertificateException;
  * Tests for <code>DigestException</code> class constructors and methods.
  *
  */
-@TestTargetClass(CertificateException.class)
 public class CertificateExceptionTest extends TestCase {
 
     static String[] msgs = {
@@ -50,12 +44,6 @@ public class CertificateExceptionTest extends TestCase {
      * Test for <code>CertificateException()</code> constructor Assertion:
      * constructs CertificateException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateException",
-        args = {}
-    )
     public void testCertificateException01() {
         CertificateException tE = new CertificateException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -67,12 +55,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies constructor with valid parameter.",
-        method = "CertificateException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateException02() {
         CertificateException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -88,12 +70,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException when <code>msg</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertificateException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateException03() {
         String msg = null;
         CertificateException tE = new CertificateException(msg);

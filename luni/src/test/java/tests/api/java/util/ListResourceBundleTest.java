@@ -17,43 +17,17 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Enumeration;
 import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-@TestTargetClass(java.util.ListResourceBundle.class)
 public class ListResourceBundleTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.ListResourceBundle#getKeys()
+     * java.util.ListResourceBundle#getKeys()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getKeys",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "ListResourceBundle",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getContents",
-            args = {}
-        )
-    })
     public void test_getKeys() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -74,26 +48,6 @@ public class ListResourceBundleTest extends junit.framework.TestCase {
     }
 
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "handleGetObject",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "ListResourceBundle",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getContents",
-            args = {}
-        )
-    })
     public void test_handleGetObjectLjava_lang_String() {
         ListResourceBundle bundle;
         String name = "tests.support.Support_TestResource";

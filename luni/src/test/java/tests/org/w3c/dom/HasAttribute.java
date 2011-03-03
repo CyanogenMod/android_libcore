@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -22,7 +17,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttr">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttr</a>
  */
-@TestTargetClass(Element.class)
 public final class HasAttribute extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -52,12 +46,6 @@ public final class HasAttribute extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that hasAttribute method returns false.",
-        method = "hasAttribute",
-        args = {java.lang.String.class}
-    )
     public void testHasAttribute1() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -82,12 +70,6 @@ public final class HasAttribute extends DOMTestCase {
 //        state = testNode.hasAttribute("street");
 //        assertTrue("throw_True", state);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that hasAttribute method returns false.",
-        method = "hasAttribute",
-        args = {java.lang.String.class}
-    )
     public void testHasAttribute3() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -99,12 +81,6 @@ public final class HasAttribute extends DOMTestCase {
         state = testNode.hasAttribute("nomatch");
         assertFalse("throw_False", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that hasAttribute method returns true.",
-        method = "hasAttribute",
-        args = {java.lang.String.class}
-    )
     public void testHasAttribute4() throws Throwable {
         Document doc;
         NodeList elementList;

@@ -46,7 +46,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     static final int testLength = testString.length();
 
     /**
-     * @tests java.io.RandomAccessFile#RandomAccessFile(java.io.File,
+     * java.io.RandomAccessFile#RandomAccessFile(java.io.File,
      *        java.lang.String)
      */
     public void test_ConstructorLjava_io_FileLjava_lang_String() throws Exception {
@@ -99,7 +99,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#RandomAccessFile(java.lang.String,
+     * java.io.RandomAccessFile#RandomAccessFile(java.lang.String,
      *        java.lang.String)
      */
     public void test_ConstructorLjava_lang_StringLjava_lang_String()
@@ -163,7 +163,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#close()
+     * java.io.RandomAccessFile#close()
      */
     public void test_close() {
         // Test for method void java.io.RandomAccessFile.close()
@@ -176,7 +176,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#getChannel()
+     * java.io.RandomAccessFile#getChannel()
      */
     public void test_getChannel() throws IOException {
 
@@ -196,7 +196,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#getFD()
+     * java.io.RandomAccessFile#getFD()
      */
     public void test_getFD() throws IOException {
         // Test for method java.io.FileDescriptor
@@ -210,7 +210,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#getFilePointer()
+     * java.io.RandomAccessFile#getFilePointer()
      */
     public void test_getFilePointer() throws IOException {
         // Test for method long java.io.RandomAccessFile.getFilePointer()
@@ -228,7 +228,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#length()
+     * java.io.RandomAccessFile#length()
      */
     public void test_length() throws IOException {
         // Test for method long java.io.RandomAccessFile.length()
@@ -246,7 +246,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#read()
+     * java.io.RandomAccessFile#read()
      */
     public void test_read_write() throws IOException {
         int i;
@@ -286,7 +286,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#read(byte[])
+     * java.io.RandomAccessFile#read(byte[])
      */
     public void test_read$B() throws IOException {
         FileOutputStream fos = new java.io.FileOutputStream(fileName);
@@ -315,7 +315,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#read(byte[], int, int)
+     * java.io.RandomAccessFile#read(byte[], int, int)
      */
     public void test_read$BII() throws IOException {
         int bytesRead;
@@ -377,8 +377,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readBoolean()
-     * @tests java.io.RandomAccessFile#writeBoolean(boolean)
+     * java.io.RandomAccessFile#readBoolean()
+     * java.io.RandomAccessFile#writeBoolean(boolean)
      */
     public void test_read_writeBoolean() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -414,8 +414,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readByte()
-     * @tests java.io.RandomAccessFile#writeByte(byte)
+     * java.io.RandomAccessFile#readByte()
+     * java.io.RandomAccessFile#writeByte(byte)
      */
     public void test_read_writeByte() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -460,8 +460,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readChar()
-     * @tests java.io.RandomAccessFile#writeChar(char)
+     * java.io.RandomAccessFile#readChar()
+     * java.io.RandomAccessFile#writeChar(char)
      */
     public void test_read_writeChar() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -506,8 +506,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readDouble()
-     * @tests java.io.RandomAccessFile#writeDouble(double)
+     * java.io.RandomAccessFile#readDouble()
+     * java.io.RandomAccessFile#writeDouble(double)
      */
     public void test_read_writeDouble() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -543,8 +543,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readFloat()
-     * @tests java.io.RandomAccessFile#writeFloat(double)
+     * java.io.RandomAccessFile#readFloat()
+     * java.io.RandomAccessFile#writeFloat(double)
      */
     public void test_read_writeFloat() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -580,8 +580,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readInt()
-     * @tests java.io.RandomAccessFile#writeInt(char)
+     * java.io.RandomAccessFile#readInt()
+     * java.io.RandomAccessFile#writeInt(char)
      */
     public void test_read_writeInt() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -626,8 +626,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readLong()
-     * @tests java.io.RandomAccessFile#writeLong(char)
+     * java.io.RandomAccessFile#readLong()
+     * java.io.RandomAccessFile#writeLong(char)
      */
     public void test_read_writeLong() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -672,8 +672,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readShort()
-     * @tests java.io.RandomAccessFile#writeShort(short)
+     * java.io.RandomAccessFile#readShort()
+     * java.io.RandomAccessFile#writeShort(short)
      */
     public void test_read_writeShort() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -718,8 +718,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readUTF()
-     * @tests java.io.RandomAccessFile#writeShort(char)
+     * java.io.RandomAccessFile#readUTF()
+     * java.io.RandomAccessFile#writeShort(char)
      */
     public void test_read_writeUTF() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -751,8 +751,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#writeBytes(java.lang.String)
-     * @tests java.io.RandomAccessFile#readFully(byte[])
+     * java.io.RandomAccessFile#writeBytes(java.lang.String)
+     * java.io.RandomAccessFile#readFully(byte[])
      */
     public void test_readFully$B_writeBytesLjava_lang_String() throws IOException {
         byte[] buf = new byte[testLength];
@@ -794,8 +794,8 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#writeBytes(java.lang.String)
-     * @tests java.io.RandomAccessFile#readFully(byte[], int, int)
+     * java.io.RandomAccessFile#writeBytes(java.lang.String)
+     * java.io.RandomAccessFile#readFully(byte[], int, int)
      */
     public void test_readFully$BII() throws IOException {
         byte[] buf = new byte[testLength];
@@ -857,7 +857,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readUnsignedByte()
+     * java.io.RandomAccessFile#readUnsignedByte()
      */
     public void test_readUnsignedByte() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -884,7 +884,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readUnsignedShort()
+     * java.io.RandomAccessFile#readUnsignedShort()
      */
     public void test_readUnsignedShort() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -911,7 +911,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#readLine()
+     * java.io.RandomAccessFile#readLine()
      */
     public void test_readLine() throws IOException {
         // Test for method java.lang.String java.io.RandomAccessFile.readLine()
@@ -936,7 +936,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#seek(long)
+     * java.io.RandomAccessFile#seek(long)
      */
     public void test_seekJ() throws IOException {
         // Test for method void java.io.RandomAccessFile.seek(long)
@@ -964,7 +964,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#skipBytes(int)
+     * java.io.RandomAccessFile#skipBytes(int)
      */
     public void test_skipBytesI() throws IOException {
         byte[] buf = new byte[5];
@@ -996,7 +996,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#skipBytes(int)
+     * java.io.RandomAccessFile#skipBytes(int)
      */
     public void test_setLengthJ() throws IOException {
         int bytesRead;
@@ -1050,7 +1050,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#write(byte[])
+     * java.io.RandomAccessFile#write(byte[])
      */
     public void test_write$B() throws IOException {
         byte[] rbuf = new byte[4000];
@@ -1092,7 +1092,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#write(byte[], int, int)
+     * java.io.RandomAccessFile#write(byte[], int, int)
      */
     public void test_write$BII() throws Exception {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
@@ -1161,7 +1161,7 @@ public class OldRandomAccessFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.RandomAccessFile#writeChars(java.lang.String)
+     * java.io.RandomAccessFile#writeChars(java.lang.String)
      */
     public void test_writeCharsLjava_lang_String() throws IOException {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");

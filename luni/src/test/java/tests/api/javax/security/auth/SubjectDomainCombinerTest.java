@@ -32,10 +32,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.AuthPermission;
@@ -49,19 +45,12 @@ import javax.security.auth.x500.X500Principal;
  * Tests for <code>SubjectDomainCombiner</code> class constructors and methods.
  *
  */
-@TestTargetClass(SubjectDomainCombiner.class)
 public class SubjectDomainCombinerTest extends TestCase {
     private final static boolean DEBUG = true;
 
     /**
-     * @tests javax.security.auth.SubjectDomainCombiner#SubjectDomainCombiner(Subject subject)
+     * javax.security.auth.SubjectDomainCombiner#SubjectDomainCombiner(Subject subject)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SubjectDomainCombiner",
-        args = {Subject.class}
-    )
     public void test_Constructor_01() {
         Subject s = new Subject();
         SubjectDomainCombiner c = new SubjectDomainCombiner(s);
@@ -74,14 +63,8 @@ public class SubjectDomainCombinerTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.SubjectDomainCombiner#getSubject()
+     * javax.security.auth.SubjectDomainCombiner#getSubject()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies that Subject associated with this SubjectDomainCombiner is returned",
-        method = "getSubject",
-        args = {}
-    )
     public void test_getSubject_01() {
         Subject s = new Subject();
         SubjectDomainCombiner c = new SubjectDomainCombiner(s);
@@ -107,14 +90,8 @@ public class SubjectDomainCombinerTest extends TestCase {
     protected final static String subjectPvtPerm1 = "writeFileDescriptor";
 
     /**
-     * @tests javax.security.auth.SubjectDomainCombiner#combine()
+     * javax.security.auth.SubjectDomainCombiner#combine()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "both currentDomains and assignedDomains are not null",
-        method = "combine",
-        args = {ProtectionDomain[].class, ProtectionDomain[].class}
-    )
     public void test_combine_01() {
 
         URL url;
@@ -203,14 +180,8 @@ public class SubjectDomainCombinerTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.SubjectDomainCombiner#combine()
+     * javax.security.auth.SubjectDomainCombiner#combine()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "assignedDomains is null",
-        method = "combine",
-        args = {ProtectionDomain[].class, ProtectionDomain[].class}
-    )
     public void test_combine_02() {
 
         URL url;
@@ -285,14 +256,8 @@ public class SubjectDomainCombinerTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.SubjectDomainCombiner#combine()
+     * javax.security.auth.SubjectDomainCombiner#combine()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "currentDomains is null",
-        method = "combine",
-        args = {ProtectionDomain[].class, ProtectionDomain[].class}
-    )
     public void test_combine_03() {
 
         URL url;

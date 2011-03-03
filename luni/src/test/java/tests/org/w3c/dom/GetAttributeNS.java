@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -48,7 +43,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=238">http://www.w3.org/Bugs/Public/show_bug.cgi?id=238</a>
  */
-@TestTargetClass(Element.class)
 public final class GetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -93,12 +87,6 @@ public final class GetAttributeNS extends DOMTestCase {
 //        attrValue = testAddr.getAttributeNS(namespaceURI, localName);
 //        assertEquals("attrValue", "DISTRICT", attrValue);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetAttributeNS2() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String localName = "district";
@@ -120,12 +108,6 @@ public final class GetAttributeNS extends DOMTestCase {
         attrValue = testAddr.getAttributeNS(namespaceURI, localName);
         assertEquals("throw_Equals", "", attrValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetAttributeNS3() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String localName = "domestic";
@@ -141,12 +123,6 @@ public final class GetAttributeNS extends DOMTestCase {
         attrValue = testAddr.getAttributeNS(namespaceURI, localName);
         assertEquals("throw_Equals", "", attrValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetAttributeNS4() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String localName = "blank";
@@ -166,12 +142,6 @@ public final class GetAttributeNS extends DOMTestCase {
         attrValue = testAddr.getAttributeNS(namespaceURI, localName);
         assertEquals("throw_Equals", "NewValue", attrValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetAttributeNS5() throws Throwable {
         Document doc;
         NodeList elementList;

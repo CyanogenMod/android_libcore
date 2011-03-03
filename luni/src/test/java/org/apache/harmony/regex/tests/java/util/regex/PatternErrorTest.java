@@ -16,34 +16,14 @@
 
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import java.util.regex.Pattern;
 import junit.framework.TestCase;
 
-@TestTargetClass(Pattern.class)
 /**
  * Test boundary and error conditions in java.util.regex.Pattern
  *
  */
 public class PatternErrorTest extends TestCase {
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) and compile(String regex, int flag) method with invalid parameters. Doesn't verify IllegalArgumentException, PatternSyntaxException.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) and compile(String regex, int flag) method with invalid parameters. Doesn't verify IllegalArgumentException, PatternSyntaxException.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testCompileErrors() throws Exception {
         // null regex string - should get NullPointerException
         try {

@@ -17,10 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.x500.X500Principal;
@@ -35,18 +31,11 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
  * Tests for <code>X500Principal</code> class constructors and methods.
  *
  */
-@TestTargetClass(X500Principal.class)
 public class X500PrincipalTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(String name)
+     * javax.security.auth.x500.X500Principal#X500Principal(String name)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X500Principal",
-        args = {String.class}
-    )
     public void test_X500Principal_01() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
 
@@ -77,14 +66,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(InputStream is)
+     * javax.security.auth.x500.X500Principal#X500Principal(InputStream is)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X500Principal",
-        args = {InputStream.class}
-    )
     public void test_X500Principal_02() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
@@ -119,14 +102,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(byte[] name)
+     * javax.security.auth.x500.X500Principal#X500Principal(byte[] name)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X500Principal",
-        args = {byte[].class}
-    )
     public void test_X500Principal_03() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
@@ -160,14 +137,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#getName()
+     * javax.security.auth.x500.X500Principal#getName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         X500Principal xpr = new X500Principal(name);
@@ -180,14 +151,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#getName(String format)
+     * javax.security.auth.x500.X500Principal#getName(String format)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {String.class}
-    )
     public void test_getName_Format() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         String expectedName = "cn=duke,ou=javasoft,o=sun microsystems,c=us";
@@ -227,14 +192,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#hashCode()
+     * javax.security.auth.x500.X500Principal#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         X500Principal xpr = new X500Principal(name);
@@ -247,14 +206,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#toString()
+     * javax.security.auth.x500.X500Principal#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         String name = "CN=Duke, OU=JavaSoft, O=Sun Microsystems, C=US";
         X500Principal xpr = new X500Principal(name);
@@ -268,14 +221,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#getEncoded()
+     * javax.security.auth.x500.X500Principal#getEncoded()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public void test_getEncoded() {
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
         X500Principal xpr = new X500Principal(ba);
@@ -289,14 +236,8 @@ public class X500PrincipalTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#equals(Object o)
+     * javax.security.auth.x500.X500Principal#equals(Object o)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {Object.class}
-    )
     public void test_equals() {
         String name1 = "CN=Duke, OU=JavaSoft, O=Sun Microsystems, C=US";
         String name2 = "cn=duke,ou=javasoft,o=sun microsystems,c=us";

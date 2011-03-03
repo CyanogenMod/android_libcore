@@ -22,10 +22,6 @@
 
 package tests.api.javax.net;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -40,18 +36,11 @@ import tests.support.Support_PortManager;
 /**
  * Tests for <code>ServerSocketFactory</code> class constructors and methods.
  */
-@TestTargetClass(ServerSocketFactory.class)
 public class ServerSocketFactoryTest extends TestCase {
 
     /**
-     * @tests javax.net.SocketFactory#SocketFactory()
+     * javax.net.SocketFactory#SocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ServerSocketFactory",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             ServerSocketFactory sf = new MyServerSocketFactory();
@@ -61,14 +50,8 @@ public class ServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ServerSocketFactory#createServerSocket()
+     * javax.net.ServerSocketFactory#createServerSocket()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "IOException checking missed",
-        method = "createServerSocket",
-        args = {}
-    )
     public final void test_createServerSocket_01() {
         ServerSocketFactory sf = ServerSocketFactory.getDefault();
         try {
@@ -81,14 +64,8 @@ public class ServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ServerSocketFactory#createServerSocket(int port)
+     * javax.net.ServerSocketFactory#createServerSocket(int port)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createServerSocket",
-        args = {int.class}
-    )
     public final void test_createServerSocket_02() {
         ServerSocketFactory sf = ServerSocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -120,14 +97,8 @@ public class ServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ServerSocketFactory#createServerSocket(int port, int backlog)
+     * javax.net.ServerSocketFactory#createServerSocket(int port, int backlog)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createServerSocket",
-        args = {int.class, int.class}
-    )
     public final void test_createServerSocket_03() {
         ServerSocketFactory sf = ServerSocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -159,14 +130,8 @@ public class ServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ServerSocketFactory#createServerSocket(int port, int backlog, InetAddress ifAddress)
+     * javax.net.ServerSocketFactory#createServerSocket(int port, int backlog, InetAddress ifAddress)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createServerSocket",
-        args = {int.class, int.class, InetAddress.class}
-    )
     public final void test_createServerSocket_04() {
         ServerSocketFactory sf = ServerSocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -198,14 +163,8 @@ public class ServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ServerSocketFactory#getDefault()
+     * javax.net.ServerSocketFactory#getDefault()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefault",
-        args = {}
-    )
     public final void test_getDefault() {
         ServerSocketFactory sf = ServerSocketFactory.getDefault();
         ServerSocket s;

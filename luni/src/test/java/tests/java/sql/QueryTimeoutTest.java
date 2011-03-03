@@ -20,10 +20,6 @@ package tests.java.sql;
 import SQLite.Database;
 import SQLite.Function;
 import SQLite.FunctionContext;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -76,7 +72,6 @@ import java.util.HashSet;
  * timeout. Verifies that the correct exception is thrown.
  * 4. Tests that the query timeout value is not forgotten after the execution of a statement.
  */
-@TestTargetClass(Statement.class)
 public class QueryTimeoutTest extends TestCase {
 
     private static Statement statement;
@@ -341,12 +336,6 @@ public class QueryTimeoutTest extends TestCase {
     /**
      * Part 1 of this test.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Testing timeout with fetch operations",
-        method = "setQueryTimeout",
-        args = {int.class}
-    )
     public static void testTimeoutWithFetch() throws TestFailedException {
         System.out.println("Testing timeout with fetch operations");
 
@@ -434,12 +423,6 @@ public class QueryTimeoutTest extends TestCase {
      *
      * Part two of this test.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "test timeout with st.exec()",
-        method = "setQueryTimeout",
-        args = {int.class}
-    )
     public static void testTimeoutWithExec()
             throws TestFailedException {
         System.out.println("Testing timeout with an execute operation");
@@ -519,12 +502,6 @@ public class QueryTimeoutTest extends TestCase {
      * @test {@link java.sql.Statement#setQueryTimeout(int) }
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Testing setting a negative timeout value",
-        method = "setQueryTimeout",
-        args = {int.class}
-    )
     public static void testInvalidTimeoutValue(Connection conn)
             throws TestFailedException {
 
@@ -581,12 +558,6 @@ public class QueryTimeoutTest extends TestCase {
      *
      * Part two of this test.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "timeout with executeUpdate call",
-        method = "setQueryTimeout",
-        args = {int.class}
-    )
     public static void testTimeoutWithExecuteUpdate()
             throws TestFailedException {
         System.out.println("Testing timeout with executeUpdate call.");
@@ -600,12 +571,6 @@ public class QueryTimeoutTest extends TestCase {
     }
 
     /** Test for DERBY-1692. */
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Testing that Statement considers timeout.",
-            method = "setQueryTimeout",
-            args = {int.class}
-        )
     public static void testRememberTimeoutValue()
             throws TestFailedException {
         String sql = getFetchQuery("t");

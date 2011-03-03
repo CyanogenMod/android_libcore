@@ -22,10 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -34,10 +30,8 @@ import java.util.Arrays;
 
 import javax.crypto.spec.SecretKeySpec;
 
-@TestTargetClass(SecretKeySpec.class)
 /**
  */
-
 public class SecretKeySpecTest extends TestCase {
 
     /**
@@ -46,12 +40,6 @@ public class SecretKeySpecTest extends TestCase {
      * constructor parameters and that input iv array is
      * copied to protect against subsequent modification.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecretKeySpec",
-        args = {byte[].class, java.lang.String.class}
-    )
     public void testSecretKeySpec1() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";
@@ -90,12 +78,6 @@ public class SecretKeySpecTest extends TestCase {
      * the case of inappropriate constructor parameters and that input iv array
      * is copied to protect against subsequent modification.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecretKeySpec",
-        args = {byte[].class, int.class, int.class, java.lang.String.class}
-    )
     public void testSecretKeySpec2() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         int offset = 1;
@@ -154,12 +136,6 @@ public class SecretKeySpecTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "SecretKeySpec",
-            args = {byte[].class, int.class, int.class, java.lang.String.class}
-        )
     public void testSecretKeySpec3() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         int offset = 1;
@@ -180,12 +156,6 @@ public class SecretKeySpecTest extends TestCase {
      * getAlgorithm() method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void testGetAlgorithm() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";
@@ -199,12 +169,6 @@ public class SecretKeySpecTest extends TestCase {
     /**
      * getFormat() method testing. Tests that returned value is "RAW".
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFormat",
-        args = {}
-    )
     public void testGetFormat() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";
@@ -219,12 +183,6 @@ public class SecretKeySpecTest extends TestCase {
      * array specified in the constructor. Checks that modification
      * of returned array does not affect the internal array.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public void testGetEncoded() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";
@@ -251,12 +209,6 @@ public class SecretKeySpecTest extends TestCase {
      * hashCode() method testing. Tests that for equal objects hash codes
      * are equal.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";
@@ -272,12 +224,6 @@ public class SecretKeySpecTest extends TestCase {
      * operation: it should be reflexive, symmetric, transitive, consistent
      * and should be false on null object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         byte[] key = new byte[] {1, 2, 3, 4, 5};
         String algorithm = "Algorithm";

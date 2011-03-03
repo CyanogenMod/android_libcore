@@ -23,10 +23,6 @@
 package tests.security.cert;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -56,7 +52,6 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
 import tests.security.cert.X509CRL2Test.MyX509CRL;
 /**
  */
-@TestTargetClass(X509CRL.class)
 public class X509CRLTest extends TestCase {
 
     private X509CRL tbt_crl;
@@ -188,12 +183,6 @@ public class X509CRLTest extends TestCase {
      * getType() method testing. Tests that getType() method returns
      * the value "X.509"
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public void testGetType() {
         assertEquals("The type of X509CRL should be X.509",
                                             tbt_crl.getType(), "X.509");
@@ -204,12 +193,6 @@ public class X509CRLTest extends TestCase {
      * operation: it should be reflexive, symmetric, transitive, consistent
      * and should be false on null object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         TBTCRL tbt_crl_1 = new TBTCRL() {
             public byte[] getEncoded() {
@@ -258,12 +241,6 @@ public class X509CRLTest extends TestCase {
      * hashCode() method testing. Tests that for equal objects hash codes
      * are equal.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         TBTCRL tbt_crl_1 = new TBTCRL() {
             public byte[] getEncoded() {
@@ -275,14 +252,8 @@ public class X509CRLTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CRL#getIssuerX500Principal()
+     * java.security.cert.X509CRL#getIssuerX500Principal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuerX500Principal",
-        args = {}
-    )
     public void testGetIssuerX500Principal() {
         // return valid encoding
         TBTCRL crl = new TBTCRL() {
@@ -299,12 +270,6 @@ public class X509CRLTest extends TestCase {
      * Check if the default implementation throws NullPointerException
      * on null input data.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getRevokedCertificate",
-        args = {java.security.cert.X509Certificate.class}
-    )
     @AndroidOnly("Test filed on RI: getRevokedCertificate throws " +
             "RuntimeException.")
     public void testGetRevokedCertificate() {
@@ -325,92 +290,6 @@ public class X509CRLTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEncoded",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getIssuerDN",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNextUpdate",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getRevokedCertificate",
-            args = {java.math.BigInteger.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getRevokedCertificates",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgName",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgOID",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSigAlgParams",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSignature",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getTBSCertList",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getThisUpdate",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getVersion",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "verify",
-            args = {java.security.PublicKey.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "verify",
-            args = {java.security.PublicKey.class, java.lang.String.class}
-        )
-    })
     public void testAbstractMethods() {
         TBTCRL crl = new TBTCRL() {
             public byte[] getEncoded() {
@@ -439,12 +318,6 @@ public class X509CRLTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509CRL",
-        args = {}
-    )
     public void testX509CRL() {
         try {
             TBTCRL crl = new TBTCRL();

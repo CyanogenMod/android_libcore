@@ -15,11 +15,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLEngine;
@@ -39,18 +34,11 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.xnet.tests.support.SSLContextSpiImpl;
 
-@TestTargetClass(SSLContextSpi.class)
 public class SSLContextSpiTest extends TestCase {
 
     /**
-     * @tests javax.net.ssl.SSLContextSpi#SSLContextSpi()
+     * javax.net.ssl.SSLContextSpi#SSLContextSpi()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLContextSpi",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             SSLContextSpiImpl ssl = new SSLContextSpiImpl();
@@ -61,15 +49,9 @@ public class SSLContextSpiTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLContextSpi#engineCreateSSLEngine()
+     * javax.net.ssl.SSLContextSpi#engineCreateSSLEngine()
      * Verify exception when SSLContextSpi object wasn't initialiazed.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "engineCreateSSLEngine",
-        args = {}
-    )
     public void test_engineCreateSSLEngine_01() {
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
         try {
@@ -85,15 +67,9 @@ public class SSLContextSpiTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLContextSpi#engineCreateSSLEngine(String host, int port)
+     * javax.net.ssl.SSLContextSpi#engineCreateSSLEngine(String host, int port)
      * Verify exception when SSLContextSpi object wasn't initialiazed.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "engineCreateSSLEngine",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_engineCreateSSLEngine_02() {
         int[] invalid_port = {Integer.MIN_VALUE, -65535, -1, 65536, Integer.MAX_VALUE};
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
@@ -119,38 +95,12 @@ public class SSLContextSpiTest extends TestCase {
     }
 
     /**
-     * @tests SSLContextSpi#engineGetClientSessionContext()
-     * @tests SSLContextSpi#engineGetServerSessionContext()
-     * @tests SSLContextSpi#engineGetServerSocketFactory()
-     * @tests SSLContextSpi#engineGetSocketFactory()
+     * SSLContextSpi#engineGetClientSessionContext()
+     * SSLContextSpi#engineGetServerSessionContext()
+     * SSLContextSpi#engineGetServerSocketFactory()
+     * SSLContextSpi#engineGetSocketFactory()
      * Verify exception when SSLContextSpi object wasn't initialiazed.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetClientSessionContext",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetServerSessionContext",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetServerSocketFactory",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetSocketFactory",
-            args = {}
-        )
-    })
     public void test_commonTest_01() {
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
 
@@ -200,14 +150,8 @@ public class SSLContextSpiTest extends TestCase {
     }
 
     /**
-     * @tests SSLContextSpi#engineInit(KeyManager[] km, TrustManager[] tm, SecureRandom sr)
+     * SSLContextSpi#engineInit(KeyManager[] km, TrustManager[] tm, SecureRandom sr)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineInit",
-        args = {javax.net.ssl.KeyManager[].class, javax.net.ssl.TrustManager[].class, java.security.SecureRandom.class}
-    )
     public void test_engineInit() {
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
         String defaultAlgorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
@@ -240,51 +184,13 @@ public class SSLContextSpiTest extends TestCase {
     }
 
     /**
-     * @tests SSLContextSpi#engineCreateSSLEngine()
-     * @tests SSLContextSpi#engineCreateSSLEngine(String host, int port)
-     * @tests SSLContextSpi#engineGetClientSessionContext()
-     * @tests SSLContextSpi#engineGetServerSessionContext()
-     * @tests SSLContextSpi#engineGetServerSocketFactory()
-     * @tests SSLContextSpi#engineGetSocketFactory()
+     * SSLContextSpi#engineCreateSSLEngine()
+     * SSLContextSpi#engineCreateSSLEngine(String host, int port)
+     * SSLContextSpi#engineGetClientSessionContext()
+     * SSLContextSpi#engineGetServerSessionContext()
+     * SSLContextSpi#engineGetServerSocketFactory()
+     * SSLContextSpi#engineGetSocketFactory()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineCreateSSLEngine",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineCreateSSLEngine",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetClientSessionContext",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetServerSessionContext",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetServerSocketFactory",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "engineGetSocketFactory",
-            args = {}
-        )
-    })
     public void test_commonTest_02() {
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
         String defaultAlgorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");

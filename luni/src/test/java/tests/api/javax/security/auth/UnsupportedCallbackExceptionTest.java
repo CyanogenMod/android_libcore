@@ -17,11 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -31,7 +26,6 @@ import javax.security.auth.callback.Callback;
  * Tests for <code>UnsupportedCallbackException</code> class constructors and methods.
  *
  */
-@TestTargetClass(UnsupportedCallbackException.class)
 public class UnsupportedCallbackExceptionTest extends TestCase {
 
     public static void main(String[] args) {
@@ -53,24 +47,10 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
 
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
      * Assertion: constructs with null parameter.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "UnsupportedCallbackException",
-            args = {Callback.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getCallback",
-            args = {}
-        )
-    })
     public void testUnsupportedCallbackException01() {
         Callback c = null;
         UnsupportedCallbackException ucE = new UnsupportedCallbackException(c);
@@ -79,24 +59,10 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
      * Assertion: constructs with not null parameter.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "UnsupportedCallbackException",
-            args = {Callback.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getCallback",
-            args = {}
-        )
-    })
     public void testUnsupportedCallbackException02() {
         myCallback c = new myCallback();
         assertNotNull("Callback object is null", c);
@@ -106,15 +72,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with null callback parameter and null message.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "UnsupportedCallbackException",
-        args = {Callback.class, String.class}
-    )
     public void testUnsupportedCallbackException03() {
         UnsupportedCallbackException ucE = new UnsupportedCallbackException(null, null);
         assertNull("getMessage() must return null.", ucE.getMessage());
@@ -122,15 +82,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with null callback parameter and not null message.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "UnsupportedCallbackException",
-        args = {Callback.class, String.class}
-    )
     public void testUnsupportedCallbackException04() {
         UnsupportedCallbackException ucE;
         for (int i = 0; i < msgs.length; i++) {
@@ -141,15 +95,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with not null callback parameter and null message.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "UnsupportedCallbackException",
-        args = {Callback.class, String.class}
-    )
     public void testUnsupportedCallbackException05() {
         myCallback c = new myCallback();
         assertNotNull("Callback object is null", c);
@@ -159,15 +107,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
+     * javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with not null parameters.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "UnsupportedCallbackException",
-        args = {Callback.class, String.class}
-    )
     public void testUnsupportedCallbackException06() {
         myCallback c = new myCallback();
         assertNotNull("Callback object is null", c);

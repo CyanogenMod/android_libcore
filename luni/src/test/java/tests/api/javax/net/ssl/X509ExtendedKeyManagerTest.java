@@ -17,11 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
@@ -35,7 +30,6 @@ import junit.framework.TestCase;
  * Tests for <code>X509ExtendedKeyManager</code> class constructors and methods.
  *
  */
-@TestTargetClass(X509ExtendedKeyManager.class)
 public class X509ExtendedKeyManagerTest extends TestCase {
 
     private class MockX509ExtendedKeyManager extends X509ExtendedKeyManager {
@@ -93,14 +87,8 @@ public class X509ExtendedKeyManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509ExtendedKeyManager#X509ExtendedKeyManager()
+     * javax.net.ssl.X509ExtendedKeyManager#X509ExtendedKeyManager()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509ExtendedKeyManager",
-        args = {}
-    )
     public final void test_Constructor() {
         try {
             new MockX509ExtendedKeyManager();
@@ -110,16 +98,10 @@ public class X509ExtendedKeyManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509ExtendedKeyManager
+     * javax.net.ssl.X509ExtendedKeyManager
      *     #chooseEngineClientAlias(java.lang.String[],
      *     java.security.Principal[], javax.net.ssl.SSLEngine)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "chooseEngineClientAlias",
-        args = {java.lang.String[].class, java.security.Principal[].class, javax.net.ssl.SSLEngine.class}
-    )
     public final void test_chooseEngineClientAlias() {
         X509ExtendedKeyManager km = new MyX509ExtendedKeyManager();
         if (km.chooseEngineClientAlias(null, null, null) != null) {
@@ -128,16 +110,10 @@ public class X509ExtendedKeyManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509ExtendedKeyManager
+     * javax.net.ssl.X509ExtendedKeyManager
      *     #chooseEngineServerAlias(java.lang.String,
      *     java.security.Principal[], javax.net.ssl.SSLEngine)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "chooseEngineServerAlias",
-        args = {java.lang.String.class, java.security.Principal[].class, javax.net.ssl.SSLEngine.class}
-    )
     public final void test_chooseEngineServerAlias() {
         X509ExtendedKeyManager km = new MyX509ExtendedKeyManager();
         if (km.chooseEngineServerAlias(null, null, null) != null) {

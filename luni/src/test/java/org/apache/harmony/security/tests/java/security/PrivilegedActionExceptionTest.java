@@ -22,30 +22,18 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.PrivilegedActionException;
 
 import junit.framework.TestCase;
-@TestTargetClass(PrivilegedActionException.class)
+
 /**
  * Unit test for java.security.PrivilegedActionException.
  *
  */
-
 public class PrivilegedActionExceptionTest extends TestCase {
     /**
      * Tests PrivilegedActionException(Exception)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PrivilegedActionException",
-        args = {java.lang.Exception.class}
-    )
     public void testPrivilegedActionException() {
         new PrivilegedActionException(null);
         Exception ex = new Exception();
@@ -55,12 +43,6 @@ public class PrivilegedActionExceptionTest extends TestCase {
     /**
      * Tests PrivilegedActionException.getException()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getException",
-        args = {}
-    )
     public void testGetException() {
         assertNull(new PrivilegedActionException(null).getException());
         Exception ex = new Exception();
@@ -70,12 +52,6 @@ public class PrivilegedActionExceptionTest extends TestCase {
     /**
      * Tests PrivilegedActionException.toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         assertNotNull(new PrivilegedActionException(null).toString());
         assertNotNull(new PrivilegedActionException(new Exception()).toString());

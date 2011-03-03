@@ -111,7 +111,7 @@ public class OldMessageFormatTest extends TestCase {
     }
 
     /**
-     * @tests java.text.MessageFormat#setFormat(int, Format) Test of method
+     * java.text.MessageFormat#setFormat(int, Format) Test of method
      *        java.text.MessageFormat#setFormat(int, Format). Case 1: Compare
      *        getFormats() results after calls to setFormat(). Case 2: Try to
      *        call setFormat() using incorrect index.
@@ -383,7 +383,7 @@ public class OldMessageFormatTest extends TestCase {
     }
 
     /**
-     * @tests java.text.MessageFormat#parseObject(java.lang.String,
+     * java.text.MessageFormat#parseObject(java.lang.String,
      *        java.text.ParsePosition) Test of method
      *        java.text.MessageFormat#parseObject(java.lang.String,
      *        java.text.ParsePosition). Case 1: Parsing of correct data string.

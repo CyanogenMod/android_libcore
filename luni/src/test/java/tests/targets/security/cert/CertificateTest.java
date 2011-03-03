@@ -16,8 +16,6 @@
 package tests.targets.security.cert;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -590,12 +588,6 @@ public class CertificateTest extends TestCase {
         + "+qrLMgx5qoZ0bERU9tgHns2Y9CMFCS+iU7XbCoHMXyPLeRHFEVuFaycBifMOuw==\n"
         + "-----END CERTIFICATE-----";
 
-    @TestTargetNew(
-            clazz=Certificate.class,
-            level=TestLevel.ADDITIONAL,
-            method="verify",
-            args={PublicKey.class}
-    )
     public void testVerifyMD5() throws Exception {
         Provider[] providers = Security.getProviders("CertificateFactory.X509");
         for (Provider provider : providers) {
@@ -610,12 +602,6 @@ public class CertificateTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            clazz=Certificate.class,
-            level=TestLevel.ADDITIONAL,
-            method="verify",
-            args={PublicKey.class}
-    )
     @AndroidOnly("MD2 is not supported by Android")
     public void testVerifyMD2() throws Exception {
         Provider[] providers = Security.getProviders("CertificateFactory.X509");
@@ -635,12 +621,6 @@ public class CertificateTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            clazz=CertPathValidator.class,
-            level=TestLevel.ADDITIONAL,
-            method="verify",
-            args={PublicKey.class}
-    )
     public void testVerifyMD2_chain() throws Exception {
         CertificateFactory certificateFactory = CertificateFactory
                 .getInstance("X509");
@@ -679,12 +659,6 @@ public class CertificateTest extends TestCase {
                 .contains(r.getTrustAnchor()));
     }
 
-    @TestTargetNew(
-            clazz=CertPathValidator.class,
-            level=TestLevel.ADDITIONAL,
-            method="verify",
-            args={PublicKey.class}
-    )
     public void testVerifyMD5_chain() throws Exception {
         CertificateFactory certificateFactory = CertificateFactory
                 .getInstance("X509");

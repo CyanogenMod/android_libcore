@@ -16,11 +16,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -28,7 +23,6 @@ import java.lang.reflect.TypeVariable;
 /**
  * Tests bounded type parameters declared on methods.
  */
-@TestTargetClass(Method.class)
 public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
     @SuppressWarnings("unchecked")
     static class BoundedGenericMethods<S> {
@@ -107,54 +101,24 @@ public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
     /**
      * Tests that there are is one Type Parameter on the Class itself.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check GenericSignatureFormatError.",
-        method = "getTypeParameters",
-        args = {}
-    )
     public void testBoundedGenericMethods() {
         assertLenghtOne(clazz.getTypeParameters());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check GenericSignatureFormatError.",
-        method = "getTypeParameters",
-        args = {}
-    )
     public void testNoParamNoReturn() throws SecurityException, NoSuchMethodException {
         Method method = clazz.getMethod("noParamNoReturn");
         checkBoundedTypeParameter(method);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check GenericSignatureFormatError.",
-        method = "getTypeParameters",
-        args = {}
-    )
     public void testUnboundedParamNoReturn() throws SecurityException, NoSuchMethodException {
         Method method = clazz.getMethod("paramNoReturn", BoundedGenericMethods.class);
         checkBoundedTypeParameter(method);
         parameterType(method);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check GenericSignatureFormatError.",
-        method = "getTypeParameters",
-        args = {}
-    )
     public void testNoParamReturn() throws SecurityException, NoSuchMethodException {
         Method method = clazz.getMethod("noParamReturn");
         checkBoundedTypeParameter(method);
         assertLenghtZero(method.getGenericParameterTypes());
         checkReturnType(method);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check GenericSignatureFormatError.",
-        method = "getTypeParameters",
-        args = {}
-    )
     public void testUnboundedParamReturn() throws SecurityException, NoSuchMethodException {
         Method method = clazz.getMethod("paramReturn", BoundedGenericMethods.class);
         checkBoundedTypeParameter(method);

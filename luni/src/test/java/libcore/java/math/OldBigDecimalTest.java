@@ -25,7 +25,7 @@ public class OldBigDecimalTest extends junit.framework.TestCase {
     BigInteger value = new BigInteger("12345908");
 
     /**
-     * @tests java.math.BigDecimal#BigDecimal(double)
+     * java.math.BigDecimal#BigDecimal(double)
      */
     public void test_ConstructorD() {
         //
@@ -50,7 +50,7 @@ public class OldBigDecimalTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
+     * java.math.BigDecimal#BigDecimal(java.lang.String)
      */
     public void test_constructor_String_plus_exp() {
         /*
@@ -67,7 +67,7 @@ public class OldBigDecimalTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#setScale(int, java.math.RoundingMode)
+     * java.math.BigDecimal#setScale(int, java.math.RoundingMode)
      */
     public void test_setScaleILjava_math_RoundingMode() {
         BigDecimal setScale1 = new BigDecimal(2.323E102);

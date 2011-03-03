@@ -16,11 +16,6 @@
  */
 package tests.api.java.lang.ref;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.BrokenTest;
 import dalvik.annotation.SideEffect;
 
 import java.lang.ref.Reference;
@@ -28,7 +23,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.Vector;
 
-@TestTargetClass(SoftReference.class)
 public class SoftReferenceTest extends junit.framework.TestCase {
     static Boolean bool;
     SoftReference r;
@@ -38,15 +32,9 @@ public class SoftReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.SoftReference#SoftReference(java.lang.Object,
+     * java.lang.ref.SoftReference#SoftReference(java.lang.Object,
      *        java.lang.ref.ReferenceQueue)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SoftReference",
-        args = {java.lang.Object.class, java.lang.ref.ReferenceQueue.class}
-    )
     public void test_ConstructorLjava_lang_ObjectLjava_lang_ref_ReferenceQueue() {
         ReferenceQueue rq = new ReferenceQueue();
         bool = new Boolean(true);
@@ -68,14 +56,8 @@ public class SoftReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.SoftReference#SoftReference(java.lang.Object)
+     * java.lang.ref.SoftReference#SoftReference(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SoftReference",
-        args = {java.lang.Object.class}
-    )
     public void test_ConstructorLjava_lang_Object() {
         bool = new Boolean(true);
         try {
@@ -88,26 +70,14 @@ public class SoftReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.SoftReference#get()
+     * java.lang.ref.SoftReference#get()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verified that get() can return null.",
-        method = "get",
-        args = {}
-    )
     public void test_get() {
         bool = new Boolean(false);
         SoftReference sr = new SoftReference(bool);
         assertTrue("Same object not returned.", bool == sr.get());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {}
-    )
     @SideEffect("Causes OutOfMemoryError to test finalization")
     public void test_get_SoftReference() {
 

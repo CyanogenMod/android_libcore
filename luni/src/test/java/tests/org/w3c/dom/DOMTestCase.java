@@ -1,7 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -13,7 +11,6 @@ import org.xml.sax.SAXParseException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(Document.class)
 public class DOMTestCase extends TestCase {
 
     public Document load(String docURI, DocumentBuilder builder) {

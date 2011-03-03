@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.Attr;
@@ -49,7 +44,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAtNodeNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAtNodeNS</a>
  */
-@TestTargetClass(Element.class)
 public final class ElementSetAttributeNodeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -79,12 +73,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void testSetAttributeNodeNS1() throws Throwable {
         Document doc;
         Element element;
@@ -118,12 +106,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
         length = (int) attributes.getLength();
         assertEquals("length", 1, length);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void testSetAttributeNodeNS2() throws Throwable {
         Document doc;
         Element element;
@@ -149,12 +131,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
         assertEquals("elementsetattributenodens02_attrName", "street", attrName);
         assertEquals("elementsetattributenodens02_attrValue", "Yes", attrValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with INUSE_ATTRIBUTE_ERR code.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void testSetAttributeNodeNS3() throws Throwable {
         Document doc;
         Element element1;
@@ -181,12 +157,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
             assertTrue("elementsetattributenodens03", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with INUSE_ATTRIBUTE_ERR code.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void testSetAttributeNodeNS4() throws Throwable {
         Document doc;
         Element element1;
@@ -209,12 +179,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
             assertTrue("elementsetattributenodens04", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with WRONG_DOCUMENT_ERR code.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void testSetAttributeNodeNS5() throws Throwable {
         Document doc;
         Document docAlt;
@@ -237,12 +201,6 @@ public final class ElementSetAttributeNodeNS extends DOMTestCase {
             assertTrue("throw_WRONG_DOCUMENT_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies DOMException with NO_MODIFICATION_ALLOWED_ERR code.",
-        method = "setAttributeNodeNS",
-        args = {org.w3c.dom.Attr.class}
-    )
     public void _testSetAttributeNodeNS6() throws Throwable {
         Document doc;
         Element element;

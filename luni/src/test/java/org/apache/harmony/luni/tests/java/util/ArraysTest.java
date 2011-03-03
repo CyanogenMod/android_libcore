@@ -71,7 +71,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#asList(java.lang.Object[])
+	 * java.util.Arrays#asList(java.lang.Object[])
 	 */
 	public void test_asList$Ljava_lang_Object() {
 		// Test for method java.util.List
@@ -107,7 +107,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(byte[], byte)
+	 * java.util.Arrays#binarySearch(byte[], byte)
 	 */
 	public void test_binarySearch$BB() {
 		// Test for method int java.util.Arrays.binarySearch(byte [], byte)
@@ -128,7 +128,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(char[], char)
+	 * java.util.Arrays#binarySearch(char[], char)
 	 */
 	public void test_binarySearch$CC() {
 		// Test for method int java.util.Arrays.binarySearch(char [], char)
@@ -144,7 +144,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(double[], double)
+	 * java.util.Arrays#binarySearch(double[], double)
 	 */
 	public void test_binarySearch$DD() {
 		// Test for method int java.util.Arrays.binarySearch(double [], double)
@@ -178,7 +178,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(float[], float)
+	 * java.util.Arrays#binarySearch(float[], float)
 	 */
 	public void test_binarySearch$FF() {
 		// Test for method int java.util.Arrays.binarySearch(float [], float)
@@ -211,7 +211,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(int[], int)
+	 * java.util.Arrays#binarySearch(int[], int)
 	 */
 	public void test_binarySearch$II() {
 		// Test for method int java.util.Arrays.binarySearch(int [], int)
@@ -231,7 +231,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(long[], long)
+	 * java.util.Arrays#binarySearch(long[], long)
 	 */
 	public void test_binarySearch$JJ() {
 		// Test for method int java.util.Arrays.binarySearch(long [], long)
@@ -252,7 +252,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(java.lang.Object[],
+	 * java.util.Arrays#binarySearch(java.lang.Object[],
 	 *        java.lang.Object)
 	 */
 	public void test_binarySearch$Ljava_lang_ObjectLjava_lang_Object() {
@@ -288,7 +288,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(java.lang.Object[],
+	 * java.util.Arrays#binarySearch(java.lang.Object[],
 	 *        java.lang.Object, java.util.Comparator)
 	 */
 	public void test_binarySearch$Ljava_lang_ObjectLjava_lang_ObjectLjava_util_Comparator() {
@@ -310,7 +310,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#binarySearch(short[], short)
+	 * java.util.Arrays#binarySearch(short[], short)
 	 */
 	public void test_binarySearch$SS() {
 		// Test for method int java.util.Arrays.binarySearch(short [], short)
@@ -331,7 +331,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(byte[], byte)
+	 * java.util.Arrays#fill(byte[], byte)
 	 */
 	public void test_fill$BB() {
 		// Test for method void java.util.Arrays.fill(byte [], byte)
@@ -344,7 +344,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(byte[], int, int, byte)
+	 * java.util.Arrays#fill(byte[], int, int, byte)
 	 */
 	public void test_fill$BIIB() {
 		// Test for method void java.util.Arrays.fill(byte [], int, int, byte)
@@ -387,7 +387,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(short[], short)
+	 * java.util.Arrays#fill(short[], short)
 	 */
 	public void test_fill$SS() {
 		// Test for method void java.util.Arrays.fill(short [], short)
@@ -400,7 +400,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(short[], int, int, short)
+	 * java.util.Arrays#fill(short[], int, int, short)
 	 */
 	public void test_fill$SIIS() {
 		// Test for method void java.util.Arrays.fill(short [], int, int, short)
@@ -414,7 +414,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(char[], char)
+	 * java.util.Arrays#fill(char[], char)
 	 */
 	public void test_fill$CC() {
 		// Test for method void java.util.Arrays.fill(char [], char)
@@ -426,7 +426,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(char[], int, int, char)
+	 * java.util.Arrays#fill(char[], int, int, char)
 	 */
 	public void test_fill$CIIC() {
 		// Test for method void java.util.Arrays.fill(char [], int, int, char)
@@ -440,7 +440,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(int[], int)
+	 * java.util.Arrays#fill(int[], int)
 	 */
 	public void test_fill$II() {
 		// Test for method void java.util.Arrays.fill(int [], int)
@@ -453,7 +453,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(int[], int, int, int)
+	 * java.util.Arrays#fill(int[], int, int, int)
 	 */
 	public void test_fill$IIII() {
 		// Test for method void java.util.Arrays.fill(int [], int, int, int)
@@ -467,7 +467,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(long[], long)
+	 * java.util.Arrays#fill(long[], long)
 	 */
 	public void test_fill$JJ() {
 		// Test for method void java.util.Arrays.fill(long [], long)
@@ -480,7 +480,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(long[], int, int, long)
+	 * java.util.Arrays#fill(long[], int, int, long)
 	 */
 	public void test_fill$JIIJ() {
 		// Test for method void java.util.Arrays.fill(long [], int, int, long)
@@ -494,7 +494,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(float[], float)
+	 * java.util.Arrays#fill(float[], float)
 	 */
 	public void test_fill$FF() {
 		// Test for method void java.util.Arrays.fill(float [], float)
@@ -506,7 +506,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(float[], int, int, float)
+	 * java.util.Arrays#fill(float[], int, int, float)
 	 */
 	public void test_fill$FIIF() {
 		// Test for method void java.util.Arrays.fill(float [], int, int, float)
@@ -520,7 +520,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(double[], double)
+	 * java.util.Arrays#fill(double[], double)
 	 */
 	public void test_fill$DD() {
 		// Test for method void java.util.Arrays.fill(double [], double)
@@ -533,7 +533,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(double[], int, int, double)
+	 * java.util.Arrays#fill(double[], int, int, double)
 	 */
 	public void test_fill$DIID() {
 		// Test for method void java.util.Arrays.fill(double [], int, int,
@@ -548,7 +548,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(boolean[], boolean)
+	 * java.util.Arrays#fill(boolean[], boolean)
 	 */
 	public void test_fill$ZZ() {
 		// Test for method void java.util.Arrays.fill(boolean [], boolean)
@@ -560,7 +560,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(boolean[], int, int, boolean)
+	 * java.util.Arrays#fill(boolean[], int, int, boolean)
 	 */
 	public void test_fill$ZIIZ() {
 		// Test for method void java.util.Arrays.fill(boolean [], int, int,
@@ -575,7 +575,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(java.lang.Object[], java.lang.Object)
+	 * java.util.Arrays#fill(java.lang.Object[], java.lang.Object)
 	 */
 	public void test_fill$Ljava_lang_ObjectLjava_lang_Object() {
 		// Test for method void java.util.Arrays.fill(java.lang.Object [],
@@ -588,7 +588,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#fill(java.lang.Object[], int, int,
+	 * java.util.Arrays#fill(java.lang.Object[], int, int,
 	 *        java.lang.Object)
 	 */
 	public void test_fill$Ljava_lang_ObjectIILjava_lang_Object() {
@@ -609,7 +609,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(byte[], byte[])
+	 * java.util.Arrays#equals(byte[], byte[])
 	 */
 	public void test_equals$B$B() {
 		// Test for method boolean java.util.Arrays.equals(byte [], byte [])
@@ -623,7 +623,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(short[], short[])
+	 * java.util.Arrays#equals(short[], short[])
 	 */
 	public void test_equals$S$S() {
 		// Test for method boolean java.util.Arrays.equals(short [], short [])
@@ -637,7 +637,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(char[], char[])
+	 * java.util.Arrays#equals(char[], char[])
 	 */
 	public void test_equals$C$C() {
 		// Test for method boolean java.util.Arrays.equals(char [], char [])
@@ -652,7 +652,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(int[], int[])
+	 * java.util.Arrays#equals(int[], int[])
 	 */
 	public void test_equals$I$I() {
 		// Test for method boolean java.util.Arrays.equals(int [], int [])
@@ -671,7 +671,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(long[], long[])
+	 * java.util.Arrays#equals(long[], long[])
 	 */
 	public void test_equals$J$J() {
 		// Test for method boolean java.util.Arrays.equals(long [], long [])
@@ -689,7 +689,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(float[], float[])
+	 * java.util.Arrays#equals(float[], float[])
 	 */
 	public void test_equals$F$F() {
 		// Test for method boolean java.util.Arrays.equals(float [], float [])
@@ -708,7 +708,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(double[], double[])
+	 * java.util.Arrays#equals(double[], double[])
 	 */
 	public void test_equals$D$D() {
 		// Test for method boolean java.util.Arrays.equals(double [], double [])
@@ -730,7 +730,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(boolean[], boolean[])
+	 * java.util.Arrays#equals(boolean[], boolean[])
 	 */
 	public void test_equals$Z$Z() {
 		// Test for method boolean java.util.Arrays.equals(boolean [], boolean
@@ -745,7 +745,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#equals(java.lang.Object[], java.lang.Object[])
+	 * java.util.Arrays#equals(java.lang.Object[], java.lang.Object[])
 	 */
 	public void test_equals$Ljava_lang_Object$Ljava_lang_Object() {
 		// Test for method boolean java.util.Arrays.equals(java.lang.Object [],
@@ -763,7 +763,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(byte[])
+	 * java.util.Arrays#sort(byte[])
 	 */
 	public void test_sort$B() {
 		// Test for method void java.util.Arrays.sort(byte [])
@@ -777,7 +777,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(byte[], int, int)
+	 * java.util.Arrays#sort(byte[], int, int)
 	 */
 	public void test_sort$BII() {
 		// Test for method void java.util.Arrays.sort(byte [], int, int)
@@ -828,7 +828,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(char[])
+	 * java.util.Arrays#sort(char[])
 	 */
 	public void test_sort$C() {
 		// Test for method void java.util.Arrays.sort(char [])
@@ -843,7 +843,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(char[], int, int)
+	 * java.util.Arrays#sort(char[], int, int)
 	 */
 	public void test_sort$CII() {
 		// Test for method void java.util.Arrays.sort(char [], int, int)
@@ -894,7 +894,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(double[])
+	 * java.util.Arrays#sort(double[])
 	 */
 	public void test_sort$D() {
 		// Test for method void java.util.Arrays.sort(double [])
@@ -943,7 +943,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(double[], int, int)
+	 * java.util.Arrays#sort(double[], int, int)
 	 */
 	public void test_sort$DII() {
 		// Test for method void java.util.Arrays.sort(double [], int, int)
@@ -994,7 +994,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(float[])
+	 * java.util.Arrays#sort(float[])
 	 */
 	public void test_sort$F() {
 		// Test for method void java.util.Arrays.sort(float [])
@@ -1032,7 +1032,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(float[], int, int)
+	 * java.util.Arrays#sort(float[], int, int)
 	 */
 	public void test_sort$FII() {
 		// Test for method void java.util.Arrays.sort(float [], int, int)
@@ -1083,7 +1083,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(int[])
+	 * java.util.Arrays#sort(int[])
 	 */
 	public void test_sort$I() {
 		// Test for method void java.util.Arrays.sort(int [])
@@ -1097,7 +1097,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(int[], int, int)
+	 * java.util.Arrays#sort(int[], int, int)
 	 */
 	public void test_sort$III() {
 		// Test for method void java.util.Arrays.sort(int [], int, int)
@@ -1148,7 +1148,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(long[])
+	 * java.util.Arrays#sort(long[])
 	 */
 	public void test_sort$J() {
 		// Test for method void java.util.Arrays.sort(long [])
@@ -1163,7 +1163,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(long[], int, int)
+	 * java.util.Arrays#sort(long[], int, int)
 	 */
 	public void test_sort$JII() {
 		// Test for method void java.util.Arrays.sort(long [], int, int)
@@ -1214,7 +1214,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(java.lang.Object[])
+	 * java.util.Arrays#sort(java.lang.Object[])
 	 */
 	public void test_sort$Ljava_lang_Object() {
 		// Test for method void java.util.Arrays.sort(java.lang.Object [])
@@ -1228,7 +1228,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(java.lang.Object[], int, int)
+	 * java.util.Arrays#sort(java.lang.Object[], int, int)
 	 */
 	public void test_sort$Ljava_lang_ObjectII() {
 		// Test for method void java.util.Arrays.sort(java.lang.Object [], int,
@@ -1281,7 +1281,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(java.lang.Object[], int, int,
+	 * java.util.Arrays#sort(java.lang.Object[], int, int,
 	 *        java.util.Comparator)
 	 */
 	public void test_sort$Ljava_lang_ObjectIILjava_util_Comparator() {
@@ -1306,7 +1306,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(java.lang.Object[], java.util.Comparator)
+	 * java.util.Arrays#sort(java.lang.Object[], java.util.Comparator)
 	 */
 	public void test_sort$Ljava_lang_ObjectLjava_util_Comparator() {
 		// Test for method void java.util.Arrays.sort(java.lang.Object [],
@@ -1365,7 +1365,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.Arrays#sort(short[])
+	 * java.util.Arrays#sort(short[])
 	 */
 	public void test_sort$S() {
 		// Test for method void java.util.Arrays.sort(short [])
@@ -1379,7 +1379,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.Arrays#sort(short[], int, int)
+	 * java.util.Arrays#sort(short[], int, int)
 	 */
 	public void test_sort$SII() {
 		// Test for method void java.util.Arrays.sort(short [], int, int)
@@ -1430,7 +1430,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.Arrays#sort(byte[], int, int)
+     * java.util.Arrays#sort(byte[], int, int)
      */
     public void test_java_util_Arrays_sort_byte_array_NPE() {
         byte[] byte_array_null = null;
@@ -1450,7 +1450,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(char[], int, int)
+     * java.util.Arrays#sort(char[], int, int)
      */
     public void test_java_util_Arrays_sort_char_array_NPE() {
         char[] char_array_null = null;
@@ -1470,7 +1470,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(double[], int, int)
+     * java.util.Arrays#sort(double[], int, int)
      */
     public void test_java_util_Arrays_sort_double_array_NPE() {
         double[] double_array_null = null;
@@ -1490,7 +1490,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(float[], int, int)
+     * java.util.Arrays#sort(float[], int, int)
      */
     public void test_java_util_Arrays_sort_float_array_NPE() {
         float[] float_array_null = null;
@@ -1510,7 +1510,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(int[], int, int)
+     * java.util.Arrays#sort(int[], int, int)
      */
     public void test_java_util_Arrays_sort_int_array_NPE() {
         int[] int_array_null = null;
@@ -1530,7 +1530,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(Object[], int, int)
+     * java.util.Arrays#sort(Object[], int, int)
      */
     public void test_java_util_Arrays_sort_object_array_NPE() {
         Object[] object_array_null = null;
@@ -1557,7 +1557,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(long[], int, int)
+     * java.util.Arrays#sort(long[], int, int)
      */
     public void test_java_util_Arrays_sort_long_array_NPE() {
         long[] long_array_null = null;
@@ -1577,7 +1577,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#sort(short[], int, int)
+     * java.util.Arrays#sort(short[], int, int)
      */
     public void test_java_util_Arrays_sort_short_array_NPE() {
         short[] short_array_null = null;
@@ -1597,7 +1597,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#deepEquals(Object[], Object[])
+     * java.util.Arrays#deepEquals(Object[], Object[])
      */
     public void test_deepEquals$Ljava_lang_ObjectLjava_lang_Object() {
        int [] a1 = {1, 2, 3};
@@ -1621,7 +1621,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#deepHashCode(Object[])
+     * java.util.Arrays#deepHashCode(Object[])
      */
     public void test_deepHashCode$Ljava_lang_Object() {
         int [] a1 = {1, 2, 3};
@@ -1642,7 +1642,7 @@ public class ArraysTest extends junit.framework.TestCase {
      }
 
     /**
-     * @tests java.util.Arrays#hashCode(boolean[] a)
+     * java.util.Arrays#hashCode(boolean[] a)
      */
     public void test_hashCode$LZ() {
         int listHashCode;
@@ -1659,7 +1659,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(int[] a)
+     * java.util.Arrays#hashCode(int[] a)
      */
     public void test_hashCode$LI() {
         int listHashCode;
@@ -1680,7 +1680,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(char[] a)
+     * java.util.Arrays#hashCode(char[] a)
      */
     public void test_hashCode$LC() {
         int listHashCode;
@@ -1697,7 +1697,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(byte[] a)
+     * java.util.Arrays#hashCode(byte[] a)
      */
     public void test_hashCode$LB() {
         int listHashCode;
@@ -1714,7 +1714,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(long[] a)
+     * java.util.Arrays#hashCode(long[] a)
      */
     public void test_hashCode$LJ() {
         int listHashCode;
@@ -1732,7 +1732,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(float[] a)
+     * java.util.Arrays#hashCode(float[] a)
      */
     public void test_hashCode$LF() {
         int listHashCode;
@@ -1752,7 +1752,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(double[] a)
+     * java.util.Arrays#hashCode(double[] a)
      */
     public void test_hashCode$LD() {
         int listHashCode;
@@ -1769,7 +1769,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(short[] a)
+     * java.util.Arrays#hashCode(short[] a)
      */
     public void test_hashCode$LS() {
         int listHashCode;
@@ -1786,7 +1786,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#hashCode(Object[] a)
+     * java.util.Arrays#hashCode(Object[] a)
      */
     public void test_hashCode$Ljava_lang_Object() {
         int listHashCode;
@@ -1834,7 +1834,7 @@ public class ArraysTest extends junit.framework.TestCase {
 	}
 	
     /**
-     * @tests java.util.Arrays#binarySearch(byte[],int,int, byte)
+     * java.util.Arrays#binarySearch(byte[],int,int, byte)
      */
     public void test_binarySearch$BIIB() {
         for (byte counter = 0; counter < arraySize; counter++) {
@@ -1910,7 +1910,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(char[], char)
+     * java.util.Arrays#binarySearch(char[], char)
      */
     public void test_binarySearch$CIIC() {
         for (char counter = 0; counter < arraySize; counter++) {
@@ -1977,7 +1977,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(double[], double)
+     * java.util.Arrays#binarySearch(double[], double)
      */
     public void test_binarySearch$DIID() {
         for (int counter = 0; counter < arraySize; counter++) {
@@ -2062,7 +2062,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(float[], float)
+     * java.util.Arrays#binarySearch(float[], float)
      */
     public void test_binarySearch$FIIF() {
         for (int counter = 0; counter < arraySize; counter++) {
@@ -2152,7 +2152,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(int[], int)
+     * java.util.Arrays#binarySearch(int[], int)
      */
     public void test_binarySearch$IIII() {
         for (int counter = 0; counter < arraySize; counter++) {
@@ -2227,7 +2227,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(long[], long)
+     * java.util.Arrays#binarySearch(long[], long)
      */
     public void test_binarySearch$JIIJ() {
         for (long counter = 0; counter < arraySize; counter++){
@@ -2301,7 +2301,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(java.lang.Object[],
+     * java.util.Arrays#binarySearch(java.lang.Object[],
      *        java.lang.Object)
      */
     public void test_binarySearch$Ljava_lang_ObjectIILjava_lang_Object() {
@@ -2375,7 +2375,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(java.lang.Object[],
+     * java.util.Arrays#binarySearch(java.lang.Object[],
      *        java.lang.Object, java.util.Comparator)
      */
     public void test_binarySearch$Ljava_lang_ObjectIILjava_lang_ObjectLjava_util_Comparator() {
@@ -2458,7 +2458,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#binarySearch(short[], short)
+     * java.util.Arrays#binarySearch(short[], short)
      */
     public void test_binarySearch$SIIS() {
         for (short counter = 0; counter < arraySize; counter++){
@@ -2534,7 +2534,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(byte[],int)
+     * {@link java.util.Arrays#copyOf(byte[],int)
      */
     public void test_copyOf_$BI() throws Exception {
         byte[] result = Arrays.copyOf(byteArray, arraySize*2);
@@ -2571,7 +2571,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(short[],int)
+     * {@link java.util.Arrays#copyOf(short[],int)
      */
     public void test_copyOf_$SI() throws Exception {
         short[] result = Arrays.copyOf(shortArray, arraySize*2);
@@ -2608,7 +2608,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(int[],int)
+     * {@link java.util.Arrays#copyOf(int[],int)
      */
     public void test_copyOf_$II() throws Exception {
         int[] result = Arrays.copyOf(intArray, arraySize*2);
@@ -2645,7 +2645,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(boolean[],int)
+     * {@link java.util.Arrays#copyOf(boolean[],int)
      */
     public void test_copyOf_$ZI() throws Exception {
         boolean[] result = Arrays.copyOf(booleanArray, arraySize*2);
@@ -2682,7 +2682,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(char[],int)
+     * {@link java.util.Arrays#copyOf(char[],int)
      */
     public void test_copyOf_$CI() throws Exception {
         char[] result = Arrays.copyOf(charArray, arraySize*2);
@@ -2719,7 +2719,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(float[],int)
+     * {@link java.util.Arrays#copyOf(float[],int)
      */
     public void test_copyOf_$FI() throws Exception {
         float[] result = Arrays.copyOf(floatArray, arraySize*2);
@@ -2756,7 +2756,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(double[],int)
+     * {@link java.util.Arrays#copyOf(double[],int)
      */
     public void test_copyOf_$DI() throws Exception {
         double[] result = Arrays.copyOf(doubleArray, arraySize*2);
@@ -2793,7 +2793,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(long[],int)
+     * {@link java.util.Arrays#copyOf(long[],int)
      */
     public void test_copyOf_$JI() throws Exception {
         long[] result = Arrays.copyOf(longArray, arraySize*2);
@@ -2830,7 +2830,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(T[],int)
+     * {@link java.util.Arrays#copyOf(T[],int)
      */
     public void test_copyOf_$TI() throws Exception {
         Object[] result = Arrays.copyOf(objArray, arraySize*2);
@@ -2876,7 +2876,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOf(T[],int,Class<? extends Object[]>))
+     * {@link java.util.Arrays#copyOf(T[],int,Class<? extends Object[]>))
      */
     public void test_copyOf_$TILClass() throws Exception {
         Object[] result = Arrays.copyOf(objArray, arraySize*2,Object[].class);
@@ -2943,7 +2943,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(byte[],int,int)
+     * {@link java.util.Arrays#copyOfRange(byte[],int,int)
      */
     public void test_copyOfRange_$BII() throws Exception {
         byte[] result = Arrays.copyOfRange(byteArray, 0,arraySize*2);
@@ -2996,7 +2996,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(short[],int,int)
+     * {@link java.util.Arrays#copyOfRange(short[],int,int)
      */
     public void test_copyOfRange_$SII() throws Exception {
         short[] result = Arrays.copyOfRange(shortArray, 0,arraySize*2);
@@ -3049,7 +3049,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(int[],int,int)
+     * {@link java.util.Arrays#copyOfRange(int[],int,int)
      */
     public void test_copyOfRange_$III() throws Exception {
         int[] result = Arrays.copyOfRange(intArray, 0,arraySize*2);
@@ -3102,7 +3102,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(long[],int,int)
+     * {@link java.util.Arrays#copyOfRange(long[],int,int)
      */
     public void test_copyOfRange_$JII() throws Exception {
         long[] result = Arrays.copyOfRange(longArray, 0,arraySize*2);
@@ -3155,7 +3155,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(char[],int,int)
+     * {@link java.util.Arrays#copyOfRange(char[],int,int)
      */
     public void test_copyOfRange_$CII() throws Exception {
         char[] result = Arrays.copyOfRange(charArray, 0,arraySize*2);
@@ -3208,7 +3208,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(float[],int,int)
+     * {@link java.util.Arrays#copyOfRange(float[],int,int)
      */
     public void test_copyOfRange_$FII() throws Exception {
         float[] result = Arrays.copyOfRange(floatArray, 0,arraySize*2);
@@ -3261,7 +3261,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(double[],int,int)
+     * {@link java.util.Arrays#copyOfRange(double[],int,int)
      */
     public void test_copyOfRange_$DII() throws Exception {
         double[] result = Arrays.copyOfRange(doubleArray, 0,arraySize*2);
@@ -3314,7 +3314,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(boolean[],int,int)
+     * {@link java.util.Arrays#copyOfRange(boolean[],int,int)
      */
     public void test_copyOfRange_$ZII() throws Exception {
         boolean[] result = Arrays.copyOfRange(booleanArray, 0,arraySize*2);
@@ -3367,7 +3367,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(Object[],int,int)
+     * {@link java.util.Arrays#copyOfRange(Object[],int,int)
      */
     public void test_copyOfRange_$TII() throws Exception {
         Object[] result = Arrays.copyOfRange(objArray, 0,arraySize*2);
@@ -3420,7 +3420,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.Arrays#copyOfRange(Object[], int, int, Class)
+     * {@link java.util.Arrays#copyOfRange(Object[], int, int, Class)
      */
     public void test_copyOfRange_$TIILClass() throws Exception {
         Object[] result = Arrays.copyOfRange(objArray, 0,arraySize*2,Integer[].class);
@@ -3498,7 +3498,7 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Arrays#swap(int, int, Object[])
+     * java.util.Arrays#swap(int, int, Object[])
      */
     /* BEGIN android-removed: tests private implementation detail we don't share.
     public void test_swap_I_I_$Ljava_lang_Object() throws Exception {

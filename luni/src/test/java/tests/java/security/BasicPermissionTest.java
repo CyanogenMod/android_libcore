@@ -22,11 +22,6 @@
 
 package tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.BasicPermission;
 import java.security.PermissionCollection;
 
@@ -36,7 +31,6 @@ import junit.framework.TestCase;
  * Tests for <code>BasicPermission</code>
  *
  */
-@TestTargetClass(BasicPermission.class)
 public class BasicPermissionTest extends TestCase {
     /**
      * Check all constructors: an object is created with the specified valid name.
@@ -44,20 +38,6 @@ public class BasicPermissionTest extends TestCase {
      * If  name is empty then IAE should be thrown.
      * Action is ignored.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "BasicPermission",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "BasicPermission",
-            args = {java.lang.String.class, java.lang.String.class}
-        )
-    })
     public void testCtor()
     {
         String name = "basic123*$%#";
@@ -103,12 +83,6 @@ public class BasicPermissionTest extends TestCase {
      * two BasicPermissions are equal if name and class are equal;
      * equal permissions should have the same hash code
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals()
     {
         BasicPermission b1 = new BasicPermissionImpl("abc");
@@ -127,12 +101,6 @@ public class BasicPermissionTest extends TestCase {
      * implies() should return true if a permission is equal to or is implied
      * by wildcarded permission, false otherwise.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "implies",
-        args = {java.security.Permission.class}
-    )
     public void testImplies()
     {
         BasicPermission b1 = new BasicPermissionImpl("a.b.c");
@@ -152,12 +120,6 @@ public class BasicPermissionTest extends TestCase {
     /**
      * newPermissionCollection() should return new BasicPermissionCollection on every invocation
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newPermissionCollection",
-        args = {}
-    )
     public void testCollection()
     {
         BasicPermission b1 = new BasicPermissionImpl("a.b.c");

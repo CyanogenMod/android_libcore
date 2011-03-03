@@ -16,11 +16,6 @@
  */
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.AbstractSequentialList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +26,6 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AbstractSequentialList.class)
 public class AbstractSequentialListTest extends TestCase {
 
     @Override
@@ -60,14 +54,8 @@ public class AbstractSequentialListTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.util.AbstractSequentialList#addAll(int, java.util.Collection)}
+     * {@link java.util.AbstractSequentialList#addAll(int, java.util.Collection)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify all exceptions according to the specification.",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void test_addAll_ILCollection() {
         AbstractSequentialList<String> al = new ASLT<String>();
         String[] someList = { "Aardvark"  ,
@@ -154,12 +142,6 @@ public class AbstractSequentialListTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void test_addAllILjava_util_Collection() {
         AbstractSequentialList asl = new AbstractSequentialList() {
 
@@ -244,12 +226,6 @@ public class AbstractSequentialListTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {int.class, java.lang.Object.class}
-    )
     public void test_addILjava_lang_Object() {
         AbstractSequentialList asl = new AbstractSequentialList() {
 
@@ -321,12 +297,6 @@ public class AbstractSequentialListTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {int.class}
-    )
     public void test_getI() {
         final String buff[] = {"0", "1", "2", "3", "4", "5"};
         AbstractSequentialList asl = new AbstractSequentialList() {
@@ -396,20 +366,6 @@ public class AbstractSequentialListTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "iterator",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AbstractSequentialList",
-            args = {}
-        )
-    })
     public void test_iterrator() {
         AbstractSequentialList asl = new AbstractSequentialList() {
 
@@ -456,12 +412,6 @@ public class AbstractSequentialListTest extends TestCase {
         assertNull(asl.iterator());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {int.class}
-    )
     public void test_removeI() {
         AbstractSequentialList asl = new AbstractSequentialList() {
             String buff[] = {"0", "1", "2", "3", "4", "5"};
@@ -534,12 +484,6 @@ public class AbstractSequentialListTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {int.class, java.lang.Object.class}
-    )
     public void test_setILjava_lang_Object() {
         AbstractSequentialList asl = new AbstractSequentialList() {
             String buff[] = {"0", "1", "2", "3", "4", "5"};

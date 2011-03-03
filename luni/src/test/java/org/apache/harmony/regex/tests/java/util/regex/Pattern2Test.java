@@ -16,30 +16,18 @@
 
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import junit.framework.TestCase;
-@TestTargetClass(Pattern.class)
+
 /**
  * Tests simple Pattern compilation and Matcher methods
  *
  */
 public class Pattern2Test extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matches(String regex, CharSequence input) method.",
-        method = "matches",
-        args = {java.lang.String.class, java.lang.CharSequence.class}
-    )
     public void testSimpleMatch() throws PatternSyntaxException {
         Pattern p = Pattern.compile("foo.*");
 
@@ -60,20 +48,6 @@ public class Pattern2Test extends TestCase {
 
         assertTrue(Pattern.matches("", ""));
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testCursors() {
         Pattern p;
         Matcher m;
@@ -128,20 +102,6 @@ public class Pattern2Test extends TestCase {
             fail();
         }
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testGroups() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -195,20 +155,6 @@ public class Pattern2Test extends TestCase {
         assertFalse(m.find());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testReplace() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -256,20 +202,6 @@ public class Pattern2Test extends TestCase {
                 "I want <b> cheese </b>. <b> Please </b>."));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testEscapes() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -466,20 +398,6 @@ public class Pattern2Test extends TestCase {
 //        } catch (PatternSyntaxException e) {
 //        }
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies patterns with different ranges of characters.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies patterns with different ranges of characters.",
-            method = "matcher",
-            args = {CharSequence.class}
-        )
-    })
     public void testCharacterClasses() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -746,20 +664,6 @@ public class Pattern2Test extends TestCase {
         // Test x|y pattern
         // TODO
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for patterns with POSIX characters.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for patterns with POSIX characters.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testPOSIXGroups() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -902,12 +806,6 @@ public class Pattern2Test extends TestCase {
         // Test \p{Cntrl}
         // TODO
     }
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!",
-        args = {}
-    )
     public void testUnicodeCategories() throws PatternSyntaxException {
         // Test Unicode categories using \p and \P
         // One letter codes: L, M, N, P, S, Z, C
@@ -1008,12 +906,6 @@ public class Pattern2Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matcher(CharSequence input) method for input specified by Unicode blocks.",
-        method = "matcher",
-        args = {java.lang.CharSequence.class}
-    )
     public void testUnicodeBlocks() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -1083,12 +975,6 @@ public class Pattern2Test extends TestCase {
 // END android-changed
         }
     }
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "these tests are still partial, see TODO in the code",
-        method = "!",
-        args = {}
-    )
     public void testCapturingGroups() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -1142,12 +1028,6 @@ public class Pattern2Test extends TestCase {
         }
 
     }
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!",
-        args = {}
-    )
     public void testRepeats() {
         Pattern p;
         Matcher m;
@@ -1216,12 +1096,6 @@ public class Pattern2Test extends TestCase {
         // Test {<n1>,<n2>}, with n1 < n2, n1 = n2 and n1 > n2 (illegal?)
         // TODO
     }
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "",
-        method = "!",
-        args = {}
-    )
     public void testAnchors() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -1268,20 +1142,6 @@ public class Pattern2Test extends TestCase {
         // Test negative lookbehind using (?<!...)
         // TODO
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) method and matcher for created pattern.",
-            method = "matcher",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testMisc() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -1341,24 +1201,12 @@ public class Pattern2Test extends TestCase {
         // Test #<comment text>
         // TODO
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies compile(String regex) method.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCompile1() throws PatternSyntaxException {
         Pattern pattern = Pattern
                 .compile("[0-9A-Za-z][0-9A-Za-z\\x2e\\x3a\\x2d\\x5f]*");
         String name = "iso-8859-1";
         assertTrue(pattern.matcher(name).matches());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies compile(String regex, int flag) method.",
-        method = "compile",
-        args = {java.lang.String.class, int.class}
-    )
     public void testCompile2() throws PatternSyntaxException {
         String findString = "\\Qimport\\E";
 
@@ -1368,20 +1216,6 @@ public class Pattern2Test extends TestCase {
 
         assertTrue(matcher.find(0));
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) and compile(String regex, int flag) method for specific patterns.",
-            method = "compile",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies compile(String regex) and compile(String regex, int flag) method for specific patterns.",
-            method = "compile",
-            args = {java.lang.String.class, int.class}
-        )
-    })
     public void testCompile3() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -1463,12 +1297,6 @@ public class Pattern2Test extends TestCase {
         assertTrue(m.group().equals(""));
         assertFalse(m.find());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies compile(String regex, int flag) method for specific string.",
-        method = "compile",
-        args = {java.lang.String.class, int.class}
-    )
     public void testCompile4() throws PatternSyntaxException {
         String findString = "\\Qpublic\\E";
         StringBuffer text = new StringBuffer("    public class Class {\n"
@@ -1490,12 +1318,6 @@ public class Pattern2Test extends TestCase {
         found = matcher.find();
         assertFalse(found);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies compile(String regex) methodfor specific string.",
-        method = "compile",
-        args = {java.lang.String.class}
-    )
     public void testCompile5() throws PatternSyntaxException {
         Pattern p = Pattern.compile("^[0-9]");
         String s[] = p.split("12", -1);

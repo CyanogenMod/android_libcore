@@ -27,7 +27,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     CharArrayReader cr;
 
     /**
-     * @tests java.io.CharArrayReader#CharArrayReader(char[])
+     * java.io.CharArrayReader#CharArrayReader(char[])
      */
     public void test_Constructor$C() {
         // Test for method java.io.CharArrayReader(char [])
@@ -41,7 +41,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#CharArrayReader(char[], int, int)
+     * java.io.CharArrayReader#CharArrayReader(char[], int, int)
      */
     public void test_Constructor$CII() throws IOException {
         try {
@@ -76,7 +76,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#close()
+     * java.io.CharArrayReader#close()
      */
     public void test_close() {
         cr = new CharArrayReader(hw);
@@ -91,7 +91,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#mark(int)
+     * java.io.CharArrayReader#mark(int)
      */
     public void test_markI() throws IOException {
         cr = new CharArrayReader(hw);
@@ -112,7 +112,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#markSupported()
+     * java.io.CharArrayReader#markSupported()
      */
     public void test_markSupported() {
         cr = new CharArrayReader(hw);
@@ -120,7 +120,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#read()
+     * java.io.CharArrayReader#read()
      */
     public void test_read() throws IOException {
         cr = new CharArrayReader(hw);
@@ -140,7 +140,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#read(char[], int, int)
+     * java.io.CharArrayReader#read(char[], int, int)
      */
     public void test_read$CII() throws IOException {
         // Test for method int java.io.CharArrayReader.read(char [], int, int)
@@ -214,7 +214,7 @@ public class OldCharArrayReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.CharArrayReader#reset()
+     * java.io.CharArrayReader#reset()
      */
     public void test_reset() throws IOException {
         cr = new CharArrayReader(hw);

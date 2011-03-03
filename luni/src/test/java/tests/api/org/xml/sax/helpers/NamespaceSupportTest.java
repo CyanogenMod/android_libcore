@@ -25,16 +25,6 @@ import junit.framework.TestCase;
 
 import org.xml.sax.helpers.NamespaceSupport;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-@TestTargetClass(
-        value = NamespaceSupport.class,
-        untestedMethods = {
-        }
-)
 public class NamespaceSupportTest extends TestCase {
 
     final static String defaultUri = "http://www.android.com";
@@ -58,20 +48,6 @@ public class NamespaceSupportTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "Checks that a new NamespaceSupport object contains a " +
-                "default context with two predefined prefixes.",
-                method = "NamespaceSupport",
-                args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "popContext",
-                args = {}
-        )
-    })
     public void testConstructor() {
         String prefix;
         boolean xmlPrefixExists = false;
@@ -95,18 +71,6 @@ public class NamespaceSupportTest extends TestCase {
         }
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "pushContext",
-                args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "popContext",
-                args = {}
-        )
-    })
     public void testPush_PopContext() {
         int count;
 
@@ -131,18 +95,6 @@ public class NamespaceSupportTest extends TestCase {
         }
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "reset",
-                args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "popContext",
-                args = {}
-        )
-    })
     public void testReset() {
         int count;
 
@@ -168,18 +120,6 @@ public class NamespaceSupportTest extends TestCase {
         }
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "declarePrefix",
-                args = {String.class, String.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "getPrefix",
-                args = {String.class}
-        )
-    })
     public void testDeclare_GetPrefix() {
         ns.pushContext();
 
@@ -217,11 +157,6 @@ public class NamespaceSupportTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getPrefixes",
-            args = {String.class}
-    )
     public void testGetPrefixesLjava_lang_String() {
         ArrayList<String> prefixes;
 
@@ -243,11 +178,6 @@ public class NamespaceSupportTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getPrefixes",
-            args = {}
-    )
     public void testGetPrefixes() {
         ArrayList<String> prefixes;
 
@@ -259,11 +189,6 @@ public class NamespaceSupportTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getDeclaredPrefixes",
-            args = {}
-    )
     public void testGetDeclaredPrefixes() {
         ArrayList<String> prefixes;
 
@@ -274,18 +199,6 @@ public class NamespaceSupportTest extends TestCase {
                 expected.containsAll(prefixes) && prefixes.containsAll(expected));
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "getURI",
-                args = {String.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "popContext",
-                args = {}
-        )
-    })
     public void testGetUri() {
         assertEquals("Test 1: Incorrect URI returned;",
                 marketUri, ns.getURI("bk"));
@@ -301,18 +214,6 @@ public class NamespaceSupportTest extends TestCase {
                 NamespaceSupport.XMLNS, ns.getURI("xml"));
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "setNamespaceDeclUris",
-                args = {boolean.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                method = "isNamespaceDeclUris",
-                args = {}
-        )
-    })
     public void testNamespaceDeclUris() {
 
         assertFalse("Test 1: Incorrect default value returned by isNamespaceDeclUris().",
@@ -335,11 +236,6 @@ public class NamespaceSupportTest extends TestCase {
                 ns.isNamespaceDeclUris());
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            method = "processName",
-            args = {String.class, String[].class, boolean.class}
-    )
     public void testProcessName_Element() {
         String[] parts = new String[3];
 
@@ -376,18 +272,6 @@ public class NamespaceSupportTest extends TestCase {
         assertEquals("Test 18: Incorrect raw name;", "world", parts[2]);
     }
 
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "setNamespaceDeclUris",
-                args = {boolean.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                method = "processName",
-                args = {String.class, String[].class, boolean.class}
-        )
-    })
     public void testProcessName_Attribute() {
         String[] parts = new String[3];
 

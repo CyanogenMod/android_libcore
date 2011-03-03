@@ -16,11 +16,6 @@
 
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import junit.framework.TestCase;
 import java.util.regex.*;
 
@@ -28,65 +23,14 @@ import java.util.regex.*;
  * Tests Matcher methods
  *
  */
-@TestTargetClass(java.util.regex.Matcher.class)
 public class Matcher2Test extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies the basic functionality of toString() method.",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         Pattern p = Pattern.compile("foo");
         Matcher m = p.matcher("bar");
         assertNotNull(m.toString());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "start",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "end",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "group",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "start",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "end",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "group",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies start, end, group, usePattern methods with wrong conditions, IllegalStateException should be thrown",
-            method = "usePattern",
-            args = {java.util.regex.Pattern.class}
-        )
-    })
     public void testErrorConditions() throws PatternSyntaxException {
         // Test match cursors in absence of a match
         Pattern p = Pattern.compile("foo");
@@ -138,38 +82,6 @@ public class Matcher2Test extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies end, start, group methods with wrong conditions, IndexOutOfBoundsException, IllegalStateException should be thrown",
-            method = "start",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies end, start, group methods with wrong conditions, IndexOutOfBoundsException, IllegalStateException should be thrown",
-            method = "end",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies end, start, group methods with wrong conditions, IndexOutOfBoundsException, IllegalStateException should be thrown",
-            method = "start",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies end, start, group methods with wrong conditions, IndexOutOfBoundsException, IllegalStateException should be thrown",
-            method = "end",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies end, start, group methods with wrong conditions, IndexOutOfBoundsException, IllegalStateException should be thrown",
-            method = "group",
-            args = {int.class}
-        )
-    })
     public void testErrorConditions2() throws PatternSyntaxException {
         // Test match cursors in absence of a match
         Pattern p = Pattern.compile("(foo[0-9])(bar[a-z])");
@@ -305,12 +217,6 @@ public class Matcher2Test extends TestCase {
     /*
      * Regression test for HARMONY-997
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that IndexOutOfBoundsException exception is thrown while calling of replaceAll method with incorrect string.",
-        method = "replaceAll",
-        args = {java.lang.String.class}
-    )
     public void testReplacementBackSlash() {
         String str = "replace me";
         String replacedString = "me";

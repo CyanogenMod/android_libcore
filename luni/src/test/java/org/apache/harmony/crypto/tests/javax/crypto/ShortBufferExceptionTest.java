@@ -22,16 +22,10 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.ShortBufferException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(ShortBufferException.class)
 /**
  * Tests for <code>ShortBufferException</code> class constructors and methods.
  *
@@ -49,12 +43,6 @@ public class ShortBufferExceptionTest extends TestCase {
      * Test for <code>ShortBufferException()</code> constructor Assertion:
      * constructs ShortBufferException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ShortBufferException",
-        args = {}
-    )
     public void testShortBufferException01() {
         ShortBufferException tE = new ShortBufferException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -66,12 +54,6 @@ public class ShortBufferExceptionTest extends TestCase {
      * Assertion: constructs ShortBufferException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ShortBufferException",
-        args = {java.lang.String.class}
-    )
     public void testShortBufferException02() {
         ShortBufferException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -87,12 +69,6 @@ public class ShortBufferExceptionTest extends TestCase {
      * Assertion: constructs ShortBufferException when <code>msg</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ShortBufferException",
-        args = {java.lang.String.class}
-    )
     public void testShortBufferException03() {
         String msg = null;
         ShortBufferException tE = new ShortBufferException(msg);

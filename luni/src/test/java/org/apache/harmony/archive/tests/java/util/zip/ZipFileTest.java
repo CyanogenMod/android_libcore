@@ -69,7 +69,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     };
 
     /**
-     * @tests java.util.zip.ZipFile#ZipFile(java.io.File)
+     * java.util.zip.ZipFile#ZipFile(java.io.File)
      */
     public void test_ConstructorLjava_io_File() {
         // Test for method java.util.zip.ZipFile(java.io.File)
@@ -77,7 +77,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.zip.ZipFile#ZipFile(java.io.File, int)
+     * java.util.zip.ZipFile#ZipFile(java.io.File, int)
      */
     public void test_ConstructorLjava_io_FileI() throws IOException {
         zfile.close(); // about to reopen the same temp file
@@ -104,7 +104,7 @@ public class ZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#ZipFile(java.lang.String)
+     * java.util.zip.ZipFile#ZipFile(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() throws IOException {
         System.setProperty("user.dir", System.getProperty("java.io.tmpdir"));
@@ -131,7 +131,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.zip.ZipFile#finalize()
+     * java.util.zip.ZipFile#finalize()
      */
     public void test_finalize() throws IOException {
         InputStream in = Support_Resources.getStream("hyts_ZipFile.zip");
@@ -161,7 +161,7 @@ public class ZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#close()
+     * java.util.zip.ZipFile#close()
      */
     public void test_close() throws IOException {
         // Test for method void java.util.zip.ZipFile.close()
@@ -191,7 +191,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.zip.ZipFile#entries()
+     * java.util.zip.ZipFile#entries()
      */
     public void test_entries() throws Exception {
         // Test for method java.util.Enumeration java.util.zip.ZipFile.entries()
@@ -225,7 +225,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.zip.ZipFile#getEntry(java.lang.String)
+     * java.util.zip.ZipFile#getEntry(java.lang.String)
      */
     public void test_getEntryLjava_lang_String() throws IOException {
         // Test for method java.util.zip.ZipEntry
@@ -290,7 +290,7 @@ public class ZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#getInputStream(java.util.zip.ZipEntry)
+     * java.util.zip.ZipFile#getInputStream(java.util.zip.ZipEntry)
      */
     public void test_getInputStreamLjava_util_zip_ZipEntry() throws IOException {
         // Test for method java.io.InputStream
@@ -328,7 +328,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.zip.ZipFile#getName()
+     * java.util.zip.ZipFile#getName()
      */
     public void test_getName() {
         // Test for method java.lang.String java.util.zip.ZipFile.getName()
@@ -338,7 +338,7 @@ public class ZipFileTest extends junit.framework.TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.zip.ZipFile#size()
+     * java.util.zip.ZipFile#size()
      */
     public void test_size() throws IOException {
         assertEquals(6, zfile.size());
@@ -351,7 +351,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.InputStream#reset()
+     * java.io.InputStream#reset()
      */
     public void test_reset() throws IOException {
         // read an uncompressed entry
@@ -397,7 +397,7 @@ public class ZipFileTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.io.InputStream#reset()
+     * java.io.InputStream#reset()
      */
     public void test_reset_subtest0() throws IOException {
         // read an uncompressed entry

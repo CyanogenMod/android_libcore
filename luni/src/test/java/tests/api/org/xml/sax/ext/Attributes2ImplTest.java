@@ -22,12 +22,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ext.Attributes2Impl;
 import org.xml.sax.helpers.AttributesImpl;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(Attributes2Impl.class)
 public class Attributes2ImplTest extends TestCase {
 
     // Note: The original SAX2 implementation of Attributes2Impl is
@@ -67,11 +61,6 @@ public class Attributes2ImplTest extends TestCase {
                 "CDATA", "hey");
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setAttributes",
-        args = { Attributes.class }
-    )
     public void testSetAttributes() {
         // Ordinary case with Attributes2Impl
         Attributes2Impl attrs = new Attributes2Impl();
@@ -123,12 +112,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "addAttribute",
-        args = { String.class, String.class, String.class, String.class,
-                 String.class }
-    )
     public void testAddAttribute() {
         Attributes2Impl attrs = new Attributes2Impl();
 
@@ -163,11 +146,6 @@ public class Attributes2ImplTest extends TestCase {
         assertEquals(true, attrs.isSpecified(1));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "removeAttribute",
-        args = { int.class }
-    )
     public void testRemoveAttribute() {
         Attributes2Impl attrs = new Attributes2Impl(multi);
 
@@ -208,20 +186,10 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "Attributes2Impl",
-        args = {  }
-    )
     public void testAttributes2Impl() {
         assertEquals(0, empty.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "Attributes2Impl",
-        args = { Attributes.class }
-    )
     public void testAttributes2ImplAttributes() {
         // Ordinary case with Attributes2Impl
         Attributes2Impl attrs = new Attributes2Impl(multi);
@@ -269,11 +237,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isDeclared",
-        args = { int.class }
-    )
     public void testIsDeclaredInt() {
         // Ordinary cases
         assertEquals(false, multi.isDeclared(0));
@@ -295,11 +258,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isDeclared",
-        args = { String.class, String.class }
-    )
     public void testIsDeclaredStringString() {
         // Ordinary cases
         assertEquals(false, multi.isDeclared("http://some.uri", "foo"));
@@ -314,11 +272,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isDeclared",
-        args = { String.class }
-    )
     public void testIsDeclaredString() {
         // Ordinary cases
         assertEquals(false, multi.isDeclared("ns1:foo"));
@@ -333,11 +286,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isSpecified",
-        args = { int.class }
-    )
     public void testIsSpecifiedInt() {
         // Ordinary cases
         assertEquals(false, multi.isSpecified(1));
@@ -359,11 +307,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isSpecified",
-        args = { String.class, String.class }
-    )
     public void testIsSpecifiedStringString() {
         // Ordinary cases
         assertEquals(false, multi.isSpecified("http://some.uri", "bar"));
@@ -378,11 +321,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "isSpecified",
-        args = { String.class }
-    )
     public void testIsSpecifiedString() {
         // Ordinary cases
         assertEquals(false, multi.isSpecified("ns1:bar"));
@@ -397,11 +335,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setDeclared",
-        args = { int.class, boolean.class }
-    )
     public void testSetDeclared() {
         // Ordinary cases
         multi.setSpecified(0, false);
@@ -429,11 +362,6 @@ public class Attributes2ImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setSpecified",
-        args = { int.class, boolean.class }
-    )
     public void testSetSpecified() {
         // Ordinary cases
         multi.setSpecified(0, false);

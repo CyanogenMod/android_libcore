@@ -18,19 +18,9 @@ package tests.api.javax.xml.parsers;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(FactoryConfigurationError.class)
 public class FactoryConfigurationErrorTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "FactoryConfigurationError",
-        args = {}
-    )
     public void test_Constructor() {
         FactoryConfigurationError fce = new FactoryConfigurationError();
         assertNull(fce.getMessage());
@@ -38,12 +28,6 @@ public class FactoryConfigurationErrorTest extends TestCase {
         assertNull(fce.getCause());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "FactoryConfigurationError",
-        args = {java.lang.Exception.class}
-    )
     public void test_ConstructorLjava_lang_Exception() {
         Exception e = new Exception();
         // case 1: Try to create FactoryConfigurationError
@@ -62,12 +46,6 @@ public class FactoryConfigurationErrorTest extends TestCase {
         assertEquals(e.getCause(), fce.getCause());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "FactoryConfigurationError",
-        args = {java.lang.Exception.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_ExceptionLjava_lang_String() {
         Exception e = new Exception();
         // case 1: Try to create FactoryConfigurationError
@@ -86,12 +64,6 @@ public class FactoryConfigurationErrorTest extends TestCase {
         assertEquals(e.getCause(), fce.getCause());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "FactoryConfigurationError",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         FactoryConfigurationError fce = new FactoryConfigurationError("Oops!");
         assertEquals("Oops!", fce.getMessage());
@@ -99,12 +71,6 @@ public class FactoryConfigurationErrorTest extends TestCase {
         assertNull(fce.getCause());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getException",
-        args = {}
-    )
     public void test_getException() {
         FactoryConfigurationError fce = new FactoryConfigurationError();
         assertNull(fce.getException());
@@ -118,12 +84,6 @@ public class FactoryConfigurationErrorTest extends TestCase {
         assertEquals(npe, fce.getException());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMessage",
-        args = {}
-    )
     public void test_getMessage() {
         assertNull(new FactoryConfigurationError().getMessage());
         assertEquals("msg1",

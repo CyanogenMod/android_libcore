@@ -22,38 +22,18 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.Guard;
 import java.security.GuardedObject;
 
 import junit.framework.TestCase;
-@TestTargetClass(GuardedObject.class)
+
 /**
  * Tests for <code>GuardedObject</code>
  *
  */
-
 public class GuardedObjectTest extends TestCase {
 
     /** Null guard imposes no restriction. */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "GuardedObject",
-            args = {java.lang.Object.class, java.security.Guard.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getObject",
-            args = {}
-        )
-    })
     public void testNoGuard() {
         Object obj = null;
         GuardedObject go = new GuardedObject(obj, null);
@@ -65,20 +45,6 @@ public class GuardedObjectTest extends TestCase {
     }
 
     /** Test real guard can both allow and deny access. */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "GuardedObject",
-            args = {java.lang.Object.class, java.security.Guard.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getObject",
-            args = {}
-        )
-    })
     public void testGuard() {
         final String message = "test message";
         final StringBuffer objBuffer = new StringBuffer("235345 t");

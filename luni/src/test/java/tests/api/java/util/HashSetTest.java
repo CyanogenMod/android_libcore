@@ -17,11 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-@TestTargetClass(HashSet.class)
 public class HashSetTest extends junit.framework.TestCase {
 
     HashSet hs;
@@ -43,14 +37,8 @@ public class HashSetTest extends junit.framework.TestCase {
     Object[] objArray;
 
     /**
-     * @tests java.util.HashSet#HashSet()
+     * java.util.HashSet#HashSet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashSet",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.HashSet()
         HashSet hs2 = new HashSet();
@@ -58,14 +46,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#HashSet(int)
+     * java.util.HashSet#HashSet(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashSet",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.HashSet(int)
         HashSet hs2 = new HashSet(5);
@@ -80,14 +62,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#HashSet(int, float)
+     * java.util.HashSet#HashSet(int, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashSet",
-        args = {int.class, float.class}
-    )
     public void test_ConstructorIF() {
         // Test for method java.util.HashSet(int, float)
         HashSet hs2 = new HashSet(5, (float) 0.5);
@@ -102,14 +78,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#HashSet(java.util.Collection)
+     * java.util.HashSet#HashSet(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashSet",
-        args = {java.util.Collection.class}
-    )
     public void test_ConstructorLjava_util_Collection() {
         // Test for method java.util.HashSet(java.util.Collection)
         HashSet hs2 = new HashSet(Arrays.asList(objArray));
@@ -128,14 +98,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#add(java.lang.Object)
+     * java.util.HashSet#add(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void test_addLjava_lang_Object() {
         // Test for method boolean java.util.HashSet.add(java.lang.Object)
         int size = hs.size();
@@ -148,14 +112,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#clear()
+     * java.util.HashSet#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.HashSet.clear()
         Set orgSet = (Set) hs.clone();
@@ -167,14 +125,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#clone()
+     * java.util.HashSet#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.HashSet.clone()
         HashSet hs2 = (HashSet) hs.clone();
@@ -183,14 +135,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#contains(java.lang.Object)
+     * java.util.HashSet#contains(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
     public void test_containsLjava_lang_Object() {
         // Test for method boolean java.util.HashSet.contains(java.lang.Object)
         assertTrue("Returned false for valid object", hs.contains(objArray[90]));
@@ -203,14 +149,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#isEmpty()
+     * java.util.HashSet#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.HashSet.isEmpty()
         assertTrue("Empty set returned false", new HashSet().isEmpty());
@@ -218,14 +158,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#iterator()
+     * java.util.HashSet#iterator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "iterator",
-        args = {}
-    )
     public void test_iterator() {
         // Test for method java.util.Iterator java.util.HashSet.iterator()
         Iterator i = hs.iterator();
@@ -243,14 +177,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#remove(java.lang.Object)
+     * java.util.HashSet#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method boolean java.util.HashSet.remove(java.lang.Object)
         int size = hs.size();
@@ -265,14 +193,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#size()
+     * java.util.HashSet#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.HashSet.size()
         assertTrue("Returned incorrect size", hs.size() == (objArray.length + 1));
@@ -281,22 +203,8 @@ public class HashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashSet#SerializationTest
+     * java.util.HashSet#SerializationTest
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility.",
-            method = "!SerializationSelf",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility.",
-            method = "!SerializationGolden",
-            args = {}
-        )
-    })
     public void test_Serialization() throws Exception{
         HashSet<String> hs = new HashSet<String>();
         hs.add("hello");

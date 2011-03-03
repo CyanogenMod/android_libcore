@@ -23,10 +23,6 @@
 package org.apache.harmony.security.tests.java.security;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
 
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -46,7 +42,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import org.apache.harmony.security.tests.support.MySignature1;
 
 import junit.framework.TestCase;
-@TestTargetClass(Signature.class)
+
 /**
  * Tests for <code>Signature</code> constructor and methods
  *
@@ -56,12 +52,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for Signature(String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Signature",
-        args = {java.lang.String.class}
-    )
     public void testConstructor() {
         String [] algorithms = { "SHA256WITHRSA", "NONEWITHDSA", "SHA384WITHRSA",
             "MD5ANDSHA1WITHRSA", "SHA512WITHRSA",
@@ -87,12 +77,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for Object clone()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Just exception case was tested",
-        method = "clone",
-        args = {}
-    )
     public void testClone() {
         MySignature1 s = new MySignature1("ABC");
         try {
@@ -110,12 +94,6 @@ public class SignatureTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void testGetProvider() {
         MySignature1 s = new MySignature1("ABC");
 
@@ -123,12 +101,6 @@ public class SignatureTest extends TestCase {
         assertNull("provider", s.getProvider());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void testGetAlgorithm() {
         MySignature1 s = new MySignature1("ABC");
 
@@ -139,12 +111,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void initVerify(PublicKey)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "InvalidKeyException checking missed",
-        method = "initVerify",
-        args = {java.security.PublicKey.class}
-    )
     public void testInitVerifyPublicKey() throws InvalidKeyException {
         MySignature1 s = new MySignature1("ABC");
 
@@ -165,12 +131,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void initVerify(Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initVerify",
-        args = {java.security.cert.Certificate.class}
-    )
     public void testInitVerifyCertificate() throws InvalidKeyException {
         MySignature1 s = new MySignature1("ABC");
 
@@ -192,12 +152,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void initSign(PrivateKey)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initSign",
-        args = {java.security.PrivateKey.class}
-    )
     public void testInitSignPrivateKey() throws InvalidKeyException {
         MySignature1 s = new MySignature1("ABC");
 
@@ -232,12 +186,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void initSign(PrivateKey, SecureRandom)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "InvalidKeyException checking missed",
-        method = "initSign",
-        args = {java.security.PrivateKey.class, java.security.SecureRandom.class}
-    )
     public void testInitSignPrivateKeySecureRandom() throws InvalidKeyException {
         MySignature1 s = new MySignature1("ABC");
 
@@ -259,12 +207,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for byte[] sign()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Verification of returned value missed",
-        method = "sign",
-        args = {}
-    )
     public void testSign() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         try {
@@ -290,12 +232,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for sign(byte[], offset, len)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "sign",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testSignbyteintint() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         byte[] outbuf = new byte [10];
@@ -340,12 +276,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for boolean verify(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verification of returned value missed",
-        method = "verify",
-        args = {byte[].class}
-    )
     public void testVerifybyteArray() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         byte[] b = {1, 2, 3, 4};
@@ -371,12 +301,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for boolean verify(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verification of returned value missed. Verification of different parameters offset and length missed.",
-        method = "verify",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testVerifybyteArrayintint() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         byte[] b = {1, 2, 3, 4};
@@ -410,12 +334,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void update(byte)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte.class}
-    )
     public void testUpdatebyte() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         try {
@@ -444,12 +362,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void update(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class}
-    )
     public void testUpdatebyteArray() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         byte[] b = {1, 2, 3, 4};
@@ -489,12 +401,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void update(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testUpdatebyteArrayintint() throws Exception {
         MySignature1 s = new MySignature1("ABC");
         byte[] b = {1, 2, 3, 4};
@@ -538,12 +444,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void update(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {byte[].class, int.class, int.class}
-    )
     @KnownFailure("Android throws IllegalArgumentException, RI throws NullpointerException")
     public void testUpdatebyteArrayintint2() throws Exception {
         MySignature1 s = new MySignature1("ABC");
@@ -569,12 +469,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void setParameter(String, Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setParameter",
-        args = {java.lang.String.class, java.lang.Object.class}
-    )
     @SuppressWarnings("deprecation")
     public void testSetParameterStringObject() {
         MySignature1 s = new MySignature1("ABC");
@@ -594,12 +488,6 @@ public class SignatureTest extends TestCase {
     /*
      * Class under test for void setParameter(AlgorithmParameterSpec)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setParameter",
-        args = {java.security.spec.AlgorithmParameterSpec.class}
-    )
     public void testSetParameterAlgorithmParameterSpec() throws InvalidAlgorithmParameterException {
         MySignature1 s = new MySignature1("ABC");
         try {
@@ -618,12 +506,6 @@ public class SignatureTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getParameter",
-            args = {java.lang.String.class}
-    )
     @SuppressWarnings("deprecation")
     public void testGetParameter() {
         MySignature1 s = new MySignature1("ABC");

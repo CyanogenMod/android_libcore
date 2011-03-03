@@ -29,7 +29,7 @@ public class ElementTypeTest extends TestCase {
 
     /**
      * @throws Exception
-     * @tests java.lang.annotation.ElementType#valueOf(String)
+     * java.lang.annotation.ElementType#valueOf(String)
      */
     @SuppressWarnings("nls")
     public void test_valueOfLjava_lang_String() throws Exception {
@@ -53,7 +53,7 @@ public class ElementTypeTest extends TestCase {
 
     /**
      * @throws Exception
-     * @tests java.lang.annotation.ElementType#values()
+     * java.lang.annotation.ElementType#values()
      */
     @SuppressWarnings("nls")
     public void test_values() throws Exception {

@@ -26,7 +26,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class MissingFormatWidthExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.MissingFormatWidthException#MissingFormatWidthException(String)
+     * java.util.MissingFormatWidthException#MissingFormatWidthException(String)
      */
     public void test_missingFormatWidthException() {
         try {
@@ -38,7 +38,7 @@ public class MissingFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.MissingFormatWidthException#getFormatSpecifier()
+     * java.util.MissingFormatWidthException#getFormatSpecifier()
      */
     public void test_getFormatSpecifier() {
         String s = "MYTESTSTRING";
@@ -49,7 +49,7 @@ public class MissingFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.MissingFormatWidthException#getMessage()
+     * java.util.MissingFormatWidthException#getMessage()
      */
     public void test_getMessage() {
         String s = "MYTESTSTRING";
@@ -76,7 +76,7 @@ public class MissingFormatWidthExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -85,7 +85,7 @@ public class MissingFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

@@ -22,10 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -46,7 +42,6 @@ import java.util.Vector;
 /**
  * Tests for <code>CertificateFactory</code> class methods
  */
-@TestTargetClass(CertificateFactory.class)
 public class CertificateFactory3Test extends TestCase {
 
     private static String defaultProviderName = null;
@@ -88,12 +83,6 @@ public class CertificateFactory3Test extends TestCase {
      * Test for <code>generateCertificate(InputStream inStream)</code> method
      * Assertion: returns Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "generateCertificate",
-        args = {java.io.InputStream.class}
-    )
     public void testGenerateCertificate() throws Exception {
         CertificateFactory[] certFs = initCertFs();
         assertNotNull("CertificateFactory objects were not created", certFs);
@@ -110,12 +99,6 @@ public class CertificateFactory3Test extends TestCase {
      * Test for <code>generateCertificates(InputStream inStream)</code> method
      * Assertion: returns Collection which consists of 1 Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "generateCertificates",
-        args = {java.io.InputStream.class}
-    )
     public void testGenerateCertificates() throws Exception {
         CertificateFactory[] certFs = initCertFs();
         assertNotNull("CertificateFactory objects were not created", certFs);
@@ -136,12 +119,6 @@ public class CertificateFactory3Test extends TestCase {
      * Test for <code>generateCertPath(List certificates)</code> method
      * Assertion: returns CertPath with 1 Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "generateCertPath",
-        args = {java.util.List.class}
-    )
     public void testGenerateCertPath01() throws Exception {
         CertificateFactory[] certFs = initCertFs();
         assertNotNull("CertificateFactory objects were not created", certFs);
@@ -167,12 +144,6 @@ public class CertificateFactory3Test extends TestCase {
      * <code>generateCertPath(InputStream inStream, String encoding)</code>
      * method Assertion: returns CertPath with 1 Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "generateCertPath",
-        args = {java.io.InputStream.class, java.lang.String.class}
-    )
     public void testGenerateCertPath02() throws Exception {
         CertificateFactory[] certFs = initCertFs();
         assertNotNull("CertificateFactory objects were not created", certFs);
@@ -193,12 +164,6 @@ public class CertificateFactory3Test extends TestCase {
      * Test for <code>generateCertPath(InputStream inStream)</code> method
      * Assertion: returns CertPath with 1 Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "generateCertPath",
-        args = {java.io.InputStream.class}
-    )
     public void testGenerateCertPath03() throws Exception {
         String certPathEncoding = "PkiPath";
         CertificateFactory[] certFs = initCertFs();

@@ -76,7 +76,7 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.SimpleDateFormat#SimpleDateFormat(java.lang.String,
+     * java.text.SimpleDateFormat#SimpleDateFormat(java.lang.String,
      *        java.text.DateFormatSymbols)
      */
     public void test_ConstructorLjava_lang_StringLjava_text_DateFormatSymbols() {
@@ -183,7 +183,7 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.SimpleDateFormat#applyPattern(java.lang.String)
+     * java.text.SimpleDateFormat#applyPattern(java.lang.String)
      */
     public void test_applyPatternLjava_lang_String() {
         // Test for method void
@@ -421,7 +421,7 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.SimpleDateFormat#format(java.util.Date)
+     * java.text.SimpleDateFormat#format(java.util.Date)
      */
     public void test_timeZoneFormatting() {
         // tests specific to formatting of timezones

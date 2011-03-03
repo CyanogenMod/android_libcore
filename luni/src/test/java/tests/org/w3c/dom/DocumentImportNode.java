@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,7 +32,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-@TestTargetClass(Document.class)
 public final class DocumentImportNode extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -90,12 +84,6 @@ public final class DocumentImportNode extends DOMTestCase {
 //        assertEquals("documentimportnode01_nodeType", 2, nodeType);
 //        assertEquals("documentimportnode01_nodeValue", "Yes", nodeValue);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode2() throws Throwable {
         Document doc;
         Document docImported;
@@ -178,12 +166,6 @@ public final class DocumentImportNode extends DOMTestCase {
 //        assertEquals("documentimportnode04_nodeType", 2, nodeType);
 //        assertEquals("documentimportnode04_nodeValue", "defaultVal", nodeValue);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode5() throws Throwable {
         Document doc;
         Document docImported;
@@ -207,12 +189,6 @@ public final class DocumentImportNode extends DOMTestCase {
         assertEquals("documentimportnode05_namespaceURI",
                 "http://www.w3.org/DOM/Test", namespaceURI);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that importNode method throws DOMException with NOT_SUPPORTED_ERR code.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode6() throws Throwable {
         Document doc;
 
@@ -228,12 +204,6 @@ public final class DocumentImportNode extends DOMTestCase {
             assertTrue("throw_NOT_SUPPORTED_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that importNode method throws DOMException with NOT_SUPPORTED_ERR code.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode7() throws Throwable {
         Document doc;
 
@@ -251,12 +221,6 @@ public final class DocumentImportNode extends DOMTestCase {
             assertTrue("throw_NOT_SUPPORTED_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that importNode method throws DOMException with NOT_SUPPORTED_ERR code.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode8() throws Throwable {
         Document doc;
 
@@ -278,12 +242,6 @@ public final class DocumentImportNode extends DOMTestCase {
             assertTrue("throw_NOT_SUPPORTED_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode9() throws Throwable {
         Document doc;
         DocumentFragment docFragment;
@@ -301,12 +259,6 @@ public final class DocumentImportNode extends DOMTestCase {
         success = importedDocFrag.hasChildNodes();
         assertFalse("documentimportnode09", success);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality; doesn't verify DOMException exceptions.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode10() throws Throwable {
         Document doc;
         DocumentFragment docFragment;
@@ -324,12 +276,6 @@ public final class DocumentImportNode extends DOMTestCase {
         success = importedDocFrag.hasChildNodes();
         assertTrue("documentimportnode10", success);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode11() throws Throwable {
         Document doc;
         Element docElement;
@@ -347,12 +293,6 @@ public final class DocumentImportNode extends DOMTestCase {
         assertEquals("documentimportnode11_NodeName", nodeNameImported,
                 nodeNameOrig);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode12() throws Throwable {
         Document doc;
         NodeList childList;
@@ -372,12 +312,6 @@ public final class DocumentImportNode extends DOMTestCase {
         importedLen = (int) importedChildren.getLength();
         assertEquals("documentimportnode12", importedLen, addressElemLen);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode13() throws Throwable {
         Document doc;
         NodeList childList;
@@ -421,12 +355,6 @@ public final class DocumentImportNode extends DOMTestCase {
 //                "http://www.w3.org/2000/xmlns/", "emp");
 //        assertEquals("explicitAttrImported", "http://www.nist.gov", attrValue);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies import of TEXT_NODE.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode15() throws Throwable {
         Document doc;
 
@@ -442,12 +370,6 @@ public final class DocumentImportNode extends DOMTestCase {
         assertEquals("documentimportnode15",
                 "Document.importNode test for a TEXT_NODE", nodeValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies import of COMMENT_NODE",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode17() throws Throwable {
         Document doc;
 
@@ -463,12 +385,6 @@ public final class DocumentImportNode extends DOMTestCase {
         assertEquals("documentimportnode17",
                 "Document.importNode test for a COMMENT_NODE", nodeValue);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify DOMException exception.",
-        method = "importNode",
-        args = {org.w3c.dom.Node.class, boolean.class}
-    )
     public void testImportNode18() throws Throwable {
         Document doc;
 

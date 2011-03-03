@@ -17,15 +17,9 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.io.FilePermission;
 import java.security.AccessControlException;
 
-@TestTargetClass(AccessControlException.class)
 public class AccessControlException2Test extends junit.framework.TestCase {
     FilePermission filePermission;
 
@@ -34,14 +28,8 @@ public class AccessControlException2Test extends junit.framework.TestCase {
     AccessControlException acException1;
 
     /**
-     * @tests java.security.AccessControlException#AccessControlException(java.lang.String)
+     * java.security.AccessControlException#AccessControlException(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "AccessControlException",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method
         // java.security.AccessControlException(java.lang.String)
@@ -52,15 +40,9 @@ public class AccessControlException2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#AccessControlException(java.lang.String,
+     * java.security.AccessControlException#AccessControlException(java.lang.String,
      *        java.security.Permission)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "AccessControlException",
-        args = {java.lang.String.class, java.security.Permission.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_security_Permission() {
         // Test for method
         // java.security.AccessControlException(java.lang.String,
@@ -73,14 +55,8 @@ public class AccessControlException2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#getPermission()
+     * java.security.AccessControlException#getPermission()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPermission",
-        args = {}
-    )
     public void test_getPermission() {
         // Test for method java.security.Permission
         // java.security.AccessControlException.getPermission()
