@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.BadPaddingException;
 
 import junit.framework.TestCase;
@@ -36,7 +31,6 @@ import junit.framework.TestCase;
  * Tests for <code>BadPaddingException</code> class constructors and methods.
  *
  */
-@TestTargetClass(BadPaddingException.class)
 public class BadPaddingExceptionTest extends TestCase {
 
     static String[] msgs = {
@@ -50,12 +44,6 @@ public class BadPaddingExceptionTest extends TestCase {
      * Test for <code>BadPaddingException()</code> constructor Assertion:
      * constructs BadPaddingException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "BadPaddingException",
-        args = {}
-    )
     public void testBadPaddingException01() {
         BadPaddingException tE = new BadPaddingException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -67,12 +55,6 @@ public class BadPaddingExceptionTest extends TestCase {
      * Assertion: constructs BadPaddingException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "BadPaddingException",
-        args = {java.lang.String.class}
-    )
     public void testBadPaddingException02() {
         BadPaddingException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -87,12 +69,6 @@ public class BadPaddingExceptionTest extends TestCase {
      * Test for <code>BadPaddingException(String)</code> constructor
      * Assertion: constructs BadPaddingException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "BadPaddingException",
-        args = {java.lang.String.class}
-    )
     public void testBadPaddingException03() {
         String msg = null;
         BadPaddingException tE = new BadPaddingException(msg);

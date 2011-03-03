@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPairGenerator;
@@ -42,12 +37,11 @@ import org.apache.harmony.security.tests.support.MyKeyPairGenerator2;
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyPairGenerator.class)
+
 /**
  * Tests for <code>KeyPairGenerator</code> class constructors and methods.
  *
  */
-
 public class KeyPairGenerator2Test extends TestCase {
     private String KeyPairGeneratorProviderClass = "";
 
@@ -322,12 +316,6 @@ public class KeyPairGenerator2Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance01() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass1;
@@ -337,12 +325,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance01(1);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance02() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             InvalidAlgorithmParameterException {
@@ -353,12 +335,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance02(1);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance03() throws NoSuchAlgorithmException,
             IllegalArgumentException, InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass1;
@@ -368,12 +344,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance03(1);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance04() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass2;
@@ -383,12 +353,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance01(2);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance05() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             InvalidAlgorithmParameterException {
@@ -399,12 +363,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance02(2);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance06() throws NoSuchAlgorithmException,
             IllegalArgumentException, InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass2;
@@ -414,12 +372,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance03(2);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance07() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass3;
@@ -429,12 +381,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance01(3);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance08() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             InvalidAlgorithmParameterException {
@@ -445,12 +391,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance02(3);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance09() throws NoSuchAlgorithmException,
             IllegalArgumentException, InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass3;
@@ -460,12 +400,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance03(3);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstance10() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass4;
@@ -475,12 +409,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance01(4);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstance11() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             InvalidAlgorithmParameterException {
@@ -491,12 +419,6 @@ public class KeyPairGenerator2Test extends TestCase {
         GetInstance02(4);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstance12() throws NoSuchAlgorithmException,
             IllegalArgumentException, InvalidAlgorithmParameterException {
         KeyPairGeneratorProviderClass = KeyPairGeneratorProviderClass4;

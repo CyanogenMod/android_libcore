@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -46,7 +41,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=383">http://www.w3.org/Bugs/Public/show_bug.cgi?id=383</a>
  */
-@TestTargetClass(Document.class)
 public final class GetElementById extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -86,12 +80,6 @@ public final class GetElementById extends DOMTestCase {
 //        tagname = element.getTagName();
 //        assertEquals("throw_Equals", "emp:address", tagname);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify getElementById method for existent element.",
-        method = "getElementById",
-        args = {java.lang.String.class}
-    )
     public void testGetElementById2() throws Throwable {
         Document doc;
         Element element;

@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -41,12 +36,10 @@ import org.apache.harmony.crypto.tests.support.MyMacSpi;
 import junit.framework.TestCase;
 
 
-@TestTargetClass(MacSpi.class)
 /**
  * Tests for <code>MacSpi</code> class constructors and methods.
  *
  */
-
 public class MacSpiTest extends TestCase {
 class Mock_MacSpi extends MyMacSpi {
 
@@ -164,26 +157,6 @@ class Mock_MacSpi2 extends MyMacSpi2 {
      * Test for <code>MacSpi</code> constructor
      * Assertion: constructs MacSpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All others methods are abstract.",
-            method = "MacSpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All others methods are abstract.",
-            method = "engineUpdate",
-            args = {java.nio.ByteBuffer.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All others methods are abstract.",
-            method = "clone",
-            args = {}
-        )
-    })
     public void testMacSpiTests01() throws Exception {
         Mock_MacSpi mSpi = new Mock_MacSpi();
 

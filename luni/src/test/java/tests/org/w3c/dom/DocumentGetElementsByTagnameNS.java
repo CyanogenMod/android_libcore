@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.DOMImplementation;
@@ -31,7 +26,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-@TestTargetClass(Document.class)
 public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -61,12 +55,6 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies '*' as parameters.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS1() throws Throwable {
         Document doc;
         Document newDoc;
@@ -83,12 +71,6 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
         assertEquals("documentgetelementsbytagnameNS01", 1, childList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies '*' as the first parameter.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS2() throws Throwable {
         Document doc;
         Element docElem;
@@ -103,12 +85,6 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
         assertEquals("documentgetelementsbytagnameNS02", 6, childList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies wrong namespaceURI as a parameter.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS3() throws Throwable {
         Document doc;
         NodeList childList;
@@ -117,12 +93,6 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
         assertEquals("documentgetelementsbytagnameNS03", 0, childList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS4() throws Throwable {
         Document doc;
         NodeList childList;
@@ -133,12 +103,6 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
         assertEquals("documentgetelementsbytagnameNS04", 0, childList
                 .getLength());
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "getElementsByTagNameNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetElementsByTagNameNS5() throws Throwable {
         Document doc;
         NodeList childList;

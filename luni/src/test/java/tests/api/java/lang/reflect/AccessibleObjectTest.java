@@ -17,11 +17,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -33,7 +28,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-@TestTargetClass(AccessibleObject.class)
 public class AccessibleObjectTest extends junit.framework.TestCase {
 
     public class TestClass {
@@ -86,27 +80,15 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.AccessibleObject#AccessibleObject()
+     * java.lang.reflect.AccessibleObject#AccessibleObject()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "The only thing I can do",
-        method = "AccessibleObject",
-        args = {}
-    )
     public void test_Constructor() {
         assertNotNull(new MyAccessibleObject());
     }
 
     /**
-     * @tests java.lang.reflect.AccessibleObject#isAccessible()
+     * java.lang.reflect.AccessibleObject#isAccessible()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isAccessible",
-        args = {}
-    )
     public void test_isAccessible() {
         // Test for method boolean
         // java.lang.reflect.AccessibleObject.isAccessible()
@@ -122,15 +104,9 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.AccessibleObject#setAccessible(java.lang.reflect.AccessibleObject[],
+     * java.lang.reflect.AccessibleObject#setAccessible(java.lang.reflect.AccessibleObject[],
      *        boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SecurityExeption is tested in tests.security.permissions.JavaLangReflectAccessibleObjectTest",
-        method = "setAccessible",
-        args = {java.lang.reflect.AccessibleObject[].class, boolean.class}
-    )
     public void test_setAccessible$Ljava_lang_reflect_AccessibleObjectZ() {
         try {
             AccessibleObject ao = TestClass.class.getField("aField");
@@ -145,14 +121,8 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.AccessibleObject#setAccessible(boolean)
+     * java.lang.reflect.AccessibleObject#setAccessible(boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SecurityExeption is tested in tests.security.permissions.JavaLangReflectAccessibleObjectTest",
-        method = "setAccessible",
-        args = {boolean.class}
-    )
     public void test_setAccessible() throws Exception {
         AccessibleObject ao = TestClass.class.getField("aField");
         ao.setAccessible(true);
@@ -161,12 +131,6 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         assertFalse("Returned true to isAccessible", ao.isAccessible());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAnnotation",
-        args = {java.lang.Class.class}
-    )
     public void test_getAnnotation() throws Exception{
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         //test error case
@@ -188,12 +152,6 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         assertNotNull("AnnotationRuntime0 instance expected", rt0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAnnotations",
-        args = {}
-    )
      public void test_getAnnotations() throws Exception {
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         Annotation[] annotations = ao.getAnnotations();
@@ -209,12 +167,6 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
                 ignoreOrder.contains(AnnotationRuntime1.class));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaredAnnotations",
-        args = {}
-    )
      public void test_getDeclaredAnnotations() throws Exception {
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         Annotation[] annotations = ao.getDeclaredAnnotations();
@@ -230,12 +182,6 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
                 ignoreOrder.contains(AnnotationRuntime1.class));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isAnnotationPresent",
-        args = {java.lang.Class.class}
-    )
     public void test_isAnnotationPresent() throws Exception {
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         assertTrue("Missing @AnnotationRuntime0",

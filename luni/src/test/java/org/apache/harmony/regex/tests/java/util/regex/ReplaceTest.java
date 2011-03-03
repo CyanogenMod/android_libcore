@@ -16,32 +16,12 @@
 
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import junit.framework.TestCase;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
-@TestTargetClass(Matcher.class)
 public class ReplaceTest extends TestCase {
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the basic functionality of replaceFirst(java.lang.String) & replaceAll(java.lang.String) methods.",
-            method = "replaceFirst",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the basic functionality of replaceFirst(java.lang.String) & replaceAll(java.lang.String) methods.",
-            method = "replaceAll",
-            args = {java.lang.String.class}
-        )
-    })
     public void testSimpleReplace() throws PatternSyntaxException {
         String target, pattern, repl;
 
@@ -56,20 +36,6 @@ public class ReplaceTest extends TestCase {
         assertEquals("foobarxxxarfooxxxbarxxxt", m.replaceAll(repl));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of replaceFirst(java.lang.String) & replaceAll(java.lang.String) methods.",
-            method = "replaceFirst",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of replaceFirst(java.lang.String) & replaceAll(java.lang.String) methods.",
-            method = "replaceAll",
-            args = {java.lang.String.class}
-        )
-    })
     public void testCaptureReplace() {
         String target, pattern, repl, s;
         Pattern p = null;
@@ -101,12 +67,6 @@ public class ReplaceTest extends TestCase {
                 );
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of replaceAll(java.lang.String) method with backslash chars.",
-        method = "replaceAll",
-        args = {java.lang.String.class}
-    )
     public void testEscapeReplace() {
         String target, pattern, repl, s;
 

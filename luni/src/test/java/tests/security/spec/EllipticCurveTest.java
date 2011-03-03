@@ -17,11 +17,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -35,7 +30,6 @@ import java.util.Arrays;
  * Tests for <code>EllipticCurve</code> class fields and methods.
  *
  */
-@TestTargetClass(EllipticCurve.class)
 public class EllipticCurveTest extends TestCase {
 
     /**
@@ -45,12 +39,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: valid parameters passed<br>
      * Expected: must pass without any exceptions
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive cases.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class, byte[].class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigIntegerbyteArray01() {
         // test case 1 parameters set
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
@@ -85,12 +73,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: pass <code>null</code> as mentioned parameters<br>
      * Expected: must throw <code>NullPointerException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class, byte[].class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigIntegerbyteArray02() {
         // test case 1 parameters set
         ECFieldFp f = null;
@@ -137,12 +119,6 @@ public class EllipticCurveTest extends TestCase {
      * not in the <code>field</code> of type <code>ECFieldFp</code><br>
      * Expected: must throw <code>IllegalArgumentException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class, byte[].class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigIntegerbyteArray03() {
         // test case 1 parameters set,
         // a is not in field
@@ -204,12 +180,6 @@ public class EllipticCurveTest extends TestCase {
      * not in the <code>field</code> of type <code>ECFieldF2m</code><br>
      * Expected: must throw <code>IllegalArgumentException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class, byte[].class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigIntegerbyteArray04() {
         // test case 1 parameters set,
         // a is not in field
@@ -256,12 +226,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: pass <code>seed</code> to the ctor then modify it<br>
      * Expected: getSeed() must return unmodified array
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that byte array of EllipticCurve can't be modified",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class, byte[].class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigIntegerbyteArray05() {
         ECFieldF2m f = new ECFieldF2m(5);
         BigInteger a = BigInteger.valueOf(0L);
@@ -283,12 +247,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: valid parameters passed, field type is ECFieldFp<br>
      * Expected: must pass without any exceptions
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify exceptions.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigInteger01() {
         // test case 1 parameters set
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
@@ -321,12 +279,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: pass <code>null</code> as mentioned parameters<br>
      * Expected: must throw <code>NullPointerException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigInteger02() {
         // test case 1 parameters set
         ECFieldFp f = null;
@@ -370,12 +322,6 @@ public class EllipticCurveTest extends TestCase {
      * not in the <code>field</code> of type <code>ECFieldFp</code><br>
      * Expected: must throw <code>IllegalArgumentException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigInteger03() {
         // test case 1 parameters set,
         // a is not in field
@@ -433,12 +379,6 @@ public class EllipticCurveTest extends TestCase {
      * not in the <code>field</code> of type <code>ECFieldF2m</code><br>
      * Expected: must throw <code>IllegalArgumentException</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigInteger04() {
         // test case 1 parameters set,
         // a is not in field
@@ -483,12 +423,6 @@ public class EllipticCurveTest extends TestCase {
      * to the one passed to the constructor; (both must refer
      * the same object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getA",
-        args = {}
-    )
     public final void testGetA() {
         ECFieldF2m f = new ECFieldF2m(5);
         BigInteger a = BigInteger.valueOf(5L);
@@ -499,14 +433,8 @@ public class EllipticCurveTest extends TestCase {
     }
 
     /**
-     * @tests java/security/spec/EllipticCurve#EllipticCurve(EcField,BigInteger,BigInteger)
+     * java/security/spec/EllipticCurve#EllipticCurve(EcField,BigInteger,BigInteger)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test.",
-        method = "EllipticCurve",
-        args = {java.security.spec.ECField.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testEllipticCurveECFieldBigIntegerBigInteger05() {
         // Regression for Harmony-731
         EllipticCurve ec = new EllipticCurve(new testECField(), BigInteger
@@ -525,12 +453,6 @@ public class EllipticCurveTest extends TestCase {
      * to the one passed to the constructor; (both must refer
      * the same object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getB",
-        args = {}
-    )
     public final void testGetB() {
         ECFieldF2m f = new ECFieldF2m(5);
         BigInteger a = BigInteger.valueOf(5L);
@@ -549,12 +471,6 @@ public class EllipticCurveTest extends TestCase {
      * to the one passed to the constructor; (both must refer
      * the same object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getField",
-        args = {}
-    )
     public final void testGetField() {
         ECFieldF2m f = new ECFieldF2m(5);
         BigInteger a = BigInteger.valueOf(5L);
@@ -572,12 +488,6 @@ public class EllipticCurveTest extends TestCase {
      * Expected: must return <code>seed</code> which is equal
      * to the one passed to the constructor
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive case.",
-        method = "getSeed",
-        args = {}
-    )
     public final void testGetSeed01() {
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
         BigInteger a = BigInteger.ONE;
@@ -597,12 +507,6 @@ public class EllipticCurveTest extends TestCase {
      * called and then returned array modified<br>
      * Expected: internal state must not be affected by the modification
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that modification of byte array  doesn't change internal state of test object.",
-        method = "getSeed",
-        args = {}
-    )
     public final void testGetSeed02() {
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
         BigInteger a = BigInteger.ONE;
@@ -624,12 +528,6 @@ public class EllipticCurveTest extends TestCase {
      * created using valid parameters<br>
      * Expected: repeated method calls must return different refs
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that repeated calls of getSeed method must return different refs.",
-        method = "getSeed",
-        args = {}
-    )
     public final void testGetSeed03() {
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
         BigInteger a = BigInteger.ONE;
@@ -641,15 +539,9 @@ public class EllipticCurveTest extends TestCase {
     }
 
     /**
-     * @tests java.security.spec.EllipticCurve#getSeed()
+     * java.security.spec.EllipticCurve#getSeed()
      * Assertion: null if not specified
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test.",
-        method = "getSeed",
-        args = {}
-    )
     public final void testGetSeed04() {
         //Regression for HARMONY-732
         ECFieldFp f = new ECFieldFp(BigInteger.valueOf(23L));
@@ -663,12 +555,6 @@ public class EllipticCurveTest extends TestCase {
      * Test preconditions: see test comments<br>
      * Expected: all objects in this test must be equal
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject01() {
         // test case 1: must be equal to itself
         EllipticCurve c2 = null, c1 = new EllipticCurve(new ECFieldFp(
@@ -712,12 +598,6 @@ public class EllipticCurveTest extends TestCase {
      * Assertion: must return the same value if invoked
      * repeatedly on the same object.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that several calls of hashCode method for the same objects return the same values.",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode01() {
         int hc = 0;
         EllipticCurve f = new EllipticCurve(new ECFieldFp(BigInteger
@@ -736,12 +616,6 @@ public class EllipticCurveTest extends TestCase {
      * Assertion: must return the same value if invoked
      * on equal (according to the <code>equals(Object)</code> method) objects.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode02() {
         assertEquals(new EllipticCurve(new ECFieldFp(BigInteger.valueOf(23L)),
                 BigInteger.ONE, BigInteger.valueOf(19L), new byte[24])

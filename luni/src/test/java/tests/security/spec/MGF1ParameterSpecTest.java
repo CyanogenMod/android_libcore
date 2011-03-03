@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.spec.MGF1ParameterSpec;
@@ -35,7 +30,6 @@ import java.security.spec.MGF1ParameterSpec;
  * Test for MGF1ParameterSpec class
  *
  */
-@TestTargetClass(MGF1ParameterSpec.class)
 public class MGF1ParameterSpecTest extends TestCase {
 
     /**
@@ -52,12 +46,6 @@ public class MGF1ParameterSpecTest extends TestCase {
      * Assertion: constructs new <code>MGF1ParameterSpec</code>
      * object using valid parameter
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "MGF1ParameterSpec",
-        args = {java.lang.String.class}
-    )
     public final void testMGF1ParameterSpec01() {
         try {
             MGF1ParameterSpec pgf = new MGF1ParameterSpec(testAlgName);
@@ -72,12 +60,6 @@ public class MGF1ParameterSpecTest extends TestCase {
      * Test #2 for <code>MGF1ParameterSpec</code> constructor<br>
      * Assertion: <code>NullPointerException</code> if parameter is <code>null</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "MGF1ParameterSpec",
-        args = {java.lang.String.class}
-    )
     public final void testMGF1ParameterSpec02() {
         try {
             new MGF1ParameterSpec(null);
@@ -92,12 +74,6 @@ public class MGF1ParameterSpecTest extends TestCase {
      * Assertion: returns the algorithm name of the message
      * digest used by the mask generation function
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDigestAlgorithm",
-        args = {}
-    )
     public final void testGetDigestAlgorithm() {
         MGF1ParameterSpec aps = new MGF1ParameterSpec(testAlgName);
         assertTrue(testAlgName.equals(aps.getDigestAlgorithm()));
@@ -108,32 +84,6 @@ public class MGF1ParameterSpecTest extends TestCase {
      * Assertion: returns the algorithm name of the message
      * digest used by the mask generation function
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Field testing",
-            method = "!field SHA1",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Field testing",
-            method = "!field SHA256",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Field testing",
-            method = "!field SHA384",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Field testing",
-            method = "!field SHA512",
-            args = {}
-        )
-    })
 
     public final void testFieldsGetDigestAlgorithm() {
         assertEquals("SHA-1", MGF1ParameterSpec.SHA1.getDigestAlgorithm());

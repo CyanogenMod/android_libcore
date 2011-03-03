@@ -110,7 +110,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#HashMap()
+	 * java.util.HashMap#HashMap()
 	 */
 	public void test_Constructor() {
 		// Test for method java.util.HashMap()
@@ -121,7 +121,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#HashMap(int)
+	 * java.util.HashMap#HashMap(int)
 	 */
 	public void test_ConstructorI() {
 		// Test for method java.util.HashMap(int)
@@ -142,7 +142,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#HashMap(int, float)
+	 * java.util.HashMap#HashMap(int, float)
 	 */
 	public void test_ConstructorIF() {
 		// Test for method java.util.HashMap(int, float)
@@ -163,7 +163,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#HashMap(java.util.Map)
+	 * java.util.HashMap#HashMap(java.util.Map)
 	 */
 	public void test_ConstructorLjava_util_Map() {
 		// Test for method java.util.HashMap(java.util.Map)
@@ -191,7 +191,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#clear()
+	 * java.util.HashMap#clear()
 	 */
 	public void test_clear() {
 		hm.clear();
@@ -213,7 +213,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#clone()
+	 * java.util.HashMap#clone()
 	 */
 	public void test_clone() {
 		// Test for method java.lang.Object java.util.HashMap.clone()
@@ -259,7 +259,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#containsKey(java.lang.Object)
+	 * java.util.HashMap#containsKey(java.lang.Object)
 	 */
 	public void test_containsKeyLjava_lang_Object() {
 		// Test for method boolean
@@ -276,7 +276,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#containsValue(java.lang.Object)
+	 * java.util.HashMap#containsValue(java.lang.Object)
 	 */
 	public void test_containsValueLjava_lang_Object() {
 		// Test for method boolean
@@ -288,7 +288,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#entrySet()
+	 * java.util.HashMap#entrySet()
 	 */
 	public void test_entrySet() {
 		// Test for method java.util.Set java.util.HashMap.entrySet()
@@ -308,7 +308,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#get(java.lang.Object)
+	 * java.util.HashMap#get(java.lang.Object)
 	 */
 	public void test_getLjava_lang_Object() {
 		// Test for method java.lang.Object
@@ -380,7 +380,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#isEmpty()
+	 * java.util.HashMap#isEmpty()
 	 */
 	public void test_isEmpty() {
 		// Test for method boolean java.util.HashMap.isEmpty()
@@ -389,7 +389,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#keySet()
+	 * java.util.HashMap#keySet()
 	 */
 	public void test_keySet() {
 		// Test for method java.util.Set java.util.HashMap.keySet()
@@ -442,7 +442,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#put(java.lang.Object, java.lang.Object)
+	 * java.util.HashMap#put(java.lang.Object, java.lang.Object)
 	 */
 	public void test_putLjava_lang_ObjectLjava_lang_Object() {
         hm.put("KEY", "VALUE");
@@ -512,7 +512,7 @@ public class HashMapTest extends junit.framework.TestCase {
         }
     }
 	/**
-	 * @tests java.util.HashMap#putAll(java.util.Map)
+	 * java.util.HashMap#putAll(java.util.Map)
 	 */
 	public void test_putAllLjava_util_Map() {
 		// Test for method void java.util.HashMap.putAll(java.util.Map)
@@ -529,7 +529,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.HashMap#putAll(java.util.Map)
+     * java.util.HashMap#putAll(java.util.Map)
      */
     public void test_putAllLjava_util_Map_Null() {
         HashMap hashMap = new HashMap();
@@ -549,7 +549,7 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.HashMap#remove(java.lang.Object)
+	 * java.util.HashMap#remove(java.lang.Object)
 	 */
 	public void test_removeLjava_lang_Object() {
 		int size = hm.size();
@@ -593,7 +593,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#size()
+	 * java.util.HashMap#size()
 	 */
 	public void test_size() {
 		// Test for method int java.util.HashMap.size()
@@ -602,7 +602,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.HashMap#values()
+	 * java.util.HashMap#values()
 	 */
 	public void test_values() {
 		// Test for method java.util.Collection java.util.HashMap.values()
@@ -628,7 +628,7 @@ public class HashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.AbstractMap#toString()
+     * java.util.AbstractMap#toString()
      */
     public void test_toString() {
 
@@ -747,7 +747,7 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
         HashMap<String, String> hm = new HashMap<String, String>();
@@ -761,7 +761,7 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
         HashMap<String, String> hm = new HashMap<String, String>();

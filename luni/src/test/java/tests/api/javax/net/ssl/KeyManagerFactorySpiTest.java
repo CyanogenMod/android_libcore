@@ -15,10 +15,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -32,18 +28,11 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.xnet.tests.support.KeyManagerFactorySpiImpl;
 
-@TestTargetClass(KeyManagerFactorySpi.class)
 public class KeyManagerFactorySpiTest extends TestCase {
 
     /**
-     * @tests javax.net.ssl.KeyManagerFactorySpi#KeyManagerFactorySpi()
+     * javax.net.ssl.KeyManagerFactorySpi#KeyManagerFactorySpi()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyManagerFactorySpi",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
@@ -54,14 +43,8 @@ public class KeyManagerFactorySpiTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.KeyManagerFactorySpi#KengineInit(KeyStore ks, char[] password)
+     * javax.net.ssl.KeyManagerFactorySpi#KengineInit(KeyStore ks, char[] password)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineInit",
-        args = {java.security.KeyStore.class, char[].class}
-    )
     public void test_engineInit_01() {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
         KeyStore ks;
@@ -105,14 +88,8 @@ public class KeyManagerFactorySpiTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.KeyManagerFactorySpi#KengineInit(ManagerFactoryParameters spec)
+     * javax.net.ssl.KeyManagerFactorySpi#KengineInit(ManagerFactoryParameters spec)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineInit",
-        args = {javax.net.ssl.ManagerFactoryParameters.class}
-    )
     public void test_engineInit_02() {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
 
@@ -135,14 +112,8 @@ public class KeyManagerFactorySpiTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.KeyManagerFactorySpi#engineGetKeyManagers()
+     * javax.net.ssl.KeyManagerFactorySpi#engineGetKeyManagers()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineGetKeyManagers",
-        args = {}
-    )
     public void test_engineGetKeyManagers() {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
 

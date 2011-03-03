@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
@@ -44,7 +39,6 @@ import java.util.Set;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
-@TestTargetClass(Signature.class)
 public class Signature2Test extends junit.framework.TestCase {
 
     private static final String MESSAGE = "abc";
@@ -66,14 +60,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#clone()
+     * java.security.Signature#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "CloneNotSupportedException checking was tested",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() throws Exception {
         Signature s = Signature.getInstance("DSA");
         try {
@@ -85,14 +73,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getAlgorithm()
+     * java.security.Signature#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws Exception {
         String alg = Signature.getInstance("DSA").getAlgorithm();
         assertTrue("getAlgorithm did not get DSA (" + alg + ")", alg
@@ -100,14 +82,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getInstance(java.lang.String)
+     * java.security.Signature#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() {
         try {
             Signature.getInstance("DSA");
@@ -124,15 +100,9 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getInstance(java.lang.String,
+     * java.security.Signature#getInstance(java.lang.String,
      *        java.security.Provider)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String_java_security_Provider()
             throws Exception {
         Provider[] providers = Security.getProviders("Signature.DSA");
@@ -173,15 +143,9 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getInstance(java.lang.String,
+     * java.security.Signature#getInstance(java.lang.String,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String()
             throws Exception {
         Provider[] providers = Security.getProviders("Signature.DSA");
@@ -219,14 +183,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getParameters()
+     * java.security.Signature#getParameters()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameters",
-        args = {}
-    )
     public void test_getParameters() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         try {
@@ -252,14 +210,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getParameter(java.lang.String)
+     * java.security.Signature#getParameter(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Just exception case was tested",
-        method = "getParameter",
-        args = {java.lang.String.class}
-    )
     @SuppressWarnings("deprecation")
     public void test_getParameterLjava_lang_String() throws Exception {
         Signature sig = Signature.getInstance("DSA");
@@ -272,28 +224,16 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#getProvider()
+     * java.security.Signature#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws Exception {
         Provider p = Signature.getInstance("DSA").getProvider();
         assertNotNull("provider is null", p);
     }
 
     /**
-     * @tests java.security.Signature#initSign(java.security.PrivateKey)
+     * java.security.Signature#initSign(java.security.PrivateKey)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initSign",
-        args = {java.security.PrivateKey.class}
-    )
     public void test_initSignLjava_security_PrivateKey() throws Exception {
         try {
             Signature.getInstance("DSA").initSign(dsaKeys.getPrivate());
@@ -309,11 +249,6 @@ public class Signature2Test extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew (
-            level=TestLevel.COMPLETE,
-            method="initSign",
-            args={PrivateKey.class, SecureRandom.class}
-    )
     public void test_initSignLjava_security_PrivateKeyLjava_security_SecureRandom() {
 
         try {
@@ -337,14 +272,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#initVerify(java.security.PublicKey)
+     * java.security.Signature#initVerify(java.security.PublicKey)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "initVerify",
-        args = {java.security.PublicKey.class}
-    )
     public void test_initVerifyLjava_security_PublicKey() throws Exception {
         Signature.getInstance("DSA").initVerify(dsaKeys.getPublic());
 
@@ -358,14 +287,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#initVerify(java.security.cert.Certificate)
+     * java.security.Signature#initVerify(java.security.cert.Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidKeyException checking missed",
-        method = "initVerify",
-        args = {java.security.cert.Certificate.class}
-    )
     public void test_initVerifyLjava_security_Certificate() throws Exception {
         Provider p = new MyProvider();
         p.put("DSA", "tests.java.security.support.cert.MyCertificate$1");
@@ -391,15 +314,9 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#setParameter(java.lang.String,
+     * java.security.Signature#setParameter(java.lang.String,
      *        java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Just exception case was tested",
-        method = "setParameter",
-        args = {java.lang.String.class, java.lang.Object.class}
-    )
     @SuppressWarnings("deprecation")
     public void test_setParameterLjava_lang_StringLjava_lang_Object()
             throws Exception {
@@ -416,14 +333,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#setParameter(java.security.spec.AlgorithmParameterSpec)
+     * java.security.Signature#setParameter(java.security.spec.AlgorithmParameterSpec)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Just exception case was tested",
-        method = "setParameter",
-        args = {java.security.spec.AlgorithmParameterSpec.class}
-    )
     public void test_setParameterLjava_security_spec_AlgorithmParameterSpec()
             throws Exception {
         Signature sig = Signature.getInstance("DSA");
@@ -440,14 +351,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#sign()
+     * java.security.Signature#sign()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Verification of returned value missed. SignatureException checking missed.",
-        method = "sign",
-        args = {}
-    )
     public void test_sign() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         sig.initSign(dsaKeys.getPrivate());
@@ -456,28 +361,16 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#toString()
+     * java.security.Signature#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws Exception {
         String str = Signature.getInstance("DSA").toString();
         assertNotNull("toString is null", str);
     }
 
     /**
-     * @tests java.security.Signature#update(byte[])
+     * java.security.Signature#update(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "SignatureException checking missed",
-        method = "update",
-        args = {byte[].class}
-    )
     public void test_update$B() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         sig.initSign(dsaKeys.getPrivate());
@@ -495,14 +388,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#update(byte[], int, int)
+     * java.security.Signature#update(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "SignatureException checking missed. Verification of different values off and len missed.",
-        method = "update",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_update$BII() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         byte[] bytes = MESSAGE.getBytes();
@@ -537,14 +424,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#update(byte)
+     * java.security.Signature#update(byte)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "SignatureException checking missed",
-        method = "update",
-        args = {byte.class}
-    )
     public void test_updateB() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         sig.initSign(dsaKeys.getPrivate());
@@ -554,14 +435,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#update(ByteBuffer data)
+     * java.security.Signature#update(ByteBuffer data)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "update",
-        args = {java.nio.ByteBuffer.class}
-    )
     public void test_updateLjava_nio_ByteBuffer() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         ByteBuffer buffer = ByteBuffer.allocate(10);
@@ -582,14 +457,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#verify(byte[])
+     * java.security.Signature#verify(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "verify",
-        args = {byte[].class}
-    )
     public void test_verify$B() throws Exception {
         Signature sig = Signature.getInstance("DSA");
 
@@ -610,14 +479,8 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Signature#verify(byte[], int, int)
+     * java.security.Signature#verify(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "verify",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_verify$BII() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         sig.initSign(dsaKeys.getPrivate());

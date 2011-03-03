@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.util.Arrays;
 import javax.crypto.spec.PSource;
 
@@ -34,7 +29,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(PSource.class)
 /**
  */
 public class PSourceTest extends TestCase {
@@ -45,13 +39,6 @@ public class PSourceTest extends TestCase {
      * DEFAULT field, and that input p array is copied to protect against
      * subsequent modification.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Nested class.",
-        clazz = PSource.PSpecified.class,
-        method = "PSpecified",
-        args = { byte[].class }
-    )
     public void testPSpecified() {
         try {
             new PSource.PSpecified(null);
@@ -76,22 +63,6 @@ public class PSourceTest extends TestCase {
      * array specified in the constructor. Checks that modification
      * of returned array does not affect the internal array.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = PSource.PSpecified.class,
-            method = "PSpecified",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = PSource.PSpecified.class,
-            method = "getValue",
-            args = {}
-        )
-    })
     public void testGetValue() {
         byte[] p = new byte[] {1, 2, 3, 4, 5};
 
@@ -112,12 +83,6 @@ public class PSourceTest extends TestCase {
      * PSource(String pSrcName) method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks NullPointerException",
-        method = "PSource",
-        args = {java.lang.String.class}
-    )
     public void testPSource() {
         try {
             new PSource(null) {};
@@ -131,20 +96,6 @@ public class PSourceTest extends TestCase {
      * getAlgorithm() method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getAlgorithm",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "PSource",
-            args = {java.lang.String.class}
-        )
-    })
     public void testGetAlgorithm() {
         String pSrcName = "pSrcName";
         PSource ps = new PSource(pSrcName) {};

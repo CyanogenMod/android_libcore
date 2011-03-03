@@ -26,7 +26,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IllegalFormatWidthExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.IllegalFormatWidthException#IllegalFormatWidthException(int)
+     * java.util.IllegalFormatWidthException#IllegalFormatWidthException(int)
      */
     public void test_illegalFormatWidthException() {
         int width = Integer.MAX_VALUE;
@@ -37,7 +37,7 @@ public class IllegalFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatWidthException#getWidth()
+     * java.util.IllegalFormatWidthException#getWidth()
      */
     public void test_getWidth() {
         int width = 12345;
@@ -48,7 +48,7 @@ public class IllegalFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatWidthException#getMessage()
+     * java.util.IllegalFormatWidthException#getMessage()
      */
     public void test_getMessage() {
         int width = 12345;
@@ -74,7 +74,7 @@ public class IllegalFormatWidthExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -83,7 +83,7 @@ public class IllegalFormatWidthExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

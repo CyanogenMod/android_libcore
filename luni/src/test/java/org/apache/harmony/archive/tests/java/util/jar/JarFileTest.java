@@ -104,7 +104,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File)
+     * java.util.jar.JarFile#JarFile(java.io.File)
      */
     public void test_ConstructorLjava_io_File() {
         try {
@@ -123,7 +123,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.lang.String)
+     * java.util.jar.JarFile#JarFile(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() {
         try {
@@ -143,7 +143,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.lang.String, boolean)
+     * java.util.jar.JarFile#JarFile(java.lang.String, boolean)
      */
     public void test_ConstructorLjava_lang_StringZ() {
         try {
@@ -163,7 +163,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File, boolean)
+     * java.util.jar.JarFile#JarFile(java.io.File, boolean)
      */
     public void test_ConstructorLjava_io_FileZ() {
         try {
@@ -182,7 +182,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File, boolean, int)
+     * java.util.jar.JarFile#JarFile(java.io.File, boolean, int)
      */
     public void test_ConstructorLjava_io_FileZI() {
         try {
@@ -216,8 +216,8 @@ public class JarFileTest extends TestCase {
     /**
      * Constructs JarFile object.
      *
-     * @tests java.util.jar.JarFile#JarFile(java.io.File)
-     * @tests java.util.jar.JarFile#JarFile(java.lang.String)
+     * java.util.jar.JarFile#JarFile(java.io.File)
+     * java.util.jar.JarFile#JarFile(java.lang.String)
      */
     public void testConstructor_file() throws IOException {
         File f = new File(resources, jarName);
@@ -229,7 +229,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#entries()
+     * java.util.jar.JarFile#entries()
      */
     public void test_entries() throws Exception {
         /*
@@ -271,7 +271,7 @@ public class JarFileTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.jar.JarFile#getJarEntry(java.lang.String)
+     * java.util.jar.JarFile#getJarEntry(java.lang.String)
      */
     public void test_getEntryLjava_lang_String() throws IOException {
         try {
@@ -308,7 +308,7 @@ public class JarFileTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.jar.JarFile#getJarEntry(java.lang.String)
+     * java.util.jar.JarFile#getJarEntry(java.lang.String)
      */
     public void test_getJarEntryLjava_lang_String() throws IOException {
         try {
@@ -345,7 +345,7 @@ public class JarFileTest extends TestCase {
 
 
     /**
-     * @tests java.util.jar.JarFile#getJarEntry(java.lang.String)
+     * java.util.jar.JarFile#getJarEntry(java.lang.String)
      */
     public void testGetJarEntry() throws Exception {
         Support_Resources.copyFile(resources, null, jarName);
@@ -424,7 +424,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#getManifest()
+     * java.util.jar.JarFile#getManifest()
      */
     public void test_getManifest() {
         // Test for method java.util.jar.Manifest
@@ -515,7 +515,7 @@ public class JarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
+     * java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
      */
     // This test doesn't pass on RI. If entry size is set up incorrectly,
     // SecurityException is thrown. But SecurityException is thrown on RI only
@@ -788,7 +788,7 @@ public class JarFileTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
+     * java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
      */
     public void test_getInputStreamLjava_util_jar_JarEntry() throws IOException {
         File localFile = null;

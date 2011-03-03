@@ -17,25 +17,13 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.security.cert.CertificateEncodingException;
 
-@TestTargetClass(CertificateEncodingException.class)
 public class CertificateEncodingException2Test extends junit.framework.TestCase {
 
     /**
-     * @tests java.security.cert.CertificateEncodingException#CertificateEncodingException()
+     * java.security.cert.CertificateEncodingException#CertificateEncodingException()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateEncodingException",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.security.cert.CertificateEncodingException()
         try {

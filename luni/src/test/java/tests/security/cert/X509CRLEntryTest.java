@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -39,7 +34,6 @@ import java.util.Set;
 
 /**
  */
-@TestTargetClass(X509CRLEntry.class)
 public class X509CRLEntryTest extends TestCase {
 
     X509CRLEntry tbt_crlentry;
@@ -100,12 +94,6 @@ public class X509CRLEntryTest extends TestCase {
     /**
      * X509CRLEntry() method testing. Tests for creating object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509CRLEntry",
-        args = {}
-    )
     public void testX509CRLEntry() {
         TBTCRLEntry tbt_crlentry = new TBTCRLEntry();
 
@@ -126,12 +114,6 @@ public class X509CRLEntryTest extends TestCase {
      * operation: it should be reflexive, symmetric, transitive, consistent
      * and should be false on null object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         TBTCRLEntry tbt_crlentry_1 = new TBTCRLEntry() {
             public byte[] getEncoded() {
@@ -182,12 +164,6 @@ public class X509CRLEntryTest extends TestCase {
      * hashCode() method testing. Tests that for equal objects hash codes
      * are equal.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         TBTCRLEntry tbt_crlentry_1 = new TBTCRLEntry() {
             public byte[] getEncoded() {
@@ -202,49 +178,11 @@ public class X509CRLEntryTest extends TestCase {
      * getCertificateIssuer() method testing. Tests if the method throws
      * appropriate exception.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificateIssuer",
-        args = {}
-    )
     public void testGetCertificateIssuer() {
         assertNull("The default implementation should return null.",
                 tbt_crlentry.getCertificateIssuer());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEncoded",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getRevocationDate",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSerialNumber",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "hasExtensions",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "toString",
-            args = {}
-        )
-    })
     public void testAbstractMethods() {
         TBTCRLEntry tbt = new TBTCRLEntry() {
             public byte[] getEncoded() {

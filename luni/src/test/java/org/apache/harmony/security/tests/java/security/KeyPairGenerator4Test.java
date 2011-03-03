@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyPairGenerator;
 import java.security.Provider;
 import java.security.SecureRandom;
@@ -30,18 +25,11 @@ import java.security.spec.DSAParameterSpec;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.DSAParams;
 
-@TestTargetClass(KeyPairGenerator.class)
 public class KeyPairGenerator4Test extends junit.framework.TestCase {
 
     /**
-     * @tests java.security.KeyPairGenerator#genKeyPair()
+     * java.security.KeyPairGenerator#genKeyPair()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "genKeyPair",
-        args = {}
-    )
     public void test_genKeyPair() throws Exception {
         KeyPairGenerator gen = KeyPairGenerator.getInstance("DSA");
         gen.initialize(1024);
@@ -49,42 +37,24 @@ public class KeyPairGenerator4Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#getAlgorithm()
+     * java.security.KeyPairGenerator#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws Exception {
         String alg = KeyPairGenerator.getInstance("DSA").getAlgorithm();
         assertEquals("getAlgorithm returned unexpected value", "DSA", alg);
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#getInstance(java.lang.String)
+     * java.security.KeyPairGenerator#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verification of other string parameters and exception cases missed",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() throws Exception {
         KeyPairGenerator.getInstance("DSA");
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#getInstance(java.lang.String,
+     * java.security.KeyPairGenerator#getInstance(java.lang.String,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException, NoSuchProviderException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String()
             throws Exception {
 
@@ -106,43 +76,25 @@ public class KeyPairGenerator4Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#getProvider()
+     * java.security.KeyPairGenerator#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws Exception {
         Provider p = KeyPairGenerator.getInstance("DSA").getProvider();
         assertNotNull("provider is null", p);
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#initialize(int)
+     * java.security.KeyPairGenerator#initialize(int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidParameterException checking missed",
-        method = "initialize",
-        args = {int.class}
-    )
     public void test_initializeI() throws Exception {
         KeyPairGenerator keyPair = KeyPairGenerator.getInstance("DSA");
         keyPair.initialize(1024);
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#initialize(int,
+     * java.security.KeyPairGenerator#initialize(int,
      *        java.security.SecureRandom)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidParameterException checking missed",
-        method = "initialize",
-        args = {int.class, java.security.SecureRandom.class}
-    )
     public void test_initializeILjava_security_SecureRandom() throws Exception {
         KeyPairGenerator keyPair = KeyPairGenerator.getInstance("DSA");
         keyPair.initialize(1024, new SecureRandom());
@@ -150,14 +102,8 @@ public class KeyPairGenerator4Test extends junit.framework.TestCase {
 
 
     /**
-     * @tests java.security.KeyPairGenerator#initialize(java.security.spec.AlgorithmParameterSpec)
+     * java.security.KeyPairGenerator#initialize(java.security.spec.AlgorithmParameterSpec)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidAlgorithmParameterException checking missed",
-        method = "initialize",
-        args = {java.security.spec.AlgorithmParameterSpec.class}
-    )
     public void test_initializeLjava_security_spec_AlgorithmParameterSpec()
             throws Exception {
         // create DSAParams
@@ -173,15 +119,9 @@ public class KeyPairGenerator4Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.KeyPairGenerator#initialize(java.security.spec.AlgorithmParameterSpec,
+     * java.security.KeyPairGenerator#initialize(java.security.spec.AlgorithmParameterSpec,
      *        java.security.SecureRandom)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidAlgorithmParameterException checking missed",
-        method = "initialize",
-        args = {java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-    )
     public void test_initializeLjava_security_spec_AlgorithmParameterSpecLjava_security_SecureRandom()
             throws Exception {
         // create DSAParams

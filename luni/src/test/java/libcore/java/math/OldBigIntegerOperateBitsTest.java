@@ -28,7 +28,7 @@ public class OldBigIntegerOperateBitsTest extends TestCase {
 
 
     /**
-     * @tests java.math.BigInteger#getLowestSetBit() getLowestSetBit for
+     * java.math.BigInteger#getLowestSetBit() getLowestSetBit for
      *        negative BigInteger
      */
     public void test_getLowestSetBitNeg() {
@@ -43,7 +43,7 @@ public class OldBigIntegerOperateBitsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#getLowestSetBit() getLowestSetBit for
+     * java.math.BigInteger#getLowestSetBit() getLowestSetBit for
      *        positive BigInteger
      */
     public void test_getLowestSetBitPos() {
@@ -74,7 +74,7 @@ public class OldBigIntegerOperateBitsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#getLowestSetBit() getLowestSetBit for zero
+     * java.math.BigInteger#getLowestSetBit() getLowestSetBit for zero
      *        BigInteger
      */
     public void test_getLowestSetBitZero() {

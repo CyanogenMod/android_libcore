@@ -17,10 +17,6 @@
 package tests.java.sql;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 
 import java.io.CharArrayReader;
 import java.math.BigDecimal;
@@ -43,7 +39,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(Statement.class)
 public class SelectFunctionalityTest extends TestCase {
 
     private static Connection conn;
@@ -129,15 +124,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectSimple(). Selects all records
+     * SelectFunctionalityTest#test_SelectSimple(). Selects all records
      *        from the table
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects all records from the table",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectSimple() throws SQLException {
         String sql = "SELECT * FROM " + DatabaseCreator.TEST_TABLE2;
         ResultSet result = statement.executeQuery(sql);
@@ -178,15 +167,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectPrepared(). Selects all records
+     * SelectFunctionalityTest#test_SelectPrepared(). Selects all records
      *        from the table using parametric query
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects all records from the table using parametric query",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectPrepared() throws SQLException {
         String sql = "SELECT finteger, ftext, fcharacter, fdecimal, fnumeric,"
                 + " fsmallint, ffloat, freal, fdouble, fdate, ftime" + " FROM "
@@ -246,15 +229,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SubSelect(). Selects records from the
+     * SelectFunctionalityTest#test_SubSelect(). Selects records from the
      *        table using subselect
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from the table using subselect",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SubSelect() throws SQLException {
         String sql = "SELECT finteger," + " (SELECT ftext FROM "
                 + DatabaseCreator.TEST_TABLE2 + " WHERE finteger = 1) as ftext"
@@ -281,15 +258,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectThreeTables(). Selects records
+     * SelectFunctionalityTest#test_SelectThreeTables(). Selects records
      *        from a few tables
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a few tables",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectThreeTables() throws SQLException {
         String sql = "SELECT onum, " + DatabaseCreator.ORDERS_TABLE + ".cnum"
                 + " FROM " + DatabaseCreator.SALESPEOPLE_TABLE + ", "
@@ -325,15 +296,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectThreeTables(). Selects records
+     * SelectFunctionalityTest#test_SelectThreeTables(). Selects records
      *        from a table using union
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using union",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectUnionItself() throws SQLException {
         String sql = "SELECT b.cnum, b.cname" + " FROM "
                 + DatabaseCreator.CUSTOMERS_TABLE + " a, "
@@ -359,15 +324,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectLeftOuterJoin(). Selects
+     * SelectFunctionalityTest#test_SelectLeftOuterJoin(). Selects
      *        records from a table using left join
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using left join",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectLeftOuterJoin() throws SQLException {
         String sql = "SELECT distinct s.snum as ssnum, c.snum as ccnum FROM "
                 + DatabaseCreator.CUSTOMERS_TABLE + " c left outer join "
@@ -395,17 +354,11 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectRightOuterJoin(). Selects
+     * SelectFunctionalityTest#test_SelectRightOuterJoin(). Selects
      *        records from a table using right join
      *
      * TODO RIGHT and FULL OUTER JOINs are not supported
      */
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "tests right outer joins. RIGHT and FULL OUTER JOINs are not supported",
-            method = "executeQuery",
-            args = {java.lang.String.class}
-        )
     @KnownFailure("not supported")
     public void test_SelectRightOuterJoin() throws SQLException {
         String sql = "SELECT distinct s.snum as ssnum, c.snum as ccnum FROM "
@@ -435,15 +388,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectGroupBy(). Selects records from
+     * SelectFunctionalityTest#test_SelectGroupBy(). Selects records from
      *        a table using group by
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using group by",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectGroupBy() throws SQLException {
         String selectQuery = "SELECT rating, SUM(snum) AS sum FROM "
                 + DatabaseCreator.CUSTOMERS_TABLE + " GROUP BY rating";
@@ -468,15 +415,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectOrderBy(). Selects records from
+     * SelectFunctionalityTest#test_SelectOrderBy(). Selects records from
      *        a table using order by
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using order by",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectOrderBy() throws SQLException {
         String selectQuery = "SELECT onum FROM " + DatabaseCreator.ORDERS_TABLE
                 + " ORDER BY onum";
@@ -507,15 +448,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectDistinct(). Selects records
+     * SelectFunctionalityTest#test_SelectDistinct(). Selects records
      *        from a table using distinct
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using distinct",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectDistinct() throws SQLException {
         String selectQuery = "SELECT DISTINCT rating FROM "
                 + DatabaseCreator.CUSTOMERS_TABLE;
@@ -537,15 +472,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectAgregateFunctions(). Selects
+     * SelectFunctionalityTest#test_SelectAgregateFunctions(). Selects
      *        records from a table using agregate functions
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using agregate functions",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectAgregateFunctions() throws SQLException {
         String selectCount = "SELECT count(onum) as count FROM "
                 + DatabaseCreator.ORDERS_TABLE;
@@ -590,15 +519,9 @@ public class SelectFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests SelectFunctionalityTest#test_SelectHaving(). Selects records from
+     * SelectFunctionalityTest#test_SelectHaving(). Selects records from
      *        a table using having
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Selects records from a table using having",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void test_SelectHaving() throws SQLException {
         String selectQuery = "SELECT snum, max(amt) AS max FROM "
                 + DatabaseCreator.ORDERS_TABLE

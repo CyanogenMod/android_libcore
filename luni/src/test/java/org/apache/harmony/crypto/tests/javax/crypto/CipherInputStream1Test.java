@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.ByteArrayInputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -41,10 +36,8 @@ import javax.crypto.CipherInputStream;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(CipherInputStream.class)
 /**
  */
-
 public class CipherInputStream1Test extends TestCase {
 
     private static class TestInputStream extends ByteArrayInputStream {
@@ -68,12 +61,6 @@ public class CipherInputStream1Test extends TestCase {
      * CipherInputStream uses NullCipher if Cipher is not specified
      * in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CipherInputStream",
-        args = {java.io.InputStream.class}
-    )
     public void testCipherInputStream() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -94,12 +81,6 @@ public class CipherInputStream1Test extends TestCase {
      * read() method testing. Tests that method returns the correct value
      * (related to the InputStream) and that it returns -1 at the end of stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "read",
-        args = {}
-    )
     public void testRead1() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -121,12 +102,6 @@ public class CipherInputStream1Test extends TestCase {
      * value (related to the InputStream) and that it returns -1 at the end of
      * stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "read",
-        args = {byte[].class}
-    )
     public void testRead2() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -165,12 +140,6 @@ public class CipherInputStream1Test extends TestCase {
      * bytes in the case of null buffer, and that it returns -1 at the end of
      * stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "read",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testRead3() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -209,12 +178,6 @@ public class CipherInputStream1Test extends TestCase {
      * skip(long n) method testing. Tests that the method correctly skips the
      * bytes.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "skip",
-        args = {long.class}
-    )
     public void testSkip() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -253,12 +216,6 @@ public class CipherInputStream1Test extends TestCase {
     /**
      * available() method testing. Tests that the method always return 0.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "available",
-        args = {}
-    )
     public void testAvailable() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -271,12 +228,6 @@ public class CipherInputStream1Test extends TestCase {
      * close() method testing. Tests that the method calls the close()
      * method of the underlying input stream.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Can not check IOException.",
-        method = "close",
-        args = {}
-    )
     public void testClose() throws Exception {
         byte[] data = new byte[] { -127, -100, -50, -10, -1, 0, 1, 10, 50, 127 };
         TestInputStream tis = new TestInputStream(data);
@@ -289,12 +240,6 @@ public class CipherInputStream1Test extends TestCase {
     /**
      * markSupported() method testing. Tests that mark is not supported.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "markSupported",
-        args = {}
-    )
     public void testMarkSupported() {
         byte[] data = new byte[] {-127, -100, -50, -10, -1, 0, 1, 10, 50, 127};
         TestInputStream tis = new TestInputStream(data);
@@ -303,12 +248,6 @@ public class CipherInputStream1Test extends TestCase {
                 + "should be false.", cis.markSupported());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CipherInputStream",
-        args = {java.io.InputStream.class, javax.crypto.Cipher.class}
-    )
     public void test_ConstructorLjava_io_InputStreamLjavax_crypto_Cipher () throws
     NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[100]);

@@ -25,26 +25,16 @@ package org.apache.harmony.security.tests.java.security;
 import java.security.PublicKey;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-@TestTargetClass(PublicKey.class)
+
 /**
  * Tests for <code>PublicKey</code> class field
  *
  */
-
 public class PublicKeyTest extends TestCase {
 
     /**
      * Test for <code>serialVersionUID</code> field
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Field testing",
-        method = "!serialVersionUID",
-        args = {}
-    )
     public void testField() {
         checkPublicKey cPK = new checkPublicKey();
         assertEquals("Incorrect serialVersionUID", cPK.getSerVerUID(), //PublicKey.serialVersionUID,

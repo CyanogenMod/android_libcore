@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IllegalFormatFlagsExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.IllegalFormatFlagsException#IllegalFormatFlagsException(String)
+     * java.util.IllegalFormatFlagsException#IllegalFormatFlagsException(String)
      */
     public void test_illegalFormatFlagsException() {
         try {
@@ -39,7 +39,7 @@ public class IllegalFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatFlagsException.getFlags()
+     * java.util.IllegalFormatFlagsException.getFlags()
      */
     public void test_getFlags() {
         String flags = "TESTFLAGS";
@@ -49,7 +49,7 @@ public class IllegalFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatFlagsException.getMessage()
+     * java.util.IllegalFormatFlagsException.getMessage()
      */
     public void test_getMessage() {
         String flags = "TESTFLAGS";
@@ -75,7 +75,7 @@ public class IllegalFormatFlagsExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -84,7 +84,7 @@ public class IllegalFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

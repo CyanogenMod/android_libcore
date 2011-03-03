@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.util.Arrays;
 
 import javax.crypto.spec.RC5ParameterSpec;
@@ -35,10 +30,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(RC5ParameterSpec.class)
 /**
  */
-
 public class RC5ParameterSpecTest extends TestCase {
 
     /**
@@ -47,12 +40,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * inappropriate constructor parameters and that input iv array is
      * copied to protect against subsequent modification.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "RC5ParameterSpec",
-        args = {int.class, int.class, int.class, byte[].class}
-    )
     public void testRC5ParameterSpec1() {
         int version = 1;
         int rounds = 5;
@@ -94,12 +81,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * the case of inappropriate constructor parameters and that input iv array
      * is copied to protect against subsequent modification.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "RC5ParameterSpec",
-        args = {int.class, int.class, int.class, byte[].class, int.class}
-    )
     public void testRC5ParameterSpec2() {
         int version = 1;
         int rounds = 5;
@@ -156,12 +137,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * getVersion() method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getVersion",
-        args = {}
-    )
     public void testGetVersion() {
         int version = 1;
         int rounds = 5;
@@ -177,12 +152,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * getRounds() method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getRounds",
-        args = {}
-    )
     public void testGetRounds() {
         int version = 1;
         int rounds = 5;
@@ -198,12 +167,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * getWordSize() method testing. Tests that returned value is
      * equal to the value specified in the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getWordSize",
-        args = {}
-    )
     public void testGetWordSize() {
         int version = 1;
         int rounds = 5;
@@ -221,12 +184,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * of returned array does not affect the internal array. Also it checks
      * that getIV() method returns null if iv is not specified.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIV",
-        args = {}
-    )
     public void testGetIV() {
         int version = 1;
         int rounds = 5;
@@ -254,12 +211,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * operation: it should be reflexive, symmetric, transitive, consistent
      * and should be false on null object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         int version = 1;
         int rounds = 5;
@@ -310,12 +261,6 @@ public class RC5ParameterSpecTest extends TestCase {
      * hashCode() method testing. Tests that for equal objects hash codes
      * are equal.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         int version = 1;
         int rounds = 5;
@@ -330,11 +275,6 @@ public class RC5ParameterSpecTest extends TestCase {
                                             ps1.hashCode() == ps2.hashCode());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "RC5ParameterSpec",
-        args = {int.class, int.class, int.class}
-    )
     public void test_constructorIII() {
         int version = 1;
         int rounds = 5;

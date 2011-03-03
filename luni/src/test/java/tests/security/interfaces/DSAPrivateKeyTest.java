@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package tests.security.interfaces;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.BrokenTest;
 
 import junit.framework.TestCase;
 
@@ -28,19 +24,12 @@ import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.spec.DSAParameterSpec;
 
-@TestTargetClass(DSAPrivateKey.class)
 public class DSAPrivateKeyTest extends TestCase {
 
     /**
-     * @tests java.security.interfaces.DSAPrivateKey
+     * java.security.interfaces.DSAPrivateKey
      * #getX()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getX",
-        args = {}
-    )
     public void test_getX() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(new DSAParameterSpec(Util.P, Util.Q, Util.G),

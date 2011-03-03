@@ -16,11 +16,6 @@
  */
 package tests.api.java.lang.ref;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.AssertionFailedError;
 
 import java.lang.ref.PhantomReference;
@@ -30,7 +25,6 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Vector;
 
-@TestTargetClass(Reference.class)
 public class ReferenceTest extends junit.framework.TestCase {
     Object tmpA, tmpB, tmpC, obj;
 
@@ -90,14 +84,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#clear()
+     * java.lang.ref.Reference#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         tmpA = new Object();
         tmpB = new Object();
@@ -119,22 +107,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#enqueue()
+     * java.lang.ref.Reference#enqueue()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "enqueue",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isEnqueued",
-            args = {}
-        )
-    })
     public void test_enqueue() {
         ReferenceQueue rq = new ReferenceQueue();
         obj = new Object();
@@ -170,14 +144,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#enqueue()
+     * java.lang.ref.Reference#enqueue()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality for WeakReference.",
-        method = "get",
-        args = {}
-    )
     public void test_get_WeakReference() {
         // Test the general/overall functionality of Reference.
 
@@ -245,28 +213,10 @@ public class ReferenceTest extends junit.framework.TestCase {
      * get called, and that clear/enqueue/finalize happen in the
      * right order for WeakReferences.
      *
-     * @tests java.lang.ref.Reference#clear()
-     * @tests java.lang.ref.Reference#enqueue()
-     * @tests java.lang.Object#finalize()
+     * java.lang.ref.Reference#clear()
+     * java.lang.ref.Reference#enqueue()
+     * java.lang.Object#finalize()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Makes sure that overridden versions of clear() and enqueue()  " +
-                    "get called, and that clear/enqueue/finalize happen in the  " +
-                    "right order for WeakReferences.",
-            method = "clear",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Makes sure that overridden versions of clear() and enqueue()  " +
-                    "get called, and that clear/enqueue/finalize happen in the  " +
-                    "right order for WeakReferences.",
-            method = "enqueue",
-            args = {}
-        )
-    })
     public void test_subclass() {
         error = null;
         testObjectFinalized = false;
@@ -323,14 +273,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#get()
+     * java.lang.ref.Reference#get()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't check that get() can return null.",
-        method = "get",
-        args = {}
-    )
     public void test_get() {
 
         Vector<StringBuffer> vec = new Vector<StringBuffer>();
@@ -358,14 +302,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#isEnqueued()
+     * java.lang.ref.Reference#isEnqueued()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEnqueued",
-        args = {}
-    )
     public void test_isEnqueued() {
         ReferenceQueue rq = new ReferenceQueue();
         obj = new Object();
@@ -385,15 +323,6 @@ public class ReferenceTest extends junit.framework.TestCase {
      * Checks to make sure that the referent of the WeakReference
      * is still pointing to a valid object.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Contrives a situation where the only reference to a string  " +
-                "is a WeakReference from an object that is being finalized.  " +
-                "Checks to make sure that the referent of the WeakReference  " +
-                "is still pointing to a valid object.",
-        method = "get",
-        args = {}
-    )
     public void test_finalizeReferenceInteraction() {
         error = null;
         testObjectFinalized = false;

@@ -17,10 +17,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -83,7 +79,6 @@ import org.apache.harmony.security.x509.PrivateKeyUsagePeriod;
 /**
  * X509CertSelectorTest
  */
-@TestTargetClass(X509CertSelector.class)
 public class X509CertSelectorTest extends TestCase {
 
     byte[][] constraintBytes = new byte[][] {
@@ -128,14 +123,8 @@ public class X509CertSelectorTest extends TestCase {
                     1, -128, 1, 0}};
 
     /**
-     * @tests java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
+     * java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IOException checking missed",
-        method = "addSubjectAlternativeName",
-        args = {int.class, byte[].class}
-    )
     public void test_addSubjectAlternativeNameLintLbyte_array() throws IOException {
         // Regression for HARMONY-2487
         int[] types = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -150,14 +139,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addSubjectAlternativeName(int, String)
+     * java.security.cert.X509CertSelector#addSubjectAlternativeName(int, String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies IOException.",
-        method = "addSubjectAlternativeName",
-        args = {int.class, java.lang.String.class}
-    )
     public void test_addSubjectAlternativeNameLintLjava_lang_String() {
         // Regression for HARMONY-727
         int[] types = { 0, 2, 3, 4, 5, 6, 7, 8 };
@@ -172,14 +155,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addPathToName(int, byte[])
+     * java.security.cert.X509CertSelector#addPathToName(int, byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies NullPointerException.",
-        method = "addPathToName",
-        args = {int.class, byte[].class}
-    )
     public void test_addPathToNameLintLbyte_array() throws IOException {
         // Regression for HARMONY-2487
         int[] types = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -193,14 +170,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addPathToName(int, String)
+     * java.security.cert.X509CertSelector#addPathToName(int, String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies IOException.",
-        method = "addPathToName",
-        args = {int.class, java.lang.String.class}
-    )
     public void test_addPathToNameLintLjava_lang_String() {
         // Regression for HARMONY-724
         for (int type = 0; type <= 8; type++) {
@@ -216,14 +187,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#X509CertSelector()
+     * java.security.cert.X509CertSelector#X509CertSelector()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509CertSelector",
-        args = {}
-    )
     public void test_X509CertSelector() {
         X509CertSelector selector = null;
         try {
@@ -236,14 +201,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#clone()
+     * java.security.cert.X509CertSelector#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() throws Exception {
         X509CertSelector selector = new X509CertSelector();
         X509CertSelector selector1 = (X509CertSelector) selector.clone();
@@ -295,14 +254,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getAuthorityKeyIdentifier()
+     * java.security.cert.X509CertSelector#getAuthorityKeyIdentifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAuthorityKeyIdentifier",
-        args = {}
-    )
     public void test_getAuthorityKeyIdentifier() {
         byte[] akid1 = new byte[] { 4, 5, 1, 2, 3, 4, 5 }; // random value
         byte[] akid2 = new byte[] { 4, 5, 5, 4, 3, 2, 1 }; // random value
@@ -320,14 +273,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getBasicConstraints()
+     * java.security.cert.X509CertSelector#getBasicConstraints()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBasicConstraints",
-        args = {}
-    )
     public void test_getBasicConstraints() {
         X509CertSelector selector = new X509CertSelector();
         int[] validValues = { 2, 1, 0, 1, 2, 3, 10, 20 };
@@ -338,14 +285,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getCertificate()
+     * java.security.cert.X509CertSelector#getCertificate()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificate",
-        args = {}
-    )
     public void test_getCertificate() throws CertificateException {
         X509CertSelector selector = new X509CertSelector();
         CertificateFactory certFact = CertificateFactory.getInstance("X509");
@@ -368,14 +309,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getCertificateValid()
+     * java.security.cert.X509CertSelector#getCertificateValid()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificateValid",
-        args = {}
-    )
     public void test_getCertificateValid() {
         Date date1 = new Date(100);
         Date date2 = new Date(200);
@@ -400,14 +335,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getExtendedKeyUsage()
+     * java.security.cert.X509CertSelector#getExtendedKeyUsage()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getExtendedKeyUsage",
-        args = {}
-    )
     public void test_getExtendedKeyUsage() {
         HashSet<String> ku = new HashSet<String>(Arrays
                 .asList(new String[] { "1.3.6.1.5.5.7.3.1",
@@ -436,14 +365,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getIssuer()
+     * java.security.cert.X509CertSelector#getIssuer()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuer",
-        args = {}
-    )
     public void test_getIssuer() {
         X500Principal iss1 = new X500Principal("O=First Org.");
         X500Principal iss2 = new X500Principal("O=Second Org.");
@@ -458,14 +381,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getIssuerAsBytes()
+     * java.security.cert.X509CertSelector#getIssuerAsBytes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuerAsBytes",
-        args = {}
-    )
     public void test_getIssuerAsBytes() {
         byte[] name1 = new byte[]
         // manually obtained DER encoding of "O=First Org." issuer name;
@@ -497,14 +414,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getIssuerAsString()
+     * java.security.cert.X509CertSelector#getIssuerAsString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuerAsString",
-        args = {}
-    )
     public void test_getIssuerAsString() {
         String name1 = "O=First Org.";
         String name2 = "O=Second Org.";
@@ -524,14 +435,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getKeyUsage()
+     * java.security.cert.X509CertSelector#getKeyUsage()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKeyUsage",
-        args = {}
-    )
     public void test_getKeyUsage() {
         boolean[] ku = new boolean[] { true, false, true, false, true, false,
                 true, false, true };
@@ -548,14 +453,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getMatchAllSubjectAltNames()
+     * java.security.cert.X509CertSelector#getMatchAllSubjectAltNames()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMatchAllSubjectAltNames",
-        args = {}
-    )
     public void test_getMatchAllSubjectAltNames() {
         X509CertSelector selector = new X509CertSelector();
         assertTrue("The matchAllNames initially should be true", selector
@@ -566,14 +465,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getNameConstraints()
+     * java.security.cert.X509CertSelector#getNameConstraints()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getNameConstraints",
-        args = {}
-    )
     public void test_getNameConstraints() throws IOException {
 
 // Used to generate following byte array
@@ -612,14 +505,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getPathToNames()
+     * java.security.cert.X509CertSelector#getPathToNames()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPathToNames",
-        args = {}
-    )
     public void test_getPathToNames() {
         try {
             GeneralName san0 = new GeneralName(new OtherName("1.2.3.4.5",
@@ -666,14 +553,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getPolicy()
+     * java.security.cert.X509CertSelector#getPolicy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPolicy",
-        args = {}
-    )
     public void test_getPolicy() throws IOException {
         String[] policies1 = new String[] { "1.3.6.1.5.5.7.3.1",
                 "1.3.6.1.5.5.7.3.2", "1.3.6.1.5.5.7.3.3", "1.3.6.1.5.5.7.3.4",
@@ -698,14 +579,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getPrivateKeyValid()
+     * java.security.cert.X509CertSelector#getPrivateKeyValid()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPrivateKeyValid",
-        args = {}
-    )
     public void test_getPrivateKeyValid() {
         Date date1 = new Date(100);
         Date date2 = new Date(200);
@@ -723,14 +598,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSerialNumber()
+     * java.security.cert.X509CertSelector#getSerialNumber()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSerialNumber",
-        args = {}
-    )
     public void test_getSerialNumber() {
         BigInteger ser1 = new BigInteger("10000");
         BigInteger ser2 = new BigInteger("10001");
@@ -745,14 +614,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubject()
+     * java.security.cert.X509CertSelector#getSubject()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubject",
-        args = {}
-    )
     public void test_getSubject() {
         X500Principal sub1 = new X500Principal("O=First Org.");
         X500Principal sub2 = new X500Principal("O=Second Org.");
@@ -767,14 +630,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectAlternativeNames()
+     * java.security.cert.X509CertSelector#getSubjectAlternativeNames()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectAlternativeNames",
-        args = {}
-    )
     public void test_getSubjectAlternativeNames() {
         try {
             GeneralName san1 = new GeneralName(1, "rfc@822.Name");
@@ -804,14 +661,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectAsBytes()
+     * java.security.cert.X509CertSelector#getSubjectAsBytes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectAsBytes",
-        args = {}
-    )
     public void test_getSubjectAsBytes() {
         byte[] name1 = new byte[]
         // manually obtained DER encoding of "O=First Org." issuer name;
@@ -843,14 +694,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectAsString()
+     * java.security.cert.X509CertSelector#getSubjectAsString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectAsString",
-        args = {}
-    )
     public void test_getSubjectAsString() {
         String name1 = "O=First Org.";
         String name2 = "O=Second Org.";
@@ -870,14 +715,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectKeyIdentifier()
+     * java.security.cert.X509CertSelector#getSubjectKeyIdentifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectKeyIdentifier",
-        args = {}
-    )
     public void test_getSubjectKeyIdentifier() {
         byte[] skid1 = new byte[] { 1, 2, 3, 4, 5 }; // random value
         byte[] skid2 = new byte[] { 4, 5, 5, 4, 3, 2, 1 }; // random value
@@ -896,14 +735,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectPublicKey()
+     * java.security.cert.X509CertSelector#getSubjectPublicKey()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectPublicKey",
-        args = {}
-    )
     public void test_getSubjectPublicKey() throws Exception {
 
         // SubjectPublicKeyInfo ::= SEQUENCE {
@@ -934,14 +767,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#getSubjectPublicKeyAlgID()
+     * java.security.cert.X509CertSelector#getSubjectPublicKeyAlgID()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubjectPublicKeyAlgID",
-        args = {}
-    )
     public void test_getSubjectPublicKeyAlgID() {
 
         X509CertSelector selector = new X509CertSelector();
@@ -976,14 +803,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#match(java.security.cert.Certificate)
+     * java.security.cert.X509CertSelector#match(java.security.cert.Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "match",
-        args = {java.security.cert.Certificate.class}
-    )
     public void test_matchLjava_security_cert_Certificate()
             throws CertificateException {
         X509CertSelector selector = new X509CertSelector();
@@ -1008,14 +829,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setAuthorityKeyIdentifier(byte[])
+     * java.security.cert.X509CertSelector#setAuthorityKeyIdentifier(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setAuthorityKeyIdentifier",
-        args = {byte[].class}
-    )
     public void test_setAuthorityKeyIdentifierLB$() throws CertificateException {
         X509CertSelector selector = new X509CertSelector();
 
@@ -1048,14 +863,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setBasicConstraints(int)
+     * java.security.cert.X509CertSelector#setBasicConstraints(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBasicConstraints",
-        args = {int.class}
-    )
     public void test_setBasicConstraintsLint() {
         X509CertSelector selector = new X509CertSelector();
         int[] invalidValues = { -3, -4, -5, 1000000000 };
@@ -1076,14 +885,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setCertificate(java.security.cert.Certificate)
+     * java.security.cert.X509CertSelector#setCertificate(java.security.cert.Certificate)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setCertificate",
-        args = {java.security.cert.X509Certificate.class}
-    )
     public void test_setCertificateLjava_security_cert_X509Certificate()
             throws CertificateException {
 
@@ -1108,14 +911,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setCertificateValid(java.util.Date)
+     * java.security.cert.X509CertSelector#setCertificateValid(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setCertificateValid",
-        args = {java.util.Date.class}
-    )
     public void test_setCertificateValidLjava_util_Date()
             throws CertificateException {
         X509CertSelector selector = new X509CertSelector();
@@ -1139,14 +936,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setExtendedKeyUsage(Set<String>)
+     * java.security.cert.X509CertSelector#setExtendedKeyUsage(Set<String>)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setExtendedKeyUsage",
-        args = {java.util.Set.class}
-    )
     public void test_setExtendedKeyUsageLjava_util_Set()
             throws CertificateException {
         HashSet<String> ku1 = new HashSet<String>(Arrays
@@ -1188,14 +979,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setIssuer(byte[])
+     * java.security.cert.X509CertSelector#setIssuer(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIssuer",
-        args = {byte[].class}
-    )
     public void test_setIssuerLB$() throws CertificateException {
         byte[] name1 = new byte[]
         // manually obtained DER encoding of "O=First Org." issuer name;
@@ -1239,14 +1024,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setIssuer(java.lang.String)
+     * java.security.cert.X509CertSelector#setIssuer(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIssuer",
-        args = {java.lang.String.class}
-    )
     public void test_setIssuerLjava_lang_String() throws CertificateException {
 
         String name1 = "O=First Org.";
@@ -1285,14 +1064,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setIssuer(javax.security.auth.x500.X500Principal)
+     * java.security.cert.X509CertSelector#setIssuer(javax.security.auth.x500.X500Principal)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIssuer",
-        args = {javax.security.auth.x500.X500Principal.class}
-    )
     public void test_setIssuerLjavax_security_auth_x500_X500Principal()
             throws CertificateException {
         X500Principal iss1 = new X500Principal("O=First Org.");
@@ -1316,14 +1089,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setKeyUsage(boolean)
+     * java.security.cert.X509CertSelector#setKeyUsage(boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setKeyUsage",
-        args = {boolean[].class}
-    )
     public void test_setKeyUsageZ() throws CertificateException {
         boolean[] ku1 = new boolean[] { true, true, true, true, true, true,
                 true, true, true };
@@ -1355,14 +1122,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setMatchAllSubjectAltNames(boolean)
+     * java.security.cert.X509CertSelector#setMatchAllSubjectAltNames(boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMatchAllSubjectAltNames",
-        args = {boolean.class}
-    )
     public void test_setMatchAllSubjectAltNamesZ() {
         TestCert cert = new TestCert();
         X509CertSelector selector = new X509CertSelector();
@@ -1373,15 +1134,9 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setNameConstraints(byte[]
+     * java.security.cert.X509CertSelector#setNameConstraints(byte[]
      *        bytes)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setNameConstraints",
-        args = {byte[].class}
-    )
     public void test_setNameConstraintsLB$() throws IOException {
 //        GeneralName[] name_constraints = new GeneralName[] {
 //                new GeneralName(1, "822.Name"),
@@ -1413,14 +1168,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setPathToNames(Collection<List<?>>)
+     * java.security.cert.X509CertSelector#setPathToNames(Collection<List<?>>)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPathToNames",
-        args = {java.util.Collection.class}
-    )
     public void test_setPathToNamesLjava_util_Collection() {
         try {
             GeneralName san0 = new GeneralName(new OtherName("1.2.3.4.5",
@@ -1467,14 +1216,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setPolicy(Set<String>)
+     * java.security.cert.X509CertSelector#setPolicy(Set<String>)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPolicy",
-        args = {java.util.Set.class}
-    )
     public void test_setPolicyLjava_util_Set() throws IOException {
         String[] policies1 = new String[] { "1.3.6.1.5.5.7.3.1",
                 "1.3.6.1.5.5.7.3.2", "1.3.6.1.5.5.7.3.3", "1.3.6.1.5.5.7.3.4",
@@ -1510,14 +1253,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setPrivateKeyValid(java.util.Date)
+     * java.security.cert.X509CertSelector#setPrivateKeyValid(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setPrivateKeyValid",
-        args = {java.util.Date.class}
-    )
     public void test_setPrivateKeyValidLjava_util_Date()
             throws CertificateException {
         Date date1 = new Date(100000000);
@@ -1546,14 +1283,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSerialNumber(java.math.BigInteger)
+     * java.security.cert.X509CertSelector#setSerialNumber(java.math.BigInteger)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSerialNumber",
-        args = {java.math.BigInteger.class}
-    )
     public void test_setSerialNumberLjava_math_BigInteger()
             throws CertificateException {
         BigInteger ser1 = new BigInteger("10000");
@@ -1577,14 +1308,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubject(byte[])
+     * java.security.cert.X509CertSelector#setSubject(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubject",
-        args = {byte[].class}
-    )
     public void test_setSubjectLB$() throws CertificateException {
         byte[] name1 = new byte[]
         // manually obtained DER encoding of "O=First Org." issuer name;
@@ -1628,14 +1353,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubject(java.lang.String)
+     * java.security.cert.X509CertSelector#setSubject(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubject",
-        args = {java.lang.String.class}
-    )
     public void test_setSubjectLjava_lang_String() throws CertificateException {
         String name1 = "O=First Org.";
         String name2 = "O=Second Org.";
@@ -1673,14 +1392,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubject(javax.security.auth.x500.X500Principal)
+     * java.security.cert.X509CertSelector#setSubject(javax.security.auth.x500.X500Principal)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubject",
-        args = {javax.security.auth.x500.X500Principal.class}
-    )
     public void test_setSubjectLjavax_security_auth_x500_X500Principal()
             throws CertificateException {
         X500Principal sub1 = new X500Principal("O=First Org.");
@@ -1705,14 +1418,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubjectAlternativeNames(Collection<List<?>>)
+     * java.security.cert.X509CertSelector#setSubjectAlternativeNames(Collection<List<?>>)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubjectAlternativeNames",
-        args = {java.util.Collection.class}
-    )
     public void test_setSubjectAlternativeNamesLjava_util_Collection() {
 
         try {
@@ -1761,14 +1468,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubjectKeyIdentifier(byte[])
+     * java.security.cert.X509CertSelector#setSubjectKeyIdentifier(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubjectKeyIdentifier",
-        args = {byte[].class}
-    )
     public void test_setSubjectKeyIdentifierLB$() throws CertificateException {
         byte[] skid1 = new byte[] { 1, 2, 3, 4, 5 }; // random value
         byte[] skid2 = new byte[] { 5, 4, 3, 2, 1 }; // random value
@@ -1792,14 +1493,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubjectPublicKey(byte[])
+     * java.security.cert.X509CertSelector#setSubjectPublicKey(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubjectPublicKey",
-        args = {byte[].class}
-    )
     public void test_setSubjectPublicKeyLB$() throws Exception {
 
         //SubjectPublicKeyInfo  ::=  SEQUENCE  {
@@ -1823,14 +1518,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubjectPublicKey(java.security.PublicKey key)
+     * java.security.cert.X509CertSelector#setSubjectPublicKey(java.security.PublicKey key)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubjectPublicKey",
-        args = {java.security.PublicKey.class}
-    )
     public void test_setSubjectPublicKeyLjava_security_PublicKey()
             throws CertificateException {
         PublicKey pkey1 = null;
@@ -1861,14 +1550,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#setSubjectPublicKeyAlgID(java.lang.String)
+     * java.security.cert.X509CertSelector#setSubjectPublicKeyAlgID(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSubjectPublicKeyAlgID",
-        args = {java.lang.String.class}
-    )
     public void test_setSubjectPublicKeyAlgIDLjava_lang_String()
             throws CertificateException {
 
@@ -1941,14 +1624,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#toString()
+     * java.security.cert.X509CertSelector#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         X509CertSelector selector = new X509CertSelector();
         assertNotNull(selector.toString());
@@ -2411,14 +2088,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addPathToName(int, byte[])
+     * java.security.cert.X509CertSelector#addPathToName(int, byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies Exception",
-        method = "addPathToName",
-        args = {int.class, byte[].class}
-    )
     public void test_addPathToNameLintLbyte_array2() throws Exception {
         TestUtils.initCertPathSSCertChain();
         setupEnvironment();
@@ -2454,14 +2125,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addPathToName(int, String)
+     * java.security.cert.X509CertSelector#addPathToName(int, String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies IOException.",
-        method = "addPathToName",
-        args = {int.class, java.lang.String.class}
-    )
     public void test_addPathToNameLintLjava_lang_String2() throws Exception {
         setupEnvironment();
         byte[] bytes, bytesName;
@@ -2497,14 +2162,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
+     * java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "IOException checking missed",
-        method = "addSubjectAlternativeName",
-        args = {int.class, byte[].class}
-    )
     public void test_addSubjectAlternativeNameLintLbyte_array2()
             throws Exception {
 
@@ -2546,14 +2205,8 @@ public class X509CertSelectorTest extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CertSelector#addSubjectAlternativeName(int, String)
+     * java.security.cert.X509CertSelector#addSubjectAlternativeName(int, String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addSubjectAlternativeName",
-        args = {int.class, java.lang.String.class}
-    )
     public void test_addSubjectAlternativeNameLintLjava_lang_String2() throws Exception{
         GeneralName san6 = new GeneralName(6, "http://uniform.Resource.Id");
         GeneralName san2 = new GeneralName(2, "dNSName");

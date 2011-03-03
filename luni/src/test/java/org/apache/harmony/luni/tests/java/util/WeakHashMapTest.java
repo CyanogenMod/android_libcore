@@ -49,7 +49,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
     Object[] VALUE_ARRAY;
 
 	/**
-	 * @tests java.util.WeakHashMap#WeakHashMap()
+	 * java.util.WeakHashMap#WeakHashMap()
 	 */
 	public void test_Constructor() {
 		// Test for method java.util.WeakHashMap()
@@ -65,7 +65,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#WeakHashMap(int)
+	 * java.util.WeakHashMap#WeakHashMap(int)
 	 */
 	public void test_ConstructorI() {
 		// Test for method java.util.WeakHashMap(int)
@@ -83,7 +83,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#WeakHashMap(int, float)
+	 * java.util.WeakHashMap#WeakHashMap(int, float)
 	 */
 	public void test_ConstructorIF() {
 		// Test for method java.util.WeakHashMap(int, float)
@@ -101,7 +101,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 	
 	/**
-	 * @tests java.util.WeakHashMap#WeakHashMap(java.util.Map)
+	 * java.util.WeakHashMap#WeakHashMap(java.util.Map)
 	 */
 	public void test_ConstructorLjava_util_Map() {
         Map mockMap = new MockMap();
@@ -110,7 +110,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#clear()
+	 * java.util.WeakHashMap#clear()
 	 */
 	public void test_clear() {
 		// Test for method boolean java.util.WeakHashMap.clear()
@@ -126,7 +126,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#containsKey(java.lang.Object)
+	 * java.util.WeakHashMap#containsKey(java.lang.Object)
 	 */
 	public void test_containsKeyLjava_lang_Object() {
 		// Test for method boolean java.util.WeakHashMap.containsKey()
@@ -141,7 +141,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#containsValue(java.lang.Object)
+	 * java.util.WeakHashMap#containsValue(java.lang.Object)
 	 */
 	public void test_containsValueLjava_lang_Object() {
 		// Test for method boolean java.util.WeakHashMap.containsValue()
@@ -156,7 +156,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.WeakHashMap#entrySet()
+     * java.util.WeakHashMap#entrySet()
      */
     public void test_entrySet() {
         WeakHashMap<Object, Object> weakMap = new WeakHashMap<Object, Object>();
@@ -245,7 +245,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.WeakHashMap#entrySet()
+	 * java.util.WeakHashMap#entrySet()
 	 */
 	public void test_entrySet_2() {
 		// Test for method java.util.Set java.util.WeakHashMap.entrySet()
@@ -283,7 +283,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#get(java.lang.Object)
+	 * java.util.WeakHashMap#get(java.lang.Object)
 	 */
 	public void test_getLjava_lang_Object() {
 		// Test for method java.lang.Object
@@ -292,7 +292,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#isEmpty()
+	 * java.util.WeakHashMap#isEmpty()
 	 */
 	public void test_isEmpty() {
 		// Test for method boolean java.util.WeakHashMap.isEmpty()
@@ -306,7 +306,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#put(java.lang.Object, java.lang.Object)
+	 * java.util.WeakHashMap#put(java.lang.Object, java.lang.Object)
 	 */
 	public void test_putLjava_lang_ObjectLjava_lang_Object() {
 		// Test for method java.lang.Object
@@ -320,7 +320,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
     /**
-     * @tests java.util.WeakHashMap#putAll(java.util.Map)
+     * java.util.WeakHashMap#putAll(java.util.Map)
      */
     public void test_putAllLjava_util_Map() {
         Map mockMap=new MockMap();
@@ -330,7 +330,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
     }
 
 	/**
-	 * @tests java.util.WeakHashMap#remove(java.lang.Object)
+	 * java.util.WeakHashMap#remove(java.lang.Object)
 	 */
 	public void test_removeLjava_lang_Object() {
 		// Test for method java.lang.Object
@@ -347,7 +347,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#size()
+	 * java.util.WeakHashMap#size()
 	 */
 	public void test_size() {
 		// Test for method int java.util.WeakHashMap.size()
@@ -355,7 +355,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.util.WeakHashMap#keySet()
+	 * java.util.WeakHashMap#keySet()
 	 */
 	public void test_keySet() {
 		// Test for method java.util.Set java.util.WeakHashMap.keySet()
@@ -392,7 +392,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 
     /**
      * Regression test for HARMONY-3883
-     * @tests java.util.WeakHashMap#keySet()
+     * java.util.WeakHashMap#keySet()
      */
     public void test_keySet_hasNext() {
         WeakHashMap map = new WeakHashMap();
@@ -425,7 +425,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 
 
 	/**
-	 * @tests java.util.WeakHashMap#values()
+	 * java.util.WeakHashMap#values()
 	 */
 	public void test_values() {
 		// Test for method java.util.Set java.util.WeakHashMap.values()

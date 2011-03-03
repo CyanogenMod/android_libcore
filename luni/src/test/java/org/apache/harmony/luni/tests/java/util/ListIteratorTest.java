@@ -16,18 +16,12 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-@TestTargetClass(ListIterator.class)
 public class ListIteratorTest extends TestCase {
 
     ListIterator<Integer> l = null;
@@ -39,12 +33,6 @@ public class ListIteratorTest extends TestCase {
             objArray[i] = new Integer(i);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hasNext",
-        args = {}
-    )
     public void testHasNext() {
         for (int i = 0; i < objArray.length; i++) {
             assertTrue(l.hasNext());
@@ -53,12 +41,6 @@ public class ListIteratorTest extends TestCase {
         assertFalse(l.hasNext());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "next",
-        args = {}
-    )
     public void testNext() {
         for (int i = 0; i < objArray.length; i++) {
             assertTrue(objArray[i].equals(l.next()));
@@ -114,12 +96,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {}
-    )
     public void testRemove() {
         try {
             l.remove();
@@ -149,12 +125,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hasPrevious",
-        args = {}
-    )
     public void testHasPrevious() {
         assertFalse(l.hasPrevious());
         for (int i = 0; i < objArray.length; i++) {
@@ -163,12 +133,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "previous",
-        args = {}
-    )
     public void testPrevious() {
         try {
             l.previous();
@@ -192,12 +156,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "nextIndex",
-        args = {}
-    )
     public void testNextIndex() {
         for (int i = 0; i < objArray.length; i++) {
             assertTrue(objArray[i].equals(l.nextIndex()));
@@ -205,12 +163,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "previousIndex",
-        args = {}
-    )
     public void testPreviousIndex() {
         for (int i = 0; i < objArray.length; i++) {
             assertTrue(objArray[i].equals(l.previousIndex() + 1));
@@ -218,12 +170,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {java.lang.Object.class}
-    )
     public void testSet() {
         try {
             l.set(new Integer(1));
@@ -269,12 +215,6 @@ public class ListIteratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void testAdd() {
         l.add(new Integer(33));
 

@@ -22,11 +22,6 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Document;
 
@@ -44,7 +39,6 @@ import javax.xml.parsers.DocumentBuilder;
 * @author Mary Brady
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-internalSubset">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-internalSubset</a>
 */
-@TestTargetClass(DocumentType.class)
 public final class InternalSubset extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -72,12 +66,6 @@ public final class InternalSubset extends DOMTestCase {
     * Runs the test case.
     * @throws Throwable Any uncaught exception causes test to fail
     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that getInternalSubset method returns the internal subset as a string.",
-        method = "getInternalSubset",
-        args = {}
-    )
    public void testGetInternalSubset() throws Throwable {
       Document doc;
       DocumentType docType;

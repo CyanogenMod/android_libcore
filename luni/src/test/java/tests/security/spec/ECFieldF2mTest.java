@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -38,7 +33,6 @@ import java.util.Random;
  * Tests for <code>ECFieldF2m</code> class fields and methods.
  *
  */
-@TestTargetClass(ECFieldF2m.class)
 public class ECFieldF2mTest extends TestCase {
 
     /**
@@ -132,12 +126,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: IllegalArgumentException if m is not positive.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ECFieldF2m",
-        args = {int.class}
-    )
     public final void testECFieldF2mint() {
         for(int i=0; i<intCtorTestParameters.length; i++) {
             ECFieldF2mDomainParams tp = intCtorTestParameters[i];
@@ -263,12 +251,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: IllegalArgumentException if ks is invalid.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ECFieldF2m",
-        args = {int.class, int[].class}
-    )
     public final void testECFieldF2mintintArray() {
         for(int i=0; i<constructorTestParameters.length; i++) {
             ECFieldF2mDomainParams tp = constructorTestParameters[i];
@@ -308,11 +290,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: IllegalArgumentException if rp is invalid.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "ECFieldF2m",
-        args = {int.class, java.math.BigInteger.class}
-    )
     public final void testECFieldF2mintBigInteger() {
         for(int i=0; i<constructorTestParameters.length; i++) {
             ECFieldF2mDomainParams tp = constructorTestParameters[i];
@@ -343,12 +320,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: must return the same value if invoked
      * repeatedly on the same object.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode01() {
         ECFieldF2m f = new ECFieldF2m(2000);
         int hc = f.hashCode();
@@ -368,12 +339,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: must return the same value if invoked
      * repeatedly on the same object.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode02() {
         ECFieldF2m f = new ECFieldF2m(2000, new int[] {981, 2, 1});
         int hc = f.hashCode();
@@ -393,12 +358,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: must return the same value if invoked
      * on equal (according to the <code>equals(Object)</code> method) objects.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode03() {
         assertTrue(new ECFieldF2m(111).hashCode() ==
                    new ECFieldF2m(111).hashCode());
@@ -410,12 +369,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: must return the same value if invoked
      * on equal (according to the <code>equals(Object)</code> method) objects.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode04() {
         assertTrue(new ECFieldF2m(2000, new int[] {981, 2, 1}).hashCode() ==
                    new ECFieldF2m(2000, new int[] {981, 2, 1}).hashCode());
@@ -427,12 +380,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: must return the same value if invoked
      * on equal (according to the <code>equals(Object)</code> method) objects.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public final void testHashCode05() {
         assertTrue(new ECFieldF2m(2000, new int[] {981, 2, 1}).hashCode() ==
                    new ECFieldF2m(2000, BigInteger.valueOf(0L).
@@ -445,12 +392,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: object equals to itself.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject01() {
         ECFieldF2m obj = new ECFieldF2m(1999, new int[] {367});
         assertTrue(obj.equals(obj));
@@ -461,12 +402,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: normal basis - objects equal if their m are equal.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Simple test. Doesn't verify other cases.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject02() {
         assertTrue(new ECFieldF2m(43).equals(new ECFieldF2m(43)));
     }
@@ -477,12 +412,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: trinomial basis - objects equal if their m, and rp
      * are mutually equal.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject03() {
         assertTrue(new ECFieldF2m(1999, new int[] {367}).equals(
                    new ECFieldF2m(1999, BigInteger.valueOf(0L).
@@ -495,12 +424,6 @@ public class ECFieldF2mTest extends TestCase {
      * Assertion: pentanomial basis - objects equal if their m, and rp
      * are mutually equal.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject04() {
         ECFieldF2m f1 = new ECFieldF2m(2000, new int[] {981, 2, 1});
         ECFieldF2m f2 = new ECFieldF2m(2000, BigInteger.valueOf(0L).
@@ -514,12 +437,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: objects equal if their m, and rp are mutually equal.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject05() {
         ECFieldF2m f1 = new ECFieldF2m(2000);
         ECFieldF2m f2 = new ECFieldF2m(2000, BigInteger.valueOf(0L).
@@ -533,12 +450,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns false if obj is <code>null</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject06() {
         assertFalse(new ECFieldF2m(2000).equals(null));
     }
@@ -548,12 +459,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns false if obj is not instance of <code>ECFieldF2m</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public final void testEqualsObject07() {
         assertFalse(new ECFieldF2m(2000).equals(new Object()));
     }
@@ -563,12 +468,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns m value for <code>ECFieldF2m</code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFieldSize",
-        args = {}
-    )
     public final void testGetFieldSize() {
         assertEquals(2000, new ECFieldF2m(2000).getFieldSize());
     }
@@ -578,12 +477,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns m value for <code>ECFieldF2m</code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getM",
-        args = {}
-    )
     public final void testGetM() {
         assertEquals(2000, new ECFieldF2m(2000).getM());
     }
@@ -593,12 +486,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns mid terms of reduction polynomial
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getMidTermsOfReductionPolynomial method returns mid terms of reduction polynomial.",
-        method = "getMidTermsOfReductionPolynomial",
-        args = {}
-    )
     public final void testGetMidTermsOfReductionPolynomial01() {
         int[] a = new int[] {981,2,1};
         int[] b = new ECFieldF2m(2000,
@@ -613,12 +500,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns null for normal basis
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getMidTermsOfReductionPolynomial method returns null for normal basis.",
-        method = "getMidTermsOfReductionPolynomial",
-        args = {}
-    )
     public final void testGetMidTermsOfReductionPolynomial02() {
         assertNull(new ECFieldF2m(2000).getMidTermsOfReductionPolynomial());
     }
@@ -628,12 +509,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns mid terms of reduction polynomial
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getMidTermsOfReductionPolynomial method returns mid terms of reduction polynomial.",
-        method = "getMidTermsOfReductionPolynomial",
-        args = {}
-    )
     public final void testGetMidTermsOfReductionPolynomial03() {
         int[] a = new int[] {367};
         int[] b = new ECFieldF2m(1999, a).getMidTermsOfReductionPolynomial();
@@ -645,12 +520,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns reduction polynomial
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getReductionPolynomial method returns reduction polynomial.",
-        method = "getReductionPolynomial",
-        args = {}
-    )
     public final void testGetReductionPolynomial01() {
         BigInteger rp = BigInteger.valueOf(0L).setBit(0).setBit(1).setBit(2).
         setBit(981).setBit(2000);
@@ -662,12 +531,6 @@ public class ECFieldF2mTest extends TestCase {
      *
      * Assertion: returns null for normal basis
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getReductionPolynomial method returns null for normal basis.",
-        method = "getReductionPolynomial",
-        args = {}
-    )
     public final void testGetReductionPolynomial02() {
         assertNull(new ECFieldF2m(2000).getReductionPolynomial());
     }
@@ -676,12 +539,6 @@ public class ECFieldF2mTest extends TestCase {
      * Tests that object state is preserved against modifications
      * through array reference passed to the constructor.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that object state is preserved against modifications through array reference passed to the constructor.",
-        method = "ECFieldF2m",
-        args = {int.class, int[].class}
-    )
     public final void testIsStatePreserved01() {
         // reference array
         int[] a = new int[] {367};
@@ -700,20 +557,6 @@ public class ECFieldF2mTest extends TestCase {
      * modifications through array reference returned by
      * <code>getMidTermsOfReductionPolynomial()</code> method.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies that object state is preserved against modifications through array reference returned by getMidTermsOfReductionPolynomial() method.",
-            method = "ECFieldF2m",
-            args = {int.class, int[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies that object state is preserved against modifications through array reference returned by getMidTermsOfReductionPolynomial() method.",
-            method = "getMidTermsOfReductionPolynomial",
-            args = {}
-        )
-    })
     public final void testIsStatePreserved02() {
         // reference array
         int[] a = new int[] {981,2,1};

@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.lang.Integer;
 
 import javax.crypto.spec.DHGenParameterSpec;
@@ -35,10 +30,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(DHGenParameterSpec.class)
 /**
  */
-
 public class DHGenParameterSpecTest extends TestCase {
 
     /**
@@ -46,26 +39,6 @@ public class DHGenParameterSpecTest extends TestCase {
      * parameters specified in the constructor with the values returned
      * by getters.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "DHGenParameterSpec",
-            args = {int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getExponentSize",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getPrimeSize",
-            args = {}
-        )
-    })
     public void testDHGenParameterSpec() {
         int[] primes = {Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE};
         int[] exponents = {Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE};

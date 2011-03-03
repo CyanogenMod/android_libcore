@@ -23,10 +23,6 @@
 package tests.security.cert;
 
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -47,7 +43,6 @@ import java.security.cert.PKIXParameters;
  * Tests for <code>CertPathValidator</code> class  methods.
  *
  */
-@TestTargetClass(CertPathValidator.class)
 public class CertPathValidator3Test extends TestCase {
 
     private static final String defaultType = CertPathBuilder1Test.defaultType;
@@ -91,12 +86,6 @@ public class CertPathValidator3Test extends TestCase {
      * certpath is not X.509 type
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies exceptions.",
-        method = "validate",
-        args = {java.security.cert.CertPath.class, java.security.cert.CertPathParameters.class}
-    )
     public void testValidate01() throws InvalidAlgorithmParameterException, CertPathValidatorException  {
         if (!PKIXSupport) {
             fail(NotSupportMsg);

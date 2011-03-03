@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.lang.Integer;
 import java.math.BigInteger;
 
@@ -36,10 +31,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(DHParameterSpec.class)
 /**
  */
-
 public class DHParameterSpecTest extends TestCase {
 
     /**
@@ -47,38 +40,6 @@ public class DHParameterSpecTest extends TestCase {
      * specified in the constructor with the values returned by getters.
      * The tested object is created by different constructors.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "DHParameterSpec",
-            args = {java.math.BigInteger.class, java.math.BigInteger.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "DHParameterSpec",
-            args = {java.math.BigInteger.class, java.math.BigInteger.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getG",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getL",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getP",
-            args = {}
-        )
-    })
     public void testDHParameterSpec() {
         BigInteger[] ps = {new BigInteger("-1000000000000"), BigInteger.ZERO,
                             BigInteger.ONE, new BigInteger("1000000000000")};

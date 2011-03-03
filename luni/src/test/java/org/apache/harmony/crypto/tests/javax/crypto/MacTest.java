@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
@@ -52,12 +47,10 @@ import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-@TestTargetClass(Mac.class)
 /**
  * Tests for Mac class constructors and methods
  *
  */
-
 public class MacTest extends TestCase {
 
     public static final String srvMac = "Mac";
@@ -118,12 +111,6 @@ public class MacTest extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testMac01() {
         try {
             Mac.getInstance(null);
@@ -145,12 +132,6 @@ public class MacTest extends TestCase {
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertion: returns Mac object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testMac02() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -168,12 +149,6 @@ public class MacTest extends TestCase {
      * throws IllegalArgumentException when provider is null or empty
      * throws NoSuchProviderException when provider is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testMac03() throws NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -209,12 +184,6 @@ public class MacTest extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testMac04() throws NoSuchAlgorithmException,
             IllegalArgumentException, NoSuchProviderException {
         if (!DEFSupported) {
@@ -240,12 +209,6 @@ public class MacTest extends TestCase {
      * Test for <code>getInstance(String algorithm, String provider)</code> method
      * Assertion: returns Mac object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testMac05() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException {
         if (!DEFSupported) {
@@ -265,12 +228,6 @@ public class MacTest extends TestCase {
      * Test for <code>getInstance(String algorithm, Provider provider)</code> method
      * Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testMac06() throws NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -291,12 +248,6 @@ public class MacTest extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testMac07() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException {
         if (!DEFSupported) {
@@ -323,12 +274,6 @@ public class MacTest extends TestCase {
      * Test for <code>getInstance(String algorithm, Provider provider)</code> method
      * Assertion: returns Mac object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testMac08() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException {
         if (!DEFSupported) {
@@ -347,71 +292,6 @@ public class MacTest extends TestCase {
      * Assertion: throws IllegalStateException when Mac is not initialized
      * @throws Exception
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "doFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineDoFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "doFinal",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "doFinal",
-            args = {byte[].class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "update",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "update",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            method = "update",
-            args = {java.nio.ByteBuffer.class}
-        )
-    })
     public void testMac09() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -475,12 +355,6 @@ public class MacTest extends TestCase {
      * throws ShotBufferException when outOffset  is negative or
      * outOffset >= output.length  or when given buffer is small
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks ShortBufferException",
-        method = "doFinal",
-        args = {byte[].class, int.class}
-    )
     public void testMac10() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException,
             IllegalStateException, InvalidKeyException {
@@ -529,27 +403,6 @@ public class MacTest extends TestCase {
      * <code>doFinal()</code> methods Assertion: Mac result is stored in
      * output buffer
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "doFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineDoFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "doFinal",
-            args = {byte[].class, int.class}
-        )
-    })
     public void testMac11() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, IllegalStateException,
             InvalidKeyException, ShortBufferException {
@@ -576,27 +429,6 @@ public class MacTest extends TestCase {
      * Test for <code>doFinal(byte[] input)</code> method
      * Assertion: update Mac and returns result
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "doFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineDoFinal",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "doFinal",
-            args = {byte[].class}
-        )
-    })
     public void testMac12() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, IllegalStateException,
             InvalidKeyException  {
@@ -632,21 +464,6 @@ public class MacTest extends TestCase {
      * Assertion: throws IllegalArgumentException when offset or len is negative,
      * offset + len >= input.length
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalArgumentException",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void testMac13() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException, IllegalStateException,
             InvalidKeyException {
@@ -688,34 +505,6 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: updates Mac
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "update",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality.",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void testMac14() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException, IllegalStateException,
             InvalidKeyException {
@@ -758,12 +547,6 @@ public class MacTest extends TestCase {
      * Test for <code>clone()</code> method
      * Assertion: returns Mac object or throws CloneNotSupportedException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void testMacClone() throws NoSuchAlgorithmException, CloneNotSupportedException {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -789,27 +572,6 @@ public class MacTest extends TestCase {
      * Assertion: throws InvalidKeyException and InvalidAlgorithmParameterException
      * when parameters are not appropriate
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions",
-            method = "init",
-            args = {java.security.Key.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions",
-            method = "init",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions",
-            clazz = MacSpi.class,
-            method = "engineInit",
-            args = {java.security.Key.class, java.security.spec.AlgorithmParameterSpec.class}
-        )
-    })
     public void testInit() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
             InvalidKeyException {
@@ -859,27 +621,6 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: processes Mac; if input is null then do nothing
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality",
-            method = "update",
-            args = {java.nio.ByteBuffer.class}
-        )
-    })
     public void testUpdateByteBuffer01() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
             InvalidKeyException {
@@ -923,27 +664,6 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: processes Mac
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality",
-            method = "update",
-            args = {java.nio.ByteBuffer.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks functionality",
-            method = "update",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks IllegalStateException only but for all methods. Not enough for doFinal(byte[] output, int outOffset) - it can throw ShortBufferException",
-            clazz = MacSpi.class,
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
     public void testUpdateByteBuffer02() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
             InvalidKeyException {
@@ -979,12 +699,6 @@ public class MacTest extends TestCase {
      * Test for <code>clone()</code> method
      * Assertion: clone if provider is clo
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void testClone()  {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -1006,21 +720,6 @@ public class MacTest extends TestCase {
      * Test for <code>getMacLength()</code> method
      * Assertion: return Mac length
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getMacLength",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = MacSpi.class,
-            method = "engineGetMacLength",
-            args = {}
-        )
-    })
     public void testGetMacLength() {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -1037,21 +736,6 @@ public class MacTest extends TestCase {
      * Test for <code>reset()</code> method
      * Assertion: return Mac length
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "reset",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = MacSpi.class,
-            method = "engineReset",
-            args = {}
-        )
-    })
     public void testReset() throws InvalidKeyException {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
@@ -1089,12 +773,6 @@ public class MacTest extends TestCase {
      * Test for <code>Mac</code> constructor
      * Assertion: returns Mac object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Mac",
-        args = {javax.crypto.MacSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testMacConstructor() throws NoSuchAlgorithmException,
             InvalidKeyException, InvalidAlgorithmParameterException {
         if (!DEFSupported) {
@@ -1128,12 +806,6 @@ public class MacTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws NoSuchAlgorithmException {
         Mac mac;
         for (int i = 0; i < validValues.length; i++) {
@@ -1145,12 +817,6 @@ public class MacTest extends TestCase {
         assertNull(mac.getAlgorithm());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws NoSuchAlgorithmException {
         Mac mac;
         for (int i = 0; i < validValues.length; i++) {

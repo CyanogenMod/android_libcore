@@ -16,16 +16,11 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyRep;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyRep.Type.class)
+
 public class KeyRepTypeTest extends TestCase {
 
     protected void setUp() throws Exception {
@@ -37,14 +32,8 @@ public class KeyRepTypeTest extends TestCase {
     }
 
     /**
-     * @tests java.security.KeyRep.Type#valueOf(String)
+     * java.security.KeyRep.Type#valueOf(String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueOf",
-        args = {java.lang.String.class}
-    )
     public void testValueOf() {
         try {
             KeyRep.Type.valueOf("type");
@@ -67,14 +56,8 @@ public class KeyRepTypeTest extends TestCase {
     }
 
     /**
-     * @tests java.security.KeyRep.Type#values()
+     * java.security.KeyRep.Type#values()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void testValues() {
         KeyRep.Type[] types = new KeyRep.Type[] { KeyRep.Type.SECRET,
                 KeyRep.Type.PUBLIC, KeyRep.Type.PRIVATE };

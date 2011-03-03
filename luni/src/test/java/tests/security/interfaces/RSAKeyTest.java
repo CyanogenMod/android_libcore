@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package tests.security.interfaces;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
@@ -26,22 +23,15 @@ import java.security.interfaces.RSAKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-@TestTargetClass(RSAKey.class)
 public class RSAKeyTest extends TestCase {
 
     /**
-     * @tests java.security.interfaces.RSAKey
+     * java.security.interfaces.RSAKey
      * #getModulus()
      * test covers following use cases
      *   Case 1: check private key
      *   Case 2: check public key
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModulus",
-        args = {}
-    )
     public void test_getModulus() throws Exception {
         KeyFactory gen = KeyFactory.getInstance("RSA");
         final BigInteger n = BigInteger.valueOf(3233);

@@ -21,8 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass;
-
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Attr;
@@ -51,7 +49,6 @@ import org.w3c.dom.NodeList;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElRemAtNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NO_MODIFICATION_ALLOWED_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElRemAtNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NO_MODIFICATION_ALLOWED_ERR'])</a>
  */
-@TestTargetClass(Attr.class)
 public final class RemoveAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;

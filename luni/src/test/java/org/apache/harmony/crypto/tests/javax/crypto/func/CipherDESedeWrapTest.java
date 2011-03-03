@@ -15,20 +15,10 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 public class CipherDESedeWrapTest extends TestCase {
 //  2 cases checked.
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_DESedeWrap() {
         CipherWrapThread DESedeWrap = new CipherWrapThread("DESedeWrap",
                 new int[] {112, 168}, // Keysize must be 112 or 168.

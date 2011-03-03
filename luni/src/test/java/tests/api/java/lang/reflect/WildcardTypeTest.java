@@ -23,14 +23,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 /**
  * Tests bounded type parameters declared on methods and bounded wildcards.
  */
-@TestTargetClass(WildcardType.class)
 public class WildcardTypeTest extends GenericReflectionTestsBase {
     @SuppressWarnings({"unchecked", "hiding"})
     static class BoundedWildcardsGenericMethods<T> {
@@ -47,25 +42,9 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
     @SuppressWarnings("unchecked")
     private static Class<? extends BoundedWildcardsGenericMethods> clazz = BoundedWildcardsGenericMethods.class;
 
-//    /**
-//     * Tests that there are is one Type Parameter on the Class itself.
-//     */
-//    @TestInfo(
-//      level = TestLevel.PARTIAL,
-//      purpose = "Doesn't check GenericSignatureFormatError.",
-//      targets = {
-//        @TestTarget(
-//          methodName = "getTypeParameters",
-//          methodArgs = {}
-//        )
-//    })
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "",
-        clazz = Class.class,
-        method = "getTypeParameters",
-        args = {}
-    )
+    /**
+     * Tests that there are is one Type Parameter on the Class itself.
+     */
     public void testBoundedGenericMethods() {
         assertLenghtOne(clazz.getTypeParameters());
     }
@@ -142,24 +121,12 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         assertEquals(BoundedWildcardsGenericMethods.class, bound);
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getUpperBounds",
-        args = {}
-    )
     public void testUpperBoundedParamNoReturn() throws Exception {
         Method method = clazz.getMethod("upperBoundedParamNoReturn", BoundedWildcardsGenericMethods.class);
         checkBoundedTypeParameter(method);
         checkUpperBoundedParameter(method);
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getLowerBounds",
-        args = {}
-    )
     public void testLowerBoundedParamReturn() throws Exception {
         Method method = clazz.getMethod("lowerBoundedParamReturn", BoundedWildcardsGenericMethods.class);
         checkBoundedTypeParameter(method);
@@ -167,12 +134,6 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         checkReturnType(method);
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getUpperBounds",
-        args = {}
-    )
     public void testUpperBoundedParamReturn() throws Exception {
         Method method = clazz.getMethod("upperBoundedParamReturn", BoundedWildcardsGenericMethods.class);
         checkBoundedTypeParameter(method);
@@ -180,12 +141,6 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         checkReturnType(method);
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getLowerBounds",
-        args = {}
-    )
     public void testLowerBoundedParamNoReturn() throws Exception {
         Method method = clazz.getMethod("lowerBoundedParamNoReturn", BoundedWildcardsGenericMethods.class);
         checkBoundedTypeParameter(method);

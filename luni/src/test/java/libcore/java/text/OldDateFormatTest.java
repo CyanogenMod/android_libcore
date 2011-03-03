@@ -51,7 +51,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#DateFormat() Test of method
+     * java.text.DateFormat#DateFormat() Test of method
      *        java.text.DateFormat#DateFormat().
      */
     public void test_Constructor() {
@@ -63,7 +63,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#equals(java.lang.Object obj) Test of
+     * java.text.DateFormat#equals(java.lang.Object obj) Test of
      *        java.text.DateFormat#equals(java.lang.Object obj).
      */
     public void test_equalsLjava_lang_Object() {
@@ -81,7 +81,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#format(java.util.Date) Test of method
+     * java.text.DateFormat#format(java.util.Date) Test of method
      *        java.text.DateFormat#format(java.util.Date).
      */
     public void test_formatLjava_util_Date() {
@@ -98,7 +98,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#format(Object, StringBuffer, FieldPosition)
+     * java.text.DateFormat#format(Object, StringBuffer, FieldPosition)
      *        Test of method java.text.DateFormat#format(Object, StringBuffer,
      *        FieldPosition)
      */
@@ -140,7 +140,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#hashCode() Test of method
+     * java.text.DateFormat#hashCode() Test of method
      *        java.text.DateFormat#hashCode().
      */
     public void test_hashCode() {
@@ -157,7 +157,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#isLenient() Test of method
+     * java.text.DateFormat#isLenient() Test of method
      *        java.text.DateFormat#isLenient().
      */
     public void test_isLenient() {
@@ -201,7 +201,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#parse(String)
+     * java.text.DateFormat#parse(String)
      */
     public void test_parseLString() {
         DateFormat format = DateFormat.getInstance();
@@ -371,7 +371,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#parseObject(String, ParsePosition) Test of
+     * java.text.DateFormat#parseObject(String, ParsePosition) Test of
      *        method java.text.DateFormat#parseObject(String, ParsePosition).
      *        Case 1: Try to parse correct data string. Case 2: Try to parse
      *        partialy correct data string. Case 3: Try to use argument
@@ -439,7 +439,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#setLenient(boolean) Test of method
+     * java.text.DateFormat#setLenient(boolean) Test of method
      *        java.text.DateFormat#setLenient(boolean).
      */
     public void test_setLenientZ() {
@@ -469,7 +469,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.DateFormat#setTimeZone(TimeZone) Test of method
+     * java.text.DateFormat#setTimeZone(TimeZone) Test of method
      *        java.text.DateFormat#setTimeZone(TimeZone).
      */
     public void test_setTimeZoneLjava_util_TimeZone() {

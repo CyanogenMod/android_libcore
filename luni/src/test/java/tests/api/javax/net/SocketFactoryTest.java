@@ -22,10 +22,6 @@
 
 package tests.api.javax.net;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -43,18 +39,11 @@ import tests.support.Support_PortManager;
 /**
  * Tests for <code>SocketFactory</code> class methods.
  */
-@TestTargetClass(SocketFactory.class)
 public class SocketFactoryTest extends TestCase {
 
     /**
-     * @tests javax.net.SocketFactory#SocketFactory()
+     * javax.net.SocketFactory#SocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SocketFactory",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             MySocketFactory sf = new MySocketFactory();
@@ -64,14 +53,8 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#createSocket()
+     * javax.net.SocketFactory#createSocket()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "IOException check missed",
-        method = "createSocket",
-        args = {}
-    )
     public final void test_createSocket_01() {
         SocketFactory sf = SocketFactory.getDefault();
 
@@ -95,14 +78,8 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#createSocket(String host, int port)
+     * javax.net.SocketFactory#createSocket(String host, int port)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createSocket",
-        args = {String.class, int.class}
-    )
     public final void test_createSocket_02() {
         SocketFactory sf = SocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -153,14 +130,8 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#createSocket(InetAddress host, int port)
+     * javax.net.SocketFactory#createSocket(InetAddress host, int port)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createSocket",
-        args = {InetAddress.class, int.class}
-    )
     public final void test_createSocket_03() {
         SocketFactory sf = SocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -202,15 +173,9 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#createSocket(InetAddress address, int port,
+     * javax.net.SocketFactory#createSocket(InetAddress address, int port,
      *                                             InetAddress localAddress, int localPort)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createSocket",
-        args = {InetAddress.class, int.class, InetAddress.class, int.class}
-    )
     public final void test_createSocket_04() {
         SocketFactory sf = SocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -266,15 +231,9 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#createSocket(String host, int port,
+     * javax.net.SocketFactory#createSocket(String host, int port,
      *                                             InetAddress localHost, int localPort)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "createSocket",
-        args = {String.class, int.class, InetAddress.class, int.class}
-    )
     public final void test_createSocket_05() {
         SocketFactory sf = SocketFactory.getDefault();
         int portNumber = Support_PortManager.getNextPort();
@@ -332,14 +291,8 @@ public class SocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.SocketFactory#getDefault()
+     * javax.net.SocketFactory#getDefault()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefault",
-        args = {}
-    )
     public final void test_getDefault() {
         SocketFactory sf = SocketFactory.getDefault();
         Socket s;

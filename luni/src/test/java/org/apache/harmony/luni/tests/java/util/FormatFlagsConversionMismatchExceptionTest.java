@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.FormatFlagsConversionMismatchException#FormatFlagsConversionMismatchException(String,
+     * java.util.FormatFlagsConversionMismatchException#FormatFlagsConversionMismatchException(String,
      *        char)
      */
     public void test_formatFlagsConversionMismatchException() {
@@ -41,7 +41,7 @@ public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.FormatFlagsConversionMismatchException#getFlags()
+     * java.util.FormatFlagsConversionMismatchException#getFlags()
      */
     public void test_getFlags() {
         String flags = "MYTESTFLAGS";
@@ -52,7 +52,7 @@ public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.FormatFlagsConversionMismatchException#getConversion()
+     * java.util.FormatFlagsConversionMismatchException#getConversion()
      */
     public void test_getConversion() {
         String flags = "MYTESTFLAGS";
@@ -65,7 +65,7 @@ public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.FormatFlagsConversionMismatchException#getMessage()
+     * java.util.FormatFlagsConversionMismatchException#getMessage()
      */
     public void test_getMessage() {
         String flags = "MYTESTFLAGS";
@@ -94,7 +94,7 @@ public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -104,7 +104,7 @@ public class FormatFlagsConversionMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

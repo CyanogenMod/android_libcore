@@ -17,9 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Security;
@@ -30,18 +27,11 @@ import java.util.Set;
 import tests.support.Support_ProviderTrust;
 import tests.support.Support_TestProvider;
 
-@TestTargetClass(Security.class)
 public class Security2Test extends junit.framework.TestCase {
 
     /**
-     * @tests java.security.Security#getProviders(java.lang.String)
+     * java.security.Security#getProviders(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NullPointerException checking missed",
-        method = "getProviders",
-        args = {java.lang.String.class}
-    )
     public void test_getProvidersLjava_lang_String() {
         // Test for method void
         // java.security.Security.getProviders(java.lang.String)
@@ -215,14 +205,8 @@ public class Security2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Security#getProviders(java.util.Map)
+     * java.security.Security#getProviders(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NullPointerException checking missed",
-        method = "getProviders",
-        args = {java.util.Map.class}
-    )
     public void test_getProvidersLjava_util_Map() {
         // Test for method void
         // java.security.Security.getProviders(java.util.Map)
@@ -306,14 +290,8 @@ public class Security2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.Security#removeProvider(java.lang.String)
+     * java.security.Security#removeProvider(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "SecurityException checking missed",
-        method = "removeProvider",
-        args = {java.lang.String.class}
-    )
     public void test_removeProviderLjava_lang_String() {
         // Test for method void
         // java.security.Security.removeProvider(java.lang.String)

@@ -17,11 +17,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +34,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-@TestTargetClass(X509CRL.class)
 public class X509CRL2Test extends TestCase {
 
     private X509Certificate pemCert = null;
@@ -79,34 +73,8 @@ public class X509CRL2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CRL#getExtensionValue(java.lang.String)
+     * java.security.cert.X509CRL#getExtensionValue(java.lang.String)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getExtensionValue",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getCriticalExtensionOIDs",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNonCriticalExtensionOIDs",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "hasUnsupportedCriticalExtension",
-            args = {}
-        )
-    })
     public void test_getExtensionValueLjava_lang_String() {
         try {
             setUp();
@@ -135,15 +103,9 @@ public class X509CRL2Test extends TestCase {
     }
 
     /**
-     * @tests java.security.cert.X509CRL#X509CRL()
+     * java.security.cert.X509CRL#X509CRL()
      */
     @SuppressWarnings("cast")
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509CRL",
-        args = {}
-    )
     public void test_X509CRL() {
         try {
             MyX509CRL crl = new MyX509CRL();

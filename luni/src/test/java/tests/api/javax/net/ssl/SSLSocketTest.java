@@ -16,10 +16,6 @@
 package tests.api.javax.net.ssl;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
@@ -39,7 +35,6 @@ import org.apache.harmony.luni.util.Base64;
 import tests.api.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(SSLSocket.class)
 public class SSLSocketTest extends TestCase {
 
     public class HandshakeCL implements HandshakeCompletedListener {
@@ -51,14 +46,8 @@ public class SSLSocketTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSocket#SSLSocket()
+     * javax.net.ssl.SSLSocket#SSLSocket()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocket",
-        args = {}
-    )
     public void testConstructor_01() {
         try {
             SSLSocket ssl = getSSLSocket();
@@ -70,14 +59,8 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port)
+     * javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocket",
-        args = {java.net.InetAddress.class, int.class}
-    )
     public void testConstructor_02() throws UnknownHostException, IOException {
         SSLSocket ssl;
         int sport = startServer("Cons InetAddress,I");
@@ -109,15 +92,9 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port,
+     * javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port,
      *                                          InetAddress clientAddress, int clientPort)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocket",
-        args = {java.net.InetAddress.class, int.class, java.net.InetAddress.class, int.class}
-    )
     public void testConstructor_03() throws UnknownHostException, IOException {
         SSLSocket ssl;
         int sport = startServer("Cons InetAddress,I,InetAddress,I");
@@ -228,14 +205,8 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port)
+     * javax.net.ssl.SSLSocket#SSLSocket(String host, int port)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocket",
-        args = {java.lang.String.class, int.class}
-    )
     public void testConstructor_04() throws UnknownHostException, IOException {
         SSLSocket ssl;
         int sport = startServer("Cons String,I");
@@ -276,15 +247,9 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port, InetAddress clientAddress,
+     * javax.net.ssl.SSLSocket#SSLSocket(String host, int port, InetAddress clientAddress,
      *           int clientPort)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSocket",
-        args = {java.lang.String.class, int.class, java.net.InetAddress.class, int.class}
-    )
     public void testConstructor_05() throws UnknownHostException, IOException {
         SSLSocket ssl;
         int sport = startServer("Cons String,I,InetAddress,I");
@@ -337,12 +302,6 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Guard against native resource leakage.",
-        method = "SSLSocket",
-        args = {}
-    )
     public void test_creationStressTest() throws Exception {
         // Test the default codepath, which uses /dev/urandom.
         SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -360,14 +319,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#addHandshakeCompletedListener(HandshakeCompletedListener listener)
+     * javax.net.ssl.SSLSocket#addHandshakeCompletedListener(HandshakeCompletedListener listener)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addHandshakeCompletedListener",
-        args = {javax.net.ssl.HandshakeCompletedListener.class}
-    )
     @AndroidOnly("RI doesn't throw the specified IAE")
     public void test_addHandshakeCompletedListener() throws IOException {
         SSLSocket ssl = getSSLSocket();
@@ -387,14 +340,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#removeHandshakeCompletedListener(HandshakeCompletedListener listener)
+     * javax.net.ssl.SSLSocket#removeHandshakeCompletedListener(HandshakeCompletedListener listener)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeHandshakeCompletedListener",
-        args = {javax.net.ssl.HandshakeCompletedListener.class}
-    )
     public void test_removeHandshakeCompletedListener() throws IOException {
         SSLSocket ssl = getSSLSocket();
         HandshakeCompletedListener ls = new HandshakeCL();
@@ -423,23 +370,9 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#setEnableSessionCreation(boolean flag)
-     * @tests javax.net.ssl.SSLSocket#getEnableSessionCreation()
+     * javax.net.ssl.SSLSocket#setEnableSessionCreation(boolean flag)
+     * javax.net.ssl.SSLSocket#getEnableSessionCreation()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnableSessionCreation",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnableSessionCreation",
-            args = {boolean.class}
-        )
-    })
     public void test_EnableSessionCreation() throws IOException {
         SSLSocket ssl = getSSLSocket();
         assertTrue(ssl.getEnableSessionCreation());
@@ -452,23 +385,9 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#setNeedClientAuth(boolean need)
-     * @tests javax.net.ssl.SSLSocket#getNeedClientAuthCreation()
+     * javax.net.ssl.SSLSocket#setNeedClientAuth(boolean need)
+     * javax.net.ssl.SSLSocket#getNeedClientAuthCreation()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setNeedClientAuth",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNeedClientAuth",
-            args = {}
-        )
-    })
     public void test_NeedClientAuth() throws UnknownHostException, IOException {
         SSLSocket ssl = getSSLSocket();
         ssl.setNeedClientAuth(true);
@@ -480,23 +399,9 @@ public class SSLSocketTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSocket#setWantClientAuth(boolean want)
-     * @tests javax.net.ssl.SSLSocket#getWantClientAuthCreation()
+     * javax.net.ssl.SSLSocket#setWantClientAuth(boolean want)
+     * javax.net.ssl.SSLSocket#getWantClientAuthCreation()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setWantClientAuth",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getWantClientAuth",
-            args = {}
-        )
-    })
     public void test_WantClientAuth() throws UnknownHostException, IOException {
         SSLSocket ssl = getSSLSocket();
         ssl.setWantClientAuth(true);
@@ -507,14 +412,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getSupportedProtocols()
+     * javax.net.ssl.SSLSocket#getSupportedProtocols()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedProtocols",
-        args = {}
-    )
     public void test_getSupportedProtocols() throws IOException {
         SSLSocket ssl = getSSLSocket();
         String[] res = ssl.getSupportedProtocols();
@@ -523,23 +422,9 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getEnabledProtocols()
-     * @tests javax.net.ssl.SSLSocket#setEnabledProtocols(String[] protocols)
+     * javax.net.ssl.SSLSocket#getEnabledProtocols()
+     * javax.net.ssl.SSLSocket#setEnabledProtocols(String[] protocols)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnabledProtocols",
-            args = {java.lang.String[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnabledProtocols",
-            args = {}
-        )
-    })
     public void test_EnabledProtocols() throws IOException {
         SSLSocket ssl = getSSLSocket();
         try {
@@ -565,14 +450,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getSession()
+     * javax.net.ssl.SSLSocket#getSession()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSession",
-        args = {}
-    )
     public void test_getSession() throws IOException {
         SSLSocket ssl = getSSLSocket();
         try {
@@ -584,14 +463,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getSupportedCipherSuites()
+     * javax.net.ssl.SSLSocket#getSupportedCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedCipherSuites",
-        args = {}
-    )
     public void test_getSupportedCipherSuites() throws IOException {
         SSLSocket ssl = getSSLSocket();
         String[] res = ssl.getSupportedCipherSuites();
@@ -600,23 +473,9 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getEnabledCipherSuites()
-     * @tests javax.net.ssl.SSLSocket#setEnabledCipherSuites(String[] suites)
+     * javax.net.ssl.SSLSocket#getEnabledCipherSuites()
+     * javax.net.ssl.SSLSocket#setEnabledCipherSuites(String[] suites)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnabledCipherSuites",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnabledCipherSuites",
-            args = {java.lang.String[].class}
-        )
-    })
     public void test_EnabledCipherSuites() throws IOException {
         SSLSocket ssl = getSSLSocket();
         try {
@@ -644,23 +503,9 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#getUseClientMode()
-     * @tests javax.net.ssl.SSLSocket#setUseClientMode(boolean mode)
+     * javax.net.ssl.SSLSocket#getUseClientMode()
+     * javax.net.ssl.SSLSocket#setUseClientMode(boolean mode)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getUseClientMode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setUseClientMode",
-            args = {boolean.class}
-        )
-    })
     public void test_UseClientMode() throws IOException {
         SSLSocket ssl = getSSLSocket();
         assertTrue(ssl.getUseClientMode());
@@ -685,14 +530,8 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.SSLSocket#startHandshake()
+     * javax.net.ssl.SSLSocket#startHandshake()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "startHandshake",
-        args = {}
-    )
     public void test_startHandshake() throws IOException {
         SSLSocket ssl = getSSLSocket();
         try {

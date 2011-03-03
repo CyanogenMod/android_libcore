@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SecurityChecker;
@@ -48,7 +43,7 @@ import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
-@TestTargetClass(Policy.class)
+
 /**
  * Tests for <code>Policy</code>
  */
@@ -61,29 +56,9 @@ public class PolicyTest extends TestCase {
     }
 
     /**
-     * @tests constructor Policy()
+     * constructor Policy()
      */
     @SuppressWarnings("cast")
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "Policy",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPermissions",
-            args = {java.security.CodeSource.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "refresh",
-            args = {}
-        )
-    })
     public void test_constructor() {
         TestProvider tp;
         CodeSource cs = new CodeSource(null, (Certificate[]) null);
@@ -119,12 +94,6 @@ public class PolicyTest extends TestCase {
     /**
      * Tests that getPermissions() does proper permission evaluation.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPermissions",
-        args = {java.security.ProtectionDomain.class}
-    )
     public void testGetPermissions() {
         SecurityPermission sp = new SecurityPermission("abc");
         SecurityPermission sp2 = new SecurityPermission("fbdf");
@@ -170,23 +139,9 @@ public class PolicyTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Policy#getPolicy()
-     * @tests java.security.Policy#setPolicy()
+     * java.security.Policy#getPolicy()
+     * java.security.Policy#setPolicy()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "setPolicy",
-            args = {java.security.Policy.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getPolicy",
-            args = {}
-        )
-    })
     public void testResetingPolicyToDefault() {
 
         Policy oldPolicy = Policy.getPolicy();
@@ -209,14 +164,8 @@ public class PolicyTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Policy#implies(ProtectionDomain, Permission)
+     * java.security.Policy#implies(ProtectionDomain, Permission)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "implies",
-        args = {java.security.ProtectionDomain.class, java.security.Permission.class}
-    )
     public void test_implies() {
         Policy policy = Policy.getPolicy();
         char s = File.separatorChar;
@@ -292,20 +241,6 @@ public class PolicyTest extends TestCase {
     /**
      * Test property expansion in policy files
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "setPolicy",
-            args = {java.security.Policy.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getPolicy",
-            args = {}
-        )
-    })
     public void testPropertyExpansion() throws Exception {
 
         // Regression for HARMONY-1963 and HARMONY-2910

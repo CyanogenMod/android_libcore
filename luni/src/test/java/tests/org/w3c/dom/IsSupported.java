@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +25,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports</a>
  */
-@TestTargetClass(Document.class)
 public final class IsSupported extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -60,12 +54,6 @@ public final class IsSupported extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns false.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported1() throws Throwable {
         Document doc;
         Node rootNode;
@@ -75,12 +63,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("XXX", "1.0");
         assertFalse("throw_False", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns false value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported2() throws Throwable {
         Document doc;
         Node rootNode;
@@ -90,12 +72,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("XML", "9.0");
         assertFalse("throw_False", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported4() throws Throwable {
         Document doc;
         Node rootNode;
@@ -105,12 +81,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("xml", "1.0");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported5() throws Throwable {
         Document doc;
         Node rootNode;
@@ -120,12 +90,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("core", "2.0");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported6() throws Throwable {
         Document doc;
         Node rootNode;
@@ -135,12 +99,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("xml", "2.0");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported7() throws Throwable {
         Document doc;
         Node rootNode;
@@ -150,12 +108,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("XML", "");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true value.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported9() throws Throwable {
         Document doc;
         Node rootNode;
@@ -165,12 +117,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("XML", "1.0");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported10() throws Throwable {
         Document doc;
         Node rootNode;
@@ -180,12 +126,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("CORE", "2.0");
         assertTrue("throw_True", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns true.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported11() throws Throwable {
         Document doc;
         Node rootNode;
@@ -196,12 +136,6 @@ public final class IsSupported extends DOMTestCase {
         assertTrue("throw_True", state);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported12() throws Throwable {
         List<String> features = new ArrayList<String>();
         features.add("Core");
@@ -237,12 +171,6 @@ public final class IsSupported extends DOMTestCase {
             state = rootNode.isSupported(featureElement, "2.0");
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns correct value if it has empty string as a version parameter.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported13() throws Throwable {
         Document doc;
         Node rootNode;
@@ -252,12 +180,6 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("Core", "");
         assertTrue("Core", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that isSupported method returns correct value if it has null as a version parameter.",
-        method = "isSupported",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testIsSupported14() throws Throwable {
         Document doc;
         Node rootNode;

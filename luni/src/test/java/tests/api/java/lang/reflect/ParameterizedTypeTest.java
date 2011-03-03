@@ -16,12 +16,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -29,32 +23,11 @@ import java.lang.reflect.Type;
 /**
  * Tests parameterized types and their properties.
  */
-@TestTargetClass(ParameterizedType.class)
 public class ParameterizedTypeTest extends GenericReflectionTestsBase {
 
     static class A<T>{}
     static class B extends A<String>{}
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getActualTypeArguments",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getOwnerType",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getRawType",
-            args = {}
-        )
-    })
     public void testStringParameterizedSuperClass() {
         Class<? extends B> clazz = B.class;
         Type genericSuperclass = clazz.getGenericSuperclass();
@@ -71,26 +44,6 @@ public class ParameterizedTypeTest extends GenericReflectionTestsBase {
     static class C<T>{}
     static class D<T> extends C<T>{}
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getActualTypeArguments",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getOwnerType",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getRawType",
-            args = {}
-        )
-    })
     public void testTypeParameterizedSuperClass() {
         Class<? extends D> clazz = D.class;
         Type genericSuperclass = clazz.getGenericSuperclass();
@@ -109,26 +62,6 @@ public class ParameterizedTypeTest extends GenericReflectionTestsBase {
         E<T> e;
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getActualTypeArguments",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getOwnerType",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-            method = "getRawType",
-            args = {}
-        )
-    })
     public void testParameterizedMemeber() throws Exception{
         Class<? extends F> clazz = F.class;
         Field field = clazz.getDeclaredField("e");

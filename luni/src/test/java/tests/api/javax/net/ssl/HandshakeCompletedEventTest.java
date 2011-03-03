@@ -18,10 +18,6 @@
 package tests.api.javax.net.ssl;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -57,7 +53,6 @@ import tests.support.Support_PortManager;
  * Tests for <code>HandshakeCompletedEvent</code> class constructors and methods.
  *
  */
-@TestTargetClass(HandshakeCompletedEvent.class)
 public class HandshakeCompletedEventTest extends TestCase {
 
     String certificate = "-----BEGIN CERTIFICATE-----\n"
@@ -79,14 +74,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#HandshakeCompletedEvent(SSLSocket sock, SSLSession s)
+     * javax.net.ssl.HandshakeCompletedEvent#HandshakeCompletedEvent(SSLSocket sock, SSLSession s)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Exceptions for null/incorrect parameters are not provided",
-        method = "HandshakeCompletedEvent",
-        args = {javax.net.ssl.SSLSocket.class, javax.net.ssl.SSLSession.class}
-    )
     public final void test_Constructor() throws IOException {
         mySSLSession session = new mySSLSession();
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -105,14 +94,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getCipherSuite()
+     * javax.net.ssl.HandshakeCompletedEvent#getCipherSuite()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCipherSuite",
-        args = {}
-    )
     public final void test_getCipherSuite() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -126,14 +109,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalCertificates()
+     * javax.net.ssl.HandshakeCompletedEvent#getLocalCertificates()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalCertificates",
-        args = {}
-    )
     public final void test_getLocalCertificates() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -147,14 +124,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalPrincipal()
+     * javax.net.ssl.HandshakeCompletedEvent#getLocalPrincipal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalPrincipal",
-        args = {}
-    )
     public final void test_getLocalPrincipal() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -168,14 +139,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificateChain()
+     * javax.net.ssl.HandshakeCompletedEvent#getPeerCertificateChain()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPeerCertificateChain",
-        args = {}
-    )
     public final void test_getPeerCertificateChain() throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(certificate.getBytes());
         mySSLSession session = new mySSLSession((X509Certificate[]) null);
@@ -206,14 +171,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificates()
+     * javax.net.ssl.HandshakeCompletedEvent#getPeerCertificates()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPeerCertificates",
-        args = {}
-    )
     public final void test_getPeerCertificates() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -237,14 +196,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerPrincipal()
+     * javax.net.ssl.HandshakeCompletedEvent#getPeerPrincipal()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "",
-        method = "getPeerPrincipal",
-        args = {}
-    )
     public final void test_getPeerPrincipal() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -258,14 +211,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getSession()
+     * javax.net.ssl.HandshakeCompletedEvent#getSession()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSession",
-        args = {}
-    )
     public final void test_getSession() throws IOException {
         mySSLSession session = new mySSLSession("localhost", 1080, null);
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -281,14 +228,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getSocket()
+     * javax.net.ssl.HandshakeCompletedEvent#getSocket()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSocket",
-        args = {}
-    )
     public final void test_getSocket() throws IOException {
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
         HandshakeCompletedEvent event = new HandshakeCompletedEvent(socket, null);
@@ -442,22 +383,6 @@ public class HandshakeCompletedEventTest extends TestCase {
      * because our self-signed test certificates are not valid.)
      */
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = SSLSocket.class,
-            method = "addHandshakeCompletedListener",
-            args = {HandshakeCompletedListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = HandshakeCompletedListener.class,
-            method = "handshakeCompleted",
-            args = {HandshakeCompletedEvent.class}
-        )
-    })
     @AndroidOnly("Uses bks key store. Change useBKS to false to run on the RI")
     public void testClientAuth() {
 

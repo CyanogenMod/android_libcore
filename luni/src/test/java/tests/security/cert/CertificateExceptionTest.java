@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.cert.CertificateException;
@@ -36,7 +31,6 @@ import java.security.cert.CertificateException;
  * Tests for <code>CertificateException</code> class constructors and methods.
  *
  */
-@TestTargetClass(CertificateException.class)
 public class CertificateExceptionTest extends TestCase {
 
     private static String[] msgs = {
@@ -50,12 +44,6 @@ public class CertificateExceptionTest extends TestCase {
      * Test for <code>CertificateException()</code> constructor Assertion:
      * constructs CertificateException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateException",
-        args = {}
-    )
     public void testCertificateException01() {
         CertificateException tE = new CertificateException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -67,12 +55,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateException02() {
         CertificateException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -88,12 +70,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException when <code>msg</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertificateException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateException03() {
         String msg = null;
         CertificateException tE = new CertificateException(msg);
@@ -106,12 +82,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException when <code>cause</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertificateException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertificateException04() {
         Throwable cause = null;
         CertificateException tE = new CertificateException(cause);
@@ -124,12 +94,6 @@ public class CertificateExceptionTest extends TestCase {
      * Assertion: constructs CertificateException when <code>cause</code> is
      * not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertificateException05() {
         CertificateException tE = new CertificateException(tCause);
         if (tE.getMessage() != null) {
@@ -148,12 +112,6 @@ public class CertificateExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateException when
      * <code>cause</code> is null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as parameters.",
-        method = "CertificateException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateException06() {
         CertificateException tE = new CertificateException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -165,12 +123,6 @@ public class CertificateExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateException when
      * <code>cause</code> is null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as Throwable parameter.",
-        method = "CertificateException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateException07() {
         CertificateException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -186,12 +138,6 @@ public class CertificateExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateException when
      * <code>cause</code> is not null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies as String parameter.",
-        method = "CertificateException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateException08() {
         CertificateException tE = new CertificateException(null, tCause);
         if (tE.getMessage() != null) {
@@ -210,12 +156,6 @@ public class CertificateExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateException when
      * <code>cause</code> is not null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateException09() {
         CertificateException tE;
         for (int i = 0; i < msgs.length; i++) {

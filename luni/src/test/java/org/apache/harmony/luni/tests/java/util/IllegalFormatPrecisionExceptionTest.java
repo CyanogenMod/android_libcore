@@ -26,7 +26,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IllegalFormatPrecisionExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.IllegalFormatPrecisionException#IllegalFormatPrecisionException(int)
+     * java.util.IllegalFormatPrecisionException#IllegalFormatPrecisionException(int)
      */
     public void test_illegalFormatPrecisionException() {
         IllegalFormatPrecisionException illegalFormatPrecisionException = new IllegalFormatPrecisionException(
@@ -36,7 +36,7 @@ public class IllegalFormatPrecisionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatPrecisionException#getPrecision()
+     * java.util.IllegalFormatPrecisionException#getPrecision()
      */
     public void test_getPrecision() {
         int precision = 12345;
@@ -46,7 +46,7 @@ public class IllegalFormatPrecisionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests method for 'java.util.IllegalFormatPrecisionException#getMessage()
+     * method for 'java.util.IllegalFormatPrecisionException#getMessage()
      */
     public void test_getMessage() {
         int precision = 12345;
@@ -73,7 +73,7 @@ public class IllegalFormatPrecisionExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -82,7 +82,7 @@ public class IllegalFormatPrecisionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

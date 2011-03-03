@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 public class AbstractCollectionTest extends TestCase {
 
     /**
-     * @tests java.util.AbstractCollection#add(java.lang.Object)
+     * java.util.AbstractCollection#add(java.lang.Object)
      */
     public void test_addLjava_lang_Object() {
         AbstractCollection<Object> ac = new AbstractCollection<Object>() {
@@ -51,7 +51,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#addAll(java.util.Collection)
+     * java.util.AbstractCollection#addAll(java.util.Collection)
      */
     public void test_addAllLjava_util_Collection() {
         final Collection<String> fixtures = Arrays.asList("0", "1", "2");
@@ -80,7 +80,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#containsAll(java.util.Collection)
+     * java.util.AbstractCollection#containsAll(java.util.Collection)
      */
     public void test_containsAllLjava_util_Collection() {
         final Collection<String> fixtures = Arrays.asList("0", "1", "2");
@@ -109,7 +109,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#isEmpty()
+     * java.util.AbstractCollection#isEmpty()
      */
     public void test_isEmpty() {
         final boolean[] sizeCalled = new boolean[1];
@@ -130,7 +130,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#removeAll(java.util.Collection)
+     * java.util.AbstractCollection#removeAll(java.util.Collection)
      */
     public void test_removeAllLjava_util_Collection() {
         final String[] removed = new String[3];
@@ -172,7 +172,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#retainAll(java.util.Collection)
+     * java.util.AbstractCollection#retainAll(java.util.Collection)
      */
     public void test_retainAllLjava_util_Collection() {
         final String[] removed = new String[1];
@@ -210,7 +210,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#toArray()
+     * java.util.AbstractCollection#toArray()
      */
     public void test_toArray() {
         AbstractCollection<String> ac = new AbstractCollection<String>() {
@@ -250,7 +250,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#toArray(java.lang.Object[])
+     * java.util.AbstractCollection#toArray(java.lang.Object[])
      */
     public void test_toArray$Ljava_lang_Object() {
         AbstractCollection<String> ac = new AbstractCollection<String>() {
@@ -309,7 +309,7 @@ public class AbstractCollectionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#toString()
+     * java.util.AbstractCollection#toString()
      */
     public void test_toString() {
         // see HARMONY-1522

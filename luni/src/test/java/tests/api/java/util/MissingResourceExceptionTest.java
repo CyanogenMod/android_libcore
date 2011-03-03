@@ -17,28 +17,16 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-@TestTargetClass(MissingResourceException.class)
 public class MissingResourceExceptionTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.MissingResourceException#MissingResourceException(java.lang.String,
+     * java.util.MissingResourceException#MissingResourceException(java.lang.String,
      *        java.lang.String, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "MissingResourceException",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_lang_StringLjava_lang_String() {
         // Test for method java.util.MissingResourceException(java.lang.String,
         // java.lang.String, java.lang.String)
@@ -55,14 +43,8 @@ public class MissingResourceExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.MissingResourceException#getClassName()
+     * java.util.MissingResourceException#getClassName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getClassName",
-        args = {}
-    )
     public void test_getClassName() {
         // Test for method java.lang.String
         // java.util.MissingResourceException.getClassName()
@@ -75,14 +57,8 @@ public class MissingResourceExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.MissingResourceException#getKey()
+     * java.util.MissingResourceException#getKey()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKey",
-        args = {}
-    )
     public void test_getKey() {
         // Test for method java.lang.String
         // java.util.MissingResourceException.getKey()

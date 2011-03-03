@@ -54,7 +54,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#AttributedString(AttributedCharacterIterator,
+     * java.text.AttributedString#AttributedString(AttributedCharacterIterator,
      *        int, int) Test of method
      *        java.text.AttributedString#AttributedString(AttributedCharacterIterator,
      *        int, int). Case 1: Try to consruct AttributedString. Case 2: Try
@@ -102,7 +102,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#AttributedString(AttributedCharacterIterator,
+     * java.text.AttributedString#AttributedString(AttributedCharacterIterator,
      *        int, int, AttributedCharacterIterator.Attribute[]) Test of method
      *        java.text.AttributedString#AttributedString(AttributedCharacterIterator,
      *        int, int, AttributedCharacterIterator.Attribute[]). Case 1: Try to
@@ -150,7 +150,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#AttributedString(AttributedCharacterIterator,
+     * java.text.AttributedString#AttributedString(AttributedCharacterIterator,
      *        int, int, Map<? extends AttributedCharacterIterator.Attribute,?>)
      *        Test of method
      *        java.text.AttributedString#AttributedString(AttributedCharacterIterator,
@@ -321,7 +321,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString.addAttribute(AttributedCharacterIterator,
+     * java.text.AttributedString.addAttribute(AttributedCharacterIterator,
      *        Object)
      */
     public void test_addAttributeLjava_text_AttributedCharacterIterator$AttributeLjava_lang_Object() {
@@ -348,7 +348,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#addAttributes(Map<? extends
+     * java.text.AttributedString#addAttributes(Map<? extends
      *        AttributedCharacterIterator.Attribute,?>, int, int) Tests of
      *        method java.text.AttributedString#addAttributes(Map<? extends
      *        AttributedCharacterIterator.Attribute,?>, int, int). Case 1: Try
@@ -392,7 +392,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#getIterator() Test of method
+     * java.text.AttributedString#getIterator() Test of method
      *        java.text.AttributedString#getIterator().
      */
     public void test_getIterator() {
@@ -408,7 +408,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[])
+     * java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[])
      *        Test of method
      *        java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[]).
      */
@@ -438,7 +438,7 @@ public class OldAttributedStringTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[],
+     * java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[],
      *        int, int) Test of method
      *        java.text.AttributedString#getIterator(AttributedCharacterIterator.Attribute[],
      *        int, int).

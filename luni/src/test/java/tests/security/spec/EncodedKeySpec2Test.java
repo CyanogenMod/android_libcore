@@ -17,11 +17,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.Key;
@@ -34,18 +29,11 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-@TestTargetClass(EncodedKeySpec.class)
 public class EncodedKeySpec2Test extends TestCase {
 
     /**
-     * @tests java.security.spec.EncodedKeySpec#getEncoded()
+     * java.security.spec.EncodedKeySpec#getEncoded()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getEncoded",
-        args = {}
-    )
     public void test_getEncoded() throws Exception {
 
                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");

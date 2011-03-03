@@ -17,11 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +36,6 @@ import tests.api.java.util.HashMapTest.ReusableKey;
 import tests.support.Support_MapTest2;
 import tests.support.Support_UnmodifiableCollectionTest;
 
-@TestTargetClass(Hashtable.class)
 public class HashtableTest extends junit.framework.TestCase {
 
     private Hashtable ht10;
@@ -57,14 +51,8 @@ public class HashtableTest extends junit.framework.TestCase {
     private String h10sVal;
 
     /**
-     * @tests java.util.Hashtable#Hashtable()
+     * java.util.Hashtable#Hashtable()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Hashtable",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.Hashtable()
         new Support_MapTest2(new Hashtable()).runTest();
@@ -75,14 +63,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#Hashtable(int)
+     * java.util.Hashtable#Hashtable(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Hashtable",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.Hashtable(int)
         Hashtable h = new Hashtable(9);
@@ -103,14 +85,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#Hashtable(int, float)
+     * java.util.Hashtable#Hashtable(int, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Hashtable",
-        args = {int.class, float.class}
-    )
     public void test_ConstructorIF() {
         // Test for method java.util.Hashtable(int, float)
         Hashtable h = new java.util.Hashtable(10, 0.5f);
@@ -137,14 +113,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#Hashtable(java.util.Map)
+     * java.util.Hashtable#Hashtable(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Hashtable",
-        args = {java.util.Map.class}
-    )
     public void test_ConstructorLjava_util_Map() {
         // Test for method java.util.Hashtable(java.util.Map)
         Map map = new TreeMap();
@@ -167,14 +137,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#Hashtable(java.util.Map)
+     * java.util.Hashtable#Hashtable(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Hashtable",
-        args = {java.util.Map.class}
-    )
     public void test_ConversionConstructorNullValue() {
         Map<String, Void> map = Collections.singletonMap("Dog", null);
         try {
@@ -185,14 +149,8 @@ public class HashtableTest extends junit.framework.TestCase {
         }
     }
     /**
-     * @tests java.util.Hashtable#clear()
+     * java.util.Hashtable#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.Hashtable.clear()
         Hashtable h = hashtableClone(htfull);
@@ -205,14 +163,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#clone()
+     * java.util.Hashtable#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.Hashtable.clone()
 
@@ -234,14 +186,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#contains(java.lang.Object)
+     * java.util.Hashtable#contains(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
     public void test_containsLjava_lang_Object() {
         // Test for method boolean
         // java.util.Hashtable.contains(java.lang.Object)
@@ -257,14 +203,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#containsKey(java.lang.Object)
+     * java.util.Hashtable#containsKey(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsKey",
-        args = {java.lang.Object.class}
-    )
     public void test_containsKeyLjava_lang_Object() {
         // Test for method boolean
         // java.util.Hashtable.containsKey(java.lang.Object)
@@ -281,14 +221,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#containsValue(java.lang.Object)
+     * java.util.Hashtable#containsValue(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsValue",
-        args = {java.lang.Object.class}
-    )
     public void test_containsValueLjava_lang_Object() {
         // Test for method boolean
         // java.util.Hashtable.containsValue(java.lang.Object)
@@ -308,14 +242,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#elements()
+     * java.util.Hashtable#elements()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "elements",
-        args = {}
-    )
     public void test_elements() {
         // Test for method java.util.Enumeration java.util.Hashtable.elements()
         Enumeration elms = ht10.elements();
@@ -332,14 +260,8 @@ public class HashtableTest extends junit.framework.TestCase {
 // BEGIN android-removed
 // implementation dependent
 //    /**
-//     * @tests java.util.Hashtable#elements()
+//     * java.util.Hashtable#elements()
 //     */
-//    @TestTargetNew(
-//        level = TestLevel.COMPLETE,
-//        notes = "",
-//        method = "elements",
-//        args = {}
-//    )
 //    public void test_elements_subtest0() {
 //        // this is the reference implementation behavior
 //        final Hashtable ht = new Hashtable(7);
@@ -374,14 +296,8 @@ public class HashtableTest extends junit.framework.TestCase {
 // END android-removed
 
     /**
-     * @tests java.util.Hashtable#entrySet()
+     * java.util.Hashtable#entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public void test_entrySet() {
         // Test for method java.util.Set java.util.Hashtable.entrySet()
         Set s = ht10.entrySet();
@@ -411,14 +327,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#equals(java.lang.Object)
+     * java.util.Hashtable#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.util.Hashtable.equals(java.lang.Object)
         Hashtable h = hashtableClone(ht10);
@@ -427,14 +337,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#get(java.lang.Object)
+     * java.util.Hashtable#get(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_getLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.Hashtable.get(java.lang.Object)
@@ -466,14 +370,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#hashCode()
+     * java.util.Hashtable#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         // Test for method int java.util.Hashtable.hashCode()
         Set entrySet = ht10.entrySet();
@@ -487,14 +385,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#isEmpty()
+     * java.util.Hashtable#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.Hashtable.isEmpty()
 
@@ -530,14 +422,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#keys()
+     * java.util.Hashtable#keys()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keys",
-        args = {}
-    )
     public void test_keys() {
         // Test for method java.util.Enumeration java.util.Hashtable.keys()
 
@@ -553,14 +439,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#keys()
+     * java.util.Hashtable#keys()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "keys",
-        args = {}
-    )
     public void test_keys_subtest0() {
         // this is the reference implementation behavior
         final Hashtable ht = new Hashtable(3);
@@ -579,14 +459,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#keySet()
+     * java.util.Hashtable#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet() {
         // Test for method java.util.Set java.util.Hashtable.keySet()
         Set s = ht10.keySet();
@@ -638,14 +512,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#keySet()
+     * java.util.Hashtable#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet_subtest0() {
         Set s1 = ht10.keySet();
         assertTrue("should contain key", s1.remove("Key 0"));
@@ -683,14 +551,8 @@ public class HashtableTest extends junit.framework.TestCase {
 // BEGIN android-removed
 // implementation dependent
 //    /**
-//     * @tests java.util.Hashtable#keySet()
+//     * java.util.Hashtable#keySet()
 //     */
-//    @TestTargetNew(
-//        level = TestLevel.PARTIAL_COMPLETE,
-//        notes = "",
-//        method = "keySet",
-//        args = {}
-//    )
 //    public void test_keySet_subtest1() {
 //        // this is the reference implementation behavior
 //        final Hashtable ht = new Hashtable(7);
@@ -733,14 +595,8 @@ public class HashtableTest extends junit.framework.TestCase {
 // END android-removed
 
     /**
-     * @tests java.util.Hashtable#put(java.lang.Object, java.lang.Object)
+     * java.util.Hashtable#put(java.lang.Object, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.Hashtable.put(java.lang.Object, java.lang.Object)
@@ -771,14 +627,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#putAll(java.util.Map)
+     * java.util.Hashtable#putAll(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map() {
         // Test for method void java.util.Hashtable.putAll(java.util.Map)
         Hashtable h = new Hashtable();
@@ -799,14 +649,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#remove(java.lang.Object)
+     * java.util.Hashtable#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.Hashtable.remove(java.lang.Object)
@@ -824,14 +668,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#size()
+     * java.util.Hashtable#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.Hashtable.size()
         assertTrue("Returned invalid size", ht10.size() == 10
@@ -865,14 +703,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#toString()
+     * java.util.Hashtable#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String java.util.Hashtable.toString()
         Hashtable h = new Hashtable();
@@ -888,14 +720,8 @@ public class HashtableTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Hashtable#values()
+     * java.util.Hashtable#values()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_values() {
         // Test for method java.util.Collection java.util.Hashtable.values()
         Collection c = ht10.values();
@@ -925,20 +751,6 @@ public class HashtableTest extends junit.framework.TestCase {
     /**
      * Regression Test for JIRA 2181
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "entrySet",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "remove",
-            args = {java.lang.Object.class}
-        )
-    })
     public void test_entrySet_remove()
     {
         Hashtable<String,String> hashtable = new Hashtable<String,String>();
@@ -976,12 +788,6 @@ public class HashtableTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "rehash",
-        args = {}
-    )
     public void test_rehash() {
         Mock_Hashtable mht = new Mock_Hashtable(5);
 

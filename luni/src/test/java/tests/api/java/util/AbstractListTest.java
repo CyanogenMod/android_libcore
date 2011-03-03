@@ -17,11 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +26,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
-@TestTargetClass(AbstractList.class)
 public class AbstractListTest extends junit.framework.TestCase {
 
     static class SimpleList extends AbstractList {
@@ -59,14 +53,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractList#hashCode()
+     * java.util.AbstractList#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
 
         List list = new ArrayList();
@@ -86,14 +74,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractList#iterator()
+     * java.util.AbstractList#iterator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "iterator",
-        args = {}
-    )
     public void test_iterator() {
         SimpleList list = new SimpleList();
         list.add(new Object());
@@ -105,14 +87,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractList#listIterator()
+     * java.util.AbstractList#listIterator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "listIterator",
-        args = {}
-    )
     public void test_listIterator() {
         Integer tempValue;
         List list = new ArrayList();
@@ -137,14 +113,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractList#subList(int, int)
+     * java.util.AbstractList#subList(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies each of the SubList operations to ensure a ConcurrentModificationException does not occur on an AbstractList which does not update modCount.",
-        method = "subList",
-        args = {int.class, int.class}
-    )
     public void test_subListII() {
         // Test each of the SubList operations to ensure a
         // ConcurrentModificationException does not occur on an AbstractList
@@ -197,14 +167,8 @@ public class AbstractListTest extends junit.framework.TestCase {
         }
 
     /**
-     * @tests java.util.AbstractList#subList(int, int)
+     * java.util.AbstractList#subList(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IndexOutOfBoundsException.",
-        method = "subList",
-        args = {int.class, int.class}
-    )
     public void test_subList_empty() {
         // Regression for HARMONY-389
         List al = new ArrayList();
@@ -234,14 +198,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractList#subList(int, int)
+     * java.util.AbstractList#subList(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify IndexOutOfBoundsException, IllegalArgumentException.",
-        method = "subList",
-        args = {int.class, int.class}
-    )
     public void test_subList_addAll() {
         // Regression for HARMONY-390
         List mainList = new ArrayList();
@@ -268,12 +226,6 @@ public class AbstractListTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "indexOf",
-        args = {java.lang.Object.class}
-    )
     public void test_indexOfLjava_lang_Object() {
         AbstractList al = new ArrayList();
         al.add(0);
@@ -286,12 +238,6 @@ public class AbstractListTest extends junit.framework.TestCase {
         assertEquals(2, al.indexOf(2));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "lastIndexOf",
-        args = {java.lang.Object.class}
-    )
     public void test_lastIndexOfLjava_lang_Object() {
         AbstractList al = new ArrayList();
         al.add(0);
@@ -308,12 +254,6 @@ public class AbstractListTest extends junit.framework.TestCase {
         assertEquals(6, al.lastIndexOf(2));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "listIterator",
-        args = {int.class}
-    )
     public void test_listIteratorI() {
         AbstractList al1 = new ArrayList();
         AbstractList al2 = new ArrayList();

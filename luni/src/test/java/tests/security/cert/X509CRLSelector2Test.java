@@ -1,10 +1,6 @@
 package tests.security.cert;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 import junit.framework.TestCase;
 
@@ -36,7 +32,7 @@ import java.util.Date;
 import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
-@TestTargetClass(X509CRLSelector.class)
+
 public class X509CRLSelector2Test extends TestCase {
 
     protected void setUp() throws Exception {
@@ -51,12 +47,6 @@ public class X509CRLSelector2Test extends TestCase {
      * constructor testing.
      *
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "X509CRLSelector",
-        args = {}
-    )
     public void testX509CRLSelector() {
         X509CRLSelector selector = new X509CRLSelector();
         assertNull(selector.getDateAndTime());
@@ -72,19 +62,6 @@ public class X509CRLSelector2Test extends TestCase {
      * specified issuers match the selector, and if not specified issuer does
      * not match the selector.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "addIssuer",
-            args = {javax.security.auth.x500.X500Principal.class}
-        ),
-        @TestTargetNew(
-            level=TestLevel.PARTIAL_COMPLETE,
-            method="match",
-            args={java.security.cert.CRL.class}
-        )
-    })
     public void testAddIssuerLjavax_security_auth_x500_X500Principal02() {
         X509CRLSelector selector = new X509CRLSelector();
         X500Principal iss1 = new X500Principal("O=First Org.");
@@ -107,12 +84,6 @@ public class X509CRLSelector2Test extends TestCase {
      * issuers match the selector, and if not specified issuer does not match
      * the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify IOException.",
-        method = "addIssuerName",
-        args = {java.lang.String.class}
-    )
     public void testAddIssuerNameLjava_lang_String03() {
         X509CRLSelector selector = new X509CRLSelector();
         String iss1 = "O=First Org.";
@@ -147,12 +118,6 @@ public class X509CRLSelector2Test extends TestCase {
      * match the selector, and if the internal collection of issuer names is
      * copied during initialization.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIssuerNames",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings("unchecked")
     public void testSetIssuerNamesLjava_util_Collection02() {
         X509CRLSelector selector = new X509CRLSelector();
@@ -201,12 +166,6 @@ public class X509CRLSelector2Test extends TestCase {
      * criteria, if specified issuers match the selector, and if not specified
      * issuer does not match the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIssuers",
-        args = {java.util.Collection.class}
-    )
     public void testSetIssuersLjava_util_Collection() {
         X509CRLSelector selector = new X509CRLSelector();
         X500Principal iss1 = new X500Principal("O=First Org.");
@@ -239,12 +198,6 @@ public class X509CRLSelector2Test extends TestCase {
      * issuers match the selector, and if not specified issuer does not match
      * the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify IOException.",
-        method = "addIssuerName",
-        args = {byte[].class}
-    )
     public void testAddIssuerName$B() {
         X509CRLSelector selector = new X509CRLSelector();
         byte[] iss1 = new byte[]
@@ -284,12 +237,6 @@ public class X509CRLSelector2Test extends TestCase {
      * criteria, if specified minCRL value matches the selector, and if CRL with
      * inappropriate crlNumber value does not match the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMinCRLNumber",
-        args = {java.math.BigInteger.class}
-    )
     @AndroidOnly("Uses specific class: " +
             "org.apache.harmony.security.asn1.ASN1OctetString.")
     public void testSetMinCRLNumberLjava_math_BigInteger() {
@@ -314,12 +261,6 @@ public class X509CRLSelector2Test extends TestCase {
      * criteria, if specified maxCRL value matches the selector, and if CRL with
      * inappropriate crlNumber value does not match the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMaxCRLNumber",
-        args = {java.math.BigInteger.class}
-    )
     @AndroidOnly("Uses specific class: " +
             "org.apache.harmony.security.asn1.ASN1OctetString.")
     public void testSetMaxCRLNumberLjava_math_BigInteger() {
@@ -343,12 +284,6 @@ public class X509CRLSelector2Test extends TestCase {
      * update dates match the selector in the case of null dateAndTime criteria,
      * if correct dates match and incorrect do not match the selector.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDateAndTime",
-        args = {java.util.Date.class}
-    )
     public void testSetDateAndTimeLjava_util_Date() {
         X509CRLSelector selector = new X509CRLSelector();
         TestCRL crl = new TestCRL(new Date(200), new Date(300));
@@ -375,12 +310,6 @@ public class X509CRLSelector2Test extends TestCase {
     /**
      * setCertificateChecking(X509Certificate) method testing.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setCertificateChecking",
-        args = {java.security.cert.X509Certificate.class}
-    )
     public void testSetCertificateCheckingLjava_X509Certificate()
             throws CertificateException {
         X509CRLSelector selector = new X509CRLSelector();
@@ -407,12 +336,6 @@ public class X509CRLSelector2Test extends TestCase {
      * of not specified issuers, if the returned collection corresponds to the
      * specified issuers and this collection is unmodifiable.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuers",
-        args = {}
-    )
     public void testGetIssuers() {
         X509CRLSelector selector = new X509CRLSelector();
         X500Principal iss1 = new X500Principal("O=First Org.");
@@ -436,12 +359,6 @@ public class X509CRLSelector2Test extends TestCase {
      * case of not specified issuers, if the returned collection corresponds to
      * the specified issuers.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIssuerNames",
-        args = {}
-    )
     public void testGetIssuerNames() {
         X509CRLSelector selector = new X509CRLSelector();
         byte[] iss1 = new byte[]
@@ -470,12 +387,6 @@ public class X509CRLSelector2Test extends TestCase {
      * of not specified minCRL criteria, and if the returned value corresponds
      * to the specified one.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinCRL",
-        args = {}
-    )
     public void testGetMinCRL() {
         X509CRLSelector selector = new X509CRLSelector();
         assertNull("Initially the minCRL should be null.", selector.getMinCRL());
@@ -490,12 +401,6 @@ public class X509CRLSelector2Test extends TestCase {
      * of not specified maxCRL criteria, and if the returned value corresponds
      * to the specified one.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCRL",
-        args = {}
-    )
     public void testGetMaxCRL() {
         X509CRLSelector selector = new X509CRLSelector();
         assertNull("Initially the maxCRL should be null.", selector.getMaxCRL());
@@ -510,12 +415,6 @@ public class X509CRLSelector2Test extends TestCase {
      * case of not specified dateAndTime criteria, and if the returned value
      * corresponds to the specified one.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDateAndTime",
-        args = {}
-    )
     public void testGetDateAndTime() {
         X509CRLSelector selector = new X509CRLSelector();
         assertNull("Initially the dateAndTime criteria should be null.",
@@ -529,12 +428,6 @@ public class X509CRLSelector2Test extends TestCase {
     /**
      * getCertificateChecking() method testing.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertificateChecking",
-        args = {}
-    )
     public void testGetCertificateCheckingLjava_X509Certificate()
             throws CertificateException {
         X509CRLSelector selector = new X509CRLSelector();
@@ -555,12 +448,6 @@ public class X509CRLSelector2Test extends TestCase {
      * match(CRL crl) method testing. Tests if the null object matches to the
      * selector or not.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify not null value as parameter.",
-        method = "match",
-        args = {java.security.cert.CRL.class}
-    )
     public void testMatchLjava_security_cert_X509CRL() {
         X509CRLSelector selector = new X509CRLSelector();
         assertFalse("The null object should not match", selector
@@ -572,12 +459,6 @@ public class X509CRLSelector2Test extends TestCase {
      * crl which matche to the initial selector should match to the clone and
      * the change of clone should not cause the change of initial selector.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     @AndroidOnly("Uses specific classes: " +
             "org.apache.harmony.security.asn1.ASN1OctetString, " +
             "org.apache.harmony.security.asn1.ASN1Integer.")
@@ -608,12 +489,6 @@ public class X509CRLSelector2Test extends TestCase {
                 + "the changes of initial object", selector.getIssuerNames()
                 .size() == 3);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         X509CRLSelector selector = new X509CRLSelector();
         X500Principal iss1 = new X500Principal("O=First Org.");

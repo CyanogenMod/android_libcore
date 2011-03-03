@@ -16,17 +16,11 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.Formattable;
 import java.util.Formatter;
 
-@TestTargetClass(Formattable.class)
 public class FormattableTest extends TestCase {
 
     class Mock_Formattable implements Formattable {
@@ -51,12 +45,6 @@ public class FormattableTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "formatTo",
-        args = {java.util.Formatter.class, int.class, int.class, int.class}
-    )
     public void testFormatTo() {
         Formatter fmt = new Formatter();
         Mock_Formattable mf = new Mock_Formattable();

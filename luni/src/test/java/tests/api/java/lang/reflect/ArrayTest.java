@@ -17,25 +17,13 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.reflect.Array;
 
-@TestTargetClass(Array.class)
 public class ArrayTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.lang.reflect.Array#get(java.lang.Object, int)
+     * java.lang.reflect.Array#get(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getLjava_lang_ObjectI() {
         // Test for method java.lang.Object
         // java.lang.reflect.Array.get(java.lang.Object, int)
@@ -103,14 +91,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getBoolean(java.lang.Object, int)
+     * java.lang.reflect.Array#getBoolean(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBoolean",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getBooleanLjava_lang_ObjectI() {
         // Test for method boolean
         // java.lang.reflect.Array.getBoolean(java.lang.Object, int)
@@ -155,14 +137,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getByte(java.lang.Object, int)
+     * java.lang.reflect.Array#getByte(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getByte",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getByteLjava_lang_ObjectI() {
         // Test for method byte
         // java.lang.reflect.Array.getByte(java.lang.Object, int)
@@ -207,14 +183,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getChar(java.lang.Object, int)
+     * java.lang.reflect.Array#getChar(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getChar",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getCharLjava_lang_ObjectI() {
         // Test for method char
         // java.lang.reflect.Array.getChar(java.lang.Object, int)
@@ -259,14 +229,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getDouble(java.lang.Object, int)
+     * java.lang.reflect.Array#getDouble(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDouble",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getDoubleLjava_lang_ObjectI() {
         // Test for method double
         // java.lang.reflect.Array.getDouble(java.lang.Object, int)
@@ -312,14 +276,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getFloat(java.lang.Object, int)
+     * java.lang.reflect.Array#getFloat(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFloat",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getFloatLjava_lang_ObjectI() {
         // Test for method float
         // java.lang.reflect.Array.getFloat(java.lang.Object, int)
@@ -364,14 +322,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getInt(java.lang.Object, int)
+     * java.lang.reflect.Array#getInt(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInt",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getIntLjava_lang_ObjectI() {
         // Test for method int java.lang.reflect.Array.getInt(java.lang.Object,
         // int)
@@ -416,14 +368,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getLength(java.lang.Object)
+     * java.lang.reflect.Array#getLength(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLength",
-        args = {java.lang.Object.class}
-    )
     public void test_getLengthLjava_lang_Object() {
         // Test for method int
         // java.lang.reflect.Array.getLength(java.lang.Object)
@@ -442,14 +388,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getLong(java.lang.Object, int)
+     * java.lang.reflect.Array#getLong(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLong",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getLongLjava_lang_ObjectI() {
         // Test for method long
         // java.lang.reflect.Array.getLong(java.lang.Object, int)
@@ -494,14 +434,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#getShort(java.lang.Object, int)
+     * java.lang.reflect.Array#getShort(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getShort",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_getShortLjava_lang_ObjectI() {
         // Test for method short
         // java.lang.reflect.Array.getShort(java.lang.Object, int)
@@ -546,14 +480,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#newInstance(java.lang.Class, int[])
+     * java.lang.reflect.Array#newInstance(java.lang.Class, int[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.Class.class, int[].class}
-    )
     public void test_newInstanceLjava_lang_Class$I() {
         // Test for method java.lang.Object
         // java.lang.reflect.Array.newInstance(java.lang.Class, int [])
@@ -598,14 +526,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#newInstance(java.lang.Class, int)
+     * java.lang.reflect.Array#newInstance(java.lang.Class, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.Class.class, int.class}
-    )
     public void test_newInstanceLjava_lang_ClassI() {
         // Test for method java.lang.Object
         // java.lang.reflect.Array.newInstance(java.lang.Class, int)
@@ -638,15 +560,9 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#set(java.lang.Object, int,
+     * java.lang.reflect.Array#set(java.lang.Object, int,
      *        java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {java.lang.Object.class, int.class, java.lang.Object.class}
-    )
     public void test_setLjava_lang_ObjectILjava_lang_Object() {
         // Test for method void java.lang.reflect.Array.set(java.lang.Object,
         // int, java.lang.Object)
@@ -702,14 +618,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setBoolean(java.lang.Object, int, boolean)
+     * java.lang.reflect.Array#setBoolean(java.lang.Object, int, boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBoolean",
-        args = {java.lang.Object.class, int.class, boolean.class}
-    )
     public void test_setBooleanLjava_lang_ObjectIZ() {
         // Test for method void
         // java.lang.reflect.Array.setBoolean(java.lang.Object, int, boolean)
@@ -754,14 +664,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setByte(java.lang.Object, int, byte)
+     * java.lang.reflect.Array#setByte(java.lang.Object, int, byte)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setByte",
-        args = {java.lang.Object.class, int.class, byte.class}
-    )
     public void test_setByteLjava_lang_ObjectIB() {
         // Test for method void
         // java.lang.reflect.Array.setByte(java.lang.Object, int, byte)
@@ -806,14 +710,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setChar(java.lang.Object, int, char)
+     * java.lang.reflect.Array#setChar(java.lang.Object, int, char)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setChar",
-        args = {java.lang.Object.class, int.class, char.class}
-    )
     public void test_setCharLjava_lang_ObjectIC() {
         // Test for method void
         // java.lang.reflect.Array.setChar(java.lang.Object, int, char)
@@ -858,14 +756,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setDouble(java.lang.Object, int, double)
+     * java.lang.reflect.Array#setDouble(java.lang.Object, int, double)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDouble",
-        args = {java.lang.Object.class, int.class, double.class}
-    )
     public void test_setDoubleLjava_lang_ObjectID() {
         // Test for method void
         // java.lang.reflect.Array.setDouble(java.lang.Object, int, double)
@@ -910,14 +802,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setFloat(java.lang.Object, int, float)
+     * java.lang.reflect.Array#setFloat(java.lang.Object, int, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setFloat",
-        args = {java.lang.Object.class, int.class, float.class}
-    )
     public void test_setFloatLjava_lang_ObjectIF() {
         // Test for method void
         // java.lang.reflect.Array.setFloat(java.lang.Object, int, float)
@@ -962,14 +848,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setInt(java.lang.Object, int, int)
+     * java.lang.reflect.Array#setInt(java.lang.Object, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setInt",
-        args = {java.lang.Object.class, int.class, int.class}
-    )
     public void test_setIntLjava_lang_ObjectII() {
         // Test for method void java.lang.reflect.Array.setInt(java.lang.Object,
         // int, int)
@@ -1014,14 +894,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setLong(java.lang.Object, int, long)
+     * java.lang.reflect.Array#setLong(java.lang.Object, int, long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setLong",
-        args = {java.lang.Object.class, int.class, long.class}
-    )
     public void test_setLongLjava_lang_ObjectIJ() {
         // Test for method void
         // java.lang.reflect.Array.setLong(java.lang.Object, int, long)
@@ -1066,14 +940,8 @@ public class ArrayTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Array#setShort(java.lang.Object, int, short)
+     * java.lang.reflect.Array#setShort(java.lang.Object, int, short)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setShort",
-        args = {java.lang.Object.class, int.class, short.class}
-    )
     public void test_setShortLjava_lang_ObjectIS() {
         // Test for method void
         // java.lang.reflect.Array.setShort(java.lang.Object, int, short)

@@ -17,10 +17,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 import tests.support.Support_Field;
 
 import java.lang.annotation.Annotation;
@@ -36,7 +32,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.HashSet;
 import java.util.Set;
 
-@TestTargetClass(Field.class)
 public class FieldTest extends junit.framework.TestCase {
 
     // BEGIN android-note
@@ -159,14 +154,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#equals(java.lang.Object)
+     * java.lang.reflect.Field#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean
         // java.lang.reflect.Field.equals(java.lang.Object)
@@ -189,14 +178,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#get(java.lang.Object)
+     * java.lang.reflect.Field#get(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_getLjava_lang_Object() throws Throwable {
         // Test for method java.lang.Object
         // java.lang.reflect.Field.get(java.lang.Object)
@@ -367,129 +350,25 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#get(java.lang.Object)
-     * @tests java.lang.reflect.Field#getByte(java.lang.Object)
-     * @tests java.lang.reflect.Field#getBoolean(java.lang.Object)
-     * @tests java.lang.reflect.Field#getShort(java.lang.Object)
-     * @tests java.lang.reflect.Field#getInt(java.lang.Object)
-     * @tests java.lang.reflect.Field#getLong(java.lang.Object)
-     * @tests java.lang.reflect.Field#getFloat(java.lang.Object)
-     * @tests java.lang.reflect.Field#getDouble(java.lang.Object)
-     * @tests java.lang.reflect.Field#getChar(java.lang.Object)
-     * @tests java.lang.reflect.Field#set(java.lang.Object, java.lang.Object)
-     * @tests java.lang.reflect.Field#setByte(java.lang.Object, byte)
-     * @tests java.lang.reflect.Field#setBoolean(java.lang.Object, boolean)
-     * @tests java.lang.reflect.Field#setShort(java.lang.Object, short)
-     * @tests java.lang.reflect.Field#setInt(java.lang.Object, int)
-     * @tests java.lang.reflect.Field#setLong(java.lang.Object, long)
-     * @tests java.lang.reflect.Field#setFloat(java.lang.Object, float)
-     * @tests java.lang.reflect.Field#setDouble(java.lang.Object, double)
-     * @tests java.lang.reflect.Field#setChar(java.lang.Object, char)
+     * java.lang.reflect.Field#get(java.lang.Object)
+     * java.lang.reflect.Field#getByte(java.lang.Object)
+     * java.lang.reflect.Field#getBoolean(java.lang.Object)
+     * java.lang.reflect.Field#getShort(java.lang.Object)
+     * java.lang.reflect.Field#getInt(java.lang.Object)
+     * java.lang.reflect.Field#getLong(java.lang.Object)
+     * java.lang.reflect.Field#getFloat(java.lang.Object)
+     * java.lang.reflect.Field#getDouble(java.lang.Object)
+     * java.lang.reflect.Field#getChar(java.lang.Object)
+     * java.lang.reflect.Field#set(java.lang.Object, java.lang.Object)
+     * java.lang.reflect.Field#setByte(java.lang.Object, byte)
+     * java.lang.reflect.Field#setBoolean(java.lang.Object, boolean)
+     * java.lang.reflect.Field#setShort(java.lang.Object, short)
+     * java.lang.reflect.Field#setInt(java.lang.Object, int)
+     * java.lang.reflect.Field#setLong(java.lang.Object, long)
+     * java.lang.reflect.Field#setFloat(java.lang.Object, float)
+     * java.lang.reflect.Field#setDouble(java.lang.Object, double)
+     * java.lang.reflect.Field#setChar(java.lang.Object, char)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "get",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getByte",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getBoolean",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getShort",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getInt",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getFloat",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getDouble",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "getChar",
-            args = {java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "set",
-            args = {java.lang.Object.class, java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setBoolean",
-            args = {java.lang.Object.class, boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setByte",
-            args = {java.lang.Object.class, byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setShort",
-            args = {java.lang.Object.class, short.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setInt",
-            args = {java.lang.Object.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setLong",
-            args = {java.lang.Object.class, long.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setFloat",
-            args = {java.lang.Object.class, float.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setDouble",
-            args = {java.lang.Object.class, double.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Stress test.",
-            method = "setChar",
-            args = {java.lang.Object.class, char.class}
-        )
-    })
     public void testProtectedFieldAccess() {
         Class fieldClass = new Support_Field().getClass();
         String fieldName = null;
@@ -690,14 +569,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getBoolean(java.lang.Object)
+     * java.lang.reflect.Field#getBoolean(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBoolean",
-        args = {java.lang.Object.class}
-    )
     public void test_getBooleanLjava_lang_Object() {
         TestField x = new TestField();
         Field f = null;
@@ -761,14 +634,8 @@ public class FieldTest extends junit.framework.TestCase {
 
 
     /**
-     * @tests java.lang.reflect.Field#getByte(java.lang.Object)
+     * java.lang.reflect.Field#getByte(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getByte",
-        args = {java.lang.Object.class}
-    )
     public void test_getByteLjava_lang_Object() {
         // Test for method byte
         // java.lang.reflect.Field.getByte(java.lang.Object)
@@ -833,14 +700,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getChar(java.lang.Object)
+     * java.lang.reflect.Field#getChar(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getChar",
-        args = {java.lang.Object.class}
-    )
     public void test_getCharLjava_lang_Object() {
         // Test for method char
         // java.lang.reflect.Field.getChar(java.lang.Object)
@@ -905,14 +766,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getDeclaringClass()
+     * java.lang.reflect.Field#getDeclaringClass()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaringClass",
-        args = {}
-    )
     public void test_getDeclaringClass() {
         // Test for method java.lang.Class
         // java.lang.reflect.Field.getDeclaringClass()
@@ -934,14 +789,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getDouble(java.lang.Object)
+     * java.lang.reflect.Field#getDouble(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDouble",
-        args = {java.lang.Object.class}
-    )
     public void test_getDoubleLjava_lang_Object() {
         // Test for method double
         // java.lang.reflect.Field.getDouble(java.lang.Object)
@@ -1008,14 +857,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getFloat(java.lang.Object)
+     * java.lang.reflect.Field#getFloat(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getFloat",
-        args = {java.lang.Object.class}
-    )
     public void test_getFloatLjava_lang_Object() {
         // Test for method float
         // java.lang.reflect.Field.getFloat(java.lang.Object)
@@ -1082,14 +925,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getInt(java.lang.Object)
+     * java.lang.reflect.Field#getInt(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInt",
-        args = {java.lang.Object.class}
-    )
     public void test_getIntLjava_lang_Object() {
         // Test for method int java.lang.reflect.Field.getInt(java.lang.Object)
         TestField x = new TestField();
@@ -1156,14 +993,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getLong(java.lang.Object)
+     * java.lang.reflect.Field#getLong(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLong",
-        args = {java.lang.Object.class}
-    )
     public void test_getLongLjava_lang_Object() {
         // Test for method long
         // java.lang.reflect.Field.getLong(java.lang.Object)
@@ -1228,14 +1059,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getModifiers()
+     * java.lang.reflect.Field#getModifiers()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModifiers",
-        args = {}
-    )
     public void test_getModifiers() {
         // Test for method int java.lang.reflect.Field.getModifiers()
         TestField x = new TestField();
@@ -1254,14 +1079,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getName()
+     * java.lang.reflect.Field#getName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         // Test for method java.lang.String java.lang.reflect.Field.getName()
         TestField x = new TestField();
@@ -1276,14 +1095,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getShort(java.lang.Object)
+     * java.lang.reflect.Field#getShort(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getShort",
-        args = {java.lang.Object.class}
-    )
     public void test_getShortLjava_lang_Object() {
         // Test for method short
         // java.lang.reflect.Field.getShort(java.lang.Object)
@@ -1351,14 +1164,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#getType()
+     * java.lang.reflect.Field#getType()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public void test_getType() {
         // Test for method java.lang.Class java.lang.reflect.Field.getType()
         TestField x = new TestField();
@@ -1373,14 +1180,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#set(java.lang.Object, java.lang.Object)
+     * java.lang.reflect.Field#set(java.lang.Object, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_setLjava_lang_ObjectLjava_lang_Object() throws Exception{
         // Test for method void java.lang.reflect.Field.set(java.lang.Object,
         // java.lang.Object)
@@ -1440,14 +1241,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setBoolean(java.lang.Object, boolean)
+     * java.lang.reflect.Field#setBoolean(java.lang.Object, boolean)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setBoolean",
-        args = {java.lang.Object.class, boolean.class}
-    )
     public void test_setBooleanLjava_lang_ObjectZ() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setBoolean(java.lang.Object, boolean)
@@ -1507,14 +1302,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setByte(java.lang.Object, byte)
+     * java.lang.reflect.Field#setByte(java.lang.Object, byte)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setByte",
-        args = {java.lang.Object.class, byte.class}
-    )
     public void test_setByteLjava_lang_ObjectB() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setByte(java.lang.Object, byte)
@@ -1575,14 +1364,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setChar(java.lang.Object, char)
+     * java.lang.reflect.Field#setChar(java.lang.Object, char)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setChar",
-        args = {java.lang.Object.class, char.class}
-    )
     public void test_setCharLjava_lang_ObjectC() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setChar(java.lang.Object, char)
@@ -1643,14 +1426,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setDouble(java.lang.Object, double)
+     * java.lang.reflect.Field#setDouble(java.lang.Object, double)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDouble",
-        args = {java.lang.Object.class, double.class}
-    )
     public void test_setDoubleLjava_lang_ObjectD() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setDouble(java.lang.Object, double)
@@ -1712,14 +1489,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setFloat(java.lang.Object, float)
+     * java.lang.reflect.Field#setFloat(java.lang.Object, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setFloat",
-        args = {java.lang.Object.class, float.class}
-    )
     public void test_setFloatLjava_lang_ObjectF() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setFloat(java.lang.Object, float)
@@ -1781,14 +1552,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setInt(java.lang.Object, int)
+     * java.lang.reflect.Field#setInt(java.lang.Object, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setInt",
-        args = {java.lang.Object.class, int.class}
-    )
     public void test_setIntLjava_lang_ObjectI() throws Exception{
         // Test for method void java.lang.reflect.Field.setInt(java.lang.Object,
         // int)
@@ -1850,14 +1615,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setLong(java.lang.Object, long)
+     * java.lang.reflect.Field#setLong(java.lang.Object, long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setLong",
-        args = {java.lang.Object.class, long.class}
-    )
     public void test_setLongLjava_lang_ObjectJ() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setLong(java.lang.Object, long)
@@ -1918,14 +1677,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#setShort(java.lang.Object, short)
+     * java.lang.reflect.Field#setShort(java.lang.Object, short)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setShort",
-        args = {java.lang.Object.class, short.class}
-    )
     public void test_setShortLjava_lang_ObjectS() throws Exception{
         // Test for method void
         // java.lang.reflect.Field.setShort(java.lang.Object, short)
@@ -1987,14 +1740,8 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.Field#toString()
+     * java.lang.reflect.Field#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String java.lang.reflect.Field.toString()
         Field f = null;
@@ -2009,12 +1756,6 @@ public class FieldTest extends junit.framework.TestCase {
                         f.toString());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaredAnnotations",
-        args = {}
-    )
     public void test_getDeclaredAnnotations() throws Exception {
         Field field = TestClass.class.getField("annotatedField");
         Annotation[] annotations = field.getDeclaredAnnotations();
@@ -2030,12 +1771,6 @@ public class FieldTest extends junit.framework.TestCase {
                 .contains(AnnotationRuntime1.class));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEnumConstant",
-        args = {}
-    )
     public void test_isEnumConstant() throws Exception {
         Field field = TestEnum.class.getDeclaredField("A");
         assertTrue("Enum constant not recognized", field.isEnumConstant());
@@ -2049,12 +1784,6 @@ public class FieldTest extends junit.framework.TestCase {
                 .isEnumConstant());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isSynthetic",
-        args = {}
-    )
     public void test_isSynthetic() throws Exception {
         Field[] fields = TestClass.Inner.class.getDeclaredFields();
         assertEquals("Not exactly one field returned", 1, fields.length);
@@ -2071,12 +1800,6 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGenericType",
-        args = {}
-    )
     public void test_getGenericType() throws Exception {
         Field field = GenericField.class.getDeclaredField("field");
         Type type = field.getGenericType();
@@ -2096,12 +1819,6 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toGenericString",
-        args = {}
-    )
     public void test_toGenericString() throws Exception {
         Field field = GenericField.class.getDeclaredField("field");
         assertEquals("Wrong generic string returned",
@@ -2123,12 +1840,6 @@ public class FieldTest extends junit.framework.TestCase {
     }
 
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() throws Exception {
         Field field = TestClass.class.getDeclaredField("annotatedField");
         assertEquals("Wrong hashCode returned", field.getName().hashCode()

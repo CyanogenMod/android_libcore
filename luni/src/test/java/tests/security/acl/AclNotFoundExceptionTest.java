@@ -22,11 +22,6 @@
 
 package tests.security.acl;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.acl.AclNotFoundException;
@@ -35,17 +30,10 @@ import java.security.acl.AclNotFoundException;
  * Unit test for AclNotFoundException.
  *
  */
-@TestTargetClass(AclNotFoundException.class)
 public class AclNotFoundExceptionTest extends TestCase {
     /**
      * check default constructor
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "AclNotFoundException",
-        args = {}
-    )
     public void testAclNotFoundException() {
         assertNotNull(new AclNotFoundException());
         assertNull(new AclNotFoundException().getMessage());

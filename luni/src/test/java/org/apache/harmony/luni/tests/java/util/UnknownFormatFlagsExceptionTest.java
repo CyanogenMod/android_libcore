@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class UnknownFormatFlagsExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.UnknownFormatFlagsException#UnknownFormatFlagsException(String)
+     * java.util.UnknownFormatFlagsException#UnknownFormatFlagsException(String)
      */
     public void test_unknownFormatFlagsException() {
 
@@ -40,7 +40,7 @@ public class UnknownFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.UnknownFormatFlagsException#getFlags()
+     * java.util.UnknownFormatFlagsException#getFlags()
      */
     public void test_getFlags() {
         String s = "MYTESTSTRING";
@@ -50,7 +50,7 @@ public class UnknownFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.UnknownFormatFlagsException#getMessage()
+     * java.util.UnknownFormatFlagsException#getMessage()
      */
     public void test_getMessage() {
         String s = "MYTESTSTRING";
@@ -75,7 +75,7 @@ public class UnknownFormatFlagsExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -84,7 +84,7 @@ public class UnknownFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

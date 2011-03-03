@@ -16,20 +16,11 @@
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
 public class CipherPBETest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_PBEWithMD5AndDES() throws Exception {
         CipherPBEThread PBEWithMD5AndDES = new CipherPBEThread(
                 "PBEWithMD5AndDES", new int[] {56}, new String[] {"CBC"},
@@ -41,12 +32,6 @@ public class CipherPBETest extends TestCase {
                 .getTotalFailuresNumber());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     @AndroidOnly("Not supported by RI (maybe with a different name)")
     public void test_PBEWithSHAand3KeyTripleDES() throws Exception {
         CipherPBEThread PBEWITHSHAAND3KEYTRIPLEDESCBC = new CipherPBEThread(

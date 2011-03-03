@@ -30,7 +30,7 @@ public class AnnotationTypeMismatchExceptionTest extends TestCase {
     /**
      * @throws ClassNotFoundException
      * @throws SecurityException
-     * @tests java.lang.annotation.AnnotationTypeMismatchException#AnnotationTypeMismatchException(Method,
+     * java.lang.annotation.AnnotationTypeMismatchException#AnnotationTypeMismatchException(Method,
      *        String)
      */
     @SuppressWarnings("nls")

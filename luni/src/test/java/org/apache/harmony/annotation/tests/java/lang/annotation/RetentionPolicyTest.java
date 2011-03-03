@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 public class RetentionPolicyTest extends TestCase {
     /**
      * @throws Exception
-     * @tests java.lang.annotation.RetentionPolicy#valueOf(String)
+     * java.lang.annotation.RetentionPolicy#valueOf(String)
      */
     @SuppressWarnings("nls")
     public void test_valueOfLjava_lang_String() throws Exception {
@@ -48,7 +48,7 @@ public class RetentionPolicyTest extends TestCase {
 
     /**
      * @throws Exception
-     * @tests java.lang.annotation.RetentionPolicy#values()
+     * java.lang.annotation.RetentionPolicy#values()
      */
     @SuppressWarnings("nls")
     public void test_values() throws Exception {

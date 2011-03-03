@@ -16,11 +16,6 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -29,18 +24,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-@TestTargetClass(Map.Entry.class)
 public class MapEntryTest extends TestCase {
     Map.Entry me = null;
     HashMap   hm = null;
     Iterator  i  = null;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getKey",
-        args = {}
-    )
     public void testGetKey() {
         assertTrue(hm.containsKey(me.getKey()));
         hm.clear();
@@ -52,12 +40,6 @@ public class MapEntryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getValue",
-        args = {}
-    )
     public void testGetValue() {
         assertTrue(hm.containsValue(me.getValue()));
         hm.clear();
@@ -83,12 +65,6 @@ public class MapEntryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "RI does not throw following exceptions: UnsupportedOperationException,ClassCastException, IllegalArgumentException and NullPointerException",
-        method = "setValue",
-        args = {java.lang.Object.class}
-    )
     public void testSetValue() {
         Mock_HashMap mhm = new Mock_HashMap();
 
@@ -109,12 +85,6 @@ public class MapEntryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         Map.Entry me1 = (Map.Entry)i.next();
         assertFalse(me.equals(me1));
@@ -123,12 +93,6 @@ public class MapEntryTest extends TestCase {
         assertTrue(me.equals(me1));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         Map.Entry me1 = (Map.Entry)i.next();
         assertTrue(me.hashCode() != me1.hashCode());

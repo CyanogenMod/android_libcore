@@ -17,11 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.Destroyable;
@@ -32,27 +27,12 @@ import javax.security.auth.DestroyFailedException;
  * Tests for <code>Destroyable</code> class constructors and methods.
  *
  */
-@TestTargetClass(Destroyable.class)
 public class DestroyableTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.Destroyable#destroy()
-     * @tests javax.security.auth.Destroyable#isDestroyed()
+     * javax.security.auth.Destroyable#destroy()
+     * javax.security.auth.Destroyable#isDestroyed()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "",
-            method = "destroy",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isDestroyed",
-            args = {}
-        )
-    })
     public void test_destroy() {
         myDestroyable md = new myDestroyable();
         try {

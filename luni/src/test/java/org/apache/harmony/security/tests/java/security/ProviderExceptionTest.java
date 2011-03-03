@@ -22,15 +22,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.ProviderException;
 
 import junit.framework.TestCase;
-@TestTargetClass(ProviderException.class)
+
 /**
  * Tests for <code>ProviderException</code> class constructors and methods.
  *
@@ -48,12 +43,6 @@ public class ProviderExceptionTest extends TestCase {
      * Test for <code>ProviderException()</code> constructor Assertion:
      * constructs ProviderException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {}
-    )
     public void testProviderException01() {
         ProviderException tE = new ProviderException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -65,12 +54,6 @@ public class ProviderExceptionTest extends TestCase {
      * constructs ProviderException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class}
-    )
     public void testProviderException02() {
         ProviderException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -85,12 +68,6 @@ public class ProviderExceptionTest extends TestCase {
      * Test for <code>ProviderException(String)</code> constructor Assertion:
      * constructs ProviderException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class}
-    )
     public void testProviderException03() {
         String msg = null;
         ProviderException tE = new ProviderException(msg);
@@ -102,12 +79,6 @@ public class ProviderExceptionTest extends TestCase {
      * Test for <code>ProviderException(Throwable)</code> constructor
      * Assertion: constructs ProviderException when <code>cause</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.Throwable.class}
-    )
     public void testProviderException04() {
         Throwable cause = null;
         ProviderException tE = new ProviderException(cause);
@@ -120,12 +91,6 @@ public class ProviderExceptionTest extends TestCase {
      * Assertion: constructs ProviderException when <code>cause</code> is not
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.Throwable.class}
-    )
     public void testProviderException05() {
         ProviderException tE = new ProviderException(tCause);
         if (tE.getMessage() != null) {
@@ -144,12 +109,6 @@ public class ProviderExceptionTest extends TestCase {
      * Assertion: constructs ProviderException when <code>cause</code> is null
      * <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testProviderException06() {
         ProviderException tE = new ProviderException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -161,12 +120,6 @@ public class ProviderExceptionTest extends TestCase {
      * Assertion: constructs ProviderException when <code>cause</code> is null
      * <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testProviderException07() {
         ProviderException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -182,12 +135,6 @@ public class ProviderExceptionTest extends TestCase {
      * Assertion: constructs ProviderException when <code>cause</code> is not
      * null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testProviderException08() {
         ProviderException tE = new ProviderException(null, tCause);
         if (tE.getMessage() != null) {
@@ -206,12 +153,6 @@ public class ProviderExceptionTest extends TestCase {
      * Assertion: constructs ProviderException when <code>cause</code> is not
      * null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ProviderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testProviderException09() {
         ProviderException tE;
         for (int i = 0; i < msgs.length; i++) {

@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
@@ -50,12 +45,10 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
 import junit.framework.TestCase;
 
 
-@TestTargetClass(KeyGenerator.class)
 /**
  * Tests for KeyGenerator constructor and methods
  *
  */
-
 public class KeyGeneratorTest extends TestCase {
 
     public static final String srvKeyGenerator = "KeyGenerator";
@@ -115,12 +108,6 @@ public class KeyGeneratorTest extends TestCase {
      * Test for <code>KeyGenerator</code> constructor Assertion: returns
      * KeyGenerator object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyGenerator",
-        args = {javax.crypto.KeyGeneratorSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testKeyGenerator() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         if (!DEFSupported) {
@@ -167,12 +154,6 @@ public class KeyGeneratorTest extends TestCase {
      * throws NullPointerException when algorithm is null throws
      * NoSuchAlgorithmException when algorithm isnot available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstanceString01() throws NoSuchAlgorithmException {
         try {
             KeyGenerator.getInstance(null);
@@ -193,12 +174,6 @@ public class KeyGeneratorTest extends TestCase {
      * Test for <code> getInstance(String algorithm) </code> method
      * Assertions: returns KeyGenerator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testGetInstanceString02() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -217,12 +192,6 @@ public class KeyGeneratorTest extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm isnot available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString01() throws
             NoSuchAlgorithmException, IllegalArgumentException,
             NoSuchProviderException {
@@ -251,12 +220,6 @@ public class KeyGeneratorTest extends TestCase {
      * throws IllegalArgumentException when provider is null or empty
      * throws NoSuchProviderException when provider has not be configured
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString02() throws IllegalArgumentException,
             NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) {
@@ -291,12 +254,6 @@ public class KeyGeneratorTest extends TestCase {
      * Test for <code> getInstance(String algorithm, String provider)</code> method
      * Assertions: returns KeyGenerator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetInstanceStringString03() throws IllegalArgumentException,
             NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) {
@@ -317,12 +274,6 @@ public class KeyGeneratorTest extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm isnot available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider01() throws NoSuchAlgorithmException,
             IllegalArgumentException {
         if (!DEFSupported) {
@@ -348,12 +299,6 @@ public class KeyGeneratorTest extends TestCase {
      * Assertions:
      * throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider02() throws NoSuchAlgorithmException,
             IllegalArgumentException {
         if (!DEFSupported) {
@@ -374,12 +319,6 @@ public class KeyGeneratorTest extends TestCase {
      * Test for <code> getInstance(String algorithm, Provider provider)</code> method
      * Assertions: returns KeyGenerator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testGetInstanceStringProvider03() throws IllegalArgumentException,
             NoSuchAlgorithmException {
         if (!DEFSupported) {
@@ -400,18 +339,6 @@ public class KeyGeneratorTest extends TestCase {
      * Assertion: throws InvalidParameterException if keysize is wrong
      *
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "init",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "init",
-            args = {int.class, java.security.SecureRandom.class}
-        )
-    })
     public void testInitKey() throws Exception {
         byte flag = 0xF;
         if (!DEFSupported) {
@@ -451,27 +378,6 @@ public class KeyGeneratorTest extends TestCase {
      * <code>init(AlgorithmParameterSpec params, SecureRandom random)</code> methods
      * Assertion: throws InvalidAlgorithmParameterException when params is null
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions only",
-            method = "init",
-            args = {java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions only",
-            method = "init",
-            args = {java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Checks exceptions only",
-            clazz = KeyGeneratorSpi.class,
-            method = "engineInit",
-            args = {java.security.spec.AlgorithmParameterSpec.class, java.security.SecureRandom.class}
-        )
-    })
     public void testInitParams() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -506,21 +412,6 @@ public class KeyGeneratorTest extends TestCase {
      * returns SecretKey object
      *
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "generateKey",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGeneratorSpi.class,
-            method = "engineGenerateKey",
-            args = {}
-        )
-    })
     public void testGenerateKey() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -550,12 +441,6 @@ public class KeyGeneratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws NoSuchAlgorithmException {
         KeyGenerator kg = null;
 
@@ -568,12 +453,6 @@ public class KeyGeneratorTest extends TestCase {
         assertNull(kg.getAlgorithm());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider () throws NoSuchAlgorithmException {
         KeyGenerator kg = null;
 
@@ -586,21 +465,6 @@ public class KeyGeneratorTest extends TestCase {
         assertNull(kg.getProvider());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {int.class, java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGeneratorSpi.class,
-            method = "engineInit",
-            args = {int.class, java.security.SecureRandom.class}
-        )
-    })
     public void test_initILjava_security_SecureRandom() throws NoSuchAlgorithmException {
         SecureRandom random = null;
         KeyGenerator kg = null;
@@ -622,21 +486,6 @@ public class KeyGeneratorTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "init",
-            args = {java.security.SecureRandom.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGeneratorSpi.class,
-            method = "engineInit",
-            args = {java.security.SecureRandom.class}
-        )
-    })
     public void test_Ljava_security_SecureRandom() throws NoSuchAlgorithmException {
         SecureRandom random = null;
         KeyGenerator kg = null;
@@ -649,12 +498,6 @@ public class KeyGeneratorTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {java.security.spec.AlgorithmParameterSpec.class}
-    )
     public void test_initLjava_security_spec_AlgorithmParameterSpec ()
             throws Exception {
         KeyGenerator kg = null;

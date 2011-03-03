@@ -16,11 +16,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -30,18 +25,11 @@ import java.lang.reflect.TypeVariable;
 /**
  * Tests generic reflection on arrays with generic or parameterized component types.
  */
-@TestTargetClass(GenericArrayType.class)
 public class GenericArrayTypeTest extends GenericReflectionTestsBase {
 
     static class A<T> {
         T[] array;
     }
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParameterizedTypeException",
-        method = "getGenericComponentType",
-        args = {}
-    )
     public void testGetGenericComponentType() throws Exception {
         @SuppressWarnings("unchecked")
         Class<? extends A> clazz = GenericArrayTypeTest.A.class;
@@ -59,12 +47,6 @@ public class GenericArrayTypeTest extends GenericReflectionTestsBase {
     static class B<T> {
         B<T>[] array;
     }
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Missing tests for TypeNotPresentException, MalformedParameterizedTypeException",
-        method = "getGenericComponentType",
-        args = {}
-    )
     public void testParameterizedComponentType() throws Exception {
         @SuppressWarnings("unchecked")
         Class<? extends B> clazz = GenericArrayTypeTest.B.class;

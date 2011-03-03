@@ -54,7 +54,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
     };
 
     /**
-     * @tests java.net.URLClassLoader#URLClassLoader(java.net.URL[])
+     * java.net.URLClassLoader#URLClassLoader(java.net.URL[])
      */
     public void test_Constructor$Ljava_net_URL() throws MalformedURLException {
         URL[] u = new URL[0];
@@ -85,7 +85,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.URLClassLoader#findResources(java.lang.String)
+     * java.net.URLClassLoader#findResources(java.lang.String)
      */
     public void test_findResourcesLjava_lang_String() throws Exception {
         Enumeration<URL> res = null;

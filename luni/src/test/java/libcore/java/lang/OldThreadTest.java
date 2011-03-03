@@ -169,7 +169,7 @@ public class OldThreadTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.Thread#sleep(long)
+     * java.lang.Thread#sleep(long)
      */
     public void test_sleepJ() {
         // Note: Not too much we can test here that can be reliably measured.

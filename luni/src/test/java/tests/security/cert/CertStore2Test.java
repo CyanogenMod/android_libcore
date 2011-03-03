@@ -1,9 +1,5 @@
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -22,7 +18,6 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@TestTargetClass(CertStore.class)
 public class CertStore2Test extends TestCase {
 
     private static final String CERT_STORE_PROVIDER_NAME = "TestCertStoreProvider";
@@ -42,11 +37,6 @@ public class CertStore2Test extends TestCase {
         Security.removeProvider(CERT_STORE_PROVIDER_NAME);
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, CertStoreParameters.class}
-    )
     public void testGetInstanceStringCertStoreParameters() {
         try {
             CertStoreParameters parameters = new MyCertStoreParameters();
@@ -91,11 +81,6 @@ public class CertStore2Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, CertStoreParameters.class, String.class}
-    )
     public void testGetInstanceStringCertStoreParametersString() {
         try {
             CertStoreParameters parameters = new MyCertStoreParameters();
@@ -167,11 +152,6 @@ public class CertStore2Test extends TestCase {
 
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, CertStoreParameters.class, Provider.class}
-    )
     public void testGetInstanceStringCertStoreParametersProvider() {
         try {
             CertStoreParameters parameters = new MyCertStoreParameters();
@@ -220,11 +200,6 @@ public class CertStore2Test extends TestCase {
 
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getCertificates",
-            args={CertSelector.class}
-    )
     public void testGetCertificates() {
         CertStore certStore = null;
         try {
@@ -260,11 +235,6 @@ public class CertStore2Test extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getCRLs",
-            args={CRLSelector.class}
-    )
     public void testGetCRLs() {
         CertStore certStore = null;
         try {

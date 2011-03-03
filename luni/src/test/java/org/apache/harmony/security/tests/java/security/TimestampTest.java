@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.Timestamp;
 import java.security.cert.CertPath;
 import java.util.Date;
@@ -34,7 +29,7 @@ import java.util.Date;
 import org.apache.harmony.security.tests.support.cert.MyCertPath;
 
 import junit.framework.TestCase;
-@TestTargetClass(Timestamp.class)
+
 /**
  * Tests for <code>Timestamp</code> class fields and methods
  *
@@ -47,12 +42,6 @@ public class TimestampTest extends TestCase {
 
     private CertPath cpath = new MyCertPath(encoding);
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Timestamp",
-        args = {java.util.Date.class, java.security.cert.CertPath.class}
-    )
     public void testTimestamp() {
         try {
             new Timestamp(null, cpath);
@@ -75,12 +64,6 @@ public class TimestampTest extends TestCase {
     /*
      * Class under test for boolean equals(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEqualsObject() {
         Timestamp one = new Timestamp(now, cpath);
         Timestamp two = new Timestamp(now, cpath);
@@ -96,22 +79,10 @@ public class TimestampTest extends TestCase {
         assertTrue(two1.equals(two1));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSignerCertPath",
-        args = {}
-    )
     public void testGetSignerCertPath() {
         assertSame(new Timestamp(now, cpath).getSignerCertPath(), cpath);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTimestamp",
-        args = {}
-    )
     public void testGetTimestamp() {
     	Timestamp t = new Timestamp(now, cpath);
         assertEquals(now, t.getTimestamp());
@@ -121,12 +92,6 @@ public class TimestampTest extends TestCase {
     /*
      * Class under test for String toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         try {
             String tt = new Timestamp(now, cpath).toString();
@@ -138,12 +103,6 @@ public class TimestampTest extends TestCase {
     /*
      * Class under test for String hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         Timestamp one = new Timestamp(now, cpath);
         Timestamp two = new Timestamp(now, cpath);

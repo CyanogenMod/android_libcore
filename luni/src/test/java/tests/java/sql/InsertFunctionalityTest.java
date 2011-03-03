@@ -15,12 +15,6 @@
  */
 package tests.java.sql;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -36,7 +30,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(Statement.class)
 public class InsertFunctionalityTest extends TestCase {
 
     private static Connection conn = null;
@@ -116,15 +109,9 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert1(). Attempts to insert row into
+     * InsertFunctionalityTest#testInsert1(). Attempts to insert row into
      *        table with integrity checking
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Attempts to insert row into table with integrity checking",
-        method = "execute",
-        args = {java.lang.String.class}
-    )
     public void testInsert1() throws SQLException {
         DatabaseCreator.fillParentTable(conn);
         DatabaseCreator.fillFKStrictTable(conn);
@@ -136,16 +123,10 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert2(). Attempts to insert row into
+     * InsertFunctionalityTest#testInsert2(). Attempts to insert row into
      *        table with integrity checking when row has incorrect foreign key
      *        value - expecting SQLException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Attempts to insert row into table with integrity checking when row has incorrect foreign key value - expecting SQLException",
-        method = "execute",
-        args = {java.lang.String.class}
-    )
     public void testInsert2() throws SQLException {
         DatabaseCreator.fillParentTable(conn);
         DatabaseCreator.fillFKStrictTable(conn);
@@ -169,23 +150,9 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert3(). Tests INSERT ... SELECT
+     * InsertFunctionalityTest#testInsert3(). Tests INSERT ... SELECT
      *        functionality
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Tests INSERT ... SELECT functionality",
-            method = "execute",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Tests INSERT ... SELECT functionality",
-            method = "executeQuery",
-            args = {java.lang.String.class}
-        )
-    })
     public void testInsert3() throws SQLException {
         DatabaseCreator.fillParentTable(conn);
         DatabaseCreator.fillFKStrictTable(conn);
@@ -200,23 +167,9 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert4(). Tests INSERT ... SELECT
+     * InsertFunctionalityTest#testInsert4(). Tests INSERT ... SELECT
      *        with expressions in SELECT query
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Tests INSERT ... SELECT with expressions in SELECT query",
-            method = "execute",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Tests INSERT ... SELECT with expressions in SELECT query",
-            method = "executeQuery",
-            args = {java.lang.String.class}
-        )
-    })
     public void testInsert4() throws SQLException {
         DatabaseCreator.fillSimpleTable1(conn);
         statement.execute("INSERT INTO " + DatabaseCreator.SIMPLE_TABLE2
@@ -232,23 +185,9 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert5(). Inserts multiple rows using
+     * InsertFunctionalityTest#testInsert5(). Inserts multiple rows using
      *        UNION ALL
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Inserts multiple rows using UNION ALL",
-            method = "execute",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Inserts multiple rows using UNION ALL",
-            method = "executeQuery",
-            args = {java.lang.String.class}
-        )
-    })
     public void testInsert5() throws SQLException {
         statement.execute("INSERT INTO " + DatabaseCreator.TEST_TABLE5
                 + " SELECT 1 as testId, 2 as testValue "
@@ -262,15 +201,9 @@ public class InsertFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests InsertFunctionalityTest#testInsert6(). Tests INSERT with
+     * InsertFunctionalityTest#testInsert6(). Tests INSERT with
      *        PreparedStatement
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Functionality test: Tests INSERT with PreparedStatement",
-        method = "executeQuery",
-        args = {java.lang.String.class}
-    )
     public void testInsertPrepared() throws SQLException {
         PreparedStatement stat = conn.prepareStatement("INSERT INTO "
                 + DatabaseCreator.TEST_TABLE5 + " VALUES(?, ?)");

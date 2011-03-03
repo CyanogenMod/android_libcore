@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 
 public class OldJarExceptionTest extends TestCase {
     /**
-     * @tests java.util.jar.JarException#JarException(java.lang.String)
+     * java.util.jar.JarException#JarException(java.lang.String)
      */
     public void test_Constructor() throws Exception {
         JarException ex = new JarException();

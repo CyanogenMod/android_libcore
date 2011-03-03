@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class IllegalFormatConversionExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.IllegalFormatConversionException#IllegalFormatConversionException(char,
+     * java.util.IllegalFormatConversionException#IllegalFormatConversionException(char,
      *        Class)
      */
     public void test_illegalFormatConversionException() {
@@ -40,7 +40,7 @@ public class IllegalFormatConversionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatConversionException#getArgumentClass()
+     * java.util.IllegalFormatConversionException#getArgumentClass()
      */
     public void test_getArgumentClass() {
         char c = '*';
@@ -53,7 +53,7 @@ public class IllegalFormatConversionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatConversionException#getConversion()
+     * java.util.IllegalFormatConversionException#getConversion()
      */
     public void test_getConversion() {
         char c = '*';
@@ -65,7 +65,7 @@ public class IllegalFormatConversionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.IllegalFormatConversionException#getMessage()
+     * java.util.IllegalFormatConversionException#getMessage()
      */
     public void test_getMessage() {
         char c = '*';
@@ -95,7 +95,7 @@ public class IllegalFormatConversionExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -104,7 +104,7 @@ public class IllegalFormatConversionExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

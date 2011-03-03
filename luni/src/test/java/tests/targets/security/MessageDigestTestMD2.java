@@ -16,8 +16,6 @@
 package tests.targets.security;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -26,11 +24,6 @@ import junit.framework.TestCase;
 
 public class MessageDigestTestMD2 extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        method = "getInstance",
-        args = {String.class}
-    )
     @AndroidOnly("Android doesn't include MD2 message digest algorithm")
     public void testMessageDigest1() throws Exception{
         try {
@@ -49,11 +42,6 @@ public class MessageDigestTestMD2 extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        method = "getInstance",
-        args = {String.class}
-    )
     @AndroidOnly("Android allows usage of MD2 in third party providers")
     public void testMessageDigest2() throws Exception{
 

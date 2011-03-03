@@ -18,10 +18,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.security.Principal;
@@ -45,18 +41,11 @@ import junit.framework.TestCase;
  * Tests for <code>HttpsURLConnection</code> class constructors and methods.
  *
  */
-@TestTargetClass(HttpsURLConnection.class)
 public class HttpsURLConnectionTest extends TestCase {
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#HttpsURLConnection(java_net_URL)
+     * javax.net.ssl.HttpsURLConnection#HttpsURLConnection(java_net_URL)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HttpsURLConnection",
-        args = {java.net.URL.class}
-    )
     public final void test_Constructor() {
         try {
             MyHttpsURLConnection huc = new MyHttpsURLConnection(new URL("https://www.fortify.net/"));
@@ -71,14 +60,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getCipherSuite()
+     * javax.net.ssl.HttpsURLConnection#getCipherSuite()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCipherSuite",
-        args = {}
-    )
     public final void test_getCipherSuite() {
         try {
             URL url = new URL("https://localhost:55555");
@@ -102,14 +85,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getLocalCertificates()
+     * javax.net.ssl.HttpsURLConnection#getLocalCertificates()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalCertificates",
-        args = {}
-    )
     public final void test_getLocalCertificates() {
         try {
             URL url = new URL("https://localhost:55555");
@@ -137,14 +114,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getDefaultHostnameVerifier()
+     * javax.net.ssl.HttpsURLConnection#getDefaultHostnameVerifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultHostnameVerifier",
-        args = {}
-    )
     public final void test_getDefaultHostnameVerifier() {
         HostnameVerifier verifyer =
             HttpsURLConnection.getDefaultHostnameVerifier();
@@ -152,14 +123,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getDefaultSSLSocketFactory()
+     * javax.net.ssl.HttpsURLConnection#getDefaultSSLSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultSSLSocketFactory",
-        args = {}
-    )
     public final void test_getDefaultSSLSocketFactory() {
         SSLSocketFactory sf = HttpsURLConnection.getDefaultSSLSocketFactory();
         if (!sf.equals(SSLSocketFactory.getDefault())) {
@@ -168,14 +133,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getHostnameVerifier()
+     * javax.net.ssl.HttpsURLConnection#getHostnameVerifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHostnameVerifier",
-        args = {}
-    )
     public final void test_getHostnameVerifier()
         throws Exception {
         HttpsURLConnection con = new MyHttpsURLConnection(
@@ -187,14 +146,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getLocalPrincipal()
+     * javax.net.ssl.HttpsURLConnection#getLocalPrincipal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocalPrincipal",
-        args = {}
-    )
     public final void test_getLocalPrincipal() {
         try {
             URL url = new URL("https://localhost:55555");
@@ -220,14 +173,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getPeerPrincipal()
+     * javax.net.ssl.HttpsURLConnection#getPeerPrincipal()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPeerPrincipal",
-        args = {}
-    )
     public final void test_getPeerPrincipal() throws Exception {
         try {
             URL url = new URL("https://localhost:55555");
@@ -259,14 +206,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getServerCertificates()
+     * javax.net.ssl.HttpsURLConnection#getServerCertificates()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getServerCertificates",
-        args = {}
-    )
     public final void test_getServerCertificates() throws Exception {
         try {
             URL url = new URL("https://localhost:55555");
@@ -300,14 +241,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getSSLSocketFactory()
+     * javax.net.ssl.HttpsURLConnection#getSSLSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSSLSocketFactory",
-        args = {}
-    )
     public final void test_getSSLSocketFactory() {
         HttpsURLConnection con = new MyHttpsURLConnection(null);
         SSLSocketFactory sf = con.getSSLSocketFactory();
@@ -317,14 +252,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#setDefaultHostnameVerifier()
+     * javax.net.ssl.HttpsURLConnection#setDefaultHostnameVerifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDefaultHostnameVerifier",
-        args = {javax.net.ssl.HostnameVerifier.class}
-    )
     public final void test_setDefaultHostnameVerifier() {
         try {
             HttpsURLConnection.setDefaultHostnameVerifier(null);
@@ -345,14 +274,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#setHostnameVerifier()
+     * javax.net.ssl.HttpsURLConnection#setHostnameVerifier()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setHostnameVerifier",
-        args = {javax.net.ssl.HostnameVerifier.class}
-    )
     public final void test_setHostnameVerifier() {
         HttpsURLConnection con = new MyHttpsURLConnection(null);
         try {
@@ -369,14 +292,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#setDefaultSSLSocketFactory()
+     * javax.net.ssl.HttpsURLConnection#setDefaultSSLSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDefaultSSLSocketFactory",
-        args = {javax.net.ssl.SSLSocketFactory.class}
-    )
     public final void test_setDefaultSSLSocketFactory() {
         try {
             HttpsURLConnection.setDefaultSSLSocketFactory(null);
@@ -393,14 +310,8 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#setSSLSocketFactory()
+     * javax.net.ssl.HttpsURLConnection#setSSLSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSSLSocketFactory",
-        args = {javax.net.ssl.SSLSocketFactory.class}
-    )
     public final void test_setSSLSocketFactory() {
         HttpsURLConnection con = new MyHttpsURLConnection(null);
         try {

@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.spec.ECGenParameterSpec;
@@ -35,7 +30,6 @@ import java.security.spec.ECGenParameterSpec;
  * Tests for <code>ECGenParameterSpec</code> class fields and methods.
  *
  */
-@TestTargetClass(ECGenParameterSpec.class)
 public class ECGenParameterSpecTest extends TestCase {
 
     //
@@ -48,12 +42,6 @@ public class ECGenParameterSpecTest extends TestCase {
      * Assertion: creates new object of <code>ECGenParameterSpec</code> class
      * using valid <code>name</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ECGenParameterSpec",
-        args = {java.lang.String.class}
-    )
     public final void testECGenParameterSpec01() {
         new ECGenParameterSpec("someName");
     }
@@ -64,12 +52,6 @@ public class ECGenParameterSpecTest extends TestCase {
      * Assertion: throws NullPointerException
      * if <code>name</code> is <code>null</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "ECGenParameterSpec",
-        args = {java.lang.String.class}
-    )
     public final void testECGenParameterSpec02() {
         try {
             new ECGenParameterSpec(null);
@@ -82,12 +64,6 @@ public class ECGenParameterSpecTest extends TestCase {
      *
      * Assertion: returns the <code>name</code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public final void testGetName() {
         String name = "someName";
         ECGenParameterSpec ps = new ECGenParameterSpec(name);

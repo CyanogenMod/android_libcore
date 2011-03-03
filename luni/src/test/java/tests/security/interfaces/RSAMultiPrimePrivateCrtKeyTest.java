@@ -16,11 +16,6 @@
 
 package tests.security.interfaces;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -29,7 +24,6 @@ import java.security.spec.RSAOtherPrimeInfo;
 
 import org.apache.harmony.security.tests.support.interfaces.RSAMultiPrimePrivateCrtKeyImpl;
 
-@TestTargetClass(RSAMultiPrimePrivateCrtKey.class)
 public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
 
     /**
@@ -61,51 +55,13 @@ public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
     }
 
     /**
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getCrtCoefficient()
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeExponentP()
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeExponentQ()
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeP()
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeQ()
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPublicExponent()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getCrtCoefficient()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeExponentP()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeExponentQ()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeP()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeQ()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPublicExponent()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getCrtCoefficient",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPrimeExponentP",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPrimeExponentQ",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPrimeP",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPrimeQ",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPublicExponent",
-            args = {}
-        )
-    })
     public void test_RSAMultiPrimePrivateCrtKey() {
         RSAMulti rsam = new RSAMulti(publicExponent, primeExponentP, primeExponentQ,
                                      primeP, primeQ, crtCoefficient, opi);
@@ -122,14 +78,8 @@ public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
     }
 
     /**
-     * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getOtherPrimeInfo()
+     * java.security.interfaces.RSAMultiPrimePrivateCrtKey#getOtherPrimeInfo()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOtherPrimeInfo",
-        args = {}
-    )
     public void test_getOtherPrimeInfo() {
         RSAMulti rsam = new RSAMulti(publicExponent, primeExponentP, primeExponentQ,
                                      primeP, primeQ, crtCoefficient, null);

@@ -16,16 +16,11 @@
 
 package tests.api.org.xml.sax.helpers;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-@TestTargetClass(XMLReaderFactory.class)
 public class XMLReaderFactoryTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
@@ -36,12 +31,6 @@ public class XMLReaderFactoryTest extends TestCase {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        method = "createXMLReader",
-        args = { },
-        notes = "Checks everything except META-INF case"
-    )
     public void testCreateXMLReader() {
         // Property not set at all
         try {
@@ -103,11 +92,6 @@ public class XMLReaderFactoryTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "createXMLReader",
-        args = { String.class }
-    )
     public void testMakeParserString() {
         // No class
         try {

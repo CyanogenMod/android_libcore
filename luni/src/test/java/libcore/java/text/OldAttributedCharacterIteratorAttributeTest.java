@@ -58,7 +58,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#AttributedCharacterIterator.Attribute(java.lang.String)
+     * java.text.AttributedCharacterIterator.Attribute#AttributedCharacterIterator.Attribute(java.lang.String)
      *        Test of method
      *        java.text.AttributedCharacterIterator.Attribute#AttributedCharacterIterator.Attribute(java.lang.String).
      */
@@ -71,7 +71,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#equals(java.lang.Object)
+     * java.text.AttributedCharacterIterator.Attribute#equals(java.lang.Object)
      *        Test of method
      *        java.text.AttributedCharacterIterator.Attribute#equals(java.lang.Object).
      */
@@ -98,7 +98,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#getName() Test of
+     * java.text.AttributedCharacterIterator.Attribute#getName() Test of
      *        method java.text.AttributedCharacterIterator.Attribute#getName().
      */
     public void test_getName() {
@@ -112,7 +112,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#hashCode()
+     * java.text.AttributedCharacterIterator.Attribute#hashCode()
      */
     public void test_hashCode() {
         try {
@@ -140,7 +140,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#readResolve() Test
+     * java.text.AttributedCharacterIterator.Attribute#readResolve() Test
      *        of method
      *        java.text.AttributedCharacterIterator.Attribute#readResolve().
      */
@@ -192,7 +192,7 @@ public class OldAttributedCharacterIteratorAttributeTest extends
     }
 
     /**
-     * @tests java.text.AttributedCharacterIterator.Attribute#toString() Test of
+     * java.text.AttributedCharacterIterator.Attribute#toString() Test of
      *        method java.text.AttributedCharacterIterator.Attribute#toString().
      */
     public void test_toString() {

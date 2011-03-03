@@ -17,17 +17,11 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.*;
 
 import tests.support.Support_MapTest2;
 import tests.support.Support_UnmodifiableCollectionTest;
 
-@TestTargetClass(HashMap.class)
 public class HashMapTest extends junit.framework.TestCase {
     class MockMap extends AbstractMap {
         public Set entrySet() {
@@ -57,14 +51,8 @@ public class HashMapTest extends junit.framework.TestCase {
     Object[] objArray2;
 
     /**
-     * @tests java.util.HashMap#HashMap()
+     * java.util.HashMap#HashMap()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashMap",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.HashMap()
         new Support_MapTest2(new HashMap()).runTest();
@@ -74,14 +62,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#HashMap(int)
+     * java.util.HashMap#HashMap(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashMap",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.HashMap(int)
         HashMap hm2 = new HashMap(5);
@@ -100,14 +82,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#HashMap(int, float)
+     * java.util.HashMap#HashMap(int, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashMap",
-        args = {int.class, float.class}
-    )
     public void test_ConstructorIF() {
         // Test for method java.util.HashMap(int, float)
         HashMap hm2 = new HashMap(5, (float) 0.5);
@@ -126,14 +102,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#HashMap(java.util.Map)
+     * java.util.HashMap#HashMap(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "HashMap",
-        args = {java.util.Map.class}
-    )
     public void test_ConstructorLjava_util_Map() {
         // Test for method java.util.HashMap(java.util.Map)
         Map myMap = new TreeMap();
@@ -150,14 +120,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#clear()
+     * java.util.HashMap#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.HashMap.clear()
         hm.clear();
@@ -169,14 +133,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#clone()
+     * java.util.HashMap#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.HashMap.clone()
         HashMap hm2 = (HashMap) hm.clone();
@@ -221,14 +179,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#containsKey(java.lang.Object)
+     * java.util.HashMap#containsKey(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsKey",
-        args = {java.lang.Object.class}
-    )
     public void test_containsKeyLjava_lang_Object() {
         // Test for method boolean
         // java.util.HashMap.containsKey(java.lang.Object)
@@ -244,14 +196,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#containsValue(java.lang.Object)
+     * java.util.HashMap#containsValue(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsValue",
-        args = {java.lang.Object.class}
-    )
     public void test_containsValueLjava_lang_Object() {
         // Test for method boolean
         // java.util.HashMap.containsValue(java.lang.Object)
@@ -262,14 +208,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#entrySet()
+     * java.util.HashMap#entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public void test_entrySet() {
         // Test for method java.util.Set java.util.HashMap.entrySet()
         Set s = hm.entrySet();
@@ -284,14 +224,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#entrySet()
+     * java.util.HashMap#entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public void test_entrySetEquals() {
         Set s1 = hm.entrySet();
         Set s2 = new HashMap(hm).entrySet();
@@ -299,14 +233,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#entrySet()
+     * java.util.HashMap#entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public void test_removeFromViews() {
         hm.put("A", null);
         hm.put("B", null);
@@ -318,14 +246,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#get(java.lang.Object)
+     * java.util.HashMap#get(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_getLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.HashMap.get(java.lang.Object)
@@ -355,14 +277,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#isEmpty()
+     * java.util.HashMap#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.HashMap.isEmpty()
         assertTrue("Returned false for new map", new HashMap().isEmpty());
@@ -370,14 +286,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#keySet()
+     * java.util.HashMap#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet() {
         // Test for method java.util.Set java.util.HashMap.keySet()
         Set s = hm.keySet();
@@ -429,14 +339,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#put(java.lang.Object, java.lang.Object)
+     * java.util.HashMap#put(java.lang.Object, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.HashMap.put(java.lang.Object, java.lang.Object)
@@ -455,14 +359,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#putAll(java.util.Map)
+     * java.util.HashMap#putAll(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify NullPointerException.",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map() {
         // Test for method void java.util.HashMap.putAll(java.util.Map)
         HashMap hm2 = new HashMap();
@@ -478,14 +376,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#putAll(java.util.Map)
+     * java.util.HashMap#putAll(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map_Null() {
         HashMap hashMap = new HashMap();
         try {
@@ -503,12 +395,6 @@ public class HashMapTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Checks putAll that causes map to resize",
-            method = "putAll",
-            args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map_Resize() {
         Random rnd = new Random(666);
 
@@ -536,14 +422,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#remove(java.lang.Object)
+     * java.util.HashMap#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.HashMap.remove(java.lang.Object)
@@ -564,14 +444,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#size()
+     * java.util.HashMap#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.HashMap.size()
         assertTrue("Returned incorrect size",
@@ -579,14 +453,8 @@ public class HashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.HashMap#values()
+     * java.util.HashMap#values()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_values() {
         // Test for method java.util.Collection java.util.HashMap.values()
         Collection c = hm.values();
@@ -631,12 +499,6 @@ public class HashMapTest extends junit.framework.TestCase {
             return key == ((ReusableKey) o).key;
         }
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_Map_Entry_hashCode() {
         //Related to HARMONY-403
         HashMap<Integer, Integer> map = new HashMap<Integer, Integer>(10);

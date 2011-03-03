@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -23,7 +18,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElRemAtNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElRemAtNS</a>
  */
-@TestTargetClass(Element.class)
 public final class ElementRemoveAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -53,12 +47,6 @@ public final class ElementRemoveAttributeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "removeAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testRemoveAttributeNS() throws Throwable {
         Document doc;
         Element element;

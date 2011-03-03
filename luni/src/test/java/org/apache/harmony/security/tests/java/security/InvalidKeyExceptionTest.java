@@ -22,15 +22,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidKeyException;
 
 import junit.framework.TestCase;
-@TestTargetClass(InvalidKeyException.class)
+
 /**
  * Tests for <code>InvalidKeyException</code> class constructors and methods.
  *
@@ -48,12 +43,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * Test for <code>InvalidKeyException()</code> constructor Assertion:
      * constructs InvalidKeyException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {}
-    )
     public void testInvalidKeyException01() {
         InvalidKeyException tE = new InvalidKeyException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -65,12 +54,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * Assertion: constructs InvalidKeyException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class}
-    )
     public void testInvalidKeyException02() {
         InvalidKeyException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -85,12 +68,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * Test for <code>InvalidKeyException(String)</code> constructor
      * Assertion: constructs InvalidKeyException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class}
-    )
     public void testInvalidKeyException03() {
         String msg = null;
         InvalidKeyException tE = new InvalidKeyException(msg);
@@ -103,12 +80,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * Assertion: constructs InvalidKeyException when <code>cause</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.Throwable.class}
-    )
     public void testInvalidKeyException04() {
         Throwable cause = null;
         InvalidKeyException tE = new InvalidKeyException(cause);
@@ -121,12 +92,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * Assertion: constructs InvalidKeyException when <code>cause</code> is
      * not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.Throwable.class}
-    )
     public void testInvalidKeyException05() {
         InvalidKeyException tE = new InvalidKeyException(tCause);
         if (tE.getMessage() != null) {
@@ -145,12 +110,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * constructor Assertion: constructs InvalidKeyException when
      * <code>cause</code> is null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testInvalidKeyException06() {
         InvalidKeyException tE = new InvalidKeyException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -162,12 +121,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * constructor Assertion: constructs InvalidKeyException when
      * <code>cause</code> is null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testInvalidKeyException07() {
         InvalidKeyException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -183,12 +136,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * constructor Assertion: constructs InvalidKeyException when
      * <code>cause</code> is not null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testInvalidKeyException08() {
         InvalidKeyException tE = new InvalidKeyException(null, tCause);
         if (tE.getMessage() != null) {
@@ -207,12 +154,6 @@ public class InvalidKeyExceptionTest extends TestCase {
      * constructor Assertion: constructs InvalidKeyException when
      * <code>cause</code> is not null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidKeyException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testInvalidKeyException09() {
         InvalidKeyException tE;
         for (int i = 0; i < msgs.length; i++) {

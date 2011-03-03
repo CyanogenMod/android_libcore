@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +30,6 @@ import org.w3c.dom.Attr;
 
 import javax.xml.parsers.DocumentBuilder;
 
-@TestTargetClass(Document.class)
 public final class CreateAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -65,12 +59,6 @@ public final class CreateAttributeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NAMESPACE_ERR exception code.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS1() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/";
         String malformedName = "prefix::local";
@@ -88,12 +76,6 @@ public final class CreateAttributeNS extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies createAttributeNS method with null as the fisrt parameter.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS2() throws Throwable {
         String namespaceURI = null;
 
@@ -112,12 +94,6 @@ public final class CreateAttributeNS extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS3() throws Throwable {
         String namespaceURI = "http://www.wedding.com/";
         String qualifiedName;
@@ -166,12 +142,6 @@ public final class CreateAttributeNS extends DOMTestCase {
             }
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify exceptions.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS4() throws Throwable {
         String namespaceURI = "http://www.w3.org/XML/1998/namespaces";
         String qualifiedName = "xml:attr1";
@@ -189,12 +159,6 @@ public final class CreateAttributeNS extends DOMTestCase {
             assertTrue("throw_NAMESPACE_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify exceptions.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS5() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/";
         String qualifiedName = "econm:local";
@@ -206,12 +170,6 @@ public final class CreateAttributeNS extends DOMTestCase {
         attrName = newAttr.getName();
         assertEquals("throw_Equals", qualifiedName, attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS6() throws Throwable {
         String namespaceURI = "http://www.example.com/";
         Document doc;

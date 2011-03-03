@@ -26,15 +26,10 @@ import java.security.Permission;
 import java.security.SecurityPermission;
 
 import junit.framework.TestCase;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-@TestTargetClass(Permission.class)
+
 /**
  * Tests for <code>Permission</code>
  */
-
 public class PermissionTest extends TestCase {
     // Bare extension to instantiate abstract Permission class
     static final class RealPermission extends Permission {
@@ -64,12 +59,6 @@ public class PermissionTest extends TestCase {
      * Test that a permission object is created with the specified name and is
      * properly converted to String
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Non null string parameter verified",
-        method = "Permission",
-        args = {java.lang.String.class}
-    )
     public void testCtor() {
         String name = "testCtor123^%$#&^ &^$";
         Permission test = new RealPermission(name);
@@ -79,12 +68,6 @@ public class PermissionTest extends TestCase {
     }
 
     /** newPermissionCollection() should return null */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Returned parameter was tested.",
-        method = "newPermissionCollection",
-        args = {}
-    )
     public void testCollection() {
         assertNull(new RealPermission("123").newPermissionCollection());
     }

@@ -17,11 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.Principal;
 import java.security.cert.Certificate;
 
@@ -37,15 +32,8 @@ import junit.framework.TestCase;
  * Tests for <code>SSLSessionBindingEvent</code> class constructors and methods.
  *
  */
-@TestTargetClass(SSLSessionBindingEvent.class)
 public class SSLSessionBindingEventTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLSessionBindingEvent",
-        args = {javax.net.ssl.SSLSession.class, java.lang.String.class}
-    )
     public final void test_ConstructorLjavax_net_ssl_SSLSessionLjava_lang_String() {
         SSLSession ses = new MySSLSession();
 
@@ -76,14 +64,8 @@ public class SSLSessionBindingEventTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSessionBindingEvent#getName()
+     * javax.net.ssl.SSLSessionBindingEvent#getName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         SSLSession ses = new MySSLSession();
         SSLSessionBindingEvent event = new SSLSessionBindingEvent(ses, "test");
@@ -93,14 +75,8 @@ public class SSLSessionBindingEventTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLSessionBindingEvent#getSession()
+     * javax.net.ssl.SSLSessionBindingEvent#getSession()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSession",
-        args = {}
-    )
     public void test_getSession() {
         SSLSession ses = new MySSLSession();
         SSLSessionBindingEvent event = new SSLSessionBindingEvent(ses, "test");

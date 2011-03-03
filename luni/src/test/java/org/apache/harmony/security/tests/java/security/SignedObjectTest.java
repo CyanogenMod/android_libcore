@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignedObject;
@@ -44,44 +39,12 @@ import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Properties;
-@TestTargetClass(SignedObject.class)
+
 /**
  * Tests for <code>SignedObject</code> constructor and methods
  */
 public class SignedObjectTest extends TestCase {
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "SignedObject",
-            args = {java.io.Serializable.class, java.security.PrivateKey.class, java.security.Signature.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getAlgorithm",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getObject",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getSignature",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "verify",
-            args = {java.security.PublicKey.class, java.security.Signature.class}
-        )
-    })
     public void testSignedObject() throws Exception {
         TestKeyPair tkp = null;
         Properties prop;

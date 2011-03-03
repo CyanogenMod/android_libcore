@@ -25,7 +25,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 public class FormatterClosedExceptionTest extends TestCase {
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -33,7 +33,7 @@ public class FormatterClosedExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

@@ -17,11 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLEngineResult;
 import junit.framework.TestCase;
 
@@ -30,7 +25,6 @@ import junit.framework.TestCase;
  * Tests for SSLEngineResult class
  *
  */
-@TestTargetClass(SSLEngineResult.class)
 public class SSLEngineResultTest extends TestCase {
 
     /**
@@ -50,12 +44,6 @@ public class SSLEngineResultTest extends TestCase {
      * is null
      *
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLEngineResult",
-        args = {javax.net.ssl.SSLEngineResult.Status.class, javax.net.ssl.SSLEngineResult.HandshakeStatus.class, int.class, int.class}
-    )
     public void test_ConstructorLjavax_net_ssl_SSLEngineResult_StatusLjavax_net_ssl_SSLEngineResult_HandshakeStatusII() {
 
         int[] neg = { -1, -10, -1000, Integer.MIN_VALUE,
@@ -103,12 +91,6 @@ public class SSLEngineResultTest extends TestCase {
     /**
      * Test for <code>bytesConsumed()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "bytesConsumed",
-        args = {}
-    )
     public void test_bytesConsumed() {
         int[] pos = { 0, 1, 1000, Integer.MAX_VALUE, (Integer.MAX_VALUE - 1) };
         SSLEngineResult.Status [] enS =
@@ -132,12 +114,6 @@ public class SSLEngineResultTest extends TestCase {
     /**
      * Test for <code>bytesProduced()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "bytesProduced",
-        args = {}
-    )
     public void test_bytesProduced() {
         int[] pos = { 0, 1, 1000, Integer.MAX_VALUE, (Integer.MAX_VALUE - 1) };
         SSLEngineResult.Status [] enS =
@@ -161,12 +137,6 @@ public class SSLEngineResultTest extends TestCase {
     /**
      * Test for <code>getHandshakeStatus()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHandshakeStatus",
-        args = {}
-    )
     public void test_getHandshakeStatus() {
         int[] pos = { 0, 1, 1000, Integer.MAX_VALUE, (Integer.MAX_VALUE - 1) };
         SSLEngineResult.Status [] enS =
@@ -190,12 +160,6 @@ public class SSLEngineResultTest extends TestCase {
     /**
      * Test for <code>getStatus()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getStatus",
-        args = {}
-    )
     public void test_getStatus() {
         int[] pos = { 0, 1, 1000, Integer.MAX_VALUE, (Integer.MAX_VALUE - 1) };
         SSLEngineResult.Status [] enS =
@@ -219,12 +183,6 @@ public class SSLEngineResultTest extends TestCase {
     /**
      * Test for <code>toString()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         int[] pos = { 0, 1, 1000, Integer.MAX_VALUE, (Integer.MAX_VALUE - 1) };
         SSLEngineResult.Status [] enS =

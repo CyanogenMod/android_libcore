@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 public class OldAttributesNameTest extends TestCase {
 
     /**
-     * @tests java.util.jar.Attributes.Name#Name(java.lang.String)
+     * java.util.jar.Attributes.Name#Name(java.lang.String)
      */
     public void test_AttributesName_Constructor() {
         try {

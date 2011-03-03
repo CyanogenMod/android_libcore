@@ -26,7 +26,7 @@ public class BitSetTest extends TestCase {
     BitSet eightbs;
 
     /**
-     * @tests java.util.BitSet#BitSet()
+     * java.util.BitSet#BitSet()
      */
     public void test_Constructor() {
         BitSet bs = new BitSet();
@@ -36,7 +36,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#BitSet(int)
+     * java.util.BitSet#BitSet(int)
      */
     public void test_ConstructorI() {
         BitSet bs = new BitSet(128);
@@ -65,7 +65,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#equals(java.lang.Object)
+     * java.util.BitSet#equals(java.lang.Object)
      */
     public void test_equalsLjava_lang_Object() {
         BitSet bs;
@@ -86,7 +86,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#hashCode()
+     * java.util.BitSet#hashCode()
      */
     public void test_hashCode() {
         // Test for method int java.util.BitSet.hashCode()
@@ -100,7 +100,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#clear()
+     * java.util.BitSet#clear()
      */
     public void test_clear() {
         eightbs.clear();
@@ -120,7 +120,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#clear(int)
+     * java.util.BitSet#clear(int)
      */
     public void test_clearI() {
         // Test for method void java.util.BitSet.clear(int)
@@ -172,7 +172,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#clear(int, int)
+     * java.util.BitSet#clear(int, int)
      */
     public void test_clearII() throws IndexOutOfBoundsException {
         // Regression for HARMONY-98
@@ -356,7 +356,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#get(int)
+     * java.util.BitSet#get(int)
      */
     public void test_getI() {
         // Test for method boolean java.util.BitSet.get(int)
@@ -396,7 +396,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#get(int, int)
+     * java.util.BitSet#get(int, int)
      */
     public void test_getII() {
         BitSet bitset = new BitSet(30);
@@ -534,7 +534,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#flip(int)
+     * java.util.BitSet#flip(int)
      */
     public void test_flipI() {
         // Test for method void java.util.BitSet.flip(int)
@@ -608,7 +608,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#clear(int, int)
+     * java.util.BitSet#clear(int, int)
      */
     public void test_flipII() {
         BitSet bitset = new BitSet();
@@ -756,7 +756,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#set(int)
+     * java.util.BitSet#set(int)
      */
     public void test_setI() {
         // Test for method void java.util.BitSet.set(int)
@@ -796,7 +796,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#set(int, boolean)
+     * java.util.BitSet#set(int, boolean)
      */
     public void test_setIZ() {
         // Test for method void java.util.BitSet.set(int, boolean)
@@ -808,7 +808,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#set(int, int)
+     * java.util.BitSet#set(int, int)
      */
     public void test_setII() throws IndexOutOfBoundsException {
         BitSet bitset = new BitSet(30);
@@ -933,7 +933,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#set(int, int, boolean)
+     * java.util.BitSet#set(int, int, boolean)
      */
     public void test_setIIZ() {
         // Test for method void java.util.BitSet.set(int, int, boolean)
@@ -948,7 +948,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#intersects(java.util.BitSet)
+     * java.util.BitSet#intersects(java.util.BitSet)
      */
     public void test_intersectsLjava_util_BitSet() {
         // Test for method boolean java.util.BitSet.intersects(java.util.BitSet)
@@ -1024,7 +1024,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#and(java.util.BitSet)
+     * java.util.BitSet#and(java.util.BitSet)
      */
     public void test_andLjava_util_BitSet() {
         // Test for method void java.util.BitSet.and(java.util.BitSet)
@@ -1047,7 +1047,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#andNot(java.util.BitSet)
+     * java.util.BitSet#andNot(java.util.BitSet)
      */
     public void test_andNotLjava_util_BitSet() {
         BitSet bs = (BitSet) eightbs.clone();
@@ -1065,7 +1065,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#or(java.util.BitSet)
+     * java.util.BitSet#or(java.util.BitSet)
      */
     public void test_orLjava_util_BitSet() {
         // Test for method void java.util.BitSet.or(java.util.BitSet)
@@ -1088,7 +1088,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#xor(java.util.BitSet)
+     * java.util.BitSet#xor(java.util.BitSet)
      */
     public void test_xorLjava_util_BitSet() {
         // Test for method void java.util.BitSet.xor(java.util.BitSet)
@@ -1116,7 +1116,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#size()
+     * java.util.BitSet#size()
      */
     public void test_size() {
         // Test for method int java.util.BitSet.size()
@@ -1127,7 +1127,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#toString()
+     * java.util.BitSet#toString()
      */
     public void test_toString() {
         // Test for method java.lang.String java.util.BitSet.toString()
@@ -1139,7 +1139,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#length()
+     * java.util.BitSet#length()
      */
     public void test_length() {
         BitSet bs = new BitSet();
@@ -1155,7 +1155,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#nextSetBit(int)
+     * java.util.BitSet#nextSetBit(int)
      */
     public void test_nextSetBitI() {
         // Test for method int java.util.BitSet.nextSetBit()
@@ -1237,7 +1237,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#nextClearBit(int)
+     * java.util.BitSet#nextClearBit(int)
      */
     public void test_nextClearBitI() {
         // Test for method int java.util.BitSet.nextSetBit()
@@ -1330,7 +1330,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#isEmpty()
+     * java.util.BitSet#isEmpty()
      */
     public void test_isEmpty() {
         BitSet bs = new BitSet(500);
@@ -1361,7 +1361,7 @@ public class BitSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.BitSet#cardinality()
+     * java.util.BitSet#cardinality()
      */
     public void test_cardinality() {
         // test for method int java.util.BitSet.cardinality()

@@ -41,11 +41,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(Provider.class)
 /**
  * Tests for <code>Provider</code> constructor and methods
  *
@@ -93,12 +89,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for void Provider()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies provider object",
-        method = "Provider",
-        args = {java.lang.String.class, double.class, java.lang.String.class}
-    )
     public final void testProvider() {
         if (!p.getProperty("Provider.id name").equals(
                 String.valueOf(p.getName()))) {
@@ -118,12 +108,6 @@ public class ProviderTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public final void testClear() {
         p.clear();
         assertNull(p.getProperty("MessageDigest.SHA-1"));
@@ -132,12 +116,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for void Provider(String, double, String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies constructor with non null parameters",
-        method = "Provider",
-        args = {java.lang.String.class, double.class, java.lang.String.class}
-    )
     public final void testProviderStringdoubleString() {
         Provider p = new MyProvider("Provider name", 123.456, "Provider info");
         assertEquals("Provider name", p.getName());
@@ -149,22 +127,10 @@ public class ProviderTest extends TestCase {
         assertEquals("MyProvider", p.getName());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getVersion",
-        args = {}
-    )
     public final void testGetVersion() {
         assertEquals(1.0, p.getVersion(), 0L);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInfo",
-        args = {}
-    )
     public final void testGetInfo() {
         assertEquals("Provider for testing", p.getInfo());
     }
@@ -172,12 +138,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for void putAll(Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public final void testPutAllMap() {
         HashMap hm = new HashMap();
         hm.put("MessageDigest.SHA-1", "aaa.bbb.ccc.ddd");
@@ -196,12 +156,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for Set entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public final void testEntrySet() {
         p.put("MessageDigest.SHA-256", "aaa.bbb.ccc.ddd");
 
@@ -249,12 +203,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for Set keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
     public final void testKeySet() {
         p.put("MessageDigest.SHA-256", "aaa.bbb.ccc.ddd");
 
@@ -282,12 +230,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for Collection values()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public final void testValues() {
         p.put("MessageDigest.ASH-256", "aaa.bbb.ccc.ddd");
 
@@ -314,12 +256,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for Object put(Object, Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public final void testPutObjectObject() {
         p.put("MessageDigest.SHA-1", "aaa.bbb.ccc.ddd");
         p.put("Type.Algorithm", "className");
@@ -353,12 +289,6 @@ public class ProviderTest extends TestCase {
     /*
      * Class under test for Object remove(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public final void testRemoveObject() {
         Object o = p.remove("MessageDigest.SHA-1");
 
@@ -389,12 +319,6 @@ public class ProviderTest extends TestCase {
     }
 
     // Regression for HARMONY-2760.
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test: verifies constructor with two null parameters.",
-        method = "Provider",
-        args = {java.lang.String.class, double.class, java.lang.String.class}
-    )
     public void testConstructor() {
         MyProvider myProvider = new MyProvider(null, 1, null);
         assertNull(myProvider.getName());
@@ -435,12 +359,6 @@ public class ProviderTest extends TestCase {
     }
 
     // BEGIN android-added
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getService",
-            args = {java.lang.String.class, java.lang.String.class}
-        )
     public final void testService2() {
         Provider[] pp = Security.getProviders("MessageDigest.ASH-1");
         if (pp == null) {
@@ -462,12 +380,6 @@ public class ProviderTest extends TestCase {
     // END android-added
 
     // BEGIN android-added
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getServices",
-        args = {}
-    )
     public final void testGetServices() {
         MyProvider myProvider = new MyProvider(null, 1, null);
         Set<Provider.Service> services = myProvider.getServices();
@@ -508,12 +420,6 @@ public class ProviderTest extends TestCase {
     // END android-added
 
     // BEGIN android-added
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putService",
-        args = {java.security.Provider.Service.class}
-    )
     public final void testPutService() {
         MyProvider myProvider = new MyProvider(null, 1, null);
         Provider.Service s[] = new Provider.Service[3];
@@ -565,12 +471,6 @@ public class ProviderTest extends TestCase {
     // END android-added
 
     // BEGIN android-added
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeService",
-        args = {java.security.Provider.Service.class}
-    )
     public final void testRemoveService() {
         MyProvider myProvider = new MyProvider(null, 1, null);
         try {
@@ -639,12 +539,6 @@ public class ProviderTest extends TestCase {
     // END android-added
 
     // BEGIN android-added
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "load",
-        args = {java.io.InputStream.class}
-    )
     public final void testLoad() throws IOException {
         InputStream is = new ByteArrayInputStream(writeProperties());
         MyProvider myProvider = new MyProvider("name", 1, "info");
@@ -670,12 +564,6 @@ public class ProviderTest extends TestCase {
     // END android-added
 
     // BEGIN android-added
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "load",
-            args = {java.io.InputStream.class}
-        )
     public final void testLoad2() {
         class TestInputStream extends InputStream {
             @Override

@@ -16,11 +16,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -32,7 +27,6 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-@TestTargetClass(EnumSet.class)
 public class EnumSetTest extends TestCase {
     static final boolean disableRIBugs = true;
 
@@ -73,14 +67,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#noneOf(java.lang.Class)
+     * java.util.EnumSet#noneOf(java.lang.Class)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "noneOf",
-        args = {java.lang.Class.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_NoneOf_LClass() {
         try {
@@ -126,7 +114,7 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.HugeEnumSet#iterator()
+     * java.util.HugeEnumSet#iterator()
      */
     public void test_iterator_HugeEnumSet() {
         EnumSet<HugeEnumCount> set;
@@ -169,14 +157,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#allOf(java.lang.Class)
+     * java.util.EnumSet#allOf(java.lang.Class)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "allOf",
-        args = {java.lang.Class.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_AllOf_LClass() {
         try {
@@ -228,14 +210,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#add(E)
+     * java.util.EnumSet#add(E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_add_E() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
@@ -338,14 +314,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#addAll(Collection)
+     * java.util.EnumSet#addAll(Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings( { "unchecked", "boxing" })
     public void test_addAll_LCollection() {
 
@@ -502,14 +472,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#remove(Object)
+     * java.util.EnumSet#remove(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify exceptions.",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_remove_LOject() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         Enum[] elements = EnumFoo.class.getEnumConstants();
@@ -552,14 +516,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#equals(Object)
+     * java.util.EnumSet#equals(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equals_LObject() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         Enum[] elements = EnumFoo.class.getEnumConstants();
@@ -617,14 +575,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#clear()
+     * java.util.EnumSet#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         set.add(EnumFoo.a);
@@ -649,14 +601,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#size()
+     * java.util.EnumSet#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         set.add(EnumFoo.a);
@@ -671,14 +617,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#complementOf(java.util.EnumSet)
+     * java.util.EnumSet#complementOf(java.util.EnumSet)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "complementOf",
-        args = {java.util.EnumSet.class}
-    )
     public void test_ComplementOf_LEnumSet() {
 
         try {
@@ -727,14 +667,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#contains(Object)
+     * java.util.EnumSet#contains(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify ClassCastException, and NullPointerException.",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
     public void test_contains_LObject() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         Enum[] elements = EnumFoo.class.getEnumConstants();
@@ -804,14 +738,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#containsAll(Collection)
+     * java.util.EnumSet#containsAll(Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsAll",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings( { "unchecked", "boxing" })
     public void test_containsAll_LCollection() {
         EnumSet<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
@@ -961,14 +889,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#copyOf(java.util.Collection)
+     * java.util.EnumSet#copyOf(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "copyOf",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_CopyOf_LCollection() {
         try {
@@ -1054,14 +976,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#copyOf(java.util.EnumSet)
+     * java.util.EnumSet#copyOf(java.util.EnumSet)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "copyOf",
-        args = {java.util.EnumSet.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_CopyOf_LEnumSet() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet
@@ -1107,14 +1023,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#removeAll(Collection)
+     * java.util.EnumSet#removeAll(Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException, ClassCastException.",
-        method = "removeAll",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_removeAll_LCollection() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
@@ -1287,14 +1197,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#retainAll(Collection)
+     * java.util.EnumSet#retainAll(Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify UnsupportedOperationException, ClassCastException.",
-        method = "retainAll",
-        args = {java.util.Collection.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_retainAll_LCollection() {
         Set<EnumFoo> set = EnumSet.allOf(EnumFoo.class);
@@ -1482,14 +1386,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#iterator()
+     * java.util.EnumSet#iterator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "iterator",
-        args = {}
-    )
     public void test_iterator() {
         Set<EnumFoo> set = EnumSet.noneOf(EnumFoo.class);
         set.add(EnumFoo.a);
@@ -1709,14 +1607,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E)
+     * java.util.EnumSet#of(E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class}
-    )
     public void test_Of_E() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet.of(EnumWithInnerClass.a);
         assertEquals("enumSet should have length 1:", 1, enumSet.size());
@@ -1739,14 +1631,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E, E)
+     * java.util.EnumSet#of(E, E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class, java.lang.Enum.class}
-    )
     public void test_Of_EE() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet.of(EnumWithInnerClass.a,
                 EnumWithInnerClass.b);
@@ -1816,14 +1702,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E, E, E)
+     * java.util.EnumSet#of(E, E, E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class}
-    )
     public void test_Of_EEE() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet.of(EnumWithInnerClass.a,
                 EnumWithInnerClass.b, EnumWithInnerClass.c);
@@ -1865,14 +1745,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E, E, E, E)
+     * java.util.EnumSet#of(E, E, E, E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class}
-    )
     public void test_Of_EEEE() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet.of(EnumWithInnerClass.a,
                 EnumWithInnerClass.b, EnumWithInnerClass.c,
@@ -1909,14 +1783,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E, E, E, E, E)
+     * java.util.EnumSet#of(E, E, E, E, E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class, java.lang.Enum.class}
-    )
     public void test_Of_EEEEE() {
         EnumSet<EnumWithInnerClass> enumSet = EnumSet.of(EnumWithInnerClass.a,
                 EnumWithInnerClass.b, EnumWithInnerClass.c,
@@ -1951,14 +1819,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#of(E, E...)
+     * java.util.EnumSet#of(E, E...)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {java.lang.Enum.class, java.lang.Enum[].class}
-    )
     public void test_Of_EEArray() {
         EnumWithInnerClass[] enumArray = new EnumWithInnerClass[] {
                 EnumWithInnerClass.b, EnumWithInnerClass.c };
@@ -2009,14 +1871,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#range(E, E)
+     * java.util.EnumSet#range(E, E)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "range",
-        args = {java.lang.Enum.class, java.lang.Enum.class}
-    )
     public void test_Range_EE() {
         try {
             EnumSet.range(EnumWithInnerClass.c, null);
@@ -2101,14 +1957,8 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#clone()
+     * java.util.EnumSet#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_Clone() {
         EnumSet<EnumFoo> enumSet = EnumSet.allOf(EnumFoo.class);
         EnumSet<EnumFoo> clonedEnumSet = enumSet.clone();
@@ -2135,28 +1985,16 @@ public class EnumSetTest extends TestCase {
     }
 
     /**
-     * @tests java.util.EnumSet#Serialization()
+     * java.util.EnumSet#Serialization()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization compatibility.",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_serialization() throws Exception {
         EnumSet<EnumFoo> set = EnumSet.allOf(EnumFoo.class);
         SerializationTest.verifySelf(set);
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization compatibility.",
-        method = "!SerializationGolden",
-        args = {}
-    )
     @SuppressWarnings( { "unchecked", "boxing" })
     public void testSerializationCompatibility() throws Exception {
         EnumSet<EnumFoo> set = EnumSet.allOf(EnumFoo.class);

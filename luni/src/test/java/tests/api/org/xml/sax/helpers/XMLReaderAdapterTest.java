@@ -39,12 +39,8 @@ import tests.api.org.xml.sax.support.MethodLogger;
 import tests.api.org.xml.sax.support.MockHandler;
 import tests.api.org.xml.sax.support.MockReader;
 import tests.api.org.xml.sax.support.MockResolver;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 @SuppressWarnings("deprecation")
-@TestTargetClass(XMLReaderAdapter.class)
 public class XMLReaderAdapterTest extends TestCase {
 
     // Note: In many cases we can only test that delegation works
@@ -77,11 +73,6 @@ public class XMLReaderAdapterTest extends TestCase {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "XMLReaderAdapter",
-        args = { }
-    )
     public void testXMLReaderAdapter() {
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.DoNothingXMLReader");
@@ -93,11 +84,6 @@ public class XMLReaderAdapterTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "XMLReaderAdapter",
-        args = { XMLReader.class }
-    )
     public void testXMLReaderAdapterXMLReader() {
         // Ordinary case
         @SuppressWarnings("unused")
@@ -112,11 +98,6 @@ public class XMLReaderAdapterTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setLocale",
-        args = { Locale.class }
-    )
     public void testSetLocale() {
         // SAX RI does not support this, hence always expect exception
         try {
@@ -127,11 +108,6 @@ public class XMLReaderAdapterTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setEntityResolver",
-        args = { EntityResolver.class }
-    )
     public void testSetEntityResolver() {
         EntityResolver resolver = new MockResolver();
 
@@ -144,11 +120,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(null, reader.getEntityResolver());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setDTDHandler",
-        args = { DTDHandler.class }
-    )
     public void testSetDTDHandler() {
         // Ordinary case
         assertEquals(handler, reader.getDTDHandler());
@@ -158,11 +129,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(null, reader.getDTDHandler());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setDocumentHandler",
-        args = { DocumentHandler.class }
-    )
     public void testSetDocumentHandler() {
         // There is no getter for the DocumentHandler, so we can only test
         // indirectly whether is has been set correctly.
@@ -179,11 +145,6 @@ public class XMLReaderAdapterTest extends TestCase {
         adapter.setDocumentHandler(null);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setErrorHandler",
-        args = { ErrorHandler.class }
-    )
     public void testSetErrorHandler() {
         // Ordinary case
         assertEquals(handler, reader.getErrorHandler());
@@ -193,11 +154,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(null, reader.getErrorHandler());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "parse",
-        args = { String.class }
-    )
     public void testParseString() {
         try {
             adapter.parse("foo");
@@ -213,11 +169,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(InputSource.class, logger.getArgs(0)[0].getClass());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "parse",
-        args = { InputSource.class }
-    )
     public void testParseInputSource() {
         InputSource source = new InputSource("foo");
 
@@ -233,11 +184,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] { source }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setDocumentLocator",
-        args = { Locator.class }
-    )
     public void testSetDocumentLocator() {
         // Ordinary case
         LocatorImpl locator = new LocatorImpl();
@@ -251,11 +197,6 @@ public class XMLReaderAdapterTest extends TestCase {
         adapter.setDocumentLocator(locator);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "startDocument",
-        args = { }
-    )
     public void testStartDocument() {
         try {
             adapter.startDocument();
@@ -268,11 +209,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] {}, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "endDocument",
-        args = { }
-    )
     public void testEndDocument() {
         try {
             adapter.endDocument();
@@ -285,31 +221,16 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] {}, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "startPrefixMapping",
-        args = { String.class, String.class }
-    )
     public void testStartPrefixMapping() {
         adapter.startPrefixMapping("foo", "http://some.uri");
         assertEquals(logger.size(), 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "endPrefixMapping",
-        args = { String.class }
-    )
     public void testEndPrefixMapping() {
         adapter.endPrefixMapping("foo");
         assertEquals(logger.size(), 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "startElement",
-        args = { String.class, String.class, String.class, Attributes.class }
-    )
     public void testStartElement() {
         AttributesImpl atts = new AttributesImpl();
         atts.addAttribute("http://some.other.uri", "gabba", "gabba:hey",
@@ -328,11 +249,6 @@ public class XMLReaderAdapterTest extends TestCase {
                 ((AttributeList)logger.getArgs()[1]).getName(0));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "endElement",
-        args = { String.class, String.class, String.class }
-    )
     public void testEndElement() {
         try {
             adapter.endElement("http://some.uri", "bar", "foo:bar");
@@ -345,11 +261,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] { "foo:bar" }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "characters",
-        args = { char[].class, int.class, int.class }
-    )
     public void testCharacters() {
         char[] ch = "Android".toCharArray();
 
@@ -364,11 +275,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] { ch, 2, 5 }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "ignorableWhitespace",
-        args = { char[].class, int.class, int.class }
-    )
     public void testIgnorableWhitespace() {
         char[] ch = "     ".toCharArray();
 
@@ -383,11 +289,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] { ch, 0, 5 }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "processingInstruction",
-        args = { String.class, String.class }
-    )
     public void testProcessingInstruction() {
         try {
             adapter.processingInstruction("foo", "bar");
@@ -400,11 +301,6 @@ public class XMLReaderAdapterTest extends TestCase {
         assertEquals(new Object[] { "foo" , "bar" }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "skippedEntity",
-        args = { String.class }
-    )
     public void testSkippedEntity() {
         try {
             adapter.skippedEntity("foo");

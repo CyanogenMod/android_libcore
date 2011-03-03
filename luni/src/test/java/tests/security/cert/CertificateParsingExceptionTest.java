@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.cert.CertificateParsingException;
@@ -37,7 +32,6 @@ import java.security.cert.CertificateParsingException;
  * methods.
  *
  */
-@TestTargetClass(CertificateParsingException.class)
 public class CertificateParsingExceptionTest extends TestCase {
 
     private static String[] msgs = {
@@ -51,12 +45,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Test for <code>CertificateParsingException()</code> constructor
      * Assertion: constructs CertificateParsingException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateParsingException",
-        args = {}
-    )
     public void testCertificateParsingException01() {
         CertificateParsingException tE = new CertificateParsingException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -68,12 +56,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Assertion: constructs CertificateParsingException with detail message
      * msg. Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateParsingException02() {
         CertificateParsingException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -89,12 +71,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Assertion: constructs CertificateParsingException when <code>msg</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateParsingException03() {
         String msg = null;
         CertificateParsingException tE = new CertificateParsingException(msg);
@@ -107,12 +83,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertificateParsingException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertificateParsingException04() {
         Throwable cause = null;
         CertificateParsingException tE = new CertificateParsingException(cause);
@@ -125,12 +95,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateParsingException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertificateParsingException05() {
         CertificateParsingException tE = new CertificateParsingException(tCause);
         if (tE.getMessage() != null) {
@@ -149,12 +113,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as parameters.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateParsingException06() {
         CertificateParsingException tE = new CertificateParsingException(null,
                 null);
@@ -167,12 +125,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as the second parameter.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateParsingException07() {
         CertificateParsingException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -188,12 +140,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is not null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as the first parameter.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateParsingException08() {
         CertificateParsingException tE = new CertificateParsingException(null,
                 tCause);
@@ -213,12 +159,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * constructor Assertion: constructs CertificateParsingException when
      * <code>cause</code> is not null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertificateParsingException09() {
         CertificateParsingException tE;
         for (int i = 0; i < msgs.length; i++) {

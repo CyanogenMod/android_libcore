@@ -17,15 +17,9 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
-@TestTargetClass(TimerTask.class)
 public class TimerTaskTest extends junit.framework.TestCase {
     /**
      * Warning: These tests have the possibility to leave a VM hanging if the
@@ -71,28 +65,16 @@ public class TimerTaskTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TimerTask#TimerTask()
+     * java.util.TimerTask#TimerTask()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TimerTask",
-        args = {}
-    )
     public void test_Constructor() {
         // Ensure the constructor does not fail
         new TimerTestTask();
     }
 
     /**
-     * @tests java.util.TimerTask#cancel()
+     * java.util.TimerTask#cancel()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "cancel",
-        args = {}
-    )
     public void test_cancel() {
         Timer t = null;
         try {
@@ -186,14 +168,8 @@ public class TimerTaskTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TimerTask#scheduledExecutionTime()
+     * java.util.TimerTask#scheduledExecutionTime()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "scheduledExecutionTime",
-        args = {}
-    )
     public void test_scheduledExecutionTime() {
         Timer t = null;
         try {
@@ -237,14 +213,8 @@ public class TimerTaskTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TimerTask#run()
+     * java.util.TimerTask#run()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "run",
-        args = {}
-    )
     public void test_run() {
         Timer t = null;
         try {

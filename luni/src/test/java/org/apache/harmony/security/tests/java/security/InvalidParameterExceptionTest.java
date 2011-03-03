@@ -22,15 +22,10 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidParameterException;
 
 import junit.framework.TestCase;
-@TestTargetClass(InvalidParameterException.class)
+
 /**
  * Tests for <code>InvalidParameterException</code> class constructors and
  * methods.
@@ -49,12 +44,6 @@ public class InvalidParameterExceptionTest extends TestCase {
      * Test for <code>InvalidParameterException()</code> constructor
      * Assertion: constructs InvalidParameterException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "InvalidParameterException",
-        args = {}
-    )
     public void testInvalidParameterException01() {
         InvalidParameterException tE = new InvalidParameterException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -66,12 +55,6 @@ public class InvalidParameterExceptionTest extends TestCase {
      * Assertion: constructs InvalidParameterException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidParameterException",
-        args = {java.lang.String.class}
-    )
     public void testInvalidParameterException02() {
         InvalidParameterException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -87,12 +70,6 @@ public class InvalidParameterExceptionTest extends TestCase {
      * Assertion: constructs InvalidParameterException when <code>msg</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "InvalidParameterException",
-        args = {java.lang.String.class}
-    )
     public void testInvalidParameterException03() {
         String msg = null;
         InvalidParameterException tE = new InvalidParameterException(msg);

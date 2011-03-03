@@ -15,16 +15,10 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLProtocolException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLProtocolException.class)
 public class SSLProtocolExceptionTest extends TestCase {
 
     private static String[] msgs = {
@@ -38,12 +32,6 @@ public class SSLProtocolExceptionTest extends TestCase {
      * constructs SSLProtocolException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLProtocolException",
-        args = {java.lang.String.class}
-    )
     public void test_Constructor01() {
         SSLProtocolException sslE;
         for (int i = 0; i < msgs.length; i++) {
@@ -58,12 +46,6 @@ public class SSLProtocolExceptionTest extends TestCase {
      * constructs SSLProtocolException with detail message msg. Parameter
      * <code>msg</code> is null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLProtocolException",
-        args = {java.lang.String.class}
-    )
     public void test_Constructor02() {
         String msg = null;
         SSLProtocolException sslE = new SSLProtocolException(msg);

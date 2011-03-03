@@ -16,10 +16,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLEngineResult;
 
 import junit.framework.TestCase;
@@ -28,18 +24,11 @@ import junit.framework.TestCase;
  * Tests for SSLEngineResult.Status class
  *
  */
-@TestTargetClass(SSLEngineResult.Status.class)
 public class SSLEngineResultStatusTest extends TestCase {
 
     /**
      * Test for <code> SSLEngineResult.Status.values() </code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_SSLEngineResultStatus_values() {
         boolean flag = false;
         String[] str = {"BUFFER_OVERFLOW", "BUFFER_UNDERFLOW", "CLOSED", "OK"};
@@ -63,12 +52,6 @@ public class SSLEngineResultStatusTest extends TestCase {
     /**
      * Test for <code> SSLEngineResult.Status.valueOf(String name) </code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueOf",
-        args = {String.class}
-    )
     public void test_SSLEngineResultStatus_valueOf() {
         String[] str = {"BUFFER_OVERFLOW", "BUFFER_UNDERFLOW", "CLOSED", "OK"};
         String[] str_invalid = {"", "OK1", "BUFFER_overflow", "BUFFER_UND",

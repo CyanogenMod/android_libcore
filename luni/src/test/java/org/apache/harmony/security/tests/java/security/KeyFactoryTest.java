@@ -1,9 +1,5 @@
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import java.lang.reflect.Constructor;
@@ -23,7 +19,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
-@TestTargetClass(KeyFactory.class)
 public class KeyFactoryTest extends TestCase {
 
     Provider provider;
@@ -54,11 +49,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class}
-    )
     public void testGetInstanceString() {
         try {
             KeyFactory factory = KeyFactory.getInstance(TEST_KEYFACTORY_NAME);
@@ -93,11 +83,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, String.class}
-    )
     public void testGetInstanceStringString() {
         try {
             KeyFactory factory = KeyFactory.getInstance(TEST_KEYFACTORY_NAME, TEST_PROVIDER_NAME);
@@ -141,11 +126,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getInstance",
-            args={String.class, Provider.class}
-    )
     public void testGetInstanceStringProvider() {
         try {
             KeyFactory factory = KeyFactory.getInstance(TEST_KEYFACTORY_NAME, provider);
@@ -195,11 +175,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="generatePublic",
-            args={KeySpec.class}
-    )
     public void testGeneratePublic() {
         KeyFactory factory = null;
         try {
@@ -249,11 +224,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="generatePrivate",
-            args={KeySpec.class}
-    )
     public void testGeneratePrivate() {
         KeyFactory factory = null;
         try {
@@ -302,11 +272,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="getKeySpec",
-            args={Key.class, Class.class}
-    )
     public void testGetKeySpec() {
         KeyFactory factory = null;
         try {
@@ -389,11 +354,6 @@ public class KeyFactoryTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="translateKey",
-            args={Key.class}
-    )
     public void testTranslateKey() {
         KeyFactory factory = null;
         try {

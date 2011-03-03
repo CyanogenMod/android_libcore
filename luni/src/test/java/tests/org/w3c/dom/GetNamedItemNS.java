@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Attr;
@@ -27,7 +22,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class GetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -57,12 +51,6 @@ public final class GetNamedItemNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItem",
-        args = {java.lang.String.class}
-    )
     public void testGetNamedItemNS1() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -79,12 +67,6 @@ public final class GetNamedItemNS extends DOMTestCase {
         attrName = domesticAttr.getNodeName();
         assertEquals("attrName", "dmstc:domestic", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "getNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testGetNamedItemNS2() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String localName = "domest";

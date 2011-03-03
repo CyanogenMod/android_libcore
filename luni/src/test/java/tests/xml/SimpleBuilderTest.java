@@ -16,9 +16,6 @@
 
 package tests.xml;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
@@ -30,7 +27,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-@TestTargetClass(DocumentBuilder.class)
 public class SimpleBuilderTest extends TestCase {
 
     private DocumentBuilder builder;
@@ -58,12 +54,6 @@ public class SimpleBuilderTest extends TestCase {
 
         return result;
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test.",
-        method = "parse",
-        args = {java.io.InputStream.class}
-    )
     public void testGoodFile1() throws Exception {
         Document document = builder.parse(getClass().getResourceAsStream(
                 "/SimpleBuilderTest.xml"));
@@ -117,11 +107,6 @@ public class SimpleBuilderTest extends TestCase {
         assertEquals(" Fragile!  Handle me with care! ", comment);
     }
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        method = "!todo parse",
-        args = {java.io.InputStream.class}
-    )
     public void testGoodFile2() throws Exception {
         Document document = builder.parse(getClass().getResourceAsStream(
                 "/staffNS.xml"));

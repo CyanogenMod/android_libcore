@@ -22,10 +22,6 @@
 
 package tests.api.javax.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -73,12 +69,6 @@ public class CertificateTest extends TestCase {
     /**
      * Test for <code>Certificate()</code> constructor<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Certificate",
-        args = {}
-    )
     public final void testCertificate() {
         TBTCert tbt_cert = new TBTCert();
 
@@ -91,12 +81,6 @@ public class CertificateTest extends TestCase {
      * operation: it should be reflexive, symmetric, transitive, consistent and
      * should be false on null object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void testEquals() {
         TBTCert tbt_cert = new TBTCert() {
             public byte[] getEncoded() {
@@ -153,12 +137,6 @@ public class CertificateTest extends TestCase {
     /**
      * hashCode() method testing.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void testHashCode() {
         TBTCert tbt_cert = new TBTCert() {
             public byte[] getEncoded() {

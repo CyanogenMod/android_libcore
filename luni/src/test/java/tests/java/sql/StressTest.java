@@ -16,11 +16,6 @@
 
 package tests.java.sql;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -37,7 +32,6 @@ import tests.support.Support_SQL;
 import tests.support.ThreadPool;
 import junit.framework.TestCase;
 
-@TestTargetClass(Statement.class)
 public class StressTest extends TestCase {
     Vector<Connection> vc = new Vector<Connection>();
 
@@ -108,15 +102,9 @@ public class StressTest extends TestCase {
 //    }
 
     /**
-     * @tests StressTest#testManyConnectionsUsingOneThread(). Create many
+     * StressTest#testManyConnectionsUsingOneThread(). Create many
      *        connections to the DataBase using one thread.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "connect",
-        clazz = Driver.class,
-        args = {String.class, Properties.class}
-    )
     public void testManyConnectionsUsingOneThread() {
         try {
             int maxConnections = getConnectionNum();
@@ -129,16 +117,9 @@ public class StressTest extends TestCase {
     }
 
     /**
-     * @tests StressTest#testManyConnectionsUsingManyThreads(). Create many
+     * StressTest#testManyConnectionsUsingManyThreads(). Create many
      *        connections to the DataBase using some threads.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Stress test: Create many connections to the DataBase using some threads",
-        method = "connect",
-        clazz = Driver.class,
-        args = {String.class, Properties.class}
-    )
     public void testManyConnectionsUsingManyThreads() {
         int numTasks = getConnectionNum();
 
@@ -165,15 +146,9 @@ public class StressTest extends TestCase {
     }
 
     /**
-     * @tests StressTest#testInsertOfManyRowsUsingOneThread(). Insert a lot of
+     * StressTest#testInsertOfManyRowsUsingOneThread(). Insert a lot of
      *        records to the Database using a maximum number of connections.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "connect",
-        clazz = Driver.class,
-        args = {String.class, Properties.class}
-    )
     public void testInsertOfManyRowsUsingOneThread() {
 
         Logger.global
@@ -213,12 +188,6 @@ public class StressTest extends TestCase {
     /**
      * @tests
      */
-    @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            method = "connect",
-            clazz = Driver.class,
-            args = {String.class, Properties.class}
-    )
     public void testInsertOfManyRowsUsingManyThreads() {
         Logger.global.info("java.sql stress test: multiple threads and many operations.");
 

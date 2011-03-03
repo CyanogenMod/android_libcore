@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.security.KeyStore;
 
@@ -37,12 +32,11 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.apache.harmony.security.tests.support.tmpCallbackHandler;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyStore.CallbackHandlerProtection.class)
+
 /**
  * Tests for <code>KeyStore.CallbackHandlerProtection> class constructor and methods
  *
  */
-
 public class KSCallbackHandlerProtectionTest extends TestCase {
 
     /**
@@ -50,12 +44,6 @@ public class KSCallbackHandlerProtectionTest extends TestCase {
      * constructor
      * Assertion: throws NullPointerException when handler is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CallbackHandlerProtection",
-        args = {javax.security.auth.callback.CallbackHandler.class}
-    )
     public void testCallbackHandlerProtection() {
         try {
             new KeyStore.CallbackHandlerProtection(null);
@@ -84,20 +72,6 @@ public class KSCallbackHandlerProtectionTest extends TestCase {
      * Test for <code>getCallbackHandler()</code> method
      * Assertion: returns CallbackHandler
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "CallbackHandlerProtection",
-            args = {javax.security.auth.callback.CallbackHandler.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getCallbackHandler",
-            args = {}
-        )
-    })
     public void testGetCallBackHandler() {
         CallbackHandler cbh = new tmpCallbackHandler();
         KeyStore.CallbackHandlerProtection ksCBH = new KeyStore.CallbackHandlerProtection(cbh);
