@@ -78,6 +78,7 @@ public final class System {
      */
     public static final PrintStream err;
 
+    private static final String lineSeparator;
     private static Properties systemProperties;
 
     static {
@@ -85,6 +86,7 @@ public final class System {
         err = new PrintStream(new FileOutputStream(FileDescriptor.err));
         out = new PrintStream(new FileOutputStream(FileDescriptor.out));
         in = new FileInputStream(FileDescriptor.in);
+        lineSeparator = System.getProperty("line.separator");
     }
 
     /**
@@ -388,13 +390,13 @@ public final class System {
      * <tr><td>java.vm.specification.vendor</td>  <td>VM specification vendor</td>     <td>{@code The Android Project}</td></tr>
      * <tr><td>java.vm.specification.name</td>    <td>VM specification name</td>       <td>{@code Dalvik Virtual Machine Specification}</td></tr>
      *
-     * <tr><td>line.separator</td>     <td>Default line separator</td>            <td>{@code \n}</td></tr>
+     * <tr><td>line.separator</td>     <td>The system line separator</td>         <td>{@code \n}</td></tr>
      *
      * <tr><td>os.arch</td>            <td>OS architecture</td>                   <td>{@code armv7l}</td></tr>
      * <tr><td>os.name</td>            <td>OS (kernel) name</td>                  <td>{@code Linux}</td></tr>
      * <tr><td>os.version</td>         <td>OS (kernel) version</td>               <td>{@code 2.6.32.9-g103d848}</td></tr>
      *
-     * <tr><td>path.separator</td>     <td>{@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
+     * <tr><td>path.separator</td>     <td>See {@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
      *
      * <tr><td>user.dir</td>           <td>Base of non-absolute paths</td>        <td>{@code /}</td></tr>
      * <tr><td>user.home</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
@@ -500,6 +502,18 @@ public final class System {
      * @see java.lang.Object#hashCode
      */
     public static native int identityHashCode(Object anObject);
+
+    /**
+     * Returns the system's line separator. On Android, this is {@code "\n"}. The value
+     * comes from the value of the {@code line.separator} system property when the VM
+     * starts. Later changes to the property will not affect the value returned by this
+     * method.
+     * @since 1.7
+     * @hide 1.7 - fix documentation references to "line.separator" in Formatter.
+     */
+    public static String lineSeparator() {
+        return lineSeparator;
+    }
 
     /**
      * Loads and links the dynamic library that is identified through the

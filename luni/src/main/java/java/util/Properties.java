@@ -187,74 +187,51 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     /**
-     * Lists the mappings in this {@code Properties} to the specified
-     * {@code PrintStream} in a
-     * human readable form.
-     *
-     * @param out
-     *            the {@code PrintStream} to write the content to in human readable
-     *            form.
+     * Lists the mappings in this {@code Properties} to {@code out} in a human-readable form.
+     * Note that values are truncated to 37 characters, so this method is rarely useful.
      */
     public void list(PrintStream out) {
-        if (out == null) {
-            throw new NullPointerException();
-        }
-        StringBuilder buffer = new StringBuilder(80);
-        Enumeration<?> keys = propertyNames();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            buffer.append(key);
-            buffer.append('=');
-            String property = (String) super.get(key);
-            Properties def = defaults;
-            while (property == null) {
-                property = (String) def.get(key);
-                def = def.defaults;
-            }
-            if (property.length() > 40) {
-                buffer.append(property.substring(0, 37));
-                buffer.append("...");
-            } else {
-                buffer.append(property);
-            }
-            out.println(buffer.toString());
-            buffer.setLength(0);
-        }
+        listToAppendable(out);
     }
 
     /**
-     * Lists the mappings in this {@code Properties} to the specified
-     * {@code PrintWriter} in a
-     * human readable form.
-     *
-     * @param writer
-     *            the {@code PrintWriter} to write the content to in human
-     *            readable form.
+     * Lists the mappings in this {@code Properties} to {@code out} in a human-readable form.
+     * Note that values are truncated to 37 characters, so this method is rarely useful.
      */
-    public void list(PrintWriter writer) {
-        if (writer == null) {
-            throw new NullPointerException();
-        }
-        StringBuilder buffer = new StringBuilder(80);
-        Enumeration<?> keys = propertyNames();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            buffer.append(key);
-            buffer.append('=');
-            String property = (String) super.get(key);
-            Properties def = defaults;
-            while (property == null) {
-                property = (String) def.get(key);
-                def = def.defaults;
+    public void list(PrintWriter out) {
+        listToAppendable(out);
+    }
+
+    private void listToAppendable(Appendable out) {
+        try {
+            if (out == null) {
+                throw new NullPointerException("out == null");
             }
-            if (property.length() > 40) {
-                buffer.append(property.substring(0, 37));
-                buffer.append("...");
-            } else {
-                buffer.append(property);
+            StringBuilder sb = new StringBuilder(80);
+            Enumeration<?> keys = propertyNames();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                sb.append(key);
+                sb.append('=');
+                String property = (String) super.get(key);
+                Properties def = defaults;
+                while (property == null) {
+                    property = (String) def.get(key);
+                    def = def.defaults;
+                }
+                if (property.length() > 40) {
+                    sb.append(property.substring(0, 37));
+                    sb.append("...");
+                } else {
+                    sb.append(property);
+                }
+                sb.append(System.lineSeparator());
+                out.append(sb.toString());
+                sb.setLength(0);
             }
-            writer.println(buffer.toString());
-            buffer.setLength(0);
+        } catch (IOException ex) {
+            // Appendable.append throws IOException, but PrintStream and PrintWriter don't.
+            throw new AssertionError(ex);
         }
     }
 
@@ -548,8 +525,6 @@ public class Properties extends Hashtable<Object, Object> {
         store(new OutputStreamWriter(out, "ISO-8859-1"), comment);
     }
 
-    private static String lineSeparator;
-
     /**
      * Stores the mappings in this {@code Properties} object to {@code out},
      * putting the specified comment at the beginning.
@@ -561,28 +536,24 @@ public class Properties extends Hashtable<Object, Object> {
      * @since 1.6
      */
     public synchronized void store(Writer writer, String comment) throws IOException {
-        if (lineSeparator == null) {
-            lineSeparator = System.getProperty("line.separator");
-        }
-
         if (comment != null) {
             writer.write("#");
             writer.write(comment);
-            writer.write(lineSeparator);
+            writer.write(System.lineSeparator());
         }
         writer.write("#");
         writer.write(new Date().toString());
-        writer.write(lineSeparator);
+        writer.write(System.lineSeparator());
 
-        StringBuilder buffer = new StringBuilder(200);
+        StringBuilder sb = new StringBuilder(200);
         for (Map.Entry<Object, Object> entry : entrySet()) {
             String key = (String) entry.getKey();
-            dumpString(buffer, key, true);
-            buffer.append('=');
-            dumpString(buffer, (String) entry.getValue(), false);
-            buffer.append(lineSeparator);
-            writer.write(buffer.toString());
-            buffer.setLength(0);
+            dumpString(sb, key, true);
+            sb.append('=');
+            dumpString(sb, (String) entry.getValue(), false);
+            sb.append(System.lineSeparator());
+            writer.write(sb.toString());
+            sb.setLength(0);
         }
         writer.flush();
     }

@@ -42,13 +42,9 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * indicates whether or not this PrintStream should flush its contents after
      * printing a new line.
      */
-    private boolean autoflush;
+    private boolean autoFlush;
 
     private String encoding;
-
-    private final String lineSeparator = System.getProperty("line.separator");
-
-    // private Formatter formatter;
 
     /**
      * Constructs a new {@code PrintStream} with {@code out} as its target
@@ -69,35 +65,35 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     /**
      * Constructs a new {@code PrintStream} with {@code out} as its target
-     * stream. The parameter {@code autoflush} determines if the print stream
+     * stream. The parameter {@code autoFlush} determines if the print stream
      * automatically flushes its contents to the target stream when a newline is
      * encountered.
      *
      * @param out
      *            the target output stream.
-     * @param autoflush
+     * @param autoFlush
      *            indicates whether to flush contents upon encountering a
      *            newline sequence.
      * @throws NullPointerException
      *             if {@code out} is {@code null}.
      */
-    public PrintStream(OutputStream out, boolean autoflush) {
+    public PrintStream(OutputStream out, boolean autoFlush) {
         super(out);
         if (out == null) {
             throw new NullPointerException();
         }
-        this.autoflush = autoflush;
+        this.autoFlush = autoFlush;
     }
 
     /**
      * Constructs a new {@code PrintStream} with {@code out} as its target
      * stream and using the character encoding {@code enc} while writing. The
-     * parameter {@code autoflush} determines if the print stream automatically
+     * parameter {@code autoFlush} determines if the print stream automatically
      * flushes its contents to the target stream when a newline is encountered.
      *
      * @param out
      *            the target output stream.
-     * @param autoflush
+     * @param autoFlush
      *            indicates whether or not to flush contents upon encountering a
      *            newline sequence.
      * @param enc
@@ -107,13 +103,13 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code enc} is not supported.
      */
-    public PrintStream(OutputStream out, boolean autoflush, String enc)
+    public PrintStream(OutputStream out, boolean autoFlush, String enc)
             throws UnsupportedEncodingException {
         super(out);
         if (out == null || enc == null) {
             throw new NullPointerException();
         }
-        this.autoflush = autoflush;
+        this.autoFlush = autoFlush;
         try {
             if (!Charset.isSupported(enc)) {
                 throw new UnsupportedEncodingException(enc);
@@ -363,91 +359,56 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * Put the line separator String onto the print stream.
      */
     private void newline() {
-        print(lineSeparator);
+        print(System.lineSeparator());
     }
 
     /**
-     * Prints the string representation of the specified character array
-     * to the target stream.
-     *
-     * @param charArray
-     *            the character array to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the character array {@code chars}.
      */
-    public void print(char[] charArray) {
-        print(new String(charArray, 0, charArray.length));
+    public void print(char[] chars) {
+        print(new String(chars, 0, chars.length));
     }
 
     /**
-     * Prints the string representation of the specified character to the target
-     * stream.
-     *
-     * @param ch
-     *            the character to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the char {@code c}.
      */
-    public void print(char ch) {
-        print(String.valueOf(ch));
+    public void print(char c) {
+        print(String.valueOf(c));
     }
 
     /**
-     * Prints the string representation of the specified double to the target
-     * stream.
-     *
-     * @param dnum
-     *            the double value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the double {@code d}.
      */
-    public void print(double dnum) {
-        print(String.valueOf(dnum));
+    public void print(double d) {
+        print(String.valueOf(d));
     }
 
     /**
-     * Prints the string representation of the specified float to the target
-     * stream.
-     *
-     * @param fnum
-     *            the float value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the float {@code f}.
      */
-    public void print(float fnum) {
-        print(String.valueOf(fnum));
+    public void print(float f) {
+        print(String.valueOf(f));
     }
 
     /**
-     * Prints the string representation of the specified integer to the target
-     * stream.
-     *
-     * @param inum
-     *            the integer value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the int {@code i}.
      */
-    public void print(int inum) {
-        print(String.valueOf(inum));
+    public void print(int i) {
+        print(String.valueOf(i));
     }
 
     /**
-     * Prints the string representation of the specified long to the target
-     * stream.
-     *
-     * @param lnum
-     *            the long value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the long {@code l}.
      */
-    public void print(long lnum) {
-        print(String.valueOf(lnum));
+    public void print(long l) {
+        print(String.valueOf(l));
     }
 
     /**
-     * Prints the string representation of the specified object to the target
-     * stream.
-     *
-     * @param obj
-     *            the object to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the Object {@code o}, or {@code "null"}.
      */
-    public void print(Object obj) {
-        print(String.valueOf(obj));
+    public void print(Object o) {
+        print(String.valueOf(o));
     }
 
     /**
@@ -455,8 +416,8 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * of bytes using the encoding chosen during the construction of this
      * stream. The bytes are then written to the target stream with
      * {@code write(int)}.
-     * <p>
-     * If an I/O error occurs, this stream's error state is set to {@code true}.
+     *
+     * <p>If an I/O error occurs, this stream's error state is set to {@code true}.
      *
      * @param str
      *            the string to print to the target stream.
@@ -484,118 +445,75 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
     }
 
     /**
-     * Prints the string representation of the specified boolean to the target
-     * stream.
-     *
-     * @param bool
-     *            the boolean value to print the target stream.
-     * @see #print(String)
+     * Prints the string representation of the boolean {@code b}.
      */
-    public void print(boolean bool) {
-        print(String.valueOf(bool));
+    public void print(boolean b) {
+        print(String.valueOf(b));
     }
 
     /**
-     * Prints the string representation of the system property
-     * {@code "line.separator"} to the target stream.
+     * Prints a newline.
      */
     public void println() {
         newline();
     }
 
     /**
-     * Prints the string representation of the specified character array
-     * followed by the system property {@code "line.separator"} to the target
-     * stream.
-     *
-     * @param charArray
-     *            the character array to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the character array {@code chars} followed by a newline.
      */
-    public void println(char[] charArray) {
-        println(new String(charArray, 0, charArray.length));
+    public void println(char[] chars) {
+        println(new String(chars, 0, chars.length));
     }
 
     /**
-     * Prints the string representation of the specified character followed by
-     * the system property {@code "line.separator"} to the target stream.
-     *
-     * @param ch
-     *            the character to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the char {@code c} followed by a newline.
      */
-    public void println(char ch) {
-        println(String.valueOf(ch));
+    public void println(char c) {
+        println(String.valueOf(c));
     }
 
     /**
-     * Prints the string representation of the specified double followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param dnum
-     *            the double value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the double {@code d} followed by a newline.
      */
-    public void println(double dnum) {
-        println(String.valueOf(dnum));
+    public void println(double d) {
+        println(String.valueOf(d));
     }
 
     /**
-     * Prints the string representation of the specified float followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param fnum
-     *            the float value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the float {@code f} followed by a newline.
      */
-   public void println(float fnum) {
-        println(String.valueOf(fnum));
+   public void println(float f) {
+        println(String.valueOf(f));
     }
 
    /**
-     * Prints the string representation of the specified integer followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param inum
-     *            the integer value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the int {@code i} followed by a newline.
      */
-    public void println(int inum) {
-        println(String.valueOf(inum));
+    public void println(int i) {
+        println(String.valueOf(i));
     }
 
     /**
-     * Prints the string representation of the specified long followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param lnum
-     *            the long value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the long {@code l} followed by a newline.
      */
-    public void println(long lnum) {
-        println(String.valueOf(lnum));
+    public void println(long l) {
+        println(String.valueOf(l));
     }
 
     /**
-     * Prints the string representation of the specified object followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param obj
-     *            the object to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the Object {@code o}, or {@code "null"},
+     * followed by a newline.
      */
-    public void println(Object obj) {
-        println(String.valueOf(obj));
+    public void println(Object o) {
+        println(String.valueOf(o));
     }
 
     /**
-     * Prints a string followed by the system property {@code "line.separator"}
-     * to the target stream. The string is converted to an array of bytes using
+     * Prints a string followed by a newline. The string is converted to an array of bytes using
      * the encoding chosen during the construction of this stream. The bytes are
      * then written to the target stream with {@code write(int)}.
-     * <p>
-     * If an I/O error occurs, this stream's error state is set to {@code true}.
-     * </p>
+     *
+     * <p>If an I/O error occurs, this stream's error state is set to {@code true}.
      *
      * @param str
      *            the string to print to the target stream.
@@ -607,15 +525,10 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
     }
 
     /**
-     * Prints the string representation of the specified boolean followed by the
-     * system property {@code "line.separator"} to the target stream.
-     *
-     * @param bool
-     *            the boolean value to print to the target stream.
-     * @see #print(String)
+     * Prints the string representation of the boolean {@code b} followed by a newline.
      */
-    public void println(boolean bool) {
-        println(String.valueOf(bool));
+    public void println(boolean b) {
+        println(String.valueOf(b));
     }
 
     /**
@@ -627,10 +540,10 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
 
     /**
      * Writes {@code count} bytes from {@code buffer} starting at {@code offset}
-     * to the target stream. If autoflush is set, this stream gets flushed after
+     * to the target stream. If autoFlush is set, this stream gets flushed after
      * writing the buffer.
-     * <p>
-     * This stream's error flag is set to {@code true} if this stream is closed
+     *
+     * <p>This stream's error flag is set to {@code true} if this stream is closed
      * or an I/O error occurs.
      *
      * @param buffer
@@ -654,7 +567,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
             }
             try {
                 out.write(buffer, offset, length);
-                if (autoflush) {
+                if (autoFlush) {
                     flush();
                 }
             } catch (IOException e) {
@@ -667,7 +580,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * Writes one byte to the target stream. Only the least significant byte of
      * the integer {@code oneByte} is written. This stream is flushed if
      * {@code oneByte} is equal to the character {@code '\n'} and this stream is
-     * set to autoflush.
+     * set to autoFlush.
      * <p>
      * This stream's error flag is set to {@code true} if it is closed or an I/O
      * error occurs.
@@ -686,7 +599,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
             int b = oneByte & 0xFF;
             // 0x0A is ASCII newline, 0x15 is EBCDIC newline.
             boolean isNewline = b == 0x0A || b == 0x15;
-            if (autoflush && isNewline) {
+            if (autoFlush && isNewline) {
                 flush();
             }
         } catch (IOException e) {
@@ -695,11 +608,7 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
     }
 
     /**
-     * Appends the character {@code c} to the target stream. This method works
-     * the same way as {@link #print(char)}.
-     *
-     * @param c
-     *            the character to append to the target stream.
+     * Appends the char {@code c}.
      * @return this stream.
      */
     public PrintStream append(char c) {
@@ -708,32 +617,22 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
     }
 
     /**
-     * Appends the character sequence {@code csq} to the target stream. This
-     * method works the same way as {@code PrintStream.print(csq.toString())}.
-     * If {@code csq} is {@code null}, then the string "null" is written to the
-     * target stream.
-     *
-     * @param csq
-     *            the character sequence appended to the target stream.
+     * Appends the CharSequence {@code charSequence}, or {@code "null"}.
      * @return this stream.
      */
-    public PrintStream append(CharSequence csq) {
-        if (csq == null) {
+    public PrintStream append(CharSequence charSequence) {
+        if (charSequence == null) {
             print("null");
         } else {
-            print(csq.toString());
+            print(charSequence.toString());
         }
         return this;
     }
 
     /**
-     * Appends a subsequence of the character sequence {@code csq} to the target
-     * stream. This method works the same way as {@code
-     * PrintStream.print(csq.subsequence(start, end).toString())}. If {@code
-     * csq} is {@code null}, then the specified subsequence of the string "null"
-     * will be written to the target stream.
+     * Appends a subsequence of CharSequence {@code charSequence}, or {@code "null"}.
      *
-     * @param csq
+     * @param charSequence
      *            the character sequence appended to the target stream.
      * @param start
      *            the index of the first char in the character sequence appended
@@ -745,13 +644,13 @@ public class PrintStream extends FilterOutputStream implements Appendable, Close
      * @throws IndexOutOfBoundsException
      *             if {@code start > end}, {@code start < 0}, {@code end < 0} or
      *             either {@code start} or {@code end} are greater or equal than
-     *             the length of {@code csq}.
+     *             the length of {@code charSequence}.
      */
-    public PrintStream append(CharSequence csq, int start, int end) {
-        if (csq == null) {
-            csq = "null";
+    public PrintStream append(CharSequence charSequence, int start, int end) {
+        if (charSequence == null) {
+            charSequence = "null";
         }
-        print(csq.subSequence(start, end).toString());
+        print(charSequence.subSequence(start, end).toString());
         return this;
     }
 }

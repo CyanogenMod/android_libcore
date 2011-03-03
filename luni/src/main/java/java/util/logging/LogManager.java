@@ -116,9 +116,6 @@ import libcore.io.IoUtils;
  */
 public class LogManager {
 
-    /** The line separator of the underlying OS. */
-    private static final String lineSeparator = System.getProperty("line.separator");
-
     /** The shared logging permission. */
     private static final LoggingPermission perm = new LoggingPermission("control", null);
 
@@ -192,14 +189,6 @@ public class LogManager {
                 reset();
             }
         });
-    }
-
-    /*
-     * Package private utilities Returns the line separator of the underlying
-     * OS.
-     */
-    static String getSystemLineSeparator() {
-        return lineSeparator;
     }
 
     /**

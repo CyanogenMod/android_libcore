@@ -44,8 +44,6 @@ public class BufferedWriter extends Writer {
 
     private int pos;
 
-    private final String lineSeparator = System.getProperty("line.separator");
-
     /**
      * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer
      * of 8192 bytes.
@@ -153,15 +151,14 @@ public class BufferedWriter extends Writer {
     }
 
     /**
-     * Writes a newline to this writer. A newline is determined by the System
-     * property "line.separator". The target writer may or may not be flushed
-     * when a newline is written.
+     * Writes a newline to this writer. On Android, this is {@code "\n"}.
+     * The target writer may or may not be flushed when a newline is written.
      *
      * @throws IOException
      *             if an error occurs attempting to write to this writer.
      */
     public void newLine() throws IOException {
-        write(lineSeparator, 0, lineSeparator.length());
+        write(System.lineSeparator());
     }
 
     /**

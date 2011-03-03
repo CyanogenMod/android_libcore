@@ -291,7 +291,7 @@ format("%6.0E", 123.456f);</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code n}</td>
- * <td width="25%">Newline. (The value of the system property {@code "line.separator"}.)</td>
+ * <td width="25%">Newline. (The value of the "line.separator" system property}.)</td>
  * <td width="30%">{@code format("first%nsecond");}</td>
  * <td width="30%">{@code first\nsecond}</td>
  * </tr>
@@ -525,9 +525,6 @@ format("%6.0E", 123.456f);</td>
  */
 public final class Formatter implements Closeable, Flushable {
     private static final char[] ZEROS = new char[] { '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-
-    // The cached line separator.
-    private static String lineSeparator;
 
     /**
      * The enumeration giving the available styles for formatting very large
@@ -1469,7 +1466,7 @@ public final class Formatter implements Closeable, Flushable {
             result = transformFromPercent();
             break;
         case 'n':
-            result = transformFromLineSeparator();
+            result = System.lineSeparator();
             break;
         case 't': case 'T':
             result = transformFromDateTime();
@@ -1608,13 +1605,6 @@ public final class Formatter implements Closeable, Flushable {
 
     private CharSequence transformFromPercent() {
         return padding("%", 0);
-    }
-
-    private CharSequence transformFromLineSeparator() {
-        if (lineSeparator == null) {
-            lineSeparator = System.getProperty("line.separator");
-        }
-        return lineSeparator;
     }
 
     private CharSequence padding(CharSequence source, int startIndex) {

@@ -30,8 +30,6 @@ import java.util.ResourceBundle;
  */
 public class XMLFormatter extends Formatter {
 
-    private static final String lineSeperator = LogManager.getSystemLineSeparator();
-
     private static final String indent = "    ";
 
     /**
@@ -53,45 +51,34 @@ public class XMLFormatter extends Formatter {
         // call a method of LogRecord to ensure not null
         long time = r.getMillis();
         // format to date
-        String date = MessageFormat.format("{0, date} {0, time}",
-                new Object[] { new Date(time) });
+        String date = MessageFormat.format("{0, date} {0, time}", new Object[] { new Date(time) });
+        String nl = System.lineSeparator();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(("<record>")).append(lineSeperator);
-        sb.append(indent).append(("<date>")).append(date).append(("</date>"))
-                .append(lineSeperator);
-        sb.append(indent).append(("<millis>")).append(time).append(
-                ("</millis>")).append(lineSeperator);
-        sb.append(indent).append(("<sequence>")).append(r.getSequenceNumber())
-                .append(("</sequence>")).append(lineSeperator);
+        sb.append("<record>").append(nl);
+        append(sb, 1, "date", date);
+        append(sb, 1, "millis", time);
+        append(sb, 1, "sequence", r.getSequenceNumber());
         if (r.getLoggerName() != null) {
-            sb.append(indent).append(("<logger>")).append(r.getLoggerName())
-                    .append(("</logger>")).append(lineSeperator);
+            append(sb, 1, "logger", r.getLoggerName());
         }
-        sb.append(indent).append(("<level>")).append(r.getLevel().getName())
-                .append(("</level>")).append(lineSeperator);
+        append(sb, 1, "level", r.getLevel().getName());
         if (r.getSourceClassName() != null) {
-            sb.append(indent).append(("<class>"))
-                    .append(r.getSourceClassName()).append(("</class>"))
-                    .append(lineSeperator);
+            append(sb, 1, "class", r.getSourceClassName());
         }
         if (r.getSourceMethodName() != null) {
-            sb.append(indent).append(("<method>")).append(
-                    r.getSourceMethodName()).append(("</method>")).append(
-                    lineSeperator);
+            append(sb, 1, "method", r.getSourceMethodName());
         }
-        sb.append(indent).append(("<thread>")).append(r.getThreadID()).append(
-                ("</thread>")).append(lineSeperator);
+        append(sb, 1, "thread", r.getThreadID());
         formatMessages(r, sb);
-        Object[] params;
-        if ((params = r.getParameters()) != null) {
+        Object[] params = r.getParameters();
+        if (params != null) {
             for (Object element : params) {
-                sb.append(indent).append(("<param>")).append(element).append(
-                        ("</param>")).append(lineSeperator);
+                append(sb, 1, "param", element);
             }
         }
         formatThrowable(r, sb);
-        sb.append(("</record>")).append(lineSeperator);
+        sb.append("</record>").append(nl);
         return sb.toString();
     }
 
@@ -110,50 +97,46 @@ public class XMLFormatter extends Formatter {
 
             if (message == null) {
                 message = pattern;
-                sb.append(indent).append(("<message>")).append(message).append(
-                        ("</message>")).append(lineSeperator);
+                append(sb, 1, "message", message);
             } else {
-                sb.append(indent).append(("<message>")).append(message).append(
-                        ("</message>")).append(lineSeperator);
-                sb.append(indent).append(("<key>")).append(pattern).append(
-                        ("</key>")).append(lineSeperator);
-                sb.append(indent).append(("<catalog>")).append(
-                        r.getResourceBundleName()).append(("</catalog>"))
-                        .append(lineSeperator);
+                append(sb, 1, "message", message);
+                append(sb, 1, "key", pattern);
+                append(sb, 1, "catalog", r.getResourceBundleName());
             }
         } else if (pattern != null) {
-            sb.append(indent).append(("<message>")).append(pattern).append(
-                    ("</message>")).append(lineSeperator);
+            append(sb, 1, "message", pattern);
         } else {
-            sb.append(indent).append(("<message/>"));
+            sb.append(indent).append("<message/>");
         }
     }
 
     private void formatThrowable(LogRecord r, StringBuilder sb) {
         Throwable t;
         if ((t = r.getThrown()) != null) {
-            sb.append(indent).append("<exception>").append(lineSeperator);
-            sb.append(indent).append(indent).append("<message>").append(
-                    t.toString()).append("</message>").append(lineSeperator);
+            String nl = System.lineSeparator();
+            sb.append(indent).append("<exception>").append(nl);
+            append(sb, 2, "message", t.toString());
             // format throwable's stack trace
             StackTraceElement[] elements = t.getStackTrace();
             for (StackTraceElement e : elements) {
-                sb.append(indent).append(indent).append("<frame>").append(
-                        lineSeperator);
-                sb.append(indent).append(indent).append(indent).append(
-                        "<class>").append(e.getClassName()).append("</class>")
-                        .append(lineSeperator);
-                sb.append(indent).append(indent).append(indent).append(
-                        "<method>").append(e.getMethodName()).append(
-                        "</method>").append(lineSeperator);
-                sb.append(indent).append(indent).append(indent)
-                        .append("<line>").append(e.getLineNumber()).append(
-                                "</line>").append(lineSeperator);
-                sb.append(indent).append(indent).append("</frame>").append(
-                        lineSeperator);
+                sb.append(indent).append(indent).append("<frame>").append(nl);
+                append(sb, 3, "class", e.getClassName());
+                append(sb, 3, "method", e.getMethodName());
+                append(sb, 3, "line", e.getLineNumber());
+                sb.append(indent).append(indent).append("</frame>").append(nl);
             }
-            sb.append(indent).append("</exception>").append(lineSeperator);
+            sb.append(indent).append("</exception>").append(nl);
         }
+    }
+
+    private static void append(StringBuilder sb, int indentCount, String tag, Object value) {
+        for (int i = 0; i < indentCount; ++i) {
+            sb.append(indent);
+        }
+        sb.append("<").append(tag).append(">");
+        sb.append(value);
+        sb.append("</").append(tag).append(">");
+        sb.append(System.lineSeparator());
     }
 
     /**
@@ -175,10 +158,11 @@ public class XMLFormatter extends Formatter {
             encoding = System.getProperty("file.encoding");
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version=\"1.0\" encoding=\"").append(encoding).append(
-                "\" standalone=\"no\"?>").append(lineSeperator);
-        sb.append("<!DOCTYPE log SYSTEM \"logger.dtd\">").append(lineSeperator);
-        sb.append(("<log>"));
+        sb.append("<?xml version=\"1.0\" encoding=\"").append(encoding).append("\" standalone=\"no\"?>");
+        sb.append(System.lineSeparator());
+        sb.append("<!DOCTYPE log SYSTEM \"logger.dtd\">");
+        sb.append(System.lineSeparator());
+        sb.append("<log>");
         return sb.toString();
     }
 
