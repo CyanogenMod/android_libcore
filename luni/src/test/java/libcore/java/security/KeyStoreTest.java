@@ -1844,12 +1844,16 @@ public class KeyStoreTest extends TestCase {
         ks.load(in, null);
         in.close();
         for (String alias : Collections.list(ks.aliases())) {
-            assert(ks.isCertificateEntry(alias));
-            Certificate c = ks.getCertificate(alias);
-            assertTrue(c instanceof X509Certificate);
-            X509Certificate cert = (X509Certificate) c;
-            assertEquals(cert.getSubjectUniqueID(), cert.getIssuerUniqueID());
-            assertNotNull(cert.getPublicKey());
+            try {
+                assert(ks.isCertificateEntry(alias));
+                Certificate c = ks.getCertificate(alias);
+                assertTrue(c instanceof X509Certificate);
+                X509Certificate cert = (X509Certificate) c;
+                assertEquals(cert.getSubjectUniqueID(), cert.getIssuerUniqueID());
+                assertNotNull(cert.getPublicKey());
+            } catch (Exception e) {
+                throw new Exception("alias=" + alias, e);
+            }
         }
     }
 }
