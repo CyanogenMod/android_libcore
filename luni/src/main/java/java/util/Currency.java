@@ -24,8 +24,7 @@ import libcore.icu.LocaleData;
 /**
  * A currency corresponding to an <a href="http://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a>
  * currency code such as "EUR" or "USD". This class allows conversion to localized currency
- * symbols ({@link #getSymbol(java.util.Locale)}) or to localized names
- * ({@link #getDisplayName(java.util.Locale)}).
+ * symbols ({@link #getSymbol(java.util.Locale)}).
  */
 public final class Currency implements Serializable {
     private static final long serialVersionUID = -158308464356906721L;
@@ -116,6 +115,7 @@ public final class Currency implements Serializable {
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      * @since 1.7
      * @hide 1.7
+     * class javadoc to add: or to localized names ({@link #getDisplayName(java.util.Locale)})
      */
     public String getDisplayName() {
         return getDisplayName(Locale.getDefault());
