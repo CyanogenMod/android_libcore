@@ -39,5 +39,27 @@ jobjectArray toStringArray(JNIEnv* env, Counter* counter, Getter* getter) {
     return result;
 }
 
+template <typename Counter, typename Getter>
+jobjectArray toStringArray16(JNIEnv* env, Counter* counter, Getter* getter) {
+    size_t count = (*counter)();
+    jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        int32_t charCount;
+        const jchar* chars = (*getter)(&charCount);
+        ScopedLocalRef<jstring> s(env, env->NewString(chars, charCount));
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(result, i, s.get());
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+    }
+    return result;
+}
+
 jobjectArray toStringArray(JNIEnv* env, const std::vector<std::string>& strings);
 jobjectArray toStringArray(JNIEnv* env, const char* const* strings);
