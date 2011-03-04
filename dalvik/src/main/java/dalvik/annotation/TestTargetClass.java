@@ -26,9 +26,12 @@ import java.lang.annotation.Target;
  * that is being tested. The current assumption is that the test are somewhat
  * organized according to the API classes they test. Might be too strict for
  * some cases.
+ *
+ * @deprecated Obsolete
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
+@Deprecated
 public @interface TestTargetClass {
 
     /**
