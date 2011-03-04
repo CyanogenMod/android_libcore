@@ -18,6 +18,7 @@ package libcore.java.util;
 
 import java.util.Currency;
 import java.util.Locale;
+import java.util.Set;
 
 public class CurrencyTest extends junit.framework.TestCase {
     // Regression test to ensure that Currency.getSymbol(Locale) returns the
@@ -41,5 +42,30 @@ public class CurrencyTest extends junit.framework.TestCase {
             fail("expected IllegalArgumentException for invalid ISO currency code");
         } catch (IllegalArgumentException expected) {
         }
+    }
+
+    public void testGetAvailableCurrencies() throws Exception {
+        Set<Currency> all = Currency.getAvailableCurrencies();
+        // Confirm that a few well-known stable currencies are present.
+        assertTrue(all.toString(), all.contains(Currency.getInstance("CHF")));
+        assertTrue(all.toString(), all.contains(Currency.getInstance("EUR")));
+        assertTrue(all.toString(), all.contains(Currency.getInstance("GBP")));
+        assertTrue(all.toString(), all.contains(Currency.getInstance("JPY")));
+        assertTrue(all.toString(), all.contains(Currency.getInstance("USD")));
+    }
+
+    public void test_getDisplayName() throws Exception {
+        assertEquals("Swiss Franc", Currency.getInstance("CHF").getDisplayName(Locale.US));
+        assertEquals("Schweizer Franken", Currency.getInstance("CHF").getDisplayName(new Locale("de", "CH")));
+        assertEquals("franc suisse", Currency.getInstance("CHF").getDisplayName(new Locale("fr", "CH")));
+        assertEquals("Franco Svizzero", Currency.getInstance("CHF").getDisplayName(new Locale("it", "CH")));
+        // Test behavior with unknown locales; should return the currency code.
+        assertEquals("CHF", Currency.getInstance("CHF").getDisplayName(new Locale("xx", "YY")));
+    }
+
+    public void test_getDefaultFractionDigits() throws Exception {
+        assertEquals(2, Currency.getInstance("USD").getDefaultFractionDigits());
+        assertEquals(0, Currency.getInstance("JPY").getDefaultFractionDigits());
+        assertEquals(-1, Currency.getInstance("XXX").getDefaultFractionDigits());
     }
 }

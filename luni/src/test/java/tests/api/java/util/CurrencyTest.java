@@ -18,7 +18,6 @@
 package tests.api.java.util;
 
 import tests.support.Support_Locale;
-import dalvik.annotation.AndroidOnly;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -125,12 +124,7 @@ public class CurrencyTest extends junit.framework.TestCase {
     /**
      * java.util.Currency#getSymbol()
      */
-    @AndroidOnly("icu and the RI have different data. Because Android"
-            + "only defines a few locales as a must have, it was not possible"
-            + "to find a set of combinations where no differences between"
-            + "the RI and Android exist.")
     public void test_getSymbol() {
-
         Currency currK = Currency.getInstance("KRW");
         Currency currI = Currency.getInstance("IEP");
         Currency currUS = Currency.getInstance("USD");
@@ -165,7 +159,6 @@ public class CurrencyTest extends junit.framework.TestCase {
     /**
      * java.util.Currency#getSymbol(java.util.Locale)
      */
-    @AndroidOnly("specification doesn't include strong requirements for returnig symbol. On android platform used wrong character for yen sign: \u00a5 instead of \uffe5. Both of them give correct image though")
     public void test_getSymbolLjava_util_Locale() {
         //Tests was simplified because java specification not
         // includes strong requirements for returnig symbol.
