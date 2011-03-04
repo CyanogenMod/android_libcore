@@ -255,11 +255,7 @@ public class InetAddress implements Serializable {
      */
     static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
-            if (preferIPv6Addresses()) {
-                return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
-            } else {
-                return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
-            }
+            return loopbackAddresses();
         }
 
         // Special-case "0" for legacy IPv4 applications.
@@ -561,10 +557,42 @@ public class InetAddress implements Serializable {
      * This copes with all forms of address that Java supports, detailed in the {@link InetAddress}
      * class documentation.
      *
-     * @hide - used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
+     * @hide used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
      */
     public static boolean isNumeric(String address) {
         return ipStringToByteArray(address) != null;
+    }
+
+    /**
+     * Returns an InetAddress corresponding to the given numeric address (such
+     * as {@code "192.168.0.1"} or {@code "2001:4860:800d::68"}).
+     * This method will never do a DNS lookup. Non-numeric addresses are errors.
+     *
+     * @hide used by frameworks/base's NetworkUtils.numericToInetAddress
+     * @throws IllegalArgumentException if {@code numericAddress} is not a numeric address
+     */
+    public static InetAddress parseNumericAddress(String numericAddress) {
+        if (numericAddress == null || numericAddress.isEmpty()) {
+            return loopbackAddresses()[0];
+        }
+        byte[] bytes = ipStringToByteArray(numericAddress);
+        if (bytes == null) {
+            throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
+        }
+        try {
+            return makeInetAddress(bytes, null);
+        } catch (UnknownHostException ex) {
+            // UnknownHostException can't be thrown if you pass null to makeInetAddress.
+            throw new AssertionError(ex);
+        }
+    }
+
+    private static InetAddress[] loopbackAddresses() {
+        if (preferIPv6Addresses()) {
+            return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
+        } else {
+            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
+        }
     }
 
     /**

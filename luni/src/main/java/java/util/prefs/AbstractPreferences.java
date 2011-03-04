@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import org.apache.harmony.luni.util.Base64;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This abstract class is a partial implementation of the abstract class

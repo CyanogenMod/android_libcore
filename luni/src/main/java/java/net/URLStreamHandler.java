@@ -20,7 +20,7 @@ package java.net;
 import java.io.IOException;
 import java.nio.charset.Charsets;
 import java.util.Locale;
-import libcore.base.Objects;
+import libcore.util.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
 /**
@@ -531,7 +531,7 @@ public abstract class URLStreamHandler {
      */
     private static String getHost(URL url) {
         String host = url.getHost();
-        if ("file".equals(url.getProtocol()) && host.isEmpty()) {
+        if ("file".equals(url.getProtocol()) && host != null && host.isEmpty()) {
             host = "localhost";
         }
         return host;

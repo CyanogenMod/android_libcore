@@ -16,6 +16,18 @@
 },
 {
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  name: "tests.xml.DomTest#testExpandingEntityReferencesOff",
+  bug: 3268630,
+  substring: "This implementation doesn't include children in entity references"
+},
+{
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  name: "tests.xml.DomTest#testExpandingEntityReferencesOn",
+  bug: 3268630,
+  substring: "This implementation doesn't expand entity references"
+},
+{
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
   name: "tests.xml.DomTest#testIsElementContentWhitespaceWithDeclaration",
   substring: "This implementation does not recognize element content whitespace"

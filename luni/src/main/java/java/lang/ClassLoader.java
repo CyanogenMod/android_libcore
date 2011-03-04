@@ -135,14 +135,6 @@ public abstract class ClassLoader {
      *             the system class loader.
      */
     public static ClassLoader getSystemClassLoader() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            ClassLoader caller = VMStack.getCallingClassLoader();
-            if (caller != null && !caller.isAncestorOf(SystemClassLoader.loader)) {
-                smgr.checkPermission(new RuntimePermission("getClassLoader"));
-            }
-        }
-
         return SystemClassLoader.loader;
     }
 

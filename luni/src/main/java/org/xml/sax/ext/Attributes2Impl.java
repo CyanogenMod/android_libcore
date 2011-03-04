@@ -5,9 +5,9 @@
 
 package org.xml.sax.ext;
 
+import libcore.util.EmptyArray;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
-import libcore.base.EmptyArray;
 
 /**
  * SAX2 extension helper for additional Attributes information,

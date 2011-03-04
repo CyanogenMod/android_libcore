@@ -217,10 +217,6 @@ public class Inflater {
     public synchronized int inflate(byte[] buf, int offset, int byteCount) throws DataFormatException {
         Arrays.checkOffsetAndCount(buf.length, offset, byteCount);
 
-        if (byteCount == 0) {
-            return 0;
-        }
-
         checkOpen();
 
         if (needsInput()) {

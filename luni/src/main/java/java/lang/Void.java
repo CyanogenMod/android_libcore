@@ -18,7 +18,7 @@
 package java.lang;
 
 import java.lang.reflect.Method;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * Placeholder class for the Java keyword {@code void}.

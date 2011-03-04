@@ -35,10 +35,9 @@ package java.lang;
 import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
-import static java.lang.ClassCache.*;
+import static java.lang.ClassMembers.REFLECT;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
-import java.lang.ref.SoftReference;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -120,12 +119,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * This field is initialized by dalvikvm when the class is loaded.
      */
     private transient ProtectionDomain pd;
-
-    /**
-     * null-ok; cache of reflective information, wrapped in a soft
-     * reference
-     */
-    private transient volatile SoftReference<ClassCache<T>> cacheRef;
 
     /**
      * Lazily computed name of this class; always prefer calling getName().
@@ -269,7 +262,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      */
     public Class<?>[] getClasses() {
-        checkPublicMemberAccess();
         return getFullListOfClasses(true);
     }
 
@@ -464,8 +456,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
-        checkPublicMemberAccess();
-        return getMatchingConstructor(getDeclaredConstructors(this, true), parameterTypes);
+        return (Constructor) ClassMembers.getConstructorOrMethod(
+                this, "<init>", false, true, parameterTypes);
     }
 
     /**
@@ -482,7 +474,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredConstructors()
      */
     public Constructor<?>[] getConstructors() throws SecurityException {
-        checkPublicMemberAccess();
         return getDeclaredConstructors(this, true);
     }
 
@@ -512,7 +503,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      */
     public Class<?>[] getDeclaredClasses() throws SecurityException {
-        checkDeclaredMemberAccess();
         return getDeclaredClasses(this, false);
     }
 
@@ -571,8 +561,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
-        checkDeclaredMemberAccess();
-        return getMatchingConstructor(getDeclaredConstructors(this, false), parameterTypes);
+        return (Constructor) ClassMembers.getConstructorOrMethod(
+                this, "<init>", false, false, parameterTypes);
     }
 
     /**
@@ -590,7 +580,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getConstructors()
      */
     public Constructor<?>[] getDeclaredConstructors() throws SecurityException {
-        checkDeclaredMemberAccess();
         return getDeclaredConstructors(this, false);
     }
 
@@ -603,42 +592,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the list of constructors
      */
     private static native <T> Constructor<T>[] getDeclaredConstructors(Class<T> clazz, boolean publicOnly);
-
-    /*
-     * Finds a constructor with a given signature.
-     *
-     * @param list the list of constructors to search through
-     * @param parameterTypes the formal parameter list
-     * @return the matching constructor
-     * @throws NoSuchMethodException if the constructor does not exist.
-     */
-    private Constructor<T> getMatchingConstructor(
-            Constructor<T>[] constructors, Class<?>[] parameterTypes)
-            throws NoSuchMethodException {
-        for (Constructor<T> constructor : constructors) {
-            if (compareClassLists(constructor.getParameterTypes(), parameterTypes)) {
-                return constructor;
-            }
-        }
-
-        // BEGIN android-changed
-        StringBuilder sb = new StringBuilder();
-        sb.append(getSimpleName());
-        sb.append('(');
-        boolean first = true;
-        if (parameterTypes != null) {
-            for (Class<?> p : parameterTypes) {
-                if (!first) {
-                    sb.append(',');
-                }
-                first = false;
-                sb.append(p.getSimpleName());
-            }
-        }
-        sb.append(')');
-        throw new NoSuchMethodException(sb.toString());
-        // END android-changed
-    }
 
     /**
      * Returns a {@code Field} object for the field with the specified name
@@ -655,9 +608,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getField(String)
      */
     public Field getDeclaredField(String name) throws NoSuchFieldException, SecurityException {
-        checkDeclaredMemberAccess();
-
-        Field[] fields = getClassCache().getDeclaredFields();
+        Field[] fields = getClassMembers().getDeclaredFields();
         Field field = findFieldByName(fields, name);
 
         /*
@@ -681,11 +632,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getFields()
      */
     public Field[] getDeclaredFields() throws SecurityException {
-        checkDeclaredMemberAccess();
-
         // Return a copy of the private (to the package) array.
-        Field[] fields = getClassCache().getDeclaredFields();
-        return ClassCache.deepCopy(fields);
+        Field[] fields = getClassMembers().getDeclaredFields();
+        return ClassMembers.deepCopy(fields);
     }
 
     /*
@@ -720,16 +669,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
-        checkDeclaredMemberAccess();
-
-        Method[] methods = getClassCache().getDeclaredMethods();
-        Method method = findMethodByName(methods, name, parameterTypes);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(method);
+        Member member = ClassMembers.getConstructorOrMethod(
+                this, name, false, false, parameterTypes);
+        if (member instanceof Constructor) {
+            throw new NoSuchMethodException(name);
+        }
+        return (Method) member;
     }
 
     /**
@@ -746,11 +691,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getMethods()
      */
     public Method[] getDeclaredMethods() throws SecurityException {
-        checkDeclaredMemberAccess();
-
         // Return a copy of the private (to the package) array.
-        Method[] methods = getClassCache().getDeclaredMethods();
-        return ClassCache.deepCopy(methods);
+        Method[] methods = getClassMembers().getDeclaredMethods();
+        return ClassMembers.deepCopy(methods);
     }
 
     /**
@@ -760,27 +703,20 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     static native Method[] getDeclaredMethods(Class<?> clazz, boolean publicOnly);
 
     /**
-     * Gets the {@link ClassCache} for this instance.
+     * Returns the constructor or method if it is defined by {@code clazz}; null
+     * otherwise. This may return a non-public member.
      *
-     * @return non-null; the cache object
+     * @param name the method name, or "<init>" to get a constructor.
      */
-    /*package*/ ClassCache<T> getClassCache() {
-        /*
-         * Note: It is innocuous if two threads try to simultaneously
-         * create the cache, so we don't bother protecting against that.
-         */
-        ClassCache<T> cache = null;
+    static native Member getDeclaredConstructorOrMethod(
+            Class clazz, String name, Class[] args);
 
-        if (cacheRef != null) {
-            cache = cacheRef.get();
-        }
-
-        if (cache == null) {
-            cache = new ClassCache<T>(this);
-            cacheRef = new SoftReference<ClassCache<T>>(cache);
-        }
-
-        return cache;
+    /**
+     * Returns the {@link ClassMembers} for this instance.
+     */
+    @SuppressWarnings("unchecked") // cache key and value types always agree
+    ClassMembers<T> getClassMembers() {
+        return (ClassMembers<T>) ClassMembers.cache.get(this);
     }
 
     /**
@@ -826,8 +762,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public T[] getEnumConstants() {
         if (isEnum()) {
-            checkPublicMemberAccess();
-            T[] values = getClassCache().getEnumValuesInOrder();
+            T[] values = getClassMembers().getEnumValuesInOrder();
 
             // Copy the private (to the package) array.
             return values.clone();
@@ -853,9 +788,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredField(String)
      */
     public Field getField(String name) throws NoSuchFieldException, SecurityException {
-        checkPublicMemberAccess();
-
-        Field[] fields = getClassCache().getAllPublicFields();
+        Field[] fields = getClassMembers().getAllPublicFields();
         Field field = findFieldByName(fields, name);
 
         /*
@@ -867,7 +800,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Finds and returns a field with a given name and signature. Use
-     * this with one of the field lists returned by instances of ClassCache.
+     * this with one of the field lists returned by instances of ClassMembers.
      *
      * @param list non-null; the list of fields to search through
      * @return non-null; the matching field
@@ -903,11 +836,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredFields()
      */
     public Field[] getFields() throws SecurityException {
-        checkPublicMemberAccess();
-
         // Return a copy of the private (to the package) array.
-        Field[] fields = getClassCache().getAllPublicFields();
-        return ClassCache.deepCopy(fields);
+        Field[] fields = getClassMembers().getAllPublicFields();
+        return ClassMembers.deepCopy(fields);
     }
 
     /**
@@ -948,7 +879,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public native Class<?>[] getInterfaces();
 
-    // Changed to raw type to be closer to the RI
     /**
      * Returns a {@code Method} object which represents the public method with
      * the specified name and parameter types. This method first searches the
@@ -971,16 +901,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
-        checkPublicMemberAccess();
-
-        Method[] methods = getClassCache().getMethods();
-        Method method = findMethodByName(methods, name, parameterTypes);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(method);
+        Member member = ClassMembers.getConstructorOrMethod(this, name, true, true, parameterTypes);
+        if (member instanceof Constructor) {
+            throw new NoSuchMethodException(name);
+        }
+        return (Method) member;
     }
 
     /**
@@ -1001,56 +926,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethods()
      */
     public Method[] getMethods() throws SecurityException {
-        checkPublicMemberAccess();
-
         // Return a copy of the private (to the package) array.
-        Method[] methods = getClassCache().getMethods();
-        return ClassCache.deepCopy(methods);
-    }
-
-    /**
-     * Performs the security checks regarding the access of a public
-     * member of this {@code Class}.
-     *
-     * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
-     * check, this method must be called exactly one level deep into a
-     * public method on this instance.</p>
-     */
-    /*package*/ void checkPublicMemberAccess() {
-        SecurityManager smgr = System.getSecurityManager();
-
-        if (smgr != null) {
-            smgr.checkMemberAccess(this, Member.PUBLIC);
-
-            ClassLoader calling = VMStack.getCallingClassLoader2();
-            ClassLoader current = getClassLoader();
-
-            if (calling != null && !calling.isAncestorOf(current)) {
-                smgr.checkPackageAccess(this.getPackage().getName());
-            }
-        }
-    }
-
-    /**
-     * Performs the security checks regarding the access of a declared
-     * member of this {@code Class}.
-     *
-     * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
-     * check, this method must be called exactly one level deep into a
-     * public method on this instance.</p>
-     */
-    private void checkDeclaredMemberAccess() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkMemberAccess(this, Member.DECLARED);
-
-            ClassLoader calling = VMStack.getCallingClassLoader2();
-            ClassLoader current = getClassLoader();
-
-            if (calling != null && !calling.isAncestorOf(current)) {
-                smgr.checkPackageAccess(this.getPackage().getName());
-            }
-        }
+        Method[] methods = getClassMembers().getMethods();
+        return ClassMembers.deepCopy(methods);
     }
 
     /**
@@ -1420,7 +1298,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             new instances.
      */
     public T newInstance() throws InstantiationException, IllegalAccessException {
-        checkPublicMemberAccess();
         return newInstanceImpl();
     }
 
@@ -1514,7 +1391,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * access checks.
      *
      * <p><b>Note:</b> This method is implemented in native code, and,
-     * as such, is less efficient than using {@link ClassCache#REFLECT}
+     * as such, is less efficient than using {@link ClassMembers#REFLECT}
      * to achieve the same goal. This method exists solely to help
      * bootstrap the reflection bridge.</p>
      *

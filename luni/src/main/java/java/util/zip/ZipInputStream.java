@@ -17,7 +17,6 @@
 
 package java.util.zip;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -26,7 +25,7 @@ import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.Arrays;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import org.apache.harmony.luni.platform.OSMemory;
 
 /**

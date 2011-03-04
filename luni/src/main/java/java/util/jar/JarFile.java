@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import org.apache.harmony.archive.util.Util;
 
 /**

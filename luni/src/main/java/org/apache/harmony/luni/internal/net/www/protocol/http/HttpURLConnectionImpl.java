@@ -50,7 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
-import libcore.base.Streams;
+import libcore.io.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -210,7 +210,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         this.proxy = proxy;
     }
 
-    @Override public void connect() throws IOException {
+    @Override public final void connect() throws IOException {
         if (connected) {
             return;
         }
@@ -225,7 +225,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * <p>Request parameters may not be changed after this method has been
      * called.
      */
-    public void makeConnection() throws IOException {
+    protected void makeConnection() throws IOException {
         connected = true;
 
         if (connection != null || responseBodyIn != null) {
@@ -358,14 +358,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     /**
      * Close the socket connection to the remote origin server or proxy.
      */
-    @Override public void disconnect() {
+    @Override public final void disconnect() {
         releaseSocket(false);
     }
 
     /**
      * Releases this connection so that it may be either reused or closed.
      */
-    protected synchronized void releaseSocket(boolean reuseSocket) {
+    protected final void releaseSocket(boolean reuseSocket) {
         // we cannot recycle sockets that have incomplete output.
         if (requestBodyOut != null && !requestBodyOut.closed) {
             reuseSocket = false;
@@ -406,7 +406,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * Discard all state initialized from the HTTP response including response
      * code, message, headers and body.
      */
-    protected void discardIntermediateResponse() throws IOException {
+    protected final void discardIntermediateResponse() throws IOException {
         boolean oldIntermediateResponse = intermediateResponse;
         intermediateResponse = true;
         try {
@@ -441,7 +441,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * @return InputStream the error input stream returned by the server.
      */
     @Override
-    public InputStream getErrorStream() {
+    public final InputStream getErrorStream() {
         if (connected && method != HEAD && responseCode >= HTTP_BAD_REQUEST) {
             return responseBodyIn;
         }
@@ -453,9 +453,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * are fewer than {@code position} headers.
      */
     @Override
-    public String getHeaderField(int position) {
+    public final String getHeaderField(int position) {
         try {
-            getInputStream();
+            retrieveResponse();
         } catch (IOException ignored) {
         }
         return responseHeader != null ? responseHeader.getValue(position) : null;
@@ -476,9 +476,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * @see #getHeaderFieldKey
      */
     @Override
-    public String getHeaderField(String key) {
+    public final String getHeaderField(String key) {
         try {
-            getInputStream();
+            retrieveResponse();
         } catch (IOException ignored) {
         }
         if (responseHeader == null) {
@@ -488,16 +488,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public String getHeaderFieldKey(int position) {
+    public final String getHeaderFieldKey(int position) {
         try {
-            getInputStream();
+            retrieveResponse();
         } catch (IOException ignored) {
         }
         return responseHeader != null ? responseHeader.getKey(position) : null;
     }
 
     @Override
-    public Map<String, List<String>> getHeaderFields() {
+    public final Map<String, List<String>> getHeaderFields() {
         try {
             retrieveResponse();
         } catch (IOException ignored) {
@@ -506,7 +506,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public Map<String, List<String>> getRequestProperties() {
+    public final Map<String, List<String>> getRequestProperties() {
         if (connected) {
             throw new IllegalStateException(
                     "Cannot access request header fields after connection is set");
@@ -515,7 +515,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public final InputStream getInputStream() throws IOException {
         if (!doInput) {
             throw new ProtocolException("This protocol does not support input");
         }
@@ -580,7 +580,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    public final OutputStream getOutputStream() throws IOException {
         if (!doOutput) {
             throw new ProtocolException("Does not support output");
         }
@@ -648,13 +648,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public Permission getPermission() throws IOException {
+    public final Permission getPermission() throws IOException {
         String connectToAddress = getConnectToHost() + ":" + getConnectToPort();
         return new SocketPermission(connectToAddress, "connect, resolve");
     }
 
     @Override
-    public String getRequestProperty(String field) {
+    public final String getRequestProperty(String field) {
         if (field == null) {
             return null;
         }
@@ -732,7 +732,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public int getResponseCode() throws IOException {
+    public final int getResponseCode() throws IOException {
         retrieveResponse();
         return responseCode;
     }
@@ -940,7 +940,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      *             if already connected.
      */
     @Override
-    public void setIfModifiedSince(long newValue) {
+    public final void setIfModifiedSince(long newValue) {
         super.setIfModifiedSince(newValue);
         // convert from millisecond since epoch to date string
         SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
@@ -950,7 +950,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public void setRequestProperty(String field, String newValue) {
+    public final void setRequestProperty(String field, String newValue) {
         if (connected) {
             throw new IllegalStateException("Cannot set request property after connection is made");
         }
@@ -961,7 +961,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override
-    public void addRequestProperty(String field, String value) {
+    public final void addRequestProperty(String field, String value) {
         if (connected) {
             throw new IllegalStateException("Cannot set request property after connection is made");
         }

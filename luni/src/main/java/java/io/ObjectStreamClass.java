@@ -33,7 +33,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.util.PriviAction;
 

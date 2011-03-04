@@ -22,7 +22,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import libcore.base.Streams;
+import libcore.io.Streams;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that

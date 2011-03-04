@@ -16,12 +16,11 @@
 
 package org.apache.harmony.xml.dom;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.xml.transform.TransformerException;
-import org.apache.xml.serializer.utils.SystemIDResolver;
-import org.apache.xml.utils.URI;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -316,26 +315,27 @@ public abstract class NodeImpl implements Node {
                 String uri = element.getAttributeNS(
                         "http://www.w3.org/XML/1998/namespace", "base"); // or "xml:base"
 
-                // if this node has no base URI, return the parent's.
-                if (uri == null || uri.length() == 0) {
-                    return getParentBaseUri();
-                }
-
-                // if this node's URI is absolute, return that
-                if (SystemIDResolver.isAbsoluteURI(uri)) {
-                    return uri;
-                }
-
-                // this node has a relative URI. Try to resolve it against the
-                // parent, but if that doesn't work just give up and return null.
-                String parentUri = getParentBaseUri();
-                if (parentUri == null) {
-                    return null;
-                }
                 try {
-                    return SystemIDResolver.getAbsoluteURI(uri, parentUri);
-                } catch (TransformerException e) {
-                    return null; // the spec requires that we swallow exceptions
+                    // if this node has no base URI, return the parent's.
+                    if (uri == null || uri.isEmpty()) {
+                        return getParentBaseUri();
+                    }
+
+                    // if this node's URI is absolute, return it
+                    if (new URI(uri).isAbsolute()) {
+                        return uri;
+                    }
+
+                    // this node has a relative URI. Try to resolve it against the
+                    // parent, but if that doesn't work just give up and return null.
+                    String parentUri = getParentBaseUri();
+                    if (parentUri == null) {
+                        return null;
+                    }
+
+                    return new URI(parentUri).resolve(uri).toString();
+                } catch (URISyntaxException e) {
+                    return null;
                 }
 
             case PROCESSING_INSTRUCTION_NODE:
@@ -380,7 +380,7 @@ public abstract class NodeImpl implements Node {
         }
         try {
             return new URI(uri).toString();
-        } catch (URI.MalformedURIException e) {
+        } catch (URISyntaxException e) {
             return null;
         }
     }

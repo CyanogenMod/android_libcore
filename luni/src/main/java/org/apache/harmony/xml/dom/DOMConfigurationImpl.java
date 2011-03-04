@@ -18,7 +18,6 @@ package org.apache.harmony.xml.dom;
 
 import java.util.Map;
 import java.util.TreeMap;
-import org.apache.xml.serializer.dom3.DOMErrorImpl;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
@@ -484,7 +483,7 @@ public final class DOMConfigurationImpl implements DOMConfiguration {
     private void report(short severity, String type) {
         if (errorHandler != null) {
             // TODO: abort if handleError returns false
-            errorHandler.handleError(new DOMErrorImpl(severity, type, type));
+            errorHandler.handleError(new DOMErrorImpl(severity, type));
         }
     }
 }

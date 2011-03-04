@@ -19,8 +19,6 @@
 
 package javax.xml.transform;
 
-import org.apache.xalan.processor.TransformerFactoryImpl;
-
 /**
  * <p>A TransformerFactory instance can be used to create
  * {@link javax.xml.transform.Transformer} and
@@ -75,8 +73,12 @@ public abstract class TransformerFactory {
      */
     public static TransformerFactory newInstance()
             throws TransformerFactoryConfigurationError {
-        // instantiate the class directly rather than using reflection
-        return new TransformerFactoryImpl();
+        String className = "org.apache.xalan.processor.TransformerFactoryImpl";
+        try {
+            return (TransformerFactory) Class.forName(className).newInstance();
+        } catch (Exception e) {
+            throw new NoClassDefFoundError(className);
+        }
     }
 
     /**

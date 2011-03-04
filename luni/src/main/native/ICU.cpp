@@ -563,5 +563,11 @@ int register_libcore_icu_ICU(JNIEnv* env) {
         LOGE("Couldn't initialize ICU: %s", u_errorName(status));
         return -1;
     }
+    // Temporary work-around for http://b/3443476.
+    udata_setFileAccess(UDATA_ONLY_PACKAGES, &status);
+    if (status != U_ZERO_ERROR) {
+        LOGE("Couldn't tell ICU to only use packages: %s", u_errorName(status));
+        return -1;
+    }
     return jniRegisterNativeMethods(env, "libcore/icu/ICU", gMethods, NELEM(gMethods));
 }

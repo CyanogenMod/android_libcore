@@ -121,9 +121,10 @@ public class DexClassLoader extends ClassLoader {
                  * the dex file from it.
                  */
                 try {
-                    mDexs[i] = new DexFile(pathFile);
-                }
-                catch (IOException ioex) {
+                    String outputName =
+                        generateOutputName(dexPathList[i], mDexOutputPath);
+                    mDexs[i] = DexFile.loadDex(dexPathList[i], outputName, 0);
+                } catch (IOException ioex) {
                     // It might be a resource-only zip.
                     //System.out.println("Failed to construct DexFile '"
                     //    + pathFile + "': " + ioex);

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import libcore.base.Objects;
+import libcore.util.Objects;
 
 /**
  * An opaque key-value value pair held by an HTTP client to permit a stateful

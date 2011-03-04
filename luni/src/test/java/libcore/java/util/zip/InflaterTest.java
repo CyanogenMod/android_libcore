@@ -88,6 +88,18 @@ public class InflaterTest extends TestCase {
         return sb.toString();
     }
 
+    /**
+     * http://code.google.com/p/android/issues/detail?id=11755
+     */
+    public void testEmptyFileAndEmptyBuffer() throws Exception {
+        byte[] emptyInput = deflate(new byte[0], null);
+        Inflater inflater = new Inflater();
+        inflater.setInput(emptyInput);
+        assertFalse(inflater.finished());
+        assertEquals(0, inflater.inflate(new byte[0], 0, 0));
+        assertTrue(inflater.finished());
+    }
+
     private static byte[] deflate(byte[] input, byte[] dictionary) {
         Deflater deflater = new Deflater();
         if (dictionary != null) {

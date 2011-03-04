@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This class is used to represent a network interface of the local device. An

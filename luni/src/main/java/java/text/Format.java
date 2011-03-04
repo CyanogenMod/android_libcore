@@ -149,7 +149,7 @@ public abstract class Format implements Serializable, Cloneable {
         ParsePosition position = new ParsePosition(0);
         Object result = parseObject(string, position);
         if (position.getIndex() == 0) {
-            throw new ParseException("parse failure", position.getErrorIndex());
+            throw new ParseException("Parse failure", position.getErrorIndex());
         }
         return result;
     }

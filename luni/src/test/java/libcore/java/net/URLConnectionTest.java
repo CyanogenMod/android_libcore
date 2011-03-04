@@ -30,6 +30,7 @@ import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.PasswordAuthentication;
+import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;
@@ -50,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
@@ -424,6 +426,67 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(Integer.toString(responseCode),
                 expectedCachedUris, responseCache.getContents().keySet());
         server.shutdown(); // tearDown() isn't sufficient; this test starts multiple servers
+    }
+
+    /**
+     * Test that we can interrogate the response when the cache is being
+     * populated. http://code.google.com/p/android/issues/detail?id=7787
+     */
+    public void testResponseCacheCallbackApis() throws Exception {
+        final String body = "ABCDE";
+        final AtomicInteger cacheCount = new AtomicInteger();
+
+        server.enqueue(new MockResponse()
+                .setStatus("HTTP/1.1 200 Fantastic")
+                .addHeader("fgh: ijk")
+                .setBody(body));
+        server.play();
+
+        ResponseCache.setDefault(new ResponseCache() {
+            @Override public CacheResponse get(URI uri, String requestMethod,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                return null;
+            }
+            @Override public CacheRequest put(URI uri, URLConnection conn) throws IOException {
+                HttpURLConnection httpConnection = (HttpURLConnection) conn;
+                assertEquals("HTTP/1.1 200 Fantastic", httpConnection.getHeaderField(null));
+                assertEquals(Arrays.asList("HTTP/1.1 200 Fantastic"),
+                        httpConnection.getHeaderFields().get(null));
+                assertEquals(200, httpConnection.getResponseCode());
+                assertEquals("Fantastic", httpConnection.getResponseMessage());
+                assertEquals(body.length(), httpConnection.getContentLength());
+                assertEquals("ijk", httpConnection.getHeaderField("fgh"));
+                try {
+                    httpConnection.getInputStream(); // the RI doesn't forbid this, but it should
+                    fail();
+                } catch (IOException expected) {
+                }
+                cacheCount.incrementAndGet();
+                return null;
+            }
+        });
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        assertEquals(body, readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(1, cacheCount.get());
+    }
+
+    public void testGetResponseCodeNoResponseBody() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("abc: def"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setDoInput(false);
+        assertEquals("def", conn.getHeaderField("abc"));
+        assertEquals(200, conn.getResponseCode());
+        try {
+            conn.getInputStream();
+            fail();
+        } catch (ProtocolException expected) {
+        }
     }
 
     public void testConnectViaHttps() throws IOException, InterruptedException {

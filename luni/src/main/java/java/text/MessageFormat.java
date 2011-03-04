@@ -18,7 +18,6 @@
 package java.text;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
@@ -27,8 +26,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
-import libcore.base.EmptyArray;
-import libcore.base.Objects;
+import libcore.util.EmptyArray;
 
 /**
  * Produces concatenated messages in language-neutral way. New code

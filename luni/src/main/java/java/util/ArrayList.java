@@ -27,7 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * ArrayList is an implementation of {@link List}, backed by an array.

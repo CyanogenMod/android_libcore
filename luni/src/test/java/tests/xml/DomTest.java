@@ -1553,6 +1553,109 @@ public class DomTest extends TestCase {
         assertTrue(children.item(4) instanceof Text); // whitespace
     }
 
+    public void testCoalescingOffByDefault() {
+        assertFalse(DocumentBuilderFactory.newInstance().isCoalescing());
+    }
+
+    public void testCoalescingOn() throws Exception {
+        String xml = "<foo>abc<![CDATA[def]]>ghi</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setCoalescing(true);
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text text = (Text) documentElement.getFirstChild();
+        assertEquals("abcdefghi", text.getTextContent());
+        assertNull(text.getNextSibling());
+    }
+
+    public void testCoalescingOff() throws Exception {
+        String xml = "<foo>abc<![CDATA[def]]>ghi</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setCoalescing(false);
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text abc = (Text) documentElement.getFirstChild();
+        assertEquals("abc", abc.getTextContent());
+        CDATASection def = (CDATASection) abc.getNextSibling();
+        assertEquals("def", def.getTextContent());
+        Text ghi = (Text) def.getNextSibling();
+        assertEquals("ghi", ghi.getTextContent());
+        assertNull(ghi.getNextSibling());
+    }
+
+    public void testExpandingEntityReferencesOnByDefault() {
+        assertTrue(DocumentBuilderFactory.newInstance().isExpandEntityReferences());
+    }
+
+    public void testExpandingEntityReferencesOn() throws Exception {
+        String xml = "<!DOCTYPE foo [ <!ENTITY def \"DEF\"> ]>"
+                + "<foo>abc&def;ghi</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(true);
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text text = (Text) documentElement.getFirstChild();
+        assertEquals("This implementation doesn't expand entity references",
+                "abcDEFghi", text.getTextContent());
+        assertNull(text.getNextSibling());
+    }
+
+    public void testExpandingEntityReferencesOff() throws Exception {
+        String xml = "<!DOCTYPE foo [ <!ENTITY def \"DEF\"> ]>"
+                + "<foo>abc&def;ghi</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(false);
+
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text abc = (Text) documentElement.getFirstChild();
+        assertEquals("abc", abc.getTextContent());
+
+        EntityReference def = (EntityReference) abc.getNextSibling();
+        assertEquals("def", def.getNodeName());
+
+        Text ghi = (Text) def.getNextSibling();
+        assertNull(ghi.getNextSibling());
+
+        /*
+         * We expect the entity reference to contain one child Text node "DEF".
+         * The RI's entity reference contains no children. Instead it stashes
+         * "DEF" in the next sibling node.
+         */
+        assertEquals("Expected text value only and no expanded entity data",
+                "ghi", ghi.getTextContent());
+        NodeList defChildren = def.getChildNodes();
+        assertEquals("This implementation doesn't include children in entity references",
+                1, defChildren.getLength());
+        assertEquals("DEF", defChildren.item(0).getTextContent());
+    }
+
+    /**
+     * Predefined entities should always be expanded.
+     * https://code.google.com/p/android/issues/detail?id=225
+     */
+    public void testExpandingEntityReferencesOffDoesNotImpactPredefinedEntities() throws Exception {
+        String xml = "<foo>abc&amp;def</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(false);
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text text = (Text) documentElement.getFirstChild();
+        assertEquals("abc&def", text.getTextContent());
+        assertNull(text.getNextSibling());
+    }
+
+    public void testExpandingEntityReferencesOffDoesNotImpactCharacterEntities() throws Exception {
+        String xml = "<foo>abc&#38;def&#x26;ghi</foo>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(false);
+        document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        Element documentElement = document.getDocumentElement();
+        Text text = (Text) documentElement.getFirstChild();
+        assertEquals("abc&def&ghi", text.getTextContent());
+        assertNull(text.getNextSibling());
+    }
+
     private class RecordingHandler implements UserDataHandler {
         final Set<String> calls = new HashSet<String>();
         public void handle(short operation, String key, Object data, Node src, Node dst) {

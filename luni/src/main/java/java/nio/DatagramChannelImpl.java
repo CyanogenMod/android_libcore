@@ -35,10 +35,9 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
 
 /*

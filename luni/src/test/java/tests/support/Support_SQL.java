@@ -48,8 +48,10 @@ public class Support_SQL {
 
     public static void loadDriver() {
         try {
-            loadProperties(Class.forName("tests.support.Support_SQL")
-                    .getResourceAsStream("/connection.properties"));
+            InputStream in = Class.forName("tests.support.Support_SQL")
+                    .getResourceAsStream("/connection.properties");
+            loadProperties(in);
+            in.close();
 
             String tmp = System.getProperty("java.io.tmpdir");
             File tmpDir = new File(tmp);
@@ -66,7 +68,7 @@ public class Support_SQL {
 
             Class.forName(sqlDriver).newInstance();
         } catch (Exception ex) {
-            System.err.println("Unexpected exception " + ex.toString());
+            throw new RuntimeException(ex);
         }
     }
 

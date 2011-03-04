@@ -19,7 +19,7 @@ package java.util.zip;
 
 import dalvik.system.CloseGuard;
 import java.util.Arrays;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 
 /**
  * This class compresses data using the <i>DEFLATE</i> algorithm (see <a

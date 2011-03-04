@@ -64,7 +64,7 @@ public class TestMethods {
      * Fully read the contents of the given stream.
      */
     public static byte[] readFully(InputStream in) throws IOException {
-        // This is a copy of the same-named method in libcore.base.Streams.
+        // This is a copy of the same-named method in libcore.io.Streams.
         byte[] buffer = new byte[1024];
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         while (true) {

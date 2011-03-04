@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
-import libcore.base.EmptyArray;
+import libcore.util.EmptyArray;
 import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.CertificatePolicies;

@@ -40,4 +40,9 @@ public class URLTest extends TestCase {
         assertEquals("foo:bar/baz", url.getRef());
         assertEquals(-1, url.getPort());
     }
+
+    public void testEqualsWithNullHost() throws Exception {
+        assertFalse(new URL("file", null, -1, "/a/").equals(new URL("file:/a/")));
+        assertFalse(new URL("http", null, 80, "/a/").equals(new URL("http:/a/")));
+    }
 }

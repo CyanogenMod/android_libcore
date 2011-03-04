@@ -18,7 +18,6 @@
 package java.util.jar;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,11 +27,10 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import libcore.base.Streams;
+import libcore.io.Streams;
 
 /**
  * The {@code Manifest} class is used to obtain attribute information for a

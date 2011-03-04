@@ -17,33 +17,26 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-@TestTargetClass(MessageDigest.class)
 public class MessageDigest2Test extends junit.framework.TestCase {
 
     private static final String MESSAGEDIGEST_ID = "MessageDigest.";
 
-    private String[] digestAlgs = null;
-
-    private String providerName = null;
+    private Map<Provider, List<String>> digestAlgs = new HashMap<Provider, List<String>>();
 
     private static final byte[] AR1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
 
@@ -67,37 +60,26 @@ public class MessageDigest2Test extends junit.framework.TestCase {
             8, -41, 3, 25, -66, 38, 16, -24, -91, 125, -102, 91, -107, -99, 59, };
 
     /**
-     * @tests java.security.MessageDigest#MessageDigest(java.lang.String)
+     * java.security.MessageDigest#MessageDigest(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "MessageDigest",
-        args = {java.lang.String.class}
-    )
     public void test_constructor() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            MessageDigestStub md = new MessageDigestStub(digestAlgs[i]);
-            assertEquals(digestAlgs[i], md.getAlgorithm());
-            assertEquals(0, md.getDigestLength());
-            assertNull(md.getProvider());
+        for (List<String> algorithms : digestAlgs.values()) {
+            for (String algorithm : algorithms) {
+                MessageDigestStub md = new MessageDigestStub(algorithm);
+                assertEquals(algorithm, md.getAlgorithm());
+                assertEquals(0, md.getDigestLength());
+                assertNull(md.getProvider());
+            }
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#clone()
+     * java.security.MessageDigest#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
-    public void test_clone() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                MessageDigest d1 = MessageDigest.getInstance(digestAlgs[i],
-                        providerName);
+    public void test_clone() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest d1 = MessageDigest.getInstance(algorithm, e.getKey().getName());
                 for (byte b = 0; b < 84; b++) {
                     d1.update(b);
                 }
@@ -106,15 +88,8 @@ public class MessageDigest2Test extends junit.framework.TestCase {
                 d1.update((byte) 1);
                 d2.update((byte) 1);
 
-                assertTrue("cloned hash differs from original for algorithm "
-                        + digestAlgs[i], MessageDigest.isEqual(d1.digest(), d2
-                        .digest()));
-            } catch (CloneNotSupportedException e) {
-                // Expected - a Signature may not be cloneable
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
+                assertTrue("cloned hash differs from original for algorithm " + algorithm,
+                           MessageDigest.isEqual(d1.digest(), d2.digest()));
             }
         }
     }
@@ -122,138 +97,112 @@ public class MessageDigest2Test extends junit.framework.TestCase {
     private static final byte[] SHA_DATA_2 = { 70, -54, 124, 120, -29, 57, 56,
             119, -108, -54, -97, -76, -97, -50, -63, -73, 2, 85, -53, -79, };
 
-    private void testSerializationSHA_DATA_2(MessageDigest sha) {
-        try {
-            sha.reset();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            DataOutputStream output = new DataOutputStream(out);
-            // -----------------------------------------------------------------------
+    private void testSerializationSHA_DATA_2(MessageDigest sha) throws Exception {
+        sha.reset();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        DataOutputStream output = new DataOutputStream(out);
 
-            // Made up data
-            output
-                    .writeUTF("tests.api.java.security.MessageDigestTest$InitializerFieldsTest3");
-            output.writeInt(0); // class modifiers
-            output.writeUTF("java.io.Serializable"); // interfaces
+        // Made up data
+        output.writeUTF("tests.api.java.security.MessageDigestTest$InitializerFieldsTest3");
+        output.writeInt(0); // class modifiers
+        output.writeUTF("java.io.Serializable"); // interfaces
 
-            // Fields
-            output.writeUTF("sub_toBeNotSerialized"); // name
-            output.writeInt(9); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        // Fields
+        output.writeUTF("sub_toBeNotSerialized"); // name
+        output.writeInt(9); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            output.writeUTF("sub_toBeNotSerialized2"); // name
-            output.writeInt(9); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        output.writeUTF("sub_toBeNotSerialized2"); // name
+        output.writeInt(9); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            output.writeUTF("sub_toBeSerialized"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        output.writeUTF("sub_toBeSerialized"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            output.writeUTF("sub_toBeSerialized3"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        output.writeUTF("sub_toBeSerialized3"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            output.writeUTF("sub_toBeSerialized4"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        output.writeUTF("sub_toBeSerialized4"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            output.writeUTF("sub_toBeSerialized5"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("Ljava/lang/String;"); // signature
+        output.writeUTF("sub_toBeSerialized5"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("Ljava/lang/String;"); // signature
 
-            // clinit
-            output.writeUTF("<clinit>"); // name
-            output.writeInt(8); // modifiers
-            output.writeUTF("()V"); // signature
+        // clinit
+        output.writeUTF("<clinit>"); // name
+        output.writeInt(8); // modifiers
+        output.writeUTF("()V"); // signature
 
-            // constructors
-            output.writeUTF("<init>"); // name
-            output.writeInt(0); // modifiers
-            output.writeUTF("()V"); // signature
+        // constructors
+        output.writeUTF("<init>"); // name
+        output.writeInt(0); // modifiers
+        output.writeUTF("()V"); // signature
 
-            // methods
-            output.writeUTF("equals"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("(Ljava.lang.Object;)Z"); // signature
+        // methods
+        output.writeUTF("equals"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("(Ljava.lang.Object;)Z"); // signature
 
-            // -----------------------------------------------------------------------
+        output.flush();
 
-            output.flush();
-
-            byte[] data = out.toByteArray();
-            byte[] hash = sha.digest(data);
-            assertTrue("SHA_DATA_2 NOT ok", Arrays.equals(hash, SHA_DATA_2));
-        } catch (IOException e) {
-            fail("SHA_DATA_2 NOT ok");
-        }
+        byte[] data = out.toByteArray();
+        byte[] hash = sha.digest(data);
+        assertTrue("SHA_DATA_2 NOT ok", Arrays.equals(hash, SHA_DATA_2));
     }
 
     private static final byte[] SHA_DATA_1 = { 90, 36, 111, 106, -32, 38, 4,
             126, 21, -51, 107, 45, -64, -68, -109, 112, -31, -46, 34, 115, };
 
-    private void testSerializationSHA_DATA_1(MessageDigest sha) {
-        try {
-            sha.reset();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            DataOutputStream output = new DataOutputStream(out);
-            // -----------------------------------------------------------------------
+    private void testSerializationSHA_DATA_1(MessageDigest sha) throws Exception {
+        sha.reset();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        DataOutputStream output = new DataOutputStream(out);
 
-            // Made up data
-            output
-                    .writeUTF("tests.api.java.security.MessageDigestTest$OptionalDataNotRead");
-            // name
-            output.writeInt(0); // class modifiers
-            output.writeUTF("java.io.Serializable"); // interfaces
+        // Made up data
+        output.writeUTF("tests.api.java.security.MessageDigestTest$OptionalDataNotRead");
+        // name
+        output.writeInt(0); // class modifiers
+        output.writeUTF("java.io.Serializable"); // interfaces
 
-            // Fields
-            output.writeUTF("class$0"); // name
-            output.writeInt(8); // modifiers
-            output.writeUTF("Ljava/lang/Class;"); // signature
+        // Fields
+        output.writeUTF("class$0"); // name
+        output.writeInt(8); // modifiers
+        output.writeUTF("Ljava/lang/Class;"); // signature
 
-            output.writeUTF("field1"); // name
-            output.writeInt(2); // modifiers
-            output.writeUTF("I"); // signature
+        output.writeUTF("field1"); // name
+        output.writeInt(2); // modifiers
+        output.writeUTF("I"); // signature
 
-            output.writeUTF("field2"); // name
-            output.writeInt(2); // modifiers
-            output.writeUTF("I"); // signature
+        output.writeUTF("field2"); // name
+        output.writeInt(2); // modifiers
+        output.writeUTF("I"); // signature
 
-            // clinit
-            output.writeUTF("<clinit>"); // name
-            output.writeInt(8); // modifiers
-            output.writeUTF("()V"); // signature
+        // clinit
+        output.writeUTF("<clinit>"); // name
+        output.writeInt(8); // modifiers
+        output.writeUTF("()V"); // signature
 
-            // constructors
-            output.writeUTF("<init>"); // name
-            output.writeInt(1); // modifiers
-            output.writeUTF("()V"); // signature
-            // -----------------------------------------------------------------------
+        // constructors
+        output.writeUTF("<init>"); // name
+        output.writeInt(1); // modifiers
+        output.writeUTF("()V"); // signature
 
-            output.flush();
-            byte[] data = out.toByteArray();
-            byte[] hash = sha.digest(data);
-            assertTrue("SHA_DATA_1 NOT ok", Arrays.equals(hash, SHA_DATA_1));
-        } catch (IOException e) {
-            fail("SHA_DATA_1 NOT ok");
-        }
+        output.flush();
+        byte[] data = out.toByteArray();
+        byte[] hash = sha.digest(data);
+        assertTrue("SHA_DATA_1 NOT ok", Arrays.equals(hash, SHA_DATA_1));
     }
 
     /**
-     * @tests java.security.MessageDigest#digest()
+     * java.security.MessageDigest#digest()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {}
-    )
-    public void test_digest() {
-        MessageDigest sha = null;
-        try {
-            sha = MessageDigest.getInstance("SHA");
-            assertNotNull(sha);
-        } catch (NoSuchAlgorithmException e) {
-            fail("getInstance did not find algorithm");
-        }
+    public void test_digest() throws Exception {
+        MessageDigest sha = MessageDigest.getInstance("SHA");
+        assertNotNull(sha);
         sha.update(MESSAGE.getBytes());
         byte[] digest = sha.digest();
         assertTrue("bug in SHA", MessageDigest.isEqual(digest, MESSAGE_DIGEST));
@@ -264,8 +213,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
             sha.update((byte) 'a');
         }
         digest = sha.digest();
-        assertTrue("bug in SHA", MessageDigest.isEqual(digest,
-                MESSAGE_DIGEST_63_As));
+        assertTrue("bug in SHA", MessageDigest.isEqual(digest, MESSAGE_DIGEST_63_As));
 
         sha.reset();
         for (int i = 0; i < 64; i++) {
@@ -273,8 +221,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
             sha.update((byte) 'a');
         }
         digest = sha.digest();
-        assertTrue("bug in SHA", MessageDigest.isEqual(digest,
-                MESSAGE_DIGEST_64_As));
+        assertTrue("bug in SHA", MessageDigest.isEqual(digest, MESSAGE_DIGEST_64_As));
 
         sha.reset();
         for (int i = 0; i < 65; i++) {
@@ -282,368 +229,229 @@ public class MessageDigest2Test extends junit.framework.TestCase {
             sha.update((byte) 'a');
         }
         digest = sha.digest();
-        assertTrue("bug in SHA", MessageDigest.isEqual(digest,
-                MESSAGE_DIGEST_65_As));
+        assertTrue("bug in SHA", MessageDigest.isEqual(digest, MESSAGE_DIGEST_65_As));
 
         testSerializationSHA_DATA_1(sha);
         testSerializationSHA_DATA_2(sha);
     }
 
     /**
-     * @tests java.security.MessageDigest#digest(byte[])
+     * java.security.MessageDigest#digest(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {byte[].class}
-    )
-    public void test_digest$B() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                MessageDigest digest = MessageDigest.getInstance(digestAlgs[i],
-                        providerName);
+    public void test_digest$B() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest digest = MessageDigest.getInstance(algorithm, e.getKey().getName());
                 assertNotNull(digest);
                 digest.digest(AR1);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
             }
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#digest(byte[], int, int)
+     * java.security.MessageDigest#digest(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "digest",
-        args = {byte[].class, int.class, int.class}
-    )
-    public void test_digest$BII() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                MessageDigest digest = MessageDigest.getInstance(digestAlgs[i],
-                        providerName);
+    public void test_digest$BII() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest digest = MessageDigest.getInstance(algorithm, e.getKey().getName());
                 assertNotNull(digest);
                 int len = digest.getDigestLength();
                 byte[] digestBytes = new byte[len];
                 digest.digest(digestBytes, 0, digestBytes.length);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
-            } catch (DigestException e) {
-                fail("digest caused exception for algorithm " + digestAlgs[i]
-                        + " : " + e);
             }
-        }
-        try {
-            MessageDigest.getInstance("SHA").digest(new byte[] {},
-                    Integer.MAX_VALUE, 755);
-        } catch (NoSuchAlgorithmException e) {
-            // allowed
-        } catch (DigestException e) {
-            // allowed
-        } catch (IllegalArgumentException e) {
-            // expected
+            try {
+                MessageDigest.getInstance("SHA").digest(new byte[] {}, Integer.MAX_VALUE, 755);
+                fail();
+            } catch (IllegalArgumentException expected) {
+            }
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#update(byte[], int, int)
+     * java.security.MessageDigest#update(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "D",
-        method = "update",
-        args = {byte[].class, int.class, int.class}
-    )
-    public void test_update$BII() {
+    public void test_update$BII() throws Exception {
         try {
             MessageDigest.getInstance("SHA").update(new byte[] {},
-                    Integer.MAX_VALUE, Integer.MAX_VALUE);
-        } catch (NoSuchAlgorithmException e) {
-            // allowed
-        } catch (IllegalArgumentException e) {
-            // expected
+                                                    Integer.MAX_VALUE, Integer.MAX_VALUE);
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#getAlgorithm()
+     * java.security.MessageDigest#getAlgorithm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
-    public void test_getAlgorithm() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                String alg = MessageDigest.getInstance(digestAlgs[i],
-                        providerName).getAlgorithm();
-                assertTrue("getAlgorithm ok", alg.equals(digestAlgs[i]));
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
+    public void test_getAlgorithm() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm, e.getKey().getName());
+                assertEquals(algorithm, md.getAlgorithm());
             }
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#getDigestLength()
+     * java.security.MessageDigest#getDigestLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDigestLength",
-        args = {}
-    )
-    public void test_getDigestLength() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                int len = MessageDigest
-                        .getInstance(digestAlgs[i], providerName)
-                        .getDigestLength();
-                assertTrue("length not ok", len > 0);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
+    public void test_getDigestLength() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm, e.getKey().getName());
+                assertTrue("length not ok", md.getDigestLength() > 0);
             }
-        }// end for
+        }
     }
 
     /**
-     * @tests java.security.MessageDigest#getInstance(java.lang.String)
+     * java.security.MessageDigest#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
-    public void test_getInstanceLjava_lang_String() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                MessageDigest.getInstance(digestAlgs[i]);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
+    public void test_getInstanceLjava_lang_String() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm);
+                assertNotNull(md);
             }
         }
 
         try {
             MessageDigest.getInstance("UnknownDigest");
             fail("expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
-            // ok
+        } catch (NoSuchAlgorithmException expected) {
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#getInstance(java.lang.String,
+     * java.security.MessageDigest#getInstance(java.lang.String,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
-    public void test_getInstanceLjava_lang_StringLjava_lang_String() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                MessageDigest.getInstance(digestAlgs[i], providerName);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
+    public void test_getInstanceLjava_lang_StringLjava_lang_String() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm, e.getKey().getName());
+                assertNotNull(md);
             }
         }
 
-        try {
-            MessageDigest.getInstance(digestAlgs[0], "UnknownProvider");
-            fail("expected NoSuchProviderException");
-        } catch (NoSuchProviderException e) {
-            // ok
-        } catch (NoSuchAlgorithmException e) {
-            fail("unexpected exception: " + e);
+        for (List<String> algorithms : digestAlgs.values()) {
+            for (String algorithm : algorithms) {
+                try {
+                    MessageDigest.getInstance(algorithm, "UnknownProvider");
+                    fail("expected NoSuchProviderException");
+                } catch (NoSuchProviderException expected) {
+                }
+            }
         }
 
-        try {
-            MessageDigest.getInstance("UnknownDigest", providerName);
-            fail("expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
-            // ok
-        } catch (NoSuchProviderException e) {
-            fail("unexpected exception: " + e);
+        for (Provider provider : digestAlgs.keySet()) {
+            try {
+                MessageDigest.getInstance("UnknownDigest", provider.getName());
+                fail("expected NoSuchAlgorithmException");
+            } catch (NoSuchAlgorithmException expected) {
+            }
         }
 
-        try {
-            MessageDigest.getInstance(null, providerName);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
-        } catch (NoSuchAlgorithmException e) {
-            fail("unexpected exception: " + e);
-        } catch (NoSuchProviderException e) {
-            fail("unexpected exception: " + e);
+        for (Provider provider : digestAlgs.keySet()) {
+            try {
+                MessageDigest.getInstance(null, provider.getName());
+                fail("expected NullPointerException");
+            } catch (NullPointerException expected) {
+            }
         }
 
         try {
             MessageDigest.getInstance("AnyDigest", (String)null);
             fail("expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (NoSuchAlgorithmException e) {
-            fail("unexpected exception: " + e);
-        } catch (NoSuchProviderException e) {
-            fail("unexpected exception: " + e);
+        } catch (IllegalArgumentException expected) {
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#getInstance(java.lang.String,
+     * java.security.MessageDigest#getInstance(java.lang.String,
      *        java.security.Provider)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
-    public void test_getInstanceLjava_lang_StringLjava_security_Provider() {
-        Provider[] providers = Security.getProviders("MessageDigest.SHA");
-        for (int i = 0; i < digestAlgs.length; i++) {
-            for (int j = 0; j < providers.length; j++) {
-                try {
-                    MessageDigest.getInstance(digestAlgs[i], providers[j]);
-                } catch (NoSuchAlgorithmException e) {
-                    fail("getInstance did not find algorithm " + digestAlgs[i]);
-                }
+    public void test_getInstanceLjava_lang_StringLjava_security_Provider() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm, e.getKey().getName());
+                assertNotNull(md);
             }
         }
 
         try {
             MessageDigest.getInstance(null, new TestProvider());
             fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
-        } catch (NoSuchAlgorithmException e) {
-            fail("unexpected exception: " + e);
+        } catch (NullPointerException expected) {
         }
 
         try {
             MessageDigest.getInstance("UnknownDigest", new TestProvider());
             fail("expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
-            // ok
+        } catch (NoSuchAlgorithmException expected) {
         }
 
         try {
             MessageDigest.getInstance("AnyDigest", (Provider)null);
             fail("expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
-        } catch (NoSuchAlgorithmException e) {
-            fail("unexpected exception: " + e);
+        } catch (IllegalArgumentException expected) {
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#getProvider()
+     * java.security.MessageDigest#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
-    public void test_getProvider() {
-        for (int i = 0; i < digestAlgs.length; i++) {
-            try {
-                Provider p = MessageDigest.getInstance(digestAlgs[i],
-                        providerName).getProvider();
-                assertNotNull("provider is null", p);
-            } catch (NoSuchAlgorithmException e) {
-                fail("getInstance did not find algorithm " + digestAlgs[i]);
-            } catch (NoSuchProviderException e) {
-                fail("getInstance did not find provider " + providerName);
+    public void test_getProvider() throws Exception {
+        for (Entry<Provider, List<String>> e : digestAlgs.entrySet()) {
+            for (String algorithm : e.getValue()) {
+                MessageDigest md = MessageDigest.getInstance(algorithm, e.getKey().getName());
+                assertNotNull("provider is null", md.getProvider());
             }
         }
     }
 
     /**
-     * @tests java.security.MessageDigest#isEqual(byte[], byte[])
+     * java.security.MessageDigest#isEqual(byte[], byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Otherwise case is not checked",
-        method = "isEqual",
-        args = {byte[].class, byte[].class}
-    )
     public void test_isEqual$B$B() {
         assertTrue("isEqual is not correct", MessageDigest.isEqual(AR1, AR2));
     }
 
     /**
-     * @tests java.security.MessageDigest#toString()
+     * java.security.MessageDigest#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
-    public void test_toString() {
-        try {
-            String str = MessageDigest.getInstance("SHA").toString();
-            assertNotNull("toString is null", str);
-        } catch (NoSuchAlgorithmException e) {
-            fail("getInstance did not find algorithm");
-        }
+    public void test_toString() throws Exception {
+        String str = MessageDigest.getInstance("SHA").toString();
+        assertNotNull("toString is null", str);
     }
 
     protected void setUp() {
-        if (digestAlgs == null) {
-            Provider[] providers = Security.getProviders("MessageDigest.SHA");
-            if (providers == null) {
-                fail("No providers available for test");
-            }
-
-            // Arbitrarily select the first available provider
-            providerName = providers[0].getName();
-            digestAlgs = getDigestAlgorithms(providerName);
-            if (digestAlgs == null || digestAlgs.length == 0) {
-                fail("No digest algorithms were found");
-            }
+        Provider[] providers = Security.getProviders("MessageDigest.SHA");
+        for (Provider provider : providers) {
+            digestAlgs.put(provider, getDigestAlgorithms(provider));
         }
     }
 
     /*
      * Returns the digest algorithms that the given provider supports.
      */
-    private String[] getDigestAlgorithms(String providerName) {
-        Vector<String> algs = new Vector<String>();
+    private List<String> getDigestAlgorithms(Provider provider) {
+        if (provider == null) {
+            fail("No digest algorithms were found");
+        }
 
-        Provider provider = Security.getProvider(providerName);
-        if (provider == null)
-            return new String[0];
-        Enumeration e = provider.keys();
-        while (e.hasMoreElements()) {
-            String algorithm = (String) e.nextElement();
-            if (algorithm.startsWith(MESSAGEDIGEST_ID)
-                    && !algorithm.contains(" ")) {
-                algs.addElement(algorithm.substring(MESSAGEDIGEST_ID.length()));
+        List<String> algs = new ArrayList<String>();
+        for (Object key : provider.keySet()) {
+            String algorithm = (String) key;
+            if (algorithm.startsWith(MESSAGEDIGEST_ID) && !algorithm.contains(" ")) {
+                algs.add(algorithm.substring(MESSAGEDIGEST_ID.length()));
             }
-        }// end while
+        }
 
-        return (String[]) algs.toArray(new String[algs.size()]);
+        if (algs.size() == 0) {
+            fail("No digest algorithms were found");
+        }
+        return algs;
     }
 
     private class MessageDigestStub extends MessageDigest {
