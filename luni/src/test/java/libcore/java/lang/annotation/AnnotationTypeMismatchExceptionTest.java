@@ -22,9 +22,16 @@ import java.io.ObjectOutputStream;
 import java.lang.annotation.AnnotationTypeMismatchException;
 
 public class AnnotationTypeMismatchExceptionTest extends junit.framework.TestCase {
+    public void testGetters() throws Exception {
+        Method m = String.class.getMethod("length");
+        AnnotationTypeMismatchException ex = new AnnotationTypeMismatchException(m, "poop");
+        assertSame(m, ex.element());
+        assertEquals("poop", ex.foundType());
+    }
+
     public void testSerialization() throws Exception {
-        AnnotationTypeMismatchException original =
-                new AnnotationTypeMismatchException(String.class.getMethod("length"), "poop");
+        Method m = String.class.getMethod("length");
+        AnnotationTypeMismatchException original = new AnnotationTypeMismatchException(m, "poop");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
