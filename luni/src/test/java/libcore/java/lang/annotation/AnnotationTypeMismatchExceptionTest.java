@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.lang.annotation.AnnotationTypeMismatchException;
+import java.lang.reflect.Method;
 
 public class AnnotationTypeMismatchExceptionTest extends junit.framework.TestCase {
     public void testGetters() throws Exception {
