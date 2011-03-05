@@ -1209,10 +1209,6 @@ public class VectorTest extends junit.framework.TestCase {
             super.add(obj);
         }
 
-        /**
-         * java.util.Vector#add(Object)
-         */
-        @SuppressWarnings("nls")
         public void test_add() {
             SubVector<String> subvector = new SubVector<String>();
             subvector.add("foo");

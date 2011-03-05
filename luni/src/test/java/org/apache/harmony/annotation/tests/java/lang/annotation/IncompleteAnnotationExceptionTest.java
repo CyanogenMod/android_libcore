@@ -21,13 +21,8 @@ import java.lang.annotation.IncompleteAnnotationException;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class IncompleteAnnotationExceptionTest extends TestCase {
-
     /*
-     * Class under test for void IncompleteAnnotationException(String)
      * Regression for HARMONY-2477
      */
     public void testNullType() {
@@ -39,18 +34,10 @@ public class IncompleteAnnotationExceptionTest extends TestCase {
         }
     }
 
-    /**
-     * @throws Exception
-     * java.lang.annotation.IncompleteAnnotationException#IncompleteAnnotationException(Class,
-     *        String)
-     */
-    @SuppressWarnings("nls")
-    public void test_constructorLjava_lang_Class_Ljava_lang_String()
-            throws Exception {
+    public void test_constructorLjava_lang_Class_Ljava_lang_String() throws Exception {
         Class clazz = String.class;
         String elementName = "some element";
-        IncompleteAnnotationException e = new IncompleteAnnotationException(
-                clazz, elementName);
+        IncompleteAnnotationException e = new IncompleteAnnotationException(clazz, elementName);
         assertNotNull("can not instantiate IncompleteAnnotationException", e);
         assertSame("wrong annotation type", clazz, e.annotationType());
         assertSame("wrong element name", elementName, e.elementName());
