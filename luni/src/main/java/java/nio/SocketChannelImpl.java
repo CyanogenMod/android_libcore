@@ -25,6 +25,7 @@ import java.net.ConnectException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.PlainSocketImpl;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -42,7 +43,6 @@ import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 

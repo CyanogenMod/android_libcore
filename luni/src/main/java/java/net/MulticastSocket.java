@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 
 /**
  * This class implements a multicast socket for sending and receiving IP

@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
-import org.apache.harmony.luni.net.PlainServerSocketImpl;
 
 /**
  * This class represents a server-side socket that waits for incoming client

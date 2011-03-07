@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.net;
+package java.net;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charsets;

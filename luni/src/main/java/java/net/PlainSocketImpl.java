@@ -15,14 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.net;
+package java.net;
 
 import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -37,17 +36,15 @@ import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
- * A concrete connected-socket implementation.
+ * @hide used in java.nio.
  */
 public class PlainSocketImpl extends SocketImpl {
 
     // For SOCKS support. A SOCKS bind() uses the last
     // host connected to in its request.
-    static private InetAddress lastConnectedAddress;
+    private static InetAddress lastConnectedAddress;
 
-    static private int lastConnectedPort;
-
-    private static Field fdField;
+    private static int lastConnectedPort;
 
     private boolean streaming = true;
 
@@ -91,41 +88,11 @@ public class PlainSocketImpl extends SocketImpl {
             ((PlainSocketImpl) newImpl).socksAccept();
             return;
         }
-
-        try {
-            if (newImpl instanceof PlainSocketImpl) {
-                PlainSocketImpl newPlainSocketImpl = (PlainSocketImpl) newImpl;
-                Platform.NETWORK.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor());
-            } else {
-                // if newImpl is not an instance of PlainSocketImpl, use
-                // reflection to get/set protected fields.
-                if (fdField == null) {
-                    fdField = getSocketImplField("fd");
-                }
-                FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
-                Platform.NETWORK.accept(fd, newImpl, newFd);
-            }
-        } catch (IllegalAccessException e) {
-            // empty
-        }
+        Platform.NETWORK.accept(fd, newImpl, newImpl.getFileDescriptor());
     }
 
     private boolean usingSocks() {
         return proxy != null && proxy.type() == Proxy.Type.SOCKS;
-    }
-
-    /**
-     * gets SocketImpl field by reflection.
-     */
-    private Field getSocketImplField(final String fieldName) {
-        Field field = null;
-        try {
-            field = SocketImpl.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
-        }
-        return field;
     }
 
     public void initLocalPort(int localPort) {
@@ -266,7 +233,6 @@ public class PlainSocketImpl extends SocketImpl {
         // determined by ProxySelector.
         InetSocketAddress addr = (InetSocketAddress) proxy.address();
         return addr.getPort();
-
     }
 
     /**
@@ -312,8 +278,7 @@ public class PlainSocketImpl extends SocketImpl {
                 applicationServerAddress, applicationServerPort);
         Socks4Message reply = socksReadReply();
         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
-            throw new IOException(reply.getErrorString(reply
-                    .getCommandOrResult()));
+            throw new IOException(reply.getErrorString(reply.getCommandOrResult()));
         }
     }
 
@@ -323,8 +288,7 @@ public class PlainSocketImpl extends SocketImpl {
     public void socksAccept() throws IOException {
         Socks4Message reply = socksReadReply();
         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
-            throw new IOException(reply.getErrorString(reply
-                    .getCommandOrResult()));
+            throw new IOException(reply.getErrorString(reply.getCommandOrResult()));
         }
     }
 
@@ -407,7 +371,7 @@ public class PlainSocketImpl extends SocketImpl {
         while (bytesRead < Socks4Message.REPLY_LENGTH) {
             int count = getInputStream().read(reply.getBytes(), bytesRead,
                     Socks4Message.REPLY_LENGTH - bytesRead);
-            if (-1 == count) {
+            if (count == -1) {
                 break;
             }
             bytesRead += count;
@@ -419,8 +383,7 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     @Override
-    protected void connect(SocketAddress remoteAddr, int timeout)
-            throws IOException {
+    protected void connect(SocketAddress remoteAddr, int timeout) throws IOException {
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         connect(inetAddr.getAddress(), inetAddr.getPort(), timeout);
     }

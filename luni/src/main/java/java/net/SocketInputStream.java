@@ -15,28 +15,38 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.net;
+package java.net;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketImpl;
 import java.util.Arrays;
 
-class SocketOutputStream extends OutputStream {
+/**
+ * The SocketInputStream supports the streamed reading of bytes from a socket.
+ * Multiple streams may be opened on a socket, so care should be taken to manage
+ * opened streams and coordinate read operations between threads.
+ */
+class SocketInputStream extends InputStream {
 
-    private PlainSocketImpl socket;
+    private final PlainSocketImpl socket;
 
     /**
-     * Constructs a SocketOutputStream for the <code>socket</code>. Write
+     * Constructs a SocketInputStream for the <code>socket</code>. Read
      * operations are forwarded to the <code>socket</code>.
      *
-     * @param socket the socket to be written
+     * @param socket the socket to be read
      * @see Socket
      */
-    public SocketOutputStream(SocketImpl socket) {
+    public SocketInputStream(SocketImpl socket) {
         super();
         this.socket = (PlainSocketImpl) socket;
+    }
+
+    @Override
+    public int available() throws IOException {
+        return socket.available();
     }
 
     @Override
@@ -45,20 +55,23 @@ class SocketOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] buffer) throws IOException {
-        socket.write(buffer, 0, buffer.length);
-    }
-
-    @Override
-    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
-        socket.write(buffer, offset, byteCount);
-    }
-
-    @Override
-    public void write(int oneByte) throws IOException {
+    public int read() throws IOException {
         byte[] buffer = new byte[1];
-        buffer[0] = (byte) (oneByte & 0xFF);
-        socket.write(buffer, 0, 1);
+        int result = socket.read(buffer, 0, 1);
+        return (result == -1) ? result : buffer[0] & 0xFF;
+    }
+
+    @Override
+    public int read(byte[] buffer) throws IOException {
+        return read(buffer, 0, buffer.length);
+    }
+
+    @Override
+    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+        if (byteCount == 0) {
+            return 0;
+        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        return socket.read(buffer, offset, byteCount);
     }
 }

@@ -15,17 +15,15 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.net;
+package java.net;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketOptions;
-import org.apache.harmony.luni.net.PlainSocketImpl;
 
 /**
- * This class overrides create to call natives that set the options required
- * for server sockets.
+ * @hide used in java.nio.
  */
 public class PlainServerSocketImpl extends PlainSocketImpl {
 

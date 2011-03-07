@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.net;
+package java.net;
 
 import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
@@ -33,9 +33,7 @@ import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
- * The default, concrete instance of datagram sockets. This class does not
- * support security checks. Alternative types of DatagramSocketImpl's may be
- * used by setting the <code>impl.prefix</code> system property.
+ * @hide used in java.nio.
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
 
 /**

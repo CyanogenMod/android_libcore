@@ -54,8 +54,6 @@ public abstract class SocketImpl implements SocketOptions {
      */
     protected int localport;
 
-    boolean streaming = true;
-
     /**
      * Waits for an incoming request and blocks until the connection is opened
      * on the given socket.
@@ -87,8 +85,7 @@ public abstract class SocketImpl implements SocketOptions {
      * @throws IOException
      *             if an error occurs while binding this socket.
      */
-    protected abstract void bind(InetAddress address, int port)
-            throws IOException;
+    protected abstract void bind(InetAddress address, int port) throws IOException;
 
     /**
      * Closes this socket. This makes later access invalid.
@@ -219,31 +216,9 @@ public abstract class SocketImpl implements SocketOptions {
     }
 
     /**
-     * In the IP stack, write at most {@code count} bytes on the socket
-     * from the {@code buffer}, from the {@code offset}.
-     *
-     * @param buffer
-     *            the buffer to read into
-     * @param offset
-     *            the offset into the buffer
-     * @param count
-     *            the number of bytes to write
-     * @return int the actual number of bytes written
-     * @throws IOException
-     *                thrown if an error occurs while writing
-     */
-    int write(byte[] buffer, int offset, int count) throws IOException {
-        if (streaming) {
-            return Platform.NETWORK.write(fd, buffer, offset, count);
-        } else {
-            return Platform.NETWORK.send(fd, buffer, offset, count, port, address);
-        }
-    }
-
-    /**
      * Closes the input channel of this socket.
-     * <p>
-     * This default implementation always throws an {@link IOException} to
+     *
+     * <p>This default implementation always throws an {@link IOException} to
      * indicate that the subclass should have overridden this method.
      *
      * @throws IOException
@@ -255,8 +230,8 @@ public abstract class SocketImpl implements SocketOptions {
 
     /**
      * Closes the output channel of this socket.
-     * <p>
-     * This default implementation always throws an {@link IOException} to
+     *
+     * <p>This default implementation always throws an {@link IOException} to
      * indicate that the subclass should have overridden this method.
      *
      * @throws IOException
@@ -278,8 +253,7 @@ public abstract class SocketImpl implements SocketOptions {
      * @throws IOException
      *             if an error occurs while connecting.
      */
-    protected abstract void connect(SocketAddress remoteAddr, int timeout)
-            throws IOException;
+    protected abstract void connect(SocketAddress remoteAddr, int timeout) throws IOException;
 
     /**
      * Returns whether the socket supports urgent data or not. Subclasses should
@@ -312,9 +286,6 @@ public abstract class SocketImpl implements SocketOptions {
      * @param bandwidth
      *            the importance of bandwidth.
      */
-    protected void setPerformancePreferences(int connectionTime, int latency,
-            int bandwidth) {
-        // Our socket implementation only provide one protocol: TCP/IP, so
-        // we do nothing for this method
+    protected void setPerformancePreferences(int connectionTime, int latency, int bandwidth) {
     }
 }
