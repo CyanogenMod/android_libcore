@@ -98,18 +98,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-junit
 include $(BUILD_JAVA_LIBRARY)
 
-# Make core-junitrunner
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,junit)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core core-junit
-LOCAL_DX_FLAGS := --core-library
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-junitrunner
-include $(BUILD_JAVA_LIBRARY)
-
 # Make the sqlite JDBC driver.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
@@ -125,7 +113,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit core-junitrunner sqlite-jdbc
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
