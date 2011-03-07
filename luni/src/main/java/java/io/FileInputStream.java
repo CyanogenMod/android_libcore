@@ -179,11 +179,6 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override
-    public int read(byte[] buffer) throws IOException {
-        return read(buffer, 0, buffer.length);
-    }
-
-    @Override
     public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (byteCount == 0) {

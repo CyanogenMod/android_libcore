@@ -67,13 +67,7 @@ public abstract class OutputStream implements Closeable, Flushable {
     }
 
     /**
-     * Writes the entire contents of the byte array {@code buffer} to this
-     * stream.
-     *
-     * @param buffer
-     *            the buffer to be written.
-     * @throws IOException
-     *             if an error occurs while writing to this stream.
+     * Equivalent to {@code write(buffer, 0, buffer.length)}.
      */
     public void write(byte[] buffer) throws IOException {
         write(buffer, 0, buffer.length);

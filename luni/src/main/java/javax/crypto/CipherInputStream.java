@@ -110,22 +110,6 @@ public class CipherInputStream extends FilterInputStream {
     }
 
     /**
-     * Reads the next {@code b.length} bytes from this input stream into buffer
-     * {@code b}.
-     *
-     * @param b
-     *            the buffer to be filled with data.
-     * @return the number of bytes filled into buffer {@code b}, or {@code -1}
-     *         if the end of the stream is reached.
-     * @throws IOException
-     *             if an error occurs.
-     */
-    @Override
-    public int read(byte[] b) throws IOException {
-        return read(b, 0, b.length);
-    }
-
-    /**
      * Reads the next {@code len} bytes from this input stream into buffer
      * {@code buf} starting at offset {@code off}.
      * <p>

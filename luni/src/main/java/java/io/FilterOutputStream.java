@@ -89,21 +89,6 @@ public class FilterOutputStream extends OutputStream {
     }
 
     /**
-     * Writes the entire contents of the byte array {@code buffer} to this
-     * stream. This implementation writes the {@code buffer} to the target
-     * stream.
-     *
-     * @param buffer
-     *            the buffer to be written.
-     * @throws IOException
-     *             if an I/O error occurs while writing to this stream.
-     */
-    @Override
-    public void write(byte[] buffer) throws IOException {
-        write(buffer, 0, buffer.length);
-    }
-
-    /**
      * Writes {@code count} bytes from the byte array {@code buffer} starting at
      * {@code offset} to the target stream.
      *

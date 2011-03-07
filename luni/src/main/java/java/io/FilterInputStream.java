@@ -116,24 +116,6 @@ public class FilterInputStream extends InputStream {
     }
 
     /**
-     * Reads bytes from this stream and stores them in the byte array
-     * {@code buffer}. Returns the number of bytes actually read or -1 if no
-     * bytes were read and the end of this stream was encountered. This
-     * implementation reads bytes from the filtered stream.
-     *
-     * @param buffer
-     *            the byte array in which to store the read bytes.
-     * @return the number of bytes actually read or -1 if the end of the
-     *         filtered stream has been reached while reading.
-     * @throws IOException
-     *             if this stream is closed or another IOException occurs.
-     */
-    @Override
-    public int read(byte[] buffer) throws IOException {
-        return read(buffer, 0, buffer.length);
-    }
-
-    /**
      * Reads at most {@code count} bytes from this stream and stores them in the
      * byte array {@code buffer} starting at {@code offset}. Returns the number
      * of bytes actually read or -1 if no bytes have been read and the end of

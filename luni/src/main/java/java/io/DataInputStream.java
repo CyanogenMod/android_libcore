@@ -55,24 +55,6 @@ public class DataInputStream extends FilterInputStream implements DataInput {
     }
 
     /**
-     * Reads bytes from this stream into the byte array {@code buffer}. Returns
-     * the number of bytes that have been read.
-     *
-     * @param buffer
-     *            the buffer to read bytes into.
-     * @return the number of bytes that have been read or -1 if the end of the
-     *         stream has been reached.
-     * @throws IOException
-     *             if a problem occurs while reading from this stream.
-     * @see DataOutput#write(byte[])
-     * @see DataOutput#write(byte[], int, int)
-     */
-    @Override
-    public final int read(byte[] buffer) throws IOException {
-        return in.read(buffer, 0, buffer.length);
-    }
-
-    /**
      * Reads at most {@code length} bytes from this stream and stores them in
      * the byte array {@code buffer} starting at {@code offset}. Returns the
      * number of bytes that have been read or -1 if no bytes have been read and

@@ -626,21 +626,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
     }
 
     /**
-     * Writes the entire contents of the byte array {@code buffer} to the output
-     * stream. Blocks until all bytes are written.
-     *
-     * @param buffer
-     *            the buffer to write.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     */
-    @Override
-    public void write(byte[] buffer) throws IOException {
-        checkWritePrimitiveTypes();
-        primitiveTypes.write(buffer);
-    }
-
-    /**
      * Writes {@code count} bytes from the byte array {@code buffer} starting at
      * offset {@code index} to the target stream. Blocks until all bytes are
      * written.

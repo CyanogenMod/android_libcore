@@ -45,11 +45,6 @@ class SocketOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] buffer) throws IOException {
-        socket.write(buffer, 0, buffer.length);
-    }
-
-    @Override
     public void write(byte[] buffer, int offset, int byteCount) throws IOException {
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         socket.write(buffer, offset, byteCount);

@@ -832,11 +832,6 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
-            return read(b, 0, b.length);
-        }
-
-        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             int read_b;
             int i;

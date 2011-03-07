@@ -82,19 +82,6 @@ public class CipherOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Writes the buffer of bytes to this cipher output stream.
-     *
-     * @param b
-     *            the buffer of bytes.
-     * @throws IOException
-     *             if an error occurs.
-     */
-    @Override
-    public void write(byte[] b) throws IOException {
-        write(b, 0, b.length);
-    }
-
-    /**
      * Writes the {@code len} bytes from buffer {@code b} starting at offset
      * {@code off} to this cipher output stream.
      *
@@ -163,4 +150,3 @@ public class CipherOutputStream extends FilterOutputStream {
         }
     }
 }
-

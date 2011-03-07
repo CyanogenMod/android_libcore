@@ -541,12 +541,6 @@ public class FileHandler extends StreamHandler {
         }
 
         @Override
-        public void write(byte[] bytes) throws IOException {
-            wrapped.write(bytes);
-            length += bytes.length;
-        }
-
-        @Override
         public void write(byte[] b, int off, int len) throws IOException {
             wrapped.write(b, off, len);
             length += len;
