@@ -275,4 +275,17 @@ public class InetSocketAddressTest extends TestCase {
         InetSocketAddress isa = new InetSocketAddress("localhost", 80);
         assertNotNull(isa.toString());
     }
+
+    public void test_getHostString() throws Exception {
+        // When we have a hostname, we'll get it back because that doesn't cost a DNS lookup...
+        InetSocketAddress hasHostname = InetSocketAddress.createUnresolved("some host", 1234);
+        assertEquals("some host", hasHostname.getHostString());
+        assertEquals("some host", hasHostname.getHostName());
+        // When we don't have a hostname, whether or not we do the reverse lookup is the difference
+        // between getHostString and getHostName...
+        InetAddress address = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
+        InetSocketAddress noHostname = new InetSocketAddress(address, 1234);
+        assertEquals("127.0.0.1", noHostname.getHostString());
+        assertEquals("localhost", noHostname.getHostName());
+    }
 }
