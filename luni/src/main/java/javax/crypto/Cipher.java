@@ -123,7 +123,7 @@ public class Cipher {
      */
     private String transformation;
 
-    private static SecureRandom sec_rand;
+    private static SecureRandom secureRandom;
 
     /**
      * Creates a new Cipher instance.
@@ -470,13 +470,13 @@ public class Cipher {
      *             cipher instance.
      */
     public final void init(int opmode, Key key) throws InvalidKeyException {
-        if (sec_rand == null) {
+        if (secureRandom == null) {
             // In theory it might be thread-unsafe but in the given case it's OK
             // since it does not matter which SecureRandom instance is passed
             // to the init()
-            sec_rand = new SecureRandom();
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, sec_rand);
+        init(opmode, key, secureRandom);
     }
 
     /**
@@ -560,10 +560,10 @@ public class Cipher {
      */
     public final void init(int opmode, Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, params, sec_rand);
+        init(opmode, key, params, secureRandom);
     }
 
     /**
@@ -652,10 +652,10 @@ public class Cipher {
      */
     public final void init(int opmode, Key key, AlgorithmParameters params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, params, sec_rand);
+        init(opmode, key, params, secureRandom);
     }
 
     /**
@@ -742,10 +742,10 @@ public class Cipher {
      */
     public final void init(int opmode, Certificate certificate)
             throws InvalidKeyException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, certificate, sec_rand);
+        init(opmode, certificate, secureRandom);
     }
 
     /**

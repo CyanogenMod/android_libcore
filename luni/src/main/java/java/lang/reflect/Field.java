@@ -847,54 +847,54 @@ public final class Field extends AccessibleObject implements Member {
             boolean noAccessCheck) throws IllegalAccessException;
 
     private native double getDField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native int getIField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native long getJField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native boolean getZField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native float getFField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native char getCField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native short getSField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native byte getBField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType) throws IllegalAccessException;
 
     private native void setField(Object o, Class<?> declaringClass, Class<?> type, int slot,
             boolean noAccessCheck, Object value) throws IllegalAccessException;
 
     private native void setDField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, double v) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, double v) throws IllegalAccessException;
 
     private native void setIField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, int i) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, int i) throws IllegalAccessException;
 
     private native void setJField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, long j) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, long j) throws IllegalAccessException;
 
     private native void setZField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, boolean z) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, boolean z) throws IllegalAccessException;
 
     private native void setFField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, float f) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, float f) throws IllegalAccessException;
 
     private native void setCField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, char c) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, char c) throws IllegalAccessException;
 
     private native void setSField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, short s) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, short s) throws IllegalAccessException;
 
     private native void setBField(Object o, Class<?> declaringClass, Class<?> type, int slot,
-            boolean noAccessCheck, int type_no, byte b) throws IllegalAccessException;
+            boolean noAccessCheck, int dalvikType, byte b) throws IllegalAccessException;
 
 }

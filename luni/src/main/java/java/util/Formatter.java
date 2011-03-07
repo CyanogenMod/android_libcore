@@ -2044,17 +2044,17 @@ public final class Formatter implements Closeable, Flushable {
         StringBuilder result = new StringBuilder();
         switch (conversionType) {
         case 'a': case 'A':
-            transform_a(result);
+            transformA(result);
             break;
         case 'e': case 'E':
-            transform_e(result);
+            transformE(result);
             break;
         case 'f':
-            transform_f(result);
+            transformF(result);
             break;
         case 'g':
         case 'G':
-            transform_g(result);
+            transformG(result);
             break;
         default:
             throw formatToken.unknownFormatConversionException();
@@ -2089,7 +2089,7 @@ public final class Formatter implements Closeable, Flushable {
         return padding(result, startIndex);
     }
 
-    private void transform_e(StringBuilder result) {
+    private void transformE(StringBuilder result) {
         // All zeros in this method are *pattern* characters, so no localization.
         final int precision = formatToken.getPrecision();
         String pattern = "0E+00";
@@ -2123,7 +2123,7 @@ public final class Formatter implements Closeable, Flushable {
         }
     }
 
-    private void transform_g(StringBuilder result) {
+    private void transformG(StringBuilder result) {
         int precision = formatToken.getPrecision();
         if (precision == 0) {
             precision = 1;
@@ -2134,7 +2134,7 @@ public final class Formatter implements Closeable, Flushable {
         if (d == 0.0) {
             precision--;
             formatToken.setPrecision(precision);
-            transform_f(result);
+            transformF(result);
             return;
         }
 
@@ -2144,7 +2144,7 @@ public final class Formatter implements Closeable, Flushable {
             precision = formatToken.getPrecision();
             precision--;
             formatToken.setPrecision(precision);
-            transform_e(result);
+            transformE(result);
             return;
         }
         BigDecimal b = new BigDecimal(d, new MathContext(precision));
@@ -2181,13 +2181,13 @@ public final class Formatter implements Closeable, Flushable {
             precision = formatToken.getPrecision();
             precision--;
             formatToken.setPrecision(precision);
-            transform_e(result);
+            transformE(result);
         } else {
-            transform_f(result);
+            transformF(result);
         }
     }
 
-    private void transform_f(StringBuilder result) {
+    private void transformF(StringBuilder result) {
         // All zeros in this method are *pattern* characters, so no localization.
         String pattern = "0.000000";
         final int precision = formatToken.getPrecision();
@@ -2222,7 +2222,7 @@ public final class Formatter implements Closeable, Flushable {
         }
     }
 
-    private void transform_a(StringBuilder result) {
+    private void transformA(StringBuilder result) {
         if (arg instanceof Float) {
             result.append(Float.toHexString(((Float) arg).floatValue()));
         } else if (arg instanceof Double) {

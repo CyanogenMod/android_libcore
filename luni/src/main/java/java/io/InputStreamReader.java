@@ -239,17 +239,17 @@ public class InputStreamReader extends Reader {
                         // available didn't work so just try the read
                     }
 
-                    int to_read = bytes.capacity() - bytes.limit();
+                    int desiredByteCount = bytes.capacity() - bytes.limit();
                     int off = bytes.arrayOffset() + bytes.limit();
-                    int was_red = in.read(bytes.array(), off, to_read);
+                    int actualByteCount = in.read(bytes.array(), off, desiredByteCount);
 
-                    if (was_red == -1) {
+                    if (actualByteCount == -1) {
                         endOfInput = true;
                         break;
-                    } else if (was_red == 0) {
+                    } else if (actualByteCount == 0) {
                         break;
                     }
-                    bytes.limit(bytes.limit() + was_red);
+                    bytes.limit(bytes.limit() + actualByteCount);
                     needInput = false;
                 }
 

@@ -68,14 +68,14 @@ final class HexStringParser {
 
     private String abandonedNumber="";
 
-    public HexStringParser(int exponent_width, int mantissa_width) {
-        this.EXPONENT_WIDTH = exponent_width;
-        this.MANTISSA_WIDTH = mantissa_width;
+    public HexStringParser(int exponentWidth, int mantissaWidth) {
+        this.EXPONENT_WIDTH = exponentWidth;
+        this.MANTISSA_WIDTH = mantissaWidth;
 
-        this.EXPONENT_BASE = ~(-1L << (exponent_width - 1));
-        this.MAX_EXPONENT = ~(-1L << exponent_width);
+        this.EXPONENT_BASE = ~(-1L << (exponentWidth - 1));
+        this.MAX_EXPONENT = ~(-1L << exponentWidth);
         this.MIN_EXPONENT = -(MANTISSA_WIDTH + 1);
-        this.MANTISSA_MASK = ~(-1L << mantissa_width);
+        this.MANTISSA_MASK = ~(-1L << mantissaWidth);
     }
 
     /*

@@ -396,7 +396,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         return getMethodModifiers(declaringClass, slot);
     }
 
-    private native int getMethodModifiers(Class<?> decl_class, int slot);
+    private native int getMethodModifiers(Class<?> declaringClass, int slot);
 
     /**
      * Returns the name of the method represented by this {@code Method}

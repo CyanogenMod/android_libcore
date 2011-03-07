@@ -162,10 +162,4 @@ final class NativeBN {
     public static native boolean BN_is_prime_ex(int p, int nchecks, int cb);
     // int BN_is_prime_ex(const BIGNUM *p, int nchecks, BN_CTX *ctx, BN_GENCB *cb);
 
-    // OPTIONAL:
-    // int BN_is_prime_fasttest_ex(const BIGNUM *p, int nchecks, BN_CTX *ctx,
-    //         int do_trial_division, BN_GENCB *cb);
-
-// RAND_add(rnd);
-
 }

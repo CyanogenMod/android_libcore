@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -487,11 +488,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      * Get local address.
      */
     public InetAddress getLocalAddress() throws UnknownHostException {
-        if (!isBound) {
-            byte[] any_bytes = { 0, 0, 0, 0 };
-            return InetAddress.getByAddress(any_bytes);
-        }
-        return localAddress;
+        return isBound ? localAddress : Inet4Address.ANY;
     }
 
     /*

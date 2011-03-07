@@ -283,8 +283,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             int start = oldposition;
             if (source.isDirect()) {
                 synchronized (writeLock) {
-                    int data_address = NioUtils.getDirectBufferAddress(source);
-                    sendCount = Platform.NETWORK.sendDirect(fd, data_address, start, length,
+                    int address = NioUtils.getDirectBufferAddress(source);
+                    sendCount = Platform.NETWORK.sendDirect(fd, address, start, length,
                             isa.getPort(), isa.getAddress());
                 }
             } else {
