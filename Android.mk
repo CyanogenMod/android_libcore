@@ -47,3 +47,13 @@ $(info *************************************************************************
 ALL_MODULE_TAGS := $(filter-out tests,$(ALL_MODULE_TAGS))
 ALL_MODULES := $(filter-out $(ALL_MODULE_NAME_TAGS.tests),$(ALL_MODULES))
 endif
+
+
+#
+# "m dalvik-host" for quick minimal host build
+#
+
+ifeq ($(WITH_HOST_DALVIK),true)
+    .PHONY: dalvik-host
+    dalvik-host: $(HOST_OUT)/bin/dalvikvm $(HOST_OUT)/bin/dexopt $(HOST_OUT)/lib/libsqlite.so $(HOST_OUT)/etc/security/cacerts.bks $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version core-hostdex bouncycastle-hostdex apache-xml-hostdex $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
+endif

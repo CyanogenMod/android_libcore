@@ -175,6 +175,42 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
+    # Make core-junit
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := core-hostdex
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := core-junit-hostdex
+    LOCAL_BUILD_HOST_DEX := true
+    include $(BUILD_HOST_JAVA_LIBRARY)
+
+    # Make the sqlite JDBC driver.
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := core-hostdex
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := sqlite-jdbc-hostdex
+    LOCAL_BUILD_HOST_DEX := true
+    include $(BUILD_HOST_JAVA_LIBRARY)
+
+    # Make the core-tests library.
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
+    LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex sqlite-jdbc-hostdex
+    LOCAL_DX_FLAGS := --core-library
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := tests
+    LOCAL_MODULE := core-tests-hostdex
+    LOCAL_NO_EMMA_INSTRUMENT := true
+    LOCAL_NO_EMMA_COMPILE := true
+    LOCAL_BUILD_HOST_DEX := true
+    include $(BUILD_HOST_JAVA_LIBRARY)
 endif
 
 #
