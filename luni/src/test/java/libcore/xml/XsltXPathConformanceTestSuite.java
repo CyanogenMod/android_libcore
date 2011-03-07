@@ -607,6 +607,7 @@ public class XsltXPathConformanceTestSuite {
         while ((count = reader.read(buffer)) != -1) {
             out.write(buffer, 0, count);
         }
+        in.close();
         return out.toString();
     }
 
