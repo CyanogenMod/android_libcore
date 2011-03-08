@@ -305,4 +305,8 @@ public class StringTest extends TestCase {
             Locale.setDefault(defaultLocale);
         }
     }
+
+    public void test_replaceAll() throws Exception {
+        assertEquals("project_Id", "projectId".replaceAll("(?!^)(\\p{Upper})(?!$)", "_$1"));
+    }
 }
