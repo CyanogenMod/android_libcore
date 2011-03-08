@@ -39,6 +39,11 @@
 #include <netinet/ip.h>
 #include <linux/udp.h>
 
+union GCC_HIDDEN sockunion {
+    sockaddr sa;
+    sockaddr_ll sll;
+} su;
+
 /*
  * Creates a socket suitable for raw socket operations.  The socket is
  * bound to the interface specified by the supplied name.  The socket
@@ -51,24 +56,19 @@
 static void RawSocket_create(JNIEnv* env, jclass, jobject fileDescriptor,
     jstring interfaceName) {
 
-  union sockunion {
-    struct sockaddr sa;
-    struct sockaddr_ll sll;
-  } su;
-
-  short protocol = ETH_P_IP;
   ScopedUtfChars ifname(env, interfaceName);
-
   if (ifname.c_str() == NULL) {
     return;
   }
 
+  short protocol = ETH_P_IP;
+  sockunion su;
   memset(&su, 0, sizeof(su));
   su.sll.sll_family = PF_PACKET;
   su.sll.sll_protocol = htons(protocol);
   su.sll.sll_ifindex = if_nametoindex(ifname.c_str());
-  int sock = socket(PF_PACKET, SOCK_DGRAM, htons(protocol));
 
+  int sock = socket(PF_PACKET, SOCK_DGRAM, htons(protocol));
   if (sock == -1) {
     LOGE("Can't create socket %s", strerror(errno));
     jniThrowSocketException(env, errno);
@@ -76,7 +76,6 @@ static void RawSocket_create(JNIEnv* env, jclass, jobject fileDescriptor,
   }
 
   jniSetFileDescriptorOfFD(env, fileDescriptor, sock);
-
   if (!setBlocking(sock, false)) {
     LOGE("Can't set non-blocking mode on socket %s", strerror(errno));
     jniThrowSocketException(env, errno);
@@ -84,7 +83,6 @@ static void RawSocket_create(JNIEnv* env, jclass, jobject fileDescriptor,
   }
 
   int err = bind(sock, &su.sa, sizeof(su));
-
   if (err != 0) {
     LOGE("Socket bind error %s", strerror(errno));
     jniThrowSocketException(env, errno);
@@ -108,29 +106,23 @@ static int RawSocket_sendPacket(JNIEnv* env, jclass, jobject fileDescriptor,
     return 0;
   }
 
-  union sockunion {
-    struct sockaddr sa;
-    struct sockaddr_ll sll;
-  } su;
-  short protocol = ETH_P_IP;
   ScopedUtfChars ifname(env, interfaceName);
-
   if (ifname.c_str() == NULL) {
     return 0;
   }
 
   ScopedByteArrayRO byteArray(env, packet);
-
   if (byteArray.get() == NULL) {
     return 0;
   }
 
   ScopedByteArrayRO mac(env, destMac);
-
   if (mac.get() == NULL) {
     return 0;
   }
 
+  short protocol = ETH_P_IP;
+  sockunion su;
   memset(&su, 0, sizeof(su));
   su.sll.sll_hatype = htons(1); // ARPHRD_ETHER
   su.sll.sll_halen = mac.size();
@@ -140,7 +132,6 @@ static int RawSocket_sendPacket(JNIEnv* env, jclass, jobject fileDescriptor,
   su.sll.sll_ifindex = if_nametoindex(ifname.c_str());
 
   int err;
-
   {
     int intFd = fd.get();
     AsynchronousSocketCloseMonitor monitor(intFd);
@@ -163,33 +154,29 @@ static jint RawSocket_recvPacket(JNIEnv* env, jclass, jobject fileDescriptor,
     jint timeout_millis)
 {
   NetFd fd(env, fileDescriptor);
-
   if (fd.isClosed()) {
     return 0;
   }
 
   ScopedByteArrayRW body(env, packet);
   jbyte* packetData = body.get();
-
   if (packetData == NULL) {
     return 0;
   }
 
   packetData += offset;
 
-  int packetSize = byteCount;
-  unsigned int size = 0;
-  struct pollfd fds[1];
-
+  pollfd fds[1];
   fds[0].fd = fd.get();
   fds[0].events = POLLIN;
   int retval = poll(fds, 1, timeout_millis);
-
   if (retval <= 0) {
     return 0;
   }
 
+  unsigned int size = 0;
   {
+    int packetSize = byteCount;
     int intFd = fd.get();
     AsynchronousSocketCloseMonitor monitor(intFd);
     size = NET_FAILURE_RETRY(fd, read(intFd, packetData, packetSize));
@@ -201,20 +188,16 @@ static jint RawSocket_recvPacket(JNIEnv* env, jclass, jobject fileDescriptor,
 
   // quick check for UDP type & UDP port
   // the packet is an IP header, UDP header, and UDP payload
-  if ((size < (sizeof(struct iphdr) + sizeof(struct udphdr)))) {
+  if ((size < (sizeof(iphdr) + sizeof(udphdr)))) {
     return 0;  // runt packet
   }
 
-  u_int8_t ip_proto = ((struct iphdr *) packetData)->protocol;
-
+  u_int8_t ip_proto = ((iphdr *) packetData)->protocol;
   if (ip_proto != IPPROTO_UDP) {
     return 0;  // something other than UDP
   }
 
-  __be16 destPort =
-      htons((reinterpret_cast<struct udphdr*>
-             (packetData + sizeof(struct iphdr)))->dest);
-
+  __be16 destPort = htons((reinterpret_cast<udphdr*>(packetData + sizeof(iphdr)))->dest);
   if (destPort != port) {
     return 0; // something other than requested port
   }
@@ -222,19 +205,12 @@ static jint RawSocket_recvPacket(JNIEnv* env, jclass, jobject fileDescriptor,
   return size;
 }
 
-/*
- * JNI registration
- */
 static JNINativeMethod gRawMethods[] = {
-  NATIVE_METHOD(RawSocket, create,
-                "(Ljava/io/FileDescriptor;Ljava/lang/String;)V"),
-  NATIVE_METHOD(RawSocket, sendPacket,
-                "(Ljava/io/FileDescriptor;Ljava/lang/String;[B[BII)I"),
-  NATIVE_METHOD(RawSocket, recvPacket,
-                "(Ljava/io/FileDescriptor;[BIIII)I"),
+  NATIVE_METHOD(RawSocket, create, "(Ljava/io/FileDescriptor;Ljava/lang/String;)V"),
+  NATIVE_METHOD(RawSocket, sendPacket, "(Ljava/io/FileDescriptor;Ljava/lang/String;[B[BII)I"),
+  NATIVE_METHOD(RawSocket, recvPacket, "(Ljava/io/FileDescriptor;[BIIII)I"),
 };
 
 int register_libcore_net_RawSocket(JNIEnv* env) {
-  return jniRegisterNativeMethods(env,
-         "libcore/net/RawSocket", gRawMethods, NELEM(gRawMethods));
+  return jniRegisterNativeMethods(env, "libcore/net/RawSocket", gRawMethods, NELEM(gRawMethods));
 }

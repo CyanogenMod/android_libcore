@@ -141,8 +141,4 @@ public interface INetworkSystem {
      * concurrently.
      */
     public void close(FileDescriptor fd) throws IOException;
-
-    // TODO: change the single caller so that recv/recvDirect
-    // can mutate the InetAddress as a side-effect.
-    public void setInetAddress(InetAddress sender, byte[] address);
 }

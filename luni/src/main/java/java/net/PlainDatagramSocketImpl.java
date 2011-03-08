@@ -155,7 +155,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         // We don't actually want the data: we just want the DatagramPacket's filled-in address.
         DatagramPacket packet = new DatagramPacket(EmptyArray.BYTE, 0);
         int result = peekData(packet);
-        Platform.NETWORK.setInetAddress(sender, packet.getAddress().getAddress());
+        // TODO: maybe recv should do this?
+        sender.ipaddress = packet.getAddress().getAddress();
         return result;
     }
 

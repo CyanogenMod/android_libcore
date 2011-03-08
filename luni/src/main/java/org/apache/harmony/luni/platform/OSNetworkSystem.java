@@ -101,8 +101,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void sendUrgentData(FileDescriptor fd, byte value);
 
-    public native void setInetAddress(InetAddress sender, byte[] address);
-
     public native void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 

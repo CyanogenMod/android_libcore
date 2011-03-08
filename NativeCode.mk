@@ -78,6 +78,8 @@ $(foreach dir, \
 core_c_includes := $(sort libcore/include $(LOCAL_C_INCLUDES) $(JNI_H_INCLUDE))
 core_shared_libraries := $(sort $(LOCAL_SHARED_LIBRARIES))
 core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
+core_cflags := -fvisibility=hidden -fvisibility-inlines-hidden
+core_cflags += '-DGCC_HIDDEN=__attribute__((visibility("hidden")))'
 
 
 #
@@ -87,7 +89,7 @@ core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
 include $(CLEAR_VARS)
 
 LOCAL_CFLAGS += -Wall -Wextra -Werror
-
+LOCAL_CFLAGS += $(core_cflags)
 ifeq ($(TARGET_ARCH),arm)
 # Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
 LOCAL_CFLAGS += -Wno-psabi
@@ -125,6 +127,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     # Define the rules.
     LOCAL_SRC_FILES := $(core_src_files)
+    LOCAL_CFLAGS += $(core_cflags)
     LOCAL_C_INCLUDES := $(core_c_includes)
     LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)

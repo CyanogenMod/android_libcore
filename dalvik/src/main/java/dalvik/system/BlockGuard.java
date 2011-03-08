@@ -404,10 +404,6 @@ public final class BlockGuard {
             mNetwork.close(aFD);
         }
 
-        public void setInetAddress(InetAddress sender, byte[] address) {
-            mNetwork.setInetAddress(sender, address);
-        }
-
         private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
             try {
                 Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);

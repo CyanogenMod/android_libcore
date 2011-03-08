@@ -24,4 +24,9 @@ jobject doubleValueOf(JNIEnv* env, jdouble d);
 jobject integerValueOf(JNIEnv* env, jint i);
 jobject longValueOf(JNIEnv* env, jlong l);
 
+// Note that these aren't equivalent to the Number methods: the jobject MUST be of the exact
+// type specified. This is less general but faster (and currently sufficient).
+jboolean booleanValue(JNIEnv* env, jobject javaLangBoolean);
+jint intValue(JNIEnv* env, jobject javaLangInteger);
+
 #endif  // VALUE_OF_H_included
