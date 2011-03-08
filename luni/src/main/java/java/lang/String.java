@@ -586,15 +586,15 @@ outer:
     public native char charAt(int index);
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
-        throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
+        throw new StringIndexOutOfBoundsException(this, index);
     }
 
     private StringIndexOutOfBoundsException startEndAndLength(int start, int end) {
-        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end + " length=" + count);
+        throw new StringIndexOutOfBoundsException(this, start, end - start);
     }
 
     private StringIndexOutOfBoundsException failedBoundsCheck(int arrayLength, int offset, int count) {
-        throw new StringIndexOutOfBoundsException("array length=" + arrayLength + " offset=" + offset + " count=" + count);
+        throw new StringIndexOutOfBoundsException(arrayLength, offset, count);
     }
 
     /**
@@ -811,10 +811,10 @@ outer:
                     data[index++] = (byte) value[i];
                 }
             } catch (ArrayIndexOutOfBoundsException ignored) {
+                throw failedBoundsCheck(data.length, index, end - start);
             }
         }
-        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end
-                + " data.length=" + data.length + " index=" + index + " length=" + count);
+        throw startEndAndLength(start, end);
     }
 
     /**
@@ -896,8 +896,7 @@ outer:
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
             // We throw StringIndexOutOfBoundsException rather than System.arraycopy's AIOOBE.
-            throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end +
-                    " buffer.length=" + buffer.length + " index=" + index + " length=" + count);
+            throw startEndAndLength(start, end);
         }
     }
 
@@ -1443,7 +1442,7 @@ outer:
         if (start >= 0 && start <= count) {
             return new String(offset + start, count - start, value);
         }
-        throw new StringIndexOutOfBoundsException("start=" + start + " length=" + count);
+        throw indexAndLength(start);
     }
 
     /**

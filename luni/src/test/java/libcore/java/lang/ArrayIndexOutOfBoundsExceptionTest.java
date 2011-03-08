@@ -25,7 +25,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             bs[2] = 0;
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 
@@ -35,7 +35,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             byte b = bs[2];
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 
@@ -45,7 +45,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             ds[2] = 0.0;
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 
@@ -55,7 +55,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             double d = ds[2];
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             os[2] = null;
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 
@@ -75,7 +75,7 @@ public final class ArrayIndexOutOfBoundsExceptionTest extends TestCase {
             Object o = os[2];
             fail();
         } catch (ArrayIndexOutOfBoundsException ex) {
-            assertEquals("index=2 length=1", ex.getMessage());
+            assertEquals("length=1; index=2", ex.getMessage());
         }
     }
 }

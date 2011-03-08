@@ -904,7 +904,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
      * TODO: when we have a VM that can actually inline, move the test in here too!
      */
     private static ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException(int index, int size) {
-        throw new ArrayIndexOutOfBoundsException("index=" + index + ", size=" + size);
+        throw new ArrayIndexOutOfBoundsException(size, index);
     }
 
     /**

@@ -1728,8 +1728,8 @@ public class Arrays {
      */
     public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
         if ((offset | count) < 0 || offset > arrayLength || arrayLength - offset < count) {
-            throw new ArrayIndexOutOfBoundsException("offset=" + offset + ", count=" + count +
-                    ", array length=" + arrayLength);
+            throw new ArrayIndexOutOfBoundsException(arrayLength, offset,
+                    count);
         }
     }
 
