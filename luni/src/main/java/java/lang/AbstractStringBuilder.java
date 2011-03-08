@@ -209,11 +209,11 @@ abstract class AbstractStringBuilder {
     }
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
-        throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
+        throw new StringIndexOutOfBoundsException(count, index);
     }
 
     private StringIndexOutOfBoundsException startEndAndLength(int start, int end) {
-        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end + " length=" + count);
+        throw new StringIndexOutOfBoundsException(count, start, end - start);
     }
 
     final void delete0(int start, int end) {
@@ -331,14 +331,15 @@ abstract class AbstractStringBuilder {
                 return;
             }
         }
-        throw new StringIndexOutOfBoundsException("index=" + index + " chars.length=" + chars.length
-                + " start=" + start + " length=" + length + " this.length=" + count);
+        throw new StringIndexOutOfBoundsException("this.length=" + count
+                + "; index=" + index + "; chars.length=" + chars.length
+                + "; start=" + start + "; length=" + length);
     }
 
     final void insert0(int index, char ch) {
         if (index < 0 || index > count) {
             // RI compatible exception type
-            throw new ArrayIndexOutOfBoundsException("index=" + index + ", length=" + count);
+            throw new ArrayIndexOutOfBoundsException(count, index);
         }
         move(1, index);
         value[index] = ch;
@@ -596,7 +597,7 @@ abstract class AbstractStringBuilder {
             // Remove String sharing for more performance
             return new String(value, start, count - start);
         }
-        throw new StringIndexOutOfBoundsException("start=" + start + " length=" + count);
+        throw indexAndLength(start);
     }
 
     /**
