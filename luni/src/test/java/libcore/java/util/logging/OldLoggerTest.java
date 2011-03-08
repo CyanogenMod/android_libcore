@@ -68,8 +68,8 @@ public class OldLoggerTest extends TestCase {
         assertNull(Logger.global.getResourceBundleName());
         assertTrue(Logger.global.getUseParentHandlers());
         assertSame(Logger.global, Logger.getLogger("global"));
-        assertSame(Logger.global, LogManager.getLogManager()
-                .getLogger("global"));
+        assertSame(Logger.global, LogManager.getLogManager().getLogger("global"));
+        assertSame(Logger.global, Logger.getGlobal());
     }
 
     public void testConstructor_Normal() {

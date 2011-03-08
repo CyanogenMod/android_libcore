@@ -402,6 +402,15 @@ public class Logger {
     }
 
     /**
+     * Returns the global {@code Logger}.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static Logger getGlobal() {
+        return global;
+    }
+
+    /**
      * Adds a handler to this logger. The {@code name} will be fed with log
      * records received by this logger.
      *
