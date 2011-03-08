@@ -32,6 +32,7 @@ import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -192,10 +193,35 @@ public class PlainSocketImpl extends SocketImpl {
         }
     }
 
-    @Override
-    protected synchronized InputStream getInputStream() throws IOException {
+    @Override protected synchronized InputStream getInputStream() throws IOException {
         checkNotClosed();
-        return new SocketInputStream(this);
+        return new PlainSocketInputStream(this);
+    }
+
+    private static class PlainSocketInputStream extends InputStream {
+        private final PlainSocketImpl socketImpl;
+
+        public PlainSocketInputStream(PlainSocketImpl socketImpl) {
+            this.socketImpl = socketImpl;
+        }
+
+        @Override public int available() throws IOException {
+            return socketImpl.available();
+        }
+
+        @Override public void close() throws IOException {
+            socketImpl.close();
+        }
+
+        @Override public int read() throws IOException {
+            byte[] buffer = new byte[1];
+            int result = socketImpl.read(buffer, 0, 1);
+            return (result != -1) ? buffer[0] & 0xff : -1;
+        }
+
+        @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+            return socketImpl.read(buffer, offset, byteCount);
+        }
     }
 
     @Override
@@ -203,10 +229,31 @@ public class PlainSocketImpl extends SocketImpl {
         return Platform.NETWORK.getSocketOption(fd, optID);
     }
 
-    @Override
-    protected synchronized OutputStream getOutputStream() throws IOException {
+    @Override protected synchronized OutputStream getOutputStream() throws IOException {
         checkNotClosed();
-        return new SocketOutputStream(this);
+        return new PlainSocketOutputStream(this);
+    }
+
+    private static class PlainSocketOutputStream extends OutputStream {
+        private final PlainSocketImpl socketImpl;
+
+        public PlainSocketOutputStream(PlainSocketImpl socketImpl) {
+            this.socketImpl = socketImpl;
+        }
+
+        @Override public void close() throws IOException {
+            socketImpl.close();
+        }
+
+        @Override public void write(int oneByte) throws IOException {
+            byte[] buffer = new byte[1];
+            buffer[0] = (byte) (oneByte & 0xFF);
+            write(buffer);
+        }
+
+        @Override public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+            socketImpl.write(buffer, offset, byteCount);
+        }
     }
 
     @Override
@@ -398,11 +445,18 @@ public class PlainSocketImpl extends SocketImpl {
         Platform.NETWORK.sendUrgentData(fd, (byte) value);
     }
 
-    int read(byte[] buffer, int offset, int count) throws IOException {
+    /**
+     * For PlainSocketInputStream.
+     */
+    private int read(byte[] buffer, int offset, int byteCount) throws IOException {
+        if (byteCount == 0) {
+            return 0;
+        }
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (shutdownInput) {
             return -1;
         }
-        int read = Platform.NETWORK.read(fd, buffer, offset, count);
+        int read = Platform.NETWORK.read(fd, buffer, offset, byteCount);
         // Return of zero bytes for a blocking socket means a timeout occurred
         if (read == 0) {
             throw new SocketTimeoutException();
@@ -414,11 +468,19 @@ public class PlainSocketImpl extends SocketImpl {
         return read;
     }
 
-    int write(byte[] buffer, int offset, int count) throws IOException {
+    /**
+     * For PlainSocketOutputStream.
+     */
+    private void write(byte[] buffer, int offset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (streaming) {
-            return Platform.NETWORK.write(fd, buffer, offset, count);
+            while (byteCount > 0) {
+                int bytesWritten = Platform.NETWORK.write(fd, buffer, offset, byteCount);
+                byteCount -= bytesWritten;
+                offset += bytesWritten;
+            }
         } else {
-            return Platform.NETWORK.send(fd, buffer, offset, count, port, address);
+            int bytesWritten = Platform.NETWORK.send(fd, buffer, offset, byteCount, port, address);
         }
     }
 }
