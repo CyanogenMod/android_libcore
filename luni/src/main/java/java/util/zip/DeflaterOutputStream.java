@@ -21,6 +21,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import libcore.io.Streams;
 
 /**
  * This class provides an implementation of {@code FilterOutputStream} that
@@ -181,11 +182,8 @@ public class DeflaterOutputStream extends FilterOutputStream {
         done = true;
     }
 
-    @Override
-    public void write(int i) throws IOException {
-        byte[] b = new byte[1];
-        b[0] = (byte) i;
-        write(b, 0, 1);
+    @Override public void write(int i) throws IOException {
+        Streams.writeSingleByte(this, i);
     }
 
     /**
@@ -194,8 +192,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * @throws IOException
      *             If an error occurs during writing.
      */
-    @Override
-    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
+    @Override public void write(byte[] buffer, int offset, int byteCount) throws IOException {
         if (done) {
             throw new IOException("attempt to write after finish");
         }

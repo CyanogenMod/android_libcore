@@ -22,8 +22,8 @@ import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-
 import libcore.io.IoUtils;
+import libcore.io.Streams;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -171,15 +171,11 @@ public class FileInputStream extends InputStream implements Closeable {
         return fd;
     }
 
-    @Override
-    public int read() throws IOException {
-        byte[] buffer = new byte[1];
-        int result = read(buffer, 0, 1);
-        return result == -1 ? -1 : buffer[0] & 0xff;
+    @Override public int read() throws IOException {
+        return Streams.readSingleByte(this);
     }
 
-    @Override
-    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+    @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (byteCount == 0) {
             return 0;

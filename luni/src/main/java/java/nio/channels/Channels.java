@@ -29,6 +29,7 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import libcore.io.Streams;
 
 /**
  * This class provides several utilities to get I/O streams from channels.
@@ -211,19 +212,11 @@ public final class Channels {
             this.channel = channel;
         }
 
-        @Override
-        public synchronized int read() throws IOException {
-            byte[] oneByte = new byte[1];
-            int n = read(oneByte);
-            if (n == 1) {
-                // reads a single byte 0-255
-                return oneByte[0] & 0xff;
-            }
-            return -1;
+        @Override public synchronized int read() throws IOException {
+            return Streams.readSingleByte(this);
         }
 
-        @Override
-        public synchronized int read(byte[] target, int offset, int length) throws IOException {
+        @Override public synchronized int read(byte[] target, int offset, int length) throws IOException {
             ByteBuffer buffer = ByteBuffer.wrap(target, offset, length);
             checkBlocking(channel);
             return channel.read(buffer);

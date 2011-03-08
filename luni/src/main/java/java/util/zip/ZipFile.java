@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
+import libcore.io.Streams;
 
 /**
  * This class provides random read access to a <i>ZIP-archive</i> file.
@@ -386,23 +387,15 @@ public class ZipFile implements ZipConstants {
             mLength = raf.length();
         }
 
-        @Override
-        public int available() throws IOException {
+        @Override public int available() throws IOException {
             return (mOffset < mLength ? 1 : 0);
         }
 
-        @Override
-        public int read() throws IOException {
-            byte[] singleByteBuf = new byte[1];
-            if (read(singleByteBuf, 0, 1) == 1) {
-                return singleByteBuf[0] & 0XFF;
-            } else {
-                return -1;
-            }
+        @Override public int read() throws IOException {
+            return Streams.readSingleByte(this);
         }
 
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        @Override public int read(byte[] b, int off, int len) throws IOException {
             synchronized (mSharedRaf) {
                 mSharedRaf.seek(mOffset);
                 if (len > mLength - mOffset) {

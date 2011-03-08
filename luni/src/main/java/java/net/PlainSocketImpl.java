@@ -33,6 +33,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import libcore.io.Streams;
 import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -214,9 +215,7 @@ public class PlainSocketImpl extends SocketImpl {
         }
 
         @Override public int read() throws IOException {
-            byte[] buffer = new byte[1];
-            int result = socketImpl.read(buffer, 0, 1);
-            return (result != -1) ? buffer[0] & 0xff : -1;
+            return Streams.readSingleByte(this);
         }
 
         @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
@@ -246,9 +245,7 @@ public class PlainSocketImpl extends SocketImpl {
         }
 
         @Override public void write(int oneByte) throws IOException {
-            byte[] buffer = new byte[1];
-            buffer[0] = (byte) (oneByte & 0xFF);
-            write(buffer);
+            Streams.writeSingleByte(this, oneByte);
         }
 
         @Override public void write(byte[] buffer, int offset, int byteCount) throws IOException {

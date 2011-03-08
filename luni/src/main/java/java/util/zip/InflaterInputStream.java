@@ -124,13 +124,8 @@ public class InflaterInputStream extends FilterInputStream {
      * @throws IOException
      *             if an error occurs reading the byte.
      */
-    @Override
-    public int read() throws IOException {
-        byte[] b = new byte[1];
-        if (read(b, 0, 1) == -1) {
-            return -1;
-        }
-        return b[0] & 0xff;
+    @Override public int read() throws IOException {
+        return Streams.readSingleByte(this);
     }
 
     /**

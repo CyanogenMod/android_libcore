@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.CacheRequest;
+import libcore.io.Streams;
 
 /**
  * An input stream for the body of an HTTP response.
@@ -59,9 +60,7 @@ abstract class AbstractHttpInputStream extends InputStream {
      * need to override the latter.
      */
     @Override public final int read() throws IOException {
-        byte[] buffer = new byte[1];
-        int count = read(buffer, 0, 1);
-        return count == -1 ? -1 : buffer[0] & 0xff;
+        return Streams.readSingleByte(this);
     }
 
     protected final void checkNotClosed() throws IOException {
