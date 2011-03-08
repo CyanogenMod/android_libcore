@@ -477,7 +477,10 @@ public class PlainSocketImpl extends SocketImpl {
                 offset += bytesWritten;
             }
         } else {
-            int bytesWritten = Platform.NETWORK.send(fd, buffer, offset, byteCount, port, address);
+            // Unlike writes to a streaming socket, writes to a datagram
+            // socket are all-or-nothing, so we don't need a loop here.
+            // http://code.google.com/p/android/issues/detail?id=15304
+            Platform.NETWORK.send(fd, buffer, offset, byteCount, port, address);
         }
     }
 }
