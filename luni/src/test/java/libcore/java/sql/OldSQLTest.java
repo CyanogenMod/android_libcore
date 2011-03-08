@@ -36,7 +36,6 @@ public abstract class OldSQLTest extends TestCase {
 
     protected void getSQLiteConnection() throws Exception {
         String tmp = System.getProperty("java.io.tmpdir");
-        assertEquals(tmp, System.getProperty("java.io.tmpdir"));
         File tmpDir = new File(tmp);
         if (tmpDir.isDirectory()) {
             dbFile = File.createTempFile("sqliteTest", ".db", tmpDir);
