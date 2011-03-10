@@ -306,6 +306,7 @@ public class StringTest extends TestCase {
         }
     }
 
+    // http://code.google.com/p/android/issues/detail?id=15266
     public void test_replaceAll() throws Exception {
         assertEquals("project_Id", "projectId".replaceAll("(?!^)(\\p{Upper})(?!$)", "_$1"));
     }
