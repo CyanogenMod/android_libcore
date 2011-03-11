@@ -740,7 +740,7 @@ public abstract class ClassLoader {
      * @return the ClassLoader at the specified depth
      */
     static final ClassLoader getStackClassLoader(int depth) {
-        Class<?>[] stack = VMStack.getClasses(depth + 1, false);
+        Class<?>[] stack = VMStack.getClasses(depth + 1);
         if(stack.length < depth + 1) {
             return null;
         }

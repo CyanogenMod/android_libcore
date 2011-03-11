@@ -2040,7 +2040,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @return a user-defined class loader or null if one isn't found
      */
     private static ClassLoader getClosestUserClassLoader() {
-        Class<?>[] stackClasses = VMStack.getClasses(-1, false);
+        Class<?>[] stackClasses = VMStack.getClasses(-1);
         for (Class<?> stackClass : stackClasses) {
             ClassLoader loader = stackClass.getClassLoader();
             if (loader != null && loader != bootstrapLoader
