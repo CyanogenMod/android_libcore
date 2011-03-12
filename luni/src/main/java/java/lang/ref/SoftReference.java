@@ -93,8 +93,7 @@ public class SoftReference<T> extends Reference<T> {
      * @param r the referent to track
      */
     public SoftReference(T r) {
-        super();
-        referent = r;
+        super(r, null);
     }
 
     /**
@@ -107,8 +106,6 @@ public class SoftReference<T> extends Reference<T> {
      *          queue.
      */
     public SoftReference(T r, ReferenceQueue<? super T> q) {
-        super();
-        referent = r;
-        queue = q;
+        super(r, q);
     }
 }
