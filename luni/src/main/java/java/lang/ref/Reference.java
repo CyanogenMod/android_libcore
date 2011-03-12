@@ -81,6 +81,12 @@ public abstract class Reference<T> {
         super();
     }
 
+    Reference(T r, ReferenceQueue q) {
+        super();
+        referent = r;
+        queue = q;
+    }
+
     /**
      * Makes the referent {@code null}. This does not force the reference
      * object to be enqueued.
