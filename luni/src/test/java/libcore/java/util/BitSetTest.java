@@ -148,4 +148,87 @@ public class BitSetTest extends junit.framework.TestCase {
         bs.clear(64, 66);
         assertEquals("[1]", Arrays.toString(bs.toLongArray()));
     }
+
+    public void test_toByteArray() throws Exception {
+        assertEquals("[]", Arrays.toString(BitSet.valueOf(new long[0]).toByteArray()));
+        assertEquals("[1]", Arrays.toString(BitSet.valueOf(new long[] { 1 }).toByteArray()));
+        assertEquals("[-17, -51, -85, -112, 120, 86, 52, 18]",
+                Arrays.toString(BitSet.valueOf(new long[] { 0x1234567890abcdefL }).toByteArray()));
+        assertEquals("[1, 0, 0, 0, 0, 0, 0, 0, 2]",
+                Arrays.toString(BitSet.valueOf(new long[] { 1, 2 }).toByteArray()));
+    }
+
+    public void test_previousSetBit() {
+        assertEquals(-1, new BitSet().previousSetBit(666));
+
+        BitSet bs;
+
+        bs = new BitSet();
+        bs.set(32);
+        assertEquals(32, bs.previousSetBit(999));
+        assertEquals(32, bs.previousSetBit(33));
+        assertEquals(32, bs.previousSetBit(32));
+        assertEquals(-1, bs.previousSetBit(31));
+
+        bs = new BitSet();
+        bs.set(0);
+        bs.set(1);
+        bs.set(32);
+        bs.set(192);
+        bs.set(666);
+
+        assertEquals(666, bs.previousSetBit(999));
+        assertEquals(666, bs.previousSetBit(667));
+        assertEquals(666, bs.previousSetBit(666));
+        assertEquals(192, bs.previousSetBit(665));
+        assertEquals(32, bs.previousSetBit(191));
+        assertEquals(1, bs.previousSetBit(31));
+        assertEquals(0, bs.previousSetBit(0));
+        assertEquals(-1, bs.previousSetBit(-1));
+    }
+
+    private static BitSet big() {
+        BitSet result = new BitSet();
+        result.set(1000);
+        return result;
+    }
+
+    private static BitSet small() {
+        BitSet result = new BitSet();
+        result.set(10);
+        return result;
+    }
+
+    public void test_differentSizes() {
+        BitSet result = big();
+        result.and(small());
+        assertEquals("{}", result.toString());
+        result = small();
+        result.and(big());
+        assertEquals("{}", result.toString());
+
+        result = big();
+        result.andNot(small());
+        assertEquals("{1000}", result.toString());
+        result = small();
+        result.andNot(big());
+        assertEquals("{10}", result.toString());
+
+        assertFalse(big().intersects(small()));
+        assertFalse(small().intersects(big()));
+
+        result = big();
+        result.or(small());
+        assertEquals("{10, 1000}", result.toString());
+        result = small();
+        result.or(big());
+        assertEquals("{10, 1000}", result.toString());
+
+        result = big();
+        result.xor(small());
+        assertEquals("{10, 1000}", result.toString());
+        result = small();
+        result.xor(big());
+        assertEquals("{10, 1000}", result.toString());
+    }
 }
