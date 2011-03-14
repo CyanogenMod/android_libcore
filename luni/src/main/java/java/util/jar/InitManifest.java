@@ -19,7 +19,6 @@ package java.util.jar;
 
 import java.io.IOException;
 import java.nio.charset.Charsets;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -111,32 +110,21 @@ class InitManifest {
     }
 
     private void readName() throws IOException {
-        int i = 0;
         int mark = pos;
 
         while (pos < buf.length) {
-            byte b = buf[pos++];
-
-            if (b == ':') {
-                byte[] nameBuffer = Arrays.copyOfRange(buf, mark, pos - 1);
-
-                if (buf[pos++] != ' ') {
-                    String name = new String(nameBuffer, Charsets.UTF_8);
-                    throw new IOException(String.format("Invalid value for attribute '%s'", name));
-                }
-
-                name = new Attributes.Name(nameBuffer);
-                return;
+            if (buf[pos++] != ':') {
+                continue;
             }
 
-            if (!((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || b == '_'
-                    || b == '-' || (b >= '0' && b <= '9'))) {
-                throw new IOException("Invalid byte " + b + " in attribute");
+            String name = new String(buf, mark, pos - mark - 1, Charsets.US_ASCII);
+
+            if (buf[pos++] != ' ') {
+                throw new IOException(String.format("Invalid value for attribute '%s'", name));
             }
-        }
-        if (i > 0) {
-            throw new IOException("Invalid attribute name: " +
-                    Arrays.toString(Arrays.copyOfRange(buf, mark, buf.length)));
+
+            this.name = new Attributes.Name(name);
+            return;
         }
     }
 
