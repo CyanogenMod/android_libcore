@@ -81,7 +81,7 @@ public class BitSet implements Serializable, Cloneable {
      * Creates a new {@code BitSet} with size equal to {@code bitCount}, rounded up to
      * a multiple of 64.
      *
-     * @throws NegativeArraySizeException if {@code bitCount} is negative.
+     * @throws NegativeArraySizeException if {@code bitCount < 0}.
      */
     public BitSet(int bitCount) {
         if (bitCount < 0) {
@@ -98,7 +98,7 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     private static long[] arrayForBits(int bitCount) {
-        return new long[(bitCount / 64) + (((bitCount % 64) != 0) ? 1 : 0)];
+        return new long[(bitCount + 63)/ 64];
     }
 
     @Override public Object clone() {
@@ -158,7 +158,7 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Returns the bit at index {@code index}. Indexes greater than the current length return false.
      *
-     * @throws IndexOutOfBoundsException if {@code index} is negative.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public boolean get(int index) {
         if (index < 0) { // TODO: until we have an inlining JIT.
@@ -174,7 +174,7 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Sets the bit at index {@code index} to true.
      *
-     * @throws IndexOutOfBoundsException if {@code index} is negative.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public void set(int index) {
         if (index < 0) { // TODO: until we have an inlining JIT.
@@ -191,7 +191,7 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Clears the bit at index {@code index}.
      *
-     * @throws IndexOutOfBoundsException if {@code index} is negative.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public void clear(int index) {
         if (index < 0) { // TODO: until we have an inlining JIT.
@@ -208,7 +208,7 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Flips the bit at index {@code index}.
      *
-     * @throws IndexOutOfBoundsException if {@code index} is negative.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public void flip(int index) {
         if (index < 0) { // TODO: until we have an inlining JIT.
@@ -304,7 +304,7 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Sets the bit at index {@code index} to {@code state}.
      *
-     * @throws IndexOutOfBoundsException if {@code index} is negative.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public void set(int index, boolean state) {
         if (state) {
@@ -484,10 +484,14 @@ public class BitSet implements Serializable, Cloneable {
      * Logically ors the bits of this {@code BitSet} with {@code bs}.
      */
     public void or(BitSet bs) {
+        int minSize = Math.min(this.longCount, bs.longCount);
         int maxSize = Math.max(this.longCount, bs.longCount);
         ensureCapacity(maxSize);
-        for (int i = 0; i < maxSize; ++i) {
+        for (int i = 0; i < minSize; ++i) {
             bits[i] |= bs.bits[i];
+        }
+        if (bs.longCount > minSize) {
+            System.arraycopy(bs.bits, minSize, bits, minSize, maxSize - minSize);
         }
         longCount = maxSize;
     }
@@ -496,10 +500,14 @@ public class BitSet implements Serializable, Cloneable {
      * Logically xors the bits of this {@code BitSet} with {@code bs}.
      */
     public void xor(BitSet bs) {
+        int minSize = Math.min(this.longCount, bs.longCount);
         int maxSize = Math.max(this.longCount, bs.longCount);
         ensureCapacity(maxSize);
-        for (int i = 0; i < maxSize; ++i) {
+        for (int i = 0; i < minSize; ++i) {
             bits[i] ^= bs.bits[i];
+        }
+        if (bs.longCount > minSize) {
+            System.arraycopy(bs.bits, minSize, bits, minSize, maxSize - minSize);
         }
         longCount = maxSize;
         shrinkSize();
@@ -554,8 +562,9 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the position of the first bit that is set on or after {@code index}, or -1
-     * if no more bits are set.
+     * Returns the index of the first bit that is set on or after {@code index}, or -1
+     * if no higher bits are set.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public int nextSetBit(int index) {
         checkIndex(index);
@@ -576,8 +585,9 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the position of the first bit that is clear on or after {@code index}.
+     * Returns the index of the first bit that is clear on or after {@code index}.
      * Since all bits past the end are implicitly clear, this never returns -1.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public int nextClearBit(int index) {
         checkIndex(index);
@@ -595,6 +605,46 @@ public class BitSet implements Serializable, Cloneable {
             return size();
         }
         return 64 * arrayIndex + Long.numberOfTrailingZeros(~bits[arrayIndex]);
+    }
+
+    /**
+     * Returns the index of the first bit that is set on or before {@code index}, or -1 if
+     * no lower bits are set or {@code index == -1}.
+     * @throws IndexOutOfBoundsException if {@code index < -1}.
+     * @hide 1.7
+     */
+    public int previousSetBit(int index) {
+        if (index == -1) {
+            return -1;
+        }
+        checkIndex(index);
+        // TODO: optimize this.
+        for (int i = index; i >= 0; --i) {
+            if (get(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the index of the first bit that is clear on or before {@code index}, or -1 if
+     * no lower bits are clear or {@code index == -1}.
+     * @throws IndexOutOfBoundsException if {@code index < -1}.
+     * @hide 1.7
+     */
+    public int previousClearBit(int index) {
+        if (index == -1) {
+            return -1;
+        }
+        checkIndex(index);
+        // TODO: optimize this.
+        for (int i = index; i >= 0; --i) {
+            if (!get(i)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -619,7 +669,6 @@ public class BitSet implements Serializable, Cloneable {
      * Equivalent to {@code BitSet.valueOf(LongBuffer.wrap(longs))}, but likely to be faster.
      * This is likely to be the fastest way to create a {@code BitSet} because it's closest
      * to the internal representation.
-     * @since 1.7
      * @hide 1.7
      */
     public static BitSet valueOf(long[] longs) {
@@ -629,7 +678,6 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Returns a {@code BitSet} corresponding to {@code longBuffer}, interpreted as a little-endian
      * sequence of bits. This method does not alter the {@code LongBuffer}.
-     * @since 1.7
      * @hide 1.7
      */
     public static BitSet valueOf(LongBuffer longBuffer) {
@@ -645,7 +693,6 @@ public class BitSet implements Serializable, Cloneable {
 
     /**
      * Equivalent to {@code BitSet.valueOf(ByteBuffer.wrap(bytes))}.
-     * @since 1.7
      * @hide 1.7
      */
     public static BitSet valueOf(byte[] bytes) {
@@ -655,7 +702,6 @@ public class BitSet implements Serializable, Cloneable {
     /**
      * Returns a {@code BitSet} corresponding to {@code byteBuffer}, interpreted as a little-endian
      * sequence of bits. This method does not alter the {@code ByteBuffer}.
-     * @since 1.7
      * @hide 1.7
      */
     public static BitSet valueOf(ByteBuffer byteBuffer) {
@@ -665,26 +711,37 @@ public class BitSet implements Serializable, Cloneable {
         while (byteBuffer.remaining() >= SizeOf.LONG) {
             longs[i++] = byteBuffer.getLong();
         }
-        if (byteBuffer.hasRemaining()) {
-            long slop = 0;
-            for (int j = 0; j < SizeOf.LONG; ++j) {
-                byte b = (byteBuffer.hasRemaining() ? byteBuffer.get() : 0);
-                slop <<= 8;
-                slop |= ((long) b) & 0xffL;
-            }
-            longs[i] = Long.reverseBytes(slop);
+        for (int j = 0; byteBuffer.hasRemaining(); ++j) {
+            longs[i] |= ((((long) byteBuffer.get()) & 0xff) << (8*j));
         }
         return BitSet.valueOf(longs);
     }
 
     /**
-     * Returns a new {@code long[]} containing the bits of this {@code BitSet}, suitable for
-     * passing to {@code valueOf} to reconstruct this {@code BitSet}.
-     * @since 1.7
+     * Returns a new {@code long[]} containing a little-endian representation of the bits of
+     * this {@code BitSet}, suitable for passing to {@code valueOf} to reconstruct
+     * this {@code BitSet}.
      * @hide 1.7
      */
     public long[] toLongArray() {
         return Arrays.copyOf(bits, longCount);
+    }
+
+    /**
+     * Returns a new {@code byte[]} containing a little-endian representation the bits of
+     * this {@code BitSet}, suitable for passing to {@code valueOf} to reconstruct
+     * this {@code BitSet}.
+     * @hide 1.7
+     */
+    public byte[] toByteArray() {
+        int bitCount = length();
+        byte[] result = new byte[(bitCount + 7)/ 8];
+        for (int i = 0; i < result.length; ++i) {
+            int lowBit = 8 * i;
+            int arrayIndex = lowBit / 64;
+            result[i] = (byte) (bits[arrayIndex] >>> lowBit);
+        }
+        return result;
     }
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
