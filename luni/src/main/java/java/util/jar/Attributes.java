@@ -19,6 +19,7 @@ package java.util.jar;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -164,11 +165,11 @@ public class Attributes implements Cloneable, Map<Object, Object> {
 
         @Override public boolean equals(Object object) {
             return object instanceof Name
-                    && ((Name) object).name.equals(name);
+                    && ((Name) object).name.equalsIgnoreCase(name);
         }
 
         @Override public int hashCode() {
-            return name.hashCode();
+            return name.toLowerCase(Locale.US).hashCode();
         }
 
         @Override public String toString() {
