@@ -20,14 +20,14 @@ package javax.xml.validation;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import javax.xml.XMLConstants;
 import libcore.io.IoUtils;
@@ -64,14 +64,9 @@ final class SchemaFactoryFinder  {
     private static final int DEFAULT_LINE_LENGTH = 80;
 
     static {
-        // Use try/catch block to support applets
-        try {
-            String val = SecuritySupport.getSystemProperty("jaxp.debug");
-            // Allow simply setting the prop to turn on debug
-            debug = val != null && (! "false".equals(val));
-        } catch (Exception _) {
-            debug = false;
-        }
+        String val = System.getProperty("jaxp.debug");
+        // Allow simply setting the prop to turn on debug
+        debug = val != null && (! "false".equals(val));
     }
 
     /**
@@ -109,30 +104,17 @@ final class SchemaFactoryFinder  {
     }
 
     private void debugDisplayClassLoader() {
-        try {
-            if( classLoader == SecuritySupport.getContextClassLoader() ) {
-                debugPrintln("using thread context class loader ("+classLoader+") for search");
-                return;
-            }
-        }
-        // The VM ran out of memory or there was some other serious problem. Re-throw.
-        catch (VirtualMachineError vme) {
-            throw vme;
-        }
-        // ThreadDeath should always be re-thrown
-        catch (ThreadDeath td) {
-            throw td;
-        }
-        catch (Throwable _) {
-            ; // getContextClassLoader() undefined in JDK1.1
+        if (classLoader == Thread.currentThread().getContextClassLoader()) {
+            debugPrintln("using thread context class loader ("+classLoader+") for search");
+            return;
         }
 
-        if( classLoader==ClassLoader.getSystemClassLoader() ) {
+        if (classLoader == ClassLoader.getSystemClassLoader()) {
             debugPrintln("using system class loader ("+classLoader+") for search");
             return;
         }
 
-        debugPrintln("using class loader ("+classLoader+") for search");
+        debugPrintln("using class loader (" + classLoader + ") for search");
     }
 
     /**
@@ -175,7 +157,7 @@ final class SchemaFactoryFinder  {
         // system property look up
         try {
             if (debug) debugPrintln("Looking up system property '"+propertyName+"'" );
-            String r = SecuritySupport.getSystemProperty(propertyName);
+            String r = System.getProperty(propertyName);
             if (r != null && r.length() > 0) {
                 if (debug) debugPrintln("The value is '"+r+"'");
                 sf = createInstance(r);
@@ -200,7 +182,7 @@ final class SchemaFactoryFinder  {
             }
         }
 
-        String javah = SecuritySupport.getSystemProperty( "java.home" );
+        String javah = System.getProperty("java.home");
         String configFile = javah + File.separator +
         "lib" + File.separator + "jaxp.properties";
 
@@ -213,9 +195,9 @@ final class SchemaFactoryFinder  {
                     if(firstTime){
                         File f=new File( configFile );
                         firstTime = false;
-                        if(SecuritySupport.doesFileExist(f)){
+                        if(f.exists()){
                             if (debug) debugPrintln("Read properties file " + f);
-                            cacheProps.load(SecuritySupport.getFileInputStream(f));
+                            cacheProps.load(new FileInputStream(f));
                         }
                     }
                 }
@@ -235,35 +217,12 @@ final class SchemaFactoryFinder  {
             }
         }
 
-        /**
-        // try to read from $java.home/lib/jaxp.properties
-        try {
-            String javah = ss.getSystemProperty( "java.home" );
-            String configFile = javah + File.separator +
-            "lib" + File.separator + "jaxp.properties";
-            File f = new File( configFile );
-            if( ss.doesFileExist(f)) {
-                sf = loadFromProperty(
-                        propertyName,f.getAbsolutePath(), new FileInputStream(f));
-                if(sf!=null)    return sf;
-            } else {
-                debugPrintln("Tried to read "+ f.getAbsolutePath()+", but it doesn't exist.");
-            }
-        } catch(Throwable e) {
-            if( debug ) {
-                debugPrintln("failed to read $java.home/lib/jaxp.properties");
-                e.printStackTrace();
-            }
-        }
-         */
-
         // try META-INF/services files
-        Iterator sitr = createServiceFileIterator();
-        while(sitr.hasNext()) {
-            URL resource = (URL)sitr.next();
+        for (URL resource : createServiceFileIterator()) {
             if (debug) debugPrintln("looking into " + resource);
             try {
-                sf = loadFromServicesFile(schemaLanguage,resource.toExternalForm(),SecuritySupport.getURLInputStream(resource));
+                sf = loadFromServicesFile(schemaLanguage,resource.toExternalForm(),
+                        resource.openStream());
                 if(sf!=null)    return sf;
             } catch(IOException e) {
                 if( debug ) {
@@ -298,7 +257,7 @@ final class SchemaFactoryFinder  {
      */
     SchemaFactory createInstance( String className ) {
         try {
-            if (debug) debugPrintln("instanciating "+className);
+            if (debug) debugPrintln("instantiating "+className);
             Class clazz;
             if( classLoader!=null )
                 clazz = classLoader.loadClass(className);
@@ -321,68 +280,35 @@ final class SchemaFactoryFinder  {
             throw td;
         }
         catch (Throwable t) {
-            debugPrintln("failed to instanciate "+className);
+            debugPrintln("failed to instantiate "+className);
             if(debug)   t.printStackTrace();
         }
         return null;
-    }
-
-    /** Iterator that lazily computes one value and returns it. */
-    private static abstract class SingleIterator implements Iterator {
-        private boolean seen = false;
-
-        public final void remove() { throw new UnsupportedOperationException(); }
-        public final boolean hasNext() { return !seen; }
-        public final Object next() {
-            if(seen)    throw new NoSuchElementException();
-            seen = true;
-            return value();
-        }
-
-        protected abstract Object value();
     }
 
     /**
      * Returns an {@link Iterator} that enumerates all
      * the META-INF/services files that we care.
      */
-    private Iterator createServiceFileIterator() {
+    private Iterable<URL> createServiceFileIterator() {
         if (classLoader == null) {
-            return new SingleIterator() {
-                protected Object value() {
-                    ClassLoader classLoader = SchemaFactoryFinder.class.getClassLoader();
-                    //return (ClassLoader.getSystemResource( SERVICE_ID ));
-                    return SecuritySupport.getResourceAsURL(classLoader, SERVICE_ID);
-                }
-            };
+            ClassLoader classLoader = SchemaFactoryFinder.class.getClassLoader();
+            return Collections.singleton(classLoader.getResource(SERVICE_ID));
         } else {
             try {
-                //final Enumeration e = classLoader.getResources(SERVICE_ID);
-                final Enumeration e = SecuritySupport.getResources(classLoader, SERVICE_ID);
-                if(debug && !e.hasMoreElements()) {
+                Enumeration<URL> e = classLoader.getResources(SERVICE_ID);
+                if (debug && !e.hasMoreElements()) {
                     debugPrintln("no "+SERVICE_ID+" file was found");
                 }
 
                 // wrap it into an Iterator.
-                return new Iterator() {
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    public boolean hasNext() {
-                        return e.hasMoreElements();
-                    }
-
-                    public Object next() {
-                        return e.nextElement();
-                    }
-                };
+                return Collections.list(e);
             } catch (IOException e) {
                 if (debug) {
                     debugPrintln("failed to enumerate resources "+SERVICE_ID);
                     e.printStackTrace();
                 }
-                return new ArrayList().iterator();  // empty iterator
+                return Collections.emptySet();
             }
         }
     }
@@ -448,7 +374,7 @@ final class SchemaFactoryFinder  {
                         break;
                     }
                 }
-                catch (Exception e) {}
+                catch (Exception ignored) {}
             }
             else {
                 break;
@@ -463,8 +389,6 @@ final class SchemaFactoryFinder  {
     private static final Class SERVICE_CLASS = SchemaFactory.class;
     private static final String SERVICE_ID = "META-INF/services/" + SERVICE_CLASS.getName();
 
-
-
     private static String which( Class clazz ) {
         return which( clazz.getName(), clazz.getClassLoader() );
     }
@@ -478,17 +402,11 @@ final class SchemaFactoryFinder  {
      * @return the source location of the resource, or null if it wasn't found
      */
     private static String which(String classname, ClassLoader loader) {
-
         String classnameAsResource = classname.replace('.', '/') + ".class";
 
-        if( loader==null )  loader = ClassLoader.getSystemClassLoader();
+        if (loader == null)  loader = ClassLoader.getSystemClassLoader();
 
-        //URL it = loader.getResource(classnameAsResource);
-        URL it = SecuritySupport.getResourceAsURL(loader, classnameAsResource);
-        if (it != null) {
-            return it.toString();
-        } else {
-            return null;
-        }
+        URL it = loader.getResource(classnameAsResource);
+        return it != null ? it.toString() : null;
     }
 }

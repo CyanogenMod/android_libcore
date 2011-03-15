@@ -576,7 +576,7 @@ public abstract class ClassLoader {
             "unchecked", "unused"
     })
     protected Enumeration<URL> findResources(String resName) throws IOException {
-        return Collections.enumeration(Collections.<URL>emptyList());
+        return Collections.emptyEnumeration();
     }
 
     /**
