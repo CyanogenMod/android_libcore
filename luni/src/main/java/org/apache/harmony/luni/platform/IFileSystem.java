@@ -21,42 +21,7 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-/**
- * TODO Type description
- *
- */
 public interface IFileSystem {
-
-    public final int SHARED_LOCK_TYPE = 1;
-
-    public final int EXCLUSIVE_LOCK_TYPE = 2;
-
-    public final int SEEK_SET = 1;
-
-    public final int SEEK_CUR = 2;
-
-    public final int SEEK_END = 4;
-
-    public final int O_RDONLY = 0x00000000;
-
-    public final int O_WRONLY = 0x00000001;
-
-    public final int O_RDWR = 0x00000010;
-
-    public final int O_RDWRSYNC = 0x00000020;
-
-    public final int O_APPEND = 0x00000100;
-
-    public final int O_CREAT = 0x00001000;
-
-    public final int O_EXCL = 0x00010000;
-
-    public final int O_NOCTTY = 0x00100000;
-
-    public final int O_NONBLOCK = 0x01000000;
-
-    public final int O_TRUNC = 0x10000000;
-
     public long read(int fileDescriptor, byte[] bytes, int offset, int length)
             throws IOException;
 
@@ -78,7 +43,7 @@ public interface IFileSystem {
 
     public long length(int fd);
 
-    public boolean lock(int fileDescriptor, long start, long length, int type,
+    public boolean lock(int fileDescriptor, long start, long length, boolean shared,
             boolean waitFlag) throws IOException;
 
     public void unlock(int fileDescriptor, long start, long length)

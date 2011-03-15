@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.apache.harmony.luni.platform.IFileSystem;
+import libcore.io.OsConstants;
 import org.apache.harmony.luni.platform.Platform;
 
 /*
@@ -88,16 +88,15 @@ abstract class FileChannelImpl extends FileChannel {
         }
     }
 
-    protected FileLock basicLock(long position, long size, boolean shared,
-            boolean wait) throws IOException {
+    protected FileLock basicLock(long position, long size, boolean shared, boolean wait)
+            throws IOException {
         if (position < 0 || size < 0) {
             throw new IllegalArgumentException("Lock position and size must be non-negative");
         }
-        int lockType = shared ? IFileSystem.SHARED_LOCK_TYPE : IFileSystem.EXCLUSIVE_LOCK_TYPE;
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
         addLock(pendingLock);
 
-        if (Platform.FILE_SYSTEM.lock(handle, position, size, lockType, wait)) {
+        if (Platform.FILE_SYSTEM.lock(handle, position, size, shared, wait)) {
             return pendingLock;
         }
 
@@ -181,7 +180,7 @@ abstract class FileChannelImpl extends FileChannel {
      */
     public long position() throws IOException {
         openCheck();
-        return Platform.FILE_SYSTEM.seek(handle, 0L, IFileSystem.SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(handle, 0L, OsConstants.SEEK_CUR);
     }
 
     /**
@@ -194,7 +193,7 @@ abstract class FileChannelImpl extends FileChannel {
         }
 
         synchronized (repositioningLock) {
-            Platform.FILE_SYSTEM.seek(handle, newPosition, IFileSystem.SEEK_SET);
+            Platform.FILE_SYSTEM.seek(handle, newPosition, OsConstants.SEEK_SET);
         }
         return this;
     }

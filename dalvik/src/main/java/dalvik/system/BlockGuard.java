@@ -202,18 +202,16 @@ public final class BlockGuard {
             return mFileSystem.writeDirect(fileDescriptor, address, offset, length);
         }
 
-        public boolean lock(int fileDescriptor, long start, long length, int type,
+        public boolean lock(int fileDescriptor, long start, long length, boolean shared,
                             boolean waitFlag) throws IOException {
-            return mFileSystem.lock(fileDescriptor, start, length, type, waitFlag);
+            return mFileSystem.lock(fileDescriptor, start, length, shared, waitFlag);
         }
 
-        public void unlock(int fileDescriptor, long start, long length)
-                throws IOException {
+        public void unlock(int fileDescriptor, long start, long length) throws IOException {
             mFileSystem.unlock(fileDescriptor, start, length);
         }
 
-        public long seek(int fileDescriptor, long offset, int whence)
-                throws IOException {
+        public long seek(int fileDescriptor, long offset, int whence) throws IOException {
             return mFileSystem.seek(fileDescriptor, offset, whence);
         }
 

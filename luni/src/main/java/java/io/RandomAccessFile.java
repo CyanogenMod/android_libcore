@@ -25,8 +25,8 @@ import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
 import libcore.io.IoUtils;
 import libcore.io.Memory;
+import static libcore.io.OsConstants.*;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -102,16 +102,15 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
         if (mode.equals("r")) {
             fd.readOnly = true;
-            options = IFileSystem.O_RDONLY;
+            options = O_RDONLY;
         } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
-            options = IFileSystem.O_RDWR;
-
+            options = O_RDWR | O_CREAT;
             if (mode.equals("rws")) {
                 // Sync file and metadata with every write
                 syncMetadata = true;
             } else if (mode.equals("rwd")) {
                 // Sync file, but not necessarily metadata
-                options = IFileSystem.O_RDWRSYNC;
+                options |= O_SYNC;
             }
         } else {
             throw new IllegalArgumentException("Invalid mode: " + mode);
@@ -225,7 +224,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long getFilePointer() throws IOException {
         openCheck();
-        return Platform.FILE_SYSTEM.seek(fd.descriptor, 0L, IFileSystem.SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(fd.descriptor, 0L, SEEK_CUR);
     }
 
     /**
@@ -628,7 +627,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IOException("offset < 0: " + offset);
         }
         openCheck();
-        Platform.FILE_SYSTEM.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
+        Platform.FILE_SYSTEM.seek(fd.descriptor, offset, SEEK_SET);
     }
 
     /**

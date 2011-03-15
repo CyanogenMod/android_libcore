@@ -23,6 +23,7 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.IoUtils;
+import static libcore.io.OsConstants.*;
 import libcore.io.Streams;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
@@ -78,7 +79,7 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         fd = new FileDescriptor();
         fd.readOnly = true;
-        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
+        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), O_RDONLY);
         shouldCloseFd = true;
         guard.open("close");
     }
@@ -158,7 +159,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_RDONLY);
+                channel = NioUtils.newFileChannel(this, fd.descriptor, O_RDONLY);
             }
             return channel;
         }
@@ -201,7 +202,7 @@ public class FileInputStream extends InputStream implements Closeable {
             synchronized (repositioningLock) {
                 // Our seek returns the new offset, but we know it will throw an
                 // exception if it couldn't perform exactly the seek we asked for.
-                Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, IFileSystem.SEEK_CUR);
+                Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, SEEK_CUR);
                 return byteCount;
             }
         } catch (IFileSystem.SeekPipeException e) {
