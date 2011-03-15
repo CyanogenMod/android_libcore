@@ -123,7 +123,12 @@ class InitManifest {
                 throw new IOException(String.format("Invalid value for attribute '%s'", name));
             }
 
-            this.name = new Attributes.Name(name);
+            try {
+                this.name = new Attributes.Name(name);
+            } catch (IllegalArgumentException e) {
+                // new Attributes.Name() throws IllegalArgumentException but we declare IOException
+                throw new IOException(e.getMessage());
+            }
             return;
         }
     }
