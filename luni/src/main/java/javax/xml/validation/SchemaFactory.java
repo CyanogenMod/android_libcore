@@ -179,7 +179,7 @@ public abstract class SchemaFactory {
      */
     public static SchemaFactory newInstance(String schemaLanguage) {
         ClassLoader cl;
-        cl = SecuritySupport.getContextClassLoader();
+        cl = Thread.currentThread().getContextClassLoader();
 
         if (cl == null) {
             //cl = ClassLoader.getSystemClassLoader();
@@ -312,7 +312,6 @@ public abstract class SchemaFactory {
      * @see #getFeature(String)
      */
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-
         if (name == null) {
             throw new NullPointerException("the name parameter is null");
         }
@@ -340,7 +339,6 @@ public abstract class SchemaFactory {
      *              if the name parameter is null.
      */
     public void setProperty(String name, Object object) throws SAXNotRecognizedException, SAXNotSupportedException {
-
         if (name == null) {
             throw new NullPointerException("the name parameter is null");
         }
@@ -372,7 +370,6 @@ public abstract class SchemaFactory {
      * @see #setProperty(String, Object)
      */
     public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-
         if (name == null) {
             throw new NullPointerException("the name parameter is null");
         }
