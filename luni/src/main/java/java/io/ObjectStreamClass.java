@@ -32,8 +32,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
+import libcore.io.Memory;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Represents a descriptor for identifying a class during serialization and
@@ -583,7 +583,7 @@ public class ObjectStreamClass implements Serializable {
 
         // now compute the UID based on the SHA
         byte[] hash = digest.digest(sha.toByteArray());
-        return OSMemory.peekLong(hash, 0, ByteOrder.LITTLE_ENDIAN);
+        return Memory.peekLong(hash, 0, ByteOrder.LITTLE_ENDIAN);
     }
 
     /**

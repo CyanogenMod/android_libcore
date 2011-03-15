@@ -19,8 +19,8 @@ package java.io;
 
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Wraps an existing {@link OutputStream} and writes big-endian typed data to it.
@@ -176,19 +176,19 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
     }
 
     public final void writeInt(int val) throws IOException {
-        OSMemory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
         out.write(scratch, 0, SizeOf.INT);
         written += SizeOf.INT;
     }
 
     public final void writeLong(long val) throws IOException {
-        OSMemory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
         out.write(scratch, 0, SizeOf.LONG);
         written += SizeOf.LONG;
     }
 
     public final void writeShort(int val) throws IOException {
-        OSMemory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
         out.write(scratch, 0, SizeOf.SHORT);
         written += SizeOf.SHORT;
     }

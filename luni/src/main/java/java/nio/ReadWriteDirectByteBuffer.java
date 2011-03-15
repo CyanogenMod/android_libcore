@@ -18,7 +18,7 @@
 package java.nio;
 
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * DirectByteBuffer, ReadWriteDirectByteBuffer and ReadOnlyDirectByteBuffer
@@ -63,7 +63,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     @Override
     public ByteBuffer compact() {
         int addr = effectiveDirectAddress;
-        OSMemory.memmove(addr, addr + position, remaining());
+        Memory.memmove(addr, addr + position, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

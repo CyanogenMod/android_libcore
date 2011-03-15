@@ -44,9 +44,9 @@ LOCAL_SRC_FILES := \
 	libcore_icu_NativePluralRules.cpp \
 	libcore_icu_TimeZones.cpp \
 	libcore_io_IoUtils.cpp \
+	libcore_io_Memory.cpp \
 	libcore_net_RawSocket.cpp \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
-	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \

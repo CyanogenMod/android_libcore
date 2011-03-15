@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * A memory-mapped file. Use {@link #mmap} to map a file, {@link #close} to unmap a file,
@@ -58,7 +58,7 @@ public final class MemoryMappedFile implements Closeable {
         if ((start + size) > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("(start + size) > Integer.MAX_VALUE");
         }
-        int address = OSMemory.mmap(fd, start, size, mapMode);
+        int address = Memory.mmap(fd, start, size, mapMode);
         return new MemoryMappedFile(address, (int) size);
     }
 
@@ -72,7 +72,7 @@ public final class MemoryMappedFile implements Closeable {
      */
     public synchronized void close() throws IOException {
         if (address != 0) {
-            OSMemory.munmap(address, size);
+            Memory.munmap(address, size);
             address = 0;
         }
     }

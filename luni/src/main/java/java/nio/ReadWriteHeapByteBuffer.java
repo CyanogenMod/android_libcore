@@ -16,8 +16,8 @@
 
 package java.nio;
 
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * HeapByteBuffer, ReadWriteHeapByteBuffer and ReadOnlyHeapByteBuffer compose
@@ -118,44 +118,44 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
 
     final void put(char[] src, int srcOffset, int charCount) {
         int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.CHAR, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.CHAR, order.needsSwap);
         position += byteCount;
     }
 
     final void put(double[] src, int srcOffset, int doubleCount) {
         int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.DOUBLE, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.DOUBLE, order.needsSwap);
         position += byteCount;
     }
 
     final void put(float[] src, int srcOffset, int floatCount) {
         int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.FLOAT, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.FLOAT, order.needsSwap);
         position += byteCount;
     }
 
     final void put(int[] src, int srcOffset, int intCount) {
         int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.INT, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.INT, order.needsSwap);
         position += byteCount;
     }
 
     final void put(long[] src, int srcOffset, int longCount) {
         int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.LONG, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.LONG, order.needsSwap);
         position += byteCount;
     }
 
     final void put(short[] src, int srcOffset, int shortCount) {
         int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
-        OSMemory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.SHORT, order.needsSwap);
+        Memory.unsafeBulkPut(backingArray, offset + position, byteCount, src, srcOffset, SizeOf.SHORT, order.needsSwap);
         position += byteCount;
     }
 
     @Override
     public ByteBuffer putChar(int index, char value) {
         checkIndex(index, SizeOf.CHAR);
-        OSMemory.pokeShort(backingArray, offset + index, (short) value, order);
+        Memory.pokeShort(backingArray, offset + index, (short) value, order);
         return this;
     }
 
@@ -165,7 +165,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        OSMemory.pokeShort(backingArray, offset + position, (short) value, order);
+        Memory.pokeShort(backingArray, offset + position, (short) value, order);
         position = newPosition;
         return this;
     }
@@ -196,7 +196,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        OSMemory.pokeInt(backingArray, offset + position, value, order);
+        Memory.pokeInt(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -204,14 +204,14 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
     @Override
     public ByteBuffer putInt(int index, int value) {
         checkIndex(index, SizeOf.INT);
-        OSMemory.pokeInt(backingArray, offset + index, value, order);
+        Memory.pokeInt(backingArray, offset + index, value, order);
         return this;
     }
 
     @Override
     public ByteBuffer putLong(int index, long value) {
         checkIndex(index, SizeOf.LONG);
-        OSMemory.pokeLong(backingArray, offset + index, value, order);
+        Memory.pokeLong(backingArray, offset + index, value, order);
         return this;
     }
 
@@ -221,7 +221,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        OSMemory.pokeLong(backingArray, offset + position, value, order);
+        Memory.pokeLong(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
     }
@@ -229,7 +229,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
     @Override
     public ByteBuffer putShort(int index, short value) {
         checkIndex(index, SizeOf.SHORT);
-        OSMemory.pokeShort(backingArray, offset + index, value, order);
+        Memory.pokeShort(backingArray, offset + index, value, order);
         return this;
     }
 
@@ -239,7 +239,7 @@ final class ReadWriteHeapByteBuffer extends HeapByteBuffer {
         if (newPosition > limit) {
             throw new BufferOverflowException();
         }
-        OSMemory.pokeShort(backingArray, offset + position, value, order);
+        Memory.pokeShort(backingArray, offset + position, value, order);
         position = newPosition;
         return this;
     }

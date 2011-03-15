@@ -19,7 +19,7 @@ package java.net;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charsets;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 class Socks4Message {
     static final int COMMAND_CONNECT = 1;
@@ -78,21 +78,21 @@ class Socks4Message {
      * Returns the request's port number.
      */
     public int getPort() {
-        return OSMemory.peekShort(buffer, INDEX_PORT, ByteOrder.BIG_ENDIAN);
+        return Memory.peekShort(buffer, INDEX_PORT, ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Set the request's port number.
      */
     public void setPort(int port) {
-        OSMemory.pokeShort(buffer, INDEX_PORT, (short) port, ByteOrder.BIG_ENDIAN);
+        Memory.pokeShort(buffer, INDEX_PORT, (short) port, ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Returns the IP address of the request as an integer.
      */
     public int getIP() {
-        return OSMemory.peekInt(buffer, INDEX_IP, ByteOrder.BIG_ENDIAN);
+        return Memory.peekInt(buffer, INDEX_IP, ByteOrder.BIG_ENDIAN);
     }
 
     /**

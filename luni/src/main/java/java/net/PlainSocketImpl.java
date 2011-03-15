@@ -33,8 +33,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import libcore.io.Memory;
 import libcore.io.Streams;
-import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -387,7 +387,7 @@ public class PlainSocketImpl extends SocketImpl {
             // currently the Socks4Message.getIP() only returns int,
             // so only works with IPv4 4byte addresses
             byte[] replyBytes = new byte[4];
-            OSMemory.pokeInt(replyBytes, 0, reply.getIP(), ByteOrder.BIG_ENDIAN);
+            Memory.pokeInt(replyBytes, 0, reply.getIP(), ByteOrder.BIG_ENDIAN);
             address = InetAddress.getByAddress(replyBytes);
         }
         localport = reply.getPort();

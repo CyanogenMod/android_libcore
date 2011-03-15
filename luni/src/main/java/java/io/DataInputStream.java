@@ -19,9 +19,9 @@ package java.io;
 
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import libcore.io.Memory;
 import libcore.io.Streams;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Wraps an existing {@link InputStream} and reads big-endian typed data from it.
@@ -117,7 +117,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     public final int readInt() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.INT);
-        return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     @Deprecated
@@ -157,12 +157,12 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     public final long readLong() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.LONG);
-        return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final short readShort() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.SHORT);
-        return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final int readUnsignedByte() throws IOException {

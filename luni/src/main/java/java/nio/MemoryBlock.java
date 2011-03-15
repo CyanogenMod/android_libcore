@@ -20,7 +20,7 @@ package java.nio;
 import dalvik.system.VMRuntime;
 import java.io.IOException;
 import java.nio.channels.FileChannel.MapMode;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 class MemoryBlock {
     /**
@@ -33,7 +33,7 @@ class MemoryBlock {
 
         @Override public void free() {
             if (address != 0) {
-                OSMemory.munmap(address, size);
+                Memory.munmap(address, size);
                 address = 0;
             }
         }
@@ -87,7 +87,7 @@ class MemoryBlock {
             // You can't mmap(2) a zero-length region.
             return new MemoryBlock(0, 0);
         }
-        int address = OSMemory.mmap(fd, start, size, mode);
+        int address = Memory.mmap(fd, start, size, mode);
         return new MemoryMappedBlock(address, size);
     }
 
@@ -116,91 +116,91 @@ class MemoryBlock {
     }
 
     public final void pokeByte(int offset, byte value) {
-        OSMemory.pokeByte(address + offset, value);
+        Memory.pokeByte(address + offset, value);
     }
 
     public final void pokeByteArray(int offset, byte[] src, int srcOffset, int byteCount) {
-        OSMemory.pokeByteArray(address + offset, src, srcOffset, byteCount);
+        Memory.pokeByteArray(address + offset, src, srcOffset, byteCount);
     }
 
     public final void pokeCharArray(int offset, char[] src, int srcOffset, int charCount, boolean swap) {
-        OSMemory.pokeCharArray(address + offset, src, srcOffset, charCount, swap);
+        Memory.pokeCharArray(address + offset, src, srcOffset, charCount, swap);
     }
 
     public final void pokeDoubleArray(int offset, double[] src, int srcOffset, int doubleCount, boolean swap) {
-        OSMemory.pokeDoubleArray(address + offset, src, srcOffset, doubleCount, swap);
+        Memory.pokeDoubleArray(address + offset, src, srcOffset, doubleCount, swap);
     }
 
     public final void pokeFloatArray(int offset, float[] src, int srcOffset, int floatCount, boolean swap) {
-        OSMemory.pokeFloatArray(address + offset, src, srcOffset, floatCount, swap);
+        Memory.pokeFloatArray(address + offset, src, srcOffset, floatCount, swap);
     }
 
     public final void pokeIntArray(int offset, int[] src, int srcOffset, int intCount, boolean swap) {
-        OSMemory.pokeIntArray(address + offset, src, srcOffset, intCount, swap);
+        Memory.pokeIntArray(address + offset, src, srcOffset, intCount, swap);
     }
 
     public final void pokeLongArray(int offset, long[] src, int srcOffset, int longCount, boolean swap) {
-        OSMemory.pokeLongArray(address + offset, src, srcOffset, longCount, swap);
+        Memory.pokeLongArray(address + offset, src, srcOffset, longCount, swap);
     }
 
     public final void pokeShortArray(int offset, short[] src, int srcOffset, int shortCount, boolean swap) {
-        OSMemory.pokeShortArray(address + offset, src, srcOffset, shortCount, swap);
+        Memory.pokeShortArray(address + offset, src, srcOffset, shortCount, swap);
     }
 
     public final byte peekByte(int offset) {
-        return OSMemory.peekByte(address + offset);
+        return Memory.peekByte(address + offset);
     }
 
     public final void peekByteArray(int offset, byte[] dst, int dstOffset, int byteCount) {
-        OSMemory.peekByteArray(address + offset, dst, dstOffset, byteCount);
+        Memory.peekByteArray(address + offset, dst, dstOffset, byteCount);
     }
 
     public final void peekCharArray(int offset, char[] dst, int dstOffset, int charCount, boolean swap) {
-        OSMemory.peekCharArray(address + offset, dst, dstOffset, charCount, swap);
+        Memory.peekCharArray(address + offset, dst, dstOffset, charCount, swap);
     }
 
     public final void peekDoubleArray(int offset, double[] dst, int dstOffset, int doubleCount, boolean swap) {
-        OSMemory.peekDoubleArray(address + offset, dst, dstOffset, doubleCount, swap);
+        Memory.peekDoubleArray(address + offset, dst, dstOffset, doubleCount, swap);
     }
 
     public final void peekFloatArray(int offset, float[] dst, int dstOffset, int floatCount, boolean swap) {
-        OSMemory.peekFloatArray(address + offset, dst, dstOffset, floatCount, swap);
+        Memory.peekFloatArray(address + offset, dst, dstOffset, floatCount, swap);
     }
 
     public final void peekIntArray(int offset, int[] dst, int dstOffset, int intCount, boolean swap) {
-        OSMemory.peekIntArray(address + offset, dst, dstOffset, intCount, swap);
+        Memory.peekIntArray(address + offset, dst, dstOffset, intCount, swap);
     }
 
     public final void peekLongArray(int offset, long[] dst, int dstOffset, int longCount, boolean swap) {
-        OSMemory.peekLongArray(address + offset, dst, dstOffset, longCount, swap);
+        Memory.peekLongArray(address + offset, dst, dstOffset, longCount, swap);
     }
 
     public final void peekShortArray(int offset, short[] dst, int dstOffset, int shortCount, boolean swap) {
-        OSMemory.peekShortArray(address + offset, dst, dstOffset, shortCount, swap);
+        Memory.peekShortArray(address + offset, dst, dstOffset, shortCount, swap);
     }
 
     public final void pokeShort(int offset, short value, ByteOrder order) {
-        OSMemory.pokeShort(address + offset, value, order.needsSwap);
+        Memory.pokeShort(address + offset, value, order.needsSwap);
     }
 
     public final short peekShort(int offset, ByteOrder order) {
-        return OSMemory.peekShort(address + offset, order.needsSwap);
+        return Memory.peekShort(address + offset, order.needsSwap);
     }
 
     public final void pokeInt(int offset, int value, ByteOrder order) {
-        OSMemory.pokeInt(address + offset, value, order.needsSwap);
+        Memory.pokeInt(address + offset, value, order.needsSwap);
     }
 
     public final int peekInt(int offset, ByteOrder order) {
-        return OSMemory.peekInt(address + offset, order.needsSwap);
+        return Memory.peekInt(address + offset, order.needsSwap);
     }
 
     public final void pokeLong(int offset, long value, ByteOrder order) {
-        OSMemory.pokeLong(address + offset, value, order.needsSwap);
+        Memory.pokeLong(address + offset, value, order.needsSwap);
     }
 
     public final long peekLong(int offset, ByteOrder order) {
-        return OSMemory.peekLong(address + offset, order.needsSwap);
+        return Memory.peekLong(address + offset, order.needsSwap);
     }
 
     public final int toInt() {

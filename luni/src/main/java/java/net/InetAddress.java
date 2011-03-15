@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -327,7 +327,7 @@ public class InetAddress implements Serializable {
             if (hostName == null) {
                 int address = 0;
                 if (ipaddress.length == 4) {
-                    address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+                    address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                     if (address == 0) {
                         return hostName = byteArrayToIpString(ipaddress);
                     }
@@ -353,7 +353,7 @@ public class InetAddress implements Serializable {
         try {
             int address = 0;
             if (ipaddress.length == 4) {
-                address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+                address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                 if (address == 0) {
                     return byteArrayToIpString(ipaddress);
                 }
@@ -981,7 +981,7 @@ public class InetAddress implements Serializable {
         if (ipaddress == null) {
             fields.put("address", 0);
         } else {
-            fields.put("address", OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN));
+            fields.put("address", Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN));
         }
         fields.put("family", family);
         fields.put("hostName", hostName);
@@ -993,7 +993,7 @@ public class InetAddress implements Serializable {
         ObjectInputStream.GetField fields = stream.readFields();
         int addr = fields.get("address", 0);
         ipaddress = new byte[4];
-        OSMemory.pokeInt(ipaddress, 0, addr, ByteOrder.BIG_ENDIAN);
+        Memory.pokeInt(ipaddress, 0, addr, ByteOrder.BIG_ENDIAN);
         hostName = (String) fields.get("hostName", null);
         family = fields.get("family", 2);
     }

@@ -25,8 +25,8 @@ import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.Arrays;
+import libcore.io.Memory;
 import libcore.io.Streams;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
@@ -196,13 +196,13 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
         if (hasDD) {
             Streams.readFully(in, hdrBuf, 0, EXTHDR);
-            int sig = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
+            int sig = Memory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
             if (sig != (int) EXTSIG) {
                 throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));
             }
-            currentEntry.crc = ((long) OSMemory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            currentEntry.compressedSize = ((long) OSMemory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            currentEntry.size = ((long) OSMemory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            currentEntry.crc = ((long) Memory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            currentEntry.compressedSize = ((long) Memory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            currentEntry.size = ((long) Memory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
         }
         if (currentEntry.crc != crc.getValue()) {
             throw new ZipException("CRC mismatch");
@@ -228,7 +228,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
 
         Streams.readFully(in, hdrBuf, 0, 4);
-        int hdr = OSMemory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
+        int hdr = Memory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
         if (hdr == CENSIG) {
             entriesEnd = true;
             return null;
@@ -239,26 +239,26 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
 
         // Read the local header
         Streams.readFully(in, hdrBuf, 0, (LOCHDR - LOCVER));
-        int version = OSMemory.peekShort(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN) & 0xff;
+        int version = Memory.peekShort(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN) & 0xff;
         if (version > ZIPLocalHeaderVersionNeeded) {
             throw new ZipException("Cannot read local header version " + version);
         }
-        short flags = OSMemory.peekShort(hdrBuf, LOCFLG - LOCVER, ByteOrder.LITTLE_ENDIAN);
+        short flags = Memory.peekShort(hdrBuf, LOCFLG - LOCVER, ByteOrder.LITTLE_ENDIAN);
         hasDD = ((flags & ZipFile.GPBF_DATA_DESCRIPTOR_FLAG) != 0);
-        int ceTime = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
-        int ceModDate = OSMemory.peekShort(hdrBuf, LOCTIM - LOCVER + 2, ByteOrder.LITTLE_ENDIAN) & 0xffff;
-        int ceCompressionMethod = OSMemory.peekShort(hdrBuf, LOCHOW - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int ceTime = Memory.peekShort(hdrBuf, LOCTIM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int ceModDate = Memory.peekShort(hdrBuf, LOCTIM - LOCVER + 2, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int ceCompressionMethod = Memory.peekShort(hdrBuf, LOCHOW - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
         long ceCrc = 0, ceCompressedSize = 0, ceSize = -1;
         if (!hasDD) {
-            ceCrc = ((long) OSMemory.peekInt(hdrBuf, LOCCRC - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            ceCompressedSize = ((long) OSMemory.peekInt(hdrBuf, LOCSIZ - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            ceSize = ((long) OSMemory.peekInt(hdrBuf, LOCLEN - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            ceCrc = ((long) Memory.peekInt(hdrBuf, LOCCRC - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            ceCompressedSize = ((long) Memory.peekInt(hdrBuf, LOCSIZ - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            ceSize = ((long) Memory.peekInt(hdrBuf, LOCLEN - LOCVER, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
         }
-        int nameLength = OSMemory.peekShort(hdrBuf, LOCNAM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int nameLength = Memory.peekShort(hdrBuf, LOCNAM - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
         if (nameLength == 0) {
             throw new ZipException("Entry is not named");
         }
-        int extraLength = OSMemory.peekShort(hdrBuf, LOCEXT - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+        int extraLength = Memory.peekShort(hdrBuf, LOCEXT - LOCVER, ByteOrder.LITTLE_ENDIAN) & 0xffff;
 
         if (nameLength > nameBuf.length) {
             nameBuf = new byte[nameLength];

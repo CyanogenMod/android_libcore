@@ -17,7 +17,7 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * {@code MappedByteBuffer} is a special kind of direct byte buffer which maps a
@@ -67,7 +67,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      *         otherwise.
      */
     public final boolean isLoaded() {
-        return OSMemory.isLoaded(block.toInt(), block.getSize());
+        return Memory.isLoaded(block.toInt(), block.getSize());
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        OSMemory.load(block.toInt(), block.getSize());
+        Memory.load(block.toInt(), block.getSize());
         return this;
     }
 
@@ -91,7 +91,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            OSMemory.msync(block.toInt(), block.getSize());
+            Memory.msync(block.toInt(), block.getSize());
         }
         return this;
     }

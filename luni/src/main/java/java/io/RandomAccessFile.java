@@ -24,9 +24,9 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
 import libcore.io.IoUtils;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -463,7 +463,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final int readInt() throws IOException {
         readFully(scratch, 0, SizeOf.INT);
-        return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -524,7 +524,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final long readLong() throws IOException {
         readFully(scratch, 0, SizeOf.LONG);
-        return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -541,7 +541,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final short readShort() throws IOException {
         readFully(scratch, 0, SizeOf.SHORT);
-        return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     /**
@@ -866,7 +866,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readInt()
      */
     public final void writeInt(int val) throws IOException {
-        OSMemory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeInt(scratch, 0, val, ByteOrder.BIG_ENDIAN);
         write(scratch, 0, SizeOf.INT);
     }
 
@@ -881,7 +881,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #readLong()
      */
     public final void writeLong(long val) throws IOException {
-        OSMemory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeLong(scratch, 0, val, ByteOrder.BIG_ENDIAN);
         write(scratch, 0, SizeOf.LONG);
     }
 
@@ -898,7 +898,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see DataInput#readUnsignedShort()
      */
     public final void writeShort(int val) throws IOException {
-        OSMemory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
+        Memory.pokeShort(scratch, 0, (short) val, ByteOrder.BIG_ENDIAN);
         write(scratch, 0, SizeOf.SHORT);
     }
 

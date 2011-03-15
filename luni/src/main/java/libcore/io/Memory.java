@@ -15,19 +15,17 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.platform;
+package libcore.io;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
 
 /**
- * This class enables direct access to memory.
- *
- * @hide - we should move this in with the NIO stuff it supports, and make it package-private again
+ * Unsafe access to memory.
  */
-public final class OSMemory {
-    private OSMemory() { }
+public final class Memory {
+    private Memory() { }
 
     /**
      * Used to optimize nio heap buffer bulk get operations. 'dst' must be a primitive array.

@@ -24,8 +24,8 @@ import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.List;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * A specialized {@link OutputStream} that is able to write (serialize) Java
@@ -1438,12 +1438,12 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         if (count <= 0xffff) {
             buffer = new byte[1 + SizeOf.SHORT + (int) count];
             buffer[offset++] = TC_STRING;
-            OSMemory.pokeShort(buffer, offset, (short) count, ByteOrder.BIG_ENDIAN);
+            Memory.pokeShort(buffer, offset, (short) count, ByteOrder.BIG_ENDIAN);
             offset += SizeOf.SHORT;
         } else {
             buffer = new byte[1 + SizeOf.LONG + (int) count];
             buffer[offset++] = TC_LONGSTRING;
-            OSMemory.pokeLong(buffer, offset, count, ByteOrder.BIG_ENDIAN);
+            Memory.pokeLong(buffer, offset, count, ByteOrder.BIG_ENDIAN);
             offset += SizeOf.LONG;
         }
         ModifiedUtf8.encode(buffer, offset, object);

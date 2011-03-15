@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * The {@code GZIPInputStream} class is used to read data stored in the GZIP
@@ -96,7 +96,7 @@ public class GZIPInputStream extends InflaterInputStream {
         super(is, new Inflater(true), size);
         byte[] header = new byte[10];
         readFully(header, 0, header.length);
-        short magic = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+        short magic = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
         if (magic != (short) GZIP_MAGIC) {
             throw new IOException(String.format("unknown format (magic number %x)", magic));
         }
@@ -110,7 +110,7 @@ public class GZIPInputStream extends InflaterInputStream {
             if (hcrc) {
                 crc.update(header, 0, 2);
             }
-            int length = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+            int length = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
             while (length > 0) {
                 int max = length > buf.length ? buf.length : length;
                 int result = in.read(buf, 0, max);
@@ -131,7 +131,7 @@ public class GZIPInputStream extends InflaterInputStream {
         }
         if (hcrc) {
             readFully(header, 0, 2);
-            short crc16 = OSMemory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+            short crc16 = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
             if ((short) crc.getValue() != crc16) {
                 throw new IOException("CRC mismatch");
             }
@@ -190,10 +190,10 @@ public class GZIPInputStream extends InflaterInputStream {
         System.arraycopy(buf, len - size, b, 0, copySize);
         readFully(b, copySize, trailerSize - copySize);
 
-        if (OSMemory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != (int) crc.getValue()) {
+        if (Memory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != (int) crc.getValue()) {
             throw new IOException("CRC mismatch");
         }
-        if (OSMemory.peekInt(b, 4, ByteOrder.LITTLE_ENDIAN) != inf.getTotalOut()) {
+        if (Memory.peekInt(b, 4, ByteOrder.LITTLE_ENDIAN) != inf.getTotalOut()) {
             throw new IOException("Size mismatch");
         }
     }
