@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.channels.ReadableByteChannel;
@@ -31,8 +32,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import libcore.io.OsConstants;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /*
  * The file channel impl class is the bridge between the logical channels
@@ -41,7 +42,7 @@ import org.apache.harmony.luni.platform.Platform;
  *
  * This class is non-API, but implements the API of the FileChannel interface.
  */
-abstract class FileChannelImpl extends FileChannel {
+final class FileChannelImpl extends FileChannel {
     private static final int ALLOC_GRANULARITY = Platform.FILE_SYSTEM.getAllocGranularity();
 
     private static final Comparator<FileLock> LOCK_COMPARATOR = new Comparator<FileLock>() {
@@ -52,23 +53,23 @@ abstract class FileChannelImpl extends FileChannel {
         }
     };
 
-    // Handle to the open file
-    private final int handle;
+    private final Object stream;
+    private final int fd;
+    private final int mode;
 
     // The set of acquired and pending locks.
     private final SortedSet<FileLock> locks = new TreeSet<FileLock>(LOCK_COMPARATOR);
 
     private final Object repositioningLock = new Object();
 
-    private final Object stream;
-
     /**
-     * Create a new file channel implementation class that wraps the given file
-     * handle and operates in the specified mode.
+     * Create a new file channel implementation class that wraps the given
+     * fd and operates in the specified mode.
      */
-    public FileChannelImpl(Object stream, int handle) {
-        this.handle = handle;
+    public FileChannelImpl(Object stream, int fd, int mode) {
+        this.fd = fd;
         this.stream = stream;
+        this.mode = mode;
     }
 
     /**
@@ -76,9 +77,21 @@ abstract class FileChannelImpl extends FileChannel {
      * Note that we don't bother to synchronize on this test since the file may
      * be closed by operations beyond our control anyways.
      */
-    protected final void openCheck() throws ClosedChannelException {
+    private void checkOpen() throws ClosedChannelException {
         if (!isOpen()) {
             throw new ClosedChannelException();
+        }
+    }
+
+    private void checkReadable() {
+        if ((mode & O_ACCMODE) == O_WRONLY) {
+            throw new NonReadableChannelException();
+        }
+    }
+
+    private void checkWritable() {
+        if ((mode & O_ACCMODE) == O_RDONLY) {
+            throw new NonWritableChannelException();
         }
     }
 
@@ -88,15 +101,25 @@ abstract class FileChannelImpl extends FileChannel {
         }
     }
 
-    protected FileLock basicLock(long position, long size, boolean shared, boolean wait)
-            throws IOException {
+    private FileLock basicLock(long position, long size, boolean shared, boolean wait) throws IOException {
+        int accessMode = (mode & O_ACCMODE);
+        if (accessMode == O_RDONLY) {
+            if (!shared) {
+                throw new NonWritableChannelException();
+            }
+        } else if (accessMode == O_WRONLY) {
+            if (shared) {
+                throw new NonReadableChannelException();
+            }
+        }
+
         if (position < 0 || size < 0) {
-            throw new IllegalArgumentException("Lock position and size must be non-negative");
+            throw new IllegalArgumentException("position=" + position + " size=" + size);
         }
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
         addLock(pendingLock);
 
-        if (Platform.FILE_SYSTEM.lock(handle, position, size, shared, wait)) {
+        if (Platform.FILE_SYSTEM.lock(fd, position, size, shared, wait)) {
             return pendingLock;
         }
 
@@ -112,11 +135,11 @@ abstract class FileChannelImpl extends FileChannel {
             super(channel, position, size, shared);
         }
 
-        @Override public boolean isValid() {
+        public boolean isValid() {
             return !isReleased && channel().isOpen();
         }
 
-        @Override public void release() throws IOException {
+        public void release() throws IOException {
             if (!channel().isOpen()) {
                 throw new ClosedChannelException();
             }
@@ -128,7 +151,7 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public final FileLock lock(long position, long size, boolean shared) throws IOException {
-        openCheck();
+        checkOpen();
         FileLock resultLock = null;
         {
             boolean completed = false;
@@ -144,7 +167,7 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public final FileLock tryLock(long position, long size, boolean shared) throws IOException {
-        openCheck();
+        checkOpen();
         return basicLock(position, size, shared, false);
     }
 
@@ -152,26 +175,41 @@ abstract class FileChannelImpl extends FileChannel {
      * Non-API method to release a given lock on a file channel. Assumes that
      * the lock will mark itself invalid after successful unlocking.
      */
-    void release(FileLock lock) throws IOException {
-        openCheck();
-        Platform.FILE_SYSTEM.unlock(handle, lock.position(), lock.size());
+    public void release(FileLock lock) throws IOException {
+        checkOpen();
+        Platform.FILE_SYSTEM.unlock(fd, lock.position(), lock.size());
         removeLock(lock);
     }
 
-    @Override public void force(boolean metadata) throws IOException {
-        openCheck();
-        Platform.FILE_SYSTEM.fsync(handle, metadata);
+    public void force(boolean metadata) throws IOException {
+        checkOpen();
+        if ((mode & O_ACCMODE) != O_RDONLY) {
+            Platform.FILE_SYSTEM.fsync(fd, metadata);
+        }
     }
 
-    public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;
-
-    protected final MappedByteBuffer mapImpl(MapMode mapMode, long position, long size) throws IOException {
+    public final MappedByteBuffer map(MapMode mapMode, long position, long size) throws IOException {
+        checkOpen();
+        if (mapMode == null) {
+            throw new NullPointerException("mapMode == null");
+        }
+        if (position < 0 || size < 0 || size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("position=" + position + " size=" + size);
+        }
+        int accessMode = (mode & O_ACCMODE);
+        if (accessMode == O_RDONLY) {
+            if (mapMode != MapMode.READ_ONLY) {
+                throw new NonWritableChannelException();
+            }
+        } else if (accessMode == O_WRONLY) {
+            throw new NonReadableChannelException();
+        }
         if (position + size > size()) {
-            Platform.FILE_SYSTEM.truncate(handle, position + size);
+            Platform.FILE_SYSTEM.truncate(fd, position + size);
         }
         long alignment = position - position % ALLOC_GRANULARITY;
         int offset = (int) (position - alignment);
-        MemoryBlock block = MemoryBlock.mmap(handle, alignment, size + offset, mapMode);
+        MemoryBlock block = MemoryBlock.mmap(fd, alignment, size + offset, mapMode);
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
@@ -179,21 +217,24 @@ abstract class FileChannelImpl extends FileChannel {
      * Returns the current file position.
      */
     public long position() throws IOException {
-        openCheck();
-        return Platform.FILE_SYSTEM.seek(handle, 0L, OsConstants.SEEK_CUR);
+        checkOpen();
+        if ((mode & O_APPEND) != 0) {
+            return size();
+        }
+        return Platform.FILE_SYSTEM.seek(fd, 0L, SEEK_CUR);
     }
 
     /**
      * Sets the file pointer.
      */
     public FileChannel position(long newPosition) throws IOException {
-        openCheck();
+        checkOpen();
         if (newPosition < 0) {
-            throw new IllegalArgumentException("New position must be non-negative");
+            throw new IllegalArgumentException("position: " + newPosition);
         }
 
         synchronized (repositioningLock) {
-            Platform.FILE_SYSTEM.seek(handle, newPosition, OsConstants.SEEK_SET);
+            Platform.FILE_SYSTEM.seek(fd, newPosition, SEEK_SET);
         }
         return this;
     }
@@ -201,9 +242,10 @@ abstract class FileChannelImpl extends FileChannel {
     public int read(ByteBuffer buffer, long position) throws IOException {
         FileChannelImpl.checkWritable(buffer);
         if (position < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("position: " + position);
         }
-        openCheck();
+        checkOpen();
+        checkReadable();
         if (!buffer.hasRemaining()) {
             return 0;
         }
@@ -222,7 +264,8 @@ abstract class FileChannelImpl extends FileChannel {
 
     public int read(ByteBuffer buffer) throws IOException {
         FileChannelImpl.checkWritable(buffer);
-        openCheck();
+        checkOpen();
+        checkReadable();
         if (!buffer.hasRemaining()) {
             return 0;
         }
@@ -236,7 +279,7 @@ abstract class FileChannelImpl extends FileChannel {
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
                     int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(handle, address,
+                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(fd, address,
                             buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -248,9 +291,8 @@ abstract class FileChannelImpl extends FileChannel {
                     /*
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
-                    bytesRead = (int) Platform.FILE_SYSTEM.read(handle, buffer.array(),
-                            buffer.arrayOffset() + buffer.position(), buffer
-                                    .remaining());
+                    bytesRead = (int) Platform.FILE_SYSTEM.read(fd, buffer.array(),
+                            buffer.arrayOffset() + buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
                     end(completed && bytesRead >= 0);
@@ -265,7 +307,8 @@ abstract class FileChannelImpl extends FileChannel {
 
     public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
         Arrays.checkOffsetAndCount(buffers.length, offset, length);
-        openCheck();
+        checkOpen();
+        checkReadable();
         int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, true);
         if (count == 0) {
             return 0;
@@ -292,8 +335,7 @@ abstract class FileChannelImpl extends FileChannel {
             try {
                 begin();
                 synchronized (repositioningLock) {
-                    bytesRead = Platform.FILE_SYSTEM.readv(handle, handles, offsets,
-                            lengths, length);
+                    bytesRead = Platform.FILE_SYSTEM.readv(fd, handles, offsets, lengths, length);
 
                 }
                 completed = true;
@@ -338,18 +380,18 @@ abstract class FileChannelImpl extends FileChannel {
      * Returns the current file size, as an integer number of bytes.
      */
     public long size() throws IOException {
-        openCheck();
-        return Platform.FILE_SYSTEM.length(handle);
+        checkOpen();
+        return Platform.FILE_SYSTEM.length(fd);
     }
 
-    public long transferFrom(ReadableByteChannel src, long position, long count)
-            throws IOException {
-        openCheck();
+    public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException {
+        checkOpen();
         if (!src.isOpen()) {
             throw new ClosedChannelException();
         }
+        checkWritable();
         if (position < 0 || count < 0 || count > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("position=" + position + " count=" + count);
         }
         if (position > size()) {
             return 0;
@@ -378,15 +420,15 @@ abstract class FileChannelImpl extends FileChannel {
 
     public long transferTo(long position, long count, WritableByteChannel target)
             throws IOException {
-        openCheck();
+        checkOpen();
         if (!target.isOpen()) {
             throw new ClosedChannelException();
         }
-        if (target instanceof ReadOnlyFileChannel) {
-            throw new NonWritableChannelException();
+        if (target instanceof FileChannelImpl) {
+            ((FileChannelImpl) target).checkWritable();
         }
         if (position < 0 || count < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("position=" + position + " count=" + count);
         }
 
         if (count == 0 || position >= size()) {
@@ -396,8 +438,7 @@ abstract class FileChannelImpl extends FileChannel {
         count = Math.min(count, size() - position);
         if (target instanceof SocketChannelImpl) {
             // only socket can be transfered by system call
-            return kernelTransfer(handle, ((SocketChannelImpl) target).getFD(),
-                    position, count);
+            return transferToSocket(fd, ((SocketChannelImpl) target).getFD(), position, count);
         }
 
         try {
@@ -408,8 +449,7 @@ abstract class FileChannelImpl extends FileChannel {
         }
     }
 
-    private long kernelTransfer(int l, FileDescriptor fd, long position,
-            long count) throws IOException {
+    private long transferToSocket(int l, FileDescriptor fd, long position, long count) throws IOException {
         boolean completed = false;
         try {
             begin();
@@ -422,14 +462,15 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public FileChannel truncate(long size) throws IOException {
-        openCheck();
+        checkOpen();
         if (size < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("size: " + size);
         }
+        checkWritable();
         if (size < size()) {
             synchronized (repositioningLock) {
                 long position = position();
-                Platform.FILE_SYSTEM.truncate(handle, size);
+                Platform.FILE_SYSTEM.truncate(fd, size);
                 /*
                  * FIXME: currently the port library always modifies the
                  * position to given size. not sure it is a bug or intended
@@ -444,12 +485,13 @@ abstract class FileChannelImpl extends FileChannel {
 
     public int write(ByteBuffer buffer, long position) throws IOException {
         if (buffer == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("buffer == null");
         }
         if (position < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("position: " + position);
         }
-        openCheck();
+        checkOpen();
+        checkWritable();
         if (!buffer.hasRemaining()) {
             return 0;
         }
@@ -467,7 +509,11 @@ abstract class FileChannelImpl extends FileChannel {
     }
 
     public int write(ByteBuffer buffer) throws IOException {
-        openCheck();
+        checkOpen();
+        checkWritable();
+        if ((mode & O_APPEND) != 0) {
+            position(size());
+        }
         return writeImpl(buffer);
     }
 
@@ -479,7 +525,7 @@ abstract class FileChannelImpl extends FileChannel {
                 try {
                     begin();
                     int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(handle,
+                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(fd,
                             address, buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -488,7 +534,7 @@ abstract class FileChannelImpl extends FileChannel {
             } else {
                 try {
                     begin();
-                    bytesWritten = (int) Platform.FILE_SYSTEM.write(handle, buffer
+                    bytesWritten = (int) Platform.FILE_SYSTEM.write(fd, buffer
                             .array(), buffer.arrayOffset() + buffer.position(),
                             buffer.remaining());
                     completed = true;
@@ -505,7 +551,8 @@ abstract class FileChannelImpl extends FileChannel {
 
     public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
         Arrays.checkOffsetAndCount(buffers.length, offset, length);
-        openCheck();
+        checkOpen();
+        checkWritable();
         int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, false);
         if (count == 0) {
             return 0;
@@ -538,8 +585,7 @@ abstract class FileChannelImpl extends FileChannel {
         synchronized (repositioningLock) {
             try {
                 begin();
-                bytesWritten = Platform.FILE_SYSTEM.writev(handle, handles, offsets,
-                        lengths, length);
+                bytesWritten = Platform.FILE_SYSTEM.writev(fd, handles, offsets, lengths, length);
                 completed = true;
             } finally {
                 end(completed);
@@ -586,8 +632,8 @@ abstract class FileChannelImpl extends FileChannel {
         return count;
     }
 
-    public int getHandle() {
-        return handle;
+    public int getFd() {
+        return fd;
     }
 
     /**
