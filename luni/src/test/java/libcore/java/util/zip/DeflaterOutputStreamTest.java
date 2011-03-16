@@ -16,13 +16,18 @@
 
 package libcore.java.util.zip;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 import junit.framework.TestCase;
@@ -34,6 +39,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         assertEquals(1, in.read());
         assertEquals(2, in.read());
         assertEquals(3, in.read());
+        in.close();
     }
 
     public void testSyncFlushDisabled() throws Exception {
@@ -43,6 +49,7 @@ public class DeflaterOutputStreamTest extends TestCase {
             fail();
         } catch (IOException expected) {
         }
+        in.close();
     }
 
     /**
@@ -76,5 +83,57 @@ public class DeflaterOutputStreamTest extends TestCase {
         executor.shutdown();
 
         return new InflaterInputStream(pin);
+    }
+
+    /**
+     * Confirm that a DeflaterOutputStream constructed with Deflater
+     * with flushParm == SYNC_FLUSH does not need to to be flushed.
+     *
+     * http://4005091
+     */
+    public void testSyncFlushDeflater() throws Exception {
+        Deflater def = new Deflater();
+        Field f = def.getClass().getDeclaredField("flushParm");
+        f.setAccessible(true);
+        f.setInt(def, Deflater.SYNC_FLUSH);
+
+        final int deflaterBufferSize = 512;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DeflaterOutputStream dos = new DeflaterOutputStream(baos, def, deflaterBufferSize);
+
+        // make output buffer large enough that even if compressed it
+        // won't all fit within the deflaterBufferSize.
+        final int outputBufferSize = 128 * deflaterBufferSize;
+        byte[] output = new byte[outputBufferSize];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = (byte) i;
+        }
+
+        dos.write(output);
+        byte[] compressed = baos.toByteArray();
+        assertTrue("compressed=" + compressed.length
+                   + " but deflaterBufferSize=" + deflaterBufferSize,
+                   compressed.length > deflaterBufferSize);
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(compressed);
+        InflaterInputStream iis = new InflaterInputStream(bais);
+        byte[] input = new byte[output.length];
+        int total = 0;
+        while (true)  {
+            int n = iis.read(input, total, input.length - total);
+            if (n == -1) {
+                break;
+            }
+            total += n;
+            if (total == input.length) {
+                try {
+                    iis.read();
+                    fail();
+                } catch (EOFException expected) {
+                    break;
+                }
+            }
+        }
+        assertEquals(output.length, total);
     }
 }

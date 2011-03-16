@@ -132,11 +132,10 @@ public class DeflaterOutputStream extends FilterOutputStream {
      *             If an error occurs during deflation.
      */
     protected void deflate() throws IOException {
-        int x = 0;
-        do {
-            x = def.deflate(buf);
-            out.write(buf, 0, x);
-        } while (!def.needsInput());
+        int byteCount;
+        while ((byteCount = def.deflate(buf)) != 0) {
+            out.write(buf, 0, byteCount);
+        }
     }
 
     /**
@@ -169,13 +168,12 @@ public class DeflaterOutputStream extends FilterOutputStream {
             return;
         }
         def.finish();
-        int x = 0;
         while (!def.finished()) {
             if (def.needsInput()) {
                 def.setInput(buf, 0, 0);
             }
-            x = def.deflate(buf);
-            out.write(buf, 0, x);
+            int byteCount = def.deflate(buf);
+            out.write(buf, 0, byteCount);
         }
         done = true;
     }
@@ -229,8 +227,10 @@ public class DeflaterOutputStream extends FilterOutputStream {
      */
     @Override public void flush() throws IOException {
         if (syncFlush) {
-            int count = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH);
-            out.write(buf, 0, count);
+            int byteCount;
+            while ((byteCount = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH)) != 0) {
+                out.write(buf, 0, byteCount);
+            }
         }
         out.flush();
     }
