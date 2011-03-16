@@ -34,14 +34,6 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
-static jstring System_getEnvByName(JNIEnv* env, jclass, jstring javaName) {
-    ScopedUtfChars name(env, javaName);
-    if (name.c_str() == NULL) {
-        return NULL;
-    }
-    return env->NewStringUTF(getenv(name.c_str()));
-}
-
 static jstring System_getEnvByIndex(JNIEnv* env, jclass, jint index) {
     // Pointer to complete environment.
     extern char** environ;
@@ -107,7 +99,6 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(System, getEnvByIndex, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(System, getEnvByName, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),

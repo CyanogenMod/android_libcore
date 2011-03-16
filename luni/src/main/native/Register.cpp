@@ -55,6 +55,7 @@ extern int register_libcore_icu_TimeZones(JNIEnv* env);
 extern int register_libcore_io_IoUtils(JNIEnv* env);
 extern int register_libcore_io_Memory(JNIEnv* env);
 extern int register_libcore_io_OsConstants(JNIEnv* env);
+extern int register_libcore_io_Posix(JNIEnv* env);
 extern int register_libcore_net_RawSocket(JNIEnv* env);
 extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
@@ -104,6 +105,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_io_IoUtils(env) != -1 &&
             register_libcore_io_Memory(env) != -1 &&
             register_libcore_io_OsConstants(env) != -1 &&
+            register_libcore_io_Posix(env) != -1 &&
             register_libcore_net_RawSocket(env) != -1 &&
             register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSFileSystem(env) != -1 &&

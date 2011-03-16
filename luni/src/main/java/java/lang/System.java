@@ -51,6 +51,7 @@ import java.util.Properties;
 import java.util.PropertyPermission;
 import java.util.Set;
 import libcore.icu.ICU;
+import libcore.io.Libcore;
 import libcore.util.ZoneInfoDB;
 
 /**
@@ -199,14 +200,14 @@ public final class System {
      *         if no variable exists with the given name.
      */
     public static String getenv(String name) {
-        if (name == null) {
-            throw new NullPointerException();
-        }
-        return getEnvByName(name);
+        return getenv(name, null);
     }
 
     private static String getenv(String name, String defaultValue) {
-        String value = getEnvByName(name);
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        String value = Libcore.os.getenv(name);
         return (value != null) ? value : defaultValue;
     }
 
