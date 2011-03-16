@@ -172,9 +172,6 @@ public class DeflaterOutputStream extends FilterOutputStream {
         }
         def.finish();
         while (!def.finished()) {
-            if (def.needsInput()) {
-                def.setInput(buf, 0, 0);
-            }
             int byteCount = def.deflate(buf);
             out.write(buf, 0, byteCount);
         }
