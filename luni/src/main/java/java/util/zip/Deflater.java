@@ -47,9 +47,9 @@ import libcore.util.EmptyArray;
  * </pre>
  * <p>In situations where you don't have all the input in one array (or have so much
  * input that you want to feed it to the deflater in chunks), it's possible to call
- * {@link #setInput} repeatedly, but you're much better off using {@link DeflaterOutputStream}
- * to handle all this for you. {@link DeflaterOutputStream} also helps minimize memory
- * requirements&nbsp;&mdash; the sample code above is very expensive.
+ * {@link #setInput setInput} repeatedly, but you're much better off using
+ * {@link DeflaterOutputStream} to handle all this for you. {@link DeflaterOutputStream} also helps
+ * minimize memory requirements&nbsp;&mdash; the sample code above is very expensive.
  */
 public class Deflater {
 
@@ -194,7 +194,7 @@ public class Deflater {
     }
 
     /**
-     * Deflates the data (previously passed to {@link #setInput}) into the
+     * Deflates the data (previously passed to {@link #setInput setInput}) into the
      * supplied buffer.
      *
      * @return number of bytes of compressed data written to {@code buf}.
@@ -204,7 +204,7 @@ public class Deflater {
     }
 
     /**
-     * Deflates data (previously passed to {@link #setInput}) into a specific
+     * Deflates data (previously passed to {@link #setInput setInput}) into a specific
      * region within the supplied buffer.
      *
      * @return the number of bytes of compressed data written to {@code buf}.
@@ -214,7 +214,7 @@ public class Deflater {
     }
 
     /**
-     * Deflates data (previously passed to {@link #setInput}) into a specific
+     * Deflates data (previously passed to {@link #setInput setInput}) into a specific
      * region within the supplied buffer, optionally flushing the input buffer.
      *
      * @param flush one of {@link #NO_FLUSH}, {@link #SYNC_FLUSH} or {@link #FULL_FLUSH}.
@@ -294,7 +294,9 @@ public class Deflater {
     }
 
     /**
-     * Returns true if all provided data has been successfully compressed.
+     * Returns true if {@link #finish finish} has been called and all
+     * data provided by {@link #setInput setInput} has been
+     * successfully compressed and consumed by {@link #deflate deflate}.
      */
     public synchronized boolean finished() {
         return finished;
@@ -333,7 +335,7 @@ public class Deflater {
     private native long getTotalOutImpl(long handle);
 
     /**
-     * Returns true if {@link #setInput} must be called before deflation can continue.
+     * Returns true if {@link #setInput setInput} must be called before deflation can continue.
      * If all uncompressed data has been provided to the {@code Deflater},
      * {@link #finish} must be called to ensure the compressed data is output.
      */
@@ -415,7 +417,7 @@ public class Deflater {
     /**
      * Sets the compression level to be used when compressing data. The
      * compression level must be a value between 0 and 9. This value must be set
-     * prior to calling {@link #setInput}.
+     * prior to calling {@link #setInput setInput}.
      * @exception IllegalArgumentException
      *                If the compression level is invalid.
      */
@@ -432,7 +434,7 @@ public class Deflater {
     /**
      * Sets the compression strategy to be used. The strategy must be one of
      * FILTERED, HUFFMAN_ONLY or DEFAULT_STRATEGY. This value must be set prior
-     * to calling {@link #setInput}.
+     * to calling {@link #setInput setInput}.
      *
      * @exception IllegalArgumentException
      *                If the strategy specified is not one of FILTERED,

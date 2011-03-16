@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -88,7 +89,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      * Confirm that a DeflaterOutputStream constructed with Deflater
      * with flushParm == SYNC_FLUSH does not need to to be flushed.
      *
-     * http://4005091
+     * http://b/4005091
      */
     public void testSyncFlushDeflater() throws Exception {
         Deflater def = new Deflater();
@@ -107,13 +108,18 @@ public class DeflaterOutputStreamTest extends TestCase {
         for (int i = 0; i < output.length; i++) {
             output[i] = (byte) i;
         }
-
         dos.write(output);
         byte[] compressed = baos.toByteArray();
+        // this main reason for this assert is to make sure that the
+        // compressed byte count is larger than the
+        // deflaterBufferSize. However, when the original bug exists,
+        // it will also fail because the compressed length will be
+        // exactly the length of the deflaterBufferSize.
         assertTrue("compressed=" + compressed.length
                    + " but deflaterBufferSize=" + deflaterBufferSize,
                    compressed.length > deflaterBufferSize);
 
+        // assert that we returned data matches the input exactly.
         ByteArrayInputStream bais = new ByteArrayInputStream(compressed);
         InflaterInputStream iis = new InflaterInputStream(bais);
         byte[] input = new byte[output.length];
@@ -134,5 +140,11 @@ public class DeflaterOutputStreamTest extends TestCase {
             }
         }
         assertEquals(output.length, total);
+        assertTrue(Arrays.equals(input, output));
+
+        // ensure Deflater.finish has not been called at any point
+        // during the test, since that would lead to the results being
+        // flushed even without SYNC_FLUSH being used
+        assertFalse(def.finished());
     }
 }
