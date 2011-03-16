@@ -17,19 +17,6 @@
 
 #define LOG_TAG "OSFileSystem"
 
-/* Values for HyFileOpen */
-#define HyOpenRead    1
-#define HyOpenWrite   2
-#define HyOpenCreate  4
-#define HyOpenTruncate  8
-#define HyOpenAppend  16
-/* Use this flag with HyOpenCreate, if this flag is specified then
- * trying to create an existing file will fail
- */
-#define HyOpenCreateNew 64
-#define HyOpenSync      128
-#define SHARED_LOCK_TYPE 1L
-
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -72,38 +59,6 @@ static inline ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t coun
 }
 #endif
 
-static int EsTranslateOpenFlags(int flags) {
-    int realFlags = 0;
-
-    if (flags & HyOpenAppend) {
-        realFlags |= O_APPEND;
-    }
-    if (flags & HyOpenTruncate) {
-        realFlags |= O_TRUNC;
-    }
-    if (flags & HyOpenCreate) {
-        realFlags |= O_CREAT;
-    }
-    if (flags & HyOpenCreateNew) {
-        realFlags |= O_EXCL | O_CREAT;
-    }
-#ifdef O_SYNC
-    if (flags & HyOpenSync) {
-        realFlags |= O_SYNC;
-    }
-#endif
-    if (flags & HyOpenRead) {
-        if (flags & HyOpenWrite) {
-            return (O_RDWR | realFlags);
-        }
-        return (O_RDONLY | realFlags);
-    }
-    if (flags & HyOpenWrite) {
-        return (O_WRONLY | realFlags);
-    }
-    return -1;
-}
-
 static jlong translateLockLength(jlong length) {
     // FileChannel.tryLock uses Long.MAX_VALUE to mean "lock the whole
     // file", where POSIX would use 0. We can support that special case,
@@ -123,31 +78,17 @@ static struct flock64 flockFromStartAndLength(jlong start, jlong length) {
     return lock;
 }
 
-static jint OSFileSystem_lockImpl(JNIEnv*, jobject, jint fd,
-        jlong start, jlong length, jint typeFlag, jboolean waitFlag) {
+static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
+        jlong start, jlong length, jint lockType, jboolean waitFlag) {
 
     length = translateLockLength(length);
     struct flock64 lock(flockFromStartAndLength(start, length));
-
-    if ((typeFlag & SHARED_LOCK_TYPE) == SHARED_LOCK_TYPE) {
-        lock.l_type = F_RDLCK;
-    } else {
-        lock.l_type = F_WRLCK;
-    }
-
-    int waitMode = (waitFlag) ? F_SETLKW64 : F_SETLK64;
-    return TEMP_FAILURE_RETRY(fcntl(fd, waitMode, &lock));
-}
-
-static void OSFileSystem_unlockImpl(JNIEnv* env, jobject, jint fd, jlong start, jlong length) {
-    length = translateLockLength(length);
-    struct flock64 lock(flockFromStartAndLength(start, length));
-    lock.l_type = F_UNLCK;
-
-    int rc = TEMP_FAILURE_RETRY(fcntl(fd, F_SETLKW64, &lock));
-    if (rc == -1) {
+    lock.l_type = lockType;
+    int rc = TEMP_FAILURE_RETRY(fcntl(fd, waitFlag ? F_SETLKW64 : F_SETLK64, &lock));
+    if (lockType == F_UNLCK && rc == -1) {
         jniThrowIOException(env, errno);
     }
+    return rc;
 }
 
 /**
@@ -288,24 +229,8 @@ static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
     return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
 }
 
-static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint javaWhence) {
-    /* Convert whence argument */
-    int nativeWhence = 0;
-    switch (javaWhence) {
-    case 1:
-        nativeWhence = SEEK_SET;
-        break;
-    case 2:
-        nativeWhence = SEEK_CUR;
-        break;
-    case 4:
-        nativeWhence = SEEK_END;
-        break;
-    default:
-        return -1;
-    }
-
-    jlong result = lseek64(fd, offset, nativeWhence);
+static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint whence) {
+    jlong result = lseek64(fd, offset, whence);
     if (result == -1) {
         if (errno == ESPIPE) {
             jniThrowExceptionWithErrno(env,
@@ -333,40 +258,13 @@ static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     return rc;
 }
 
-static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflags) {
-    int flags = 0;
-    int mode = 0;
-
-    // On Android, we don't want default permissions to allow global access.
-    switch (jflags) {
-    case 0:
-        flags = HyOpenRead;
-        mode = 0;
-        break;
-    case 1:
-        flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
-        mode = 0600;
-        break;
-    case 16:
-        flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
-        mode = 0600;
-        break;
-    case 32:
-        flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
-        mode = 0600;
-        break;
-    case 256:
-        flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
-        mode = 0600;
-        break;
-    }
-
-    flags = EsTranslateOpenFlags(flags);
-
+static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint flags) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return -1;
     }
+    // On Android, we don't want default permissions to allow global access.
+    int mode = ((flags & O_ACCMODE) == O_RDONLY) ? 0 : 0600;
     jint fd = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
 
     // Posix open(2) fails with EISDIR only if you ask for write permission.
@@ -473,7 +371,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, seek, "(IJI)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
     NATIVE_METHOD(OSFileSystem, truncate, "(IJ)V"),
-    NATIVE_METHOD(OSFileSystem, unlockImpl, "(IJJ)V"),
     NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),

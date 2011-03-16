@@ -20,6 +20,7 @@ package org.apache.harmony.luni.platform;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import static libcore.io.OsConstants.*;
 
 class OSFileSystem implements IFileSystem {
 
@@ -32,25 +33,6 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    private final void validateLockArgs(int type, long start, long length) {
-        if ((type != IFileSystem.SHARED_LOCK_TYPE)
-                && (type != IFileSystem.EXCLUSIVE_LOCK_TYPE)) {
-            throw new IllegalArgumentException("Illegal lock type requested.");
-        }
-
-        // Start position
-        if (start < 0) {
-            throw new IllegalArgumentException("start < 0");
-        }
-
-        // Length of lock stretch
-        if (length < 0) {
-            throw new IllegalArgumentException("length < 0");
-        }
-    }
-
-    private native int lockImpl(int fd, long start, long length, int type, boolean wait);
-
     /**
      * Returns the granularity for virtual memory allocation.
      * Note that this value for Windows differs from the one for the
@@ -60,21 +42,16 @@ class OSFileSystem implements IFileSystem {
 
     public native long length(int fd);
 
-    public boolean lock(int fd, long start, long length, int type, boolean waitFlag)
-            throws IOException {
-        // Validate arguments
-        validateLockArgs(type, start, length);
-        int result = lockImpl(fd, start, length, type, waitFlag);
+    public boolean lock(int fd, long start, long length, boolean shared, boolean waitFlag) throws IOException {
+        int result = lockImpl(fd, start, length, shared ? F_RDLCK : F_WRLCK, waitFlag);
         return result != -1;
     }
 
-    private native void unlockImpl(int fd, long start, long length) throws IOException;
-
     public void unlock(int fd, long start, long length) throws IOException {
-        // Validate arguments
-        validateLockArgs(IFileSystem.SHARED_LOCK_TYPE, start, length);
-        unlockImpl(fd, start, length);
+        lockImpl(fd, start, length, F_UNLCK, true);
     }
+
+    private native int lockImpl(int fd, long start, long length, int type, boolean wait);
 
     public native void fsync(int fd, boolean metadata) throws IOException;
 

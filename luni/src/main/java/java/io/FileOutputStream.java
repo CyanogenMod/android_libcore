@@ -22,7 +22,7 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.IFileSystem;
+import static libcore.io.OsConstants.*;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -85,7 +85,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
      */
     public FileOutputStream(File file, boolean append) throws FileNotFoundException {
         this.fd = new FileDescriptor();
-        this.mode = append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY;
+        this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
         this.fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), mode);
         this.shouldCloseFd = true;
         this.guard.open("close");
@@ -103,8 +103,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
         this.fd = fd;
         this.shouldCloseFd = false;
-        this.channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_WRONLY);
-        this.mode = IFileSystem.O_WRONLY;
+        this.mode = O_WRONLY;
+        this.channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }

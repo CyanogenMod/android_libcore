@@ -103,7 +103,7 @@ final class PipeImpl extends Pipe {
         private PipeSinkChannel(int fd) throws IOException {
             super(SelectorProvider.provider());
             this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = new WriteOnlyFileChannel(new FdCloser(this.fd), fd);
+            this.channel = new WriteOnlyFileChannel(new FdCloser(this.fd), fd, false);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {

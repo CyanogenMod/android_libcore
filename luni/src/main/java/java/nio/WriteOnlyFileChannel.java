@@ -28,13 +28,9 @@ final class WriteOnlyFileChannel extends FileChannelImpl {
 
     private boolean append = false;
 
-    public WriteOnlyFileChannel(Object stream, int handle) {
+    public WriteOnlyFileChannel(Object stream, int handle, boolean append) {
         super(stream, handle);
-    }
-
-    public WriteOnlyFileChannel(Object stream, int handle, boolean isAppend) {
-        super(stream, handle);
-        append = isAppend;
+        this.append = append;
     }
 
     public long position() throws IOException {
@@ -71,8 +67,7 @@ final class WriteOnlyFileChannel extends FileChannelImpl {
         throw new NonReadableChannelException();
     }
 
-    public MappedByteBuffer map(MapMode mode, long position, long size)
-            throws IOException {
+    public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
         openCheck();
         if (mode == null) {
             throw new NullPointerException();

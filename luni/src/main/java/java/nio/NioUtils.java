@@ -17,7 +17,7 @@
 package java.nio;
 
 import java.nio.channels.FileChannel;
-import org.apache.harmony.luni.platform.IFileSystem;
+import static libcore.io.OsConstants.*;
 
 /**
  * @hide internal use only
@@ -69,19 +69,13 @@ public final class NioUtils {
      * Helps bridge between io and nio.
      */
     public static FileChannel newFileChannel(Object stream, int fd, int mode) {
-        switch (mode) {
-        case IFileSystem.O_RDONLY:
+        int accessMode = (mode & O_ACCMODE);
+        if (accessMode == O_RDONLY) {
             return new ReadOnlyFileChannel(stream, fd);
-        case IFileSystem.O_WRONLY:
-            return new WriteOnlyFileChannel(stream, fd);
-        case IFileSystem.O_RDWR:
+        } else if (accessMode == O_WRONLY) {
+            return new WriteOnlyFileChannel(stream, fd, (mode & O_APPEND) != 0);
+        } else {
             return new ReadWriteFileChannel(stream, fd);
-        case IFileSystem.O_RDWRSYNC:
-            return new ReadWriteFileChannel(stream, fd);
-        case IFileSystem.O_APPEND:
-            return new WriteOnlyFileChannel(stream, fd, true);
-        default:
-            throw new RuntimeException("Unknown mode: " + mode);
         }
     }
 }
