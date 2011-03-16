@@ -19,9 +19,11 @@ package java.nio;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.channels.Pipe;
 import java.nio.channels.spi.SelectorProvider;
 import libcore.io.IoUtils;
+import static libcore.io.OsConstants.*;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 
 /*
@@ -63,12 +65,12 @@ final class PipeImpl extends Pipe {
 
     private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorHandler {
         private final FileDescriptor fd;
-        private final FileChannelImpl channel;
+        private final FileChannel channel;
 
         private PipeSourceChannel(int fd) throws IOException {
             super(SelectorProvider.provider());
             this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = new ReadOnlyFileChannel(new FdCloser(this.fd), fd);
+            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), fd, O_RDONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {
@@ -98,12 +100,12 @@ final class PipeImpl extends Pipe {
 
     private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorHandler {
         private final FileDescriptor fd;
-        private final FileChannelImpl channel;
+        private final FileChannel channel;
 
         private PipeSinkChannel(int fd) throws IOException {
             super(SelectorProvider.provider());
             this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = new WriteOnlyFileChannel(new FdCloser(this.fd), fd, false);
+            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), fd, O_WRONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {

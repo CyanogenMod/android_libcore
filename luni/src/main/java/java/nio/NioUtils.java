@@ -62,20 +62,13 @@ public final class NioUtils {
      * Returns the int file descriptor from within the given FileChannel 'fc'.
      */
     public static int getFd(FileChannel fc) {
-        return ((FileChannelImpl) fc).getHandle();
+        return ((FileChannelImpl) fc).getFd();
     }
 
     /**
      * Helps bridge between io and nio.
      */
     public static FileChannel newFileChannel(Object stream, int fd, int mode) {
-        int accessMode = (mode & O_ACCMODE);
-        if (accessMode == O_RDONLY) {
-            return new ReadOnlyFileChannel(stream, fd);
-        } else if (accessMode == O_WRONLY) {
-            return new WriteOnlyFileChannel(stream, fd, (mode & O_APPEND) != 0);
-        } else {
-            return new ReadWriteFileChannel(stream, fd);
-        }
+        return new FileChannelImpl(stream, fd, mode);
     }
 }
