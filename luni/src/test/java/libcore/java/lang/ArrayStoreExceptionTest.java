@@ -66,8 +66,8 @@ public final class ArrayStoreExceptionTest extends TestCase {
             System.arraycopy(src, 1, dest, 0, 5);
         } catch (ArrayStoreException ex) {
             ex.printStackTrace();
-            assertEquals("source[4] of type Ljava/lang/String; cannot be stored in destination "
-                    + "array of type [Ljava/lang/Integer;",
+            assertEquals("source[4] of type java.lang.String cannot be stored in destination "
+                    + "array of type java.lang.Integer[]",
                     ex.getMessage());
         }
     }
@@ -78,8 +78,7 @@ public final class ArrayStoreExceptionTest extends TestCase {
         try {
             System.arraycopy(src, 0, dest, 0, 1);
         } catch (ArrayStoreException ex) {
-            assertEquals("source and destination arrays are incompatible: [Ljava/lang/String; "
-                    + "and [I",
+            assertEquals("java.lang.String[] and int[] are incompatible array types",
                     ex.getMessage());
         }
     }
@@ -90,8 +89,7 @@ public final class ArrayStoreExceptionTest extends TestCase {
         try {
             System.arraycopy(src, 0, dest, 0, 1);
         } catch (ArrayStoreException ex) {
-            assertEquals("source and destination arrays are incompatible: [F and "
-                    + "[Ljava/lang/Runnable;",
+            assertEquals("float[] and java.lang.Runnable[] are incompatible array types",
                     ex.getMessage());
         }
     }
@@ -102,7 +100,46 @@ public final class ArrayStoreExceptionTest extends TestCase {
         try {
             System.arraycopy(src, 0, dest, 0, 1);
         } catch (ArrayStoreException ex) {
-            assertEquals("source and destination arrays are incompatible: [Z and [[D",
+            assertEquals("boolean[] and double[][] are incompatible array types",
+                    ex.getMessage());
+        }
+    }
+
+    public void testArrayStoreException_arraycopy5() throws Exception {
+        String src = "blort";
+        Object[] dest = new Object[1];
+        try {
+            System.arraycopy(src, 0, dest, 0, 1);
+        } catch (ArrayStoreException ex) {
+            assertEquals("source of type java.lang.String is not an array",
+                    ex.getMessage());
+        }
+    }
+
+    public void testArrayStoreException_arraycopy6() throws Exception {
+        Object[] src = new Object[1];
+        Integer dest = new Integer(5);
+        try {
+            System.arraycopy(src, 0, dest, 0, 1);
+        } catch (ArrayStoreException ex) {
+            assertEquals("destination of type java.lang.Integer is not an array",
+                    ex.getMessage());
+        }
+    }
+
+    public void testArrayStoreException_arraycopy7() throws Exception {
+        /*
+         * This test demonstrates that the exception message complains
+         * about the source in cases where neither source nor
+         * destination is an array.
+         */
+        Nonce src = new Nonce();
+        String dest = "blort";
+        try {
+            System.arraycopy(src, 0, dest, 0, 1);
+        } catch (ArrayStoreException ex) {
+            assertEquals("source of type libcore.java.lang.ArrayStoreExceptionTest$Nonce "
+                    + "is not an array",
                     ex.getMessage());
         }
     }
