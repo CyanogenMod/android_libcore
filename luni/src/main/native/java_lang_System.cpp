@@ -18,7 +18,6 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "android/log.h"
 #include "openssl/opensslv.h"

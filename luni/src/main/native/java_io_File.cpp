@@ -21,7 +21,6 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "ScopedFd.h"
-#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"

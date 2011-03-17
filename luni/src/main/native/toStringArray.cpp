@@ -15,7 +15,6 @@
  */
 
 #include "JniConstants.h"
-#include "ScopedLocalRef.h"
 #include "toStringArray.h"
 
 #include <string>

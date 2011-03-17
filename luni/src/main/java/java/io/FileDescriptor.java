@@ -19,39 +19,28 @@ package java.io;
 
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /**
- * The lowest-level representation of a file, device, or
- * socket. If is often used for wrapping an operating system "handle". Some
- * I/O classes can be queried for the FileDescriptor they are operating on, and
- * this descriptor can subsequently be used during the instantiation of another
- * I/O class, so that the new object will reuse it.
- * <p>
- * The FileDescriptor class also contains static fields representing the
- * system's standard input, output and error streams. These can be used directly
- * if desired, but it is recommended to go through System.in, System.out, and
- * System.err streams respectively.
- * <p>
- * Applications should not create new FileDescriptors.
- *
- * @see FileInputStream#getFD()
- * @see FileOutputStream#getFD()
- * @see RandomAccessFile#getFD()
+ * Wraps a Unix file descriptor. It's possible to get the file descriptor used by some
+ * classes (such as {@link FileInputStream}, {@link FileOutputStream},
+ * and {@link RandomAccessFile}), and then create new streams that point to the same
+ * file descriptor.
  */
 public final class FileDescriptor {
 
     /**
-     * The FileDescriptor representing standard input.
+     * Corresponds to {@code stdin}.
      */
     public static final FileDescriptor in = new FileDescriptor();
 
     /**
-     * FileDescriptor representing standard out.
+     * Corresponds to {@code stdout}.
      */
     public static final FileDescriptor out = new FileDescriptor();
 
     /**
-     * FileDescriptor representing standard error.
+     * Corresponds to {@code stderr}.
      */
     public static final FileDescriptor err = new FileDescriptor();
 
@@ -64,14 +53,13 @@ public final class FileDescriptor {
     boolean readOnly = false;
 
     static {
-        in.descriptor = 0;
-        out.descriptor = 1;
-        err.descriptor = 2;
+        in.descriptor = STDIN_FILENO;
+        out.descriptor = STDOUT_FILENO;
+        err.descriptor = STDERR_FILENO;
     }
 
     /**
-     * Constructs a new FileDescriptor containing an invalid handle. The
-     * contained handle is usually modified by native code at a later point.
+     * Constructs a new invalid FileDescriptor.
      */
     public FileDescriptor() {
     }
@@ -79,9 +67,6 @@ public final class FileDescriptor {
     /**
      * Ensures that data which is buffered within the underlying implementation
      * is written out to the appropriate device before returning.
-     *
-     * @throws SyncFailedException
-     *             when the operation fails.
      */
     public void sync() throws SyncFailedException {
         // if the descriptor is a read-only one, do nothing
@@ -97,10 +82,7 @@ public final class FileDescriptor {
     }
 
     /**
-     * Indicates whether this FileDescriptor is valid.
-     *
-     * @return {@code true} if this FileDescriptor is valid, {@code false}
-     *         otherwise.
+     * Tests whether this {@code FileDescriptor} is valid.
      */
     public boolean valid() {
         return descriptor != -1;
