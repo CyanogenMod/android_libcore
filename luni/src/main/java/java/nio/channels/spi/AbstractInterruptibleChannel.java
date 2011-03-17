@@ -54,7 +54,6 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      * Default constructor.
      */
     protected AbstractInterruptibleChannel() {
-        super();
     }
 
     /**

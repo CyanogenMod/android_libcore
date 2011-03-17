@@ -34,7 +34,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * Constructs a new instance of this AbstractCollection.
      */
     protected AbstractCollection() {
-        super();
     }
 
     public boolean add(E object) {

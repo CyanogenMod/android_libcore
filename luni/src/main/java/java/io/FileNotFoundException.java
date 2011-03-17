@@ -29,7 +29,6 @@ public class FileNotFoundException extends IOException {
      * filled in.
      */
     public FileNotFoundException() {
-        super();
     }
 
     /**

@@ -30,7 +30,6 @@ public class AssertionError extends Error {
      * Constructs a new {@code AssertionError} with no message.
      */
     public AssertionError() {
-        super();
     }
 
     /**

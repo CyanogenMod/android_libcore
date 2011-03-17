@@ -30,7 +30,6 @@ public class UnsupportedClassVersionError extends ClassFormatError {
      * current stack trace.
      */
     public UnsupportedClassVersionError() {
-        super();
     }
 
     /**

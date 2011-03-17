@@ -35,7 +35,6 @@ public class ParserConfigurationException extends Exception {
      */
 
     public ParserConfigurationException() {
-        super();
     }
 
     /**
@@ -50,4 +49,3 @@ public class ParserConfigurationException extends Exception {
     }
 
 }
-

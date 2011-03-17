@@ -340,7 +340,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *             if an error occurs when creating this stream.
      */
     protected ObjectInputStream() throws IOException {
-        super();
         // WARNING - we should throw IOException if not called from a subclass
         // according to the JavaDoc. Add the test.
         this.subclassOverridingImplementation = true;

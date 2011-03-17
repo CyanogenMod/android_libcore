@@ -42,7 +42,6 @@ public class FactoryConfigurationError extends Error {
      */
 
     public FactoryConfigurationError() {
-        super();
         this.exception = null;
     }
 

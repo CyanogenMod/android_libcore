@@ -38,7 +38,6 @@ public abstract class ObjectStreamException extends IOException {
      * filled in.
      */
     protected ObjectStreamException() {
-        super();
     }
 
     /**

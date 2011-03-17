@@ -28,7 +28,6 @@ public class Types {
      * Private constructor to prevent instantiation.
      */
     private Types() {
-        super();
     }
 
     /**

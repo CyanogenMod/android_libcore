@@ -70,7 +70,6 @@ public class Throwable implements java.io.Serializable {
      * Constructs a new {@code Throwable} that includes the current stack trace.
      */
     public Throwable() {
-        super();
         fillInStackTrace();
     }
 

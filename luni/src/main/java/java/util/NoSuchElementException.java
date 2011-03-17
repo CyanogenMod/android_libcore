@@ -31,7 +31,6 @@ public class NoSuchElementException extends RuntimeException {
      * trace filled in.
      */
     public NoSuchElementException() {
-        super();
     }
 
     /**

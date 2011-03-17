@@ -32,7 +32,6 @@ public class AbstractMethodError extends IncompatibleClassChangeError {
      * stack trace.
      */
     public AbstractMethodError() {
-        super();
     }
 
     /**

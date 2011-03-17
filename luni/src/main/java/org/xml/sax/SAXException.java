@@ -42,7 +42,6 @@ public class SAXException extends Exception {
      */
     public SAXException ()
     {
-    super();
     this.exception = null;
     }
 
@@ -69,7 +68,6 @@ public class SAXException extends Exception {
      */
     public SAXException (Exception e)
     {
-    super();
     this.exception = e;
     }
 

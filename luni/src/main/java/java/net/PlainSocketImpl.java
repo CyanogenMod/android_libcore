@@ -73,7 +73,6 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     public PlainSocketImpl(FileDescriptor fd, int localport, InetAddress addr, int port) {
-        super();
         this.fd = fd;
         this.localport = localport;
         this.address = addr;

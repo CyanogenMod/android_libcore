@@ -32,7 +32,6 @@ public class NoSuchFieldError extends IncompatibleClassChangeError {
      * trace.
      */
     public NoSuchFieldError() {
-        super();
     }
 
     /**

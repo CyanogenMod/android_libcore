@@ -30,7 +30,6 @@ public class NoSuchFieldException extends Exception {
      * stack trace.
      */
     public NoSuchFieldException() {
-        super();
     }
 
     /**

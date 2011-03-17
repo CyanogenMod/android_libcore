@@ -33,7 +33,6 @@ public abstract class KeyManagerFactorySpi {
      * Creates a new {@code KeyManagerFactorySpi} instance.
      */
     public KeyManagerFactorySpi() {
-        super();
     }
 
     /**

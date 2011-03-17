@@ -74,7 +74,6 @@ public final class FileDescriptor {
      * contained handle is usually modified by native code at a later point.
      */
     public FileDescriptor() {
-        super();
     }
 
     /**

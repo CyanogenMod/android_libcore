@@ -44,7 +44,6 @@ public abstract class SelectorProvider {
      * Constructs a new {@code SelectorProvider}.
      */
     protected SelectorProvider() {
-        super();
     }
 
     /**

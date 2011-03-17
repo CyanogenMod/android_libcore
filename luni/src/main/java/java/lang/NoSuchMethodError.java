@@ -30,7 +30,6 @@ public class NoSuchMethodError extends IncompatibleClassChangeError {
      * stack trace.
      */
     public NoSuchMethodError() {
-        super();
     }
 
     /**

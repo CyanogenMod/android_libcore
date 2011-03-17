@@ -57,7 +57,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     private int connectedPort = -1;
 
     public PlainDatagramSocketImpl(FileDescriptor fd, int localPort) {
-        super();
         this.fd = fd;
         this.localPort = localPort;
         if (fd.valid()) {
@@ -66,7 +65,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     public PlainDatagramSocketImpl() {
-        super();
         fd = new FileDescriptor();
     }
 

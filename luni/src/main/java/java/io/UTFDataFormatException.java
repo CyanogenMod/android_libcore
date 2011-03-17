@@ -32,7 +32,6 @@ public class UTFDataFormatException extends IOException {
      * filled in.
      */
     public UTFDataFormatException() {
-        super();
     }
 
     /**

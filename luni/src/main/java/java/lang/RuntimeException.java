@@ -33,7 +33,6 @@ public class RuntimeException extends Exception {
      * trace.
      */
     public RuntimeException() {
-        super();
     }
 
     /**

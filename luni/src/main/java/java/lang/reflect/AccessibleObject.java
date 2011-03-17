@@ -101,7 +101,6 @@ public class AccessibleObject implements AnnotatedElement {
      * machine.
      */
     protected AccessibleObject() {
-        super();
     }
 
     /**

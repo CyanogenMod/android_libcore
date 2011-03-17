@@ -30,7 +30,6 @@ public class IllegalAccessException extends Exception {
      * stack trace.
      */
     public IllegalAccessException() {
-        super();
     }
 
     /**

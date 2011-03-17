@@ -30,7 +30,6 @@ public class NumberFormatException extends IllegalArgumentException {
      * stack trace.
      */
     public NumberFormatException() {
-        super();
     }
 
     /**

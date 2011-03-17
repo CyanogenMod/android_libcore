@@ -29,7 +29,6 @@ public class InternalError extends VirtualMachineError {
      * trace.
      */
     public InternalError() {
-        super();
     }
 
     /**

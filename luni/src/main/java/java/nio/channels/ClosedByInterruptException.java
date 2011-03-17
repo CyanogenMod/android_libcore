@@ -32,6 +32,5 @@ public class ClosedByInterruptException extends AsynchronousCloseException {
      * Constructs a {@code ClosedByInterruptException}.
      */
     public ClosedByInterruptException() {
-        super();
     }
 }

@@ -40,7 +40,6 @@ public class MulticastSocket extends DatagramSocket {
      *             if an error occurs creating or binding the socket.
      */
     public MulticastSocket() throws IOException {
-        super();
         setReuseAddress(true);
     }
 

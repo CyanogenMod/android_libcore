@@ -34,7 +34,6 @@ public class ClassCircularityError extends LinkageError {
      * stack trace.
      */
     public ClassCircularityError() {
-        super();
     }
 
     /**

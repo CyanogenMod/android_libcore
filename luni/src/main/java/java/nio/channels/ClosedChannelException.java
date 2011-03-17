@@ -30,6 +30,5 @@ public class ClosedChannelException extends IOException {
      * Constructs a {@code ClosedChannelException}.
      */
     public ClosedChannelException() {
-        super();
     }
 }

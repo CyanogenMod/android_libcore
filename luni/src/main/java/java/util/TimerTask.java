@@ -78,7 +78,6 @@ public abstract class TimerTask implements Runnable {
      * Creates a new {@code TimerTask}.
      */
     protected TimerTask() {
-        super();
     }
 
     /**

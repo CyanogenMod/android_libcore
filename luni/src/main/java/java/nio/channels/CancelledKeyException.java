@@ -31,6 +31,5 @@ public class CancelledKeyException extends IllegalStateException {
      * Constructs a {@code CancelledKeyException}.
      */
     public CancelledKeyException() {
-        super();
     }
 }

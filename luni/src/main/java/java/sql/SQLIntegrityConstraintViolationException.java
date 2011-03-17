@@ -33,7 +33,6 @@ public class SQLIntegrityConstraintViolationException extends
      * Code is set to 0.
      */
     public SQLIntegrityConstraintViolationException() {
-        super();
     }
 
     /**

@@ -78,11 +78,9 @@ public abstract class Reference<T> {
      * Constructs a new instance of this class.
      */
     Reference() {
-        super();
     }
 
     Reference(T r, ReferenceQueue q) {
-        super();
         referent = r;
         queue = q;
     }

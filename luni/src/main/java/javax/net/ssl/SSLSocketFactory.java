@@ -82,7 +82,6 @@ public abstract class SSLSocketFactory extends SocketFactory {
      * Creates a new {@code SSLSocketFactory}.
      */
     public SSLSocketFactory() {
-        super();
     }
 
     /**

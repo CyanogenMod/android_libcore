@@ -89,7 +89,6 @@ public final class Subject implements Serializable {
      * credentials and principals with the empty set.
      */
     public Subject() {
-        super();
         principals = new SecureSet<Principal>(_PRINCIPALS);
         publicCredentials = new SecureSet<Object>(_PUBLIC_CREDENTIALS);
         privateCredentials = new SecureSet<Object>(_PRIVATE_CREDENTIALS);

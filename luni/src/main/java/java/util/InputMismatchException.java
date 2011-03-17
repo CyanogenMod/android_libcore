@@ -35,7 +35,6 @@ public class InputMismatchException extends NoSuchElementException implements
      * trace filled in.
      */
     public InputMismatchException() {
-        super();
     }
 
     /**

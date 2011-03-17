@@ -29,6 +29,5 @@ public class IllegalBlockingModeException extends IllegalStateException {
      * Constructs a {@code IllegalBlockingModeException}.
      */
     public IllegalBlockingModeException() {
-        super();
     }
 }

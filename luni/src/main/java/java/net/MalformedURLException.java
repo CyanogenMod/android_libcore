@@ -33,7 +33,6 @@ public class MalformedURLException extends IOException {
      * Constructs a new instance of this class with its walkback filled in.
      */
     public MalformedURLException() {
-        super();
     }
 
     /**

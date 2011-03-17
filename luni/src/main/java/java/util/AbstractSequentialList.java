@@ -30,7 +30,6 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      * Constructs a new instance of this AbstractSequentialList.
      */
     protected AbstractSequentialList() {
-        super();
     }
 
     @Override

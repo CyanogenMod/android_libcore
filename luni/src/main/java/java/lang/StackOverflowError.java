@@ -32,7 +32,6 @@ public class StackOverflowError extends VirtualMachineError {
      * stack trace.
      */
     public StackOverflowError() {
-        super();
     }
 
     /**

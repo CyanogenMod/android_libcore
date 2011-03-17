@@ -58,7 +58,6 @@ public final class ProcessBuilder {
      *             if {@code command} is {@code null}.
      */
     public ProcessBuilder(List<String> command) {
-        super();
         if (command == null) {
             throw new NullPointerException();
         }

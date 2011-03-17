@@ -30,7 +30,6 @@ public abstract class SSLContextSpi {
      * Creates a new {@code SSLContextSpi} instance.
      */
     public SSLContextSpi() {
-        super();
     }
 
     /**

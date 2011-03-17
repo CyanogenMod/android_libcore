@@ -53,7 +53,6 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      *            the selector provider that creates this channel.
      */
     protected AbstractSelectableChannel(SelectorProvider selectorProvider) {
-        super();
         provider = selectorProvider;
     }
 

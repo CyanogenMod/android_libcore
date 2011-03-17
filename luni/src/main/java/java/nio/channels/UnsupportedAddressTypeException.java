@@ -28,6 +28,5 @@ public class UnsupportedAddressTypeException extends IllegalArgumentException {
      * Constructs an {@code UnsupportedAddressTypeException}.
      */
     public UnsupportedAddressTypeException() {
-        super();
     }
 }

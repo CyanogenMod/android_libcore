@@ -910,7 +910,6 @@ public class KeyStore {
              */
             BuilderImpl(KeyStore ks, ProtectionParameter pp, File file,
                         String type, Provider provider) {
-                super();
                 keyStore = ks;
                 protParameter = pp;
                 fileForLoad = file;

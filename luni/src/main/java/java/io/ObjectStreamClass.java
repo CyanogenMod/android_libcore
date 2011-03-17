@@ -219,7 +219,6 @@ public class ObjectStreamClass implements Serializable {
      * Constructs a new instance of this class.
      */
     ObjectStreamClass() {
-        super();
     }
 
     /**

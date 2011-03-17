@@ -28,6 +28,5 @@ public class ReadOnlyBufferException extends UnsupportedOperationException {
      * Constructs a {@code ReadOnlyBufferException}.
      */
     public ReadOnlyBufferException() {
-        super();
     }
 }

@@ -32,7 +32,6 @@ public class ReferenceQueue<T> {
      * Constructs a new instance of this class.
      */
     public ReferenceQueue() {
-        super();
     }
 
     /**

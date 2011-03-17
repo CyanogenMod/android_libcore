@@ -39,7 +39,6 @@ public abstract class IdentityScope extends Identity {
      * Constructs a new instance of {@code IdentityScope}.
      */
     protected IdentityScope() {
-        super();
     }
 
     /**

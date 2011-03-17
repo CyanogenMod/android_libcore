@@ -33,7 +33,6 @@ public abstract class AbstractSelectionKey extends SelectionKey {
      * Constructs a new {@code AbstractSelectionKey}.
      */
     protected AbstractSelectionKey() {
-        super();
     }
 
     /**

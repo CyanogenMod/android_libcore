@@ -77,7 +77,6 @@ class EmulatedFields {
      *            fields.
      */
     public EmulatedFields(ObjectStreamField[] fields, ObjectStreamField[] declared) {
-        super();
         // We assume the slots are already sorted in the right shape for dumping
         buildSlots(fields);
         declaredFields = declared;

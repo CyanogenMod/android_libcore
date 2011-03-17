@@ -26,7 +26,6 @@ public class SQLRecoverableException extends SQLException {
      * null, the SQLState string is set to null and the Error Code is set to 0.
      */
     public SQLRecoverableException() {
-        super();
     }
 
     /**

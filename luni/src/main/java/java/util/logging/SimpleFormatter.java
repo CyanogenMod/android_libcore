@@ -32,7 +32,6 @@ public class SimpleFormatter extends Formatter {
      * Constructs a new {@code SimpleFormatter}.
      */
     public SimpleFormatter() {
-        super();
     }
 
     /**

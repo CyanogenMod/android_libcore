@@ -41,10 +41,8 @@ class EmulatedFieldsForLoading extends ObjectInputStream.GetField {
      *            fields.
      */
     EmulatedFieldsForLoading(ObjectStreamClass streamClass) {
-        super();
         this.streamClass = streamClass;
-        emulatedFields = new EmulatedFields(streamClass.getLoadFields(),
-                streamClass.fields());
+        emulatedFields = new EmulatedFields(streamClass.getLoadFields(), streamClass.fields());
     }
 
     /**

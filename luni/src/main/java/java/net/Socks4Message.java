@@ -55,7 +55,6 @@ class Socks4Message {
     protected byte[] buffer;
 
     public Socks4Message() {
-        super();
         buffer = new byte[BUFFER_LENGTH];
         setVersionNumber(SOCKS_VERSION);
     }

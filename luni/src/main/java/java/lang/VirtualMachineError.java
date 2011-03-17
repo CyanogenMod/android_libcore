@@ -33,7 +33,6 @@ public abstract class VirtualMachineError extends Error {
      * stack trace.
      */
     public VirtualMachineError() {
-        super();
     }
 
     /**

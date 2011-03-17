@@ -184,7 +184,6 @@ public class Deflater {
      *            {@code true} indicates that no ZLIB header should be written.
      */
     public Deflater(int level, boolean noHeader) {
-        super();
         if (level < DEFAULT_COMPRESSION || level > BEST_COMPRESSION) {
             throw new IllegalArgumentException();
         }

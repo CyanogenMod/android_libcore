@@ -45,7 +45,6 @@ public class CharArrayWriter extends Writer {
      * {@code lock} to synchronize access to this writer.
      */
     public CharArrayWriter() {
-        super();
         buf = new char[32];
         lock = buf;
     }
@@ -61,7 +60,6 @@ public class CharArrayWriter extends Writer {
      *             if {@code initialSize < 0}.
      */
     public CharArrayWriter(int initialSize) {
-        super();
         if (initialSize < 0) {
             throw new IllegalArgumentException("size < 0");
         }

@@ -29,6 +29,5 @@ public class ConnectionPendingException extends IllegalStateException {
      * Constructs a {@code ConnectionPendingException}.
      */
     public ConnectionPendingException() {
-        super();
     }
 }

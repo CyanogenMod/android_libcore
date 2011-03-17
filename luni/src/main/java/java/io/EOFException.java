@@ -29,7 +29,6 @@ public class EOFException extends IOException {
      * Constructs a new {@code EOFException} with its stack trace filled in.
      */
     public EOFException() {
-        super();
     }
 
     /**

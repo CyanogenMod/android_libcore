@@ -36,7 +36,6 @@ public class InterruptedIOException extends IOException {
      * filled in.
      */
     public InterruptedIOException() {
-        super();
     }
 
     /**

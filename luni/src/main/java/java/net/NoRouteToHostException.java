@@ -30,7 +30,6 @@ public class NoRouteToHostException extends SocketException {
      * Constructs a new instance of this exception with its walkback filled in.
      */
     public NoRouteToHostException() {
-        super();
     }
 
     /**

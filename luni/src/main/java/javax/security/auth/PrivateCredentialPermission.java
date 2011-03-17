@@ -342,7 +342,6 @@ public final class PrivateCredentialPermission extends Permission {
 
         // Creates a new CredOwner with the specified Principal Class and Principal Name
         CredOwner(String principalClass, String principalName) {
-            super();
             if ("*".equals(principalClass)) {
                 isClassWildcard = true;
             }

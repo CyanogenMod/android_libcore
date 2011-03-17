@@ -105,7 +105,6 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
          * Private constructor prevents others creating new modes.
          */
         private MapMode(String displayName) {
-            super();
             this.displayName = displayName;
         }
 
@@ -124,7 +123,6 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
      * Protected default constructor.
      */
     protected FileChannel() {
-        super();
     }
 
     /**

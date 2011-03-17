@@ -32,7 +32,6 @@ public class SocketException extends IOException {
      * filled in.
      */
     public SocketException() {
-        super();
     }
 
     /**

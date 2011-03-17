@@ -26,7 +26,6 @@ public class SQLTimeoutException extends SQLTransientException {
      * the SQLState string is set to null and the Error Code is set to 0.
      */
     public SQLTimeoutException() {
-        super();
     }
 
     /**

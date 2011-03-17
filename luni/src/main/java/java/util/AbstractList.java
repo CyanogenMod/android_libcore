@@ -43,7 +43,6 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements
         int lastPosition = -1;
 
         SimpleListIterator() {
-            super();
             expectedModCount = modCount;
         }
 
@@ -87,10 +86,8 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements
         }
     }
 
-    private final class FullListIterator extends SimpleListIterator implements
-            ListIterator<E> {
+    private final class FullListIterator extends SimpleListIterator implements ListIterator<E> {
         FullListIterator(int start) {
-            super();
             if (start >= 0 && start <= size()) {
                 pos = start - 1;
             } else {
@@ -180,7 +177,6 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements
 
             SubAbstractListIterator(ListIterator<E> it,
                     SubAbstractList<E> list, int offset, int length) {
-                super();
                 iterator = it;
                 subList = list;
                 start = offset;
@@ -239,7 +235,6 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements
         }
 
         SubAbstractList(AbstractList<E> list, int start, int end) {
-            super();
             fullList = list;
             modCount = fullList.modCount;
             offset = start;
@@ -380,7 +375,6 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements
      * Constructs a new instance of this AbstractList.
      */
     protected AbstractList() {
-        super();
     }
 
     /**

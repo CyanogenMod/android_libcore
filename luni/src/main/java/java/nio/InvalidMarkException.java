@@ -28,6 +28,5 @@ public class InvalidMarkException extends IllegalStateException {
      * Constructs an {@code InvalidMarkException}.
      */
     public InvalidMarkException() {
-        super();
     }
 }

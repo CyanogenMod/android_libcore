@@ -37,7 +37,6 @@ final class FilePermissionCollection extends PermissionCollection implements
      * Construct a new FilePermissionCollection
      */
     public FilePermissionCollection() {
-        super();
     }
 
     /**
