@@ -24,6 +24,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static void maybeThrow(JNIEnv* env, int rc, int errnum) {
     if (rc != -1) {
@@ -64,6 +65,18 @@ static jobjectArray Posix_environ(JNIEnv* env, jobject) {
     return toStringArray(env, environ);
 }
 
+static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int rc = fdatasync(fd);
+    maybeThrow(env, rc, errno);
+}
+
+static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int rc = fsync(fd);
+    maybeThrow(env, rc, errno);
+}
+
 static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -73,7 +86,7 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
 }
 
 static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
-    char buffer[80];
+    char buffer[BUFSIZ];
     const char* message = jniStrError(errnum, buffer, sizeof(buffer));
     return env->NewStringUTF(message);
 }
@@ -81,6 +94,8 @@ static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, fdatasync, "(Ljava/io/FileDescriptor;)V"),
+    NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
 };

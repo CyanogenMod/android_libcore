@@ -16,8 +16,8 @@
 
 package java.nio;
 
+import java.io.FileDescriptor;
 import java.nio.channels.FileChannel;
-import static libcore.io.OsConstants.*;
 
 /**
  * @hide internal use only
@@ -61,14 +61,14 @@ public final class NioUtils {
     /**
      * Returns the int file descriptor from within the given FileChannel 'fc'.
      */
-    public static int getFd(FileChannel fc) {
-        return ((FileChannelImpl) fc).getFd();
+    public static FileDescriptor getFD(FileChannel fc) {
+        return ((FileChannelImpl) fc).getFD();
     }
 
     /**
      * Helps bridge between io and nio.
      */
-    public static FileChannel newFileChannel(Object stream, int fd, int mode) {
+    public static FileChannel newFileChannel(Object stream, FileDescriptor fd, int mode) {
         return new FileChannelImpl(stream, fd, mode);
     }
 }

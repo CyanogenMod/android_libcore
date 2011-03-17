@@ -194,7 +194,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public final synchronized FileChannel getChannel() {
         if(channel == null) {
-            channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
+            channel = NioUtils.newFileChannel(this, fd, mode);
         }
         return channel;
     }

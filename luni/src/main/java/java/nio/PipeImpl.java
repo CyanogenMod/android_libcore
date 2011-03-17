@@ -70,7 +70,7 @@ final class PipeImpl extends Pipe {
         private PipeSourceChannel(int fd) throws IOException {
             super(SelectorProvider.provider());
             this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), fd, O_RDONLY);
+            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), this.fd, O_RDONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {
@@ -105,7 +105,7 @@ final class PipeImpl extends Pipe {
         private PipeSinkChannel(int fd) throws IOException {
             super(SelectorProvider.provider());
             this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), fd, O_WRONLY);
+            this.channel = NioUtils.newFileChannel(new FdCloser(this.fd), this.fd, O_WRONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {

@@ -32,6 +32,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
+import libcore.io.Libcore;
 import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
@@ -54,7 +57,7 @@ final class FileChannelImpl extends FileChannel {
     };
 
     private final Object stream;
-    private final int fd;
+    private final FileDescriptor fd;
     private final int mode;
 
     // The set of acquired and pending locks.
@@ -66,7 +69,7 @@ final class FileChannelImpl extends FileChannel {
      * Create a new file channel implementation class that wraps the given
      * fd and operates in the specified mode.
      */
-    public FileChannelImpl(Object stream, int fd, int mode) {
+    public FileChannelImpl(Object stream, FileDescriptor fd, int mode) {
         this.fd = fd;
         this.stream = stream;
         this.mode = mode;
@@ -119,7 +122,7 @@ final class FileChannelImpl extends FileChannel {
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
         addLock(pendingLock);
 
-        if (Platform.FILE_SYSTEM.lock(fd, position, size, shared, wait)) {
+        if (Platform.FILE_SYSTEM.lock(IoUtils.getFd(fd), position, size, shared, wait)) {
             return pendingLock;
         }
 
@@ -177,14 +180,22 @@ final class FileChannelImpl extends FileChannel {
      */
     public void release(FileLock lock) throws IOException {
         checkOpen();
-        Platform.FILE_SYSTEM.unlock(fd, lock.position(), lock.size());
+        Platform.FILE_SYSTEM.unlock(IoUtils.getFd(fd), lock.position(), lock.size());
         removeLock(lock);
     }
 
     public void force(boolean metadata) throws IOException {
         checkOpen();
         if ((mode & O_ACCMODE) != O_RDONLY) {
-            Platform.FILE_SYSTEM.fsync(fd, metadata);
+            try {
+                if (metadata) {
+                    Libcore.os.fsync(fd);
+                } else {
+                    Libcore.os.fdatasync(fd);
+                }
+            } catch (ErrnoException errnoException) {
+                errnoException.rethrowAsIOException("sync failed");
+            }
         }
     }
 
@@ -205,11 +216,11 @@ final class FileChannelImpl extends FileChannel {
             throw new NonReadableChannelException();
         }
         if (position + size > size()) {
-            Platform.FILE_SYSTEM.truncate(fd, position + size);
+            Platform.FILE_SYSTEM.truncate(IoUtils.getFd(fd), position + size);
         }
         long alignment = position - position % ALLOC_GRANULARITY;
         int offset = (int) (position - alignment);
-        MemoryBlock block = MemoryBlock.mmap(fd, alignment, size + offset, mapMode);
+        MemoryBlock block = MemoryBlock.mmap(IoUtils.getFd(fd), alignment, size + offset, mapMode);
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
@@ -221,7 +232,7 @@ final class FileChannelImpl extends FileChannel {
         if ((mode & O_APPEND) != 0) {
             return size();
         }
-        return Platform.FILE_SYSTEM.seek(fd, 0L, SEEK_CUR);
+        return Platform.FILE_SYSTEM.seek(IoUtils.getFd(fd), 0L, SEEK_CUR);
     }
 
     /**
@@ -234,7 +245,7 @@ final class FileChannelImpl extends FileChannel {
         }
 
         synchronized (repositioningLock) {
-            Platform.FILE_SYSTEM.seek(fd, newPosition, SEEK_SET);
+            Platform.FILE_SYSTEM.seek(IoUtils.getFd(fd), newPosition, SEEK_SET);
         }
         return this;
     }
@@ -279,7 +290,7 @@ final class FileChannelImpl extends FileChannel {
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
                     int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(fd, address,
+                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(IoUtils.getFd(fd), address,
                             buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -291,7 +302,7 @@ final class FileChannelImpl extends FileChannel {
                     /*
                      * if (bytesRead <= EOF) dealt by read completed = false;
                      */
-                    bytesRead = (int) Platform.FILE_SYSTEM.read(fd, buffer.array(),
+                    bytesRead = (int) Platform.FILE_SYSTEM.read(IoUtils.getFd(fd), buffer.array(),
                             buffer.arrayOffset() + buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -335,7 +346,7 @@ final class FileChannelImpl extends FileChannel {
             try {
                 begin();
                 synchronized (repositioningLock) {
-                    bytesRead = Platform.FILE_SYSTEM.readv(fd, handles, offsets, lengths, length);
+                    bytesRead = Platform.FILE_SYSTEM.readv(IoUtils.getFd(fd), handles, offsets, lengths, length);
 
                 }
                 completed = true;
@@ -381,7 +392,7 @@ final class FileChannelImpl extends FileChannel {
      */
     public long size() throws IOException {
         checkOpen();
-        return Platform.FILE_SYSTEM.length(fd);
+        return Platform.FILE_SYSTEM.length(IoUtils.getFd(fd));
     }
 
     public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException {
@@ -449,11 +460,11 @@ final class FileChannelImpl extends FileChannel {
         }
     }
 
-    private long transferToSocket(int l, FileDescriptor fd, long position, long count) throws IOException {
+    private long transferToSocket(FileDescriptor src, FileDescriptor dst, long position, long count) throws IOException {
         boolean completed = false;
         try {
             begin();
-            long ret = Platform.FILE_SYSTEM.transfer(l, fd, position, count);
+            long ret = Platform.FILE_SYSTEM.transfer(IoUtils.getFd(src), fd, position, count);
             completed = true;
             return ret;
         } finally {
@@ -470,7 +481,7 @@ final class FileChannelImpl extends FileChannel {
         if (size < size()) {
             synchronized (repositioningLock) {
                 long position = position();
-                Platform.FILE_SYSTEM.truncate(fd, size);
+                Platform.FILE_SYSTEM.truncate(IoUtils.getFd(fd), size);
                 /*
                  * FIXME: currently the port library always modifies the
                  * position to given size. not sure it is a bug or intended
@@ -525,7 +536,7 @@ final class FileChannelImpl extends FileChannel {
                 try {
                     begin();
                     int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(fd,
+                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(IoUtils.getFd(fd),
                             address, buffer.position(), buffer.remaining());
                     completed = true;
                 } finally {
@@ -534,7 +545,7 @@ final class FileChannelImpl extends FileChannel {
             } else {
                 try {
                     begin();
-                    bytesWritten = (int) Platform.FILE_SYSTEM.write(fd, buffer
+                    bytesWritten = (int) Platform.FILE_SYSTEM.write(IoUtils.getFd(fd), buffer
                             .array(), buffer.arrayOffset() + buffer.position(),
                             buffer.remaining());
                     completed = true;
@@ -585,7 +596,7 @@ final class FileChannelImpl extends FileChannel {
         synchronized (repositioningLock) {
             try {
                 begin();
-                bytesWritten = Platform.FILE_SYSTEM.writev(fd, handles, offsets, lengths, length);
+                bytesWritten = Platform.FILE_SYSTEM.writev(IoUtils.getFd(fd), handles, offsets, lengths, length);
                 completed = true;
             } finally {
                 end(completed);
@@ -632,7 +643,7 @@ final class FileChannelImpl extends FileChannel {
         return count;
     }
 
-    public int getFd() {
+    public FileDescriptor getFD() {
         return fd;
     }
 

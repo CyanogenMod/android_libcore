@@ -16,11 +16,15 @@
 
 package libcore.io;
 
+import java.io.FileDescriptor;
+
 public final class Posix implements Os {
     Posix() { }
 
     public native boolean access(String path, int mode) throws ErrnoException;
     public native String[] environ();
+    public native void fdatasync(FileDescriptor fd) throws ErrnoException;
+    public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native String getenv(String name);
     public native String strerror(int errno);
 }

@@ -53,8 +53,6 @@ class OSFileSystem implements IFileSystem {
 
     private native int lockImpl(int fd, long start, long length, int type, boolean wait);
 
-    public native void fsync(int fd, boolean metadata) throws IOException;
-
     /*
      * File position seeking.
      */

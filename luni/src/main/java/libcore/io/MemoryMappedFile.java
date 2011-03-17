@@ -41,7 +41,7 @@ public final class MemoryMappedFile implements Closeable {
     }
 
     public static MemoryMappedFile mmap(FileChannel fc, FileChannel.MapMode mapMode, long start, long size) throws IOException {
-        return mmap(NioUtils.getFd(fc), mapMode, start, size);
+        return mmap(IoUtils.getFd(NioUtils.getFD(fc)), mapMode, start, size);
     }
 
     public static MemoryMappedFile mmap(FileDescriptor fd, FileChannel.MapMode mapMode, long start, long size) throws IOException {

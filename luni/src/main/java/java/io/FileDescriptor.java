@@ -17,6 +17,9 @@
 
 package java.io;
 
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
+
 /**
  * The lowest-level representation of a file, device, or
  * socket. If is often used for wrapping an operating system "handle". Some
@@ -84,11 +87,15 @@ public final class FileDescriptor {
     public void sync() throws SyncFailedException {
         // if the descriptor is a read-only one, do nothing
         if (!readOnly) {
-            syncImpl();
+            try {
+                Libcore.os.fsync(this);
+            } catch (ErrnoException errnoException) {
+                SyncFailedException sfe = new SyncFailedException("sync failed");
+                sfe.initCause(errnoException);
+                throw sfe;
+            }
         }
     }
-
-    private native void syncImpl() throws SyncFailedException;
 
     /**
      * Indicates whether this FileDescriptor is valid.

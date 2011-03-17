@@ -243,13 +243,6 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
     return result;
 }
 
-static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
-    int rc = metadataToo ? fsync(fd) : fdatasync(fd);
-    if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-}
-
 static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     int rc = ftruncate64(fd, length);
     if (rc == -1) {
@@ -359,7 +352,6 @@ static jlong OSFileSystem_length(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSFileSystem, fsync, "(IZ)V"),
     NATIVE_METHOD(OSFileSystem, getAllocGranularity, "()I"),
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSFileSystem, length, "(I)J"),

@@ -16,8 +16,24 @@
 
 package libcore.io;
 
-public final class Libcore {
-    private Libcore() { }
+import dalvik.system.BlockGuard;
+import java.io.FileDescriptor;
 
-    public static Os os = new BlockGuardOs(new Posix());
+/**
+ * Informs BlockGuard of any activity it should be aware of.
+ */
+public class BlockGuardOs extends ForwardingOs {
+    public BlockGuardOs(Os os) {
+        super(os);
+    }
+
+    public void fdatasync(FileDescriptor fd) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.fdatasync(fd);
+    }
+
+    public void fsync(FileDescriptor fd) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.fsync(fd);
+    }
 }

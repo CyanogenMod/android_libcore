@@ -215,11 +215,6 @@ public final class BlockGuard {
             return mFileSystem.seek(fileDescriptor, offset, whence);
         }
 
-        public void fsync(int fileDescriptor, boolean metadata) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            mFileSystem.fsync(fileDescriptor, metadata);
-        }
-
         public void truncate(int fileDescriptor, long size) throws IOException {
             BlockGuard.getThreadPolicy().onWriteToDisk();
             mFileSystem.truncate(fileDescriptor, size);

@@ -104,7 +104,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         this.fd = fd;
         this.shouldCloseFd = false;
         this.mode = O_WRONLY;
-        this.channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
+        this.channel = NioUtils.newFileChannel(this, fd, mode);
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -160,7 +160,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
+                channel = NioUtils.newFileChannel(this, fd, mode);
             }
             return channel;
         }

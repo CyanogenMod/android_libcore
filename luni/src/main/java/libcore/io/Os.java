@@ -16,9 +16,13 @@
 
 package libcore.io;
 
+import java.io.FileDescriptor;
+
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public String[] environ();
+    public void fdatasync(FileDescriptor fd) throws ErrnoException;
+    public void fsync(FileDescriptor fd) throws ErrnoException;
     public String getenv(String name);
     public String strerror(int errno);
 }

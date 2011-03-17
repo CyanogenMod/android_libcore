@@ -16,6 +16,8 @@
 
 package libcore.io;
 
+import java.io.IOException;
+
 /**
  * An unchecked exception thrown when {@link Os} methods fail. This exception contains the native
  * errno value, for comparison against the constants in {@link OsConstants}, should sophisticated
@@ -39,5 +41,11 @@ public final class ErrnoException extends RuntimeException {
      */
     @Override public String getMessage() {
         return Libcore.os.strerror(errno);
+    }
+
+    public void rethrowAsIOException(String detail) throws IOException {
+        IOException ioException = new IOException(detail);
+        ioException.initCause(this);
+        throw ioException;
     }
 }

@@ -159,7 +159,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd.descriptor, O_RDONLY);
+                channel = NioUtils.newFileChannel(this, fd, O_RDONLY);
             }
             return channel;
         }
