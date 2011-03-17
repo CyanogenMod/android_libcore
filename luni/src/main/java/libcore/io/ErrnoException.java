@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.IOException;
+import libcore.io.OsConstants;
 
 /**
  * An unchecked exception thrown when {@link Os} methods fail. This exception contains the native
@@ -36,11 +37,16 @@ public final class ErrnoException extends RuntimeException {
     }
 
     /**
-     * Converts the stashed errno to the corresponding string. We do this here rather than in
+     * Converts the stashed errno to a human-readable string. We do this here rather than in
      * the constructor so that callers only pay for this if they need it.
      */
     @Override public String getMessage() {
-        return Libcore.os.strerror(errno);
+        String name = OsConstants.errnoName(errno);
+        if (name == null) {
+            name = "errno " + errno;
+        }
+        String description = Libcore.os.strerror(errno);
+        return name + " (" + description + ")";
     }
 
     public void rethrowAsIOException(String detail) throws IOException {
