@@ -19,5 +19,8 @@ package libcore.io;
 public final class Posix implements Os {
     Posix() { }
 
+    public native boolean access(String path, int mode) throws ErrnoException;
+    public native String[] environ();
     public native String getenv(String name);
+    public native String strerror(int errno);
 }

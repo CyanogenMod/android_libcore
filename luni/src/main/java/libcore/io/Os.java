@@ -17,5 +17,8 @@
 package libcore.io;
 
 public interface Os {
+    public boolean access(String path, int mode) throws ErrnoException;
+    public String[] environ();
     public String getenv(String name);
+    public String strerror(int errno);
 }

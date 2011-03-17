@@ -34,12 +34,6 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
-static jstring System_getEnvByIndex(JNIEnv* env, jclass, jint index) {
-    // Pointer to complete environment.
-    extern char** environ;
-    return env->NewStringUTF(environ[index]);
-}
-
 static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jthrowable exception) {
     ScopedUtfChars message(env, javaMessage);
     if (message.c_str() == NULL) {
@@ -98,7 +92,6 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(System, getEnvByIndex, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),

@@ -15,6 +15,7 @@
  */
 
 #include "jni.h"
+#include "ScopedLocalRef.h"
 
 #include <string>
 #include <vector>

@@ -50,6 +50,7 @@ struct JniConstants {
     static jclass datagramPacketClass;
     static jclass deflaterClass;
     static jclass doubleClass;
+    static jclass errnoExceptionClass;
     static jclass fieldClass;
     static jclass fieldPositionIteratorClass;
     static jclass inetAddressClass;

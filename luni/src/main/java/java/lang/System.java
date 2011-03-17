@@ -225,30 +225,14 @@ public final class System {
      */
     public static Map<String, String> getenv() {
         Map<String, String> map = new HashMap<String, String>();
-
-        int index = 0;
-        String entry = getEnvByIndex(index++);
-        while (entry != null) {
-            int pos = entry.indexOf('=');
-            if (pos != -1) {
-                map.put(entry.substring(0, pos), entry.substring(pos + 1));
+        for (String entry : Libcore.os.environ()) {
+            int index = entry.indexOf('=');
+            if (index != -1) {
+                map.put(entry.substring(0, index), entry.substring(index + 1));
             }
-
-            entry = getEnvByIndex(index++);
         }
-
         return new SystemEnvironment(map);
     }
-
-    /*
-     * Returns an environment variable. No security checks are performed. The
-     * safe way of traversing the environment is to start at index zero and
-     * count upwards until a null pointer is encountered. This marks the end of
-     * the Unix environment.
-     * @param index the index of the environment variable
-     * @return the value of the specified environment variable
-     */
-    private static native String getEnvByIndex(int index);
 
     /**
      * Returns the inherited channel from the creator of the current virtual
@@ -659,7 +643,7 @@ public final class System {
 
     /**
      * The unmodifiable environment variables map. System.getenv() specifies
-     * that this map must throw when queried with non-String keys values.
+     * that this map must throw when passed non-String keys.
      */
     static class SystemEnvironment extends AbstractMap<String, String> {
         private final Map<String, String> map;

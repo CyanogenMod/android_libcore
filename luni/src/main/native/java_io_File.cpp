@@ -20,7 +20,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "LocalArray.h"
 #include "ScopedFd.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -85,30 +84,6 @@ static jboolean File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
 static jboolean File_isFileImpl(JNIEnv* env, jclass, jstring javaPath) {
     struct stat sb;
     return (doStat(env, javaPath, sb) && S_ISREG(sb.st_mode));
-}
-
-static jboolean doAccess(JNIEnv* env, jstring javaPath, int mode) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (access(path.c_str(), mode) == 0);
-}
-
-static jboolean File_existsImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, F_OK);
-}
-
-static jboolean File_canExecuteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, X_OK);
-}
-
-static jboolean File_canReadImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, R_OK);
-}
-
-static jboolean File_canWriteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, W_OK);
 }
 
 static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
@@ -360,12 +335,8 @@ static void File_symlink(JNIEnv* env, jclass, jstring javaOldPath, jstring javaN
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, canExecuteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, canReadImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, canWriteImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, createNewFileImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, existsImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, getUsableSpaceImpl, "(Ljava/lang/String;)J"),

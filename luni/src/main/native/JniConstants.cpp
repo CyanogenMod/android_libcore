@@ -28,6 +28,7 @@ jclass JniConstants::constructorClass;
 jclass JniConstants::datagramPacketClass;
 jclass JniConstants::deflaterClass;
 jclass JniConstants::doubleClass;
+jclass JniConstants::errnoExceptionClass;
 jclass JniConstants::fieldClass;
 jclass JniConstants::fieldPositionIteratorClass;
 jclass JniConstants::multicastGroupRequestClass;
@@ -66,6 +67,7 @@ void JniConstants::init(JNIEnv* env) {
     datagramPacketClass = findClass(env, "java/net/DatagramPacket");
     deflaterClass = findClass(env, "java/util/zip/Deflater");
     doubleClass = findClass(env, "java/lang/Double");
+    errnoExceptionClass = findClass(env, "libcore/io/ErrnoException");
     fieldClass = findClass(env, "java/lang/reflect/Field");
     fieldPositionIteratorClass = findClass(env, "libcore/icu/NativeDecimalFormat$FieldPositionIterator");
     inetAddressClass = findClass(env, "java/net/InetAddress");

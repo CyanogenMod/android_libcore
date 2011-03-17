@@ -23,7 +23,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import org.apache.harmony.luni.util.DeleteOnExit;
+import static libcore.io.OsConstants.*;
 
 /**
  * An "abstract" representation of a file system entity identified by a
@@ -269,12 +272,8 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public boolean canExecute() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return canExecuteImpl(absolutePath);
+        return access(X_OK);
     }
-    private static native boolean canExecuteImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to read from this file.
@@ -282,12 +281,8 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file can be read, {@code false} otherwise.
      */
     public boolean canRead() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return canReadImpl(absolutePath);
+        return access(R_OK);
     }
-    private static native boolean canReadImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to write to this file.
@@ -296,12 +291,19 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      */
     public boolean canWrite() {
+        return access(W_OK);
+    }
+
+    private boolean access(int mode) {
         if (path.isEmpty()) {
             return false;
         }
-        return canWriteImpl(absolutePath);
+        try {
+            return Libcore.os.access(absolutePath, mode);
+        } catch (ErrnoException ex) {
+            return false;
+        }
     }
-    private static native boolean canWriteImpl(String path);
 
     /**
      * Returns the relative sort ordering of the paths for this file and the
@@ -377,13 +379,8 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file exists, {@code false} otherwise.
      */
     public boolean exists() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return existsImpl(absolutePath);
+        return access(F_OK);
     }
-
-    private static native boolean existsImpl(String path);
 
     /**
      * Returns the absolute path of this file. An absolute path is a path that starts at a root
