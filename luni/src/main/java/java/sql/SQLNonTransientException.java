@@ -26,7 +26,6 @@ public class SQLNonTransientException extends SQLException {
      * null, the SQLState string is set to null and the Error Code is set to 0.
      */
     public SQLNonTransientException() {
-        super();
     }
 
     /**

@@ -57,7 +57,6 @@ public final class StringBuffer extends AbstractStringBuilder implements
      * Constructs a new StringBuffer using the default capacity which is 16.
      */
     public StringBuffer() {
-        super();
     }
 
     /**

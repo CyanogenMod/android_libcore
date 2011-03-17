@@ -2669,7 +2669,6 @@ public class Collections {
         private transient Set<E> backingSet;
 
         SetFromMap(final Map<E, Boolean> map) {
-            super();
             m = map;
             backingSet = map.keySet();
         }
@@ -2739,15 +2738,13 @@ public class Collections {
         }
     }
 
-    private static class AsLIFOQueue<E> extends AbstractQueue<E> implements
-            Serializable {
+    private static class AsLIFOQueue<E> extends AbstractQueue<E> implements Serializable {
         private static final long serialVersionUID = 1802017725587941708L;
 
         // must named as it, to pass serialization compatibility test.
         private final Deque<E> q;
 
         AsLIFOQueue(final Deque<E> deque) {
-            super();
             this.q = deque;
         }
 

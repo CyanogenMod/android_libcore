@@ -41,7 +41,6 @@ public abstract class OutputStream implements Closeable, Flushable {
      * Default constructor.
      */
     public OutputStream() {
-        super();
     }
 
     /**

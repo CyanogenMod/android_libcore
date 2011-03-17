@@ -32,7 +32,6 @@ public class SocketTimeoutException extends InterruptedIOException {
      * filled in.
      */
     public SocketTimeoutException() {
-        super();
     }
 
     /**

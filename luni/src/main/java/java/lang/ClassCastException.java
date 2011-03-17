@@ -29,7 +29,6 @@ public class ClassCastException extends RuntimeException {
      * stack trace.
      */
     public ClassCastException() {
-        super();
     }
 
     /**

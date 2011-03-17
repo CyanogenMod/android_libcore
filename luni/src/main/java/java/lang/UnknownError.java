@@ -30,7 +30,6 @@ public class UnknownError extends VirtualMachineError {
      * trace.
      */
     public UnknownError() {
-        super();
     }
 
     /**

@@ -32,7 +32,6 @@ public class InstantiationError extends IncompatibleClassChangeError {
      * stack trace.
      */
     public InstantiationError() {
-        super();
     }
 
     /**

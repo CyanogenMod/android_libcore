@@ -36,7 +36,6 @@ public abstract class CacheRequest {
      * This implementation does nothing.
      */
     public CacheRequest() {
-        super();
     }
 
     /**

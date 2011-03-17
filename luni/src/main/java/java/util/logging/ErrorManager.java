@@ -70,7 +70,6 @@ public class ErrorManager {
      * Constructs an instance of {@code ErrorManager}.
      */
     public ErrorManager() {
-        super();
     }
 
     /**

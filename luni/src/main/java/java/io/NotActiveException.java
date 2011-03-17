@@ -39,7 +39,6 @@ public class NotActiveException extends ObjectStreamException {
      * in.
      */
     public NotActiveException() {
-        super();
     }
 
     /**

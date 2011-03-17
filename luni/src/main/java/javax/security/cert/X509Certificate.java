@@ -59,7 +59,6 @@ public abstract class X509Certificate extends Certificate {
      * Creates a new {@code X509Certificate}.
      */
     public X509Certificate() {
-        super();
     }
 
     /**

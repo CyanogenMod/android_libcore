@@ -31,7 +31,6 @@ public class OutOfMemoryError extends VirtualMachineError {
      * trace.
      */
     public OutOfMemoryError() {
-        super();
     }
 
     /**

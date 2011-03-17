@@ -32,6 +32,5 @@ public class FileLockInterruptionException extends IOException {
      * Constructs a {@code FileLockInterruptionException}.
      */
     public FileLockInterruptionException() {
-        super();
     }
 }

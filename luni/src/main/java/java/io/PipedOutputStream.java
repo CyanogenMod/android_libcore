@@ -37,7 +37,6 @@ public class PipedOutputStream extends OutputStream {
      * written to it.
      */
     public PipedOutputStream() {
-        super();
     }
 
     /**
@@ -51,7 +50,6 @@ public class PipedOutputStream extends OutputStream {
      *             if this stream or {@code target} are already connected.
      */
     public PipedOutputStream(PipedInputStream target) throws IOException {
-        super();
         connect(target);
     }
 

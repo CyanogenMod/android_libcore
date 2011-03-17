@@ -28,6 +28,5 @@ public class NotYetBoundException extends IllegalStateException {
      * Constructs a {@code NotYetBoundException}.
      */
     public NotYetBoundException() {
-        super();
     }
 }

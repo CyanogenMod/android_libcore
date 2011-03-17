@@ -84,7 +84,6 @@ public class Manifest implements Cloneable {
      * Creates a new {@code Manifest} instance.
      */
     public Manifest() {
-        super();
     }
 
     /**
@@ -97,7 +96,6 @@ public class Manifest implements Cloneable {
      *             if an IO error occurs while creating this {@code Manifest}
      */
     public Manifest(InputStream is) throws IOException {
-        super();
         read(is);
     }
 

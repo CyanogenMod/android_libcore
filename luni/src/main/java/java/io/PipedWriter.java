@@ -39,7 +39,6 @@ public class PipedWriter extends Writer {
      * @see PipedReader
      */
     public PipedWriter() {
-        super();
     }
 
     /**

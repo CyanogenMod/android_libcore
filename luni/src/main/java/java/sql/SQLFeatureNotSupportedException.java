@@ -31,7 +31,6 @@ public class SQLFeatureNotSupportedException extends SQLNonTransientException {
      * to 0.
      */
     public SQLFeatureNotSupportedException() {
-        super();
     }
 
     /**

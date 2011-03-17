@@ -29,7 +29,6 @@ public class ConnectException extends SocketException {
      * This implementation does nothing.
      */
     public ConnectException() {
-        super();
     }
 
     /**

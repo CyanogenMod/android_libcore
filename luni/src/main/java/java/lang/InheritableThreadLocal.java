@@ -35,7 +35,6 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
      * Creates a new inheritable thread-local variable.
      */
     public InheritableThreadLocal() {
-        super();
     }
 
     /**

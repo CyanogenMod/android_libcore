@@ -64,7 +64,6 @@ public class LinkedHashMap<K, V> extends HashMap<K, V> {
      * Constructs a new empty {@code LinkedHashMap} instance.
      */
     public LinkedHashMap() {
-        super();
         init();
         accessOrder = false;
     }

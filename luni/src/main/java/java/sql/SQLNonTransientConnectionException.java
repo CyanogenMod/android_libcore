@@ -33,7 +33,6 @@ public class SQLNonTransientConnectionException extends
      * set to 0.
      */
     public SQLNonTransientConnectionException() {
-        super();
     }
 
     /**

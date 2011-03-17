@@ -28,6 +28,5 @@ public class NonWritableChannelException extends IllegalStateException {
      * Constructs a {@code NonWritableChannelException}.
      */
     public NonWritableChannelException() {
-        super();
     }
 }

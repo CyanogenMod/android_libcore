@@ -64,7 +64,6 @@ public final class UUID implements Serializable, Comparable<UUID> {
      *            The 64 least significant bits of the UUID.
      */
     public UUID(long mostSigBits, long leastSigBits) {
-        super();
         this.mostSigBits = mostSigBits;
         this.leastSigBits = leastSigBits;
         init();

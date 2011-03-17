@@ -30,7 +30,6 @@ public class IllegalStateException extends RuntimeException {
      * stack trace.
      */
     public IllegalStateException() {
-        super();
     }
 
     /**

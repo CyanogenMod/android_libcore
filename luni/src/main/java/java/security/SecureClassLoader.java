@@ -35,7 +35,6 @@ public class SecureClassLoader extends ClassLoader {
      * parent {@code ClassLoader} is used.
      */
     protected SecureClassLoader() {
-        super();
     }
 
     /**

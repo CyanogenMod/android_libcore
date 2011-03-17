@@ -195,7 +195,6 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
         private boolean canRemove;
 
         ReverseLinkIterator(LinkedList<ET> linkedList) {
-            super();
             list = linkedList;
             expectedModCount = list.modCount;
             link = list.voidLink;

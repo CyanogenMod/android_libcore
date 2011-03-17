@@ -29,7 +29,6 @@ public class BindException extends SocketException {
      * Constructs a new instance with its walkback filled in.
      */
     public BindException() {
-        super();
     }
 
     /**

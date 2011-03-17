@@ -34,7 +34,6 @@ public abstract class SSLEngine {
      * Creates a new {@code SSLEngine} instance.
      */
     protected SSLEngine() {
-        super();
         peerHost = null;
         peerPort = -1;
     }
@@ -49,7 +48,6 @@ public abstract class SSLEngine {
      *            the port of the host.
      */
     protected SSLEngine(String host, int port) {
-        super();
         this.peerHost = host;
         this.peerPort = port;
     }

@@ -98,7 +98,6 @@ public abstract class FileLock {
      */
     protected FileLock(FileChannel channel, long position, long size,
             boolean shared) {
-        super();
         if (position < 0 || size < 0 || position + size < 0) {
             throw new IllegalArgumentException();
         }

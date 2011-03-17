@@ -90,7 +90,6 @@ public class Properties extends Hashtable<Object, Object> {
      * Constructs a new {@code Properties} object.
      */
     public Properties() {
-        super();
     }
 
     /**

@@ -45,7 +45,6 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      * synchronize critical sections.
      */
     protected Writer() {
-        super();
         lock = this;
     }
 

@@ -27,7 +27,6 @@ public class SQLTransientConnectionException extends SQLTransientException {
      * to 0.
      */
     public SQLTransientConnectionException() {
-        super();
     }
 
     /**
@@ -126,7 +125,7 @@ public class SQLTransientConnectionException extends SQLTransientException {
      * SQLState string , the Error Code is set to the given error code value,
      * and the cause Throwable object is set to the given cause Throwable
      * object.
-     * 
+     *
      * @param reason
      *            the string to use as the Reason string
      * @param sqlState

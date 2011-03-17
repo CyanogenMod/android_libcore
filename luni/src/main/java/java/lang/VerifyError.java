@@ -30,7 +30,6 @@ public class VerifyError extends LinkageError {
      * trace.
      */
     public VerifyError() {
-        super();
     }
 
     /**

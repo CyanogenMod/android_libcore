@@ -29,7 +29,6 @@ public class SecurityException extends RuntimeException {
      * stack trace.
      */
     public SecurityException() {
-        super();
     }
 
     /**

@@ -28,6 +28,5 @@ public class AsynchronousCloseException extends ClosedChannelException {
      * Constructs an {@code AsynchronousCloseException}.
      */
     public AsynchronousCloseException() {
-        super();
     }
 }

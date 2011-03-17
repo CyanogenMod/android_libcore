@@ -95,7 +95,6 @@ public class DriverManager {
      * A private constructor to prevent allocation
      */
     private DriverManager() {
-        super();
     }
 
     /**

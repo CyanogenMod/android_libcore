@@ -28,6 +28,5 @@ public class IllegalSelectorException extends IllegalArgumentException {
      * Constructs a {@code IllegalSelectorException}.
      */
     public IllegalSelectorException() {
-        super();
     }
 }

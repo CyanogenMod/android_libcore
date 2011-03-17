@@ -37,7 +37,6 @@ public class UndeclaredThrowableException extends RuntimeException {
      *            the undeclared, checked exception that occurred
      */
     public UndeclaredThrowableException(Throwable exception) {
-        super();
         this.undeclaredThrowable = exception;
         initCause(exception);
     }

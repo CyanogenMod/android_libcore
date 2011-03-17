@@ -30,7 +30,6 @@ public class ProtocolException extends java.io.IOException {
      * Constructs a new instance of this class with its walkback filled in.
      */
     public ProtocolException() {
-        super();
     }
 
     /**

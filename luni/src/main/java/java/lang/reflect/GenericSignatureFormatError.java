@@ -31,6 +31,5 @@ public class GenericSignatureFormatError extends ClassFormatError {
      * Constructs a new {@code GenericSignatureFormatError} instance.
      */
     public GenericSignatureFormatError() {
-        super();
     }
 }

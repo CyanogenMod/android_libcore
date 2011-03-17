@@ -33,7 +33,6 @@ public class LinkageError extends Error {
      * trace.
      */
     public LinkageError() {
-        super();
     }
 
     /**

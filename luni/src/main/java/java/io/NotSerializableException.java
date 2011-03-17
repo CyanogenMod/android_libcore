@@ -36,7 +36,6 @@ public class NotSerializableException extends ObjectStreamException {
      * filled in.
      */
     public NotSerializableException() {
-        super();
     }
 
     /**

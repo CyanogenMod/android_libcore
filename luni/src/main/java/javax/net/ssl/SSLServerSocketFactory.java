@@ -80,7 +80,6 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory {
      * Creates a new {@code SSLServerSocketFactory} instance.
      */
     protected SSLServerSocketFactory() {
-        super();
     }
 
     /**

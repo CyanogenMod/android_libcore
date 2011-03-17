@@ -28,6 +28,5 @@ public class BufferUnderflowException extends RuntimeException {
      * Constructs a <code>BufferUnderflowException</code>.
      */
     public BufferUnderflowException() {
-        super();
     }
 }

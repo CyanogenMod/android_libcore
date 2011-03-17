@@ -68,7 +68,6 @@ public class DatagramSocket {
      *             if an error occurs while creating or binding the socket.
      */
     public DatagramSocket(int aPort) throws SocketException {
-        super();
         checkListen(aPort);
         createSocket(aPort, Inet4Address.ANY);
     }
@@ -86,7 +85,6 @@ public class DatagramSocket {
      *             if an error occurs while creating or binding the socket.
      */
     public DatagramSocket(int aPort, InetAddress addr) throws SocketException {
-        super();
         checkListen(aPort);
         createSocket(aPort, (addr == null) ? Inet4Address.ANY : addr);
     }

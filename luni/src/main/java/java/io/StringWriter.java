@@ -38,7 +38,6 @@ public class StringWriter extends Writer {
      * writer.
      */
     public StringWriter() {
-        super();
         buf = new StringBuffer(16);
         lock = buf;
     }

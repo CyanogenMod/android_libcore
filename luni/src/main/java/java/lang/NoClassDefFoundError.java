@@ -30,7 +30,6 @@ public class NoClassDefFoundError extends LinkageError {
      * stack trace.
      */
     public NoClassDefFoundError() {
-        super();
     }
 
     /**

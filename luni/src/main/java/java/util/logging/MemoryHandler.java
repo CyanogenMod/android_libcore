@@ -84,7 +84,6 @@ public class MemoryHandler extends Handler {
      *             used.
      */
     public MemoryHandler() {
-        super();
         String className = this.getClass().getName();
         // init target
         final String targetName = manager.getProperty(className + ".target");

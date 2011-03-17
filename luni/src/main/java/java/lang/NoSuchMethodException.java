@@ -30,7 +30,6 @@ public class NoSuchMethodException extends Exception {
      * stack trace.
      */
     public NoSuchMethodException() {
-        super();
     }
 
     /**

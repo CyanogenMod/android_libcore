@@ -34,7 +34,6 @@ public abstract class SSLSocket extends Socket {
      * Creates a TCP socket.
      */
     protected SSLSocket() {
-        super();
     }
 
     /**

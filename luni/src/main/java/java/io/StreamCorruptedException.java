@@ -35,7 +35,6 @@ public class StreamCorruptedException extends ObjectStreamException {
      * filled in.
      */
     public StreamCorruptedException() {
-        super();
     }
 
     /**

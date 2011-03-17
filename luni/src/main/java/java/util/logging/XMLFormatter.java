@@ -36,7 +36,6 @@ public class XMLFormatter extends Formatter {
      * Constructs a new {@code XMLFormatter}.
      */
     public XMLFormatter() {
-        super();
     }
 
     /**

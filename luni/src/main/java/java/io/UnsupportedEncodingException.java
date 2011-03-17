@@ -30,7 +30,6 @@ public class UnsupportedEncodingException extends IOException {
      * trace filled in.
      */
     public UnsupportedEncodingException() {
-        super();
     }
 
     /**

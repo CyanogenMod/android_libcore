@@ -119,7 +119,6 @@ public abstract class Preferences {
      * Default constructor, for use by subclasses only.
      */
     protected Preferences() {
-        super();
     }
 
     /**

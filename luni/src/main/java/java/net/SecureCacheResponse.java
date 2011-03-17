@@ -33,7 +33,6 @@ public abstract class SecureCacheResponse extends CacheResponse {
      * Creates a new instance of this class.
      */
     public SecureCacheResponse() {
-        super();
     }
 
     /**

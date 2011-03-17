@@ -237,7 +237,6 @@ public abstract class BreakIterator implements Cloneable {
      * Default constructor, for use by subclasses.
      */
     protected BreakIterator() {
-        super();
     }
 
     /*

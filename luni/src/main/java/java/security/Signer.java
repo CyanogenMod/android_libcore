@@ -36,7 +36,6 @@ public abstract class Signer extends Identity {
      * Constructs a new instance of {@code Signer}.
      */
     protected Signer() {
-        super();
     }
 
     /**

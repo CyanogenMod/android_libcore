@@ -32,7 +32,6 @@ public abstract class ListResourceBundle extends ResourceBundle {
      * Constructs a new instance of this class.
      */
     public ListResourceBundle() {
-        super();
     }
 
     /**

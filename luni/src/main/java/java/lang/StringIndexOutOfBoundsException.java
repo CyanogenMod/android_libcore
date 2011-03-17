@@ -30,7 +30,6 @@ public class StringIndexOutOfBoundsException extends IndexOutOfBoundsException {
      * the current stack trace.
      */
     public StringIndexOutOfBoundsException() {
-        super();
     }
 
     /**

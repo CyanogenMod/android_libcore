@@ -47,7 +47,6 @@ public abstract class Reader implements Readable, Closeable {
      * synchronize critical sections.
      */
     protected Reader() {
-        super();
         lock = this;
     }
 

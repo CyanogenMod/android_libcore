@@ -32,7 +32,6 @@ public class IllegalAccessError extends IncompatibleClassChangeError {
      * stack trace.
      */
     public IllegalAccessError() {
-        super();
     }
 
     /**

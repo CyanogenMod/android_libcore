@@ -74,7 +74,6 @@ public class ParserAdapter implements XMLReader, DocumentHandler
     public ParserAdapter ()
       throws SAXException
     {
-    super();
 
     String driver = System.getProperty("org.xml.sax.parser");
 
@@ -119,7 +118,6 @@ public class ParserAdapter implements XMLReader, DocumentHandler
      */
     public ParserAdapter (Parser parser)
     {
-    super();
     setup(parser);
     }
 

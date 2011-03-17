@@ -107,9 +107,7 @@ public class ServerSocket {
      * @throws IOException
      *             if an error occurs while creating the server socket.
      */
-    public ServerSocket(int aport, int backlog, InetAddress localAddr)
-            throws IOException {
-        super();
+    public ServerSocket(int aport, int backlog, InetAddress localAddr) throws IOException {
         checkListen(aport);
         impl = factory != null ? factory.createSocketImpl()
                 : new PlainServerSocketImpl();

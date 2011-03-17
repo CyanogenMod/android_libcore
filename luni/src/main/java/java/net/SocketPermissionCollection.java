@@ -35,7 +35,6 @@ final class SocketPermissionCollection extends PermissionCollection {
 
     // Constructs a new instance of this class.
     public SocketPermissionCollection() {
-        super();
     }
 
     // Adds the argument to the collection.

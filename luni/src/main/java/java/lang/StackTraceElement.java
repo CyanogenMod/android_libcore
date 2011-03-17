@@ -58,7 +58,6 @@ public final class StackTraceElement implements Serializable {
      *             if {@code cls} or {@code method} is {@code null}.
      */
     public StackTraceElement(String cls, String method, String file, int line) {
-        super();
         if (cls == null || method == null) {
             throw new NullPointerException();
         }
@@ -74,7 +73,6 @@ public final class StackTraceElement implements Serializable {
      * </p>
      */
     private StackTraceElement() {
-        super();
     }
 
     /**

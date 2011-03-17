@@ -522,7 +522,6 @@ outer:
      * @since 1.5
      */
     public String(int[] codePoints, int offset, int count) {
-        super();
         if (codePoints == null) {
             throw new NullPointerException();
         }

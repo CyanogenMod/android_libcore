@@ -59,7 +59,6 @@ public abstract class SelectionKey {
      * Constructs a new {@code SelectionKey}.
      */
     protected SelectionKey() {
-        super();
     }
 
     /**

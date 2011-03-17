@@ -652,14 +652,12 @@ public abstract class ResourceBundle {
                 listDefault);
 
         public NoFallbackControl(String format) {
-            super();
             listClass = new ArrayList<String>();
             listClass.add(format);
             super.format = Collections.unmodifiableList(listClass);
         }
 
         public NoFallbackControl(List<String> list) {
-            super();
             super.format = list;
         }
 
@@ -674,7 +672,6 @@ public abstract class ResourceBundle {
 
     private static class SimpleControl extends Control {
         public SimpleControl(String format) {
-            super();
             listClass = new ArrayList<String>();
             listClass.add(format);
             super.format = Collections.unmodifiableList(listClass);
@@ -749,7 +746,6 @@ public abstract class ResourceBundle {
          *
          */
         protected Control() {
-            super();
             listClass = new ArrayList<String>();
             listClass.add(JAVACLASS);
             listClass.add(JAVAPROPERTIES);

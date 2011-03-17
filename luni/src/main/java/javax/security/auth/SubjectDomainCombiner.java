@@ -42,7 +42,6 @@ public class SubjectDomainCombiner implements DomainCombiner {
      *            the entity to which this domain combiner is associated.
      */
     public SubjectDomainCombiner(Subject subject) {
-        super();
         if (subject == null) {
             throw new NullPointerException();
         }
