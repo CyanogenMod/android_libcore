@@ -240,10 +240,6 @@ public final class BlockGuard {
         public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException {
             return mFileSystem.ioctlAvailable(fileDescriptor);
         }
-
-        public long length(int fd) {
-            return mFileSystem.length(fd);
-        }
     }
 
     /**

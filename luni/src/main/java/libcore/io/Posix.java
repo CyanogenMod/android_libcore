@@ -24,7 +24,10 @@ public final class Posix implements Os {
     public native boolean access(String path, int mode) throws ErrnoException;
     public native String[] environ();
     public native void fdatasync(FileDescriptor fd) throws ErrnoException;
+    public native StructStat fstat(FileDescriptor fd) throws ErrnoException;
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native String getenv(String name);
+    public native StructStat lstat(String path) throws ErrnoException;
+    public native StructStat stat(String path) throws ErrnoException;
     public native String strerror(int errno);
 }

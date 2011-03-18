@@ -194,7 +194,7 @@ final class FileChannelImpl extends FileChannel {
                     Libcore.os.fdatasync(fd);
                 }
             } catch (ErrnoException errnoException) {
-                errnoException.rethrowAsIOException("sync failed");
+                throw errnoException.rethrowAsIOException("sync failed");
             }
         }
     }
@@ -392,7 +392,11 @@ final class FileChannelImpl extends FileChannel {
      */
     public long size() throws IOException {
         checkOpen();
-        return Platform.FILE_SYSTEM.length(IoUtils.getFd(fd));
+        try {
+            return Libcore.os.fstat(fd).st_size;
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException("fstat failed");
+        }
     }
 
     public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException {

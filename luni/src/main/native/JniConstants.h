@@ -68,6 +68,7 @@ struct JniConstants {
     static jclass socketImplClass;
     static jclass stringArrayClass;
     static jclass stringClass;
+    static jclass structStatClass;
 };
 
 #define NATIVE_METHOD(className, functionName, signature) \

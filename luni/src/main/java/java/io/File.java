@@ -546,10 +546,13 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             return false;
         }
-        return isDirectoryImpl(absolutePath);
+        try {
+            return S_ISDIR(Libcore.os.stat(absolutePath).st_mode);
+        } catch (ErrnoException ex) {
+            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
+            return false;
+        }
     }
-
-    private static native boolean isDirectoryImpl(String path);
 
     /**
      * Indicates if this file represents a <em>file</em> on the underlying
@@ -561,10 +564,13 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             return false;
         }
-        return isFileImpl(absolutePath);
+        try {
+            return S_ISREG(Libcore.os.stat(absolutePath).st_mode);
+        } catch (ErrnoException ex) {
+            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
+            return false;
+        }
     }
-
-    private static native boolean isFileImpl(String path);
 
     /**
      * Returns whether or not this file is a hidden file as defined by the
@@ -593,10 +599,13 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             return 0;
         }
-        return lastModifiedImpl(absolutePath);
+        try {
+            return Libcore.os.stat(absolutePath).st_mtime * 1000L;
+        } catch (ErrnoException ex) {
+            // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
+            return 0;
+        }
     }
-
-    private static native long lastModifiedImpl(String path);
 
     /**
      * Sets the time this file was last modified, measured in milliseconds since
@@ -753,10 +762,13 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             return 0;
         }
-        return lengthImpl(absolutePath);
+        try {
+            return Libcore.os.stat(absolutePath).st_size;
+        } catch (ErrnoException ex) {
+            // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
+            return 0;
+        }
     }
-
-    private static native long lengthImpl(String path);
 
     /**
      * Returns an array of strings with the file names in the directory

@@ -342,19 +342,9 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
     return avail;
 }
 
-static jlong OSFileSystem_length(JNIEnv* env, jobject, jint fd) {
-    struct stat sb;
-    jint rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
-    if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return sb.st_size;
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, getAllocGranularity, "()I"),
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(OSFileSystem, length, "(I)J"),
     NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
     NATIVE_METHOD(OSFileSystem, open, "(Ljava/lang/String;I)I"),
     NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),

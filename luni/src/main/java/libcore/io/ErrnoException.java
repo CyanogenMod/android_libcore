@@ -49,7 +49,7 @@ public final class ErrnoException extends RuntimeException {
         return name + " (" + description + ")";
     }
 
-    public void rethrowAsIOException(String detail) throws IOException {
+    public IOException rethrowAsIOException(String detail) throws IOException {
         IOException ioException = new IOException(detail);
         ioException.initCause(this);
         throw ioException;
