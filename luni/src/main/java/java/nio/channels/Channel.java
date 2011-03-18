@@ -33,9 +33,7 @@ import java.io.IOException;
 public interface Channel extends Closeable {
 
     /**
-     * Returns whether this channel is open or not.
-     *
-     * @return true if the channel is open, otherwise returns false.
+     * Returns true if this channel is open.
      */
     public boolean isOpen();
 

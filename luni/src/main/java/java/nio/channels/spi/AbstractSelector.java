@@ -112,7 +112,7 @@ public abstract class AbstractSelector extends Selector {
      * should invoke the corresponding {@code end(boolean)} method.
      */
     protected final void begin() {
-        Thread.currentThread().setInterruptAction(wakeupRunnable);
+        Thread.currentThread().pushInterruptAction(wakeupRunnable);
     }
 
     /**
@@ -120,7 +120,7 @@ public abstract class AbstractSelector extends Selector {
      * {@code begin()} and that includes a potentially blocking I/O operation.
      */
     protected final void end() {
-        Thread.currentThread().setInterruptAction(null);
+        Thread.currentThread().popInterruptAction(wakeupRunnable);
     }
 
     void cancel(SelectionKey key) {

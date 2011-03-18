@@ -16,6 +16,7 @@
 
 package libcore.java.nio;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.NoConnectionPendingException;
@@ -23,6 +24,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 import tests.support.Support_PortManager;
 
@@ -60,9 +63,7 @@ public class SelectorTest extends TestCase {
     }
 
     // http://code.google.com/p/android/issues/detail?id=4237
-    public void test_connectFinish_fails()
-            throws Exception {
-
+    public void test_connectFinish_fails() throws Exception {
         final SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
         channel.register(selector, SelectionKey.OP_CONNECT);
@@ -107,6 +108,36 @@ public class SelectorTest extends TestCase {
         } else if (fail[0].booleanValue()) {
             fail();
         }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=15388
+    public void testInterrupted() throws IOException {
+        Thread.currentThread().interrupt();
+        int count = selector.select();
+        assertEquals(0, count);
+    }
+
+    public void testManyWakeupCallsTriggerOnlyOneWakeup() throws Exception {
+        selector.wakeup();
+        selector.wakeup();
+        selector.wakeup();
+        selector.select();
+
+        // create a latch that will reach 0 when select returns
+        final CountDownLatch selectReturned = new CountDownLatch(1);
+        Thread thread = new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    selector.select();
+                    selectReturned.countDown();
+                } catch (IOException ignored) {
+                }
+            }
+        });
+        thread.start();
+
+        // select doesn't ever return, so await() times out and returns false
+        assertFalse(selectReturned.await(500, TimeUnit.MILLISECONDS));
     }
 }
 

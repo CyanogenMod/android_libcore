@@ -19,7 +19,6 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalSelectorException;
-import java.nio.channels.Pipe;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import static java.nio.channels.SelectionKey.*;
@@ -35,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import libcore.io.IoUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
@@ -52,10 +52,6 @@ final class SelectorImpl extends AbstractSelector {
     private static final int CONNECT_OR_WRITE = OP_CONNECT | OP_WRITE;
 
     private static final int ACCEPT_OR_READ = OP_ACCEPT | OP_READ;
-
-    private static final int WAKEUP_WRITE_SIZE = 1;
-
-    private static final int WAKEUP_READ_SIZE = 8;
 
     private static final int NA = 0;
 
@@ -91,9 +87,11 @@ final class SelectorImpl extends AbstractSelector {
             = new UnaddableSet<SelectionKey>(mutableSelectedKeys);
 
     /**
-     * The pipe used to implement wakeup.
+     * The wakeup pipe. To trigger a wakeup, write a byte to wakeupOut. Each
+     * time select returns, wakeupIn is drained.
      */
-    private final Pipe wakeupPipe;
+    private final FileDescriptor wakeupIn;
+    private final FileDescriptor wakeupOut;
 
     /**
      * File descriptors we're interested in reading from. When actively
@@ -125,8 +123,17 @@ final class SelectorImpl extends AbstractSelector {
 
     public SelectorImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
-        wakeupPipe = selectorProvider.openPipe();
-        wakeupPipe.source().configureBlocking(false);
+
+        /*
+         * Create a pipes to trigger wakeup. We can't use a NIO pipe because it
+         * would be closed if the selecting thread is interrupted. Also
+         * configure the pipe so we can fully drain it without blocking.
+         */
+        int[] pipeFds = new int[2];
+        IoUtils.pipe(pipeFds);
+        wakeupIn = IoUtils.newFileDescriptor(pipeFds[0]);
+        wakeupOut = IoUtils.newFileDescriptor(pipeFds[1]);
+        IoUtils.setBlocking(wakeupIn, false);
     }
 
     @Override protected void implCloseSelector() throws IOException {
@@ -134,8 +141,8 @@ final class SelectorImpl extends AbstractSelector {
         synchronized (this) {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
-                    wakeupPipe.sink().close();
-                    wakeupPipe.source().close();
+                    IoUtils.close(wakeupIn);
+                    IoUtils.close(wakeupOut);
                     doCancel();
                     for (SelectionKey sk : mutableKeys) {
                         deregister((AbstractSelectionKey) sk);
@@ -161,14 +168,11 @@ final class SelectorImpl extends AbstractSelector {
     }
 
     @Override public synchronized Set<SelectionKey> keys() {
-        closeCheck();
+        checkClosed();
         return unmodifiableKeys;
     }
 
-    /*
-     * Checks that the receiver is not closed. If it is throws an exception.
-     */
-    private void closeCheck() {
+    private void checkClosed() {
         if (!isOpen()) {
             throw new ClosedSelectorException();
         }
@@ -190,7 +194,7 @@ final class SelectorImpl extends AbstractSelector {
     }
 
     private int selectInternal(long timeout) throws IOException {
-        closeCheck();
+        checkClosed();
         synchronized (this) {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
@@ -268,7 +272,7 @@ final class SelectorImpl extends AbstractSelector {
         }
 
         // populate the FDs, including the wakeup channel
-        readableFDs[0] = ((FileDescriptorHandler) wakeupPipe.source()).getFD();
+        readableFDs[0] = wakeupIn;
         int r = 1;
         int w = 0;
         for (SelectionKeyImpl key : mutableKeys) {
@@ -291,13 +295,13 @@ final class SelectorImpl extends AbstractSelector {
      * array.
      */
     private int processSelectResult() throws IOException {
-        // If there's something in the wakeup pipe, read it all --- the definition of the various
-        // select methods says that one select swallows all outstanding wakeups. We made this
-        // channel non-blocking in our constructor so that we can just loop until read returns 0.
         if (flags[0] == READABLE) {
-            ByteBuffer buf = ByteBuffer.allocate(WAKEUP_READ_SIZE);
-            while (wakeupPipe.source().read(buf) > 0) {
-                buf.flip();
+            /*
+             * Read bytes from the wakeup pipe until the pipe is empty. We made
+             * the FD non-blocking so we can just loop until read returns 0.
+             */
+            byte[] buffer = new byte[8];
+            while (Platform.FILE_SYSTEM.read(IoUtils.getFd(wakeupIn), buffer, 0, 1) != 0) {
             }
         }
 
@@ -341,7 +345,7 @@ final class SelectorImpl extends AbstractSelector {
     }
 
     @Override public synchronized Set<SelectionKey> selectedKeys() {
-        closeCheck();
+        checkClosed();
         return selectedKeys;
     }
 
@@ -372,7 +376,7 @@ final class SelectorImpl extends AbstractSelector {
 
     @Override public Selector wakeup() {
         try {
-            wakeupPipe.sink().write(ByteBuffer.allocate(WAKEUP_WRITE_SIZE));
+            Platform.FILE_SYSTEM.write(IoUtils.getFd(wakeupOut), new byte[]{1}, 0, 1);
         } catch (IOException ignored) {
         }
         return this;

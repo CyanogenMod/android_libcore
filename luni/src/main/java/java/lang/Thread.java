@@ -33,7 +33,9 @@
 package java.lang;
 
 import dalvik.system.VMStack;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -155,8 +157,8 @@ public class Thread implements Runnable {
      */
     ThreadLocal.Values inheritableValues;
 
-    /** Callback to run on interruption. */
-    private volatile Runnable interruptAction;
+    /** Callbacks to run on interruption. */
+    private final List<Runnable> interruptActions = new ArrayList<Runnable>();
 
     /**
      * Holds the class loader for this Thread, in case there is one.
@@ -364,8 +366,9 @@ public class Thread implements Runnable {
 
         if (name == null) {
             this.name = "Thread-" + id;
-        } else
+        } else {
             this.name = name;
+        }
 
         if (group == null) {
             throw new InternalError("group not specified");
@@ -667,9 +670,10 @@ public class Thread implements Runnable {
      * @see Thread#isInterrupted
      */
     public void interrupt() {
-        Runnable interruptAction = this.interruptAction;
-        if (interruptAction != null) {
-            interruptAction.run();
+        synchronized (interruptActions) {
+            for (int i = interruptActions.size() - 1; i >= 0; i--) {
+                interruptActions.get(i).run();
+            }
         }
 
         VMThread vmt = this.vmThread;
@@ -894,18 +898,40 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Sets the runnable to invoke upon interruption. If this thread has already
-     * been interrupted, the runnable will be invoked immediately. The action
-     * should be idempotent as it may be invoked multiple times for a single
-     * interruption.
+     * Adds a runnable to be invoked upon interruption. If this thread has
+     * already been interrupted, the runnable will be invoked immediately. The
+     * action should be idempotent as it may be invoked multiple times for a
+     * single interruption.
      *
-     * @param action the runnable to run on interruption, or null to take no
-     *     immediate action. The thread's interrupted state will still be
-     *     changed.
+     * <p>Each call to this method must be matched with a corresponding call to
+     * {@link #popInterruptAction}.
+     *
      * @hide used by NIO
      */
-    public void setInterruptAction(Runnable action) {
-        this.interruptAction = action;
+    public void pushInterruptAction(Runnable interruptAction) {
+        synchronized (interruptActions) {
+            interruptActions.add(interruptAction);
+        }
+
+        if (interruptAction != null && isInterrupted()) {
+            interruptAction.run();
+        }
+    }
+
+    /**
+     * Removes {@code interruptAction} so it is not invoked upon interruption.
+     *
+     * @param interruptAction the pushed action, used to check that the call
+     *     stack is correctly nested.
+     */
+    public void popInterruptAction(Runnable interruptAction) {
+        synchronized (interruptActions) {
+            Runnable removed = interruptActions.remove(interruptActions.size() - 1);
+            if (interruptAction != removed) {
+                throw new IllegalArgumentException(
+                        "Expected " + interruptAction + " but was " + removed);
+            }
+        }
     }
 
     /**
