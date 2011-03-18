@@ -1256,9 +1256,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (loader != null) {
             String name = getName();
             int dot = name.lastIndexOf('.');
-            return (dot != -1 ? ClassLoader.getPackage(loader, name.substring(0, dot)) : null);
+            return (dot != -1 ? loader.getPackage(name.substring(0, dot)) : null);
         }
-
         return null;
     }
 

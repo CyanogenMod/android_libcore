@@ -454,7 +454,6 @@ public class Runtime {
      *            off.
      */
     public void traceInstructions(boolean enable) {
-        return;
     }
 
     /**

@@ -183,8 +183,7 @@ public class MemoryHandler extends Handler {
      * @param record
      *            the log record
      */
-    @Override
-    public synchronized void publish(LogRecord record) {
+    @Override public synchronized void publish(LogRecord record) {
         if (!isLoggable(record)) {
             return;
         }
@@ -195,7 +194,6 @@ public class MemoryHandler extends Handler {
         if (record.getLevel().intValue() >= push.intValue()) {
             push();
         }
-        return;
     }
 
     /**

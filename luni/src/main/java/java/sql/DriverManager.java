@@ -314,7 +314,6 @@ public class DriverManager {
          * If neither the PrintWriter not the PrintStream are set, then silently
          * do nothing the message is not recorded and no exception is generated.
          */
-        return;
     }
 
     /**
@@ -345,7 +344,6 @@ public class DriverManager {
      */
     public static void setLoginTimeout(int seconds) {
         loginTimeout = seconds;
-        return;
     }
 
     /**
