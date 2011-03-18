@@ -211,10 +211,6 @@ public final class BlockGuard {
             mFileSystem.unlock(fileDescriptor, start, length);
         }
 
-        public long seek(int fileDescriptor, long offset, int whence) throws IOException {
-            return mFileSystem.seek(fileDescriptor, offset, whence);
-        }
-
         public int open(String path, int mode) throws FileNotFoundException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
             if (mode != 0) {  // 0 is read-only

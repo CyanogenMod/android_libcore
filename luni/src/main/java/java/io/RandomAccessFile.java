@@ -226,7 +226,11 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long getFilePointer() throws IOException {
         openCheck();
-        return Platform.FILE_SYSTEM.seek(fd.descriptor, 0L, SEEK_CUR);
+        try {
+            return Libcore.os.lseek(fd, 0L, SEEK_CUR);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     /**
@@ -629,11 +633,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public void seek(long offset) throws IOException {
         if (offset < 0) {
-            // seek position is negative
             throw new IOException("offset < 0: " + offset);
         }
         openCheck();
-        Platform.FILE_SYSTEM.seek(fd.descriptor, offset, SEEK_SET);
+        try {
+            Libcore.os.lseek(fd, offset, SEEK_SET);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     /**

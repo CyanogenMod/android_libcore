@@ -69,11 +69,6 @@ final class FileChannelImpl extends FileChannel {
         this.mode = mode;
     }
 
-    /**
-     * Helper method to throw an exception if the channel is already closed.
-     * Note that we don't bother to synchronize on this test since the file may
-     * be closed by operations beyond our control anyways.
-     */
     private void checkOpen() throws ClosedChannelException {
         if (!isOpen()) {
             throw new ClosedChannelException();
@@ -218,28 +213,29 @@ final class FileChannelImpl extends FileChannel {
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
-    /**
-     * Returns the current file position.
-     */
     public long position() throws IOException {
         checkOpen();
         if ((mode & O_APPEND) != 0) {
             return size();
         }
-        return Platform.FILE_SYSTEM.seek(IoUtils.getFd(fd), 0L, SEEK_CUR);
+        try {
+            return Libcore.os.lseek(fd, 0L, SEEK_CUR);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
-    /**
-     * Sets the file pointer.
-     */
     public FileChannel position(long newPosition) throws IOException {
         checkOpen();
         if (newPosition < 0) {
             throw new IllegalArgumentException("position: " + newPosition);
         }
-
         synchronized (repositioningLock) {
-            Platform.FILE_SYSTEM.seek(IoUtils.getFd(fd), newPosition, SEEK_SET);
+            try {
+                Libcore.os.lseek(fd, newPosition, SEEK_SET);
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
+            }
         }
         return this;
     }
@@ -381,9 +377,6 @@ final class FileChannelImpl extends FileChannel {
         return bytesRead;
     }
 
-    /**
-     * Returns the current file size, as an integer number of bytes.
-     */
     public long size() throws IOException {
         checkOpen();
         try {

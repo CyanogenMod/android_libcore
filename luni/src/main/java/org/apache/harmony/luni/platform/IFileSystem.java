@@ -47,19 +47,10 @@ public interface IFileSystem {
     public void unlock(int fileDescriptor, long start, long length)
             throws IOException;
 
-    public long seek(int fileDescriptor, long offset, int whence) throws IOException;
-
     public int open(String path, int mode) throws FileNotFoundException;
 
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
 
     public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
-
-    public static class SeekPipeException extends IOException {
-        public SeekPipeException(String message) {
-            super(message);
-        }
-    }
-
 }

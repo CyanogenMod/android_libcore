@@ -220,20 +220,6 @@ static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
     return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
 }
 
-static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint whence) {
-    jlong result = lseek64(fd, offset, whence);
-    if (result == -1) {
-        if (errno == ESPIPE) {
-            jniThrowExceptionWithErrno(env,
-                    "org/apache/harmony/luni/platform/IFileSystem$SeekPipeException",
-                    errno);
-        } else {
-            jniThrowIOException(env, errno);
-        }
-    }
-    return result;
-}
-
 static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint flags) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -332,7 +318,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
-    NATIVE_METHOD(OSFileSystem, seek, "(IJI)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
     NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
