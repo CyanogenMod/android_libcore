@@ -22,7 +22,10 @@ public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public String[] environ();
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
+    public StructStat fstat(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public String getenv(String name);
+    public StructStat lstat(String path) throws ErrnoException;
+    public StructStat stat(String path) throws ErrnoException;
     public String strerror(int errno);
 }

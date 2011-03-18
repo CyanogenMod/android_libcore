@@ -50,41 +50,6 @@ static jboolean File_deleteImpl(JNIEnv* env, jclass, jstring javaPath) {
     return (remove(path.c_str()) == 0);
 }
 
-static bool doStat(JNIEnv* env, jstring javaPath, struct stat& sb) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (stat(path.c_str(), &sb) == 0);
-}
-
-static jlong File_lengthImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    if (!doStat(env, javaPath, sb)) {
-        // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
-        return 0;
-    }
-    return sb.st_size;
-}
-
-static jlong File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    if (!doStat(env, javaPath, sb)) {
-        return 0;
-    }
-    return static_cast<jlong>(sb.st_mtime) * 1000L;
-}
-
-static jboolean File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    return (doStat(env, javaPath, sb) && S_ISDIR(sb.st_mode));
-}
-
-static jboolean File_isFileImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    return (doStat(env, javaPath, sb) && S_ISREG(sb.st_mode));
-}
-
 static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -339,10 +304,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, getUsableSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, isDirectoryImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, isFileImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, lastModifiedImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, lengthImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),

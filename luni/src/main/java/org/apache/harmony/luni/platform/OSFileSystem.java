@@ -40,8 +40,6 @@ class OSFileSystem implements IFileSystem {
      */
     public native int getAllocGranularity();
 
-    public native long length(int fd);
-
     public boolean lock(int fd, long start, long length, boolean shared, boolean waitFlag) throws IOException {
         int result = lockImpl(fd, start, length, shared ? F_RDLCK : F_WRLCK, waitFlag);
         return result != -1;

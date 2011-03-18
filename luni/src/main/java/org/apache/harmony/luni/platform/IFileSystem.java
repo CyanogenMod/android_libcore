@@ -41,8 +41,6 @@ public interface IFileSystem {
     public long writeDirect(int fileDescriptor, int address, int offset,
             int length) throws IOException;
 
-    public long length(int fd);
-
     public boolean lock(int fileDescriptor, long start, long length, boolean shared,
             boolean waitFlag) throws IOException;
 

@@ -31,7 +31,10 @@ public class ForwardingOs implements Os {
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
     public String[] environ() { return os.environ(); }
     public void fdatasync(FileDescriptor fd) throws ErrnoException { os.fdatasync(fd); }
+    public StructStat fstat(FileDescriptor fd) throws ErrnoException { return os.fstat(fd); }
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public String getenv(String name) { return os.getenv(name); }
+    public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
+    public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public String strerror(int errno) { return os.strerror(errno); }
 }

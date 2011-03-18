@@ -23,11 +23,13 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 import libcore.io.Memory;
-import static libcore.io.OsConstants.*;
 import libcore.io.SizeOf;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * Allows reading from and writing to a file in a random-access manner. This is
@@ -249,7 +251,11 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long length() throws IOException {
         openCheck();
-        return Platform.FILE_SYSTEM.length(fd.descriptor);
+        try {
+            return Libcore.os.fstat(fd).st_size;
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException("fstat failed");
+        }
     }
 
     /**
