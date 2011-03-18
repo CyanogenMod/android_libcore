@@ -108,17 +108,6 @@ LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-junitrunner
 include $(BUILD_JAVA_LIBRARY)
 
-# Definitions to make the sqlite JDBC driver.
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := sqlite-jdbc
-include $(BUILD_JAVA_LIBRARY)
-
-
 # Definitions to make the core-tests libraries.
 #
 # We make a library per module, because otherwise the .jar files get too
