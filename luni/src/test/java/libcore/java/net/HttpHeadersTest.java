@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.java.net;
 
 import java.util.Arrays;
 import junit.framework.TestCase;
+import libcore.net.http.HttpHeaders;
 
 public class HttpHeadersTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=6684

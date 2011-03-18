@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.jar;
+package libcore.net.url;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,7 +24,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import org.apache.harmony.luni.util.URLUtil;
 
-public class Handler extends URLStreamHandler {
+public class JarHandler extends URLStreamHandler {
     /**
      * Returns a connection to the jar file pointed by this <code>URL</code>
      * in the file system

@@ -22,6 +22,11 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.Hashtable;
 import java.util.Locale;
+import libcore.net.http.HttpHandler;
+import libcore.net.http.HttpsHandler;
+import libcore.net.url.FileHandler;
+import libcore.net.url.FtpHandler;
+import libcore.net.url.JarHandler;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
@@ -104,7 +109,17 @@ public final class URL implements java.io.Serializable {
     /**
      * Cache for storing protocol handler
      */
-    private static Hashtable<String, URLStreamHandler> streamHandlers = new Hashtable<String, URLStreamHandler>();
+    private static Hashtable<String, URLStreamHandler> streamHandlers = createStreamHandlers();
+
+    private static Hashtable<String, URLStreamHandler> createStreamHandlers() {
+        Hashtable<String, URLStreamHandler> result = new Hashtable<String, URLStreamHandler>();
+        result.put("file", new FileHandler());
+        result.put("ftp", new FtpHandler());
+        result.put("http", new HttpHandler());
+        result.put("https", new HttpsHandler());
+        result.put("jar", new JarHandler());
+        return result;
+    }
 
     /**
      * The URL Stream (protocol) Handler
@@ -133,7 +148,7 @@ public final class URL implements java.io.Serializable {
         if (streamHandlerFactory != null) {
             throw new Error("Factory already set");
         }
-        streamHandlers.clear();
+        streamHandlers = createStreamHandlers();
         streamHandlerFactory = streamFactory;
     }
 
@@ -560,28 +575,12 @@ public final class URL implements java.io.Serializable {
                         streamHandlers.put(protocol, strmHandler);
                     }
                     return;
-                } catch (IllegalAccessException e) {
-                } catch (InstantiationException e) {
-                } catch (ClassNotFoundException e) {
+                } catch (IllegalAccessException ignored) {
+                } catch (InstantiationException ignored) {
+                } catch (ClassNotFoundException ignored) {
                 }
             }
         }
-
-        // No one else has provided a handler, so try our internal one.
-
-        String className = "org.apache.harmony.luni.internal.net.www.protocol." + protocol
-                + ".Handler";
-        try {
-            strmHandler = (URLStreamHandler) Class.forName(className)
-                    .newInstance();
-        } catch (IllegalAccessException e) {
-        } catch (InstantiationException e) {
-        } catch (ClassNotFoundException e) {
-        }
-        if (strmHandler != null) {
-            streamHandlers.put(protocol, strmHandler);
-        }
-
     }
 
     /**

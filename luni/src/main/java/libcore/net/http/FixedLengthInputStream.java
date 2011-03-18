@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.net.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,35 +22,42 @@ import java.net.CacheRequest;
 import java.util.Arrays;
 
 /**
- * An HTTP payload terminated by the end of the socket stream.
+ * An HTTP body with a fixed length specified in advance.
  */
-final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
-    private boolean inputExhausted;
+final class FixedLengthInputStream extends AbstractHttpInputStream {
+    private int bytesRemaining;
 
-    UnknownLengthHttpInputStream(InputStream is, CacheRequest cacheRequest,
-            HttpURLConnectionImpl httpURLConnection) throws IOException {
+    public FixedLengthInputStream(InputStream is, CacheRequest cacheRequest,
+            HttpURLConnectionImpl httpURLConnection, int length) throws IOException {
         super(is, httpURLConnection, cacheRequest);
+        bytesRemaining = length;
+        if (bytesRemaining == 0) {
+            endOfInput(true);
+        }
     }
 
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {
         Arrays.checkOffsetAndCount(buffer.length, offset, count);
         checkNotClosed();
-        if (in == null) {
+        if (bytesRemaining == 0) {
             return -1;
         }
-        int read = in.read(buffer, offset, count);
+        int read = in.read(buffer, offset, Math.min(count, bytesRemaining));
         if (read == -1) {
-            inputExhausted = true;
-            endOfInput(false);
-            return -1;
+            unexpectedEndOfInput(); // the server didn't supply the promised content length
+            throw new IOException("unexpected end of stream");
         }
+        bytesRemaining -= read;
         cacheWrite(buffer, offset, read);
+        if (bytesRemaining == 0) {
+            endOfInput(true);
+        }
         return read;
     }
 
     @Override public int available() throws IOException {
         checkNotClosed();
-        return in == null ? 0 : in.available();
+        return bytesRemaining == 0 ? 0 : Math.min(in.available(), bytesRemaining);
     }
 
     @Override public void close() throws IOException {
@@ -58,7 +65,7 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
             return;
         }
         closed = true;
-        if (!inputExhausted) {
+        if (bytesRemaining != 0) {
             unexpectedEndOfInput();
         }
     }

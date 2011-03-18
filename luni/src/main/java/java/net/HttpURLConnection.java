@@ -19,7 +19,7 @@ package java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
+import libcore.net.http.HttpURLConnectionImpl;
 
 /**
  * An {@link URLConnection} for HTTP (<a

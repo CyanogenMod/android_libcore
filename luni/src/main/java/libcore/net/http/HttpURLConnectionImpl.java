@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.net.http;
 
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;

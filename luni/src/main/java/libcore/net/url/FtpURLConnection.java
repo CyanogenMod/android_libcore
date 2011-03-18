@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.ftp;
+package libcore.net.url;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.jar;
+package libcore.net.url;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,7 +27,6 @@ import java.net.ContentHandler;
 import java.net.ContentHandlerFactory;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
-import libcore.net.UriCodec;
 import java.net.URL;
 import java.security.Permission;
 import java.util.HashMap;
@@ -37,6 +36,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
+import libcore.net.UriCodec;
 
 /**
  * This subclass extends {@code URLConnection}.

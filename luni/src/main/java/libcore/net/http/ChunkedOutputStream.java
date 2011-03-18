@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.net.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

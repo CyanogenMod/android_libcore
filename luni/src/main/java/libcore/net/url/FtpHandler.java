@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.net.url;
 
 import java.io.IOException;
 import java.net.Proxy;
@@ -23,31 +23,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-/**
- * This is the handler that manages all transactions between the client and a
- * HTTP remote server.
- */
-public class Handler extends URLStreamHandler {
-
+public class FtpHandler extends URLStreamHandler {
     /**
-     * Returns a connection to the HTTP server specified by this
-     * <code>URL</code>.
-     *
-     * @param u
-     *            the URL to which the connection is pointing to
-     * @return a connection to the resource pointed by this url.
-     *
-     * @throws IOException
-     *             if this handler fails to establish a connection
+     * Open a URLConnection on the given URL.
      */
     @Override
     protected URLConnection openConnection(URL u) throws IOException {
-        return new HttpURLConnectionImpl(u, getDefaultPort());
+        return new FtpURLConnection(u);
     }
 
     /**
      * Returns a connection, which is established via the <code>proxy</code>,
-     * to the HTTP server specified by this <code>URL</code>. If the
+     * to the FTP server specified by this <code>URL</code>. If
      * <code>proxy</code> is DIRECT type, the connection is made in normal
      * way.
      *
@@ -69,7 +56,7 @@ public class Handler extends URLStreamHandler {
         if (url == null || proxy == null) {
             throw new IllegalArgumentException("url == null || proxy == null");
         }
-        return new HttpURLConnectionImpl(url, getDefaultPort(), proxy);
+        return new FtpURLConnection(url, proxy);
     }
 
     /**
@@ -77,6 +64,6 @@ public class Handler extends URLStreamHandler {
      */
     @Override
     protected int getDefaultPort() {
-        return 80;
+        return 21;
     }
 }

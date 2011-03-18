@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.http;
+package libcore.net.http;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -32,8 +32,8 @@ import java.net.URI;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import libcore.util.Objects;
 import libcore.io.IoUtils;
+import libcore.util.Objects;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
 
 /**

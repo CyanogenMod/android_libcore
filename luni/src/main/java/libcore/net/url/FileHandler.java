@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.file;
+package libcore.net.url;
 
 import java.io.IOException;
 import java.net.Proxy;
@@ -27,7 +27,7 @@ import java.net.URLStreamHandler;
  * This is the handler that is responsible for reading files from the file
  * system.
  */
-public class Handler extends URLStreamHandler {
+public class FileHandler extends URLStreamHandler {
 
     /**
      * Returns a connection to the a file pointed by this <code>URL</code> in

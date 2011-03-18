@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.ftp;
+package libcore.net.http;
 
 import java.io.IOException;
 import java.net.Proxy;
@@ -23,47 +23,26 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-public class Handler extends URLStreamHandler {
-    /**
-     * Open a URLConnection on the given URL.
-     */
+/**
+ * Handler for HttpsURLConnection implementation.
+ */
+public class HttpsHandler extends URLStreamHandler {
+
     @Override
-    protected URLConnection openConnection(URL u) throws IOException {
-        return new FtpURLConnection(u);
+    protected URLConnection openConnection(URL url) throws IOException {
+        return new HttpsURLConnectionImpl(url, getDefaultPort());
     }
 
-    /**
-     * Returns a connection, which is established via the <code>proxy</code>,
-     * to the FTP server specified by this <code>URL</code>. If
-     * <code>proxy</code> is DIRECT type, the connection is made in normal
-     * way.
-     *
-     * @param url
-     *            the URL which the connection is pointing to
-     * @param proxy
-     *            the proxy which is used to make the connection
-     * @return a connection to the resource pointed by this url.
-     *
-     * @throws IOException
-     *             if this handler fails to establish a connection.
-     * @throws IllegalArgumentException
-     *             if any argument is null or the type of proxy is wrong.
-     * @throws UnsupportedOperationException
-     *             if the protocol handler doesn't support this method.
-     */
     @Override
     protected URLConnection openConnection(URL url, Proxy proxy) throws IOException {
         if (url == null || proxy == null) {
             throw new IllegalArgumentException("url == null || proxy == null");
         }
-        return new FtpURLConnection(url, proxy);
+        return new HttpsURLConnectionImpl(url, getDefaultPort(), proxy);
     }
 
-    /**
-     * Return the default port.
-     */
     @Override
     protected int getDefaultPort() {
-        return 21;
+        return 443;
     }
 }

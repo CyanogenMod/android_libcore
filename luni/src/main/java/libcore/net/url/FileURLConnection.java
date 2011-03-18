@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.internal.net.www.protocol.file;
+package libcore.net.url;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -26,9 +26,9 @@ import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import libcore.net.UriCodec;
 import java.net.URL;
 import java.net.URLConnection;
+import libcore.net.UriCodec;
 
 /**
  * This subclass extends <code>URLConnection</code>.

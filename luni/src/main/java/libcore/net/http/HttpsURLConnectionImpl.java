@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.harmony.luni.internal.net.www.protocol.https;
+package libcore.net.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +35,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
-import org.apache.harmony.luni.internal.net.www.protocol.http.HttpConnection;
-import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
 
 /**
  * HttpsURLConnection implementation.
