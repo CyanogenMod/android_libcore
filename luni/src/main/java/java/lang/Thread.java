@@ -155,13 +155,8 @@ public class Thread implements Runnable {
      */
     ThreadLocal.Values inheritableValues;
 
-    /**
-     * Holds the interrupt action for this Thread, if any.
-     * <p>
-     * This is required internally by NIO, so even if it looks like it's
-     * useless, don't delete it!
-     */
-    private Runnable interruptAction;
+    /** Callback to run on interruption. */
+    private volatile Runnable interruptAction;
 
     /**
      * Holds the class loader for this Thread, in case there is one.
@@ -672,6 +667,7 @@ public class Thread implements Runnable {
      * @see Thread#isInterrupted
      */
     public void interrupt() {
+        Runnable interruptAction = this.interruptAction;
         if (interruptAction != null) {
             interruptAction.run();
         }
@@ -898,18 +894,17 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Set the action to be executed when interruption, which is probably be
-     * used to implement the interruptible channel. The action is null by
-     * default. And if this method is invoked by passing in a non-null value,
-     * this action's run() method will be invoked in <code>interrupt()</code>.
-     * <p>
-     * This is required internally by NIO, so even if it looks like it's
-     * useless, don't delete it!
+     * Sets the runnable to invoke upon interruption. If this thread has already
+     * been interrupted, the runnable will be invoked immediately. The action
+     * should be idempotent as it may be invoked multiple times for a single
+     * interruption.
      *
-     * @param action the action to be executed when interruption
+     * @param action the runnable to run on interruption, or null to take no
+     *     immediate action. The thread's interrupted state will still be
+     *     changed.
+     * @hide used by NIO
      */
-    @SuppressWarnings("unused")
-    private void setInterruptAction(Runnable action) {
+    public void setInterruptAction(Runnable action) {
         this.interruptAction = action;
     }
 
@@ -1115,9 +1110,18 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Implementation of <code>unpark()</code>. See {@link LangAccessImpl}.
+     * Unparks this thread. This unblocks the thread it if it was
+     * previously parked, or indicates that the thread is "preemptively
+     * unparked" if it wasn't already parked. The latter means that the
+     * next time the thread is told to park, it will merely clear its
+     * latent park bit and carry on without blocking.
+     *
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * @hide for Unsafe
      */
-    /*package*/ void unpark() {
+    public void unpark() {
         VMThread vmt = vmThread;
 
         if (vmt == null) {
@@ -1157,13 +1161,27 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Implementation of <code>parkFor()</code>. See {@link LangAccessImpl}.
-     * This method must only be called when <code>this</code> is the current
+     * Parks the current thread for a particular number of nanoseconds, or
+     * indefinitely. If not indefinitely, this method unparks the thread
+     * after the given number of nanoseconds if no other thread unparks it
+     * first. If the thread has been "preemptively unparked," this method
+     * cancels that unparking and returns immediately. This method may
+     * also return spuriously (that is, without the thread being told to
+     * unpark and without the indicated amount of time elapsing).
+     *
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * <p>This method must only be called when <code>this</code> is the current
      * thread.
      *
-     * @param nanos number of nanoseconds to park for
+     * @param nanos number of nanoseconds to park for or <code>0</code>
+     * to park indefinitely
+     * @throws IllegalArgumentException thrown if <code>nanos &lt; 0</code>
+     *
+     * @hide for Unsafe
      */
-    /*package*/ void parkFor(long nanos) {
+    public void parkFor(long nanos) {
         VMThread vmt = vmThread;
 
         if (vmt == null) {
@@ -1207,13 +1225,27 @@ public class Thread implements Runnable {
     }
 
     /**
-     * Implementation of <code>parkUntil()</code>. See {@link LangAccessImpl}.
-     * This method must only be called when <code>this</code> is the current
-     * thread.
+     * Parks the current thread until the specified system time. This
+     * method attempts to unpark the current thread immediately after
+     * <code>System.currentTimeMillis()</code> reaches the specified
+     * value, if no other thread unparks it first. If the thread has
+     * been "preemptively unparked," this method cancels that
+     * unparking and returns immediately. This method may also return
+     * spuriously (that is, without the thread being told to unpark
+     * and without the indicated amount of time elapsing).
      *
-     * @param time absolute milliseconds since the epoch to park until
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * <p>This method must only be called when <code>this</code> is the
+     * current thread.
+     *
+     * @param time the time after which the thread should be unparked,
+     * in absolute milliseconds-since-the-epoch
+     *
+     * @hide for Unsafe
      */
-    /*package*/ void parkUntil(long time) {
+    public void parkUntil(long time) {
         VMThread vmt = vmThread;
 
         if (vmt == null) {

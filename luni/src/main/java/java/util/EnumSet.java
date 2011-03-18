@@ -16,20 +16,12 @@
 package java.util;
 
 import java.io.Serializable;
-import org.apache.harmony.kernel.vm.LangAccess;
 
 /**
  * An EnumSet is a specialized Set to be used with enums as keys.
  */
 public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
         implements Cloneable, Serializable {
-    /*
-     * null-ok; package access to {@code java.lang}, set during
-     * first need. This shouldn't be used directly. Instead, use {@link
-     * SpecialAccess#LANG}, which is guaranteed to be initialized.
-     */
-    static /*package*/ LangAccess LANG_BOOTSTRAP = null;
-
     private static final long serialVersionUID = 1009687484059888093L;
 
     final Class<E> elementClass;
@@ -53,7 +45,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
         if (!elementType.isEnum()) {
             throw new ClassCastException(elementType.getClass().getName() + " is not an Enum");
         }
-        E[] enums = SpecialAccess.LANG.getEnumValuesInOrder(elementType);
+        E[] enums = elementType.getSharedEnumConstants();
         if (enums.length <= 64) {
             return new MiniEnumSet<E>(elementType, enums);
         }

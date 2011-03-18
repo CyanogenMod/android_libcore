@@ -18,7 +18,6 @@
 package java.nio.channels.spi;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.Channel;
 import java.nio.channels.ClosedByInterruptException;
@@ -36,35 +35,25 @@ import java.nio.channels.InterruptibleChannel;
 */
 public abstract class AbstractInterruptibleChannel implements Channel, InterruptibleChannel {
 
-    static Method setInterruptAction = null;
-    static {
-        try {
-            setInterruptAction = Thread.class.getDeclaredMethod("setInterruptAction", Runnable.class);
-            setInterruptAction.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
-        }
-    }
-
     private volatile boolean closed = false;
 
     volatile boolean interrupted = false;
 
-    /**
-     * Default constructor.
-     */
+    private final Runnable interruptAndCloseRunnable = new Runnable() {
+        @Override public void run() {
+            try {
+                interrupted = true;
+                AbstractInterruptibleChannel.this.close();
+            } catch (IOException ignored) {
+            }
+        }
+    };
+
     protected AbstractInterruptibleChannel() {
         super();
     }
 
-    /**
-     * Indicates whether this channel is open.
-     *
-     * @return {@code true} if this channel is open, {@code false} if it is
-     *         closed.
-     * @see java.nio.channels.Channel#isOpen()
-     */
-    public synchronized final boolean isOpen() {
+    @Override public synchronized final boolean isOpen() {
         return !closed;
     }
 
@@ -84,7 +73,7 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      *             if a problem occurs while closing this channel.
      * @see java.nio.channels.Channel#close()
      */
-    public final void close() throws IOException {
+    @Override public final void close() throws IOException {
         if (!closed) {
             synchronized (this) {
                 if (!closed) {
@@ -101,25 +90,7 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      * should invoke the corresponding {@code end(boolean)} method.
      */
     protected final void begin() {
-        // FIXME: be accommodate before VM actually provides
-        // setInterruptAction method
-        if (setInterruptAction != null) {
-            try {
-                setInterruptAction.invoke(Thread.currentThread(),
-                        new Object[] { new Runnable() {
-                            public void run() {
-                                try {
-                                    interrupted = true;
-                                    AbstractInterruptibleChannel.this.close();
-                                } catch (IOException e) {
-                                    // ignore
-                                }
-                            }
-                        } });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+        Thread.currentThread().setInterruptAction(interruptAndCloseRunnable);
     }
 
     /**
@@ -137,19 +108,10 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      *             method is executing.
      */
     protected final void end(boolean success) throws AsynchronousCloseException {
-        // FIXME: be accommodate before VM actually provides
-        // setInterruptAction method
-        if (setInterruptAction != null) {
-            try {
-                setInterruptAction.invoke(Thread.currentThread(),
-                        new Object[] { null });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            if (interrupted) {
-                interrupted = false;
-                throw new ClosedByInterruptException();
-            }
+        Thread.currentThread().setInterruptAction(null);
+        if (interrupted) {
+            interrupted = false;
+            throw new ClosedByInterruptException();
         }
         if (!success && closed) {
             throw new AsynchronousCloseException();

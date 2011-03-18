@@ -26,12 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import libcore.util.BasicLruCache;
 import libcore.util.EmptyArray;
-import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 
 /**
@@ -92,34 +90,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      * instance's class is an enumeration
      */
     private volatile T[] enumValuesByName;
-
-    static {
-        /*
-         * Provide access to this package from java.util as part of
-         * bootstrap. TODO: See if this can be removed in favor of the
-         * simpler mechanism below. (That is, see if EnumSet will be
-         * happy calling LangAccess.getInstance().)
-         */
-        Field field;
-
-        try {
-            field = EnumSet.class.getDeclaredField("LANG_BOOTSTRAP");
-            REFLECT.setAccessibleNoCheck(field, true);
-        } catch (NoSuchFieldException ex) {
-            // This shouldn't happen because the field is in fact defined.
-            throw new AssertionError(ex);
-        }
-
-        try {
-            field.set(null, LangAccessImpl.THE_ONE);
-        } catch (IllegalAccessException ex) {
-            // This shouldn't happen because we made the field accessible.
-            throw new AssertionError(ex);
-        }
-
-        // Also set up the bootstrap-classpath-wide access mechanism.
-        LangAccess.setInstance(LangAccessImpl.THE_ONE);
-    }
 
     /**
      * Constructs an instance.
@@ -492,13 +462,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         return enumValuesByName;
     }
 
-    /**
-     * Gets the array of enumerated values, in their original declared
-     * order.
-     *
-     * @return null-ok; the value array, or <code>null</code> if this
-     * instance's class isn't in fact an enumeration
-     */
     public T[] getEnumValuesInOrder() {
         if ((enumValuesInOrder == null) && clazz.isEnum()) {
             enumValuesInOrder = callEnumValues();
