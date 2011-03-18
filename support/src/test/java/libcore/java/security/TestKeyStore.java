@@ -576,7 +576,7 @@ public final class TestKeyStore extends Assert {
             String keyAlgorithm, String signatureAlgorithm) throws Exception {
         PrivateKeyEntry found = null;
         PasswordProtection password = new PasswordProtection(keyPassword);
-        for (String alias: Collections.list(keyStore.aliases())) {
+        for (String alias : Collections.list(keyStore.aliases())) {
             if (!keyStore.entryInstanceOf(alias, PrivateKeyEntry.class)) {
                 continue;
             }
@@ -589,7 +589,7 @@ public final class TestKeyStore extends Assert {
                 continue;
             }
             if (found != null) {
-                throw new IllegalStateException("keyStore has more than one private key for "
+                throw new IllegalStateException("KeyStore has more than one private key for "
                                                 + " keyAlgorithm: " + keyAlgorithm
                                                 + " signatureAlgorithm: " + signatureAlgorithm
                                                 + "\nfirst: " + found.getPrivateKey()
@@ -598,9 +598,59 @@ public final class TestKeyStore extends Assert {
             found = privateKey;
         }
         if (found == null) {
-            throw new IllegalStateException("keyStore contained no private key for "
+            throw new IllegalStateException("KeyStore contained no private key for "
                                             + " keyAlgorithm: " + keyAlgorithm
                                             + " signatureAlgorithm: " + signatureAlgorithm);
+        }
+        return found;
+    }
+
+    /**
+     * Return the issuing CA certificate of the given
+     * certificate. Throws IllegalStateException if there are are more
+     * or less than one.
+     */
+    public Certificate getIssuer(Certificate cert) throws Exception {
+        return issuer(keyStore, cert);
+    }
+
+    /**
+     * Return the issuing CA certificate of the given
+     * certificate. Throws IllegalStateException if there are are more
+     * or less than one.
+     */
+    public static Certificate issuer(KeyStore keyStore, Certificate c)
+            throws Exception {
+        if (!(c instanceof X509Certificate)) {
+            throw new IllegalStateException("issuer requires an X509Certificate, found " + c);
+        }
+        X509Certificate cert = (X509Certificate) c;
+
+        Certificate found = null;
+        for (String alias : Collections.list(keyStore.aliases())) {
+            if (!keyStore.entryInstanceOf(alias, TrustedCertificateEntry.class)) {
+                continue;
+            }
+            TrustedCertificateEntry certificateEntry =
+                    (TrustedCertificateEntry) keyStore.getEntry(alias, null);
+            Certificate certificate = certificateEntry.getTrustedCertificate();
+            if (!(certificate instanceof X509Certificate)) {
+                continue;
+            }
+            X509Certificate x = (X509Certificate) certificate;
+            if (!cert.getIssuerDN().equals(x.getSubjectDN())) {
+                continue;
+            }
+            if (found != null) {
+                throw new IllegalStateException("KeyStore has more than one issuing CA for "
+                                                + cert
+                                                + "\nfirst: " + found
+                                                + "\nsecond: " + certificate );
+            }
+            found = certificate;
+        }
+        if (found == null) {
+            throw new IllegalStateException("KeyStore contained no issuing CA for " + cert);
         }
         return found;
     }
@@ -622,7 +672,7 @@ public final class TestKeyStore extends Assert {
     public static Certificate rootCertificate(KeyStore keyStore, String algorithm)
             throws Exception {
         Certificate found = null;
-        for (String alias: Collections.list(keyStore.aliases())) {
+        for (String alias : Collections.list(keyStore.aliases())) {
             if (!keyStore.entryInstanceOf(alias, TrustedCertificateEntry.class)) {
                 continue;
             }
@@ -640,7 +690,7 @@ public final class TestKeyStore extends Assert {
                 continue;
             }
             if (found != null) {
-                throw new IllegalStateException("keyStore has more than one root CA for "
+                throw new IllegalStateException("KeyStore has more than one root CA for "
                                                 + algorithm
                                                 + "\nfirst: " + found
                                                 + "\nsecond: " + certificate );
@@ -648,7 +698,7 @@ public final class TestKeyStore extends Assert {
             found = certificate;
         }
         if (found == null) {
-            throw new IllegalStateException("keyStore contained no root CA for " + algorithm);
+            throw new IllegalStateException("KeyStore contained no root CA for " + algorithm);
         }
         return found;
     }
@@ -668,7 +718,7 @@ public final class TestKeyStore extends Assert {
      */
     public static boolean copySelfSignedCertificates(KeyStore dst, KeyStore src) throws Exception {
         boolean copied = false;
-        for (String alias: Collections.list(src.aliases())) {
+        for (String alias : Collections.list(src.aliases())) {
             if (!src.isCertificateEntry(alias)) {
                 continue;
             }
@@ -688,7 +738,7 @@ public final class TestKeyStore extends Assert {
      */
     public static boolean copyCertificate(Principal subject, KeyStore dst, KeyStore src)
             throws Exception {
-        for (String alias: Collections.list(src.aliases())) {
+        for (String alias : Collections.list(src.aliases())) {
             if (!src.isCertificateEntry(alias)) {
                 continue;
             }
@@ -715,7 +765,7 @@ public final class TestKeyStore extends Assert {
         out.println("\tkeyPassword="
                     + ((keyPassword == null) ? null : new String(keyPassword)));
         out.println("\tsize=" + keyStore.size());
-        for (String alias: Collections.list(keyStore.aliases())) {
+        for (String alias : Collections.list(keyStore.aliases())) {
             out.println("alias=" + alias);
             out.println("\tcreationDate=" + keyStore.getCreationDate(alias));
             if (keyStore.isCertificateEntry(alias)) {
