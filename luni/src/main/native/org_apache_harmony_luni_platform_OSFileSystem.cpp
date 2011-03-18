@@ -234,14 +234,6 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
     return result;
 }
 
-static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
-    int rc = ftruncate64(fd, length);
-    if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
 static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint flags) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -342,7 +334,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
     NATIVE_METHOD(OSFileSystem, seek, "(IJI)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
-    NATIVE_METHOD(OSFileSystem, truncate, "(IJ)V"),
     NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),

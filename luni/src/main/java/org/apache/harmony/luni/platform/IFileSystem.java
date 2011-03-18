@@ -47,10 +47,7 @@ public interface IFileSystem {
     public void unlock(int fileDescriptor, long start, long length)
             throws IOException;
 
-    public long seek(int fileDescriptor, long offset, int whence)
-            throws IOException;
-
-    public void truncate(int fileDescriptor, long size) throws IOException;
+    public long seek(int fileDescriptor, long offset, int whence) throws IOException;
 
     public int open(String path, int mode) throws FileNotFoundException;
 

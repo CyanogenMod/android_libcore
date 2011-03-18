@@ -36,4 +36,9 @@ public class BlockGuardOs extends ForwardingOs {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.fsync(fd);
     }
+
+    public void ftruncate(FileDescriptor fd, long length) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.ftruncate(fd, length);
+    }
 }

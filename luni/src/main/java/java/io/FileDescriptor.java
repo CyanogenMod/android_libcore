@@ -74,7 +74,7 @@ public final class FileDescriptor {
             try {
                 Libcore.os.fsync(this);
             } catch (ErrnoException errnoException) {
-                SyncFailedException sfe = new SyncFailedException("sync failed");
+                SyncFailedException sfe = new SyncFailedException(errnoException.getMessage());
                 sfe.initCause(errnoException);
                 throw sfe;
             }

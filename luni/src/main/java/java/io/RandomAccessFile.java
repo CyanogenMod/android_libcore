@@ -254,7 +254,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         try {
             return Libcore.os.fstat(fd).st_size;
         } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException("fstat failed");
+            throw errnoException.rethrowAsIOException();
         }
     }
 
@@ -655,7 +655,11 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (newLength < 0) {
             throw new IllegalArgumentException("newLength < 0");
         }
-        Platform.FILE_SYSTEM.truncate(fd.descriptor, newLength);
+        try {
+            Libcore.os.ftruncate(fd, newLength);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
 
         long filePointer = getFilePointer();
         if (filePointer > newLength) {

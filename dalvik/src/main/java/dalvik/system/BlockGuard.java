@@ -215,11 +215,6 @@ public final class BlockGuard {
             return mFileSystem.seek(fileDescriptor, offset, whence);
         }
 
-        public void truncate(int fileDescriptor, long size) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            mFileSystem.truncate(fileDescriptor, size);
-        }
-
         public int open(String path, int mode) throws FileNotFoundException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
             if (mode != 0) {  // 0 is read-only

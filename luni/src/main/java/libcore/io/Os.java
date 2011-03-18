@@ -24,6 +24,7 @@ public interface Os {
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
+    public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
     public StructStat lstat(String path) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;

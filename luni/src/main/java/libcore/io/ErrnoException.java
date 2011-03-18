@@ -25,32 +25,36 @@ import libcore.io.OsConstants;
  * callers need to adjust their behavior based on the exact failure.
  */
 public final class ErrnoException extends RuntimeException {
+    private final String functionName;
     public final int errno;
 
-    public ErrnoException(int errno) {
+    public ErrnoException(String functionName, int errno) {
+        this.functionName = functionName;
         this.errno = errno;
     }
 
-    public ErrnoException(int errno, Throwable cause) {
+    public ErrnoException(String functionName, int errno, Throwable cause) {
         super(cause);
+        this.functionName = functionName;
         this.errno = errno;
     }
 
     /**
-     * Converts the stashed errno to a human-readable string. We do this here rather than in
-     * the constructor so that callers only pay for this if they need it.
+     * Converts the stashed function name and errno value to a human-readable string.
+     * We do this here rather than in the constructor so that callers only pay for
+     * this if they need it.
      */
     @Override public String getMessage() {
-        String name = OsConstants.errnoName(errno);
-        if (name == null) {
-            name = "errno " + errno;
+        String errnoName = OsConstants.errnoName(errno);
+        if (errnoName == null) {
+            errnoName = "errno " + errno;
         }
         String description = Libcore.os.strerror(errno);
-        return name + " (" + description + ")";
+        return functionName + " failed: " + errnoName + " (" + description + ")";
     }
 
-    public IOException rethrowAsIOException(String detail) throws IOException {
-        IOException ioException = new IOException(detail);
+    public IOException rethrowAsIOException() throws IOException {
+        IOException ioException = new IOException(getMessage());
         ioException.initCause(this);
         throw ioException;
     }

@@ -188,7 +188,7 @@ final class FileChannelImpl extends FileChannel {
                     Libcore.os.fdatasync(fd);
                 }
             } catch (ErrnoException errnoException) {
-                throw errnoException.rethrowAsIOException("sync failed");
+                throw errnoException.rethrowAsIOException();
             }
         }
     }
@@ -210,7 +210,7 @@ final class FileChannelImpl extends FileChannel {
             throw new NonReadableChannelException();
         }
         if (position + size > size()) {
-            Platform.FILE_SYSTEM.truncate(IoUtils.getFd(fd), position + size);
+            truncate(position + size);
         }
         long alignment = position - position % Libcore.os.sysconf(_SC_PAGE_SIZE);
         int offset = (int) (position - alignment);
@@ -389,7 +389,7 @@ final class FileChannelImpl extends FileChannel {
         try {
             return Libcore.os.fstat(fd).st_size;
         } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException("fstat failed");
+            throw errnoException.rethrowAsIOException();
         }
     }
 
@@ -477,16 +477,10 @@ final class FileChannelImpl extends FileChannel {
         }
         checkWritable();
         if (size < size()) {
-            synchronized (repositioningLock) {
-                long position = position();
-                Platform.FILE_SYSTEM.truncate(IoUtils.getFd(fd), size);
-                /*
-                 * FIXME: currently the port library always modifies the
-                 * position to given size. not sure it is a bug or intended
-                 * behavior, so I always reset the position to proper value as
-                 * Java Spec.
-                 */
-                position(position > size ? size : position);
+            try {
+                Libcore.os.ftruncate(fd, size);
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
             }
         }
         return this;
