@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /**
  * Allows Java applications to interface with the environment in which they are
@@ -609,13 +611,12 @@ public class Runtime {
         nativeExit(code, false);
     }
 
-
     /**
-     * Returns the number of processors available to the VM.
-     *
-     * @return the number of available processors, at least 1.
+     * Returns the number of processors available to the VM, at least 1.
      */
-    public native int availableProcessors();
+    public int availableProcessors() {
+        return (int) Libcore.os.sysconf(_SC_NPROCESSORS_ONLN);
+    }
 
     /**
      * Returns the maximum amount of memory that may be used by the virtual
