@@ -103,7 +103,8 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit sqlite-jdbc
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
+LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
@@ -169,7 +170,8 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex sqlite-jdbc-hostdex
+    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex
+    LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host
     LOCAL_DX_FLAGS := --core-library
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := tests
