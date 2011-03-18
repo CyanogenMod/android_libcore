@@ -718,6 +718,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
+     * Like {@link #getEnumConstants} without a defensive copy. It is an error
+     * to modify the returned array.
+     *
+     * @hide for EnumSet
+     */
+    public T[] getSharedEnumConstants() {
+        return getClassMembers().getEnumValuesInOrder();
+    }
+
+    /**
      * Returns a {@code Field} object which represents the public field with the
      * specified name. This method first searches the class C represented by
      * this {@code Class}, then the interfaces implemented by C and finally the
