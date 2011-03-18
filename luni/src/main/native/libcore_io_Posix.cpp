@@ -27,11 +27,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-static jboolean maybeThrow(JNIEnv* env, const char* name, int rc, int errnum) {
-    if (rc != -1) {
-        return false;
-    }
-
+static void throwErrnoException(JNIEnv* env, const char* name, int errnum) {
     jthrowable cause = NULL;
     if (env->ExceptionCheck()) {
         cause = env->ExceptionOccurred();
@@ -57,7 +53,14 @@ static jboolean maybeThrow(JNIEnv* env, const char* name, int rc, int errnum) {
         exception = env->NewObject(JniConstants::errnoExceptionClass, ctor, javaName.get(), errnum);
     }
     env->Throw(reinterpret_cast<jthrowable>(exception));
-    return true;
+}
+
+template <typename rc_t>
+static rc_t throwIfMinusOne(JNIEnv* env, const char* name, int errnum, rc_t rc) {
+    if (rc == rc_t(-1)) {
+        throwErrnoException(env, name, errnum);
+    }
+    return rc;
 }
 
 static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
@@ -78,7 +81,8 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     struct stat sb;
     int rc = isLstat ? TEMP_FAILURE_RETRY(lstat(path.c_str(), &sb))
                      : TEMP_FAILURE_RETRY(stat(path.c_str(), &sb));
-    if (maybeThrow(env, isLstat ? "lstat" : "stat", rc, errno)) {
+    if (rc == -1) {
+        throwErrnoException(env, isLstat ? "lstat" : "stat", errno);
         return NULL;
     }
     return makeStructStat(env, sb);
@@ -90,7 +94,9 @@ static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) 
         return JNI_FALSE;
     }
     int rc = TEMP_FAILURE_RETRY(access(path.c_str(), mode));
-    maybeThrow(env, "access", rc, errno);
+    if (rc == -1) {
+        throwErrnoException(env, "access", errno);
+    }
     return (rc == 0);
 }
 
@@ -101,15 +107,15 @@ static jobjectArray Posix_environ(JNIEnv* env, jobject) {
 
 static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = TEMP_FAILURE_RETRY(fdatasync(fd));
-    maybeThrow(env, "fdatasync", rc, errno);
+    throwIfMinusOne(env, "fdatasync", errno, TEMP_FAILURE_RETRY(fdatasync(fd)));
 }
 
 static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     struct stat sb;
     int rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
-    if (maybeThrow(env, "fstat", rc, errno)) {
+    if (rc == -1) {
+        throwErrnoException(env, "fstat", errno);
         return NULL;
     }
     return makeStructStat(env, sb);
@@ -117,14 +123,12 @@ static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
 
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = TEMP_FAILURE_RETRY(fsync(fd));
-    maybeThrow(env, "fsync", rc, errno);
+    throwIfMinusOne(env, "fsync", errno, TEMP_FAILURE_RETRY(fsync(fd)));
 }
 
 static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = TEMP_FAILURE_RETRY(ftruncate64(fd, length));
-    maybeThrow(env, "ftruncate", rc, errno);
+    throwIfMinusOne(env, "ftruncate", errno, TEMP_FAILURE_RETRY(ftruncate64(fd, length)));
 }
 
 static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
@@ -133,6 +137,11 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
         return NULL;
     }
     return env->NewStringUTF(getenv(name.c_str()));
+}
+
+static jlong Posix_lseek(JNIEnv* env, jobject, jobject javaFd, jlong offset, jint whence) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "lseek", errno, TEMP_FAILURE_RETRY(lseek64(fd, offset, whence)));
 }
 
 static jobject Posix_lstat(JNIEnv* env, jobject, jstring javaPath) {
@@ -154,7 +163,7 @@ static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
     errno = 0;
     long result = sysconf(name);
     if (result == -1L && errno == EINVAL) {
-        maybeThrow(env, "sysconf", -1, errno);
+        throwErrnoException(env, "sysconf", errno);
     }
     return result;
 }
@@ -167,6 +176,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),

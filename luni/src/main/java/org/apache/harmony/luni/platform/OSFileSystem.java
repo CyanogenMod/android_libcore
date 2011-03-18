@@ -45,11 +45,6 @@ class OSFileSystem implements IFileSystem {
     private native int lockImpl(int fd, long start, long length, int type, boolean wait);
 
     /*
-     * File position seeking.
-     */
-    public native long seek(int fd, long offset, int whence) throws IOException;
-
-    /*
      * Direct read/write APIs work on addresses.
      */
     public native long readDirect(int fd, int address, int offset, int length);

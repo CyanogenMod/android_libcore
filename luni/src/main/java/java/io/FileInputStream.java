@@ -22,11 +22,13 @@ import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
-import static libcore.io.OsConstants.*;
+import libcore.io.Libcore;
 import libcore.io.Streams;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * An input stream that reads bytes from a file.
@@ -60,8 +62,6 @@ public class FileInputStream extends InputStream implements Closeable {
     private FileChannel channel;
 
     private final boolean shouldCloseFd;
-
-    private final Object repositioningLock = new Object();
 
     private final CloseGuard guard = CloseGuard.get();
 
@@ -182,31 +182,29 @@ public class FileInputStream extends InputStream implements Closeable {
             return 0;
         }
         checkOpen();
-        synchronized (repositioningLock) {
-            return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, byteCount);
-        }
+        return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, byteCount);
     }
 
     @Override
     public long skip(long byteCount) throws IOException {
         checkOpen();
-
         if (byteCount == 0) {
             return 0;
         }
         if (byteCount < 0) {
             throw new IOException("byteCount < 0: " + byteCount);
         }
-
         try {
-            synchronized (repositioningLock) {
-                // Our seek returns the new offset, but we know it will throw an
-                // exception if it couldn't perform exactly the seek we asked for.
-                Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, SEEK_CUR);
-                return byteCount;
+            // Try lseek(2). That returns the new offset, but we'll throw an
+            // exception if it couldn't perform exactly the seek we asked for.
+            Libcore.os.lseek(fd, byteCount, SEEK_CUR);
+            return byteCount;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == ESPIPE) {
+                // You can't seek on a pipe, so fall back to the superclass' implementation.
+                return super.skip(byteCount);
             }
-        } catch (IFileSystem.SeekPipeException e) {
-            return super.skip(byteCount);
+            throw errnoException.rethrowAsIOException();
         }
     }
 
