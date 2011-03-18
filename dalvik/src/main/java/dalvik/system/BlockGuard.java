@@ -220,10 +220,6 @@ public final class BlockGuard {
             mFileSystem.truncate(fileDescriptor, size);
         }
 
-        public int getAllocGranularity() {
-            return mFileSystem.getAllocGranularity();
-        }
-
         public int open(String path, int mode) throws FileNotFoundException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
             if (mode != 0) {  // 0 is read-only

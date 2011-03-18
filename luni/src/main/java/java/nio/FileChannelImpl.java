@@ -38,16 +38,10 @@ import libcore.io.Libcore;
 import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
-/*
- * The file channel impl class is the bridge between the logical channels
- * described by the NIO channel framework, and the file system implementation
- * provided by the port layer.
- *
- * This class is non-API, but implements the API of the FileChannel interface.
+/**
+ * Our concrete implementation of the abstract FileChannel class.
  */
 final class FileChannelImpl extends FileChannel {
-    private static final int ALLOC_GRANULARITY = Platform.FILE_SYSTEM.getAllocGranularity();
-
     private static final Comparator<FileLock> LOCK_COMPARATOR = new Comparator<FileLock>() {
         public int compare(FileLock lock1, FileLock lock2) {
             long position1 = lock1.position();
@@ -218,7 +212,7 @@ final class FileChannelImpl extends FileChannel {
         if (position + size > size()) {
             Platform.FILE_SYSTEM.truncate(IoUtils.getFd(fd), position + size);
         }
-        long alignment = position - position % ALLOC_GRANULARITY;
+        long alignment = position - position % Libcore.os.sysconf(_SC_PAGE_SIZE);
         int offset = (int) (position - alignment);
         MemoryBlock block = MemoryBlock.mmap(IoUtils.getFd(fd), alignment, size + offset, mapMode);
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);

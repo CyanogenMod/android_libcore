@@ -30,4 +30,5 @@ public final class Posix implements Os {
     public native StructStat lstat(String path) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native String strerror(int errno);
+    public native long sysconf(int name);
 }

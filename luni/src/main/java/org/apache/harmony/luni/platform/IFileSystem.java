@@ -52,11 +52,6 @@ public interface IFileSystem {
 
     public void truncate(int fileDescriptor, long size) throws IOException;
 
-    /**
-     * Returns the granularity for virtual memory allocation.
-     */
-    public int getAllocGranularity();
-
     public int open(String path, int mode) throws FileNotFoundException;
 
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,

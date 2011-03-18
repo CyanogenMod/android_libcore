@@ -91,15 +91,6 @@ static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
     return rc;
 }
 
-/**
- * Returns the granularity of the starting address for virtual memory allocation.
- * (It's the same as the page size.)
- */
-static jint OSFileSystem_getAllocGranularity(JNIEnv*, jobject) {
-    static int allocGranularity = getpagesize();
-    return allocGranularity;
-}
-
 // Translate three Java int[]s to a native iovec[] for readv and writev.
 static iovec* initIoVec(JNIEnv* env,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
@@ -343,7 +334,6 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSFileSystem, getAllocGranularity, "()I"),
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
     NATIVE_METHOD(OSFileSystem, open, "(Ljava/lang/String;I)I"),

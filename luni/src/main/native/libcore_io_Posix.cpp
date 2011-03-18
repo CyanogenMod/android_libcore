@@ -135,6 +135,16 @@ static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     return env->NewStringUTF(message);
 }
 
+static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
+    // Since -1 is a valid result from sysconf(3), detecting failure is a little more awkward.
+    errno = 0;
+    long result = sysconf(name);
+    if (result == -1L && errno == EINVAL) {
+        maybeThrow(env, -1, errno);
+    }
+    return result;
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
@@ -145,6 +155,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, sysconf, "(I)J"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));

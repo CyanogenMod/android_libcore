@@ -33,13 +33,6 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    /**
-     * Returns the granularity for virtual memory allocation.
-     * Note that this value for Windows differs from the one for the
-     * page size (64K and 4K respectively).
-     */
-    public native int getAllocGranularity();
-
     public boolean lock(int fd, long start, long length, boolean shared, boolean waitFlag) throws IOException {
         int result = lockImpl(fd, start, length, shared ? F_RDLCK : F_WRLCK, waitFlag);
         return result != -1;

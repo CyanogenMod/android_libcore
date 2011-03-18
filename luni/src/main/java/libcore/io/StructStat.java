@@ -19,8 +19,9 @@ package libcore.io;
 import static libcore.io.OsConstants.*;
 
 /**
- * File information returned by fstat(2), lstat(2), and stat(2).
- * http://www.opengroup.org/onlinepubs/000095399/basedefs/sys/stat.h.html
+ * File information returned by fstat(2), lstat(2), and stat(2). Corresponds to C's
+ * {@code struct stat} from
+ * <a href="http://www.opengroup.org/onlinepubs/000095399/basedefs/sys/stat.h.html">&lt;stat.h&gt;</a>
  */
 public final class StructStat {
     /** Device ID of device containing file. */
@@ -73,8 +74,7 @@ public final class StructStat {
 
     StructStat(long st_dev, long st_ino, int st_mode, long st_nlink, int st_uid, int st_gid,
             long st_rdev, long st_size, long st_atime, long st_mtime, long st_ctime,
-            long st_blksize, long st_blocks)
-    {
+            long st_blksize, long st_blocks) {
         this.st_dev = st_dev;
         this.st_ino = st_ino;
         this.st_mode = st_mode;

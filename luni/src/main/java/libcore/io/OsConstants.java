@@ -216,165 +216,333 @@ public final class OsConstants {
     public static final int WUNTRACED = placeholder();
     public static final int W_OK = placeholder();
     public static final int X_OK = placeholder();
+    public static final int _SC_2_CHAR_TERM = placeholder();
+    public static final int _SC_2_C_BIND = placeholder();
+    public static final int _SC_2_C_DEV = placeholder();
+    public static final int _SC_2_C_VERSION = placeholder();
+    public static final int _SC_2_FORT_DEV = placeholder();
+    public static final int _SC_2_FORT_RUN = placeholder();
+    public static final int _SC_2_LOCALEDEF = placeholder();
+    public static final int _SC_2_SW_DEV = placeholder();
+    public static final int _SC_2_UPE = placeholder();
+    public static final int _SC_2_VERSION = placeholder();
+    public static final int _SC_AIO_LISTIO_MAX = placeholder();
+    public static final int _SC_AIO_MAX = placeholder();
+    public static final int _SC_AIO_PRIO_DELTA_MAX = placeholder();
+    public static final int _SC_ARG_MAX = placeholder();
+    public static final int _SC_ASYNCHRONOUS_IO = placeholder();
+    public static final int _SC_ATEXIT_MAX = placeholder();
+    public static final int _SC_AVPHYS_PAGES = placeholder();
+    public static final int _SC_BC_BASE_MAX = placeholder();
+    public static final int _SC_BC_DIM_MAX = placeholder();
+    public static final int _SC_BC_SCALE_MAX = placeholder();
+    public static final int _SC_BC_STRING_MAX = placeholder();
+    public static final int _SC_CHILD_MAX = placeholder();
+    public static final int _SC_CLK_TCK = placeholder();
+    public static final int _SC_COLL_WEIGHTS_MAX = placeholder();
+    public static final int _SC_DELAYTIMER_MAX = placeholder();
+    public static final int _SC_EXPR_NEST_MAX = placeholder();
+    public static final int _SC_FSYNC = placeholder();
+    public static final int _SC_GETGR_R_SIZE_MAX = placeholder();
+    public static final int _SC_GETPW_R_SIZE_MAX = placeholder();
+    public static final int _SC_IOV_MAX = placeholder();
+    public static final int _SC_JOB_CONTROL = placeholder();
+    public static final int _SC_LINE_MAX = placeholder();
+    public static final int _SC_LOGIN_NAME_MAX = placeholder();
+    public static final int _SC_MAPPED_FILES = placeholder();
+    public static final int _SC_MEMLOCK = placeholder();
+    public static final int _SC_MEMLOCK_RANGE = placeholder();
+    public static final int _SC_MEMORY_PROTECTION = placeholder();
+    public static final int _SC_MESSAGE_PASSING = placeholder();
+    public static final int _SC_MQ_OPEN_MAX = placeholder();
+    public static final int _SC_MQ_PRIO_MAX = placeholder();
+    public static final int _SC_NGROUPS_MAX = placeholder();
+    public static final int _SC_NPROCESSORS_CONF = placeholder();
+    public static final int _SC_NPROCESSORS_ONLN = placeholder();
+    public static final int _SC_OPEN_MAX = placeholder();
+    public static final int _SC_PAGESIZE = placeholder();
+    public static final int _SC_PAGE_SIZE = placeholder();
+    public static final int _SC_PASS_MAX = placeholder();
+    public static final int _SC_PHYS_PAGES = placeholder();
+    public static final int _SC_PRIORITIZED_IO = placeholder();
+    public static final int _SC_PRIORITY_SCHEDULING = placeholder();
+    public static final int _SC_REALTIME_SIGNALS = placeholder();
+    public static final int _SC_RE_DUP_MAX = placeholder();
+    public static final int _SC_RTSIG_MAX = placeholder();
+    public static final int _SC_SAVED_IDS = placeholder();
+    public static final int _SC_SEMAPHORES = placeholder();
+    public static final int _SC_SEM_NSEMS_MAX = placeholder();
+    public static final int _SC_SEM_VALUE_MAX = placeholder();
+    public static final int _SC_SHARED_MEMORY_OBJECTS = placeholder();
+    public static final int _SC_SIGQUEUE_MAX = placeholder();
+    public static final int _SC_STREAM_MAX = placeholder();
+    public static final int _SC_SYNCHRONIZED_IO = placeholder();
+    public static final int _SC_THREADS = placeholder();
+    public static final int _SC_THREAD_ATTR_STACKADDR = placeholder();
+    public static final int _SC_THREAD_ATTR_STACKSIZE = placeholder();
+    public static final int _SC_THREAD_DESTRUCTOR_ITERATIONS = placeholder();
+    public static final int _SC_THREAD_KEYS_MAX = placeholder();
+    public static final int _SC_THREAD_PRIORITY_SCHEDULING = placeholder();
+    public static final int _SC_THREAD_PRIO_INHERIT = placeholder();
+    public static final int _SC_THREAD_PRIO_PROTECT = placeholder();
+    public static final int _SC_THREAD_SAFE_FUNCTIONS = placeholder();
+    public static final int _SC_THREAD_STACK_MIN = placeholder();
+    public static final int _SC_THREAD_THREADS_MAX = placeholder();
+    public static final int _SC_TIMERS = placeholder();
+    public static final int _SC_TIMER_MAX = placeholder();
+    public static final int _SC_TTY_NAME_MAX = placeholder();
+    public static final int _SC_TZNAME_MAX = placeholder();
+    public static final int _SC_VERSION = placeholder();
+    public static final int _SC_XBS5_ILP32_OFF32 = placeholder();
+    public static final int _SC_XBS5_ILP32_OFFBIG = placeholder();
+    public static final int _SC_XBS5_LP64_OFF64 = placeholder();
+    public static final int _SC_XBS5_LPBIG_OFFBIG = placeholder();
+    public static final int _SC_XOPEN_CRYPT = placeholder();
+    public static final int _SC_XOPEN_ENH_I18N = placeholder();
+    public static final int _SC_XOPEN_LEGACY = placeholder();
+    public static final int _SC_XOPEN_REALTIME = placeholder();
+    public static final int _SC_XOPEN_REALTIME_THREADS = placeholder();
+    public static final int _SC_XOPEN_SHM = placeholder();
+    public static final int _SC_XOPEN_UNIX = placeholder();
+    public static final int _SC_XOPEN_VERSION = placeholder();
+    public static final int _SC_XOPEN_XCU_VERSION = placeholder();
 
     public static String errnoName(int errno) {
         if (errno == E2BIG) {
             return "E2BIG";
-        } else if (errno == EACCES) {
+        }
+        if (errno == EACCES) {
             return "EACCES";
-        } else if (errno == EADDRINUSE) {
+        }
+        if (errno == EADDRINUSE) {
             return "EADDRINUSE";
-        } else if (errno == EADDRNOTAVAIL) {
+        }
+        if (errno == EADDRNOTAVAIL) {
             return "EADDRNOTAVAIL";
-        } else if (errno == EAFNOSUPPORT) {
+        }
+        if (errno == EAFNOSUPPORT) {
             return "EAFNOSUPPORT";
-        } else if (errno == EAGAIN) {
+        }
+        if (errno == EAGAIN) {
             return "EAGAIN";
-        } else if (errno == EALREADY) {
+        }
+        if (errno == EALREADY) {
             return "EALREADY";
-        } else if (errno == EBADF) {
+        }
+        if (errno == EBADF) {
             return "EBADF";
-        } else if (errno == EBADMSG) {
+        }
+        if (errno == EBADMSG) {
             return "EBADMSG";
-        } else if (errno == EBUSY) {
+        }
+        if (errno == EBUSY) {
             return "EBUSY";
-        } else if (errno == ECANCELED) {
+        }
+        if (errno == ECANCELED) {
             return "ECANCELED";
-        } else if (errno == ECHILD) {
+        }
+        if (errno == ECHILD) {
             return "ECHILD";
-        } else if (errno == ECONNABORTED) {
+        }
+        if (errno == ECONNABORTED) {
             return "ECONNABORTED";
-        } else if (errno == ECONNREFUSED) {
+        }
+        if (errno == ECONNREFUSED) {
             return "ECONNREFUSED";
-        } else if (errno == ECONNRESET) {
+        }
+        if (errno == ECONNRESET) {
             return "ECONNRESET";
-        } else if (errno == EDEADLK) {
+        }
+        if (errno == EDEADLK) {
             return "EDEADLK";
-        } else if (errno == EDESTADDRREQ) {
+        }
+        if (errno == EDESTADDRREQ) {
             return "EDESTADDRREQ";
-        } else if (errno == EDOM) {
+        }
+        if (errno == EDOM) {
             return "EDOM";
-        } else if (errno == EDQUOT) {
+        }
+        if (errno == EDQUOT) {
             return "EDQUOT";
-        } else if (errno == EEXIST) {
+        }
+        if (errno == EEXIST) {
             return "EEXIST";
-        } else if (errno == EFAULT) {
+        }
+        if (errno == EFAULT) {
             return "EFAULT";
-        } else if (errno == EFBIG) {
+        }
+        if (errno == EFBIG) {
             return "EFBIG";
-        } else if (errno == EHOSTUNREACH) {
+        }
+        if (errno == EHOSTUNREACH) {
             return "EHOSTUNREACH";
-        } else if (errno == EIDRM) {
+        }
+        if (errno == EIDRM) {
             return "EIDRM";
-        } else if (errno == EILSEQ) {
+        }
+        if (errno == EILSEQ) {
             return "EILSEQ";
-        } else if (errno == EINPROGRESS) {
+        }
+        if (errno == EINPROGRESS) {
             return "EINPROGRESS";
-        } else if (errno == EINTR) {
+        }
+        if (errno == EINTR) {
             return "EINTR";
-        } else if (errno == EINVAL) {
+        }
+        if (errno == EINVAL) {
             return "EINVAL";
-        } else if (errno == EIO) {
+        }
+        if (errno == EIO) {
             return "EIO";
-        } else if (errno == EISCONN) {
+        }
+        if (errno == EISCONN) {
             return "EISCONN";
-        } else if (errno == EISDIR) {
+        }
+        if (errno == EISDIR) {
             return "EISDIR";
-        } else if (errno == ELOOP) {
+        }
+        if (errno == ELOOP) {
             return "ELOOP";
-        } else if (errno == EMFILE) {
+        }
+        if (errno == EMFILE) {
             return "EMFILE";
-        } else if (errno == EMLINK) {
+        }
+        if (errno == EMLINK) {
             return "EMLINK";
-        } else if (errno == EMSGSIZE) {
+        }
+        if (errno == EMSGSIZE) {
             return "EMSGSIZE";
-        } else if (errno == EMULTIHOP) {
+        }
+        if (errno == EMULTIHOP) {
             return "EMULTIHOP";
-        } else if (errno == ENAMETOOLONG) {
+        }
+        if (errno == ENAMETOOLONG) {
             return "ENAMETOOLONG";
-        } else if (errno == ENETDOWN) {
+        }
+        if (errno == ENETDOWN) {
             return "ENETDOWN";
-        } else if (errno == ENETRESET) {
+        }
+        if (errno == ENETRESET) {
             return "ENETRESET";
-        } else if (errno == ENETUNREACH) {
+        }
+        if (errno == ENETUNREACH) {
             return "ENETUNREACH";
-        } else if (errno == ENFILE) {
+        }
+        if (errno == ENFILE) {
             return "ENFILE";
-        } else if (errno == ENOBUFS) {
+        }
+        if (errno == ENOBUFS) {
             return "ENOBUFS";
-        } else if (errno == ENODATA) {
+        }
+        if (errno == ENODATA) {
             return "ENODATA";
-        } else if (errno == ENODEV) {
+        }
+        if (errno == ENODEV) {
             return "ENODEV";
-        } else if (errno == ENOENT) {
+        }
+        if (errno == ENOENT) {
             return "ENOENT";
-        } else if (errno == ENOEXEC) {
+        }
+        if (errno == ENOEXEC) {
             return "ENOEXEC";
-        } else if (errno == ENOLCK) {
+        }
+        if (errno == ENOLCK) {
             return "ENOLCK";
-        } else if (errno == ENOLINK) {
+        }
+        if (errno == ENOLINK) {
             return "ENOLINK";
-        } else if (errno == ENOMEM) {
+        }
+        if (errno == ENOMEM) {
             return "ENOMEM";
-        } else if (errno == ENOMSG) {
+        }
+        if (errno == ENOMSG) {
             return "ENOMSG";
-        } else if (errno == ENOPROTOOPT) {
+        }
+        if (errno == ENOPROTOOPT) {
             return "ENOPROTOOPT";
-        } else if (errno == ENOSPC) {
+        }
+        if (errno == ENOSPC) {
             return "ENOSPC";
-        } else if (errno == ENOSR) {
+        }
+        if (errno == ENOSR) {
             return "ENOSR";
-        } else if (errno == ENOSTR) {
+        }
+        if (errno == ENOSTR) {
             return "ENOSTR";
-        } else if (errno == ENOSYS) {
+        }
+        if (errno == ENOSYS) {
             return "ENOSYS";
-        } else if (errno == ENOTCONN) {
+        }
+        if (errno == ENOTCONN) {
             return "ENOTCONN";
-        } else if (errno == ENOTDIR) {
+        }
+        if (errno == ENOTDIR) {
             return "ENOTDIR";
-        } else if (errno == ENOTEMPTY) {
+        }
+        if (errno == ENOTEMPTY) {
             return "ENOTEMPTY";
-        } else if (errno == ENOTSOCK) {
+        }
+        if (errno == ENOTSOCK) {
             return "ENOTSOCK";
-        } else if (errno == ENOTSUP) {
+        }
+        if (errno == ENOTSUP) {
             return "ENOTSUP";
-        } else if (errno == ENOTTY) {
+        }
+        if (errno == ENOTTY) {
             return "ENOTTY";
-        } else if (errno == ENXIO) {
+        }
+        if (errno == ENXIO) {
             return "ENXIO";
-        } else if (errno == EOPNOTSUPP) {
+        }
+        if (errno == EOPNOTSUPP) {
             return "EOPNOTSUPP";
-        } else if (errno == EOVERFLOW) {
+        }
+        if (errno == EOVERFLOW) {
             return "EOVERFLOW";
-        } else if (errno == EPERM) {
+        }
+        if (errno == EPERM) {
             return "EPERM";
-        } else if (errno == EPIPE) {
+        }
+        if (errno == EPIPE) {
             return "EPIPE";
-        } else if (errno == EPROTO) {
+        }
+        if (errno == EPROTO) {
             return "EPROTO";
-        } else if (errno == EPROTONOSUPPORT) {
+        }
+        if (errno == EPROTONOSUPPORT) {
             return "EPROTONOSUPPORT";
-        } else if (errno == EPROTOTYPE) {
+        }
+        if (errno == EPROTOTYPE) {
             return "EPROTOTYPE";
-        } else if (errno == ERANGE) {
+        }
+        if (errno == ERANGE) {
             return "ERANGE";
-        } else if (errno == EROFS) {
+        }
+        if (errno == EROFS) {
             return "EROFS";
-        } else if (errno == ESPIPE) {
+        }
+        if (errno == ESPIPE) {
             return "ESPIPE";
-        } else if (errno == ESRCH) {
+        }
+        if (errno == ESRCH) {
             return "ESRCH";
-        } else if (errno == ESTALE) {
+        }
+        if (errno == ESTALE) {
             return "ESTALE";
-        } else if (errno == ETIME) {
+        }
+        if (errno == ETIME) {
             return "ETIME";
-        } else if (errno == ETIMEDOUT) {
+        }
+        if (errno == ETIMEDOUT) {
             return "ETIMEDOUT";
-        } else if (errno == ETXTBSY) {
+        }
+        if (errno == ETXTBSY) {
             return "ETXTBSY";
-        } else if (errno == EWOULDBLOCK) {
+        }
+        if (errno == EWOULDBLOCK) {
             return "EWOULDBLOCK";
-        } else if (errno == EXDEV) {
+        }
+        if (errno == EXDEV) {
             return "EXDEV";
         }
         return null;

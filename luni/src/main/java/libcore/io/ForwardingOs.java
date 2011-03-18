@@ -37,4 +37,5 @@ public class ForwardingOs implements Os {
     public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public String strerror(int errno) { return os.strerror(errno); }
+    public long sysconf(int name) { return os.sysconf(name); }
 }

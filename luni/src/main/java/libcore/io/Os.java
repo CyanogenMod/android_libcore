@@ -28,4 +28,5 @@ public interface Os {
     public StructStat lstat(String path) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     public String strerror(int errno);
+    public long sysconf(int name);
 }
