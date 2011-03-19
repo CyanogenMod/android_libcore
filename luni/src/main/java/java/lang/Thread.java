@@ -923,6 +923,8 @@ public class Thread implements Runnable {
      *
      * @param interruptAction the pushed action, used to check that the call
      *     stack is correctly nested.
+     *
+     * @hide used by NIO
      */
     public void popInterruptAction(Runnable interruptAction) {
         synchronized (interruptActions) {
