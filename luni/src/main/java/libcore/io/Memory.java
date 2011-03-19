@@ -17,9 +17,9 @@
 
 package libcore.io;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel.MapMode;
 
 /**
  * Unsafe access to memory.
@@ -165,26 +165,6 @@ public final class Memory {
     public static native void pokeLongArray(int address, long[] src, int offset, int count, boolean swap);
     public static native void pokeShortArray(int address, short[] src, int offset, int count, boolean swap);
 
-    public static int mmap(int fd, long offset, long size, MapMode mapMode) throws IOException {
-        // Check just those errors mmap(2) won't detect.
-        if (offset < 0 || size < 0 || offset > Integer.MAX_VALUE || size > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("offset=" + offset + " size=" + size);
-        }
-        int intMode = 0; // MapMode.PRIVATE
-        if (mapMode == MapMode.READ_ONLY) {
-            intMode = 1;
-        } else if (mapMode == MapMode.READ_WRITE) {
-            intMode = 2;
-        }
-        return mmapImpl(fd, offset, size, intMode);
-    }
-    private static native int mmapImpl(int fd, long offset, long size, int mapMode);
-
-    public static native void munmap(int addr, long size);
-
     public static native void load(int addr, long size);
-
     public static native boolean isLoaded(int addr, long size);
-
-    public static native void msync(int addr, long size);
 }

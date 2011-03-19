@@ -259,38 +259,6 @@ static void Memory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jbool
     }
 }
 
-static jint Memory_mmapImpl(JNIEnv* env, jclass, jint fd, jlong offset, jlong size, jint mapMode) {
-    int prot, flags;
-    switch (mapMode) {
-    case 0: // MapMode.PRIVATE
-        prot = PROT_READ|PROT_WRITE;
-        flags = MAP_PRIVATE;
-        break;
-    case 1: // MapMode.READ_ONLY
-        prot = PROT_READ;
-        flags = MAP_SHARED;
-        break;
-    case 2: // MapMode.READ_WRITE
-        prot = PROT_READ|PROT_WRITE;
-        flags = MAP_SHARED;
-        break;
-    default:
-        jniThrowIOException(env, EINVAL);
-        LOGE("bad mapMode %i", mapMode);
-        return -1;
-    }
-
-    void* mapAddress = mmap(0, size, prot, flags, fd, offset);
-    if (mapAddress == MAP_FAILED) {
-        jniThrowIOException(env, errno);
-    }
-    return reinterpret_cast<uintptr_t>(mapAddress);
-}
-
-static void Memory_munmap(JNIEnv*, jclass, jint address, jlong size) {
-    munmap(cast<void*>(address), size);
-}
-
 static void Memory_load(JNIEnv*, jclass, jint address, jlong size) {
     if (mlock(cast<void*>(address), size) != -1) {
         munlock(cast<void*>(address), size);
@@ -321,10 +289,6 @@ static jboolean Memory_isLoaded(JNIEnv*, jclass, jint address, jlong size) {
         }
     }
     return JNI_TRUE;
-}
-
-static void Memory_msync(JNIEnv*, jclass, jint address, jlong size) {
-    msync(cast<void*>(address), size, MS_SYNC);
 }
 
 static void unsafeBulkCopy(jbyte* dst, const jbyte* src, jint byteCount,
@@ -387,9 +351,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Memory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(Memory, load, "(IJ)V"),
     NATIVE_METHOD(Memory, memmove, "(IIJ)V"),
-    NATIVE_METHOD(Memory, mmapImpl, "(IJJI)I"),
-    NATIVE_METHOD(Memory, msync, "(IJ)V"),
-    NATIVE_METHOD(Memory, munmap, "(IJ)V"),
     NATIVE_METHOD(Memory, peekByte, "(I)B"),
     NATIVE_METHOD(Memory, peekByteArray, "(I[BII)V"),
     NATIVE_METHOD(Memory, peekCharArray, "(I[CIIZ)V"),

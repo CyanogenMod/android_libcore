@@ -209,7 +209,7 @@ final class FileChannelImpl extends FileChannel {
         }
         long alignment = position - position % Libcore.os.sysconf(_SC_PAGE_SIZE);
         int offset = (int) (position - alignment);
-        MemoryBlock block = MemoryBlock.mmap(IoUtils.getFd(fd), alignment, size + offset, mapMode);
+        MemoryBlock block = MemoryBlock.mmap(fd, alignment, size + offset, mapMode);
         return new MappedByteBufferAdapter(block, (int) size, offset, mapMode);
     }
 
