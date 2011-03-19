@@ -109,17 +109,8 @@ public final class URL implements java.io.Serializable {
     /**
      * Cache for storing protocol handler
      */
-    private static Hashtable<String, URLStreamHandler> streamHandlers = createStreamHandlers();
-
-    private static Hashtable<String, URLStreamHandler> createStreamHandlers() {
-        Hashtable<String, URLStreamHandler> result = new Hashtable<String, URLStreamHandler>();
-        result.put("file", new FileHandler());
-        result.put("ftp", new FtpHandler());
-        result.put("http", new HttpHandler());
-        result.put("https", new HttpsHandler());
-        result.put("jar", new JarHandler());
-        return result;
-    }
+    private static final Hashtable<String, URLStreamHandler> streamHandlers
+            = new Hashtable<String, URLStreamHandler>();
 
     /**
      * The URL Stream (protocol) Handler
@@ -148,7 +139,7 @@ public final class URL implements java.io.Serializable {
         if (streamHandlerFactory != null) {
             throw new Error("Factory already set");
         }
-        streamHandlers = createStreamHandlers();
+        streamHandlers.clear();
         streamHandlerFactory = streamFactory;
     }
 
@@ -580,6 +571,22 @@ public final class URL implements java.io.Serializable {
                 } catch (ClassNotFoundException ignored) {
                 }
             }
+        }
+
+        // Fall back to a built-in stream handler if the user didn't supply one
+        if (protocol.equals("file")) {
+            strmHandler = new FileHandler();
+        } else if (protocol.equals("ftp")) {
+            strmHandler = new FtpHandler();
+        } else if (protocol.equals("http")) {
+            strmHandler = new HttpHandler();
+        } else if (protocol.equals("https")) {
+            strmHandler = new HttpsHandler();
+        } else if (protocol.equals("jar")) {
+            strmHandler = new JarHandler();
+        }
+        if (strmHandler != null) {
+            streamHandlers.put(protocol, strmHandler);
         }
     }
 
