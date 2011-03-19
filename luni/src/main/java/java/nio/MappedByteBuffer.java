@@ -17,7 +17,10 @@
 package java.nio;
 
 import java.nio.channels.FileChannel.MapMode;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import libcore.io.Memory;
+import static libcore.io.OsConstants.*;
 
 /**
  * {@code MappedByteBuffer} is a special kind of direct byte buffer which maps a
@@ -91,7 +94,13 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            Memory.msync(block.toInt(), block.getSize());
+            try {
+                Libcore.os.msync(block.toInt(), block.getSize(), MS_SYNC);
+            } catch (ErrnoException errnoException) {
+                // The RI doesn't throw, presumably on the assumption that you can't get into
+                // a state where msync(2) could return an error.
+                throw new AssertionError(errnoException);
+            }
         }
         return this;
     }

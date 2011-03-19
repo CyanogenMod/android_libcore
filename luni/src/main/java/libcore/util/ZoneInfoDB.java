@@ -77,7 +77,14 @@ public final class ZoneInfoDB {
         readIndex();
     }
 
-    private static final MemoryMappedFile allZoneData = mapData();
+    /**
+     * Rather than open, read, and close the big data file each time we look up a time zone,
+     * we map the big data file during startup, and then just use the MemoryMappedFile.
+     *
+     * At the moment, this "big" data file is about 500 KiB. At some point, that will be small
+     * enough that we'll just keep the byte[] in memory.
+     */
+    private static final MemoryMappedFile allZoneData = MemoryMappedFile.mmapRO(ZONE_FILE_NAME);
 
     private ZoneInfoDB() {}
 
@@ -104,17 +111,13 @@ public final class ZoneInfoDB {
      * All this code assumes strings are US-ASCII.
      */
     private static void readIndex() {
-        RandomAccessFile file = null;
-        MemoryMappedFile mappedFile = null;
+        MemoryMappedFile mappedFile = MemoryMappedFile.mmapRO(INDEX_FILE_NAME);
         try {
-            file = new RandomAccessFile(INDEX_FILE_NAME, "r");
-            mappedFile = MemoryMappedFile.mmap(file.getFD(), MapMode.READ_ONLY, 0, file.length());
             readIndex(mappedFile);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
             IoUtils.closeQuietly(mappedFile);
-            IoUtils.closeQuietly(file);
         }
     }
 
@@ -127,7 +130,7 @@ public final class ZoneInfoDB {
         final int SIZEOF_TZINT = 4;
 
         byte[] idBytes = new byte[SIZEOF_TZNAME];
-        int numEntries = mappedFile.size() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT);
+        int numEntries = (int) mappedFile.size() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT);
 
         char[] idChars = new char[numEntries * SIZEOF_TZNAME];
         int[] idEnd = new int[numEntries];
@@ -163,25 +166,6 @@ public final class ZoneInfoDB {
         ids = new String[numEntries];
         for (int i = 0; i < numEntries; i++) {
             ids[i] = allIds.substring(i == 0 ? 0 : idEnd[i - 1], idEnd[i]);
-        }
-    }
-
-    /**
-     * Rather than open, read, and close the big data file each time we look up a time zone,
-     * we map the big data file during startup, and then just use the MemoryMappedFile.
-     *
-     * At the moment, this "big" data file is about 500 KiB. At some point, that will be small
-     * enough that we'll just keep the byte[] in memory.
-     */
-    private static MemoryMappedFile mapData() {
-        RandomAccessFile file = null;
-        try {
-            file = new RandomAccessFile(ZONE_FILE_NAME, "r");
-            return MemoryMappedFile.mmap(file.getFD(), MapMode.READ_ONLY, 0, file.length());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            IoUtils.closeQuietly(file);
         }
     }
 

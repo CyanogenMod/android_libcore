@@ -30,6 +30,9 @@ public final class Posix implements Os {
     public native String getenv(String name);
     public native boolean isatty(FileDescriptor fd);
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
+    public native long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
+    public native void msync(long address, long byteCount, int flags) throws ErrnoException;
+    public native void munmap(long address, long byteCount) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native String strerror(int errno);

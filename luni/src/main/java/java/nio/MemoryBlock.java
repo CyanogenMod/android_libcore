@@ -18,9 +18,13 @@
 package java.nio;
 
 import dalvik.system.VMRuntime;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.FileChannel.MapMode;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import libcore.io.Memory;
+import static libcore.io.OsConstants.*;
 
 class MemoryBlock {
     /**
@@ -33,7 +37,13 @@ class MemoryBlock {
 
         @Override public void free() {
             if (address != 0) {
-                Memory.munmap(address, size);
+                try {
+                    Libcore.os.munmap(address, size);
+                } catch (ErrnoException errnoException) {
+                    // The RI doesn't throw, presumably on the assumption that you can't get into
+                    // a state where munmap(2) could return an error.
+                    throw new AssertionError(errnoException);
+                }
                 address = 0;
             }
         }
@@ -82,13 +92,33 @@ class MemoryBlock {
     protected int address;
     protected final long size;
 
-    public static MemoryBlock mmap(int fd, long start, long size, MapMode mode) throws IOException {
+    public static MemoryBlock mmap(FileDescriptor fd, long offset, long size, MapMode mapMode) throws IOException {
         if (size == 0) {
-            // You can't mmap(2) a zero-length region.
+            // You can't mmap(2) a zero-length region, but Java allows it.
             return new MemoryBlock(0, 0);
         }
-        int address = Memory.mmap(fd, start, size, mode);
-        return new MemoryMappedBlock(address, size);
+        // Check just those errors mmap(2) won't detect.
+        if (offset < 0 || size < 0 || offset > Integer.MAX_VALUE || size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("offset=" + offset + " size=" + size);
+        }
+        int prot;
+        int flags;
+        if (mapMode == MapMode.PRIVATE) {
+            prot = PROT_READ|PROT_WRITE;
+            flags = MAP_PRIVATE;
+        } else if (mapMode == MapMode.READ_ONLY) {
+            prot = PROT_READ;
+            flags = MAP_SHARED;
+        } else { // mapMode == MapMode.READ_WRITE
+            prot = PROT_READ|PROT_WRITE;
+            flags = MAP_SHARED;
+        }
+        try {
+            int address = (int) Libcore.os.mmap(0L, size, prot, flags, fd, offset);
+            return new MemoryMappedBlock(address, size);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     public static MemoryBlock allocate(int byteCount) {
