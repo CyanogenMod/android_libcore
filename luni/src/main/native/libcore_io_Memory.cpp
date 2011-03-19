@@ -259,12 +259,6 @@ static void Memory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jbool
     }
 }
 
-static void Memory_load(JNIEnv*, jclass, jint address, jlong size) {
-    if (mlock(cast<void*>(address), size) != -1) {
-        munlock(cast<void*>(address), size);
-    }
-}
-
 static jboolean Memory_isLoaded(JNIEnv*, jclass, jint address, jlong size) {
     if (size == 0) {
         return JNI_TRUE;
@@ -349,7 +343,6 @@ static void Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint 
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Memory, isLoaded, "(IJ)Z"),
-    NATIVE_METHOD(Memory, load, "(IJ)V"),
     NATIVE_METHOD(Memory, memmove, "(IIJ)V"),
     NATIVE_METHOD(Memory, peekByte, "(I)B"),
     NATIVE_METHOD(Memory, peekByteArray, "(I[BII)V"),

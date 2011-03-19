@@ -80,7 +80,11 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
-        Memory.load(block.toInt(), block.getSize());
+        try {
+            Libcore.os.mlock(block.toInt(), block.getSize());
+            Libcore.os.munlock(block.toInt(), block.getSize());
+        } catch (ErrnoException ignored) {
+        }
         return this;
     }
 

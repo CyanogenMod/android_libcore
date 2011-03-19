@@ -28,8 +28,10 @@ public interface Os {
     public String getenv(String name);
     public boolean isatty(FileDescriptor fd);
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
+    public void mlock(long address, long byteCount) throws ErrnoException;
     public long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
     public void msync(long address, long byteCount, int flags) throws ErrnoException;
+    public void munlock(long address, long byteCount) throws ErrnoException;
     public void munmap(long address, long byteCount) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;

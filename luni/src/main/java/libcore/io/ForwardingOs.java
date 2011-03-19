@@ -38,8 +38,10 @@ public class ForwardingOs implements Os {
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException { return os.lseek(fd, offset, whence); }
     public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
+    public void mlock(long address, long byteCount) throws ErrnoException { os.mlock(address, byteCount); }
     public long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException { return os.mmap(address, byteCount, prot, flags, fd, offset); }
     public void msync(long address, long byteCount, int flags) throws ErrnoException { os.msync(address, byteCount, flags); }
+    public void munlock(long address, long byteCount) throws ErrnoException { os.munlock(address, byteCount); }
     public void munmap(long address, long byteCount) throws ErrnoException { os.munmap(address, byteCount); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public String strerror(int errno) { return os.strerror(errno); }
