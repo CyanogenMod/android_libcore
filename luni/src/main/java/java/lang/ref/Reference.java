@@ -72,7 +72,7 @@ public abstract class Reference<T> {
      * collector.
      */
     @SuppressWarnings("unchecked")
-    volatile Reference pendingNext;
+    volatile Object pendingNext;
 
     /**
      * Constructs a new instance of this class.

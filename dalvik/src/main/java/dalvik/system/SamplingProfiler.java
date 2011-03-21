@@ -1359,7 +1359,6 @@ public final class SamplingProfiler {
     /**
      * Timer that is used for the lifetime of the profiler
      */
-    // note that dalvik/vm/Thread.c depends on this name
     private final Timer timer = new Timer("SamplingProfiler", true);
 
     /**
