@@ -132,11 +132,13 @@ public final class VMRuntime {
     public void gcSoftReferences() {}
 
     /**
-     * Does not return until any pending finalizers have been called.
-     * This may or may not happen in the context of the calling thread.
-     * No exceptions will escape.
+     * This method exists for binary compatibility.  It is equivalent
+     * to {@link System#runFinalization}.
      */
-    public native void runFinalizationSync();
+    @Deprecated
+    public void runFinalizationSync() {
+        System.runFinalization();
+    }
 
     /**
      * Implements setTargetHeapUtilization().

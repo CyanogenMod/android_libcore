@@ -286,7 +286,7 @@ public class Runtime {
 
                 // Ensure finalization on exit, if requested
                 if (finalizeOnExit) {
-                    runFinalization(true);
+                    runFinalization();
                 }
 
                 // Get out of here finally...
@@ -404,21 +404,12 @@ public class Runtime {
     private static native String nativeLoad(String filename, ClassLoader loader);
 
     /**
-     * Requests proper finalization for all Objects on the heap.
-     *
-     * @param forced Decides whether the VM really needs to do this (true)
-     *               or if this is just a suggestion that can safely be ignored
-     *               (false).
-     */
-    private native void runFinalization(boolean forced);
-
-    /**
      * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
      *
      */
     public void runFinalization() {
-        runFinalization(false);
+        FinalizerThread.runFinalization();
     }
 
     /**
