@@ -259,32 +259,6 @@ static void Memory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jbool
     }
 }
 
-static jboolean Memory_isLoaded(JNIEnv*, jclass, jint address, jlong size) {
-    if (size == 0) {
-        return JNI_TRUE;
-    }
-
-    static int page_size = getpagesize();
-
-    int align_offset = address % page_size;// addr should align with the boundary of a page.
-    address -= align_offset;
-    size += align_offset;
-    int page_count = (size + page_size - 1) / page_size;
-
-    UniquePtr<unsigned char[]> vec(new unsigned char[page_count]);
-    int rc = mincore(cast<void*>(address), size, vec.get());
-    if (rc == -1) {
-        return JNI_FALSE;
-    }
-
-    for (int i = 0; i < page_count; ++i) {
-        if (vec[i] != 1) {
-            return JNI_FALSE;
-        }
-    }
-    return JNI_TRUE;
-}
-
 static void unsafeBulkCopy(jbyte* dst, const jbyte* src, jint byteCount,
         jint sizeofElement, jboolean swap) {
     if (!swap) {
@@ -342,7 +316,6 @@ static void Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint 
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Memory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(Memory, memmove, "(IIJ)V"),
     NATIVE_METHOD(Memory, peekByte, "(I)B"),
     NATIVE_METHOD(Memory, peekByteArray, "(I[BII)V"),

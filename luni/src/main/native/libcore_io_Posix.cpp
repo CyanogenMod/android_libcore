@@ -19,6 +19,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
+#include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "toStringArray.h"
 
@@ -156,6 +157,16 @@ static jobject Posix_lstat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, true);
 }
 
+static void Posix_mincore(JNIEnv* env, jobject, jlong address, jlong byteCount, jbyteArray javaVector) {
+    ScopedByteArrayRW vector(env, javaVector);
+    if (vector.get() == NULL) {
+        return;
+    }
+    void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
+    unsigned char* vec = reinterpret_cast<unsigned char*>(vector.get());
+    throwIfMinusOne(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
+}
+
 static void Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     throwIfMinusOne(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
@@ -217,6 +228,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
+    NATIVE_METHOD(Posix, mincore, "(JJ[B)V"),
     NATIVE_METHOD(Posix, mlock, "(JJ)V"),
     NATIVE_METHOD(Posix, mmap, "(JJIILjava/io/FileDescriptor;J)J"),
     NATIVE_METHOD(Posix, msync, "(JJI)V"),

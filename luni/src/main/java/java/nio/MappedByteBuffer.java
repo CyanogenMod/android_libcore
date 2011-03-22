@@ -62,21 +62,38 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     }
 
     /**
-     * Indicates whether this buffer's content is loaded. If the result is true
-     * there is a high probability that the whole buffer memory is currently
-     * loaded in RAM. If it is false it is unsure if it is loaded or not.
-     *
-     * @return {@code true} if this buffer's content is loaded, {@code false}
-     *         otherwise.
+     * Returns true if there is a high probability that every page of this buffer is currently
+     * loaded in RAM, meaning that accesses will not cause a page fault. It is impossible to give
+     * a strong guarantee since this is only a snapshot of a dynamic situation.
      */
     public final boolean isLoaded() {
-        return Memory.isLoaded(block.toInt(), block.getSize());
+        long address = block.toInt();
+        long size = block.getSize();
+        if (size == 0) {
+            return true;
+        }
+
+        try {
+            int pageSize = (int) Libcore.os.sysconf(_SC_PAGE_SIZE);
+            int pageOffset = (int) (address % pageSize);
+            address -= pageOffset;
+            size += pageOffset;
+            int pageCount = (int) ((size + pageSize - 1) / pageSize);
+            byte[] vector = new byte[pageCount];
+            Libcore.os.mincore(address, size, vector);
+            for (int i = 0; i < vector.length; ++i) {
+                if ((vector[i] & 1) != 1) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
+        }
     }
 
     /**
-     * Loads this buffer's content into memory but it is not guaranteed to
-     * succeed.
-     *
+     * Attempts to load every page of this buffer into RAM. See {@link #isLoaded}.
      * @return this buffer.
      */
     public final MappedByteBuffer load() {

@@ -164,7 +164,4 @@ public final class Memory {
     public static native void pokeIntArray(int address, int[] src, int offset, int count, boolean swap);
     public static native void pokeLongArray(int address, long[] src, int offset, int count, boolean swap);
     public static native void pokeShortArray(int address, short[] src, int offset, int count, boolean swap);
-
-    public static native void load(int addr, long size);
-    public static native boolean isLoaded(int addr, long size);
 }
