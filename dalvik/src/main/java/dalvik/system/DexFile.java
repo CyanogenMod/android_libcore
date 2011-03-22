@@ -19,9 +19,7 @@ package dalvik.system;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.ProtectionDomain;
 import java.util.Enumeration;
-
 
 /**
  * Manipulates DEX files. The class is similar in principle to
@@ -194,13 +192,10 @@ public final class DexFile {
      * @hide
      */
     public Class loadClassBinaryName(String name, ClassLoader loader) {
-        return defineClass(name, loader, mCookie,
-            null);
-            //new ProtectionDomain(name) /*DEBUG ONLY*/);
+        return defineClass(name, loader, mCookie);
     }
 
-    native private static Class defineClass(String name, ClassLoader loader,
-        int cookie, ProtectionDomain pd);
+    private native static Class defineClass(String name, ClassLoader loader, int cookie);
 
     /**
      * Enumerate the names of the classes in this DEX file.

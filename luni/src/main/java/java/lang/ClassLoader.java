@@ -224,7 +224,7 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(byte[] classRep, int offset, int length)
             throws ClassFormatError {
 
-        return VMClassLoader.defineClass(this, classRep, offset, length, null);
+        return VMClassLoader.defineClass(this, classRep, offset, length);
     }
 
     /**
@@ -289,8 +289,7 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(String className, byte[] classRep, int offset, int length,
             ProtectionDomain protectionDomain) throws java.lang.ClassFormatError {
 
-        return VMClassLoader.defineClass(this, className, classRep, offset, length,
-                protectionDomain);
+        return VMClassLoader.defineClass(this, className, classRep, offset, length);
     }
 
     /**

@@ -116,11 +116,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private static final long serialVersionUID = 3206093459760846163L;
 
     /**
-     * This field is initialized by dalvikvm when the class is loaded.
-     */
-    private transient ProtectionDomain pd;
-
-    /**
      * Lazily computed name of this class; always prefer calling getName().
      */
     private transient String name;
@@ -947,21 +942,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private native String getInnerClassName();
 
     /**
-     * Returns the {@code ProtectionDomain} of the class represented by this
-     * class.
-     * <p>
-     * Note: In order to conserve space in an embedded target like Android, we
-     * allow this method to return {@code null} for classes in the system
-     * protection domain (that is, for system classes). System classes are
-     * always given full permissions (that is, AllPermission). This can not be
-     * changed through the {@link java.security.Policy} class.
-     * </p>
-     *
-     * @return the {@code ProtectionDomain} of the class represented by this
-     *         class.
+     * Returns null.
      */
     public ProtectionDomain getProtectionDomain() {
-        return pd;
+        return null;
     }
 
     /**
