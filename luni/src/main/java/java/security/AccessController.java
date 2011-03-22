@@ -95,27 +95,17 @@ public final class AccessController {
     }
 
     /**
-     * Returns array of ProtectionDomains from the classes residing on the stack
-     * of the current thread, up to and including the caller of the nearest
-     * privileged frame. Reflection frames are skipped. The returned array is
-     * never null and never contains null elements, meaning that bootstrap
-     * classes are effectively ignored.
-     */
-    private static native ProtectionDomain[] getStackDomains();
-
-    /**
      * Returns the {@code AccessControlContext} for the current {@code Thread}
      * including the inherited access control context of the thread that spawned
      * the current thread (recursively).
-     * <p>
-     * The returned context may be used to perform access checks at a later
+     *
+     * <p>The returned context may be used to perform access checks at a later
      * point in time, possibly by another thread.
      *
      * @return the {@code AccessControlContext} for the current {@code Thread}
      * @see Thread#currentThread
      */
     public static AccessControlContext getContext() {
-        // TODO: just return null?
-        return new AccessControlContext(getStackDomains());
+        return new AccessControlContext(new ProtectionDomain[0]);
     }
 }

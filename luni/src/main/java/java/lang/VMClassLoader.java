@@ -18,7 +18,6 @@ package java.lang;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +75,10 @@ class VMClassLoader {
 
     native static Class getPrimitiveClass(char type);
 
-    native static Class defineClass(ClassLoader cl, String name,
-        byte[] data, int offset, int len, ProtectionDomain pd)
-        throws ClassFormatError;
+    native static Class defineClass(ClassLoader cl, String name, byte[] data, int offset, int len)
+            throws ClassFormatError;
 
-    native static Class defineClass(ClassLoader cl,
-            byte[] data, int offset, int len, ProtectionDomain pd)
+    native static Class defineClass(ClassLoader cl, byte[] data, int offset, int len)
             throws ClassFormatError;
 
     native static Class findLoadedClass(ClassLoader cl, String name);
@@ -92,4 +89,3 @@ class VMClassLoader {
     native private static int getBootClassPathSize();
     native private static String getBootClassPathResource(String name, int index);
 }
-
