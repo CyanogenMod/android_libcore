@@ -248,26 +248,6 @@ static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
     return (mkdir(path.c_str(), S_IRWXU) == 0);
 }
 
-static jboolean File_createNewFileImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    // On Android, we don't want default permissions to allow global access.
-    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL, 0600));
-    if (fd.get() != -1) {
-        // We created a new file. Success!
-        return JNI_TRUE;
-    }
-    if (errno == EEXIST) {
-        // The file already exists.
-        return JNI_FALSE;
-    }
-    jniThrowIOException(env, errno);
-    return JNI_FALSE; // Ignored by Java; keeps the C++ compiler happy.
-}
-
 static jboolean File_renameToImpl(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
     ScopedUtfChars oldPath(env, javaOldPath);
     if (oldPath.c_str() == NULL) {
@@ -299,7 +279,6 @@ static void File_symlink(JNIEnv* env, jclass, jstring javaOldPath, jstring javaN
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, createNewFileImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),

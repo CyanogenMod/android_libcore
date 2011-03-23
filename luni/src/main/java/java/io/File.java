@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import org.apache.harmony.luni.util.DeleteOnExit;
 import static libcore.io.OsConstants.*;
@@ -944,23 +945,40 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Creates a new, empty file on the file system according to the path
-     * information stored in this file.
+     * information stored in this file. This method returns true if it creates
+     * a file, false if the file already existed. Note that it returns false
+     * even if the file is not a file (because it's a directory, say).
      *
-     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
-     * Callers must check the return value.
+     * <p>This method is not generally useful. For creating temporary files,
+     * use {@link #createTempFile} instead. For reading/writing files, use {@link FileInputStream},
+     * {@link FileOutputStream}, or {@link RandomAccessFile}, all of which can create files.
      *
-     * @return {@code true} if the file has been created, {@code false} if it
+     * <p>Note that this method does <i>not</i> throw {@code IOException} if the file
+     * already exists, even if it's not a regular file. Callers should always check the
+     * return value, and may additionally want to call {@link #isFile}.
+     *
+     * @return true if the file has been created, false if it
      *         already exists.
      * @throws IOException if it's not possible to create the file.
      */
     public boolean createNewFile() throws IOException {
-        if (path.isEmpty()) {
-            throw new IOException("No such file or directory");
+        FileDescriptor fd = null;
+        try {
+            // On Android, we don't want default permissions to allow global access.
+            fd = Libcore.os.open(path, O_RDWR | O_CREAT | O_EXCL, 0600);
+            return true;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == EEXIST) {
+                // The file already exists.
+                return false;
+            }
+            throw errnoException.rethrowAsIOException();
+        } finally {
+            if (fd != null) {
+                IoUtils.close(fd); // TODO: should we suppress IOExceptions thrown here?
+            }
         }
-        return createNewFileImpl(absolutePath);
     }
-
-    private static native boolean createNewFileImpl(String path);
 
     /**
      * Creates an empty temporary file using the given prefix and suffix as part

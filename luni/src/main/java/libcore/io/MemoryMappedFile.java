@@ -57,7 +57,9 @@ public final class MemoryMappedFile implements Closeable {
         } finally {
             // Hack until we have Posix.close.
             try {
-                IoUtils.close(fd);
+                if (fd != null) {
+                    IoUtils.close(fd);
+                }
             } catch (IOException ignored) {
             }
         }
