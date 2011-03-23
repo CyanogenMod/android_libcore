@@ -77,9 +77,7 @@ public class FileInputStream extends InputStream implements Closeable {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        fd = new FileDescriptor();
-        fd.readOnly = true;
-        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), O_RDONLY);
+        fd = IoUtils.open(file.getAbsolutePath(), O_RDONLY);
         shouldCloseFd = true;
         guard.open("close");
     }

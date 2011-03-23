@@ -36,6 +36,7 @@ public final class Posix implements Os {
     public native void msync(long address, long byteCount, int flags) throws ErrnoException;
     public native void munlock(long address, long byteCount) throws ErrnoException;
     public native void munmap(long address, long byteCount) throws ErrnoException;
+    public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native String strerror(int errno);

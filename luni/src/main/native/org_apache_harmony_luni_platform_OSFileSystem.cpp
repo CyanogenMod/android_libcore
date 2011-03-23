@@ -20,7 +20,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -220,46 +219,6 @@ static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
     return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
 }
 
-static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint flags) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return -1;
-    }
-    // On Android, we don't want default permissions to allow global access.
-    int mode = ((flags & O_ACCMODE) == O_RDONLY) ? 0 : 0600;
-    jint fd = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
-
-    // Posix open(2) fails with EISDIR only if you ask for write permission.
-    // Java disallows reading directories too.
-    if (fd != -1) {
-        struct stat sb;
-        int rc = fstat(fd, &sb);
-        if (rc == -1 || S_ISDIR(sb.st_mode)) {
-            // Use EISDIR if that was the case; fail with the fstat(2) error otherwise.
-            close(fd);
-            fd = -1;
-            if (S_ISDIR(sb.st_mode)) {
-                errno = EISDIR;
-            }
-        }
-    }
-
-    if (fd == -1) {
-        // Get the human-readable form of errno.
-        char buffer[80];
-        const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
-
-        // Construct a message that includes the path and the reason.
-        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1 + 1);
-        snprintf(&message[0], message.size(), "%s (%s)", path.c_str(), reason);
-
-        // We always throw FileNotFoundException, regardless of the specific
-        // failure. (This appears to be true of the RI too.)
-        jniThrowException(env, "java/io/FileNotFoundException", &message[0]);
-    }
-    return fd;
-}
-
 static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
     /*
      * On underlying platforms Android cares about (read "Linux"),
@@ -314,7 +273,6 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
-    NATIVE_METHOD(OSFileSystem, open, "(Ljava/lang/String;I)I"),
     NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),

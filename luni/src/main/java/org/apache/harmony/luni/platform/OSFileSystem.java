@@ -67,8 +67,6 @@ class OSFileSystem implements IFileSystem {
     public native long writev(int fd, int[] addresses, int[] offsets, int[] lengths, int size)
             throws IOException;
 
-    public native int open(String path, int mode) throws FileNotFoundException;
-
     public native long transfer(int fd, FileDescriptor sd, long offset, long count)
             throws IOException;
 

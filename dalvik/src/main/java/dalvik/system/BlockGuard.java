@@ -211,14 +211,6 @@ public final class BlockGuard {
             mFileSystem.unlock(fileDescriptor, start, length);
         }
 
-        public int open(String path, int mode) throws FileNotFoundException {
-            BlockGuard.getThreadPolicy().onReadFromDisk();
-            if (mode != 0) {  // 0 is read-only
-                BlockGuard.getThreadPolicy().onWriteToDisk();
-            }
-            return mFileSystem.open(path, mode);
-        }
-
         public long transfer(int fileHandler, FileDescriptor socketDescriptor,
                              long offset, long count) throws IOException {
             return mFileSystem.transfer(fileHandler, socketDescriptor, offset, count);

@@ -18,6 +18,7 @@ package libcore.java.io;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -91,6 +92,14 @@ public final class FileInputStreamTest extends TestCase {
             assertFalse(feeder.isAlive());
         } finally {
             closeQuietly(pipe[0]);
+        }
+    }
+
+    public void testDirectories() throws Exception {
+        try {
+            new FileInputStream(".");
+            fail();
+        } catch (FileNotFoundException expected) {
         }
     }
 }

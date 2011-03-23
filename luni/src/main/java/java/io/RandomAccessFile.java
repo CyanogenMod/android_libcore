@@ -99,27 +99,23 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             "rws"} or {@code "rwd"}.
      */
     public RandomAccessFile(File file, String mode) throws FileNotFoundException {
-        int options;
-        fd = new FileDescriptor();
-
+        int flags;
         if (mode.equals("r")) {
-            fd.readOnly = true;
-            options = O_RDONLY;
+            flags = O_RDONLY;
         } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
-            options = O_RDWR | O_CREAT;
+            flags = O_RDWR | O_CREAT;
             if (mode.equals("rws")) {
                 // Sync file and metadata with every write
                 syncMetadata = true;
             } else if (mode.equals("rwd")) {
                 // Sync file, but not necessarily metadata
-                options |= O_SYNC;
+                flags |= O_SYNC;
             }
         } else {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
-        this.mode = options;
-
-        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), this.mode);
+        this.mode = flags;
+        this.fd = IoUtils.open(file.getAbsolutePath(), flags);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {

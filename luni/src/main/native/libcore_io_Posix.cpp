@@ -24,10 +24,13 @@
 #include "toStringArray.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static void throwErrnoException(JNIEnv* env, const char* name) {
     int errnum = errno;
@@ -197,6 +200,15 @@ static void Posix_munmap(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     throwIfMinusOne(env, "munmap", TEMP_FAILURE_RETRY(munmap(ptr, byteCount)));
 }
 
+static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, jint mode) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return NULL;
+    }
+    int fd = throwIfMinusOne(env, "open", TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode)));
+    return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
+}
+
 static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
 }
@@ -234,6 +246,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, msync, "(JJI)V"),
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
+    NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),

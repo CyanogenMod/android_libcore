@@ -50,8 +50,6 @@ public final class FileDescriptor {
      */
     int descriptor = -1;
 
-    boolean readOnly = false;
-
     static {
         in.descriptor = STDIN_FILENO;
         out.descriptor = STDOUT_FILENO;
@@ -69,15 +67,12 @@ public final class FileDescriptor {
      * is written out to the appropriate device before returning.
      */
     public void sync() throws SyncFailedException {
-        // if the descriptor is a read-only one, do nothing
-        if (!readOnly) {
-            try {
-                Libcore.os.fsync(this);
-            } catch (ErrnoException errnoException) {
-                SyncFailedException sfe = new SyncFailedException(errnoException.getMessage());
-                sfe.initCause(errnoException);
-                throw sfe;
-            }
+        try {
+            Libcore.os.fsync(this);
+        } catch (ErrnoException errnoException) {
+            SyncFailedException sfe = new SyncFailedException(errnoException.getMessage());
+            sfe.initCause(errnoException);
+            throw sfe;
         }
     }
 

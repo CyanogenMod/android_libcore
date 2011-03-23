@@ -84,9 +84,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
      * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(File file, boolean append) throws FileNotFoundException {
-        this.fd = new FileDescriptor();
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
-        this.fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), mode);
+        this.fd = IoUtils.open(file.getAbsolutePath(), mode);
         this.shouldCloseFd = true;
         this.guard.open("close");
     }

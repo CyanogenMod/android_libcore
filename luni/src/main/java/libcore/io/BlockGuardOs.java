@@ -18,6 +18,7 @@ package libcore.io;
 
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
+import static libcore.io.OsConstants.*;
 
 /**
  * Informs BlockGuard of any activity it should be aware of.
@@ -40,5 +41,13 @@ public class BlockGuardOs extends ForwardingOs {
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.ftruncate(fd, length);
+    }
+
+    public FileDescriptor open(String path, int flags, int mode) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        if ((mode & O_ACCMODE) != O_RDONLY) {
+            BlockGuard.getThreadPolicy().onWriteToDisk();
+        }
+        return os.open(path, flags, mode);
     }
 }

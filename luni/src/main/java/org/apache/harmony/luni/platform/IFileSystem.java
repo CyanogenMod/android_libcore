@@ -47,8 +47,6 @@ public interface IFileSystem {
     public void unlock(int fileDescriptor, long start, long length)
             throws IOException;
 
-    public int open(String path, int mode) throws FileNotFoundException;
-
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
 

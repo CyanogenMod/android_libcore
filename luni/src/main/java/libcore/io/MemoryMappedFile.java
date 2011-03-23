@@ -48,22 +48,18 @@ public final class MemoryMappedFile implements Closeable {
      * Use this to mmap the whole file read-only.
      */
     public static MemoryMappedFile mmapRO(String path) {
-        RandomAccessFile file = null;
+        FileDescriptor fd = null;
         try {
-            // use FILE_SYSTEM.open and Libcore.os.fstat
-            FileDescriptor fd;
-            long size;
-            try {
-                file = new RandomAccessFile(path, "r");
-                fd = file.getFD();
-                size = file.length();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            fd = Libcore.os.open(path, O_RDONLY, 0);
+            long size = Libcore.os.fstat(fd).st_size;
             long address = Libcore.os.mmap(0L, size, PROT_READ, MAP_SHARED, fd, 0);
             return new MemoryMappedFile(address, size);
         } finally {
-            IoUtils.closeQuietly(file);
+            // Hack until we have Posix.close.
+            try {
+                IoUtils.close(fd);
+            } catch (IOException ignored) {
+            }
         }
     }
 

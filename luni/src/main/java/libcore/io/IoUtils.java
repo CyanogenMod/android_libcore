@@ -18,12 +18,48 @@ package libcore.io;
 
 import java.io.Closeable;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
+import static libcore.io.OsConstants.*;
 
 public final class IoUtils {
     private IoUtils() {
+    }
+
+    /**
+     * java.io only throws FileNotFoundException when opening files, regardless of what actually
+     * went wrong. Additionally, java.io is more restrictive than POSIX when it comes to opening
+     * directories: POSIX says read-only is okay, but java.io doesn't even allow that. We also
+     * have an Android-specific hack to alter the default permissions.
+     */
+    public static FileDescriptor open(String path, int flags) throws FileNotFoundException {
+        FileDescriptor fd = null;
+        try {
+            // On Android, we don't want default permissions to allow global access.
+            int mode = ((flags & O_ACCMODE) == O_RDONLY) ? 0 : 0600;
+            fd = Libcore.os.open(path, flags, mode);
+            if (fd.valid()) {
+                // Posix open(2) fails with EISDIR only if you ask for write permission.
+                // Java disallows reading directories too.
+                boolean isDirectory = false;
+                if (S_ISDIR(Libcore.os.fstat(fd).st_mode)) {
+                    throw new ErrnoException("open", EISDIR);
+                }
+            }
+            return fd;
+        } catch (ErrnoException errnoException) {
+            try {
+                if (fd != null) {
+                    close(fd);
+                }
+            } catch (IOException ignored) {
+            }
+            FileNotFoundException ex = new FileNotFoundException(path + ": " + errnoException.getMessage());
+            ex.initCause(errnoException);
+            throw ex;
+        }
     }
 
     /**

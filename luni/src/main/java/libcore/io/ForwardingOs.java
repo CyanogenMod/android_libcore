@@ -44,6 +44,7 @@ public class ForwardingOs implements Os {
     public void msync(long address, long byteCount, int flags) throws ErrnoException { os.msync(address, byteCount, flags); }
     public void munlock(long address, long byteCount) throws ErrnoException { os.munlock(address, byteCount); }
     public void munmap(long address, long byteCount) throws ErrnoException { os.munmap(address, byteCount); }
+    public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public String strerror(int errno) { return os.strerror(errno); }
     public long sysconf(int name) { return os.sysconf(name); }
