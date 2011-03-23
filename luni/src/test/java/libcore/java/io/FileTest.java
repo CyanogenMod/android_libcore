@@ -23,6 +23,7 @@ import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.UUID;
+import libcore.io.Libcore;
 
 public class FileTest extends junit.framework.TestCase {
     private static File createTemporaryDirectory() throws Exception {
