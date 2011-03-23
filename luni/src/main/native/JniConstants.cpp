@@ -88,5 +88,5 @@ void JniConstants::init(JNIEnv* env) {
     stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
     structStatClass = findClass(env, "libcore/io/StructStat");
-    structStatClass = findClass(env, "libcore/io/StructStatFs");
+    structStatFsClass = findClass(env, "libcore/io/StructStatFs");
 }
