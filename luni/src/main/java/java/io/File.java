@@ -434,7 +434,6 @@ public class File implements Serializable, Comparable<File> {
      * TODO: move this stuff to libcore.os.
      * @hide
      */
-    public static native void symlink(String oldPath, String newPath);
     private static native String realpath(String path);
     private static native String readlink(String path);
 
@@ -1063,13 +1062,13 @@ public class File implements Serializable, Comparable<File> {
      * @return true on success.
      */
     public boolean renameTo(File newPath) {
-        if (path.isEmpty() || newPath.path.isEmpty()) {
+        try {
+            Libcore.os.rename(absolutePath, newPath.absolutePath);
+            return true;
+        } catch (ErrnoException errnoException) {
             return false;
         }
-        return renameToImpl(absolutePath, newPath.absolutePath);
     }
-
-    private static native boolean renameToImpl(String oldPath, String newPath);
 
     /**
      * Returns a string containing a concise, human-readable description of this

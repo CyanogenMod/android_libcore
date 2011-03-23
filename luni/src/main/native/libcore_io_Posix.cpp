@@ -209,6 +209,18 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
+static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
+    ScopedUtfChars oldPath(env, javaOldPath);
+    if (oldPath.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars newPath(env, javaNewPath);
+    if (newPath.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(rename(oldPath.c_str(), newPath.c_str())));
+}
+
 static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
 }
@@ -217,6 +229,18 @@ static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     char buffer[BUFSIZ];
     const char* message = jniStrError(errnum, buffer, sizeof(buffer));
     return env->NewStringUTF(message);
+}
+
+static void Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
+    ScopedUtfChars oldPath(env, javaOldPath);
+    if (oldPath.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars newPath(env, javaNewPath);
+    if (newPath.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "symlink", TEMP_FAILURE_RETRY(symlink(oldPath.c_str(), newPath.c_str())));
 }
 
 static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
@@ -247,8 +271,10 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {

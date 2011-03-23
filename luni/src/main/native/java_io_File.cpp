@@ -248,36 +248,6 @@ static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
     return (mkdir(path.c_str(), S_IRWXU) == 0);
 }
 
-static jboolean File_renameToImpl(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
-    ScopedUtfChars oldPath(env, javaOldPath);
-    if (oldPath.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    ScopedUtfChars newPath(env, javaNewPath);
-    if (newPath.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    return (rename(oldPath.c_str(), newPath.c_str()) == 0);
-}
-
-static void File_symlink(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
-    ScopedUtfChars oldPath(env, javaOldPath);
-    if (oldPath.c_str() == NULL) {
-        return;
-    }
-
-    ScopedUtfChars newPath(env, javaNewPath);
-    if (newPath.c_str() == NULL) {
-        return;
-    }
-
-    if (symlink(oldPath.c_str(), newPath.c_str()) == -1) {
-        jniThrowIOException(env, errno);
-    }
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
@@ -287,12 +257,10 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, renameToImpl, "(Ljava/lang/String;Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, setExecutableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
     NATIVE_METHOD(File, setReadableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setWritableImpl, "(Ljava/lang/String;ZZ)Z"),
-    NATIVE_METHOD(File, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
 };
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));

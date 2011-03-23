@@ -181,16 +181,16 @@ public class FileTest extends junit.framework.TestCase {
         assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
     }
 
-    private static void ln_s(File target, File linkName) throws Exception {
+    private static void ln_s(File target, File linkName) {
         ln_s(target.toString(), linkName.toString());
     }
 
-    private static void ln_s(String target, String linkName) throws Exception {
-        File.symlink(target, linkName);
+    private static void ln_s(String target, String linkName) {
+        Libcore.os.symlink(target, linkName);
     }
 
     public void test_createNewFile() throws Exception {
-        File f= File.createTempFile("FileTest", "tmp");
+        File f = File.createTempFile("FileTest", "tmp");
         assertFalse(f.createNewFile()); // EEXIST -> false
         assertFalse(f.getParentFile().createNewFile()); // EEXIST -> false, even if S_ISDIR
         try {
@@ -203,5 +203,13 @@ public class FileTest extends junit.framework.TestCase {
             fail();
         } catch (IOException expected) {
         }
+    }
+
+    public void test_rename() throws Exception {
+        File f = File.createTempFile("FileTest", "tmp");
+        assertFalse(f.renameTo(new File("")));
+        assertFalse(new File("").renameTo(f));
+        assertFalse(f.renameTo(new File(".")));
+        assertTrue(f.renameTo(f));
     }
 }

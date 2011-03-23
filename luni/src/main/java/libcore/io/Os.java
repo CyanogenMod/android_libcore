@@ -36,7 +36,9 @@ public interface Os {
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
+    public void rename(String oldPath, String newPath) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     public String strerror(int errno);
+    public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
 }
