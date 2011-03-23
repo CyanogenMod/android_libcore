@@ -32,6 +32,7 @@ public class ForwardingOs implements Os {
     public String[] environ() { return os.environ(); }
     public void fdatasync(FileDescriptor fd) throws ErrnoException { os.fdatasync(fd); }
     public StructStat fstat(FileDescriptor fd) throws ErrnoException { return os.fstat(fd); }
+    public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException { return os.fstatfs(fd); }
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
     public String getenv(String name) { return os.getenv(name); }
@@ -47,6 +48,7 @@ public class ForwardingOs implements Os {
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
+    public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }
     public String strerror(int errno) { return os.strerror(errno); }
     public void symlink(String oldPath, String newPath) throws ErrnoException { os.symlink(oldPath, newPath); }
     public long sysconf(int name) { return os.sysconf(name); }

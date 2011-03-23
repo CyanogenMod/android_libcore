@@ -25,6 +25,7 @@ public final class Posix implements Os {
     public native String[] environ();
     public native void fdatasync(FileDescriptor fd) throws ErrnoException;
     public native StructStat fstat(FileDescriptor fd) throws ErrnoException;
+    public native StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String getenv(String name);
@@ -40,6 +41,7 @@ public final class Posix implements Os {
     public native StructStat lstat(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
+    public native StructStatFs statfs(String path) throws ErrnoException;
     public native String strerror(int errno);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);

@@ -23,7 +23,6 @@
 #include "ScopedFd.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
-#include "StaticAssert.h"
 #include "readlink.h"
 #include "toStringArray.h"
 
@@ -127,43 +126,6 @@ static jboolean File_setWritableImpl(JNIEnv* env, jclass, jstring javaPath,
     return doChmod(env, javaPath, ownerOnly ? S_IWUSR : (S_IWUSR | S_IWGRP | S_IWOTH), set);
 }
 
-static bool doStatFs(JNIEnv* env, jstring javaPath, struct statfs& sb) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    int rc = statfs(path.c_str(), &sb);
-    return (rc != -1);
-}
-
-static jlong File_getFreeSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_bfree) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
-}
-
-static jlong File_getTotalSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
-}
-
-static jlong File_getUsableSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_bavail) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
-}
-
 // Iterates over the filenames in the given directory.
 class ScopedReaddir {
 public:
@@ -250,9 +212,6 @@ static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, getUsableSpaceImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),

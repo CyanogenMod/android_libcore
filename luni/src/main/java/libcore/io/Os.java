@@ -23,6 +23,7 @@ public interface Os {
     public String[] environ();
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;
+    public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
@@ -38,6 +39,7 @@ public interface Os {
     public StructStat lstat(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
+    public StructStatFs statfs(String path) throws ErrnoException;
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);

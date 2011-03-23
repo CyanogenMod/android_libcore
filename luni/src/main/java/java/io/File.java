@@ -26,6 +26,7 @@ import java.util.Random;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.io.StructStatFs;
 import org.apache.harmony.luni.util.DeleteOnExit;
 import static libcore.io.OsConstants.*;
 
@@ -1163,9 +1164,13 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getTotalSpace() {
-        return getTotalSpaceImpl(absolutePath);
+        try {
+            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
+        }
     }
-    private static native long getTotalSpaceImpl(String path);
 
     /**
      * Returns the number of usable free bytes on the partition containing this path.
@@ -1181,9 +1186,13 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getUsableSpace() {
-        return getUsableSpaceImpl(absolutePath);
+        try {
+            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
+        }
     }
-    private static native long getUsableSpaceImpl(String path);
 
     /**
      * Returns the number of free bytes on the partition containing this path.
@@ -1195,7 +1204,11 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getFreeSpace() {
-        return getFreeSpaceImpl(absolutePath);
+        try {
+            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
+        }
     }
-    private static native long getFreeSpaceImpl(String path);
 }

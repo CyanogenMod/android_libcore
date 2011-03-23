@@ -21,6 +21,7 @@
 #include "JniException.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
+#include "StaticAssert.h"
 #include "toStringArray.h"
 
 #include <errno.h>
@@ -28,8 +29,8 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
 
 static void throwErrnoException(JNIEnv* env, const char* name) {
@@ -74,10 +75,27 @@ static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatClass, "<init>",
             "(JJIJIIJJJJJJJ)V");
     return env->NewObject(JniConstants::structStatClass, ctor,
-            jlong(sb.st_dev), jlong(sb.st_ino), jint(sb.st_mode), jlong(sb.st_nlink),
-            jint(sb.st_uid), jint(sb.st_gid), jlong(sb.st_rdev), jlong(sb.st_size),
-            jlong(sb.st_atime), jlong(sb.st_mtime), jlong(sb.st_ctime),
-            jlong(sb.st_blksize), jlong(sb.st_blocks));
+            static_cast<jlong>(sb.st_dev), static_cast<jlong>(sb.st_ino),
+            static_cast<jint>(sb.st_mode), static_cast<jlong>(sb.st_nlink),
+            static_cast<jint>(sb.st_uid), static_cast<jint>(sb.st_gid),
+            static_cast<jlong>(sb.st_rdev), static_cast<jlong>(sb.st_size),
+            static_cast<jlong>(sb.st_atime), static_cast<jlong>(sb.st_mtime),
+            static_cast<jlong>(sb.st_ctime), static_cast<jlong>(sb.st_blksize),
+            static_cast<jlong>(sb.st_blocks));
+}
+
+static jobject makeStructStatFs(JNIEnv* env, const struct statfs& sb) {
+    STATIC_ASSERT(sizeof(sb.f_bavail) == sizeof(jlong), statfs_not_64_bit);
+    STATIC_ASSERT(sizeof(sb.f_bfree) == sizeof(jlong), statfs_not_64_bit);
+    STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
+
+    static jmethodID ctor = env->GetMethodID(JniConstants::structStatFsClass, "<init>",
+            "(JJJJJJJJ)V");
+    return env->NewObject(JniConstants::structStatFsClass, ctor, static_cast<jlong>(sb.f_bsize),
+            static_cast<jlong>(sb.f_blocks), static_cast<jlong>(sb.f_bfree),
+            static_cast<jlong>(sb.f_bavail), static_cast<jlong>(sb.f_files),
+            static_cast<jlong>(sb.f_ffree), static_cast<jlong>(sb.f_namelen),
+            static_cast<jlong>(sb.f_frsize));
 }
 
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
@@ -126,6 +144,17 @@ static jobject Posix_fstat(JNIEnv* env, jobject, jobject javaFd) {
         return NULL;
     }
     return makeStructStat(env, sb);
+}
+
+static jobject Posix_fstatfs(JNIEnv* env, jobject, jobject javaFd) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    struct statfs sb;
+    int rc = TEMP_FAILURE_RETRY(fstatfs(fd, &sb));
+    if (rc == -1) {
+        throwErrnoException(env, "fstatfs");
+        return NULL;
+    }
+    return makeStructStatFs(env, sb);
 }
 
 static void Posix_fsync(JNIEnv* env, jobject, jobject javaFd) {
@@ -225,6 +254,20 @@ static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
 }
 
+static jobject Posix_statfs(JNIEnv* env, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return NULL;
+    }
+    struct statfs sb;
+    int rc = TEMP_FAILURE_RETRY(statfs(path.c_str(), &sb));
+    if (rc == -1) {
+        throwErrnoException(env, "statfs");
+        return NULL;
+    }
+    return makeStructStatFs(env, sb);
+}
+
 static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     char buffer[BUFSIZ];
     const char* message = jniStrError(errnum, buffer, sizeof(buffer));
@@ -258,6 +301,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
     NATIVE_METHOD(Posix, fdatasync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, fstat, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStat;"),
+    NATIVE_METHOD(Posix, fstatfs, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
@@ -273,6 +317,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
+    NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),

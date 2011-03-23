@@ -47,6 +47,7 @@ jclass JniConstants::socketImplClass;
 jclass JniConstants::stringArrayClass;
 jclass JniConstants::stringClass;
 jclass JniConstants::structStatClass;
+jclass JniConstants::structStatFsClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
     jclass result = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(name)));
@@ -87,4 +88,5 @@ void JniConstants::init(JNIEnv* env) {
     stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
     structStatClass = findClass(env, "libcore/io/StructStat");
+    structStatClass = findClass(env, "libcore/io/StructStatFs");
 }
