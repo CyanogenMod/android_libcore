@@ -71,6 +71,7 @@ struct JniConstants {
     static jclass stringClass;
     static jclass structStatClass;
     static jclass structStatFsClass;
+    static jclass structUtsnameClass;
 };
 
 #define NATIVE_METHOD(className, functionName, signature) \

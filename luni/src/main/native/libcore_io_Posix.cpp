@@ -31,6 +31,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
 
@@ -98,6 +99,24 @@ static jobject makeStructStatFs(JNIEnv* env, const struct statfs& sb) {
             static_cast<jlong>(sb.f_ffree), static_cast<jlong>(sb.f_namelen),
             static_cast<jlong>(sb.f_frsize));
 }
+
+static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
+#define TO_JAVA_STRING(NAME) \
+        jstring NAME = env->NewStringUTF(buf. NAME); \
+        if (NAME == NULL) return NULL;
+
+    TO_JAVA_STRING(sysname);
+    TO_JAVA_STRING(nodename);
+    TO_JAVA_STRING(release);
+    TO_JAVA_STRING(version);
+    TO_JAVA_STRING(machine);
+#undef TO_JAVA_STRING
+
+    static jmethodID ctor = env->GetMethodID(JniConstants::structUtsnameClass, "<init>",
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    return env->NewObject(JniConstants::structUtsnameClass, ctor,
+            sysname, nodename, release, version, machine);
+};
 
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     ScopedUtfChars path(env, javaPath);
@@ -351,6 +370,14 @@ static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
     return result;
 }
 
+static jobject Posix_uname(JNIEnv* env, jobject) {
+    struct utsname buf;
+    if (throwIfMinusOne(env, "uname", TEMP_FAILURE_RETRY(uname(&buf))) == -1) {
+        return NULL;
+    }
+    return makeStructUtsname(env, buf);
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
@@ -382,6 +409,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
+    NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));

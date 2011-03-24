@@ -36,17 +36,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-static jstring InetAddress_gethostname(JNIEnv* env, jclass)
-{
-    char name[256];
-    int r = gethostname(name, 256);
-    if (r == 0) {
-        return env->NewStringUTF(name);
-    } else {
-        return NULL;
-    }
-}
-
 #if LOG_DNS
 static void logIpString(addrinfo* ai, const char* name)
 {
@@ -311,7 +300,6 @@ static jstring InetAddress_byteArrayToIpString(JNIEnv* env, jobject, jbyteArray 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(InetAddress, byteArrayToIpString, "([B)Ljava/lang/String;"),
     NATIVE_METHOD(InetAddress, getaddrinfo, "(Ljava/lang/String;)[[B"),
-    NATIVE_METHOD(InetAddress, gethostname, "()Ljava/lang/String;"),
     NATIVE_METHOD(InetAddress, getnameinfo, "([B)Ljava/lang/String;"),
     NATIVE_METHOD(InetAddress, ipStringToByteArray, "(Ljava/lang/String;)[B"),
 };

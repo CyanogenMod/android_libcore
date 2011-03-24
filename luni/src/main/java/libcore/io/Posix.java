@@ -51,4 +51,5 @@ public final class Posix implements Os {
     public native String strerror(int errno);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
+    public native StructUtsname uname() throws ErrnoException;
 }

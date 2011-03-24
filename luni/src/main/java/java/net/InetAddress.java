@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import libcore.io.Libcore;
 import libcore.io.Memory;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -403,10 +404,9 @@ public class InetAddress implements Serializable {
      *             if the address lookup fails.
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
-        String host = gethostname();
+        String host = Libcore.os.uname().nodename; // Can only throw EFAULT (which can't happen).
         return lookupHostByName(host)[0];
     }
-    private static native String gethostname();
 
     /**
      * Gets the hashcode of the represented IP address.

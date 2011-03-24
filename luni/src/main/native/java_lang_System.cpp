@@ -75,12 +75,6 @@ static void System_setFieldImpl(JNIEnv* env, jclass clazz,
 static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
     std::vector<std::string> properties;
 
-    struct utsname info;
-    uname(&info);
-    properties.push_back(std::string("os.arch=") + info.machine);
-    properties.push_back(std::string("os.name=") + info.sysname);
-    properties.push_back(std::string("os.version=") + info.release);
-
     char path[PATH_MAX];
     properties.push_back(std::string("user.dir=") + getcwd(path, sizeof(path)));
 

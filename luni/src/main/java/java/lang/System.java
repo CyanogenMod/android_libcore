@@ -52,6 +52,7 @@ import java.util.PropertyPermission;
 import java.util.Set;
 import libcore.icu.ICU;
 import libcore.io.Libcore;
+import libcore.io.StructUtsname;
 import libcore.util.ZoneInfoDB;
 
 /**
@@ -312,6 +313,11 @@ public final class System {
         p.put("user.home", getenv("HOME", ""));
         p.put("user.name", getenv("USER", ""));
 
+        StructUtsname info = Libcore.os.uname();
+        p.put("os.arch", info.machine);
+        p.put("os.name", info.sysname);
+        p.put("os.version", info.release);
+
         // Undocumented Android-only properties.
         p.put("android.icu.library.version", ICU.getIcuVersion());
         p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
@@ -327,7 +333,7 @@ public final class System {
 
     /**
      * Returns an array of "key=value" strings containing information not otherwise
-     * easily available, such as the various uname(2) strings and library versions.
+     * easily available, such as #defined library versions.
      */
     private static native String[] specialProperties();
 

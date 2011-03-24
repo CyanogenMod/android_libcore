@@ -49,4 +49,5 @@ public interface Os {
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
+    public StructUtsname uname() throws ErrnoException;
 }

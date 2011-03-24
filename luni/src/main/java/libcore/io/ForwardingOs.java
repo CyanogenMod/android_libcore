@@ -58,4 +58,5 @@ public class ForwardingOs implements Os {
     public String strerror(int errno) { return os.strerror(errno); }
     public void symlink(String oldPath, String newPath) throws ErrnoException { os.symlink(oldPath, newPath); }
     public long sysconf(int name) { return os.sysconf(name); }
+    public StructUtsname uname() throws ErrnoException { return os.uname(); }
 }
