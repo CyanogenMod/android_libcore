@@ -97,27 +97,6 @@ public final class IoUtils {
     public static native int getFd(FileDescriptor fd);
 
     /**
-     * Returns a new FileDescriptor whose internal integer is set to 'fd'.
-     */
-    public static FileDescriptor newFileDescriptor(int fd) {
-        FileDescriptor result = new FileDescriptor();
-        setFd(result, fd);
-        return result;
-    }
-
-    /**
-     * Creates a pipe by calling pipe(2), returning the two file descriptors in
-     * elements 0 and 1 of the array 'fds'. fds[0] is the read end of the pipe.
-     * fds[1] is the write end of the pipe. Throws an appropriate IOException on failure.
-     */
-    public static native void pipe(int[] fds) throws IOException;
-
-    /**
-     * Sets the int file descriptor within the given FileDescriptor 'fd' to 'newValue'.
-     */
-    public static native void setFd(FileDescriptor fd, int newValue);
-
-    /**
      * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
     public static native void setBlocking(FileDescriptor fd, boolean blocking) throws IOException;

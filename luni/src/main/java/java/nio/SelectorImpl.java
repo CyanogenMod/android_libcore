@@ -34,7 +34,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
@@ -129,11 +131,14 @@ final class SelectorImpl extends AbstractSelector {
          * would be closed if the selecting thread is interrupted. Also
          * configure the pipe so we can fully drain it without blocking.
          */
-        int[] pipeFds = new int[2];
-        IoUtils.pipe(pipeFds);
-        wakeupIn = IoUtils.newFileDescriptor(pipeFds[0]);
-        wakeupOut = IoUtils.newFileDescriptor(pipeFds[1]);
-        IoUtils.setBlocking(wakeupIn, false);
+        try {
+            FileDescriptor[] pipeFds = Libcore.os.pipe();
+            wakeupIn = pipeFds[0];
+            wakeupOut = pipeFds[1];
+            IoUtils.setBlocking(wakeupIn, false);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     @Override protected void implCloseSelector() throws IOException {

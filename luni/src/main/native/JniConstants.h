@@ -43,8 +43,8 @@ struct JniConstants {
     static jclass bidiRunClass;
     static jclass bigDecimalClass;
     static jclass booleanClass;
-    static jclass byteClass;
     static jclass byteArrayClass;
+    static jclass byteClass;
     static jclass charsetICUClass;
     static jclass constructorClass;
     static jclass datagramPacketClass;
@@ -53,6 +53,7 @@ struct JniConstants {
     static jclass errnoExceptionClass;
     static jclass fieldClass;
     static jclass fieldPositionIteratorClass;
+    static jclass fileDescriptorClass;
     static jclass inetAddressClass;
     static jclass inflaterClass;
     static jclass integerClass;

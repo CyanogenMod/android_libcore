@@ -48,6 +48,7 @@ public class ForwardingOs implements Os {
     public void munlock(long address, long byteCount) throws ErrnoException { os.munlock(address, byteCount); }
     public void munmap(long address, long byteCount) throws ErrnoException { os.munmap(address, byteCount); }
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
+    public FileDescriptor[] pipe() throws ErrnoException { return os.pipe(); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }

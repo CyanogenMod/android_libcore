@@ -38,6 +38,7 @@ public interface Os {
     public void munlock(long address, long byteCount) throws ErrnoException;
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
+    public FileDescriptor[] pipe() throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;

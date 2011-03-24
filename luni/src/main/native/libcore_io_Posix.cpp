@@ -254,6 +254,26 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
+static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
+    int fds[2];
+    throwIfMinusOne(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
+    jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
+    for (int i = 0; i < 2; ++i) {
+        ScopedLocalRef<jobject> fd(env, jniCreateFileDescriptor(env, fds[i]));
+        if (fd.get() == NULL) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(result, i, fd.get());
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+    }
+    return result;
+}
+
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -341,6 +361,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
