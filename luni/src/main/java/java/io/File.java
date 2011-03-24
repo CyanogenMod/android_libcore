@@ -328,13 +328,13 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file was deleted, {@code false} otherwise.
      */
     public boolean delete() {
-        if (path.isEmpty()) {
+        try {
+            Libcore.os.remove(path);
+            return true;
+        } catch (ErrnoException errnoException) {
             return false;
         }
-        return deleteImpl(absolutePath);
     }
-
-    private static native boolean deleteImpl(String path);
 
     /**
      * Schedules this file to be automatically deleted when the VM terminates normally.
@@ -884,10 +884,14 @@ public class File implements Serializable, Comparable<File> {
      * @see #mkdirs
      */
     public boolean mkdir() {
-        return mkdirImpl(absolutePath);
+        try {
+            // On Android, we don't want default permissions to allow global access.
+            Libcore.os.mkdir(path, S_IRWXU);
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
+        }
     }
-
-    private static native boolean mkdirImpl(String path);
 
     /**
      * Creates the directory named by the trailing filename of this file,

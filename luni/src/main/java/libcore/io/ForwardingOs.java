@@ -41,12 +41,14 @@ public class ForwardingOs implements Os {
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException { return os.lseek(fd, offset, whence); }
     public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException { os.mincore(address, byteCount, vector); }
+    public void mkdir(String path, int mode) throws ErrnoException { os.mkdir(path, mode); }
     public void mlock(long address, long byteCount) throws ErrnoException { os.mlock(address, byteCount); }
     public long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException { return os.mmap(address, byteCount, prot, flags, fd, offset); }
     public void msync(long address, long byteCount, int flags) throws ErrnoException { os.msync(address, byteCount, flags); }
     public void munlock(long address, long byteCount) throws ErrnoException { os.munlock(address, byteCount); }
     public void munmap(long address, long byteCount) throws ErrnoException { os.munmap(address, byteCount); }
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
+    public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }

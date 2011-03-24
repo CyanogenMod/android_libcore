@@ -41,14 +41,6 @@
 #include <unistd.h>
 #include <utime.h>
 
-static jboolean File_deleteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (remove(path.c_str()) == 0);
-}
-
 static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -171,20 +163,8 @@ static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     return toStringArray(env, entries);
 }
 
-static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    // On Android, we don't want default permissions to allow global access.
-    return (mkdir(path.c_str(), S_IRWXU) == 0);
-}
-
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
-    NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),

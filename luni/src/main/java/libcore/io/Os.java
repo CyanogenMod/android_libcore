@@ -31,6 +31,7 @@ public interface Os {
     public boolean isatty(FileDescriptor fd);
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
+    public void mkdir(String path, int mode) throws ErrnoException;
     public void mlock(long address, long byteCount) throws ErrnoException;
     public long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
     public void msync(long address, long byteCount, int flags) throws ErrnoException;
@@ -38,6 +39,7 @@ public interface Os {
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
+    public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     public StructStatFs statfs(String path) throws ErrnoException;

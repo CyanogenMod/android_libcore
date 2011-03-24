@@ -33,6 +33,7 @@ public final class Posix implements Os {
     public native boolean isatty(FileDescriptor fd);
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public native void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
+    public native void mkdir(String path, int mode) throws ErrnoException;
     public native void mlock(long address, long byteCount) throws ErrnoException;
     public native long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
     public native void msync(long address, long byteCount, int flags) throws ErrnoException;
@@ -40,6 +41,7 @@ public final class Posix implements Os {
     public native void munmap(long address, long byteCount) throws ErrnoException;
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
+    public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native StructStatFs statfs(String path) throws ErrnoException;

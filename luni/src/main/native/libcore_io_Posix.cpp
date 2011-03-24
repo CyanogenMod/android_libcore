@@ -207,6 +207,14 @@ static void Posix_mincore(JNIEnv* env, jobject, jlong address, jlong byteCount, 
     throwIfMinusOne(env, "mincore", TEMP_FAILURE_RETRY(mincore(ptr, byteCount, vec)));
 }
 
+static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(mkdir(path.c_str(), mode)));
+}
+
 static void Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     throwIfMinusOne(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
@@ -244,6 +252,14 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     }
     int fd = throwIfMinusOne(env, "open", TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode)));
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
+}
+
+static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(remove(path.c_str())));
 }
 
 static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
@@ -318,12 +334,14 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, mincore, "(JJ[B)V"),
+    NATIVE_METHOD(Posix, mkdir, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, mlock, "(JJ)V"),
     NATIVE_METHOD(Posix, mmap, "(JJIILjava/io/FileDescriptor;J)J"),
     NATIVE_METHOD(Posix, msync, "(JJI)V"),
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
