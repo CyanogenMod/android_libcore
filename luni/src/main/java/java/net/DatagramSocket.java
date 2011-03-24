@@ -68,7 +68,7 @@ public class DatagramSocket {
      *             if an error occurs while creating or binding the socket.
      */
     public DatagramSocket(int aPort) throws SocketException {
-        checkListen(aPort);
+        checkPort(aPort);
         createSocket(aPort, Inet4Address.ANY);
     }
 
@@ -85,11 +85,11 @@ public class DatagramSocket {
      *             if an error occurs while creating or binding the socket.
      */
     public DatagramSocket(int aPort, InetAddress addr) throws SocketException {
-        checkListen(aPort);
+        checkPort(aPort);
         createSocket(aPort, (addr == null) ? Inet4Address.ANY : addr);
     }
 
-    private void checkListen(int aPort) {
+    private void checkPort(int aPort) {
         if (aPort < 0 || aPort > 65535) {
             throw new IllegalArgumentException("Port out of range: " + aPort);
         }
@@ -483,7 +483,7 @@ public class DatagramSocket {
                 throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
                         localAddr.getClass());
             }
-            checkListen(((InetSocketAddress) localAddr).getPort());
+            checkPort(((InetSocketAddress) localAddr).getPort());
         }
         impl = factory != null ? factory.createDatagramSocketImpl()
                 : new PlainDatagramSocketImpl();
@@ -505,7 +505,6 @@ public class DatagramSocket {
             throw new SocketException("Socket is closed");
         }
         if (bind && !isBound()) {
-            checkListen(0);
             impl.bind(0, Inet4Address.ANY);
             isBound = true;
         }
@@ -539,7 +538,7 @@ public class DatagramSocket {
                 throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
             }
             localPort = inetAddr.getPort();
-            checkListen(localPort);
+            checkPort(localPort);
         }
         impl.bind(localPort, addr);
         isBound = true;

@@ -31,6 +31,7 @@ public final class Posix implements Os {
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String getenv(String name);
     public native boolean isatty(FileDescriptor fd);
+    public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public native void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public native void mkdir(String path, int mode) throws ErrnoException;

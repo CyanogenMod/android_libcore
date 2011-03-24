@@ -193,8 +193,8 @@ public abstract class SocketImpl implements SocketOptions {
     /**
      * Listens for connection requests on this streaming socket. Incoming
      * connection requests are queued up to the limit specified by {@code
-     * backlog}. Additional requests are rejected. The method {@code listen()}
-     * may only be invoked on streaming sockets.
+     * backlog}. Additional requests are rejected. This method
+     * may only be invoked on stream sockets.
      *
      * @param backlog
      *            the maximum number of outstanding connection requests.

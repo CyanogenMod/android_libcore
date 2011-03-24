@@ -560,18 +560,6 @@ static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
     }
 }
 
-static void OSNetworkSystem_listen(JNIEnv* env, jobject, jobject fileDescriptor, jint backlog) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    int rc = listen(fd.get(), backlog);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
 static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
         jobject newSocket, jobject clientFileDescriptor) {
 
@@ -1323,7 +1311,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, getSocketLocalPort, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSNetworkSystem, getSocketOption, "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
-    NATIVE_METHOD(OSNetworkSystem, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),

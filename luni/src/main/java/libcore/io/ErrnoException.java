@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.IOException;
+import java.net.SocketException;
 import libcore.io.OsConstants;
 
 /**
@@ -54,8 +55,14 @@ public final class ErrnoException extends RuntimeException {
     }
 
     public IOException rethrowAsIOException() throws IOException {
-        IOException ioException = new IOException(getMessage());
-        ioException.initCause(this);
-        throw ioException;
+        IOException newException = new IOException(getMessage());
+        newException.initCause(this);
+        throw newException;
+    }
+
+    public SocketException rethrowAsSocketException() throws SocketException {
+        SocketException newException = new SocketException(getMessage());
+        newException.initCause(this);
+        throw newException;
     }
 }

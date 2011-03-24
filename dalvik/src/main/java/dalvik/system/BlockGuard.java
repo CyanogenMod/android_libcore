@@ -319,10 +319,6 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public void listen(FileDescriptor aFD, int backlog) throws SocketException {
-            mNetwork.listen(aFD, backlog);
-        }
-
         public void connect(FileDescriptor aFD, InetAddress inetAddress, int port,
                 int timeout) throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();

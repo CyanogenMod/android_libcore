@@ -262,7 +262,11 @@ public class PlainSocketImpl extends SocketImpl {
             // server during the bind.
             return;
         }
-        Platform.NETWORK.listen(fd, backlog);
+        try {
+            Libcore.os.listen(fd, backlog);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
     }
 
     @Override

@@ -61,8 +61,6 @@ public interface INetworkSystem {
 
     public void sendUrgentData(FileDescriptor fd, byte value);
 
-    public void listen(FileDescriptor fd, int backlog) throws SocketException;
-
     public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
             throws SocketException;
 

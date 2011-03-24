@@ -29,6 +29,7 @@ public interface Os {
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
     public boolean isatty(FileDescriptor fd);
+    public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public void mkdir(String path, int mode) throws ErrnoException;
