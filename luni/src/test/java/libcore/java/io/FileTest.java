@@ -213,4 +213,17 @@ public class FileTest extends junit.framework.TestCase {
         assertFalse(f.renameTo(new File(".")));
         assertTrue(f.renameTo(f));
     }
+
+    public void test_getAbsolutePath() throws Exception {
+        String originalUserDir = System.getProperty("user.dir");
+        try {
+            File f = new File("poop");
+            System.setProperty("user.dir", "/a");
+            assertEquals("/a/poop", f.getAbsolutePath());
+            System.setProperty("user.dir", "/b");
+            assertEquals("/b/poop", f.getAbsolutePath());
+        } finally {
+            System.setProperty("user.dir", originalUserDir);
+        }
+    }
 }

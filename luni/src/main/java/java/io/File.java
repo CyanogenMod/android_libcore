@@ -98,16 +98,12 @@ public class File implements Serializable, Comparable<File> {
      * given, but without duplicate adjacent slashes and without trailing
      * slashes (except for the special case of the root directory). This
      * path may be the empty string.
+     *
+     * This can't be final because we override readObject.
      */
     private String path;
 
-    /**
-     * The path we return from getAbsolutePath.
-     */
-    private transient String absolutePath;
-
     static {
-        // The default protection domain grants access to these properties.
         separatorChar = System.getProperty("file.separator", "/").charAt(0);
         pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0);
         separator = String.valueOf(separatorChar);
@@ -135,7 +131,7 @@ public class File implements Serializable, Comparable<File> {
      *            the path to be used for the file.
      */
     public File(String path) {
-        init(path);
+        this.path = fixSlashes(path);
     }
 
     /**
@@ -147,18 +143,18 @@ public class File implements Serializable, Comparable<File> {
      * @param name
      *            the file's name.
      * @throws NullPointerException
-     *             if {@code name} is {@code null}.
+     *             if {@code name == null}.
      */
     public File(String dirPath, String name) {
         if (name == null) {
             throw new NullPointerException();
         }
         if (dirPath == null || dirPath.isEmpty()) {
-            init(name);
+            this.path = fixSlashes(name);
         } else if (name.isEmpty()) {
-            init(dirPath);
+            this.path = fixSlashes(dirPath);
         } else {
-            init(join(dirPath, name));
+            this.path = fixSlashes(join(dirPath, name));
         }
     }
 
@@ -179,26 +175,11 @@ public class File implements Serializable, Comparable<File> {
     public File(URI uri) {
         // check pre-conditions
         checkURI(uri);
-        init(uri.getPath());
-    }
-
-    private void init(String dirtyPath) {
-        // Cache the path and the absolute path.
-        // We can't call isAbsolute() here (http://b/2486943).
-        String cleanPath = fixSlashes(dirtyPath);
-        boolean isAbsolute = cleanPath.length() > 0 && cleanPath.charAt(0) == separatorChar;
-        if (isAbsolute) {
-            this.path = this.absolutePath = cleanPath;
-        } else {
-            String userDir = System.getProperty("user.dir");
-            this.absolutePath = cleanPath.isEmpty() ? userDir : join(userDir, cleanPath);
-            // We want path to be equal to cleanPath, but we'd like to reuse absolutePath's char[].
-            this.path = absolutePath.substring(absolutePath.length() - cleanPath.length());
-        }
+        this.path = fixSlashes(uri.getPath());
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
-    private String fixSlashes(String origPath) {
+    private static String fixSlashes(String origPath) {
         // Remove duplicate adjacent slashes.
         boolean lastWasSlash = false;
         char[] newPath = origPath.toCharArray();
@@ -225,7 +206,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     // Joins two path components, adding a separator only if necessary.
-    private String join(String prefix, String suffix) {
+    private static String join(String prefix, String suffix) {
         int prefixLength = prefix.length();
         boolean haveSlash = (prefixLength > 0 && prefix.charAt(prefixLength - 1) == separatorChar);
         if (!haveSlash) {
@@ -234,7 +215,7 @@ public class File implements Serializable, Comparable<File> {
         return haveSlash ? (prefix + suffix) : (prefix + separatorChar + suffix);
     }
 
-    private void checkURI(URI uri) {
+    private static void checkURI(URI uri) {
         if (!uri.isAbsolute()) {
             throw new IllegalArgumentException("URI is not absolute: " + uri);
         } else if (!uri.getRawSchemeSpecificPart().startsWith("/")) {
@@ -275,7 +256,7 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public boolean canExecute() {
-        return access(X_OK);
+        return doAccess(X_OK);
     }
 
     /**
@@ -284,7 +265,7 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file can be read, {@code false} otherwise.
      */
     public boolean canRead() {
-        return access(R_OK);
+        return doAccess(R_OK);
     }
 
     /**
@@ -294,13 +275,13 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      */
     public boolean canWrite() {
-        return access(W_OK);
+        return doAccess(W_OK);
     }
 
-    private boolean access(int mode) {
+    private boolean doAccess(int mode) {
         try {
             return Libcore.os.access(path, mode);
-        } catch (ErrnoException ex) {
+        } catch (ErrnoException errnoException) {
             return false;
         }
     }
@@ -352,7 +333,7 @@ public class File implements Serializable, Comparable<File> {
      * </ul>
      */
     public void deleteOnExit() {
-        DeleteOnExit.getInstance().addFile(getAbsoluteName());
+        DeleteOnExit.getInstance().addFile(getAbsolutePath());
     }
 
     /**
@@ -379,7 +360,7 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file exists, {@code false} otherwise.
      */
     public boolean exists() {
-        return access(F_OK);
+        return doAccess(F_OK);
     }
 
     /**
@@ -391,7 +372,11 @@ public class File implements Serializable, Comparable<File> {
      * child must have the same working directory as its parent.
      */
     public String getAbsolutePath() {
-        return absolutePath;
+        if (isAbsolute()) {
+            return path;
+        }
+        String userDir = System.getProperty("user.dir");
+        return path.isEmpty() ? userDir : join(userDir, path);
     }
 
     /**
@@ -399,7 +384,7 @@ public class File implements Serializable, Comparable<File> {
      * Equivalent to {@code new File(this.getAbsolutePath())}.
      */
     public File getAbsoluteFile() {
-        return new File(this.getAbsolutePath());
+        return new File(getAbsolutePath());
     }
 
     /**
@@ -426,7 +411,7 @@ public class File implements Serializable, Comparable<File> {
      *             if an I/O error occurs.
      */
     public String getCanonicalPath() throws IOException {
-        return realpath(absolutePath);
+        return realpath(getAbsolutePath());
     }
 
     /**
@@ -544,7 +529,7 @@ public class File implements Serializable, Comparable<File> {
     public boolean isDirectory() {
         try {
             return S_ISDIR(Libcore.os.stat(path).st_mode);
-        } catch (ErrnoException ex) {
+        } catch (ErrnoException errnoException) {
             // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
         }
@@ -559,7 +544,7 @@ public class File implements Serializable, Comparable<File> {
     public boolean isFile() {
         try {
             return S_ISREG(Libcore.os.stat(path).st_mode);
-        } catch (ErrnoException ex) {
+        } catch (ErrnoException errnoException) {
             // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
         }
@@ -591,7 +576,7 @@ public class File implements Serializable, Comparable<File> {
     public long lastModified() {
         try {
             return Libcore.os.stat(path).st_mtime * 1000L;
-        } catch (ErrnoException ex) {
+        } catch (ErrnoException errnoException) {
             // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
             return 0;
         }
@@ -744,7 +729,7 @@ public class File implements Serializable, Comparable<File> {
     public long length() {
         try {
             return Libcore.os.stat(path).st_size;
-        } catch (ErrnoException ex) {
+        } catch (ErrnoException errnoException) {
             // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
             return 0;
         }
@@ -761,10 +746,7 @@ public class File implements Serializable, Comparable<File> {
      * @return an array of strings with file names or {@code null}.
      */
     public String[] list() {
-        if (path.isEmpty()) {
-            return null;
-        }
-        return listImpl(absolutePath);
+        return listImpl(path);
     }
 
     private static native String[] listImpl(String path);
@@ -1077,9 +1059,7 @@ public class File implements Serializable, Comparable<File> {
         try {
             if (!name.startsWith("/")) {
                 // start with sep.
-                return new URI("file", null, new StringBuilder(
-                        name.length() + 1).append('/').append(name).toString(),
-                        null, null);
+                return new URI("file", null, "/" + name, null, null);
             } else if (name.startsWith("//")) {
                 return new URI("file", "", name, null); // UNC path
             }
@@ -1106,22 +1086,20 @@ public class File implements Serializable, Comparable<File> {
         String name = getAbsoluteName();
         if (!name.startsWith("/")) {
             // start with sep.
-            return new URL("file", "", -1,
-                    new StringBuilder(name.length() + 1).append('/').append(name).toString(), null);
+            return new URL("file", "", -1, "/" + name, null);
         } else if (name.startsWith("//")) {
             return new URL("file:" + name); // UNC path
         }
         return new URL("file", "", -1, name, null);
     }
 
+    // TODO: is this really necessary, or can it be replaced with getAbsolutePath?
     private String getAbsoluteName() {
         File f = getAbsoluteFile();
         String name = f.getPath();
-
         if (f.isDirectory() && name.charAt(name.length() - 1) != separatorChar) {
             // Directories must end with a slash
-            name = new StringBuilder(name.length() + 1).append(name)
-                    .append('/').toString();
+            name = name + "/";
         }
         if (separatorChar != '/') { // Must convert slashes.
             name = name.replace(separatorChar, '/');
@@ -1137,7 +1115,7 @@ public class File implements Serializable, Comparable<File> {
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         char inSeparator = stream.readChar();
-        init(path.replace(inSeparator, separatorChar));
+        this.path = fixSlashes(path.replace(inSeparator, separatorChar));
     }
 
     /**
