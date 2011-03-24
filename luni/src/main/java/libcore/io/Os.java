@@ -22,6 +22,9 @@ public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public void chmod(String path, int mode) throws ErrnoException;
     public String[] environ();
+    public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
+    public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
+    public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException;
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;
     public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;

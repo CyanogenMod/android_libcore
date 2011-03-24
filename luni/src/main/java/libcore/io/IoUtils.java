@@ -99,7 +99,19 @@ public final class IoUtils {
     /**
      * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
-    public static native void setBlocking(FileDescriptor fd, boolean blocking) throws IOException;
+    public static void setBlocking(FileDescriptor fd, boolean blocking) throws IOException {
+        try {
+            int flags = Libcore.os.fcntlVoid(fd, F_GETFL);
+            if (!blocking) {
+                flags |= O_NONBLOCK;
+            } else {
+                flags &= ~O_NONBLOCK;
+            }
+            Libcore.os.fcntlLong(fd, F_SETFL, flags);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+    }
 
     /**
      * Returns the contents of 'path' as a byte array.

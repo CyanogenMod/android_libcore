@@ -125,13 +125,16 @@ public final class OsConstants {
     public static final int F_GETFD = placeholder();
     public static final int F_GETFL = placeholder();
     public static final int F_GETLK = placeholder();
+    public static final int F_GETLK64 = placeholder();
     public static final int F_GETOWN = placeholder();
     public static final int F_OK = placeholder();
     public static final int F_RDLCK = placeholder();
     public static final int F_SETFD = placeholder();
     public static final int F_SETFL = placeholder();
     public static final int F_SETLK = placeholder();
+    public static final int F_SETLK64 = placeholder();
     public static final int F_SETLKW = placeholder();
+    public static final int F_SETLKW64 = placeholder();
     public static final int F_SETOWN = placeholder();
     public static final int F_UNLCK = placeholder();
     public static final int F_WRLCK = placeholder();

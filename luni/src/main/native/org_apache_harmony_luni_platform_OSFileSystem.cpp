@@ -58,38 +58,6 @@ static inline ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t coun
 }
 #endif
 
-static jlong translateLockLength(jlong length) {
-    // FileChannel.tryLock uses Long.MAX_VALUE to mean "lock the whole
-    // file", where POSIX would use 0. We can support that special case,
-    // even for files whose actual length we can't represent. For other
-    // out of range lengths, though, we want our range checking to fire.
-    return (length == 0x7fffffffffffffffLL) ? 0 : length;
-}
-
-static struct flock64 flockFromStartAndLength(jlong start, jlong length) {
-    struct flock64 lock;
-    memset(&lock, 0, sizeof(lock));
-
-    lock.l_whence = SEEK_SET;
-    lock.l_start = start;
-    lock.l_len = length;
-
-    return lock;
-}
-
-static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
-        jlong start, jlong length, jint lockType, jboolean waitFlag) {
-
-    length = translateLockLength(length);
-    struct flock64 lock(flockFromStartAndLength(start, length));
-    lock.l_type = lockType;
-    int rc = TEMP_FAILURE_RETRY(fcntl(fd, waitFlag ? F_SETLKW64 : F_SETLK64, &lock));
-    if (lockType == F_UNLCK && rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
 // Translate three Java int[]s to a native iovec[] for readv and writev.
 static iovec* initIoVec(JNIEnv* env,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
@@ -272,7 +240,6 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
     NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
     NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),

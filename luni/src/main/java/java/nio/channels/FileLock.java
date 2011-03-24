@@ -96,8 +96,7 @@ public abstract class FileLock {
      *            the lock's sharing mode of lock; {@code true} is shared,
      *            {@code false} is exclusive.
      */
-    protected FileLock(FileChannel channel, long position, long size,
-            boolean shared) {
+    protected FileLock(FileChannel channel, long position, long size, boolean shared) {
         if (position < 0 || size < 0 || position + size < 0) {
             throw new IllegalArgumentException();
         }
