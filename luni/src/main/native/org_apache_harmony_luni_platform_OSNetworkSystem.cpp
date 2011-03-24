@@ -1298,25 +1298,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     }
 }
 
-static void doShutdown(JNIEnv* env, jobject fileDescriptor, int how) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-    int rc = shutdown(fd.get(), how);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void OSNetworkSystem_shutdownInput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_RD);
-}
-
-static void OSNetworkSystem_shutdownOutput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_WR);
-}
-
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
@@ -1352,8 +1333,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
     NATIVE_METHOD(OSNetworkSystem, setSocketOption, "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V"),
-    NATIVE_METHOD(OSNetworkSystem, shutdownInput, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, shutdownOutput, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, socket, "(Ljava/io/FileDescriptor;Z)V"),
     NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),

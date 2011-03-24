@@ -51,6 +51,7 @@ public class ForwardingOs implements Os {
     public FileDescriptor[] pipe() throws ErrnoException { return os.pipe(); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
+    public void shutdown(FileDescriptor fd, int how) throws ErrnoException { os.shutdown(fd, how); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }
     public String strerror(int errno) { return os.strerror(errno); }

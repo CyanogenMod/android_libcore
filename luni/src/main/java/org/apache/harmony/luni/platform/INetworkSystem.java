@@ -59,10 +59,6 @@ public interface INetworkSystem {
 
     public void socket(FileDescriptor fd, boolean stream) throws SocketException;
 
-    public void shutdownInput(FileDescriptor descriptor) throws IOException;
-
-    public void shutdownOutput(FileDescriptor descriptor) throws IOException;
-
     public void sendUrgentData(FileDescriptor fd, byte value);
 
     public void listen(FileDescriptor fd, int backlog) throws SocketException;

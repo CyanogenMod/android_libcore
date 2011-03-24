@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
@@ -294,6 +295,11 @@ static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring java
     throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(rename(oldPath.c_str(), newPath.c_str())));
 }
 
+static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
+}
+
 static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
 }
@@ -364,6 +370,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
+    NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),

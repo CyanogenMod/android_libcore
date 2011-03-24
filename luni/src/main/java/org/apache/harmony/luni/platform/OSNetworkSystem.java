@@ -104,10 +104,6 @@ final class OSNetworkSystem implements INetworkSystem {
     public native void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 
-    public native void shutdownInput(FileDescriptor fd) throws IOException;
-
-    public native void shutdownOutput(FileDescriptor fd) throws IOException;
-
     public native void close(FileDescriptor fd) throws IOException;
 
     public native int write(FileDescriptor fd, byte[] data, int offset, int count)

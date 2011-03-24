@@ -315,14 +315,6 @@ public final class BlockGuard {
             mNetwork.socket(aFD, stream);
         }
 
-        public void shutdownInput(FileDescriptor descriptor) throws IOException {
-            mNetwork.shutdownInput(descriptor);
-        }
-
-        public void shutdownOutput(FileDescriptor descriptor) throws IOException {
-            mNetwork.shutdownOutput(descriptor);
-        }
-
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
         }

@@ -33,9 +33,12 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.Streams;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * @hide used in java.nio.
@@ -341,7 +344,11 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void shutdownInput() throws IOException {
         shutdownInput = true;
-        Platform.NETWORK.shutdownInput(fd);
+        try {
+            Libcore.os.shutdown(fd, SHUT_RD);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     /**
@@ -349,7 +356,11 @@ public class PlainSocketImpl extends SocketImpl {
      */
     @Override
     protected void shutdownOutput() throws IOException {
-        Platform.NETWORK.shutdownOutput(fd);
+        try {
+            Libcore.os.shutdown(fd, SHUT_WR);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     /**

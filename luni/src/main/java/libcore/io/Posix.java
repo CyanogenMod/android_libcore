@@ -44,6 +44,7 @@ public final class Posix implements Os {
     public native StructStat lstat(String path) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
+    public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native StructStatFs statfs(String path) throws ErrnoException;
     public native String strerror(int errno);

@@ -42,6 +42,7 @@ public interface Os {
     public StructStat lstat(String path) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
+    public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     public StructStatFs statfs(String path) throws ErrnoException;
     public String strerror(int errno);
