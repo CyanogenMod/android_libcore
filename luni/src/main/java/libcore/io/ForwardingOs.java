@@ -29,6 +29,7 @@ public class ForwardingOs implements Os {
     }
 
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
+    public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
     public String[] environ() { return os.environ(); }
     public void fdatasync(FileDescriptor fd) throws ErrnoException { os.fdatasync(fd); }
     public StructStat fstat(FileDescriptor fd) throws ErrnoException { return os.fstat(fd); }

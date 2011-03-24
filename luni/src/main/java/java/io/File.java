@@ -26,6 +26,7 @@ import java.util.Random;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.io.StructStat;
 import libcore.io.StructStatFs;
 import org.apache.harmony.luni.util.DeleteOnExit;
 import static libcore.io.OsConstants.*;
@@ -101,7 +102,7 @@ public class File implements Serializable, Comparable<File> {
     private String path;
 
     /**
-     * The path we return from getAbsolutePath, and pass down to native code.
+     * The path we return from getAbsolutePath.
      */
     private transient String absolutePath;
 
@@ -297,11 +298,8 @@ public class File implements Serializable, Comparable<File> {
     }
 
     private boolean access(int mode) {
-        if (path.isEmpty()) {
-            return false;
-        }
         try {
-            return Libcore.os.access(absolutePath, mode);
+            return Libcore.os.access(path, mode);
         } catch (ErrnoException ex) {
             return false;
         }
@@ -544,11 +542,8 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      */
     public boolean isDirectory() {
-        if (path.isEmpty()) {
-            return false;
-        }
         try {
-            return S_ISDIR(Libcore.os.stat(absolutePath).st_mode);
+            return S_ISDIR(Libcore.os.stat(path).st_mode);
         } catch (ErrnoException ex) {
             // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
@@ -562,11 +557,8 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if this file is a file, {@code false} otherwise.
      */
     public boolean isFile() {
-        if (path.isEmpty()) {
-            return false;
-        }
         try {
-            return S_ISREG(Libcore.os.stat(absolutePath).st_mode);
+            return S_ISREG(Libcore.os.stat(path).st_mode);
         } catch (ErrnoException ex) {
             // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
@@ -597,11 +589,8 @@ public class File implements Serializable, Comparable<File> {
      * @return the time when this file was last modified.
      */
     public long lastModified() {
-        if (path.isEmpty()) {
-            return 0;
-        }
         try {
-            return Libcore.os.stat(absolutePath).st_mtime * 1000L;
+            return Libcore.os.stat(path).st_mtime * 1000L;
         } catch (ErrnoException ex) {
             // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
             return 0;
@@ -623,13 +612,10 @@ public class File implements Serializable, Comparable<File> {
      *             if {@code time < 0}.
      */
     public boolean setLastModified(long time) {
-        if (path.isEmpty()) {
-            return false;
-        }
         if (time < 0) {
             throw new IllegalArgumentException("time < 0");
         }
-        return setLastModifiedImpl(absolutePath, time);
+        return setLastModifiedImpl(path, time);
     }
 
     private static native boolean setLastModifiedImpl(String path, long time);
@@ -665,10 +651,7 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return setExecutableImpl(absolutePath, executable, ownerOnly);
+        return doChmod(ownerOnly ? S_IXUSR : (S_IXUSR | S_IXGRP | S_IXOTH), executable);
     }
 
     /**
@@ -679,8 +662,6 @@ public class File implements Serializable, Comparable<File> {
     public boolean setExecutable(boolean executable) {
         return setExecutable(executable, true);
     }
-
-    private static native boolean setExecutableImpl(String path, boolean executable, boolean ownerOnly);
 
     /**
      * Manipulates the read permissions for the abstract path designated by this
@@ -701,10 +682,7 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public boolean setReadable(boolean readable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return setReadableImpl(absolutePath, readable, ownerOnly);
+        return doChmod(ownerOnly ? S_IRUSR : (S_IRUSR | S_IRGRP | S_IROTH), readable);
     }
 
     /**
@@ -715,8 +693,6 @@ public class File implements Serializable, Comparable<File> {
     public boolean setReadable(boolean readable) {
         return setReadable(readable, true);
     }
-
-    private static native boolean setReadableImpl(String path, boolean readable, boolean ownerOnly);
 
     /**
      * Manipulates the write permissions for the abstract path designated by this
@@ -735,10 +711,7 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public boolean setWritable(boolean writable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        return setWritableImpl(absolutePath, writable, ownerOnly);
+        return doChmod(ownerOnly ? S_IWUSR : (S_IWUSR | S_IWGRP | S_IWOTH), writable);
     }
 
     /**
@@ -750,7 +723,16 @@ public class File implements Serializable, Comparable<File> {
         return setWritable(writable, true);
     }
 
-    private static native boolean setWritableImpl(String path, boolean writable, boolean ownerOnly);
+    private boolean doChmod(int mask, boolean set) {
+        try {
+            StructStat sb = Libcore.os.stat(path);
+            int newMode = set ? (sb.st_mode | mask) : (sb.st_mode & ~mask);
+            Libcore.os.chmod(path, newMode);
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
+        }
+    }
 
     /**
      * Returns the length of this file in bytes.
@@ -760,11 +742,8 @@ public class File implements Serializable, Comparable<File> {
      * @return the number of bytes in this file.
      */
     public long length() {
-        if (path.isEmpty()) {
-            return 0;
-        }
         try {
-            return Libcore.os.stat(absolutePath).st_size;
+            return Libcore.os.stat(path).st_size;
         } catch (ErrnoException ex) {
             // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
             return 0;
@@ -1064,7 +1043,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public boolean renameTo(File newPath) {
         try {
-            Libcore.os.rename(absolutePath, newPath.absolutePath);
+            Libcore.os.rename(path, newPath.path);
             return true;
         } catch (ErrnoException errnoException) {
             return false;
@@ -1165,7 +1144,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public long getTotalSpace() {
         try {
-            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            StructStatFs sb = Libcore.os.statfs(path);
             return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
         } catch (ErrnoException errnoException) {
             return 0;
@@ -1187,7 +1166,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public long getUsableSpace() {
         try {
-            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            StructStatFs sb = Libcore.os.statfs(path);
             return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
         } catch (ErrnoException errnoException) {
             return 0;
@@ -1205,7 +1184,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public long getFreeSpace() {
         try {
-            StructStatFs sb = Libcore.os.statfs(absolutePath);
+            StructStatFs sb = Libcore.os.statfs(path);
             return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
         } catch (ErrnoException errnoException) {
             return 0;

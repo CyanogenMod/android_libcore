@@ -20,6 +20,7 @@ import java.io.FileDescriptor;
 
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
+    public void chmod(String path, int mode) throws ErrnoException;
     public String[] environ();
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;

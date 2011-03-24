@@ -97,35 +97,6 @@ static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, 
     return (utime(path.c_str(), &times) == 0);
 }
 
-static jboolean doChmod(JNIEnv* env, jstring javaPath, mode_t mask, bool set) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == -1) {
-        return JNI_FALSE;
-    }
-    mode_t newMode = set ? (sb.st_mode | mask) : (sb.st_mode & ~mask);
-    return (chmod(path.c_str(), newMode) == 0);
-}
-
-static jboolean File_setExecutableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IXUSR : (S_IXUSR | S_IXGRP | S_IXOTH), set);
-}
-
-static jboolean File_setReadableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IRUSR : (S_IRUSR | S_IRGRP | S_IROTH), set);
-}
-
-static jboolean File_setWritableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IWUSR : (S_IWUSR | S_IWGRP | S_IWOTH), set);
-}
-
 // Iterates over the filenames in the given directory.
 class ScopedReaddir {
 public:
@@ -216,10 +187,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, setExecutableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
-    NATIVE_METHOD(File, setReadableImpl, "(Ljava/lang/String;ZZ)Z"),
-    NATIVE_METHOD(File, setWritableImpl, "(Ljava/lang/String;ZZ)Z"),
 };
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
