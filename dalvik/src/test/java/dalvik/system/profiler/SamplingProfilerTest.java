@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package dalvik.system;
+package dalvik.system.profiler;
 
-import dalvik.system.SamplingProfiler.AsciiHprofWriter;
-import dalvik.system.SamplingProfiler.BinaryHprofReader;
-import dalvik.system.SamplingProfiler.BinaryHprofWriter;
-import dalvik.system.SamplingProfiler.HprofData.Sample;
-import dalvik.system.SamplingProfiler.HprofData.StackTrace;
-import dalvik.system.SamplingProfiler.HprofData.ThreadEvent;
-import dalvik.system.SamplingProfiler.HprofData;
-import dalvik.system.SamplingProfiler.HprofWriter;
-import dalvik.system.SamplingProfiler.ThreadSet;
+import dalvik.system.profiler.AsciiHprofWriter;
+import dalvik.system.profiler.BinaryHprofReader;
+import dalvik.system.profiler.BinaryHprofWriter;
+import dalvik.system.profiler.HprofData.Sample;
+import dalvik.system.profiler.HprofData.StackTrace;
+import dalvik.system.profiler.HprofData.ThreadEvent;
+import dalvik.system.profiler.HprofData;
+import dalvik.system.profiler.HprofWriter;
+import dalvik.system.profiler.SamplingProfiler.ThreadSet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -221,8 +221,8 @@ public class SamplingProfilerTest extends TestCase {
     private void assertHprofData(HprofData hprofData, boolean strict) throws Exception {
         List<ThreadEvent> threadHistory = hprofData.getThreadHistory();
         assertNotNull(threadHistory);
-        Set<Integer> threadsSeen = new HashSet();
-        Set<Integer> threadsActive = new HashSet();
+        Set<Integer> threadsSeen = new HashSet<Integer>();
+        Set<Integer> threadsActive = new HashSet<Integer>();
         for (ThreadEvent event : threadHistory) {
             assertNotNull(event);
             assertNotNull(event.type);
