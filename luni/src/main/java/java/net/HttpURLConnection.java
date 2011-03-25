@@ -19,6 +19,7 @@ package java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import libcore.net.http.HttpURLConnectionImpl;
 
 /**
@@ -636,7 +637,8 @@ public abstract class HttpURLConnection extends URLConnection {
             }
         }
         // if none matches, then throw ProtocolException
-        throw new ProtocolException();
+        throw new ProtocolException("Unknown method '" + method + "'; must be one of " +
+                Arrays.toString(HttpURLConnectionImpl.PERMITTED_USER_METHODS));
     }
 
     /**
