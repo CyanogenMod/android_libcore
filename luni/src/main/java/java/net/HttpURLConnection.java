@@ -47,7 +47,8 @@ import libcore.net.http.HttpURLConnectionImpl;
  *       empty stream.
  *   <li>Disconnect. Once the response body has been read, the {@code
  *       HttpURLConnection} should be closed by calling {@link #disconnect()}.
- *       Disconnecting frees all resources held by a connection.
+ *       Disconnecting releases the resources held by a connection so they may
+ *       be closed or reused.
  * </ol>
  *
  * <p>For example, to retrieve the webpage at {@code http://www.android.com/}:
@@ -121,8 +122,8 @@ import libcore.net.http.HttpURLConnectionImpl;
  *
  * <p>To reduce latency, this class may reuse the same underlying {@code Socket}
  * for multiple request/response pairs. As a result, HTTP connections may be
- * held open longer than necessary. Calls to {@link #disconnect()} return the
- * socket to a pool of connected sockets. This behavior can be disabled by
+ * held open longer than necessary. Calls to {@link #disconnect()} may return
+ * the socket to a pool of connected sockets. This behavior can be disabled by
  * setting the "http.keepAlive" system property to "false" before issuing any
  * HTTP requests. The "http.maxConnections" property may be used to control how
  * many idle connections to each server will be held.
