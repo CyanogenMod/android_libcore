@@ -48,7 +48,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.PropertyPermission;
 import java.util.Set;
 import libcore.icu.ICU;
 import libcore.io.Libcore;
@@ -394,6 +393,8 @@ public final class System {
      * <tr><td>user.name</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
      *
      * </table>
+     *
+     * <p>It is a mistake to try to override any of these. Doing so will have unpredictable results.
      *
      * @param propertyName
      *            the name of the system property to look up.

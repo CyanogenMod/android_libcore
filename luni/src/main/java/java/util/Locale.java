@@ -223,9 +223,6 @@ public final class Locale implements Cloneable, Serializable {
      */
     private static Locale defaultLocale = US;
 
-    private static final PropertyPermission setLocalePermission = new PropertyPermission(
-            "user.language", "write");
-
     static {
         String language = System.getProperty("user.language", "en");
         String region = System.getProperty("user.region", "US");
