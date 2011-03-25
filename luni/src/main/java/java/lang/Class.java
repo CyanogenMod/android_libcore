@@ -249,25 +249,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return getFullListOfClasses(true);
     }
 
-    /**
-     * Returns the annotation of the given type. If there is no such annotation
-     * then the method returns {@code null}.
-     *
-     * @param annotationClass
-     *            the annotation type.
-     * @return the annotation of the given type, or {@code null} if there is no
-     *         such annotation.
-     */
-    @SuppressWarnings("unchecked")
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-        A annotation = getDeclaredAnnotation(annotationClass);
+    @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+
+        A annotation = getDeclaredAnnotation(annotationType);
         if (annotation != null) {
             return annotation;
         }
 
-        if (annotationClass.isAnnotationPresent(Inherited.class)) {
+        if (annotationType.isAnnotationPresent(Inherited.class)) {
             for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
-                annotation = sup.getDeclaredAnnotation(annotationClass);
+                annotation = sup.getDeclaredAnnotation(annotationType);
                 if (annotation != null) {
                     return annotation;
                 }
@@ -1090,23 +1084,18 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return (mod & ACC_ANNOTATION) != 0;
     }
 
-    /**
-     * Indicates whether the specified annotation is present for the class
-     * represented by this {@code Class}.
-     *
-     * @param annotationClass
-     *            the annotation to look for.
-     * @return {@code true} if the class represented by this {@code Class} is
-     *         annotated with {@code annotationClass}; {@code false} otherwise.
-     */
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-        if (isDeclaredAnnotationPresent(annotationClass)) {
+    @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+
+        if (isDeclaredAnnotationPresent(annotationType)) {
             return true;
         }
 
-        if (annotationClass.isDeclaredAnnotationPresent(Inherited.class)) {
+        if (annotationType.isDeclaredAnnotationPresent(Inherited.class)) {
             for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
-                if (sup.isDeclaredAnnotationPresent(annotationClass)) {
+                if (sup.isDeclaredAnnotationPresent(annotationType)) {
                     return true;
                 }
             }

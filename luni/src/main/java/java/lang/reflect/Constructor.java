@@ -102,7 +102,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     }
 
     @Override /*package*/ String getSignatureAttribute() {
-        Object[] annotation = getSignatureAnnotation(declaringClass, slot);
+        Object[] annotation = Method.getSignatureAnnotation(declaringClass, slot);
 
         if (annotation == null) {
             return null;
@@ -110,13 +110,6 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
 
         return StringUtils.combineStrings(annotation);
     }
-
-    /**
-     * Get the Signature annotation for this constructor.  Returns null if not
-     * found.
-     */
-    native private Object[] getSignatureAnnotation(Class declaringClass,
-            int slot);
 
     public TypeVariable<Constructor<T>>[] getTypeParameters() {
         initGenericTypes();
@@ -207,10 +200,22 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
 
     @Override
     public Annotation[] getDeclaredAnnotations() {
-        return getDeclaredAnnotations(declaringClass, slot);
+        return Method.getDeclaredAnnotations(declaringClass, slot);
     }
-    native private Annotation[] getDeclaredAnnotations(Class declaringClass,
-        int slot);
+
+    @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return Method.getAnnotation(declaringClass, slot, annotationType);
+    }
+
+    @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return Method.isAnnotationPresent(declaringClass, slot, annotationType);
+    }
 
     /**
      * Returns an array of arrays that represent the annotations of the formal
@@ -222,14 +227,12 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      */
     public Annotation[][] getParameterAnnotations() {
         Annotation[][] parameterAnnotations
-                = getParameterAnnotations(declaringClass, slot);
+                = Method.getParameterAnnotations(declaringClass, slot);
         if (parameterAnnotations.length == 0) {
             return Method.noAnnotations(parameterTypes.length);
         }
         return parameterAnnotations;
     }
-    native private Annotation[][] getParameterAnnotations(Class declaringClass,
-        int slot);
 
     /**
      * Indicates whether or not this constructor takes a variable number of
@@ -239,7 +242,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      *         {@code false}
      */
     public boolean isVarArgs() {
-        int mods = getConstructorModifiers(declaringClass, slot);
+        int mods = Method.getMethodModifiers(declaringClass, slot);
         return (mods & Modifier.VARARGS) != 0;
     }
 
@@ -251,7 +254,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      *         otherwise
      */
     public boolean isSynthetic() {
-        int mods = getConstructorModifiers(declaringClass, slot);
+        int mods = Method.getMethodModifiers(declaringClass, slot);
         return (mods & Modifier.SYNTHETIC) != 0;
     }
 
@@ -306,10 +309,8 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * @see Modifier
      */
     public int getModifiers() {
-        return getConstructorModifiers(declaringClass, slot);
+        return Method.getMethodModifiers(declaringClass, slot);
     }
-
-    private native int getConstructorModifiers(Class<T> declaringClass, int slot);
 
     /**
      * Returns the name of this constructor.

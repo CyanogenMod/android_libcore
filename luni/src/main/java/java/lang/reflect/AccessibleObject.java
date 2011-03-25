@@ -137,11 +137,11 @@ public class AccessibleObject implements AnnotatedElement {
     }
 
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
-        return getAnnotation(annotationType) != null;
+        throw new UnsupportedOperationException();
     }
 
     public Annotation[] getDeclaredAnnotations() {
-        throw new RuntimeException("subclass must override this method");
+        throw new UnsupportedOperationException();
     }
 
     public Annotation[] getAnnotations() {
@@ -149,20 +149,8 @@ public class AccessibleObject implements AnnotatedElement {
         return getDeclaredAnnotations();
     }
 
-    /* slow, but works for all sub-classes */
     public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-        if (annotationType == null) {
-            throw new NullPointerException();
-        }
-        Annotation[] annotations = getAnnotations();
-        for (int i = annotations.length-1; i >= 0; --i) {
-            if (annotations[i].annotationType() == annotationType) {
-                @SuppressWarnings("unchecked")
-                T result = (T) annotations[i];
-                return result;
-            }
-        }
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
