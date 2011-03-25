@@ -31,7 +31,6 @@ import java.security.AllPermission;
 import java.security.Permission;
 import java.security.Security;
 import java.security.SecurityPermission;
-import java.util.PropertyPermission;
 
 /**
  * Legacy security code; this class exists for compatibility only.
