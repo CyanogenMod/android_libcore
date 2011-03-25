@@ -158,6 +158,43 @@ static jobjectArray Posix_environ(JNIEnv* env, jobject) {
     return toStringArray(env, environ);
 }
 
+static jint Posix_fcntlVoid(JNIEnv* env, jobject, jobject javaFd, jint cmd) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd)));
+}
+
+static jint Posix_fcntlLong(JNIEnv* env, jobject, jobject javaFd, jint cmd, jlong arg) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, arg)));
+}
+
+static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaFlock) {
+    static jfieldID typeFid = env->GetFieldID(JniConstants::structFlockClass, "l_type", "S");
+    static jfieldID whenceFid = env->GetFieldID(JniConstants::structFlockClass, "l_whence", "S");
+    static jfieldID startFid = env->GetFieldID(JniConstants::structFlockClass, "l_start", "J");
+    static jfieldID lenFid = env->GetFieldID(JniConstants::structFlockClass, "l_len", "J");
+    static jfieldID pidFid = env->GetFieldID(JniConstants::structFlockClass, "l_pid", "I");
+
+    struct flock64 lock;
+    memset(&lock, 0, sizeof(lock));
+    lock.l_type = env->GetShortField(javaFlock, typeFid);
+    lock.l_whence = env->GetShortField(javaFlock, whenceFid);
+    lock.l_start = env->GetLongField(javaFlock, startFid);
+    lock.l_len = env->GetLongField(javaFlock, lenFid);
+    lock.l_pid = env->GetIntField(javaFlock, pidFid);
+
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int rc = throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, &lock)));
+    if (rc != -1) {
+        env->SetShortField(javaFlock, typeFid, lock.l_type);
+        env->SetShortField(javaFlock, whenceFid, lock.l_whence);
+        env->SetLongField(javaFlock, startFid, lock.l_start);
+        env->SetLongField(javaFlock, lenFid, lock.l_len);
+        env->SetIntField(javaFlock, pidFid, lock.l_pid);
+    }
+    return rc;
+}
+
 static void Posix_fdatasync(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "fdatasync", TEMP_FAILURE_RETRY(fdatasync(fd)));
@@ -382,6 +419,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, fcntlVoid, "(Ljava/io/FileDescriptor;I)I"),
+    NATIVE_METHOD(Posix, fcntlLong, "(Ljava/io/FileDescriptor;IJ)I"),
+    NATIVE_METHOD(Posix, fcntlFlock, "(Ljava/io/FileDescriptor;ILlibcore/io/StructFlock;)I"),
     NATIVE_METHOD(Posix, fdatasync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, fstat, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, fstatfs, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatFs;"),

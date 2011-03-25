@@ -126,13 +126,16 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "F_GETFD", F_GETFD);
     initConstant(env, c, "F_GETFL", F_GETFL);
     initConstant(env, c, "F_GETLK", F_GETLK);
+    initConstant(env, c, "F_GETLK64", F_GETLK64);
     initConstant(env, c, "F_GETOWN", F_GETOWN);
     initConstant(env, c, "F_OK", F_OK);
     initConstant(env, c, "F_RDLCK", F_RDLCK);
     initConstant(env, c, "F_SETFD", F_SETFD);
     initConstant(env, c, "F_SETFL", F_SETFL);
     initConstant(env, c, "F_SETLK", F_SETLK);
+    initConstant(env, c, "F_SETLK64", F_SETLK64);
     initConstant(env, c, "F_SETLKW", F_SETLKW);
+    initConstant(env, c, "F_SETLKW64", F_SETLKW64);
     initConstant(env, c, "F_SETOWN", F_SETOWN);
     initConstant(env, c, "F_UNLCK", F_UNLCK);
     initConstant(env, c, "F_WRLCK", F_WRLCK);

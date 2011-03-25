@@ -43,20 +43,9 @@ static jint IoUtils_getFd(JNIEnv* env, jclass, jobject fileDescriptor) {
     return jniGetFDFromFileDescriptor(env, fileDescriptor);
 }
 
-static void IoUtils_setBlocking(JNIEnv* env, jclass, jobject fileDescriptor, jboolean blocking) {
-    int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
-    if (fd == -1) {
-        return;
-    }
-    if (!setBlocking(fd, blocking)) {
-        jniThrowIOException(env, errno);
-    }
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(IoUtils, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(IoUtils, getFd, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(IoUtils, setBlocking, "(Ljava/io/FileDescriptor;Z)V"),
 };
 int register_libcore_io_IoUtils(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/IoUtils", gMethods, NELEM(gMethods));

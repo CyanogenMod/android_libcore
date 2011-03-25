@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.io.StructFlock;
 import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
@@ -108,16 +109,27 @@ final class FileChannelImpl extends FileChannel {
         if (position < 0 || size < 0) {
             throw new IllegalArgumentException("position=" + position + " size=" + size);
         }
+
         FileLock pendingLock = new FileLockImpl(this, position, size, shared);
         addLock(pendingLock);
 
-        if (Platform.FILE_SYSTEM.lock(IoUtils.getFd(fd), position, size, shared, wait)) {
-            return pendingLock;
+        StructFlock flock = new StructFlock();
+        flock.l_type = (short) (shared ? F_RDLCK : F_WRLCK);
+        flock.l_whence = (short) SEEK_SET;
+        flock.l_start = position;
+        flock.l_len = translateLockLength(size);
+        if (Libcore.os.fcntlFlock(fd, wait ? F_SETLKW64 : F_SETLK64, flock) == -1) {
+            // Lock acquisition failed.
+            removeLock(pendingLock);
+            return null;
         }
 
-        // Lock acquisition failed
-        removeLock(pendingLock);
-        return null;
+        return pendingLock;
+    }
+
+    private static long translateLockLength(long byteCount) {
+        // FileChannel uses Long.MAX_VALUE to mean "lock the whole file" where POSIX uses 0.
+        return (byteCount == Long.MAX_VALUE) ? 0 : byteCount;
     }
 
     private static final class FileLockImpl extends FileLock {
@@ -169,7 +181,18 @@ final class FileChannelImpl extends FileChannel {
      */
     public void release(FileLock lock) throws IOException {
         checkOpen();
-        Platform.FILE_SYSTEM.unlock(IoUtils.getFd(fd), lock.position(), lock.size());
+
+        StructFlock flock = new StructFlock();
+        flock.l_type = (short) F_UNLCK;
+        flock.l_whence = (short) SEEK_SET;
+        flock.l_start = lock.position();
+        flock.l_len = translateLockLength(lock.size());
+        try {
+            Libcore.os.fcntlFlock(fd, F_SETLKW64, flock);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+
         removeLock(lock);
     }
 

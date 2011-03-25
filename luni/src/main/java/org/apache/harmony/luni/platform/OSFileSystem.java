@@ -33,17 +33,6 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    public boolean lock(int fd, long start, long length, boolean shared, boolean waitFlag) throws IOException {
-        int result = lockImpl(fd, start, length, shared ? F_RDLCK : F_WRLCK, waitFlag);
-        return result != -1;
-    }
-
-    public void unlock(int fd, long start, long length) throws IOException {
-        lockImpl(fd, start, length, F_UNLCK, true);
-    }
-
-    private native int lockImpl(int fd, long start, long length, int type, boolean wait);
-
     /*
      * Direct read/write APIs work on addresses.
      */
