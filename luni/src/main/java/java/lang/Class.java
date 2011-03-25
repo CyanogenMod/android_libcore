@@ -260,11 +260,20 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-        for (Annotation annotation : getAnnotations()) {
-            if (annotationClass.isInstance(annotation)) {
-                return (A) annotation;
+        A annotation = getDeclaredAnnotation(annotationClass);
+        if (annotation != null) {
+            return annotation;
+        }
+
+        if (annotationClass.isAnnotationPresent(Inherited.class)) {
+            for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+                annotation = sup.getDeclaredAnnotation(annotationClass);
+                if (annotation != null) {
+                    return annotation;
+                }
             }
         }
+
         return null;
     }
 
@@ -451,6 +460,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getAnnotations()
      */
     native public Annotation[] getDeclaredAnnotations();
+
+    /**
+     * Returns the annotation if it exists.
+     */
+    native private <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass);
+
+    /**
+     * Returns true if the annotation exists.
+     */
+    native private boolean isDeclaredAnnotationPresent(Class<? extends Annotation> annotationClass);
 
     /**
      * Returns an array containing {@code Class} objects for all classes and
@@ -1081,7 +1100,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         annotated with {@code annotationClass}; {@code false} otherwise.
      */
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-        return getAnnotation(annotationClass) != null;
+        if (isDeclaredAnnotationPresent(annotationClass)) {
+            return true;
+        }
+
+        if (annotationClass.isDeclaredAnnotationPresent(Inherited.class)) {
+            for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+                if (sup.isDeclaredAnnotationPresent(annotationClass)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
