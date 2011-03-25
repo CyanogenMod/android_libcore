@@ -182,12 +182,28 @@ public final class Field extends AccessibleObject implements Member {
         return Types.getType(genericType);
     }
 
-    @Override
-    public Annotation[] getDeclaredAnnotations() {
+    @Override public Annotation[] getDeclaredAnnotations() {
         return getDeclaredAnnotations(declaringClass, slot);
     }
+    private static native Annotation[] getDeclaredAnnotations(Class declaringClass, int slot);
 
-    native private Annotation[] getDeclaredAnnotations(Class declaringClass, int slot);
+    @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return getAnnotation(declaringClass, slot, annotationType);
+    }
+    private static native <A extends Annotation> A getAnnotation(
+            Class<?> declaringClass, int slot, Class<A> annotationType);
+
+    @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return isAnnotationPresent(declaringClass, slot, annotationType);
+    }
+    private static native boolean isAnnotationPresent(
+            Class<?> declaringClass, int slot, Class<? extends Annotation> annotationType);
 
     /**
      * Indicates whether or not the specified {@code object} is equal to this
