@@ -50,13 +50,13 @@ public final class AnnotationsTest extends TestCase {
     }
 
     public void testMethodAnnotations() throws Exception {
-        Method method = Type.class.getMethod("method", String.class);
+        Method method = Type.class.getMethod("method", String.class, String.class);
         assertAnnotatedElement(method, AnnotationB.class, AnnotationC.class);
     }
 
-    public void testParameterAnnotations() {
-        Annotation[][] parameterAnnotations = Type.class.getMethod("method", String.class)
-                .getParameterAnnotations();
+    public void testParameterAnnotations() throws Exception {
+        Method method = Type.class.getMethod("method", String.class, String.class);
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         assertEquals(2, parameterAnnotations.length);
         assertEquals(set(AnnotationB.class, AnnotationD.class),
                 annotationsToTypes(parameterAnnotations[0]));
