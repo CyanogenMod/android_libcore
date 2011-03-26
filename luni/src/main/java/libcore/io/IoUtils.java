@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
+import java.util.Arrays;
 import static libcore.io.OsConstants.*;
 
 public final class IoUtils {
@@ -67,6 +68,10 @@ public final class IoUtils {
      * Unix practice where you'd read until you got 0 bytes (and any future read would return -1).
      */
     public static int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
+        if (byteCount == 0) {
+            return 0;
+        }
         try {
             int readCount = Libcore.os.read(fd, bytes, byteOffset, byteCount);
             if (readCount == 0) {
@@ -78,6 +83,26 @@ public final class IoUtils {
                 // We return 0 rather than throw if we try to read from an empty non-blocking pipe.
                 return 0;
             }
+            throw errnoException.rethrowAsIOException();
+        }
+    }
+
+    /**
+     * java.io always writes every byte it's asked to, or fails with an error. (That is, unlike
+     * Unix it never just writes as many bytes as happens to be convenient.)
+     */
+    public static void write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
+        if (byteCount == 0) {
+            return;
+        }
+        try {
+            while (byteCount > 0) {
+                int bytesWritten = Libcore.os.write(fd, bytes, byteOffset, byteCount);
+                byteCount -= bytesWritten;
+                byteOffset += bytesWritten;
+            }
+        } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
         }
     }

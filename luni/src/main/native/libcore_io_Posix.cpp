@@ -430,6 +430,21 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
     return makeStructUtsname(env, buf);
 }
 
+static jint Posix_write(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    ScopedByteArrayRO bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
+}
+
+static jint Posix_writeDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobject byteBuffer, jint position, jint remaining) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    jbyte* ptr = reinterpret_cast<jbyte*>(env->GetDirectBufferAddress(byteBuffer));
+    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, ptr + position, remaining)));
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
@@ -467,6 +482,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
+    NATIVE_METHOD(Posix, write, "(Ljava/io/FileDescriptor;[BII)I"),
+    NATIVE_METHOD(Posix, writeDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));

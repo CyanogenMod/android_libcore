@@ -134,29 +134,6 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
     return rc;
 }
 
-static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint byteCount) {
-    if (byteCount == 0) {
-        return 0;
-    }
-    jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(write(fd, src, byteCount));
-    if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
-static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint byteCount) {
-    ScopedByteArrayRO bytes(env, byteArray);
-    if (bytes.get() == NULL) {
-        return 0;
-    }
-    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
-    return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
-}
-
 static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
     /*
      * On underlying platforms Android cares about (read "Linux"),
@@ -212,8 +189,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
-    NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
-    NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),
 };
 int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {

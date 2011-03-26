@@ -50,9 +50,8 @@ public final class Posix implements Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
             return readDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
-        } else {
-            return read(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
         }
+        return read(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
     }
     private native int readDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
     public native int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
@@ -65,4 +64,12 @@ public final class Posix implements Os {
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
     public native StructUtsname uname() throws ErrnoException;
+    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return writeDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
+        }
+        return write(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+    }
+    private native int writeDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
+    public native int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
 }
