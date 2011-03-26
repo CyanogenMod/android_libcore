@@ -63,6 +63,26 @@ public final class IoUtils {
     }
 
     /**
+     * java.io thinks that a read at EOF is an error and should return -1, contrary to traditional
+     * Unix practice where you'd read until you got 0 bytes (and any future read would return -1).
+     */
+    public static int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+        try {
+            int readCount = Libcore.os.read(fd, bytes, byteOffset, byteCount);
+            if (readCount == 0) {
+                return -1;
+            }
+            return readCount;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == EAGAIN) {
+                // We return 0 rather than throw if we try to read from an empty non-blocking pipe.
+                return 0;
+            }
+            throw errnoException.rethrowAsIOException();
+        }
+    }
+
+    /**
      * Calls close(2) on 'fd'. Also resets the internal int to -1.
      */
     public static native void close(FileDescriptor fd) throws IOException;

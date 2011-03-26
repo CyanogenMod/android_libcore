@@ -18,6 +18,7 @@ package libcore.io;
 
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -49,5 +50,15 @@ public class BlockGuardOs extends ForwardingOs {
             BlockGuard.getThreadPolicy().onWriteToDisk();
         }
         return os.open(path, flags, mode);
+    }
+
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return os.read(fd, buffer);
+    }
+
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return os.read(fd, bytes, byteOffset, byteCount);
     }
 }

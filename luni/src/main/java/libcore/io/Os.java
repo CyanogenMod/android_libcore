@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
 
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
@@ -44,6 +45,8 @@ public interface Os {
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public FileDescriptor[] pipe() throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;

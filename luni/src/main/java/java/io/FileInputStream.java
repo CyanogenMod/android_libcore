@@ -174,13 +174,13 @@ public class FileInputStream extends InputStream implements Closeable {
         return Streams.readSingleByte(this);
     }
 
-    @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+    @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
         if (byteCount == 0) {
             return 0;
         }
         checkOpen();
-        return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, byteCount);
+        return IoUtils.read(fd, buffer, byteOffset, byteCount);
     }
 
     @Override

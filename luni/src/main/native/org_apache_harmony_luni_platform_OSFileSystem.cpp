@@ -134,36 +134,6 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
     return rc;
 }
 
-static jlong OSFileSystem_readDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint byteCount) {
-    if (byteCount == 0) {
-        return 0;
-    }
-    jbyte* dst = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, dst, byteCount));
-    if (rc == 0) {
-        return -1;
-    }
-    if (rc == -1) {
-        // We return 0 rather than throw if we try to read from an empty non-blocking pipe.
-        if (errno == EAGAIN) {
-            return 0;
-        }
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
-static jlong OSFileSystem_read(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint byteCount) {
-    ScopedByteArrayRW bytes(env, byteArray);
-    if (bytes.get() == NULL) {
-        return 0;
-    }
-    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
-    return OSFileSystem_readDirect(env, NULL, fd, buf, offset, byteCount);
-}
-
 static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
         jint buf, jint offset, jint byteCount) {
     if (byteCount == 0) {
@@ -240,8 +210,6 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
-    NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
     NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),

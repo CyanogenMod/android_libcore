@@ -262,7 +262,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * Reads a single byte from the current position in this file and returns it
      * as an integer in the range from 0 to 255. Returns -1 if the end of the
      * file has been reached. Blocks until one byte has been read, the end of
-     * the file is detected or an exception is thrown.
+     * the file is detected, or an exception is thrown.
      *
      * @return the byte read or -1 if the end of the file has been reached.
      * @throws IOException
@@ -270,15 +270,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public int read() throws IOException {
         openCheck();
-        long byteCount = Platform.FILE_SYSTEM.read(fd.descriptor, scratch, 0, 1);
-        return byteCount == -1 ? -1 : scratch[0] & 0xff;
+        return (read(scratch, 0, 1) != -1) ? scratch[0] & 0xff : -1;
     }
 
     /**
      * Reads bytes from the current position in this file and stores them in the
      * byte array {@code buffer}. The maximum number of bytes read corresponds
      * to the size of {@code buffer}. Blocks until at least one byte has been
-     * read.
+     * read, the end of the file is detected, or an exception is thrown.
      *
      * @param buffer
      *            the byte array in which to store the bytes read.
@@ -292,17 +291,17 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Reads at most {@code count} bytes from the current position in this file
+     * Reads at most {@code byteCount} bytes from the current position in this file
      * and stores them in the byte array {@code buffer} starting at {@code
-     * offset}. Blocks until {@code count} bytes have been read, the end of the
-     * file is reached or an exception is thrown.
+     * offset}. Blocks until at least one byte has been
+     * read, the end of the file is detected, or an exception is thrown.
      *
      * @param buffer
      *            the array in which to store the bytes read from this file.
      * @param offset
      *            the initial position in {@code buffer} to store the bytes read
      *            from this file.
-     * @param count
+     * @param byteCount
      *            the maximum number of bytes to store in {@code buffer}.
      * @return the number of bytes actually read or -1 if the end of the stream
      *         has been reached.
@@ -312,13 +311,13 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @throws IOException
      *             if this file is closed or another I/O error occurs.
      */
-    public int read(byte[] buffer, int offset, int count) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, count);
-        if (count == 0) {
+    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
+        if (byteCount == 0) {
             return 0;
         }
         openCheck();
-        return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, count);
+        return IoUtils.read(fd, buffer, byteOffset, byteCount);
     }
 
     /**
@@ -752,14 +751,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see #read()
      */
     public void write(int oneByte) throws IOException {
-        openCheck();
         scratch[0] = (byte) (oneByte & 0xff);
-        Platform.FILE_SYSTEM.write(fd.descriptor, scratch, 0, 1);
-
-        // if we are in "rws" mode, attempt to sync file+metadata
-        if (syncMetadata) {
-            fd.sync();
-        }
+        write(scratch, 0, 1);
     }
 
     /**

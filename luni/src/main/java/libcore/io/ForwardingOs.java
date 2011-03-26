@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
 
 /**
  * Subclass this if you want to override some {@link Os} methods but otherwise delegate.
@@ -53,6 +54,8 @@ public class ForwardingOs implements Os {
     public void munmap(long address, long byteCount) throws ErrnoException { os.munmap(address, byteCount); }
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
     public FileDescriptor[] pipe() throws ErrnoException { return os.pipe(); }
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException { return os.read(fd, buffer); }
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException { return os.read(fd, bytes, byteOffset, byteCount); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException { os.shutdown(fd, how); }

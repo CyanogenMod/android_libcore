@@ -184,9 +184,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void write(int oneByte) throws IOException {
-        checkOpen();
-        byte[] buffer = { (byte) oneByte };
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, 0, 1);
+        write(new byte[] { (byte) oneByte }, 0, 1);
     }
 
     private synchronized void checkOpen() throws IOException {

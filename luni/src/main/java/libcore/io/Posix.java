@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
 
 public final class Posix implements Os {
     Posix() { }
@@ -46,6 +47,15 @@ public final class Posix implements Os {
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native FileDescriptor[] pipe() throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return readDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
+        } else {
+            return read(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        }
+    }
+    private native int readDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
+    public native int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;

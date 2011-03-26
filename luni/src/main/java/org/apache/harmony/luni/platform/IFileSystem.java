@@ -22,9 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface IFileSystem {
-    public long read(int fileDescriptor, byte[] bytes, int offset, int length)
-            throws IOException;
-
     public long write(int fileDescriptor, byte[] bytes, int offset, int length)
             throws IOException;
 
@@ -33,10 +30,6 @@ public interface IFileSystem {
 
     public long writev(int fileDescriptor, int[] addresses, int[] offsets,
             int[] lengths, int size) throws IOException;
-
-    // Required to support direct byte buffers
-    public long readDirect(int fileDescriptor, int address, int offset,
-            int length) throws IOException;
 
     public long writeDirect(int fileDescriptor, int address, int offset,
             int length) throws IOException;

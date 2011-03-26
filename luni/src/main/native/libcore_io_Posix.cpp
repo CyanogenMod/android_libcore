@@ -336,6 +336,21 @@ static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
     return result;
 }
 
+static jint Posix_read(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    ScopedByteArrayRW bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
+}
+
+static jint Posix_readDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobject byteBuffer, jint position, jint remaining) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    jbyte* ptr = reinterpret_cast<jbyte*>(env->GetDirectBufferAddress(byteBuffer));
+    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, ptr + position, remaining)));
+}
+
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -441,6 +456,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, read, "(Ljava/io/FileDescriptor;[BII)I"),
+    NATIVE_METHOD(Posix, readDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),

@@ -33,17 +33,7 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    /*
-     * Direct read/write APIs work on addresses.
-     */
-    public native long readDirect(int fd, int address, int offset, int length);
-
     public native long writeDirect(int fd, int address, int offset, int length);
-
-    /*
-     * Indirect read/writes work on byte[]'s
-     */
-    public native long read(int fd, byte[] bytes, int offset, int length) throws IOException;
 
     public native long write(int fd, byte[] bytes, int offset, int length) throws IOException;
 

@@ -293,40 +293,30 @@ final class FileChannelImpl extends FileChannel {
         if (!buffer.hasRemaining()) {
             return 0;
         }
-        boolean completed = false;
-        int bytesRead = 0;
         synchronized (repositioningLock) {
-            if (buffer.isDirect()) {
+            int bytesRead = 0;
+            boolean completed = false;
+            try {
+                begin();
                 try {
-                    begin();
-                    /*
-                     * if (bytesRead <= EOF) dealt by read completed = false;
-                     */
-                    int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesRead = (int) Platform.FILE_SYSTEM.readDirect(IoUtils.getFd(fd), address,
-                            buffer.position(), buffer.remaining());
-                    completed = true;
-                } finally {
-                    end(completed && bytesRead >= 0);
+                    bytesRead = Libcore.os.read(fd, buffer);
+                } catch (ErrnoException errnoException) {
+                    if (errnoException.errno == EAGAIN) {
+                        // We don't throw if we try to read from an empty non-blocking pipe.
+                        bytesRead = 0;
+                    } else {
+                        throw errnoException.rethrowAsIOException();
+                    }
                 }
-            } else {
-                try {
-                    begin();
-                    /*
-                     * if (bytesRead <= EOF) dealt by read completed = false;
-                     */
-                    bytesRead = (int) Platform.FILE_SYSTEM.read(IoUtils.getFd(fd), buffer.array(),
-                            buffer.arrayOffset() + buffer.position(), buffer.remaining());
-                    completed = true;
-                } finally {
-                    end(completed && bytesRead >= 0);
-                }
+                completed = true;
+            } finally {
+                end(completed && bytesRead >= 0);
             }
             if (bytesRead > 0) {
                 buffer.position(buffer.position() + bytesRead);
             }
+            return bytesRead;
         }
-        return bytesRead;
     }
 
     public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {

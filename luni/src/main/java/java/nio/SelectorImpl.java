@@ -301,12 +301,9 @@ final class SelectorImpl extends AbstractSelector {
      */
     private int processSelectResult() throws IOException {
         if (flags[0] == READABLE) {
-            /*
-             * Read bytes from the wakeup pipe until the pipe is empty. We made
-             * the FD non-blocking so we can just loop until read returns 0.
-             */
+            // Read bytes from the wakeup pipe until the pipe is empty.
             byte[] buffer = new byte[8];
-            while (Platform.FILE_SYSTEM.read(IoUtils.getFd(wakeupIn), buffer, 0, 1) != 0) {
+            while (IoUtils.read(wakeupIn, buffer, 0, 1) > 0) {
             }
         }
 
