@@ -293,21 +293,14 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     /**
      * Reads at most {@code byteCount} bytes from the current position in this file
      * and stores them in the byte array {@code buffer} starting at {@code
-     * offset}. Blocks until at least one byte has been
+     * byteOffset}. Blocks until at least one byte has been
      * read, the end of the file is detected, or an exception is thrown.
      *
-     * @param buffer
-     *            the array in which to store the bytes read from this file.
-     * @param offset
-     *            the initial position in {@code buffer} to store the bytes read
-     *            from this file.
-     * @param byteCount
-     *            the maximum number of bytes to store in {@code buffer}.
      * @return the number of bytes actually read or -1 if the end of the stream
      *         has been reached.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code count < 0}, or if {@code
-     *             offset + count} is greater than the size of {@code buffer}.
+     *             if {@code byteOffset < 0} or {@code byteCount < 0}, or if {@code
+     *             byteOffset + byteCount} is greater than the size of {@code buffer}.
      * @throws IOException
      *             if this file is closed or another I/O error occurs.
      */
