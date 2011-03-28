@@ -23,7 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class BinaryHprofWriter implements HprofWriter {
+/**
+ * BinaryHprofWriter produces hprof compatible binary output for use
+ * with third party tools. Such files can be converted to text with
+ * with {@link HprofBinaryToAscii} or read back in with {@link BinaryHprofReader}.
+ */
+public final class BinaryHprofWriter {
 
     private int nextStringId = 1; // id 0 => null
     private int nextClassId = 1;
@@ -36,12 +41,19 @@ public final class BinaryHprofWriter implements HprofWriter {
     private final HprofData data;
     private final DataOutputStream out;
 
-    public BinaryHprofWriter(HprofData data, OutputStream outputStream) {
+    /**
+     * Writes the provided data to the specified stream.
+     */
+    public static void write(HprofData data, OutputStream outputStream) throws IOException {
+        new BinaryHprofWriter(data, outputStream).write();
+    }
+
+    private BinaryHprofWriter(HprofData data, OutputStream outputStream) {
         this.data = data;
         this.out = new DataOutputStream(outputStream);
     }
 
-    public void write() throws IOException {
+    private void write() throws IOException {
         try {
             writeHeader(data.getStartMillis());
 
@@ -65,7 +77,7 @@ public final class BinaryHprofWriter implements HprofWriter {
     }
 
     private void writeHeader(long dumpTimeInMilliseconds) throws IOException {
-        out.writeBytes("JAVA PROFILE 1.0.2");
+        out.writeBytes(BinaryHprof.MAGIC + "1.0.2");
         out.writeByte(0); // null terminated string
         out.writeInt(BinaryHprof.ID_SIZE);
         out.writeLong(dumpTimeInMilliseconds);
@@ -237,9 +249,5 @@ public final class BinaryHprofWriter implements HprofWriter {
         out.writeInt(stackFrame.getLineNumber());
 
         return id;
-    }
-
-    public void close() throws IOException {
-        out.close();
     }
 }

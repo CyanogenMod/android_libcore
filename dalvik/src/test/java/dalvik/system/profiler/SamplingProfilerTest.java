@@ -23,7 +23,6 @@ import dalvik.system.profiler.HprofData.Sample;
 import dalvik.system.profiler.HprofData.StackTrace;
 import dalvik.system.profiler.HprofData.ThreadEvent;
 import dalvik.system.profiler.HprofData;
-import dalvik.system.profiler.HprofWriter;
 import dalvik.system.profiler.SamplingProfiler.ThreadSet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -261,9 +260,7 @@ public class SamplingProfilerTest extends TestCase {
      */
     private void test_HprofData_ascii(HprofData hprofData) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HprofWriter writer = new AsciiHprofWriter(hprofData, out);
-        writer.write();
-        out.close();
+        AsciiHprofWriter.write(hprofData, out);
         assertFalse(out.toByteArray().length == 0);
     }
 
@@ -274,8 +271,7 @@ public class SamplingProfilerTest extends TestCase {
     private void test_HprofData_binary(HprofData hprofData, boolean strict) throws Exception {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HprofWriter writer = new BinaryHprofWriter(hprofData, out);
-        writer.write();
+        BinaryHprofWriter.write(hprofData, out);
         out.close();
 
         byte[] bytes = out.toByteArray();

@@ -123,23 +123,14 @@ public final class BinaryHprofReader {
     }
 
     private void parseVersion() throws IOException {
-        byte[] bytes = new byte[512];
-        for (int i = 0; i < bytes.length; i++) {
-            byte b = in.readByte();
-            if (b == '\0') {
-                String version = new String(bytes, 0, i, "UTF-8");
-                if (TRACE) {
-                    System.out.println("\tversion=" + version);
-                }
-                if (!version.startsWith("JAVA PROFILE ")) {
-                    throw new MalformedHprofException("Unexpected version: " + version);
-                }
-                this.version = version;
-                return;
-            }
-            bytes[i] = b;
+        String version = BinaryHprof.readMagic(in);
+        if (version == null) {
+            throw new MalformedHprofException("Could not find HPROF version");
         }
-        throw new MalformedHprofException("Could not find HPROF version");
+        if (TRACE) {
+            System.out.println("\tversion=" + version);
+        }
+        this.version = version;
     }
 
     private void parseIdSize() throws IOException {
