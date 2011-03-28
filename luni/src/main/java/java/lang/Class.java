@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -589,9 +588,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getFields()
      */
     public Field[] getDeclaredFields() {
-        // Return a copy of the private (to the package) array.
-        Field[] fields = getClassMembers().getDeclaredFields();
-        return ClassMembers.deepCopy(fields);
+        return getDeclaredFields(this, false);
     }
 
     /*
@@ -648,9 +645,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getMethods()
      */
     public Method[] getDeclaredMethods() {
-        // Return a copy of the private (to the package) array.
-        Method[] methods = getClassMembers().getDeclaredMethods();
-        return ClassMembers.deepCopy(methods);
+        return getDeclaredMethods(this, false);
     }
 
     /**
@@ -667,14 +662,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     static native Member getDeclaredConstructorOrMethod(
             Class clazz, String name, Class[] args);
-
-    /**
-     * Returns the {@link ClassMembers} for this instance.
-     */
-    @SuppressWarnings("unchecked") // cache key and value types always agree
-    ClassMembers<T> getClassMembers() {
-        return (ClassMembers<T>) ClassMembers.cache.get(this);
-    }
 
     /**
      * Returns the declaring {@code Class} of this {@code Class}. Returns
@@ -718,24 +705,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public T[] getEnumConstants() {
-        if (isEnum()) {
-            T[] values = getClassMembers().getEnumValuesInOrder();
-
-            // Copy the private (to the package) array.
-            return values.clone();
-        }
-
-        return null;
-    }
-
-    /**
-     * Like {@link #getEnumConstants} without a defensive copy. It is an error
-     * to modify the returned array.
-     *
-     * @hide for EnumSet
-     */
-    public T[] getSharedEnumConstants() {
-        return getClassMembers().getEnumValuesInOrder();
+        return isEnum()
+                ? (T[]) ClassMembers.getEnumValuesInOrder((Class<? extends Enum>) this)
+                : null;
     }
 
     /**
@@ -798,9 +770,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredFields()
      */
     public Field[] getFields() {
-        // Return a copy of the private (to the package) array.
-        Field[] fields = getClassMembers().getAllPublicFields();
-        return ClassMembers.deepCopy(fields);
+        return ClassMembers.getAllPublicFields(this);
     }
 
     /**
@@ -881,9 +851,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethods()
      */
     public Method[] getMethods() {
-        // Return a copy of the private (to the package) array.
-        Method[] methods = getClassMembers().getMethods();
-        return ClassMembers.deepCopy(methods);
+        return ClassMembers.getMethods(this);
     }
 
     /**
@@ -1322,20 +1290,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         String desiredClassName = this.getName();
         throw new ClassCastException(actualClassName + " cannot be cast to " + desiredClassName);
     }
-
-    /**
-     * Set the "accessible" flag of the given object, without doing any
-     * access checks.
-     *
-     * <p><b>Note:</b> This method is implemented in native code, and,
-     * as such, is less efficient than using {@link ClassMembers#REFLECT}
-     * to achieve the same goal. This method exists solely to help
-     * bootstrap the reflection bridge.</p>
-     *
-     * @param ao non-null; the object to modify
-     * @param flag the new value for the accessible flag
-     */
-    /*package*/ static native void setAccessibleNoCheck(AccessibleObject ao, boolean flag);
 
     /**
      * Copies two arrays into one. Assumes that the destination array is large

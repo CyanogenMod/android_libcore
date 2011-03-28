@@ -45,7 +45,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
         if (!elementType.isEnum()) {
             throw new ClassCastException(elementType.getClass().getName() + " is not an Enum");
         }
-        E[] enums = elementType.getSharedEnumConstants();
+        E[] enums = elementType.getEnumConstants();
         if (enums.length <= 64) {
             return new MiniEnumSet<E>(elementType, enums);
         }

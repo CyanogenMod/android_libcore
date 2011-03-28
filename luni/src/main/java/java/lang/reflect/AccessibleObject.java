@@ -34,7 +34,6 @@ package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
 import java.util.Hashtable;
-import org.apache.harmony.kernel.vm.ReflectionAccess;
 import org.apache.harmony.kernel.vm.StringUtils;
 
 /**
@@ -89,8 +88,8 @@ public class AccessibleObject implements AnnotatedElement {
      */
     public static void setAccessible(AccessibleObject[] objects, boolean flag) {
         synchronized(AccessibleObject.class) {
-            for (int i = 0; i < objects.length; i++) {
-                objects[i].flag = flag;
+            for (AccessibleObject object : objects) {
+                object.flag = flag;
             }
         }
     }
@@ -123,16 +122,6 @@ public class AccessibleObject implements AnnotatedElement {
      *            the new value for the accessible flag
      */
     public void setAccessible(boolean flag) {
-        this.flag = flag;
-    }
-
-    /**
-     * Sets the accessible flag on this instance without doing any checks.
-     *
-     * @param flag
-     *            the new value for the accessible flag
-     */
-    /*package*/ void setAccessibleNoCheck(boolean flag) {
         this.flag = flag;
     }
 
@@ -239,16 +228,6 @@ public class AccessibleObject implements AnnotatedElement {
     private static native Object[] getClassSignatureAnnotation(Class clazz);
 
     /**
-     * Gets the unique instance of {@link ReflectionAccessImpl}.
-     *
-     * @return non-null; the unique instance
-     */
-    static /*package*/ ReflectionAccess getReflectionAccess() {
-        return ReflectionAccessImpl.THE_ONE;
-    }
-
-
-    /**
      * Appends the specified class name to the buffer. The class may represent
      * a simple type, a reference type or an array type.
      *
@@ -274,17 +253,15 @@ public class AccessibleObject implements AnnotatedElement {
      * elements may represent a simple type, a reference type or an array type.
      * Output format: java.lang.Object[], java.io.File, void
      *
-     * @param sb buffer
-     * @param objs array of classes to print the names
-     *
+     * @param types array of classes to print the names
      * @throws NullPointerException if any of the arguments is null
      */
-    void appendArrayGenericType(StringBuilder sb, Type[] objs) {
-        if (objs.length > 0) {
-            appendGenericType(sb, objs[0]);
-            for (int i = 1; i < objs.length; i++) {
+    void appendArrayGenericType(StringBuilder sb, Type[] types) {
+        if (types.length > 0) {
+            appendGenericType(sb, types[0]);
+            for (int i = 1; i < types.length; i++) {
                 sb.append(',');
-                appendGenericType(sb, objs[i]);
+                appendGenericType(sb, types[i]);
             }
         }
     }
@@ -339,28 +316,6 @@ public class AccessibleObject implements AnnotatedElement {
                 }
             } else {
                 sb.append(c.getName());
-            }
-        }
-    }
-
-    /**
-     * Appends names of the specified array classes to the buffer. The array
-     * elements may represent a simple type, a reference type or an array type.
-     * In case if the specified array element represents an array type its
-     * internal will be appended to the buffer.
-     * Output format: [Ljava.lang.Object;, java.io.File, void
-     *
-     * @param sb buffer
-     * @param objs array of classes to print the names
-     *
-     * @throws NullPointerException if any of the arguments is null
-     */
-    void appendSimpleType(StringBuilder sb, Class<?>[] objs) {
-        if (objs.length > 0) {
-            sb.append(objs[0].getName());
-            for (int i = 1; i < objs.length; i++) {
-                sb.append(',');
-                sb.append(objs[i].getName());
             }
         }
     }
