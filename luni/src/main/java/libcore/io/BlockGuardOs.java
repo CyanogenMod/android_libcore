@@ -61,4 +61,14 @@ public class BlockGuardOs extends ForwardingOs {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, bytes, byteOffset, byteCount);
     }
+
+    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return os.write(fd, buffer);
+    }
+
+    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return os.write(fd, bytes, byteOffset, byteCount);
+    }
 }

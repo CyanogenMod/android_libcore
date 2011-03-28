@@ -221,24 +221,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             file.
      */
     public long getFilePointer() throws IOException {
-        openCheck();
         try {
             return Libcore.os.lseek(fd, 0L, SEEK_CUR);
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
-        }
-    }
-
-    /**
-     * Checks to see if the file is currently open. Returns silently if it is,
-     * and throws an exception if it is not.
-     *
-     * @throws IOException
-     *             the receiver is closed.
-     */
-    private synchronized void openCheck() throws IOException {
-        if (fd.descriptor < 0) {
-            throw new IOException();
         }
     }
 
@@ -250,7 +236,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or some other I/O error occurs.
      */
     public long length() throws IOException {
-        openCheck();
         try {
             return Libcore.os.fstat(fd).st_size;
         } catch (ErrnoException errnoException) {
@@ -269,7 +254,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public int read() throws IOException {
-        openCheck();
         return (read(scratch, 0, 1) != -1) ? scratch[0] & 0xff : -1;
     }
 
@@ -305,11 +289,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
-        if (byteCount == 0) {
-            return 0;
-        }
-        openCheck();
         return IoUtils.read(fd, buffer, byteOffset, byteCount);
     }
 
@@ -623,7 +602,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (offset < 0) {
             throw new IOException("offset < 0: " + offset);
         }
-        openCheck();
         try {
             Libcore.os.lseek(fd, offset, SEEK_SET);
         } catch (ErrnoException errnoException) {
@@ -646,7 +624,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public void setLength(long newLength) throws IOException {
-        openCheck();
         if (newLength < 0) {
             throw new IllegalArgumentException("newLength < 0");
         }
@@ -703,30 +680,18 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     }
 
     /**
-     * Writes {@code count} bytes from the byte array {@code buffer} to this
-     * file, starting at the current file pointer and using {@code offset} as
+     * Writes {@code byteCount} bytes from the byte array {@code buffer} to this
+     * file, starting at the current file pointer and using {@code byteOffset} as
      * the first position within {@code buffer} to get bytes.
      *
-     * @param buffer
-     *            the buffer to write to this file.
-     * @param offset
-     *            the index of the first byte in {@code buffer} to write.
-     * @param count
-     *            the number of bytes from {@code buffer} to write.
      * @throws IndexOutOfBoundsException
-     *             if {@code count < 0}, {@code offset < 0} or {@code count +
-     *             offset} is greater than the size of {@code buffer}.
+     *             if {@code byteCount < 0}, {@code byteOffset < 0} or {@code byteCount +
+     *             byteOffset} is greater than the size of {@code buffer}.
      * @throws IOException
      *             if an I/O error occurs while writing to this file.
      */
-    public void write(byte[] buffer, int offset, int count) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, count);
-        if (count == 0) {
-            return;
-        }
-        openCheck();
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, count);
-
+    public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        IoUtils.write(fd, buffer, byteOffset, byteCount);
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
             fd.sync();

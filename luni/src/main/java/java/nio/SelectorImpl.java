@@ -378,8 +378,8 @@ final class SelectorImpl extends AbstractSelector {
 
     @Override public Selector wakeup() {
         try {
-            Platform.FILE_SYSTEM.write(IoUtils.getFd(wakeupOut), new byte[]{1}, 0, 1);
-        } catch (IOException ignored) {
+            Libcore.os.write(wakeupOut, new byte[] { 1 }, 0, 1);
+        } catch (ErrnoException ignored) {
         }
         return this;
     }

@@ -166,12 +166,6 @@ public final class BlockGuard {
             mFileSystem = fileSystem;
         }
 
-        public long write(int fileDescriptor, byte[] bytes, int offset, int length)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            return mFileSystem.write(fileDescriptor, bytes, offset, length);
-        }
-
         public long readv(int fileDescriptor, int[] addresses, int[] offsets,
                           int[] lengths, int size) throws IOException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
@@ -182,12 +176,6 @@ public final class BlockGuard {
                            int[] lengths, int size) throws IOException {
             BlockGuard.getThreadPolicy().onWriteToDisk();
             return mFileSystem.writev(fileDescriptor, addresses, offsets, lengths, size);
-        }
-
-        public long writeDirect(int fileDescriptor, int address, int offset,
-                                int length) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            return mFileSystem.writeDirect(fileDescriptor, address, offset, length);
         }
 
         public long transfer(int fileHandler, FileDescriptor socketDescriptor,

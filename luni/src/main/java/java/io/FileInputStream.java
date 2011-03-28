@@ -109,7 +109,9 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public int available() throws IOException {
-        checkOpen();
+        if (!fd.valid()) {
+            throw new IOException("stream is closed");
+        }
         return Platform.FILE_SYSTEM.ioctlAvailable(fd);
     }
 
@@ -175,17 +177,11 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
-        if (byteCount == 0) {
-            return 0;
-        }
-        checkOpen();
         return IoUtils.read(fd, buffer, byteOffset, byteCount);
     }
 
     @Override
     public long skip(long byteCount) throws IOException {
-        checkOpen();
         if (byteCount == 0) {
             return 0;
         }
@@ -203,12 +199,6 @@ public class FileInputStream extends InputStream implements Closeable {
                 return super.skip(byteCount);
             }
             throw errnoException.rethrowAsIOException();
-        }
-    }
-
-    private synchronized void checkOpen() throws IOException {
-        if (!fd.valid()) {
-            throw new IOException("stream is closed");
         }
     }
 }

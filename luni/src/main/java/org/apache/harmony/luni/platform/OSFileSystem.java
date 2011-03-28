@@ -33,10 +33,6 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    public native long writeDirect(int fd, int address, int offset, int length);
-
-    public native long write(int fd, byte[] bytes, int offset, int length) throws IOException;
-
     /*
      * Scatter/gather calls.
      */

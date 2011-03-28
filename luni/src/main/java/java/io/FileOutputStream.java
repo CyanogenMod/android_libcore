@@ -173,23 +173,12 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     @Override
-    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
-        if (byteCount == 0) {
-            return;
-        }
-        checkOpen();
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, byteCount);
+    public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        IoUtils.write(fd, buffer, byteOffset, byteCount);
     }
 
     @Override
     public void write(int oneByte) throws IOException {
         write(new byte[] { (byte) oneByte }, 0, 1);
-    }
-
-    private synchronized void checkOpen() throws IOException {
-        if (!fd.valid()) {
-            throw new IOException("stream is closed");
-        }
     }
 }

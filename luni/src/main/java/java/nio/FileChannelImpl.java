@@ -527,35 +527,25 @@ final class FileChannelImpl extends FileChannel {
     }
 
     private int writeImpl(ByteBuffer buffer) throws IOException {
-        int bytesWritten;
-        boolean completed = false;
         synchronized (repositioningLock) {
-            if (buffer.isDirect()) {
+            int bytesWritten = 0;
+            boolean completed = false;
+            try {
+                begin();
                 try {
-                    begin();
-                    int address = NioUtils.getDirectBufferAddress(buffer);
-                    bytesWritten = (int) Platform.FILE_SYSTEM.writeDirect(IoUtils.getFd(fd),
-                            address, buffer.position(), buffer.remaining());
-                    completed = true;
-                } finally {
-                    end(completed);
+                    bytesWritten = Libcore.os.write(fd, buffer);
+                } catch (ErrnoException errnoException) {
+                    throw errnoException.rethrowAsIOException();
                 }
-            } else {
-                try {
-                    begin();
-                    bytesWritten = (int) Platform.FILE_SYSTEM.write(IoUtils.getFd(fd), buffer
-                            .array(), buffer.arrayOffset() + buffer.position(),
-                            buffer.remaining());
-                    completed = true;
-                } finally {
-                    end(completed);
-                }
+                completed = true;
+            } finally {
+                end(completed);
             }
             if (bytesWritten > 0) {
                 buffer.position(buffer.position() + bytesWritten);
             }
+            return bytesWritten;
         }
-        return bytesWritten;
     }
 
     public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
