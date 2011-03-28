@@ -501,7 +501,7 @@ public final class TestKeyStore extends Assert {
         }
 
         private X509Principal localhost() throws UnknownHostException {
-            return x509Principal(InetAddress.getLocalHost().getCanonicalHostName());
+            return x509Principal(InetAddress.getLoopbackAddress().getHostName());
         }
 
         /**
