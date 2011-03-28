@@ -51,15 +51,15 @@ public final class ReflectionTest extends TestCase {
         assertEquals(fieldOneRaw, fieldOne.toGenericString());
 
         Field fieldTwo = C.class.getDeclaredField("fieldTwo");
-        assertEquals("transient volatile java.util.Map " + classC + ".fieldTwo",
+        assertEquals("private transient volatile java.util.Map " + classC + ".fieldTwo",
                 fieldTwo.toString());
-        assertEquals("transient volatile java.util.Map<" + classA + ", java.lang.String> "
+        assertEquals("private transient volatile java.util.Map<" + classA + ", java.lang.String> "
                 + classC + ".fieldTwo", fieldTwo.toGenericString());
 
         Field fieldThree = C.class.getDeclaredField("fieldThree");
-        String fieldThreeRaw = "java.lang.Object[] " + classC + ".fieldThree";
+        String fieldThreeRaw = "protected java.lang.Object[] " + classC + ".fieldThree";
         assertEquals(fieldThreeRaw, fieldThree.toString());
-        String fieldThreeGeneric = "K[] " + classC + ".fieldThree";
+        String fieldThreeGeneric = "protected K[] " + classC + ".fieldThree";
         assertEquals(fieldThreeGeneric, fieldThree.toGenericString());
 
         Field fieldFour = C.class.getDeclaredField("fieldFour");
@@ -132,6 +132,87 @@ public final class ReflectionTest extends TestCase {
         assertEquals(RandomAccess.class, bounds[2]);
     }
 
+    public void testGetFieldNotFound() throws Exception {
+        try {
+            D.class.getField("noField");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldNotFound() throws Exception {
+        try {
+            D.class.getDeclaredField("noField");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetFieldNull() throws Exception {
+        try {
+            D.class.getField(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldNull() throws Exception {
+        try {
+            D.class.getDeclaredField(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testGetFieldIsRecursive() throws Exception {
+        Field field = D.class.getField("fieldOne");
+        assertEquals(C.class, field.getDeclaringClass());
+    }
+
+    public void testGetDeclaredFieldIsNotRecursive() {
+        try {
+            D.class.getDeclaredField("fieldOne");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetFieldIsPublicOnly() throws Exception {
+        C.class.getField("fieldOne"); // public
+        try {
+            C.class.getField("fieldTwo"); // private
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+        try {
+            C.class.getField("fieldThree"); // protected
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+        try {
+            C.class.getField("fieldFour"); // package-private
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldIsAllVisibilities() throws Exception {
+        C.class.getDeclaredField("fieldOne"); // public
+        C.class.getDeclaredField("fieldTwo"); // private
+        C.class.getDeclaredField("fieldThree"); // protected
+        C.class.getDeclaredField("fieldFour"); // package-private
+    }
+
+    public void testGetFieldViaExtendsThenImplements() throws Exception {
+        Field field = ExtendsImplementsDefinesField.class.getField("field");
+        assertEquals(DefinesField.class, field.getDeclaringClass());
+    }
+
+    public void testGetFieldViaImplementsThenExtends() throws Exception {
+        Field field = ImplementsExtendsDefinesField.class.getField("field");
+        assertEquals(DefinesField.class, field.getDeclaringClass());
+    }
+
     static class A {}
     static class AList extends ArrayList<A> {}
 
@@ -139,8 +220,8 @@ public final class ReflectionTest extends TestCase {
 
     public static abstract class C<K> {
         public static A fieldOne;
-        transient volatile Map<A, String> fieldTwo;
-        K[] fieldThree;
+        private transient volatile Map<A, String> fieldTwo;
+        protected K[] fieldThree;
         Map<? super Integer, Integer[]> fieldFour;
         String[][][][][] fieldFive;
 
@@ -159,4 +240,21 @@ public final class ReflectionTest extends TestCase {
             return null;
         }
     }
+
+    public static class D extends C<String> {
+        public D(A a) throws B {
+            super(a);
+        }
+        @Override public Map<A, String> methodTwo(List<A> onlyParameter) {
+            return null;
+        }
+    }
+
+    interface DefinesField {
+        String field = "s";
+    }
+    static class ImplementsDefinesField implements DefinesField {}
+    static class ExtendsImplementsDefinesField extends ImplementsDefinesField {}
+    interface ExtendsDefinesField extends DefinesField {}
+    static class ImplementsExtendsDefinesField implements ExtendsDefinesField {}
 }
