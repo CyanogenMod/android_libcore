@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import libcore.util.EmptyArray;
 
 /**
@@ -67,12 +68,16 @@ final class ClassMembers {
      * This method performs no security checks.
      */
     private static void getMethodsRecursive(Class<?> clazz, List<Method> result) {
+        // search superclasses
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
             result.addAll(Arrays.asList(Class.getDeclaredMethods(c, true)));
         }
 
-        for (Class<?> ifc : clazz.getInterfaces()) {
-            getMethodsRecursive(ifc, result);
+        // search implemented interfaces
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                getMethodsRecursive(ifc, result);
+            }
         }
     }
 
@@ -128,9 +133,9 @@ final class ClassMembers {
      * Returns all public fields, both directly declared and inherited.
      */
     public static Field[] getAllPublicFields(Class<?> clazz) {
-        ArrayList<Field> fields = new ArrayList<Field>();
-        HashSet<String> seen = new HashSet<String>();
-        findAllFields(clazz, fields, seen, true);
+        List<Field> fields = new ArrayList<Field>();
+        Set<String> seen = new HashSet<String>();
+        getFields(clazz, fields, seen);
         return fields.toArray(new Field[fields.size()]);
     }
 
@@ -144,29 +149,25 @@ final class ClassMembers {
      * @param clazz non-null; class to inspect
      * @param fields non-null; the target list to add the results to
      * @param seen non-null; a set of signatures we've already seen
-     * @param publicOnly reflects whether we want only public fields
      * or all of them
      */
-    private static void findAllFields(Class<?> clazz,
-            ArrayList<Field> fields, HashSet<String> seen,
-            boolean publicOnly) {
-
-        // Traverse class and superclasses, get rid of dupes by signature
-        while (clazz != null) {
-            for (Field field : Class.getDeclaredFields(clazz, publicOnly)) {
+    private static void getFields(Class<?> clazz, List<Field> fields, Set<String> seen) {
+        // search superclasses
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Field field : Class.getDeclaredFields(clazz, true)) {
                 String signature = field.toString();
                 if (!seen.contains(signature)) {
                     fields.add(field);
                     seen.add(signature);
                 }
             }
+        }
 
-            // Traverse all interfaces, and do the same recursively.
-            for (Class<?> interfaceClass : clazz.getInterfaces()) {
-                findAllFields(interfaceClass, fields, seen, publicOnly);
+        // search implemented interfaces
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                getFields(ifc, fields, seen);
             }
-
-            clazz = clazz.getSuperclass();
         }
     }
 

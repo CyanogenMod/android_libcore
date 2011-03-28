@@ -19,11 +19,13 @@ package libcore.java.lang.reflect;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
@@ -204,13 +206,43 @@ public final class ReflectionTest extends TestCase {
     }
 
     public void testGetFieldViaExtendsThenImplements() throws Exception {
-        Field field = ExtendsImplementsDefinesField.class.getField("field");
-        assertEquals(DefinesField.class, field.getDeclaringClass());
+        Field field = ExtendsImplementsDefinesMember.class.getField("field");
+        assertEquals(DefinesMember.class, field.getDeclaringClass());
     }
 
     public void testGetFieldViaImplementsThenExtends() throws Exception {
-        Field field = ImplementsExtendsDefinesField.class.getField("field");
-        assertEquals(DefinesField.class, field.getDeclaringClass());
+        Field field = ImplementsExtendsDefinesMember.class.getField("field");
+        assertEquals(DefinesMember.class, field.getDeclaringClass());
+    }
+
+    public void testGetFieldsViaExtendsThenImplements() throws Exception {
+        Field[] fields = ExtendsImplementsDefinesMember.class.getFields();
+        assertTrue(names(fields).contains("field"));
+    }
+
+    public void testGetFieldsViaImplementsThenExtends() throws Exception {
+        Field[] fields = ImplementsExtendsDefinesMember.class.getFields();
+        assertTrue(names(fields).contains("field"));
+    }
+
+    public void testGetMethodViaExtendsThenImplements() throws Exception {
+        Method method = ExtendsImplementsDefinesMember.class.getMethod("method");
+        assertEquals(DefinesMember.class, method.getDeclaringClass());
+    }
+
+    public void testGetMethodViaImplementsThenExtends() throws Exception {
+        Method method = ImplementsExtendsDefinesMember.class.getMethod("method");
+        assertEquals(DefinesMember.class, method.getDeclaringClass());
+    }
+
+    public void testGetMethodsViaExtendsThenImplements() throws Exception {
+        Method[] methods = ExtendsImplementsDefinesMember.class.getMethods();
+        assertTrue(names(methods).contains("method"));
+    }
+
+    public void testGetMethodsViaImplementsThenExtends() throws Exception {
+        Method[] methods = ImplementsExtendsDefinesMember.class.getMethods();
+        assertTrue(names(methods).contains("method"));
     }
 
     static class A {}
@@ -250,11 +282,20 @@ public final class ReflectionTest extends TestCase {
         }
     }
 
-    interface DefinesField {
+    interface DefinesMember {
         String field = "s";
+        void method();
     }
-    static class ImplementsDefinesField implements DefinesField {}
-    static class ExtendsImplementsDefinesField extends ImplementsDefinesField {}
-    interface ExtendsDefinesField extends DefinesField {}
-    static class ImplementsExtendsDefinesField implements ExtendsDefinesField {}
+    static abstract class ImplementsDefinesMember implements DefinesMember {}
+    static abstract class ExtendsImplementsDefinesMember extends ImplementsDefinesMember {}
+    interface ExtendsDefinesMember extends DefinesMember {}
+    static abstract class ImplementsExtendsDefinesMember implements ExtendsDefinesMember {}
+
+    private Set<String> names(Member[] methods) {
+        Set<String> result = new HashSet<String>();
+        for (Member method : methods) {
+            result.add(method.getName());
+        }
+        return result;
+    }
 }
