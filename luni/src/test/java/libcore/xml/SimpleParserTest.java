@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.xml;
+package libcore.xml;
 
 import junit.framework.TestCase;
 
@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class SimpleParserTest extends TestCase implements ContentHandler {
+public class SimpleParserTest extends TestCase {
 
     private SAXParser parser;
 
@@ -58,7 +58,7 @@ public class SimpleParserTest extends TestCase implements ContentHandler {
         factory.setNamespaceAware(true);
 
         parser = factory.newSAXParser();
-        parser.getXMLReader().setContentHandler(this);
+        parser.getXMLReader().setContentHandler(contentHandler);
 
         instructions = new StringBuffer();
         namespaces1 = new HashMap<String, String>();
@@ -83,90 +83,74 @@ public class SimpleParserTest extends TestCase implements ContentHandler {
         text = null;
     }
 
-    public void characters(char[] ch, int start, int length) {
+    private final ContentHandler contentHandler = new ContentHandler() {
+        public void characters(char[] ch, int start, int length) {
+            String s = new String(ch, start, length).trim();
+            if (!s.isEmpty()) {
+                if (text.length() != 0) {
+                    text.append(",");
+                }
+                text.append(s);
+            }
+        }
 
-        String s = new String(ch, start, length).trim();
-        if (s.length() != 0) {
-            if (text.length() != 0) {
-                text.append(",");
+        public void processingInstruction(String target, String data) {
+            String s = target + ":" + data;
+            if (instructions.length() != 0) {
+                instructions.append(",");
+            }
+            instructions.append(s);
+        }
+
+
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+
+            if (elements1.length() != 0) {
+                elements1.append(",");
             }
 
-            text.append(s);
-        }
-    }
+            elements1.append(localName);
 
-    public void endDocument() {
-    }
+            if (!"".equals(uri)) {
+                namespaces1.put(localName, uri);
+            }
 
-    public void endElement(String uri, String localName, String qName) {
-    }
+            for (int i = 0; i < atts.getLength(); i++) {
+                attributes1.put(atts.getLocalName(i), atts.getValue(i));
+            }
 
-    public void endPrefixMapping(String prefix) {
-    }
+            if (elements2.length() != 0) {
+                elements2.append(",");
+            }
 
-    public void ignorableWhitespace(char[] ch, int start, int length) {
-    }
+            elements2.append(qName);
 
-    public void processingInstruction(String target, String data) {
-        String s = target + ":" + data;
+            if (!"".equals(uri)) {
+                namespaces2.put(qName, uri);
+            }
 
-        if (instructions.length() != 0) {
-            instructions.append(",");
-        }
-
-        instructions.append(s);
-    }
-
-    public void setDocumentLocator(Locator locator) {
-    }
-
-    public void skippedEntity(String name) {
-    }
-
-    public void startDocument() {
-    }
-
-    public void startElement(String uri, String localName, String qName,
-            Attributes atts) {
-
-        if (elements1.length() != 0) {
-            elements1.append(",");
+            for (int i = 0; i < atts.getLength(); i++) {
+                attributes2.put(atts.getQName(i), atts.getValue(i));
+            }
         }
 
-        elements1.append(localName);
+        public void endDocument() {}
+        public void endElement(String uri, String localName, String qName) {}
+        public void endPrefixMapping(String prefix) {}
+        public void ignorableWhitespace(char[] ch, int start, int length) {}
+        public void setDocumentLocator(Locator locator) {}
+        public void skippedEntity(String name) {}
+        public void startDocument() {}
+        public void startPrefixMapping(String prefix, String uri) {}
+    };
 
-        if (!"".equals(uri)) {
-            namespaces1.put(localName, uri);
-        }
-
-        for (int i = 0; i < atts.getLength(); i++) {
-            attributes1.put(atts.getLocalName(i), atts.getValue(i));
-        }
-
-        if (elements2.length() != 0) {
-            elements2.append(",");
-        }
-
-        elements2.append(qName);
-
-        if (!"".equals(uri)) {
-            namespaces2.put(qName, uri);
-        }
-
-        for (int i = 0; i < atts.getLength(); i++) {
-            attributes2.put(atts.getQName(i), atts.getValue(i));
-        }
-    }
-
-    public void startPrefixMapping(String prefix, String uri) {
-    }
     public void testWorkingFile1() throws Exception {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
         factory.setNamespaceAware(true);
 
         SAXParser parser = factory.newSAXParser();
-        parser.getXMLReader().setContentHandler(this);
+        parser.getXMLReader().setContentHandler(contentHandler);
 
         parser.parse(getClass().getResourceAsStream("/SimpleParserTest.xml"),
                 (DefaultHandler) null);
@@ -193,7 +177,7 @@ public class SimpleParserTest extends TestCase implements ContentHandler {
                 true);
 
         SAXParser parser = factory.newSAXParser();
-        parser.getXMLReader().setContentHandler(this);
+        parser.getXMLReader().setContentHandler(contentHandler);
         parser.parse(getClass().getResourceAsStream("/SimpleParserTest.xml"),
                 (DefaultHandler) null);
 
