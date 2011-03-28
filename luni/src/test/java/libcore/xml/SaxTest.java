@@ -17,23 +17,24 @@
 package libcore.xml;
 
 import dalvik.annotation.KnownFailure;
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Initiate and observe a SAX parse session.
  */
-public class SaxTest extends TestCase {
+public final class SaxTest extends TestCase {
 
     public void testNoPrefixesNoNamespaces() throws Exception {
         parse(false, false, "<foo bar=\"baz\"/>", new DefaultHandler() {
@@ -155,6 +156,52 @@ public class SaxTest extends TestCase {
         });
     }
 
+    /**
+     * Test that the external-general-entities feature can be disabled.
+     * http://code.google.com/p/android/issues/detail?id=9493
+     */
+    public void testDisableExternalGeneralEntities() throws Exception {
+        String xml = "<!DOCTYPE foo ["
+                + "  <!ENTITY bar SYSTEM \"/no-such-document.xml\">"
+                + "]>"
+                + "<foo>&bar;</foo>";
+        testDisableExternalEntities("http://xml.org/sax/features/external-general-entities", xml);
+    }
+
+    /**
+     * Test that the external-parameter-entities feature can be disabled.
+     * http://code.google.com/p/android/issues/detail?id=9493
+     */
+    public void testDisableExternalParameterEntities() throws Exception {
+        String xml = "<!DOCTYPE foo ["
+                + "  <!ENTITY % bar SYSTEM \"/no-such-document.xml\">"
+                + "  %bar;"
+                + "]>"
+                + "<foo/>";
+        testDisableExternalEntities("http://xml.org/sax/features/external-parameter-entities", xml);
+    }
+
+    /**
+     * Disables the named feature and then parses the supplied XML. The content
+     * is expected to be equivalent to "<foo/>".
+     */
+    private void testDisableExternalEntities(String feature, String xml) throws Exception {
+        SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+        XMLReader reader = parser.getXMLReader();
+        reader.setFeature(feature, false);
+        assertFalse(reader.getFeature(feature));
+        reader.setContentHandler(new ThrowingHandler() {
+            @Override public void startElement(
+                    String uri, String localName, String qName, Attributes attributes) {
+                assertEquals("foo", qName);
+            }
+            @Override public void endElement(String uri, String localName, String qName) {
+                assertEquals("foo", qName);
+            }
+        });
+        reader.parse(new InputSource(new StringReader(xml)));
+    }
+
     private void parse(boolean prefixes, boolean namespaces, String xml,
             ContentHandler handler) throws Exception {
         SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -173,5 +220,57 @@ public class SaxTest extends TestCase {
         List<String> optionsList = Arrays.asList(sentinel, expected);
         assertTrue("Expected one of " + optionsList + " but was " + actual,
                 optionsList.contains(actual));
+    }
+
+    /**
+     * This SAX handler throws on everything but startDocument, endDocument,
+     * and setDocumentLocator(). Override the methods that are expected to be
+     * called.
+     */
+    static class ThrowingHandler extends DefaultHandler {
+        @Override public InputSource resolveEntity(String publicId, String systemId) {
+            throw new AssertionFailedError();
+        }
+        @Override public void notationDecl(String name, String publicId, String systemId) {
+            throw new AssertionFailedError();
+        }
+        @Override public void unparsedEntityDecl(
+                String name, String publicId, String systemId, String notationName) {
+            throw new AssertionFailedError();
+        }
+        @Override public void startPrefixMapping(String prefix, String uri) {
+            throw new AssertionFailedError();
+        }
+        @Override public void endPrefixMapping(String prefix) {
+            throw new AssertionFailedError();
+        }
+        @Override public void startElement(
+                String uri, String localName, String qName, Attributes attributes) {
+            throw new AssertionFailedError();
+        }
+        @Override public void endElement(String uri, String localName, String qName) {
+            throw new AssertionFailedError();
+        }
+        @Override public void characters(char[] ch, int start, int length) {
+            throw new AssertionFailedError();
+        }
+        @Override public void ignorableWhitespace(char[] ch, int start, int length) {
+            throw new AssertionFailedError();
+        }
+        @Override public void processingInstruction(String target, String data) {
+            throw new AssertionFailedError();
+        }
+        @Override public void skippedEntity(String name) {
+            throw new AssertionFailedError();
+        }
+        @Override public void warning(SAXParseException e) {
+            throw new AssertionFailedError();
+        }
+        @Override public void error(SAXParseException e) {
+            throw new AssertionFailedError();
+        }
+        @Override public void fatalError(SAXParseException e) {
+            throw new AssertionFailedError();
+        }
     }
 }
