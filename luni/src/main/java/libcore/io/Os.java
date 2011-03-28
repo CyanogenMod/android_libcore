@@ -32,6 +32,8 @@ public interface Os {
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
+    /* TODO: this is a questionable translation of int* ioctls in general. */
+    public int ioctlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
@@ -51,6 +53,7 @@ public interface Os {
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
+    /* TODO: replace statfs with statvfs. */
     public StructStatFs statfs(String path) throws ErrnoException;
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;

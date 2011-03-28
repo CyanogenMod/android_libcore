@@ -109,10 +109,7 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public int available() throws IOException {
-        if (!fd.valid()) {
-            throw new IOException("stream is closed");
-        }
-        return Platform.FILE_SYSTEM.ioctlAvailable(fd);
+        return IoUtils.available(fd);
     }
 
     @Override

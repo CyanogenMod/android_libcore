@@ -44,6 +44,4 @@ class OSFileSystem implements IFileSystem {
 
     public native long transfer(int fd, FileDescriptor sd, long offset, long count)
             throws IOException;
-
-    public native int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
 }

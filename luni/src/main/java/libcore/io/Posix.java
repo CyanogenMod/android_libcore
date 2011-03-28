@@ -35,6 +35,7 @@ public final class Posix implements Os {
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String getenv(String name);
+    public native int ioctlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;

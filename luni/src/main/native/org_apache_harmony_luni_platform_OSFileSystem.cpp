@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -134,59 +133,7 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
     return rc;
 }
 
-static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
-    /*
-     * On underlying platforms Android cares about (read "Linux"),
-     * ioctl(fd, FIONREAD, &avail) is supposed to do the following:
-     *
-     * If the fd refers to a regular file, avail is set to
-     * the difference between the file size and the current cursor.
-     * This may be negative if the cursor is past the end of the file.
-     *
-     * If the fd refers to an open socket or the read end of a
-     * pipe, then avail will be set to a number of bytes that are
-     * available to be read without blocking.
-     *
-     * If the fd refers to a special file/device that has some concept
-     * of buffering, then avail will be set in a corresponding way.
-     *
-     * If the fd refers to a special device that does not have any
-     * concept of buffering, then the ioctl call will return a negative
-     * number, and errno will be set to ENOTTY.
-     *
-     * If the fd refers to a special file masquerading as a regular file,
-     * then avail may be returned as negative, in that the special file
-     * may appear to have zero size and yet a previous read call may have
-     * actually read some amount of data and caused the cursor to be
-     * advanced.
-     */
-    int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
-    if (fd == -1) {
-        return -1;
-    }
-    int avail = 0;
-    int rc = ioctl(fd, FIONREAD, &avail);
-    if (rc >= 0) {
-        /*
-         * Success, but make sure not to return a negative number (see
-         * above).
-         */
-        if (avail < 0) {
-            avail = 0;
-        }
-    } else if (errno == ENOTTY) {
-        /* The fd is unwilling to opine about its read buffer. */
-        avail = 0;
-    } else {
-        /* Something strange is happening. */
-        jniThrowIOException(env, errno);
-    }
-
-    return avail;
-}
-
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
     NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
     NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),

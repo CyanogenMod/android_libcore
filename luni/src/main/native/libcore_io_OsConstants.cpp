@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -122,6 +123,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "EXIT_FAILURE", EXIT_FAILURE);
     initConstant(env, c, "EXIT_SUCCESS", EXIT_SUCCESS);
     initConstant(env, c, "FD_CLOEXEC", FD_CLOEXEC);
+    initConstant(env, c, "FIONREAD", FIONREAD);
     initConstant(env, c, "F_DUPFD", F_DUPFD);
     initConstant(env, c, "F_GETFD", F_GETFD);
     initConstant(env, c, "F_GETFL", F_GETFL);

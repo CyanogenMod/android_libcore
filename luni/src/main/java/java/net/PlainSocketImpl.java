@@ -34,6 +34,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.Streams;
@@ -122,7 +123,7 @@ public class PlainSocketImpl extends SocketImpl {
         if (shutdownInput) {
             return 0;
         }
-        return Platform.FILE_SYSTEM.ioctlAvailable(fd);
+        return IoUtils.available(fd);
     }
 
     @Override

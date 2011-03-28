@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -238,6 +239,12 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
         return NULL;
     }
     return env->NewStringUTF(getenv(name.c_str()));
+}
+
+static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jint arg) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
+    return arg;
 }
 
 static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
@@ -458,6 +465,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),

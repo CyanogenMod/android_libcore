@@ -30,6 +30,4 @@ public interface IFileSystem {
 
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
-
-    public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
 }

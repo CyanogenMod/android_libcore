@@ -182,10 +182,6 @@ public final class BlockGuard {
                              long offset, long count) throws IOException {
             return mFileSystem.transfer(fileHandler, socketDescriptor, offset, count);
         }
-
-        public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException {
-            return mFileSystem.ioctlAvailable(fileDescriptor);
-        }
     }
 
     /**
