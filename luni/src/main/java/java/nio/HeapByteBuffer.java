@@ -34,9 +34,11 @@ import libcore.io.Memory;
  */
 abstract class HeapByteBuffer extends BaseByteBuffer {
 
-    protected final byte[] backingArray;
-
-    protected final int offset;
+    /**
+     * These fields are non-private for NioUtils.unsafeByteArray.
+     */
+    final byte[] backingArray;
+    final int offset;
 
     HeapByteBuffer(byte[] backingArray) {
         this(backingArray, backingArray.length, 0);

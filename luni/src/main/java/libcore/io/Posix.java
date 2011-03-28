@@ -18,6 +18,7 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
+import java.nio.NioUtils;
 
 public final class Posix implements Os {
     Posix() { }
@@ -51,7 +52,7 @@ public final class Posix implements Os {
         if (buffer.isDirect()) {
             return readDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
         }
-        return read(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        return read(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
     }
     private native int readDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
     public native int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
@@ -68,7 +69,7 @@ public final class Posix implements Os {
         if (buffer.isDirect()) {
             return writeDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
         }
-        return write(fd, buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        return write(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
     }
     private native int writeDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
     public native int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;

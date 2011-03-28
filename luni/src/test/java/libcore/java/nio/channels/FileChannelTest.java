@@ -18,14 +18,16 @@ package libcore.java.nio.channels;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class FileChannelTest extends junit.framework.TestCase {
     public void test_read_intoReadOnlyByteArrays() throws Exception {
         ByteBuffer readOnly = ByteBuffer.allocate(1).asReadOnlyBuffer();
-        File tmp = File.createTempFile("empty", "tmp");
-        tmp.deleteOnExit();
+        File tmp = File.createTempFile("FileChannelTest", "tmp");
+
+        // You can't read into a read-only buffer...
         FileChannel fc = new FileInputStream(tmp).getChannel();
         try {
             fc.read(readOnly);
@@ -47,5 +49,12 @@ public class FileChannelTest extends junit.framework.TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+
+        // But you can write from a read-only buffer...
+        fc = new FileOutputStream(tmp).getChannel();
+        fc.write(readOnly);
+        fc.write(new ByteBuffer[] { readOnly });
+        fc.write(new ByteBuffer[] { readOnly }, 0, 1);
+        fc.write(readOnly, 0L);
     }
 }

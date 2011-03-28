@@ -71,4 +71,20 @@ public final class NioUtils {
     public static FileChannel newFileChannel(Object stream, FileDescriptor fd, int mode) {
         return new FileChannelImpl(stream, fd, mode);
     }
+
+    /**
+     * Exposes the array backing a non-direct ByteBuffer, even if the ByteBuffer is read-only.
+     * Normally, attempting to access the array backing a read-only buffer throws.
+     */
+    public static byte[] unsafeArray(ByteBuffer b) {
+        return ((HeapByteBuffer) b).backingArray;
+    }
+
+    /**
+     * Exposes the array offset for the array backing a non-direct ByteBuffer,
+     * even if the ByteBuffer is read-only.
+     */
+    public static int unsafeArrayOffset(ByteBuffer b) {
+        return ((HeapByteBuffer) b).offset;
+    }
 }
