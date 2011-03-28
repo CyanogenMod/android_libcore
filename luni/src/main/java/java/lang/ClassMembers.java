@@ -73,9 +73,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
     /** null-ok; list of all public declared fields */
     private volatile Field[] declaredPublicFields;
 
-    /** null-ok; list of all fields, both direct and inherited */
-    private volatile Field[] allFields;
-
     /** null-ok; list of all public fields, both direct and inherited */
     private volatile Field[] allPublicFields;
 
@@ -287,20 +284,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      */
     public Field[] getDeclaredFields(boolean publicOnly) {
         return publicOnly ? getDeclaredPublicFields() : getDeclaredFields();
-    }
-
-    /**
-     * Gets the list of all fields, both directly
-     * declared and inherited.
-     *
-     * @return non-null; the list of all fields
-     */
-    public Field[] getAllFields() {
-        if (allFields == null) {
-            allFields = getFullListOfFields(false);
-        }
-
-        return allFields;
     }
 
     /**

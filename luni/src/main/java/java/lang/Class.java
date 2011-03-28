@@ -35,7 +35,6 @@ package java.lang;
 import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
-import static java.lang.ClassMembers.REFLECT;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AccessibleObject;
@@ -563,22 +562,20 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns a {@code Field} object for the field with the specified name
      * which is declared in the class represented by this {@code Class}.
      *
-     * @param name
-     *            the name of the requested field.
+     * @param name the name of the requested field.
      * @return the requested field in the class represented by this class.
-     * @throws NoSuchFieldException
-     *             if the requested field can not be found.
+     * @throws NoSuchFieldException if the requested field can not be found.
      * @see #getField(String)
      */
     public Field getDeclaredField(String name) throws NoSuchFieldException {
-        Field[] fields = getClassMembers().getDeclaredFields();
-        Field field = findFieldByName(fields, name);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(field);
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        Field result = getDeclaredField(this, name);
+        if (result == null) {
+            throw new NoSuchFieldException(name);
+        }
+        return result;
     }
 
     /**
@@ -606,6 +603,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return the list of fields
      */
     static native Field[] getDeclaredFields(Class<?> clazz, boolean publicOnly);
+
+    /**
+     * Returns the field if it is defined by {@code clazz}; null otherwise. This
+     * may return a non-public member.
+     */
+    static native Field getDeclaredField(Class<?> clazz, String name);
 
     /**
      * Returns a {@code Method} object which represents the method matching the
@@ -749,34 +752,36 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredField(String)
      */
     public Field getField(String name) throws NoSuchFieldException {
-        Field[] fields = getClassMembers().getAllPublicFields();
-        Field field = findFieldByName(fields, name);
-
-        /*
-         * Make a copy of the private (to the package) object, so that
-         * setAccessible() won't alter the private instance.
-         */
-        return REFLECT.clone(field);
-    }
-
-    /**
-     * Finds and returns a field with a given name and signature. Use
-     * this with one of the field lists returned by instances of ClassMembers.
-     *
-     * @param list non-null; the list of fields to search through
-     * @return non-null; the matching field
-     * @throws NoSuchFieldException thrown if the field does not exist
-     */
-    private Field findFieldByName(Field[] list, String name) throws NoSuchFieldException {
         if (name == null) {
             throw new NullPointerException("name == null");
         }
-        for (Field field : list) {
-            if (field.getName().equals(name)) {
-                return field;
+        Field result = getPublicFieldRecursive(this, name);
+        if (result == null) {
+            throw new NoSuchFieldException(name);
+        }
+        return result;
+    }
+
+    private static Field getPublicFieldRecursive(Class<?> clazz, String name) {
+        // search superclasses
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            Field result = Class.getDeclaredField(c, name);
+            if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                return result;
             }
         }
-        throw new NoSuchFieldException("No field '" + name + "' in " + this);
+
+        // search implemented interfaces
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                Field result = getPublicFieldRecursive(ifc, name);
+                if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
