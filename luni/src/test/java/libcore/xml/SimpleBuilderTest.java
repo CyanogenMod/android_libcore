@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.xml;
+package libcore.xml;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

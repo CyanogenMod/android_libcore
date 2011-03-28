@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.xml;
+package libcore.xml;
 
 import dalvik.annotation.KnownFailure;
 import junit.framework.TestCase;

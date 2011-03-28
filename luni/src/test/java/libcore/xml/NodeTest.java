@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.xml;
+package libcore.xml;
 
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
