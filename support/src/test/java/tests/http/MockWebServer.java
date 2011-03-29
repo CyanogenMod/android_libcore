@@ -32,12 +32,12 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -59,7 +59,7 @@ public final class MockWebServer {
     private final BlockingQueue<MockResponse> responseQueue
             = new LinkedBlockingDeque<MockResponse>();
     private final Set<Socket> openClientSockets
-            = Collections.synchronizedSet(new HashSet<Socket>());
+            = Collections.newSetFromMap(new ConcurrentHashMap<Socket, Boolean>());
     private boolean singleResponse;
     private final AtomicInteger requestCount = new AtomicInteger();
     private int bodyLimit = Integer.MAX_VALUE;
