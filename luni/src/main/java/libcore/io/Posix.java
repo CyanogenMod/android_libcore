@@ -57,6 +57,7 @@ public final class Posix implements Os {
     }
     private native int readDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
     public native int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
@@ -74,4 +75,5 @@ public final class Posix implements Os {
     }
     private native int writeDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
     public native int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public native int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
 }

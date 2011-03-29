@@ -49,6 +49,7 @@ public interface Os {
     public StructStat lstat(String path) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
@@ -61,4 +62,5 @@ public interface Os {
     public StructUtsname uname() throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
 }

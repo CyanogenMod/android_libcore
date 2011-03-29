@@ -33,15 +33,6 @@ class OSFileSystem implements IFileSystem {
     private OSFileSystem() {
     }
 
-    /*
-     * Scatter/gather calls.
-     */
-    public native long readv(int fd, int[] addresses, int[] offsets, int[] lengths, int size)
-            throws IOException;
-
-    public native long writev(int fd, int[] addresses, int[] offsets, int[] lengths, int size)
-            throws IOException;
-
     public native long transfer(int fd, FileDescriptor sd, long offset, long count)
             throws IOException;
 }
