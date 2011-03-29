@@ -40,6 +40,8 @@ jclass JniConstants::localeDataClass;
 jclass JniConstants::longClass;
 jclass JniConstants::methodClass;
 jclass JniConstants::multicastGroupRequestClass;
+jclass JniConstants::mutableIntClass;
+jclass JniConstants::mutableLongClass;
 jclass JniConstants::parsePositionClass;
 jclass JniConstants::patternSyntaxExceptionClass;
 jclass JniConstants::realToStringClass;
@@ -84,6 +86,8 @@ void JniConstants::init(JNIEnv* env) {
     longClass = findClass(env, "java/lang/Long");
     methodClass = findClass(env, "java/lang/reflect/Method");
     multicastGroupRequestClass = findClass(env, "java/net/MulticastGroupRequest");
+    mutableIntClass = findClass(env, "libcore/util/MutableInt");
+    mutableLongClass = findClass(env, "libcore/util/MutableLong");
     parsePositionClass = findClass(env, "java/text/ParsePosition");
     patternSyntaxExceptionClass = findClass(env, "java/util/regex/PatternSyntaxException");
     realToStringClass = findClass(env, "java/lang/RealToString");

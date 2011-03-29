@@ -18,6 +18,8 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
+import libcore.util.MutableInt;
+import libcore.util.MutableLong;
 
 /**
  * Subclass this if you want to override some {@link Os} methods but otherwise delegate.
@@ -41,7 +43,7 @@ public class ForwardingOs implements Os {
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
     public String getenv(String name) { return os.getenv(name); }
-    public int ioctlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
+    public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException { os.listen(fd, backlog); }
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException { return os.lseek(fd, offset, whence); }
@@ -60,6 +62,7 @@ public class ForwardingOs implements Os {
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException { return os.readv(fd, buffers, offsets, byteCounts); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
+    public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException { return os.sendfile(outFd, inFd, inOffset, byteCount); }
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException { os.shutdown(fd, how); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }

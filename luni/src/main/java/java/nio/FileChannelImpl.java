@@ -36,7 +36,7 @@ import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.StructFlock;
-import org.apache.harmony.luni.platform.Platform;
+import libcore.util.MutableLong;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -404,30 +404,37 @@ final class FileChannelImpl extends FileChannel {
         if (count == 0 || position >= size()) {
             return 0;
         }
-        ByteBuffer buffer = null;
         count = Math.min(count, size() - position);
-        if (target instanceof SocketChannelImpl) {
-            // only socket can be transfered by system call
-            return transferToSocket(fd, ((SocketChannelImpl) target).getFD(), position, count);
-        }
 
+        // Try sendfile(2) first...
+        boolean completed = false;
+        if (target instanceof SocketChannelImpl) {
+            FileDescriptor outFd = ((SocketChannelImpl) target).getFD();
+            try {
+                begin();
+                try {
+                    MutableLong offset = new MutableLong(position);
+                    long rc = Libcore.os.sendfile(outFd, fd, offset, count);
+                    completed = true;
+                    return rc;
+                } catch (ErrnoException errnoException) {
+                    // If the OS doesn't support what we asked for, we want to fall through and
+                    // try a different approach. If it does support it, but it failed, we're done.
+                    if (errnoException.errno != ENOSYS && errnoException.errno != EINVAL) {
+                        throw errnoException.rethrowAsIOException();
+                    }
+                }
+            } finally {
+                end(completed);
+            }
+        }
+        // ...fall back to write(2).
+        ByteBuffer buffer = null;
         try {
             buffer = map(MapMode.READ_ONLY, position, count);
             return target.write(buffer);
         } finally {
             NioUtils.freeDirectBuffer(buffer);
-        }
-    }
-
-    private long transferToSocket(FileDescriptor src, FileDescriptor dst, long position, long count) throws IOException {
-        boolean completed = false;
-        try {
-            begin();
-            long ret = Platform.FILE_SYSTEM.transfer(IoUtils.getFd(src), fd, position, count);
-            completed = true;
-            return ret;
-        } finally {
-            end(completed);
         }
     }
 

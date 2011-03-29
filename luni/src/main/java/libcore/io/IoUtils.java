@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.util.Arrays;
+import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
 
 public final class IoUtils {
@@ -34,17 +35,18 @@ public final class IoUtils {
      */
     public static int available(FileDescriptor fd) throws IOException {
         try {
-            int available = Libcore.os.ioctlInt(fd, FIONREAD, 0);
-            if (available < 0) {
+            MutableInt available = new MutableInt(0);
+            int rc = Libcore.os.ioctlInt(fd, FIONREAD, available);
+            if (available.value < 0) {
                 // If the fd refers to a regular file, the result is the difference between
                 // the file size and the file position. This may be negative if the position
                 // is past the end of the file. If the fd refers to a special file masquerading
                 // as a regular file, the result may be negative because the special file
                 // may appear to have zero size and yet a previous read call may have
                 // read some amount of data and caused the file position to be advanced.
-                available = 0;
+                available.value = 0;
             }
-            return available;
+            return available.value;
         } catch (ErrnoException errnoException) {
             if (errnoException.errno == ENOTTY) {
                 // The fd is unwilling to opine about its read buffer.

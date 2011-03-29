@@ -19,6 +19,8 @@ package libcore.io;
 import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
 import java.nio.NioUtils;
+import libcore.util.MutableInt;
+import libcore.util.MutableLong;
 
 public final class Posix implements Os {
     Posix() { }
@@ -35,7 +37,7 @@ public final class Posix implements Os {
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String getenv(String name);
-    public native int ioctlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
+    public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
@@ -60,6 +62,7 @@ public final class Posix implements Os {
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
+    public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
     public native StructStatFs statfs(String path) throws ErrnoException;

@@ -62,6 +62,8 @@ struct JniConstants {
     static jclass longClass;
     static jclass methodClass;
     static jclass multicastGroupRequestClass;
+    static jclass mutableIntClass;
+    static jclass mutableLongClass;
     static jclass parsePositionClass;
     static jclass patternSyntaxExceptionClass;
     static jclass realToStringClass;

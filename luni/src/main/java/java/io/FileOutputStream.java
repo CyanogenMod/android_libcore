@@ -23,7 +23,6 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.IoUtils;
 import static libcore.io.OsConstants.*;
-import org.apache.harmony.luni.platform.Platform;
 
 /**
  * An output stream that writes bytes to a file. If the output file exists, it

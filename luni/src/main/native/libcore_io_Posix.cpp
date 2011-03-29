@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -307,10 +308,17 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
     return env->NewStringUTF(getenv(name.c_str()));
 }
 
-static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jint arg) {
+static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
+    // This is complicated because ioctls may return their result by updating their argument
+    // or via their return value, so we need to support both.
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    throwIfMinusOne(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
-    return arg;
+    static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
+    jint arg = env->GetIntField(javaArg, valueFid);
+    int rc = throwIfMinusOne(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &arg)));
+    if (!env->ExceptionCheck()) {
+        env->SetIntField(javaArg, valueFid, arg);
+    }
+    return rc;
 }
 
 static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
@@ -453,6 +461,24 @@ static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring java
     throwIfMinusOne(env, "rename", TEMP_FAILURE_RETRY(rename(oldPath.c_str(), newPath.c_str())));
 }
 
+static jlong Posix_sendfile(JNIEnv* env, jobject, jobject javaOutFd, jobject javaInFd, jobject javaOffset, jlong byteCount) {
+    int outFd = jniGetFDFromFileDescriptor(env, javaOutFd);
+    int inFd = jniGetFDFromFileDescriptor(env, javaInFd);
+    static jfieldID valueFid = env->GetFieldID(JniConstants::mutableLongClass, "value", "J");
+    off_t offset = 0;
+    off_t* offsetPtr = NULL;
+    if (javaOffset != NULL) {
+        // TODO: fix bionic so we can have a 64-bit off_t!
+        offset = env->GetLongField(javaOffset, valueFid);
+        offsetPtr = &offset;
+    }
+    jlong result = throwIfMinusOne(env, "sendfile", TEMP_FAILURE_RETRY(sendfile(outFd, inFd, offsetPtr, byteCount)));
+    if (javaOffset != NULL) {
+        env->SetLongField(javaOffset, valueFid, offset);
+    }
+    return result;
+}
+
 static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
@@ -549,7 +575,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;II)I"),
+    NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
@@ -568,6 +594,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
+    NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),

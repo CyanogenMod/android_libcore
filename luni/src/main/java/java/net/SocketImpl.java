@@ -21,7 +21,6 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.harmony.luni.platform.Platform;
 
 /**
  * This class is the base of all streaming socket implementation classes.

@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketOptions;
-import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.INetworkSystem;
 
 /**
@@ -154,23 +153,6 @@ public final class BlockGuard {
     }
 
     private BlockGuard() {}
-
-    /**
-     * A filesystem wrapper that calls the policy check functions
-     * on reads and writes.
-     */
-    public static class WrappedFileSystem implements IFileSystem {
-        private final IFileSystem mFileSystem;
-
-        public WrappedFileSystem(IFileSystem fileSystem) {
-            mFileSystem = fileSystem;
-        }
-
-        public long transfer(int fileHandler, FileDescriptor socketDescriptor,
-                             long offset, long count) throws IOException {
-            return mFileSystem.transfer(fileHandler, socketDescriptor, offset, count);
-        }
-    }
 
     /**
      * A network wrapper that calls the policy check functions.

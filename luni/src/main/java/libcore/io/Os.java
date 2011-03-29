@@ -18,6 +18,8 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
+import libcore.util.MutableInt;
+import libcore.util.MutableLong;
 
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
@@ -32,8 +34,7 @@ public interface Os {
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
-    /* TODO: this is a questionable translation of int* ioctls in general. */
-    public int ioctlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
+    public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
@@ -52,6 +53,7 @@ public interface Os {
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
+    public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     /* TODO: replace statfs with statvfs. */
