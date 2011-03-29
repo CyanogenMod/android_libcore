@@ -81,8 +81,12 @@ public final class MockWebServer {
         return port;
     }
 
+    public String getHostName() {
+        return InetAddress.getLoopbackAddress().getHostName();
+    }
+
     public Proxy toProxyAddress() {
-        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", getPort()));
+        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(getHostName(), getPort()));
     }
 
     /**
@@ -91,10 +95,9 @@ public final class MockWebServer {
      * @param path the request path, such as "/".
      */
     public URL getUrl(String path) throws MalformedURLException, UnknownHostException {
-        String host = InetAddress.getLocalHost().getHostName();
         return sslSocketFactory != null
-                ? new URL("https://" + host + ":" + getPort() + path)
-                : new URL("http://" + host + ":" + getPort() + path);
+                ? new URL("https://" + getHostName() + ":" + getPort() + path)
+                : new URL("http://" + getHostName() + ":" + getPort() + path);
     }
 
     /**
