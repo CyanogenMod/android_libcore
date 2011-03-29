@@ -79,21 +79,20 @@ public final class CollectionUtils {
     }
 
     /**
-     * Returns a sorted list containing the unique elements of {@code list}.
-     * This method does not use {@link Object#equals}: only the comparator is
-     * used to define equality.
+     * Sorts and removes duplicate elements from {@code list}. This method does
+     * not use {@link Object#equals}: only the comparator defines equality.
      */
-    public static <T> List<T> uniqueCopy(List<T> list, Comparator<? super T> comparator) {
+    public static <T> void removeDuplicates(List<T> list, Comparator<? super T> comparator) {
         Collections.sort(list, comparator);
-        List<T> result = new ArrayList<T>(list.size());
-        T previous = null;
-        for (T t : list) {
-            if (previous != null && comparator.compare(t, previous) == 0) {
-                continue;
+        int j = 1;
+        for (int i = 1; i < list.size(); i++) {
+            if (comparator.compare(list.get(j - 1), list.get(i)) != 0) {
+                T object = list.get(i);
+                list.set(j++, object);
             }
-            result.add(t);
-            previous = t;
         }
-        return result;
+        if (j < list.size()) {
+            list.subList(j, list.size()).clear();
+        }
     }
 }

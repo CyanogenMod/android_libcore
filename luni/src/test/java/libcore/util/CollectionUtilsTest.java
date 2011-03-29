@@ -20,6 +20,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.TestCase;
@@ -69,6 +70,31 @@ public final class CollectionUtilsTest extends TestCase {
             result.add(t);
         }
         return result;
+    }
+
+    public void testRemoveDuplicatesOnEmptyCollection() {
+        List<String> list = new ArrayList<String>();
+        CollectionUtils.removeDuplicates(list, String.CASE_INSENSITIVE_ORDER);
+        assertTrue(list.isEmpty());
+    }
+
+    public void testRemoveDuplicatesOnSingletonCollection() {
+        List<String> list = Arrays.asList("A");
+        CollectionUtils.removeDuplicates(list, String.CASE_INSENSITIVE_ORDER);
+        assertEquals(Collections.singletonList("A"), list);
+    }
+
+    public void testRemoveDuplicates() {
+        List<String> list = new ArrayList<String>();
+        list.add("A");
+        list.add("A");
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("C");
+        list.add("C");
+        CollectionUtils.removeDuplicates(list, String.CASE_INSENSITIVE_ORDER);
+        assertEquals(Arrays.asList("A", "B", "C"), list);
     }
 
     /**

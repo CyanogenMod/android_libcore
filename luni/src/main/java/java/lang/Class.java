@@ -568,7 +568,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param publicOnly reflects whether we want only public member or all of them
      * @return the class' class members
      */
-    native private static Class<?>[] getDeclaredClasses(Class<?> clazz, boolean publicOnly);
+    private static native Class<?>[] getDeclaredClasses(Class<?> clazz, boolean publicOnly);
 
     /**
      * Returns a {@code Constructor} object which represents the constructor
@@ -835,16 +835,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredFields()
      */
     public Field[] getFields() {
-        List<Field> all = new ArrayList<Field>();
-        getPublicFieldsRecursive(all);
+        List<Field> fields = new ArrayList<Field>();
+        getPublicFieldsRecursive(fields);
 
         /*
          * The result may include duplicates when clazz implements an interface
          * through multiple paths. Remove those duplicates.
          */
-        List<Field> unique = CollectionUtils.uniqueCopy(all,
-                Field.ORDER_BY_NAME_AND_DECLARING_CLASS);
-        return unique.toArray(new Field[unique.size()]);
+        CollectionUtils.removeDuplicates(fields, Field.ORDER_BY_NAME_AND_DECLARING_CLASS);
+        return fields.toArray(new Field[fields.size()]);
     }
 
     /**
@@ -945,15 +944,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethods()
      */
     public Method[] getMethods() {
-        List<Method> all = new ArrayList<Method>();
-        getPublicMethodsRecursive(all);
+        List<Method> methods = new ArrayList<Method>();
+        getPublicMethodsRecursive(methods);
 
         /*
          * Remove methods defined by multiple types, preferring to keep methods
          * declared by derived types.
          */
-        List<Method> unique = CollectionUtils.uniqueCopy(all, Method.ORDER_BY_SIGNATURE);
-        return unique.toArray(new Method[unique.size()]);
+        CollectionUtils.removeDuplicates(methods, Method.ORDER_BY_SIGNATURE);
+        return methods.toArray(new Method[methods.size()]);
     }
 
     /**
