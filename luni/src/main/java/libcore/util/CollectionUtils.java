@@ -17,7 +17,11 @@
 package libcore.util;
 
 import java.lang.ref.Reference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 public final class CollectionUtils {
     private CollectionUtils() {}
@@ -72,5 +76,24 @@ public final class CollectionUtils {
                 };
             }
         };
+    }
+
+    /**
+     * Returns a sorted list containing the unique elements of {@code list}.
+     * This method does not use {@link Object#equals}: only the comparator is
+     * used to define equality.
+     */
+    public static <T> List<T> uniqueCopy(List<T> list, Comparator<? super T> comparator) {
+        Collections.sort(list, comparator);
+        List<T> result = new ArrayList<T>(list.size());
+        T previous = null;
+        for (T t : list) {
+            if (previous != null && comparator.compare(t, previous) == 0) {
+                continue;
+            }
+            result.add(t);
+            previous = t;
+        }
+        return result;
     }
 }

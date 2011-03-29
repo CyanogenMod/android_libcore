@@ -41,6 +41,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -48,8 +49,13 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.net.URL;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import libcore.util.CollectionUtils;
+import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.Types;
@@ -423,8 +429,60 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
-        return (Constructor) ClassMembers.getConstructorOrMethod(
-                this, "<init>", false, true, parameterTypes);
+        return (Constructor) getConstructorOrMethod("<init>", false, true, parameterTypes);
+    }
+
+    /**
+     * Returns a constructor or method with the specified name.
+     *
+     * @param name the method name, or "<init>" to return a constructor.
+     * @param recursive true to search supertypes.
+     */
+    private Member getConstructorOrMethod(String name, boolean recursive,
+            boolean publicOnly, Class<?>[] parameterTypes) throws NoSuchMethodException {
+        if (recursive && !publicOnly) {
+            throw new AssertionError(); // can't lookup non-public members recursively
+        }
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        if (parameterTypes == null) {
+            parameterTypes = EmptyArray.CLASS;
+        }
+        for (Class<?> c : parameterTypes) {
+            if (c == null) {
+                throw new NoSuchMethodException("parameter type is null");
+            }
+        }
+        Member result = recursive
+                ? getPublicConstructorOrMethodRecursive(name, parameterTypes)
+                : Class.getDeclaredConstructorOrMethod(this, name, parameterTypes);
+        if (result == null || publicOnly && (result.getModifiers() & Modifier.PUBLIC) == 0) {
+            throw new NoSuchMethodException(name + " " + Arrays.toString(parameterTypes));
+        }
+        return result;
+    }
+
+    private Member getPublicConstructorOrMethodRecursive(String name, Class<?>[] parameterTypes) {
+        // search superclasses
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            Member result = Class.getDeclaredConstructorOrMethod(c, name, parameterTypes);
+            if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                return result;
+            }
+        }
+
+        // search implemented interfaces
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                Member result = ifc.getPublicConstructorOrMethodRecursive(name, parameterTypes);
+                if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -510,8 +568,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param publicOnly reflects whether we want only public member or all of them
      * @return the class' class members
      */
-    native private static Class<?>[] getDeclaredClasses(Class<?> clazz,
-        boolean publicOnly);
+    native private static Class<?>[] getDeclaredClasses(Class<?> clazz, boolean publicOnly);
 
     /**
      * Returns a {@code Constructor} object which represents the constructor
@@ -529,8 +586,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
             throws NoSuchMethodException {
-        return (Constructor) ClassMembers.getConstructorOrMethod(
-                this, "<init>", false, false, parameterTypes);
+        return (Constructor) getConstructorOrMethod("<init>", false, false, parameterTypes);
     }
 
     /**
@@ -555,7 +611,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param publicOnly reflects whether we want only public constructors or all of them
      * @return the list of constructors
      */
-    private static native <T> Constructor<T>[] getDeclaredConstructors(Class<T> clazz, boolean publicOnly);
+    private static native <T> Constructor<T>[] getDeclaredConstructors(
+            Class<T> clazz, boolean publicOnly);
 
     /**
      * Returns a {@code Field} object for the field with the specified name
@@ -626,8 +683,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException {
-        Member member = ClassMembers.getConstructorOrMethod(
-                this, name, false, false, parameterTypes);
+        Member member = getConstructorOrMethod(name, false, false, parameterTypes);
         if (member instanceof Constructor) {
             throw new NoSuchMethodException(name);
         }
@@ -660,8 +716,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @param name the method name, or "<init>" to get a constructor.
      */
-    static native Member getDeclaredConstructorOrMethod(
-            Class clazz, String name, Class[] args);
+    static native Member getDeclaredConstructorOrMethod(Class clazz, String name, Class[] args);
 
     /**
      * Returns the declaring {@code Class} of this {@code Class}. Returns
@@ -705,9 +760,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public T[] getEnumConstants() {
-        return isEnum()
-                ? (T[]) ClassMembers.getEnumValuesInOrder((Class<? extends Enum>) this)
-                : null;
+        if (!isEnum()) {
+            return null;
+        }
+
+        Method method = (Method) Class.getDeclaredConstructorOrMethod(
+                this, "values", EmptyArray.CLASS);
+        try {
+            return (T[]) method.invoke((Object[]) null);
+        } catch (IllegalAccessException impossible) {
+            throw new AssertionError();
+        } catch (InvocationTargetException impossible) {
+            throw new AssertionError();
+        }
     }
 
     /**
@@ -727,16 +792,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (name == null) {
             throw new NullPointerException("name == null");
         }
-        Field result = getPublicFieldRecursive(this, name);
+        Field result = getPublicFieldRecursive(name);
         if (result == null) {
             throw new NoSuchFieldException(name);
         }
         return result;
     }
 
-    private static Field getPublicFieldRecursive(Class<?> clazz, String name) {
+    private Field getPublicFieldRecursive(String name) {
         // search superclasses
-        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
             Field result = Class.getDeclaredField(c, name);
             if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
                 return result;
@@ -744,9 +809,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         }
 
         // search implemented interfaces
-        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
             for (Class<?> ifc : c.getInterfaces()) {
-                Field result = getPublicFieldRecursive(ifc, name);
+                Field result = ifc.getPublicFieldRecursive(name);
                 if (result != null && (result.getModifiers() & Modifier.PUBLIC) != 0) {
                     return result;
                 }
@@ -770,7 +835,36 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredFields()
      */
     public Field[] getFields() {
-        return ClassMembers.getAllPublicFields(this);
+        List<Field> all = new ArrayList<Field>();
+        getPublicFieldsRecursive(all);
+
+        /*
+         * The result may include duplicates when clazz implements an interface
+         * through multiple paths. Remove those duplicates.
+         */
+        List<Field> unique = CollectionUtils.uniqueCopy(all,
+                Field.ORDER_BY_NAME_AND_DECLARING_CLASS);
+        return unique.toArray(new Field[unique.size()]);
+    }
+
+    /**
+     * Populates {@code result} with public fields defined by this class, its
+     * superclasses, and all implemented interfaces.
+     */
+    private void getPublicFieldsRecursive(List<Field> result) {
+        // search superclasses
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            for (Field field : Class.getDeclaredFields(c, true)) {
+                result.add(field);
+            }
+        }
+
+        // search implemented interfaces
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                ifc.getPublicFieldsRecursive(result);
+            }
+        }
     }
 
     /**
@@ -829,7 +923,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethod(String, Class[])
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
-        Member member = ClassMembers.getConstructorOrMethod(this, name, true, true, parameterTypes);
+        Member member = getConstructorOrMethod(name, true, true, parameterTypes);
         if (member instanceof Constructor) {
             throw new NoSuchMethodException(name);
         }
@@ -851,7 +945,35 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredMethods()
      */
     public Method[] getMethods() {
-        return ClassMembers.getMethods(this);
+        List<Method> all = new ArrayList<Method>();
+        getPublicMethodsRecursive(all);
+
+        /*
+         * Remove methods defined by multiple types, preferring to keep methods
+         * declared by derived types.
+         */
+        List<Method> unique = CollectionUtils.uniqueCopy(all, Method.ORDER_BY_SIGNATURE);
+        return unique.toArray(new Method[unique.size()]);
+    }
+
+    /**
+     * Populates {@code result} with public methods defined by {@code clazz}, its
+     * superclasses, and all implemented interfaces, including overridden methods.
+     */
+    private void getPublicMethodsRecursive(List<Method> result) {
+        // search superclasses
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            for (Method method : Class.getDeclaredMethods(c, true)) {
+                result.add(method);
+            }
+        }
+
+        // search implemented interfaces
+        for (Class<?> c = this; c != null; c = c.getSuperclass()) {
+            for (Class<?> ifc : c.getInterfaces()) {
+                ifc.getPublicMethodsRecursive(result);
+            }
+        }
     }
 
     /**

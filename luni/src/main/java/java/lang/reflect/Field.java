@@ -33,6 +33,7 @@
 package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
+import java.util.Comparator;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.Types;
@@ -42,6 +43,23 @@ import org.apache.harmony.luni.lang.reflect.Types;
  * and the field's value can be accessed dynamically.
  */
 public final class Field extends AccessibleObject implements Member {
+
+    /**
+     * Orders fields by their name and declaring class.
+     *
+     * @hide
+     */
+    public static final Comparator<Field> ORDER_BY_NAME_AND_DECLARING_CLASS
+            = new Comparator<Field>() {
+        @Override public int compare(Field a, Field b) {
+            int comparison = a.name.compareTo(b.name);
+            if (comparison != 0) {
+                return comparison;
+            }
+
+            return a.getDeclaringClass().getName().compareTo(b.getDeclaringClass().getName());
+        }
+    };
 
     private Class<?> declaringClass;
 
