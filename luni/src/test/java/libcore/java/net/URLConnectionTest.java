@@ -28,7 +28,6 @@ import java.net.CacheResponse;
 import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.Proxy;
@@ -39,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -88,11 +86,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
     };
 
     private MockWebServer server = new MockWebServer();
-    private String hostname;
+    private String hostName;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        hostname = InetAddress.getLocalHost().getHostName();
+        hostName = server.getHostName();
     }
 
     @Override protected void tearDown() throws Exception {
@@ -1069,7 +1067,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         testMarkAndReset(TransferKind.END_OF_STREAM);
     }
 
-    public void testMarkAndReset(TransferKind transferKind) throws IOException {
+    private void testMarkAndReset(TransferKind transferKind) throws IOException {
         MockResponse response = new MockResponse();
         transferKind.setBody(response, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1024);
         server.enqueue(response);
@@ -1511,9 +1509,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 readAscii(server.getUrl("/").openStream(), Integer.MAX_VALUE));
 
         RecordedRequest first = server.takeRequest();
-        assertContains(first.getHeaders(), "Host: " + hostname + ":" + server.getPort());
+        assertContains(first.getHeaders(), "Host: " + hostName + ":" + server.getPort());
         RecordedRequest second = server2.takeRequest();
-        assertContains(second.getHeaders(), "Host: " + hostname + ":" + server2.getPort());
+        assertContains(second.getHeaders(), "Host: " + hostName + ":" + server2.getPort());
         RecordedRequest third = server.takeRequest();
         assertEquals("Expected connection reuse", 1, third.getSequenceNumber());
 
@@ -1543,9 +1541,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
             assertEquals("DEF", readAscii(url.openStream(), Integer.MAX_VALUE));
             assertEquals("GHI", readAscii(url.openStream(), Integer.MAX_VALUE));
 
-            assertEquals(Arrays.asList("verify " + hostname), hostnameVerifier.calls);
+            assertEquals(Arrays.asList("verify " + hostName), hostnameVerifier.calls);
             assertEquals(Arrays.asList("checkServerTrusted ["
-                    + "CN=" + hostname + " 1, "
+                    + "CN=" + hostName + " 1, "
                     + "CN=Test Intermediate Certificate Authority 1, "
                     + "CN=Test Root Certificate Authority 1"
                     + "] RSA"),
