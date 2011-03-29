@@ -25,7 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
@@ -245,6 +244,16 @@ public final class ReflectionTest extends TestCase {
         assertTrue(names(methods).contains("method"));
     }
 
+    public void testGetMethodsContainsNoDuplicates() throws Exception {
+        Method[] methods = ExtendsAndImplementsDefinesMember.class.getMethods();
+        assertEquals(1, count(names(methods), "method"));
+    }
+
+    public void testGetFieldsContainsNoDuplicates() throws Exception {
+        Field[] fields = ExtendsAndImplementsDefinesMember.class.getFields();
+        assertEquals(1, count(names(fields), "field"));
+    }
+
     static class A {}
     static class AList extends ArrayList<A> {}
 
@@ -290,11 +299,23 @@ public final class ReflectionTest extends TestCase {
     static abstract class ExtendsImplementsDefinesMember extends ImplementsDefinesMember {}
     interface ExtendsDefinesMember extends DefinesMember {}
     static abstract class ImplementsExtendsDefinesMember implements ExtendsDefinesMember {}
+    static abstract class ExtendsAndImplementsDefinesMember extends ImplementsDefinesMember
+            implements DefinesMember {}
 
-    private Set<String> names(Member[] methods) {
-        Set<String> result = new HashSet<String>();
+    private List<String> names(Member[] methods) {
+        List<String> result = new ArrayList<String>();
         for (Member method : methods) {
             result.add(method.getName());
+        }
+        return result;
+    }
+
+    private int count(List<?> list, Object element) {
+        int result = 0;
+        for (Object o : list) {
+            if (o.equals(element)) {
+                result++;
+            }
         }
         return result;
     }

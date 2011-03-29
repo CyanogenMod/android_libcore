@@ -47,7 +47,7 @@ import org.apache.harmony.luni.lang.reflect.Types;
 public final class Method extends AccessibleObject implements GenericDeclaration, Member {
 
     /**
-     * Orders methods by their name and parameters.
+     * Orders methods by their name, parameters and return type.
      *
      * @hide
      */
@@ -68,7 +68,12 @@ public final class Method extends AccessibleObject implements GenericDeclaration
                 }
             }
 
-            return aParameters.length - bParameters.length;
+            if (aParameters.length != bParameters.length) {
+                return aParameters.length - bParameters.length;
+            }
+
+            // this is necessary for methods that have covariant return types.
+            return a.getReturnType().getName().compareTo(b.getReturnType().getName());
         }
     };
 

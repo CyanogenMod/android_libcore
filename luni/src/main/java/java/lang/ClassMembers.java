@@ -51,9 +51,7 @@ final class ClassMembers {
         List<Method> result = new ArrayList<Method>(allMethods.size());
         Method previous = null;
         for (Method method : allMethods) {
-            if (previous != null
-                    && Method.ORDER_BY_SIGNATURE.compare(method, previous) == 0
-                    && method.getDeclaringClass() != previous.getDeclaringClass()) {
+            if (previous != null && Method.ORDER_BY_SIGNATURE.compare(method, previous) == 0) {
                 continue;
             }
             result.add(method);
