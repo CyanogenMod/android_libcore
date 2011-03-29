@@ -32,6 +32,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 #include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
@@ -73,6 +74,71 @@ static rc_t throwIfMinusOne(JNIEnv* env, const char* name, rc_t rc) {
     }
     return rc;
 }
+
+template <typename T>
+class IoVec {
+public:
+    IoVec(JNIEnv* env, size_t bufferCount) : mEnv(env), mBufferCount(bufferCount) {
+    }
+
+    bool init(jobjectArray javaBuffers, jintArray javaOffsets, jintArray javaByteCounts) {
+        // We can't delete our local references until after the I/O, so make sure we have room.
+        if (mEnv->PushLocalFrame(mBufferCount + 16) < 0) {
+            return false;
+        }
+        ScopedIntArrayRO offsets(mEnv, javaOffsets);
+        if (offsets.get() == NULL) {
+            return false;
+        }
+        ScopedIntArrayRO byteCounts(mEnv, javaByteCounts);
+        if (byteCounts.get() == NULL) {
+            return false;
+        }
+        // TODO: Linux actually has a 1024 buffer limit. glibc works around this, and we should too.
+        for (size_t i = 0; i < mBufferCount; ++i) {
+            jobject buffer = mEnv->GetObjectArrayElement(javaBuffers, i);
+            jbyte* ptr;
+            if (mEnv->IsInstanceOf(buffer, JniConstants::byteArrayClass)) {
+                // We need to pin the array for the duration.
+                jbyteArray byteArray = reinterpret_cast<jbyteArray>(buffer);
+                mScopedByteArrays.push_back(new T(mEnv, byteArray));
+                ptr = const_cast<jbyte*>(mScopedByteArrays.back()->get());
+            } else {
+                // A direct ByteBuffer is easier.
+                ptr = reinterpret_cast<jbyte*>(mEnv->GetDirectBufferAddress(buffer));
+            }
+            if (ptr == NULL) {
+                return false;
+            }
+            struct iovec iov;
+            iov.iov_base = reinterpret_cast<void*>(ptr + offsets[i]);
+            iov.iov_len = byteCounts[i];
+            mIoVec.push_back(iov);
+        }
+        return true;
+    }
+
+    ~IoVec() {
+        for (size_t i = 0; i < mScopedByteArrays.size(); ++i) {
+            delete mScopedByteArrays[i];
+        }
+        mEnv->PopLocalFrame(NULL);
+    }
+
+    iovec* get() {
+        return &mIoVec[0];
+    }
+
+    size_t size() {
+        return mBufferCount;
+    }
+
+private:
+    JNIEnv* mEnv;
+    size_t mBufferCount;
+    std::vector<iovec> mIoVec;
+    std::vector<T*> mScopedByteArrays;
+};
 
 static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatClass, "<init>",
@@ -358,6 +424,15 @@ static jint Posix_readDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobject
     return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, ptr + position, remaining)));
 }
 
+static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
+    IoVec<ScopedByteArrayRW> ioVec(env, env->GetArrayLength(buffers));
+    if (!ioVec.init(buffers, offsets, byteCounts)) {
+        return -1;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
+}
+
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -452,6 +527,15 @@ static jint Posix_writeDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobjec
     return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, ptr + position, remaining)));
 }
 
+static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
+    IoVec<ScopedByteArrayRO> ioVec(env, env->GetArrayLength(buffers));
+    if (!ioVec.init(buffers, offsets, byteCounts)) {
+        return -1;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
@@ -481,6 +565,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(Posix, readDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
+    NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
@@ -492,6 +577,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
     NATIVE_METHOD(Posix, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(Posix, writeDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
+    NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));

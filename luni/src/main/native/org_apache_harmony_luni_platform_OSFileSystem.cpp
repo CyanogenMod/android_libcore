@@ -57,62 +57,6 @@ static inline ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t coun
 }
 #endif
 
-// Translate three Java int[]s to a native iovec[] for readv and writev.
-static iovec* initIoVec(JNIEnv* env,
-        jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    UniquePtr<iovec[]> vectors(new iovec[size]);
-    if (vectors.get() == NULL) {
-        jniThrowOutOfMemoryError(env, NULL);
-        return NULL;
-    }
-    ScopedIntArrayRO buffers(env, jBuffers);
-    if (buffers.get() == NULL) {
-        return NULL;
-    }
-    ScopedIntArrayRO offsets(env, jOffsets);
-    if (offsets.get() == NULL) {
-        return NULL;
-    }
-    ScopedIntArrayRO lengths(env, jLengths);
-    if (lengths.get() == NULL) {
-        return NULL;
-    }
-    for (int i = 0; i < size; ++i) {
-        vectors[i].iov_base = reinterpret_cast<void*>(buffers[i] + offsets[i]);
-        vectors[i].iov_len = lengths[i];
-    }
-    return vectors.release();
-}
-
-static jlong OSFileSystem_readv(JNIEnv* env, jobject, jint fd,
-        jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    UniquePtr<iovec[]> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
-    if (vectors.get() == NULL) {
-        return -1;
-    }
-    long result = readv(fd, vectors.get(), size);
-    if (result == 0) {
-        return -1;
-    }
-    if (result == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return result;
-}
-
-static jlong OSFileSystem_writev(JNIEnv* env, jobject, jint fd,
-        jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    UniquePtr<iovec[]> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
-    if (vectors.get() == NULL) {
-        return -1;
-    }
-    long result = writev(fd, vectors.get(), size);
-    if (result == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return result;
-}
-
 static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
         jlong offset, jlong count) {
 
@@ -134,9 +78,7 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
     NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
-    NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),
 };
 int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSFileSystem", gMethods,

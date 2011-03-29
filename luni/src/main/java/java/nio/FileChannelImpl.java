@@ -319,75 +319,30 @@ final class FileChannelImpl extends FileChannel {
         }
     }
 
+    private int transferIoVec(IoVec ioVec) throws IOException {
+        if (ioVec.init() == 0) {
+            return 0;
+        }
+        int bytesTransferred = 0;
+        boolean completed = false;
+        try {
+            begin();
+            synchronized (repositioningLock) {
+                bytesTransferred = ioVec.doTransfer(fd);
+            }
+            completed = true;
+        } finally {
+            end(completed);
+        }
+        ioVec.didTransfer(bytesTransferred);
+        return bytesTransferred;
+    }
+
     public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
         Arrays.checkOffsetAndCount(buffers.length, offset, length);
         checkOpen();
         checkReadable();
-        int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, true);
-        if (count == 0) {
-            return 0;
-        }
-        ByteBuffer[] directBuffers = new ByteBuffer[length];
-        int[] handles = new int[length];
-        int[] offsets = new int[length];
-        int[] lengths = new int[length];
-        for (int i = 0; i < length; i++) {
-            ByteBuffer buffer = buffers[i + offset];
-            if (!buffer.isDirect()) {
-                buffer = ByteBuffer.allocateDirect(buffer.remaining());
-                directBuffers[i] = buffer;
-                offsets[i] = 0;
-            } else {
-                offsets[i] = buffer.position();
-            }
-            handles[i] = NioUtils.getDirectBufferAddress(buffer);
-            lengths[i] = buffer.remaining();
-        }
-        long bytesRead = 0;
-        {
-            boolean completed = false;
-            try {
-                begin();
-                synchronized (repositioningLock) {
-                    bytesRead = Platform.FILE_SYSTEM.readv(IoUtils.getFd(fd), handles, offsets, lengths, length);
-
-                }
-                completed = true;
-                /*
-                 * if (bytesRead < EOF) //dealt by readv? completed = false;
-                 */
-            } finally {
-                end(completed);
-            }
-        }
-        int end = offset + length;
-        long bytesRemaining = bytesRead;
-        for (int i = offset; i < end && bytesRemaining > 0; i++) {
-            if (buffers[i].isDirect()) {
-                if (lengths[i] < bytesRemaining) {
-                    int pos = buffers[i].limit();
-                    buffers[i].position(pos);
-                    bytesRemaining -= lengths[i];
-                } else {
-                    int pos = (int) bytesRemaining;
-                    buffers[i].position(pos);
-                    break;
-                }
-            } else {
-                ByteBuffer buf = directBuffers[i - offset];
-                if (bytesRemaining < buf.remaining()) {
-                    // this is the last step.
-                    int pos = buf.position();
-                    buffers[i].put(buf);
-                    buffers[i].position(pos + (int) bytesRemaining);
-                    bytesRemaining = 0;
-                } else {
-                    bytesRemaining -= buf.remaining();
-                    buffers[i].put(buf);
-                }
-            }
-        }
-        return bytesRead;
+        return transferIoVec(new IoVec(buffers, offset, length, IoVec.Direction.READV));
     }
 
     public long size() throws IOException {
@@ -552,61 +507,7 @@ final class FileChannelImpl extends FileChannel {
         Arrays.checkOffsetAndCount(buffers.length, offset, length);
         checkOpen();
         checkWritable();
-        int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, false);
-        if (count == 0) {
-            return 0;
-        }
-        int[] handles = new int[length];
-        int[] offsets = new int[length];
-        int[] lengths = new int[length];
-        // list of allocated direct ByteBuffers to prevent them from being GC-ed
-        ByteBuffer[] allocatedBufs = new ByteBuffer[length];
-
-        for (int i = 0; i < length; i++) {
-            ByteBuffer buffer = buffers[i + offset];
-            if (!buffer.isDirect()) {
-                ByteBuffer directBuffer = ByteBuffer.allocateDirect(buffer.remaining());
-                directBuffer.put(buffer);
-                directBuffer.flip();
-                buffer = directBuffer;
-                allocatedBufs[i] = directBuffer;
-                offsets[i] = 0;
-            } else {
-                offsets[i] = buffer.position();
-                allocatedBufs[i] = null;
-            }
-            handles[i] = NioUtils.getDirectBufferAddress(buffer);
-            lengths[i] = buffer.remaining();
-        }
-
-        long bytesWritten = 0;
-        boolean completed = false;
-        synchronized (repositioningLock) {
-            try {
-                begin();
-                bytesWritten = Platform.FILE_SYSTEM.writev(IoUtils.getFd(fd), handles, offsets, lengths, length);
-                completed = true;
-            } finally {
-                end(completed);
-                for (ByteBuffer buffer : allocatedBufs) {
-                    NioUtils.freeDirectBuffer(buffer);
-                }
-            }
-        }
-
-        long bytesRemaining = bytesWritten;
-        for (int i = offset; i < length + offset; i++) {
-            if (bytesRemaining > buffers[i].remaining()) {
-                int pos = buffers[i].limit();
-                buffers[i].position(pos);
-                bytesRemaining -= buffers[i].remaining();
-            } else {
-                int pos = buffers[i].position() + (int) bytesRemaining;
-                buffers[i].position(pos);
-                break;
-            }
-        }
-        return bytesWritten;
+        return transferIoVec(new IoVec(buffers, offset, length, IoVec.Direction.WRITEV));
     }
 
     static void checkWritable(ByteBuffer buffer) {
