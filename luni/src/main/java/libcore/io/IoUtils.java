@@ -22,7 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
 
@@ -164,11 +167,6 @@ public final class IoUtils {
     }
 
     /**
-     * Returns the int file descriptor from within the given FileDescriptor 'fd'.
-     */
-    public static native int getFd(FileDescriptor fd);
-
-    /**
      * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
     public static void setBlocking(FileDescriptor fd, boolean blocking) throws IOException {
@@ -182,6 +180,28 @@ public final class IoUtils {
             Libcore.os.fcntlLong(fd, F_SETFL, flags);
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
+        }
+    }
+
+    public static FileDescriptor socket(boolean stream) throws SocketException {
+        FileDescriptor fd;
+        try {
+            fd = Libcore.os.socket(AF_INET6, stream ? SOCK_STREAM : SOCK_DGRAM, 0);
+
+            // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults
+            // to 1. The Linux kernel (at least up to 2.6.38) accidentally defaults to 64 (which
+            // would be correct for the *unicast* hop limit).
+            // See http://www.spinics.net/lists/netdev/msg129022.html, though no patch appears to
+            // have been applied as a result of that discussion. If that bug is ever fixed, we can
+            // remove this code. Until then, we manually set the hop limit on IPv6 datagram sockets.
+            // (IPv4 is already correct.)
+            if (!stream) {
+                Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, 1);
+            }
+
+            return fd;
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
         }
     }
 

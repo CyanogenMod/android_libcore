@@ -36,6 +36,7 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
+import libcore.io.IoUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
@@ -70,8 +71,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      */
     protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
-        fd = new FileDescriptor();
-        Platform.NETWORK.socket(fd, false);
+        fd = IoUtils.socket(false);
     }
 
     /*

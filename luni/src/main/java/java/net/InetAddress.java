@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import libcore.io.Libcore;
+import libcore.io.IoUtils;
 import libcore.io.Memory;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -847,11 +848,9 @@ public class InetAddress implements Serializable {
         return false;
     }
 
-    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout)
-            throws IOException {
-        FileDescriptor fd = new FileDescriptor();
+    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout) throws IOException {
+        FileDescriptor fd = IoUtils.socket(true);
         boolean reached = false;
-        Platform.NETWORK.socket(fd, true);
         try {
             if (source != null) {
                 Platform.NETWORK.bind(fd, source, 0);

@@ -479,9 +479,19 @@ static jlong Posix_sendfile(JNIEnv* env, jobject, jobject javaOutFd, jobject jav
     return result;
 }
 
+static void Posix_setsockoptInt(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
+}
+
 static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
+}
+
+static jobject Posix_socket(JNIEnv* env, jobject, jint domain, jint type, jint protocol) {
+    int fd = throwIfMinusOne(env, "socket", TEMP_FAILURE_RETRY(socket(domain, type, protocol)));
+    return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
 static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
@@ -595,7 +605,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
+    NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
+    NATIVE_METHOD(Posix, socket, "(III)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
