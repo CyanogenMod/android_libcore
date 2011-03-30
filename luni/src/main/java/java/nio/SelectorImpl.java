@@ -38,7 +38,6 @@ import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
 /*
@@ -283,12 +282,12 @@ final class SelectorImpl extends AbstractSelector {
         for (SelectionKeyImpl key : mutableKeys) {
             int interestOps = key.interestOpsNoCheck();
             if ((ACCEPT_OR_READ & interestOps) != 0) {
-                readableFDs[r] = ((FileDescriptorHandler) key.channel()).getFD();
+                readableFDs[r] = ((FileDescriptorChannel) key.channel()).getFD();
                 readyKeys[r] = key;
                 r++;
             }
             if ((getReadyOps(key) & interestOps) != 0) {
-                writableFDs[w] = ((FileDescriptorHandler) key.channel()).getFD();
+                writableFDs[w] = ((FileDescriptorChannel) key.channel()).getFD();
                 readyKeys[w + numReadable] = key;
                 w++;
             }
