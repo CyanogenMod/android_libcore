@@ -108,44 +108,4 @@ public class SystemTest extends TestCase {
                     e.getMessage());
         }
     }
-
-    /**
-     * http://b/issue?id=2136462
-     */
-    public void testBackFromTheDead() {
-        try {
-            new ConstructionFails();
-        } catch (AssertionError expected) {
-        }
-
-        for (int i = 0; i < 20; i++) {
-            if (ConstructionFails.INSTANCE != null) {
-                fail("finalize() called, even though constructor failed!");
-            }
-
-            induceGc(i);
-        }
-    }
-
-    private void induceGc(int rev) {
-        System.gc();
-        try {
-            byte[] b = new byte[1024 << rev];
-        } catch (OutOfMemoryError e) {
-        }
-    }
-
-    static class ConstructionFails {
-        private static ConstructionFails INSTANCE;
-
-        ConstructionFails() {
-            throw new AssertionError();
-        }
-
-        @Override protected void finalize() throws Throwable {
-            INSTANCE = this;
-            new AssertionError("finalize() called, even though constructor failed!")
-                    .printStackTrace();
-        }
-    }
 }

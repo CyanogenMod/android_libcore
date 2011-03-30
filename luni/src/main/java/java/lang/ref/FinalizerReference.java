@@ -34,7 +34,7 @@ public final class FinalizerReference<T> extends Reference<T> {
 
     @Override
     public T get() {
-        return (T)pendingNext;
+        return (T) pendingNext;
     }
 
     @Override
@@ -43,8 +43,8 @@ public final class FinalizerReference<T> extends Reference<T> {
     }
 
     static void add(Object referent) {
-        ReferenceQueue<FinalizerReference> queue = FinalizerThread.queue;
-        FinalizerReference reference = new FinalizerReference(referent, queue);
+        ReferenceQueue<Object> queue = FinalizerThread.queue;
+        FinalizerReference<?> reference = new FinalizerReference<Object>(referent, queue);
         synchronized (FinalizerReference.class) {
             reference.prev = null;
             reference.next = head;
