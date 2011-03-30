@@ -17,6 +17,8 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import libcore.util.MutableInt;
 import libcore.util.MutableLong;
@@ -44,6 +46,12 @@ public class ForwardingOs implements Os {
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
     public String getenv(String name) { return os.getenv(name); }
+    public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException { return os.getsockname(fd); }
+    public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptByte(fd, level, option); }
+    public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInAddr(fd, level, option); }
+    public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInt(fd, level, option); }
+    public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptLinger(fd, level, option); }
+    public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptTimeval(fd, level, option); }
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException { os.listen(fd, backlog); }

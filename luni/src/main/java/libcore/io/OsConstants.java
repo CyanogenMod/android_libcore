@@ -155,6 +155,7 @@ public final class OsConstants {
     public static final int IPV6_RECVPKTINFO = placeholder();
     public static final int IPV6_RECVRTHDR = placeholder();
     public static final int IPV6_RECVTCLASS = placeholder();
+    public static final int IPV6_TCLASS = placeholder();
     public static final int IPV6_UNICAST_HOPS = placeholder();
     public static final int IPV6_V6ONLY = placeholder();
     public static final int IP_MULTICAST_IF = placeholder();
@@ -205,6 +206,7 @@ public final class OsConstants {
     public static final int SOCK_RAW = placeholder();
     public static final int SOCK_SEQPACKET = placeholder();
     public static final int SOCK_STREAM = placeholder();
+    public static final int SOL_SOCKET = placeholder();
     public static final int SO_BROADCAST = placeholder();
     public static final int SO_DEBUG = placeholder();
     public static final int SO_DONTROUTE = placeholder();
@@ -246,6 +248,7 @@ public final class OsConstants {
     public static final int S_IXGRP = placeholder();
     public static final int S_IXOTH = placeholder();
     public static final int S_IXUSR = placeholder();
+    public static final int TCP_NODELAY = placeholder();
     public static final int WCONTINUED = placeholder();
     public static final int WEXITED = placeholder();
     public static final int WNOHANG = placeholder();

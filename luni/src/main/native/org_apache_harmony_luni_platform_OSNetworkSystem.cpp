@@ -40,23 +40,6 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-// Temporary hack to build on systems that don't have up-to-date libc headers.
-#ifndef IPV6_TCLASS
-#ifdef __linux__
-#define IPV6_TCLASS 67 // Linux
-#else
-#define IPV6_TCLASS -1 // BSD(-like); TODO: Something better than this!
-#endif
-#endif
-
-/*
- * TODO: The multicast code is highly platform-dependent, and for now
- * we just punt on anything but Linux.
- */
-#ifdef __linux__
-#define ENABLE_MULTICAST
-#endif
-
 #define JAVASOCKOPT_IP_MULTICAST_IF 16
 #define JAVASOCKOPT_IP_MULTICAST_IF2 31
 #define JAVASOCKOPT_IP_MULTICAST_LOOP 18
@@ -339,7 +322,6 @@ private:
     JNIEnv* mEnv;
 };
 
-#ifdef ENABLE_MULTICAST
 static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, bool join) {
     group_req groupRequest;
 
@@ -379,7 +361,6 @@ static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, b
         return;
     }
 }
-#endif // def ENABLE_MULTICAST
 
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
@@ -905,178 +886,6 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
             translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
 }
 
-static jobject OSNetworkSystem_getSocketLocalAddress(JNIEnv* env,
-        jobject, jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return NULL;
-    }
-
-    sockaddr_storage ss;
-    socklen_t ssLen = sizeof(ss);
-    memset(&ss, 0, ssLen);
-    int rc = getsockname(fd.get(), reinterpret_cast<sockaddr*>(&ss), &ssLen);
-    if (rc == -1) {
-        // TODO: the public API doesn't allow failure, so this whole method
-        // represents a broken design. In practice, though, getsockname can't
-        // fail unless we give it invalid arguments.
-        LOGE("getsockname failed: %s (errno=%i)", strerror(errno), errno);
-        return NULL;
-    }
-    return socketAddressToInetAddress(env, &ss);
-}
-
-static jint OSNetworkSystem_getSocketLocalPort(JNIEnv* env, jobject,
-        jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return 0;
-    }
-
-    sockaddr_storage ss;
-    socklen_t ssLen = sizeof(ss);
-    memset(&ss, 0, sizeof(ss));
-    int rc = getsockname(fd.get(), reinterpret_cast<sockaddr*>(&ss), &ssLen);
-    if (rc == -1) {
-        // TODO: the public API doesn't allow failure, so this whole method
-        // represents a broken design. In practice, though, getsockname can't
-        // fail unless we give it invalid arguments.
-        LOGE("getsockname failed: %s (errno=%i)", strerror(errno), errno);
-        return 0;
-    }
-    return getSocketAddressPort(&ss);
-}
-
-template <typename T>
-static bool getSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
-    socklen_t size = sizeof(*value);
-    int rc = getsockopt(fd.get(), level, option, value, &size);
-    if (rc == -1) {
-        LOGE("getSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd.get(), level, option, strerror(errno), errno);
-        jniThrowSocketException(env, errno);
-        return false;
-    }
-    return true;
-}
-
-static jobject getSocketOption_Boolean(JNIEnv* env, const NetFd& fd, int level, int option) {
-    int value;
-    return getSocketOption(env, fd, level, option, &value) ? booleanValueOf(env, value) : NULL;
-}
-
-static jobject getSocketOption_Integer(JNIEnv* env, const NetFd& fd, int level, int option) {
-    int value;
-    return getSocketOption(env, fd, level, option, &value) ? integerValueOf(env, value) : NULL;
-}
-
-static jobject OSNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return NULL;
-    }
-
-    int family = getSocketAddressFamily(fd.get());
-    if (family != AF_INET && family != AF_INET6) {
-        jniThrowSocketException(env, EAFNOSUPPORT);
-        return NULL;
-    }
-
-    switch (option) {
-    case JAVASOCKOPT_TCP_NODELAY:
-        return getSocketOption_Boolean(env, fd, IPPROTO_TCP, TCP_NODELAY);
-    case JAVASOCKOPT_SO_SNDBUF:
-        return getSocketOption_Integer(env, fd, SOL_SOCKET, SO_SNDBUF);
-    case JAVASOCKOPT_SO_RCVBUF:
-        return getSocketOption_Integer(env, fd, SOL_SOCKET, SO_RCVBUF);
-    case JAVASOCKOPT_SO_BROADCAST:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_BROADCAST);
-    case JAVASOCKOPT_SO_REUSEADDR:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_REUSEADDR);
-    case JAVASOCKOPT_SO_KEEPALIVE:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_KEEPALIVE);
-    case JAVASOCKOPT_SO_OOBINLINE:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_OOBINLINE);
-    case JAVASOCKOPT_IP_TOS:
-        if (family == AF_INET) {
-            return getSocketOption_Integer(env, fd, IPPROTO_IP, IP_TOS);
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_TCLASS);
-        }
-    case JAVASOCKOPT_SO_LINGER:
-        {
-            linger lingr;
-            bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            if (!ok) {
-                return NULL; // We already threw.
-            } else if (!lingr.l_onoff) {
-                return booleanValueOf(env, false);
-            } else {
-                return integerValueOf(env, lingr.l_linger);
-            }
-        }
-    case JAVASOCKOPT_SO_TIMEOUT:
-        {
-            timeval timeout;
-            bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return ok ? integerValueOf(env, toMs(timeout)) : NULL;
-        }
-#ifdef ENABLE_MULTICAST
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-        {
-            // Although setsockopt(2) can take an ip_mreqn for IP_MULTICAST_IF, getsockopt(2)
-            // always returns an in_addr.
-            sockaddr_storage ss;
-            memset(&ss, 0, sizeof(ss));
-            ss.ss_family = AF_INET; // This call is IPv4-only.
-            sockaddr_in* sa = reinterpret_cast<sockaddr_in*>(&ss);
-            if (!getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &sa->sin_addr)) {
-                return NULL;
-            }
-            return socketAddressToInetAddress(env, &ss);
-        }
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-        if (family == AF_INET) {
-            // The caller's asking for an interface index, but that's not how IPv4 works.
-            // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
-            // that will satisfy us.
-            jniThrowSocketException(env, EAFNOSUPPORT);
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
-        }
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        if (family == AF_INET) {
-            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-            u_char loopback;
-            bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            return ok ? booleanValueOf(env, loopback) : NULL;
-        } else {
-            return getSocketOption_Boolean(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
-        }
-    case JAVASOCKOPT_MULTICAST_TTL:
-        if (family == AF_INET) {
-            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-            // IPv4 multicast TTL uses a byte.
-            u_char ttl;
-            bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            return ok ? integerValueOf(env, ttl) : NULL;
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
-        }
-#else
-    case JAVASOCKOPT_MULTICAST_TTL:
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
-        return NULL;
-#endif // def ENABLE_MULTICAST
-    default:
-        jniThrowSocketException(env, ENOPROTOOPT);
-        return NULL;
-    }
-}
-
 template <typename T>
 static void setSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
     int rc = setsockopt(fd.get(), level, option, value, sizeof(*value));
@@ -1176,7 +985,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     case JAVASOCKOPT_TCP_NODELAY:
         setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
         return;
-#ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_MCAST_JOIN_GROUP:
         mcastJoinLeaveGroup(env, fd.get(), optVal, true);
         return;
@@ -1237,16 +1045,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             }
             return;
         }
-#else
-    case JAVASOCKOPT_MULTICAST_TTL:
-    case JAVASOCKOPT_MCAST_JOIN_GROUP:
-    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
-        return;
-#endif // def ENABLE_MULTICAST
     default:
         jniThrowSocketException(env, ENOPROTOOPT);
     }
@@ -1273,9 +1071,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, connectNonBlocking, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketLocalAddress, "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketLocalPort, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketOption, "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),

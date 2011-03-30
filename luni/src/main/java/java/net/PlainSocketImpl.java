@@ -133,7 +133,7 @@ public class PlainSocketImpl extends SocketImpl {
         if (port != 0) {
             this.localport = port;
         } else {
-            this.localport = Platform.NETWORK.getSocketLocalPort(fd);
+            this.localport = IoUtils.getSocketLocalPort(fd);
         }
     }
 
@@ -226,9 +226,8 @@ public class PlainSocketImpl extends SocketImpl {
         }
     }
 
-    @Override
-    public Object getOption(int optID) throws SocketException {
-        return Platform.NETWORK.getSocketOption(fd, optID);
+    @Override public Object getOption(int option) throws SocketException {
+        return IoUtils.getSocketOption(fd, option);
     }
 
     @Override protected synchronized OutputStream getOutputStream() throws IOException {

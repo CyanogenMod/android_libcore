@@ -96,14 +96,10 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     }
 
     /**
-     * Returns the local address from the IP stack. This method should not be
-     * called directly as it does not check the security policy.
-     *
-     * @return InetAddress the local address to which the socket is bound.
-     * @see DatagramSocket
+     * Returns the local address to which the socket is bound.
      */
     InetAddress getLocalAddress() {
-        return Platform.NETWORK.getSocketLocalAddress(fd);
+        return IoUtils.getSocketLocalAddress(fd);
     }
 
     /**

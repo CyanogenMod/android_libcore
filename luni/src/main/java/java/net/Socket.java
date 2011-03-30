@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import org.apache.harmony.luni.platform.Platform;
+import libcore.io.IoUtils;
 
 /**
  * Provides a client-side TCP socket.
@@ -948,7 +948,7 @@ public class Socket {
     }
 
     private void cacheLocalAddress() {
-        this.localAddress = Platform.NETWORK.getSocketLocalAddress(impl.fd);
+        this.localAddress = IoUtils.getSocketLocalAddress(impl.fd);
     }
 
     /**
