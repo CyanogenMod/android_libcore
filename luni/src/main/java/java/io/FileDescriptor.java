@@ -48,7 +48,7 @@ public final class FileDescriptor {
      * The Unix file descriptor backing this FileDescriptor.
      * A value of -1 indicates that this FileDescriptor is invalid.
      */
-    int descriptor = -1;
+    private int descriptor = -1;
 
     static {
         in.descriptor = STDIN_FILENO;
