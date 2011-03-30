@@ -140,7 +140,15 @@ public final class IoUtils {
     /**
      * Calls close(2) on 'fd'. Also resets the internal int to -1.
      */
-    public static native void close(FileDescriptor fd) throws IOException;
+    public static void close(FileDescriptor fd) throws IOException {
+        try {
+            if (fd != null && fd.valid()) {
+                Libcore.os.close(fd);
+            }
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+    }
 
     /**
      * Closes 'closeable', ignoring any exceptions. Does nothing if 'closeable' is null.

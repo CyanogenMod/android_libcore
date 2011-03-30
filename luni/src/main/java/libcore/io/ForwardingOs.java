@@ -33,6 +33,7 @@ public class ForwardingOs implements Os {
 
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
     public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
+    public void close(FileDescriptor fd) throws ErrnoException { os.close(fd); }
     public String[] environ() { return os.environ(); }
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return os.fcntlVoid(fd, cmd); }
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return os.fcntlLong(fd, cmd, arg); }

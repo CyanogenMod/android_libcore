@@ -56,10 +56,11 @@ public class FileInputStream extends InputStream implements Closeable {
 
     private final FileDescriptor fd;
 
+    /** The same as 'fd' if we own the file descriptor, null otherwise. */
+    private final FileDescriptor ownedFd;
+
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
-
-    private final boolean shouldCloseFd;
 
     private final CloseGuard guard = CloseGuard.get();
 
@@ -75,8 +76,8 @@ public class FileInputStream extends InputStream implements Closeable {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        fd = IoUtils.open(file.getAbsolutePath(), O_RDONLY);
-        shouldCloseFd = true;
+        this.fd = IoUtils.open(file.getAbsolutePath(), O_RDONLY);
+        this.ownedFd = fd;
         guard.open("close");
     }
 
@@ -93,7 +94,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("fd == null");
         }
         this.fd = fd;
-        this.shouldCloseFd = false;
+        this.ownedFd = null;
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -117,9 +118,7 @@ public class FileInputStream extends InputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            if (shouldCloseFd && fd.valid()) {
-                IoUtils.close(fd);
-            }
+            IoUtils.close(ownedFd);
         }
     }
 

@@ -221,6 +221,18 @@ static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     throwIfMinusOne(env, "chmod", TEMP_FAILURE_RETRY(chmod(path.c_str(), mode)));
 }
 
+static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
+    // Get the FileDescriptor's 'fd' field and clear it.
+    // We need to do this before we can throw an IOException (http://b/3222087).
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    jniSetFileDescriptorOfFD(env, javaFd, -1);
+
+    // Even if close(2) fails with EINTR, the fd will have been closed.
+    // Using TEMP_FAILURE_RETRY will either lead to EBADF or closing someone else's fd.
+    // http://lkml.indiana.edu/hypermail/linux/kernel/0509.1/0877.html
+    throwIfMinusOne(env, "close", close(fd));
+}
+
 static jobjectArray Posix_environ(JNIEnv* env, jobject) {
     extern char** environ; // Standard, but not in any header file.
     return toStringArray(env, environ);
@@ -575,6 +587,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
+    NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
     NATIVE_METHOD(Posix, fcntlVoid, "(Ljava/io/FileDescriptor;I)I"),
     NATIVE_METHOD(Posix, fcntlLong, "(Ljava/io/FileDescriptor;IJ)I"),

@@ -64,12 +64,6 @@ public final class FileInputStreamTest extends TestCase {
         }
     }
 
-    private static void closeQuietly(FileDescriptor fd) {
-        try {
-            if (fd != null) IoUtils.close(fd);
-        } catch (Throwable t) {}
-    }
-
     public void testSkipInPipes() throws Exception {
         FileDescriptor[] pipe = Libcore.os.pipe();
         DataFeeder feeder = new DataFeeder(pipe[1]);
@@ -82,7 +76,7 @@ public final class FileInputStreamTest extends TestCase {
             feeder.join(1000);
             assertFalse(feeder.isAlive());
         } finally {
-            closeQuietly(pipe[0]);
+            IoUtils.closeQuietly(pipe[0]);
         }
     }
 

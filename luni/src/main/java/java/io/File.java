@@ -939,9 +939,7 @@ public class File implements Serializable, Comparable<File> {
             }
             throw errnoException.rethrowAsIOException();
         } finally {
-            if (fd != null) {
-                IoUtils.close(fd); // TODO: should we suppress IOExceptions thrown here?
-            }
+            IoUtils.close(fd); // TODO: should we suppress IOExceptions thrown here?
         }
     }
 

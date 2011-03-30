@@ -162,9 +162,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 channel.close();
                 channel = null;
             }
-            if (fd != null && fd.valid()) {
-                IoUtils.close(fd);
-            }
+            IoUtils.close(fd);
         }
     }
 

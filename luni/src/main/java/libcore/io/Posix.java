@@ -27,6 +27,7 @@ public final class Posix implements Os {
 
     public native boolean access(String path, int mode) throws ErrnoException;
     public native void chmod(String path, int mode) throws ErrnoException;
+    public native void close(FileDescriptor fd) throws ErrnoException;
     public native String[] environ();
     public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public native int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;

@@ -363,12 +363,10 @@ final class ProcessManager {
                 super.close();
             } finally {
                 synchronized (this) {
-                    if (fd != null && fd.valid()) {
-                        try {
-                            IoUtils.close(fd);
-                        } finally {
-                            fd = null;
-                        }
+                    try {
+                        IoUtils.close(fd);
+                    } finally {
+                        fd = null;
                     }
                 }
             }
@@ -391,12 +389,10 @@ final class ProcessManager {
                 super.close();
             } finally {
                 synchronized (this) {
-                    if (fd != null && fd.valid()) {
-                        try {
-                            IoUtils.close(fd);
-                        } finally {
-                            fd = null;
-                        }
+                    try {
+                        IoUtils.close(fd);
+                    } finally {
+                        fd = null;
                     }
                 }
             }

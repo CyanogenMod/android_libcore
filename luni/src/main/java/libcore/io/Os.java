@@ -24,6 +24,7 @@ import libcore.util.MutableLong;
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public void chmod(String path, int mode) throws ErrnoException;
+    public void close(FileDescriptor fd) throws ErrnoException;
     public String[] environ();
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;

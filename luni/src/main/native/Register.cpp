@@ -51,7 +51,6 @@ extern int register_libcore_icu_NativeIDN(JNIEnv* env);
 extern int register_libcore_icu_NativeNormalizer(JNIEnv* env);
 extern int register_libcore_icu_NativePluralRules(JNIEnv* env);
 extern int register_libcore_icu_TimeZones(JNIEnv* env);
-extern int register_libcore_io_IoUtils(JNIEnv* env);
 extern int register_libcore_io_Memory(JNIEnv* env);
 extern int register_libcore_io_OsConstants(JNIEnv* env);
 extern int register_libcore_io_Posix(JNIEnv* env);
@@ -99,7 +98,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_icu_NativeNormalizer(env) != -1 &&
             register_libcore_icu_NativePluralRules(env) != -1 &&
             register_libcore_icu_TimeZones(env) != -1 &&
-            register_libcore_io_IoUtils(env) != -1 &&
             register_libcore_io_Memory(env) != -1 &&
             register_libcore_io_OsConstants(env) != -1 &&
             register_libcore_io_Posix(env) != -1 &&

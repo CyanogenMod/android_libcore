@@ -53,7 +53,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     private final FileDescriptor fd;
 
-    private final boolean shouldCloseFd;
+    /** The same as 'fd' if we own the file descriptor, null otherwise. */
+    private final FileDescriptor ownedFd;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
@@ -83,9 +84,12 @@ public class FileOutputStream extends OutputStream implements Closeable {
      * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(File file, boolean append) throws FileNotFoundException {
+        if (file == null) {
+            throw new NullPointerException("file == null");
+        }
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
         this.fd = IoUtils.open(file.getAbsolutePath(), mode);
-        this.shouldCloseFd = true;
+        this.ownedFd = fd;
         this.guard.open("close");
     }
 
@@ -97,10 +101,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
      */
     public FileOutputStream(FileDescriptor fd) {
         if (fd == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("fd == null");
         }
         this.fd = fd;
-        this.shouldCloseFd = false;
+        this.ownedFd = null;
         this.mode = O_WRONLY;
         this.channel = NioUtils.newFileChannel(this, fd, mode);
         // Note that we do not call guard.open here because the
@@ -128,9 +132,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            if (shouldCloseFd && fd.valid()) {
-                IoUtils.close(fd);
-            }
+            IoUtils.close(fd);
         }
     }
 
