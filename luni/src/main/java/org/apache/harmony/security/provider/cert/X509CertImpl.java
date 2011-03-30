@@ -71,27 +71,26 @@ public class X509CertImpl extends X509Certificate {
     private final Certificate certificate;
 
     // to speed up access to the info, the following fields
-    // cache values retrieved from the certificate object
+    // cache values retrieved from the certificate object,
+    // initialized using the "single-check idiom".
     private final TBSCertificate tbsCert;
     private final Extensions extensions;
-    private long notBefore = -1;
-    private long notAfter;
-    private BigInteger serialNumber;
-    private X500Principal issuer;
-    private X500Principal subject;
-    private byte[] tbsCertificate;
-    private byte[] signature;
-    private String sigAlgName;
-    private String sigAlgOID;
-    private byte[] sigAlgParams;
+    private volatile long notBefore = -1;
+    private volatile long notAfter = -1;
+    private volatile BigInteger serialNumber;
+    private volatile X500Principal issuer;
+    private volatile X500Principal subject;
+    private volatile byte[] tbsCertificate;
+    private volatile byte[] signature;
+    private volatile String sigAlgName;
+    private volatile String sigAlgOID;
+    private volatile byte[] sigAlgParams;
     // indicates whether the signature algorithm parameters are null
-    private boolean nullSigAlgParams;
-    private PublicKey publicKey;
+    private volatile boolean nullSigAlgParams;
+    private volatile PublicKey publicKey;
 
     // encoding of the certificate
-// BEGIN android-changed
     private volatile byte[] encoding;
-// END android-changed
 
     //
     // ---------------------- Constructors -------------------------------
@@ -144,20 +143,9 @@ public class X509CertImpl extends X509Certificate {
      * @see java.security.cert.X509Certificate#checkValidity()
      * method documentation for more information.
      */
-    public void checkValidity() throws CertificateExpiredException,
-                                       CertificateNotYetValidException {
-        if (notBefore == -1) {
-            // retrieve and cache the value of validity period
-            notBefore = tbsCert.getValidity().getNotBefore().getTime();
-            notAfter = tbsCert.getValidity().getNotAfter().getTime();
-        }
-        long time = System.currentTimeMillis();
-        if (time < notBefore) {
-            throw new CertificateNotYetValidException();
-        }
-        if (time > notAfter) {
-            throw new CertificateExpiredException();
-        }
+    public void checkValidity()
+            throws CertificateExpiredException, CertificateNotYetValidException {
+        checkValidity(System.currentTimeMillis());
     }
 
     /**
@@ -165,25 +153,19 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public void checkValidity(Date date)
-                                throws CertificateExpiredException,
-                                       CertificateNotYetValidException {
-        if (notBefore == -1) {
-            // retrieve and cache the value of validity period
-            notBefore = tbsCert.getValidity().getNotBefore().getTime();
-            notAfter = tbsCert.getValidity().getNotAfter().getTime();
+            throws CertificateExpiredException, CertificateNotYetValidException {
+        checkValidity(date.getTime());
+    }
+
+    private void checkValidity(long time)
+            throws CertificateExpiredException, CertificateNotYetValidException {
+        if (time < getNotBeforeInternal()) {
+            throw new CertificateNotYetValidException("current time: " + new Date(time)
+                + ", validation time: " + new Date(getNotBeforeInternal()));
         }
-        long time = date.getTime();
-        if (time < notBefore) {
-            // BEGIN android-changed
-            throw new CertificateNotYetValidException("current time: " + date
-                + ", validation time: " + new Date(notBefore));
-            // END android-changed
-        }
-        if (time > notAfter) {
-            // BEGIN android-changed
-            throw new CertificateExpiredException("current time: " + date
-                + ", expiration time: " + new Date(notAfter));
-            // END android-changed
+        if (time > getNotAfterInternal()) {
+            throw new CertificateExpiredException("current time: " + new Date(time)
+                + ", expiration time: " + new Date(getNotAfterInternal()));
         }
     }
 
@@ -200,10 +182,11 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public BigInteger getSerialNumber() {
-        if (serialNumber == null) {
-            serialNumber = tbsCert.getSerialNumber();
+        BigInteger result = serialNumber;
+        if (result == null) {
+            serialNumber = result = tbsCert.getSerialNumber();
         }
-        return serialNumber;
+        return result;
     }
 
     /**
@@ -211,11 +194,7 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public Principal getIssuerDN() {
-        if (issuer == null) {
-            // retrieve the issuer's principal
-            issuer = tbsCert.getIssuer().getX500Principal();
-        }
-        return issuer;
+        return getIssuerX500Principal();
     }
 
     /**
@@ -223,11 +202,12 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public X500Principal getIssuerX500Principal() {
-        if (issuer == null) {
+        X500Principal result = issuer;
+        if (result == null) {
             // retrieve the issuer's principal
-            issuer = tbsCert.getIssuer().getX500Principal();
+            issuer = result = tbsCert.getIssuer().getX500Principal();
         }
-        return issuer;
+        return result;
     }
 
     /**
@@ -235,11 +215,7 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public Principal getSubjectDN() {
-        if (subject == null) {
-            // retrieve the subject's principal
-            subject = tbsCert.getSubject().getX500Principal();
-        }
-        return subject;
+        return getSubjectX500Principal();
     }
 
     /**
@@ -247,11 +223,12 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public X500Principal getSubjectX500Principal() {
-        if (subject == null) {
+        X500Principal result = subject;
+        if (result == null) {
             // retrieve the subject's principal
-            subject = tbsCert.getSubject().getX500Principal();
+            subject = result = tbsCert.getSubject().getX500Principal();
         }
-        return subject;
+        return result;
     }
 
     /**
@@ -259,12 +236,14 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public Date getNotBefore() {
-        if (notBefore == -1) {
-            // the value was not retrieved from the certificate, do it:
-            notBefore = tbsCert.getValidity().getNotBefore().getTime();
-            notAfter = tbsCert.getValidity().getNotAfter().getTime();
+        return new Date(getNotBeforeInternal());
+    }
+    private long getNotBeforeInternal() {
+        long result = notBefore;
+        if (result == -1) {
+            notBefore = result = tbsCert.getValidity().getNotBefore().getTime();
         }
-        return new Date(notBefore);
+        return result;
     }
 
     /**
@@ -272,26 +251,28 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public Date getNotAfter() {
-        if (notBefore == -1) {
-            // the value was not retrieved from the certificate, do it:
-            notBefore = tbsCert.getValidity().getNotBefore().getTime();
-            notAfter = tbsCert.getValidity().getNotAfter().getTime();
+        return new Date(getNotAfterInternal());
+    }
+    private long getNotAfterInternal() {
+        long result = notAfter;
+        if (result == -1) {
+            notAfter = result = tbsCert.getValidity().getNotAfter().getTime();
         }
-        return new Date(notAfter);
+        return result;
     }
 
     /**
      * @see java.security.cert.X509Certificate#getTBSCertificate()
      * method documentation for more information.
      */
-    public byte[] getTBSCertificate()
-                        throws CertificateEncodingException {
-        if (tbsCertificate == null) {
-            // retrieve the encoded form of the TBSCertificate structure
-            tbsCertificate = tbsCert.getEncoded();
+    public byte[] getTBSCertificate() throws CertificateEncodingException {
+        return getTbsCertificateInternal().clone();
+    }
+    private byte[] getTbsCertificateInternal() {
+        byte[] result = tbsCertificate;
+        if (result == null) {
+            tbsCertificate = result = tbsCert.getEncoded();
         }
-        byte[] result = new byte[tbsCertificate.length];
-        System.arraycopy(tbsCertificate, 0, result, 0, tbsCertificate.length);
         return result;
     }
 
@@ -300,12 +281,13 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public byte[] getSignature() {
-        if (signature == null) {
-            // retrieve the value of the signature
-            signature = certificate.getSignatureValue();
+        return getSignatureInternal().clone();
+    }
+    private byte[] getSignatureInternal() {
+        byte[] result = signature;
+        if (result == null) {
+            signature = result = certificate.getSignatureValue();
         }
-        byte[] result = new byte[signature.length];
-        System.arraycopy(signature, 0, result, 0, signature.length);
         return result;
     }
 
@@ -314,17 +296,18 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public String getSigAlgName() {
-        if (sigAlgOID == null) {
-            // if info was not retrieved (and cached), do it:
-            sigAlgOID = tbsCert.getSignature().getAlgorithm();
+        String result = sigAlgName;
+        if (result == null) {
+            String sigAlgOIDLocal = getSigAlgOID();
             // retrieve the name of the signing algorithm
-            sigAlgName = AlgNameMapper.map2AlgName(sigAlgOID);
-            if (sigAlgName == null) {
+            result = AlgNameMapper.map2AlgName(sigAlgOIDLocal);
+            if (result == null) {
                 // if could not be found, use OID as a name
-                sigAlgName = sigAlgOID;
+                result = sigAlgOIDLocal;
             }
+            sigAlgName = result;
         }
-        return sigAlgName;
+        return result;
     }
 
     /**
@@ -332,17 +315,12 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public String getSigAlgOID() {
-        if (sigAlgOID == null) {
+        String result = sigAlgOID;
+        if (result == null) {
             // if info was not retrieved (and cached), do it:
-            sigAlgOID = tbsCert.getSignature().getAlgorithm();
-            // retrieve the name of the signing algorithm
-            sigAlgName = AlgNameMapper.map2AlgName(sigAlgOID);
-            if (sigAlgName == null) {
-                // if could not be found, use OID as a name
-                sigAlgName = sigAlgOID;
-            }
+            sigAlgOID = result = tbsCert.getSignature().getAlgorithm();
         }
-        return sigAlgOID;
+        return result;
     }
 
     /**
@@ -353,14 +331,16 @@ public class X509CertImpl extends X509Certificate {
         if (nullSigAlgParams) {
             return null;
         }
-        if (sigAlgParams == null) {
-            sigAlgParams = tbsCert.getSignature().getParameters();
-            if (sigAlgParams == null) {
+        byte[] result = sigAlgParams;
+        if (result == null) {
+            result = tbsCert.getSignature().getParameters();
+            if (result == null) {
                 nullSigAlgParams = true;
                 return null;
             }
+            sigAlgParams = result;
         }
-        return sigAlgParams;
+        return result;
     }
 
     /**
@@ -464,11 +444,13 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public byte[] getEncoded() throws CertificateEncodingException {
+        return getEncodedInternal().clone();
+    }
+    private byte[] getEncodedInternal() throws CertificateEncodingException {
+        byte[] result = encoding;
         if (encoding == null) {
-            encoding = certificate.getEncoded();
+            encoding = result = certificate.getEncoded();
         }
-        byte[] result = new byte[encoding.length];
-        System.arraycopy(encoding, 0, result, 0, encoding.length);
         return result;
     }
 
@@ -477,12 +459,11 @@ public class X509CertImpl extends X509Certificate {
      * method documentation for more information.
      */
     public PublicKey getPublicKey() {
-        if (publicKey == null) {
-            // retrieve the public key from SubjectPublicKeyInfo
-            // substructure of X.509 certificate
-            publicKey = tbsCert.getSubjectPublicKeyInfo().getPublicKey();
+        PublicKey result = publicKey;
+        if (result == null) {
+            publicKey = result = tbsCert.getSubjectPublicKeyInfo().getPublicKey();
         }
-        return publicKey;
+        return result;
     }
 
     /**
@@ -502,22 +483,17 @@ public class X509CertImpl extends X509Certificate {
                          throws CertificateException, NoSuchAlgorithmException,
                                 InvalidKeyException, NoSuchProviderException,
                                 SignatureException {
-
-        // BEGIN android-added
         if (getSigAlgName().endsWith("withRSA")) {
             fastVerify(key);
             return;
         }
-        // END android-added
 
         Signature signature = Signature.getInstance(getSigAlgName());
         signature.initVerify(key);
         // retrieve the encoding of the TBSCertificate structure
-        if (tbsCertificate == null) {
-            tbsCertificate = tbsCert.getEncoded();
-        }
+        byte[] tbsCertificateLocal = getTbsCertificateInternal();
         // compute and verify the signature
-        signature.update(tbsCertificate, 0, tbsCertificate.length);
+        signature.update(tbsCertificateLocal, 0, tbsCertificateLocal.length);
         if (!signature.verify(certificate.getSignatureValue())) {
             throw new SignatureException("Signature was not verified");
         }
@@ -532,29 +508,23 @@ public class X509CertImpl extends X509Certificate {
                          throws CertificateException, NoSuchAlgorithmException,
                                 InvalidKeyException, NoSuchProviderException,
                                 SignatureException {
-
-        // BEGIN android-added
         if (getSigAlgName().endsWith("withRSA")) {
             fastVerify(key);
             return;
         }
-        // END android-added
 
         Signature signature =
             Signature.getInstance(getSigAlgName(), sigProvider);
         signature.initVerify(key);
         // retrieve the encoding of the TBSCertificate structure
-        if (tbsCertificate == null) {
-            tbsCertificate = tbsCert.getEncoded();
-        }
+        byte[] tbsCertificateLocal = getTbsCertificateInternal();
         // compute and verify the signature
-        signature.update(tbsCertificate, 0, tbsCertificate.length);
+        signature.update(tbsCertificateLocal, 0, tbsCertificateLocal.length);
         if (!signature.verify(certificate.getSignatureValue())) {
             throw new SignatureException("Signature was not verified");
         }
     }
 
-    // BEGIN android-added
     /**
      * Implements a faster RSA verification method that delegates to OpenSSL
      * native code. In all other aspects it behaves just like the ordinary
@@ -586,16 +556,12 @@ public class X509CertImpl extends X509Certificate {
         int i = algorithm.indexOf("with");
         algorithm = algorithm.substring(i + 4) + "-" + algorithm.substring(0, i);
 
-        if (tbsCertificate == null) {
-            tbsCertificate = tbsCert.getEncoded();
-        }
-
+        byte[] tbsCertificateLocal = getTbsCertificateInternal();
         byte[] sig = certificate.getSignatureValue();
-        if (!NativeCrypto.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
+        if (!NativeCrypto.verifySignature(tbsCertificateLocal, sig, algorithm, rsaKey)) {
             throw new SignatureException("Signature was not verified");
         }
     }
-    // END android-added
 
     //
     // ----- java.security.cert.X509Extension methods implementations ----
