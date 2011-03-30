@@ -26,7 +26,6 @@ import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import static libcore.io.OsConstants.*;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 
 /*
  * Implements {@link java.nio.channels.Pipe}.
@@ -68,7 +67,7 @@ final class PipeImpl extends Pipe {
         }
     }
 
-    private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorHandler {
+    private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorChannel {
         private final FileDescriptor fd;
         private final FileChannel channel;
 
@@ -103,7 +102,7 @@ final class PipeImpl extends Pipe {
         }
     }
 
-    private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorHandler {
+    private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorChannel {
         private final FileDescriptor fd;
         private final FileChannel channel;
 

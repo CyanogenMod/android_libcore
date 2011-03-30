@@ -38,13 +38,12 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import libcore.io.IoUtils;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
 /*
  * The default implementation class of java.nio.channels.DatagramChannel.
  */
-class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandler {
+class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChannel {
     // The fd to interact with native code
     private final FileDescriptor fd;
 

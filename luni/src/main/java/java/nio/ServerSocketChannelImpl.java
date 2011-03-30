@@ -31,13 +31,12 @@ import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
  * The default ServerSocketChannel.
  */
-final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorHandler {
+final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorChannel {
 
     private final FileDescriptor fd = new FileDescriptor();
     private final SocketImpl impl = new PlainServerSocketImpl(fd);

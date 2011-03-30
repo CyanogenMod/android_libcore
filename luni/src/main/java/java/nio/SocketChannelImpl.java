@@ -45,14 +45,13 @@ import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /*
  * The default implementation class of java.nio.channels.SocketChannel.
  */
-class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
+class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
     private static final int EOF = -1;
 
