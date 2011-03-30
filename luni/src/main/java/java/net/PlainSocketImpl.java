@@ -183,7 +183,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
-        Platform.NETWORK.socket(fd, streaming);
+        this.fd = IoUtils.socket(streaming);
     }
 
     @Override protected void finalize() throws Throwable {
@@ -352,7 +352,7 @@ public class PlainSocketImpl extends SocketImpl {
         try {
             Libcore.os.shutdown(fd, SHUT_RD);
         } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException();
+            throw errnoException.rethrowAsSocketException();
         }
     }
 
@@ -364,7 +364,7 @@ public class PlainSocketImpl extends SocketImpl {
         try {
             Libcore.os.shutdown(fd, SHUT_WR);
         } catch (ErrnoException errnoException) {
-            throw errnoException.rethrowAsIOException();
+            throw errnoException.rethrowAsSocketException();
         }
     }
 

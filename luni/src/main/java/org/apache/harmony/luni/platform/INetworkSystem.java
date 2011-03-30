@@ -57,8 +57,6 @@ public interface INetworkSystem {
 
     public void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public void socket(FileDescriptor fd, boolean stream) throws SocketException;
-
     public void sendUrgentData(FileDescriptor fd, byte value);
 
     public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)

@@ -244,10 +244,6 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void socket(FileDescriptor aFD, boolean stream) throws SocketException {
-            mNetwork.socket(aFD, stream);
-        }
-
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
         }

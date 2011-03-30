@@ -29,6 +29,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import libcore.io.IoUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -94,7 +95,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void create() throws SocketException {
-        Platform.NETWORK.socket(fd, false);
+        this.fd = IoUtils.socket(false);
     }
 
     @Override protected void finalize() throws Throwable {

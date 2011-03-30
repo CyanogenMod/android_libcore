@@ -54,7 +54,9 @@ public interface Os {
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
+    public void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
+    public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
     /* TODO: replace statfs with statvfs. */
     public StructStatFs statfs(String path) throws ErrnoException;

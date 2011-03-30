@@ -39,13 +39,8 @@ static void IoUtils_close(JNIEnv* env, jclass, jobject fileDescriptor) {
     }
 }
 
-static jint IoUtils_getFd(JNIEnv* env, jclass, jobject fileDescriptor) {
-    return jniGetFDFromFileDescriptor(env, fileDescriptor);
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(IoUtils, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(IoUtils, getFd, "(Ljava/io/FileDescriptor;)I"),
 };
 int register_libcore_io_IoUtils(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/IoUtils", gMethods, NELEM(gMethods));

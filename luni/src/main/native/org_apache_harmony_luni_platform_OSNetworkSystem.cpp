@@ -381,39 +381,6 @@ static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, b
 }
 #endif // def ENABLE_MULTICAST
 
-static void OSNetworkSystem_socket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean stream) {
-    if (fileDescriptor == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        errno = EBADF;
-        return;
-    }
-
-    // Try IPv6 but fall back to IPv4...
-    int type = stream ? SOCK_STREAM : SOCK_DGRAM;
-    int fd = socket(AF_INET6, type, 0);
-    if (fd == -1 && errno == EAFNOSUPPORT) {
-        fd = socket(AF_INET, type, 0);
-    }
-    if (fd == -1) {
-        jniThrowSocketException(env, errno);
-        return;
-    } else {
-        jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
-    }
-
-#ifdef __linux__
-    // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
-    // The Linux kernel (at least up to 2.6.32) accidentally defaults to 64 (which would be correct
-    // for the *unicast* hop limit). See http://www.spinics.net/lists/netdev/msg129022.html.
-    // When that bug is fixed, we can remove this code. Until then, we manually set the hop
-    // limit on IPv6 datagram sockets. (IPv4 is already correct.)
-    if (type == SOCK_DGRAM && getSocketAddressFamily(fd) == AF_INET6) {
-        int ttl = 1;
-        setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(int));
-    }
-#endif
-}
-
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
     if (count <= 0) {
@@ -1319,7 +1286,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
     NATIVE_METHOD(OSNetworkSystem, setSocketOption, "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V"),
-    NATIVE_METHOD(OSNetworkSystem, socket, "(Ljava/io/FileDescriptor;Z)V"),
     NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),
 };
