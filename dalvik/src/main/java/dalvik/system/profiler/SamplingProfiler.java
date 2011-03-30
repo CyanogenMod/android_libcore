@@ -51,8 +51,7 @@ import java.util.TimerTask;
  * // another period of measurement
  * profiler.stop();
  * profiler.shutdown();
- * HprofWriter writer = new AsciiHprofWriter(profiler.getHprofData(), System.out);
- * writer.write();
+ * AsciiHprofWriter.write(profiler.getHprofData(), System.out);
  * }</pre>
  */
 public final class SamplingProfiler {
@@ -78,7 +77,7 @@ public final class SamplingProfiler {
      * everytime profiling stops because once a {@code TimerTask} is
      * canceled it cannot be reused.
      */
-    private TimerTask sampler;
+    private Sampler sampler;
 
     /**
      * The maximum number of {@code StackTraceElements} to retain in
@@ -115,11 +114,20 @@ public final class SamplingProfiler {
     private final Map<Thread, Integer> threadIds = new HashMap<Thread, Integer>();
 
     /**
-     * Mutable StackTrace that is used for probing stackTraces Map
-     * without allocating a StackTrace. If addStackTrace needs to
-     * be thread safe, this would need to be reconsidered.
+     * Mutable {@code StackTrace} that is used for probing the {@link
+     * #stackTraces stackTraces} map without allocating a {@code
+     * StackTrace}. If {@link #addStackTrace addStackTrace} needs to
+     * be thread safe, have a single mutable instance would need to be
+     * reconsidered.
      */
     private final HprofData.StackTrace mutableStackTrace = new HprofData.StackTrace();
+
+    /**
+     * The {@code ThreadSampler} is used to produce a {@code
+     * StackTraceElement} array for a given thread. The array is
+     * expected to be {@link #depth depth} or less in length.
+     */
+    private final ThreadSampler threadSampler;
 
     /**
      * Create a sampling profiler that collects stacks with the
@@ -135,12 +143,34 @@ public final class SamplingProfiler {
      * depth, simply passing in a value for Integer.MAX_VALUE is not
      * advised because of the significant memory need to retain such
      * stacks and runtime overhead to compare stacks.
+     *
+     * @param threadSet The thread set specifies which threads to
+     * sample. In a general purpose program, all threads typically
+     * should be sample with a ThreadSet such as provied by {@link
+     * #newThreadGroupTheadSet newThreadGroupTheadSet}. For a
+     * benchmark a fixed set such as provied by {@link
+     * #newArrayThreadSet newArrayThreadSet} can reduce the overhead
+     * of profiling.
      */
     public SamplingProfiler(int depth, ThreadSet threadSet) {
         this.depth = depth;
         this.threadSet = threadSet;
+        this.threadSampler = findDefaultThreadSampler();
+        threadSampler.setDepth(depth);
         hprofData.setFlags(BinaryHprof.ControlSettings.CPU_SAMPLING.bitmask);
         hprofData.setDepth(depth);
+    }
+
+    private static ThreadSampler findDefaultThreadSampler() {
+        if ("Dalvik Core Library".equals(System.getProperty("java.specification.name"))) {
+            String className = "dalvik.system.profiler.DalvikThreadSampler";
+            try {
+                return (ThreadSampler) Class.forName(className).newInstance();
+            } catch (Exception e) {
+                System.out.println("Problem creating " + className + ": " + e);
+            }
+        }
+        return new PortableThreadSampler();
     }
 
     /**
@@ -263,7 +293,15 @@ public final class SamplingProfiler {
         if (sampler == null) {
             return;
         }
-        sampler.cancel();
+        synchronized(sampler) {
+            sampler.stop = true;
+            while (!sampler.stopped) {
+                try {
+                    sampler.wait();
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
         sampler = null;
     }
 
@@ -305,9 +343,21 @@ public final class SamplingProfiler {
      */
     private class Sampler extends TimerTask {
 
+        private boolean stop;
+        private boolean stopped;
+
         private Thread timerThread;
 
         public void run() {
+            synchronized(this) {
+                if (stop) {
+                    cancel();
+                    stopped = true;
+                    notifyAll();
+                    return;
+                }
+            }
+
             if (timerThread == null) {
                 timerThread = Thread.currentThread();
             }
@@ -329,14 +379,9 @@ public final class SamplingProfiler {
                     continue;
                 }
 
-                // TODO replace with a VMStack.getThreadStackTrace
-                // variant to avoid allocating unneeded elements
-                StackTraceElement[] stackFrames = thread.getStackTrace();
-                if (stackFrames.length == 0) {
+                StackTraceElement[] stackFrames = threadSampler.getStackTrace(thread);
+                if (stackFrames == null) {
                     continue;
-                }
-                if (stackFrames.length > depth) {
-                    stackFrames = Arrays.copyOfRange(stackFrames, 0, depth);
                 }
                 recordStackTrace(thread, stackFrames);
             }
@@ -357,8 +402,10 @@ public final class SamplingProfiler {
             int[] countCell = stackTraces.get(mutableStackTrace);
             if (countCell == null) {
                 countCell = new int[1];
+                // cloned because the ThreadSampler may reuse the array
+                StackTraceElement[] stackFramesCopy = stackFrames.clone();
                 HprofData.StackTrace stackTrace
-                        = new HprofData.StackTrace(nextStackTraceId++, threadId, stackFrames);
+                        = new HprofData.StackTrace(nextStackTraceId++, threadId, stackFramesCopy);
                 hprofData.addStackTrace(stackTrace, countCell);
             }
             countCell[0]++;

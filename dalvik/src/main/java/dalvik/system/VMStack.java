@@ -75,4 +75,18 @@ public final class VMStack {
      *      doesn't have a stack trace (e.g. because it exited)
      */
     native public static StackTraceElement[] getThreadStackTrace(Thread t);
+
+    /**
+     * Retrieves a partial stack trace from the specified thread into
+     * the provided array.
+     *
+     * @param t
+     *      thread of interest
+     * @param stackTraceElements
+     *      preallocated array for use when only the top of stack is
+     *      desired. Unused elements will be filled with null values.
+     * @return the number of elements filled
+     */
+    native public static int fillStackTraceElements(Thread t,
+        StackTraceElement[] stackTraceElements);
 }

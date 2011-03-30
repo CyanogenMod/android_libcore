@@ -16,6 +16,8 @@
 
 package dalvik.system.profiler;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,34 @@ public final class BinaryHprof {
      * Currently code only supports 4 byte id size.
      */
     public static final int ID_SIZE = 4;
+
+    /**
+     * Prefix of valid magic values from the start of a binary hprof file.
+     */
+    static String MAGIC = "JAVA PROFILE ";
+
+    /**
+     * Returns the file's magic value as a String if found, otherwise null.
+     */
+    public static final String readMagic(DataInputStream in) {
+        try {
+            byte[] bytes = new byte[512];
+            for (int i = 0; i < bytes.length; i++) {
+                byte b = in.readByte();
+                if (b == '\0') {
+                    String string = new String(bytes, 0, i, "UTF-8");
+                    if (string.startsWith(MAGIC)) {
+                        return string;
+                    }
+                    return null;
+                }
+                bytes[i] = b;
+            }
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     public static enum Tag {
 

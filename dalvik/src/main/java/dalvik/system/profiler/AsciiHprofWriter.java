@@ -25,17 +25,28 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public final class AsciiHprofWriter implements HprofWriter {
+/**
+ * AsciiHprofWriter produces hprof compatible text output for use with
+ * third party tools such as PerfAnal.
+ */
+public final class AsciiHprofWriter {
 
     private final HprofData data;
     private final PrintWriter out;
 
-    public AsciiHprofWriter(HprofData data, OutputStream outputStream) {
+    /**
+     * Writes the provided data to the specified stream.
+     */
+    public static void write(HprofData data, OutputStream outputStream) throws IOException {
+        new AsciiHprofWriter(data, outputStream).write();
+    }
+
+    private AsciiHprofWriter(HprofData data, OutputStream outputStream) {
         this.data = data;
         this.out = new PrintWriter(outputStream);
     }
 
-    public void write() throws IOException {
+    private void write() throws IOException {
         for (HprofData.ThreadEvent e : data.getThreadHistory()) {
             out.println(e);
         }
