@@ -40,18 +40,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.nio.charset.Charsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants.*;
+import static libcore.io.OsConstants._SC_NPROCESSORS_ONLN;
 
 /**
  * Allows Java applications to interface with the environment in which they are
@@ -406,10 +399,13 @@ public class Runtime {
     /**
      * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
-     *
      */
     public void runFinalization() {
-        FinalizerThread.runFinalization();
+        try {
+            FinalizerThread.waitUntilFinalizerIsIdle();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

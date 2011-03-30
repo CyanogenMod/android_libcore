@@ -20,91 +20,108 @@ import java.lang.ref.FinalizerReference;
 import java.lang.ref.ReferenceQueue;
 
 /**
- *@hide
+ * @hide
  */
 public final class FinalizerThread extends Thread {
-    public static ReferenceQueue queue = new ReferenceQueue();
-
-    private static FinalizerThread thread;
+    public static ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+    private static FinalizerThread finalizerThread;
+    private static boolean idle;
 
     static {
         startFinalizer();
     }
 
-    private boolean isFinalizing = false;
-
-    public FinalizerThread(String string) {
-        super(string);
+    private FinalizerThread() {
+        super("Finalizer");
         setDaemon(true);
     }
 
     public void run() {
-        FinalizerReference reference;
-        for (;;) {
-            reference = (FinalizerReference)queue.poll();
+        FinalizerReference<Object> reference = null;
+        while (true) {
+            /*
+             * Finalize references until the queue is empty.
+             */
             if (reference == null) {
-                synchronized (FinalizerThread.class) {
-                    isFinalizing = false;
-                    FinalizerThread.class.notifyAll();
-                }
-                try {
-                    reference = (FinalizerReference)queue.remove();
-                } catch (InterruptedException ex) {
-                    break;
-                }
-                synchronized (FinalizerThread.class) {
-                    isFinalizing = true;
+                reference = (FinalizerReference<Object>) queue.poll();
+            }
+            while (reference != null) {
+                doFinalize(reference);
+                reference = (FinalizerReference<Object>) queue.poll();
+            }
+
+            /*
+             * Mark this thread as idle and wait on ReferenceQueue.remove()
+             * until awaken by either an enqueued reference or an interruption.
+             */
+            synchronized (FinalizerThread.class) {
+                idle = true;
+                FinalizerThread.class.notifyAll();
+                if (finalizerThread != this) {
+                    return;
                 }
             }
-            doFinalize(reference);
+            try {
+                reference = (FinalizerReference<Object>) queue.remove();
+            } catch (InterruptedException ignored) {
+            }
+            synchronized (FinalizerThread.class) {
+                idle = false;
+            }
         }
     }
 
-
-    public boolean isFinalizing() {
-        return isFinalizing;
-    }
-
-    private void doFinalize(FinalizerReference reference) {
+    private void doFinalize(FinalizerReference<Object> reference) {
         FinalizerReference.remove(reference);
         Object obj = reference.get();
         reference.clear();
         try {
             obj.finalize();
-        } catch (Throwable ex) {}
+        } catch (Throwable ex) {
+            // TODO: print a warning
+        }
     }
 
-    public static synchronized void runFinalization() {
-        if (thread != null) {
-            while (thread.isFinalizing()) {
-                try {
-                    FinalizerThread.class.wait();
-                } catch (InterruptedException ex) {}
-            }
+    /**
+     * Awakens the finalizer thread if necessary and then wait for it to
+     * become idle again. When that happens, all finalizable references enqueued
+     * at the time of this method call will have been finalized.
+     *
+     * TODO: return as soon as the currently-enqueued references are finalized;
+     *     this currently waits until the queue is empty. http://b/4193517
+     */
+    public static synchronized void waitUntilFinalizerIsIdle() throws InterruptedException {
+        idle = false;
+        finalizerThread.interrupt();
+        while (!idle) {
+            FinalizerThread.class.wait();
         }
     }
 
     public static synchronized void startFinalizer() {
-        if (thread != null) {
-            return;
+        if (finalizerThread != null) {
+            throw new IllegalStateException();
         }
-        thread = new FinalizerThread("Finalizer");
-        thread.start();
+
+        idle = false;
+        finalizerThread = new FinalizerThread();
+        finalizerThread.start();
     }
 
     public static synchronized void stopFinalizer() {
-        if (thread == null) {
-            return;
+        if (finalizerThread == null) {
+            throw new IllegalStateException();
         }
-        thread.interrupt();
-        for (;;) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                continue;
+
+        idle = false;
+        finalizerThread.interrupt();
+        finalizerThread = null;
+        try {
+            while (!idle) {
+                FinalizerThread.class.wait();
             }
-            break;
+        } catch (InterruptedException e) {
+            throw new AssertionError();
         }
-        thread = null;
     }
 }

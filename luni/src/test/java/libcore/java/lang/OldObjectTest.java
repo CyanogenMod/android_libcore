@@ -38,38 +38,6 @@ public class OldObjectTest extends TestCase {
     TestThread1 thr1;
     TestThread2 thr2;
 
-
-    @SideEffect("Causes OutOfMemoryError to test finalization")
-    public void test_finalize() {
-        isCalled = false;
-        class TestObject extends Object {
-
-            Vector<StringBuffer> v = new Vector<StringBuffer>();
-            public void add() {
-                v.add(new StringBuffer(10000));
-            }
-
-            protected void finalize() throws Throwable {
-                isCalled = true;
-                super.finalize();
-            }
-        }
-
-        TestObject to = new TestObject();
-
-        try {
-            while(true) {
-                to.add();
-            }
-        } catch(OutOfMemoryError oome) {
-            //expected
-            to = null;
-        }
-        System.gc();
-        System.runFinalization();
-        assertTrue(isCalled);
-    }
-
     public void test_clone() {
         MockCloneableObject mco = new MockCloneableObject();
         try {
