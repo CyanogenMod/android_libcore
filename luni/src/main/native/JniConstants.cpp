@@ -33,6 +33,7 @@ jclass JniConstants::fieldClass;
 jclass JniConstants::fieldPositionIteratorClass;
 jclass JniConstants::fileDescriptorClass;
 jclass JniConstants::inetAddressClass;
+jclass JniConstants::inetSocketAddressClass;
 jclass JniConstants::inflaterClass;
 jclass JniConstants::integerClass;
 jclass JniConstants::interfaceAddressClass;
@@ -50,8 +51,10 @@ jclass JniConstants::socketImplClass;
 jclass JniConstants::stringArrayClass;
 jclass JniConstants::stringClass;
 jclass JniConstants::structFlockClass;
+jclass JniConstants::structLingerClass;
 jclass JniConstants::structStatClass;
 jclass JniConstants::structStatFsClass;
+jclass JniConstants::structTimevalClass;
 jclass JniConstants::structUtsnameClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
@@ -79,6 +82,7 @@ void JniConstants::init(JNIEnv* env) {
     fieldPositionIteratorClass = findClass(env, "libcore/icu/NativeDecimalFormat$FieldPositionIterator");
     fileDescriptorClass = findClass(env, "java/io/FileDescriptor");
     inetAddressClass = findClass(env, "java/net/InetAddress");
+    inetSocketAddressClass = findClass(env, "java/net/InetSocketAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
     integerClass = findClass(env, "java/lang/Integer");
     interfaceAddressClass = findClass(env, "java/net/InterfaceAddress");
@@ -96,7 +100,9 @@ void JniConstants::init(JNIEnv* env) {
     stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
     structFlockClass = findClass(env, "libcore/io/StructFlock");
+    structLingerClass = findClass(env, "libcore/io/StructLinger");
     structStatClass = findClass(env, "libcore/io/StructStat");
     structStatFsClass = findClass(env, "libcore/io/StructStatFs");
+    structTimevalClass = findClass(env, "libcore/io/StructTimeval");
     structUtsnameClass = findClass(env, "libcore/io/StructUtsname");
 }

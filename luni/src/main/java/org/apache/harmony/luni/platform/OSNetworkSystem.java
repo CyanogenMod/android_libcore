@@ -52,12 +52,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public native InetAddress getSocketLocalAddress(FileDescriptor fd);
-
-    public native int getSocketLocalPort(FileDescriptor fd);
-
-    public native Object getSocketOption(FileDescriptor fd, int opt) throws SocketException;
-
     public native int read(FileDescriptor fd, byte[] data, int offset, int count)
             throws IOException;
 

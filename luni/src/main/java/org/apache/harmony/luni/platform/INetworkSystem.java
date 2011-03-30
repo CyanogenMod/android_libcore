@@ -62,8 +62,6 @@ public interface INetworkSystem {
     public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
             throws SocketException;
 
-    public InetAddress getSocketLocalAddress(FileDescriptor fd);
-
     /**
      * Select the given file descriptors for read and write operations.
      *
@@ -96,25 +94,6 @@ public interface INetworkSystem {
      */
     public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
             int numReadable, int numWritable, long timeout, int[] flags)
-            throws SocketException;
-
-    /*
-     * Query the IP stack for the local port to which this socket is bound.
-     *
-     * @param fd the socket descriptor
-     * @return int the local port to which the socket is bound
-     */
-    public int getSocketLocalPort(FileDescriptor fd);
-
-    /*
-     * Query the IP stack for the nominated socket option.
-     *
-     * @param fd the socket descriptor @param opt the socket option type
-     * @return the nominated socket option value
-     *
-     * @throws SocketException if the option is invalid
-     */
-    public Object getSocketOption(FileDescriptor fd, int opt)
             throws SocketException;
 
     /*

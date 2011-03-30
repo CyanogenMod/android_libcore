@@ -21,8 +21,13 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketOptions;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
@@ -222,6 +227,109 @@ public final class IoUtils {
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsSocketException();
         }
+    }
+
+    /**
+     * java.net has its own socket options similar to the underlying Unix ones. We paper over the
+     * differences here.
+     */
+    public static Object getSocketOption(FileDescriptor fd, int option) throws SocketException {
+        try {
+            return getSocketOptionErrno(fd, option);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
+    }
+
+    // Socket options used by java.net but not exposed in SocketOptions.
+    public static final int MCAST_JOIN_GROUP = 19;
+    public static final int MCAST_LEAVE_GROUP = 20;
+    public static final int IP_MULTICAST_TTL = 17;
+
+    private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws SocketException {
+        switch (option) {
+        case SocketOptions.IP_MULTICAST_IF2:
+            if (boundIPv4(fd)) {
+                // The caller's asking for an interface index, but that's not how IPv4 works.
+                // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
+                // that will satisfy us.
+                throw new SocketException("no interface index for IPv4");
+            } else {
+                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
+            }
+        case SocketOptions.IP_MULTICAST_IF:
+            return Libcore.os.getsockoptInAddr(fd, IPPROTO_IP, IP_MULTICAST_IF);
+        case SocketOptions.IP_MULTICAST_LOOP:
+            if (boundIPv4(fd)) {
+                // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
+                // IPv4 multicast TTL uses a byte.
+                return booleanFromInt(Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_LOOP));
+            } else {
+                return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
+            }
+        case IoUtils.IP_MULTICAST_TTL:
+            if (boundIPv4(fd)) {
+                // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
+                return Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_TTL);
+            } else {
+                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
+            }
+        case SocketOptions.IP_TOS:
+            if (boundIPv4(fd)) {
+                return Libcore.os.getsockoptInt(fd, IPPROTO_IP, IP_TOS);
+            } else {
+                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS);
+            }
+        case SocketOptions.SO_BROADCAST:
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_BROADCAST));
+        case SocketOptions.SO_KEEPALIVE:
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_KEEPALIVE));
+        case SocketOptions.SO_LINGER:
+            StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
+            if (!linger.isOn()) {
+                return false;
+            }
+            return linger.l_linger;
+        case SocketOptions.SO_OOBINLINE:
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_OOBINLINE));
+        case SocketOptions.SO_RCVBUF:
+            return Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_SNDBUF);
+        case SocketOptions.SO_REUSEADDR:
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_REUSEADDR));
+        case SocketOptions.SO_SNDBUF:
+            return Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_SNDBUF);
+        case SocketOptions.SO_TIMEOUT:
+            return (int) Libcore.os.getsockoptTimeval(fd, SOL_SOCKET, SO_RCVTIMEO).toMillis();
+        case SocketOptions.TCP_NODELAY:
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY));
+        default:
+            throw new SocketException("unknown socket option " + option);
+        }
+    }
+
+    private static boolean boundIPv4(FileDescriptor fd) {
+        SocketAddress sa = Libcore.os.getsockname(fd);
+        if (!(sa instanceof InetSocketAddress)) {
+            return false;
+        }
+        InetSocketAddress isa = (InetSocketAddress) sa;
+        return (isa.getAddress() instanceof Inet4Address);
+    }
+
+    private static boolean booleanFromInt(int i) {
+        return (i != 0);
+    }
+
+    public static InetAddress getSocketLocalAddress(FileDescriptor fd) {
+        SocketAddress sa = Libcore.os.getsockname(fd);
+        InetSocketAddress isa = (InetSocketAddress) sa;
+        return isa.getAddress();
+    }
+
+    public static int getSocketLocalPort(FileDescriptor fd) {
+        SocketAddress sa = Libcore.os.getsockname(fd);
+        InetSocketAddress isa = (InetSocketAddress) sa;
+        return isa.getPort();
     }
 
     /**

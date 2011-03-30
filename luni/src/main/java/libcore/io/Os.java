@@ -17,6 +17,8 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import libcore.util.MutableInt;
 import libcore.util.MutableLong;
@@ -35,6 +37,12 @@ public interface Os {
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String getenv(String name);
+    public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
+    public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;

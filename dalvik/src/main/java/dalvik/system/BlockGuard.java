@@ -24,7 +24,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketOptions;
+import libcore.io.Libcore;
+import libcore.io.StructLinger;
 import org.apache.harmony.luni.platform.INetworkSystem;
+import static libcore.io.OsConstants.*;
 
 /**
  * Mechanism to let threads set restrictions on what code is allowed
@@ -254,24 +257,11 @@ public final class BlockGuard {
             mNetwork.connect(aFD, inetAddress, port, timeout);
         }
 
-        public InetAddress getSocketLocalAddress(FileDescriptor aFD) {
-            return mNetwork.getSocketLocalAddress(aFD);
-        }
-
         public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
                 int numReadable, int numWritable, long timeout, int[] flags)
                 throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
-        }
-
-        public int getSocketLocalPort(FileDescriptor aFD) {
-            return mNetwork.getSocketLocalPort(aFD);
-        }
-
-        public Object getSocketOption(FileDescriptor aFD, int opt)
-                throws SocketException {
-            return mNetwork.getSocketOption(aFD, opt);
         }
 
         public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
@@ -291,13 +281,8 @@ public final class BlockGuard {
 
         private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
             try {
-                Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);
-                if (lingerValue instanceof Boolean) {
-                    return (Boolean) lingerValue;
-                } else if (lingerValue instanceof Integer) {
-                    return ((Integer) lingerValue) != 0;
-                }
-                throw new AssertionError(lingerValue.getClass().getName());
+                StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
+                return linger.isOn() && linger.l_linger > 0;
             } catch (Exception ignored) {
                 // We're called via Socket.close (which doesn't ask for us to be called), so we
                 // must not throw here, because Socket.close must not throw if asked to close an

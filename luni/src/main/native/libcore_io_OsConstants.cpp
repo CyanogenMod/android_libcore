@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -157,6 +158,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "IPV6_RECVPKTINFO", IPV6_RECVPKTINFO);
     initConstant(env, c, "IPV6_RECVRTHDR", IPV6_RECVRTHDR);
     initConstant(env, c, "IPV6_RECVTCLASS", IPV6_RECVTCLASS);
+    initConstant(env, c, "IPV6_TCLASS", IPV6_TCLASS);
     initConstant(env, c, "IPV6_UNICAST_HOPS", IPV6_UNICAST_HOPS);
     initConstant(env, c, "IPV6_V6ONLY", IPV6_V6ONLY);
     initConstant(env, c, "IP_MULTICAST_IF", IP_MULTICAST_IF);
@@ -207,6 +209,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SOCK_RAW", SOCK_RAW);
     initConstant(env, c, "SOCK_SEQPACKET", SOCK_SEQPACKET);
     initConstant(env, c, "SOCK_STREAM", SOCK_STREAM);
+    initConstant(env, c, "SOL_SOCKET", SOL_SOCKET);
     initConstant(env, c, "SO_BROADCAST", SO_BROADCAST);
     initConstant(env, c, "SO_DEBUG", SO_DEBUG);
     initConstant(env, c, "SO_DONTROUTE", SO_DONTROUTE);
@@ -248,6 +251,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "S_IXGRP", S_IXGRP);
     initConstant(env, c, "S_IXOTH", S_IXOTH);
     initConstant(env, c, "S_IXUSR", S_IXUSR);
+    initConstant(env, c, "TCP_NODELAY", TCP_NODELAY);
     initConstant(env, c, "WCONTINUED", WCONTINUED);
     initConstant(env, c, "WEXITED", WEXITED);
     initConstant(env, c, "WNOHANG", WNOHANG);
