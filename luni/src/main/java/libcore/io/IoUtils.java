@@ -138,7 +138,8 @@ public final class IoUtils {
     }
 
     /**
-     * Calls close(2) on 'fd'. Also resets the internal int to -1.
+     * Calls close(2) on 'fd'. Also resets the internal int to -1. Does nothing if 'fd' is null
+     * or invalid.
      */
     public static void close(FileDescriptor fd) throws IOException {
         try {
@@ -159,6 +160,16 @@ public final class IoUtils {
                 closeable.close();
             } catch (IOException ignored) {
             }
+        }
+    }
+
+    /**
+     * Closes 'fd', ignoring any exceptions. Does nothing if 'fd' is null or invalid.
+     */
+    public static void closeQuietly(FileDescriptor fd) {
+        try {
+            IoUtils.close(fd);
+        } catch (IOException ignored) {
         }
     }
 
