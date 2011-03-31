@@ -115,21 +115,18 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
      * java.util.GregorianCalendar#GregorianCalendar(java.util.Locale)
      */
     public void test_ConstructorLjava_util_Locale() {
-        Locale[] requiredLocales = {Locale.US, Locale.FRANCE};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
-        }
-        // Test for method java.util.GregorianCalendar(java.util.Locale)
         Date date = new Date();
         GregorianCalendar gcUS = new GregorianCalendar(Locale.US);
         gcUS.setTime(date);
         GregorianCalendar gcUS2 = new GregorianCalendar(Locale.US);
         gcUS2.setTime(date);
-        GregorianCalendar gcFrance = new GregorianCalendar(Locale.FRANCE);
-        gcFrance.setTime(date);
         assertTrue("Locales not created correctly", gcUS.equals(gcUS2));
-        assertFalse("Locales not created correctly", gcUS.equals(gcFrance));
+
+        if (Support_Locale.isLocaleAvailable(Locale.FRANCE)) {
+            GregorianCalendar gcFrance = new GregorianCalendar(Locale.FRANCE);
+            gcFrance.setTime(date);
+            assertFalse("Locales not created correctly", gcUS.equals(gcFrance));
+        }
     }
 
     /**

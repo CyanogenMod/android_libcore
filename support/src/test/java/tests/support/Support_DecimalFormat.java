@@ -139,7 +139,7 @@ public class Support_DecimalFormat extends Support_Format {
         Locale us = Locale.US;
         Locale tr = new Locale("de", "CH");
 
-        if (Support_Locale.areLocalesAvailable(us)) {
+        if (Support_Locale.isLocaleAvailable(us)) {
             // locale dependent test, bug 1943269
 
             // test number instance
@@ -183,7 +183,7 @@ public class Support_DecimalFormat extends Support_Format {
         format = new DecimalFormat("0000.0#E0");
         t_Format(10, number, format, getNegativeExponentVector());
 
-        if (Support_Locale.areLocalesAvailable(tr)) {
+        if (Support_Locale.isLocaleAvailable(tr)) {
             // test currency instance with TR Locale
             t_Format(11, number, NumberFormat.getCurrencyInstance(tr),
                     getPositiveCurrencyVectorCH());

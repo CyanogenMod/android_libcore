@@ -190,19 +190,10 @@ public class LocaleTest extends junit.framework.TestCase {
 // END android-changed
     }
 
-    /**
-     * java.util.Locale#getDisplayCountry(java.util.Locale)
-     */
     public void test_getDisplayCountryLjava_util_Locale() {
-        Locale[] requiredLocales = {Locale.ITALY};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
+        if (Support_Locale.isLocaleAvailable(Locale.ITALY)) {
+            assertEquals("Returned incorrect country", "Italie", Locale.ITALY.getDisplayCountry(l));
         }
-        // Test for method java.lang.String
-        // java.util.Locale.getDisplayCountry(java.util.Locale)
-        assertEquals("Returned incorrect country", "Italie", Locale.ITALY
-                .getDisplayCountry(l));
     }
 
     /**
@@ -220,44 +211,20 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Avestan", l_languageAE.getDisplayLanguage());
     }
 
-    /**
-     * java.util.Locale#getDisplayLanguage(java.util.Locale)
-     */
     public void test_getDisplayLanguageLjava_util_Locale() {
-        Locale[] requiredLocales = {testLocale};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
+        if (Support_Locale.isLocaleAvailable(testLocale)) {
+            assertEquals("anglais", testLocale.getDisplayLanguage(l));
         }
-        // Test for method java.lang.String
-        // java.util.Locale.getDisplayLanguage(java.util.Locale)
-        assertTrue("Returned incorrect language: "
-                + testLocale.getDisplayLanguage(l), testLocale
-                .getDisplayLanguage(l).equals("anglais"));
     }
 
-    /**
-     * java.util.Locale#getDisplayName()
-     */
     public void test_getDisplayName() {
-        // Test for method java.lang.String java.util.Locale.getDisplayName()
-        assertTrue("Returned incorrect name: " + testLocale.getDisplayName(),
-                testLocale.getDisplayName().equals("English (Canada,WIN32)"));
+        assertEquals("English (Canada,WIN32)", testLocale.getDisplayName());
     }
 
-    /**
-     * java.util.Locale#getDisplayName(java.util.Locale)
-     */
     public void test_getDisplayNameLjava_util_Locale() {
-        Locale[] requiredLocales = {testLocale};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
+        if (Support_Locale.isLocaleAvailable(testLocale)) {
+            assertEquals("anglais (Canada,WIN32)", testLocale.getDisplayName(l));
         }
-        // Test for method java.lang.String
-        // java.util.Locale.getDisplayName(java.util.Locale)
-        assertTrue("Returned incorrect name: " + testLocale.getDisplayName(l),
-                testLocale.getDisplayName(l).equals("anglais (Canada,WIN32)"));
     }
 
     /**
