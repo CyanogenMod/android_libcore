@@ -1668,5 +1668,40 @@
     "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77898",
     "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77902"
   ]
+},
+{
+  description: "Android's XPath fails 29 of 250 Jaxen XPath tests",
+  bug: 3270761,
+  names: [
+    "libcore.xml.JaxenXPathTestSuite$3#xml/defaultNamespace.xml / /dummy:a/dummy:b/dummy:c",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / //metatest[ evaluate(@select) = . ]",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/*')",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/*')/dog",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object')/dog",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object')/evaluate",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object/dog')",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /foo:a",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /foo:a/b",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /voo:a/b/c",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /voo:a/bar:f",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml / //namespace::*",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml /Template/Application1 //namespace::*",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml /Template/Application1 //namespace::xplt",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/text.xml / document('xml/web.xml')",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/message.xml / document('xml/message.xml')/message/body/data/items/item[name/text()='parentinfo']/value",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/alias:x/alias:y",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/b/c",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/foo:d/foo:e",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/foo:x/foo:y",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/text.xml / document('xml/web.xml')/web-app/servlet[1]/servlet-name",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/text.xml /foo/bar/cheese[1] concat(./@id,document('xml/web.xml')/web-app/servlet[1]/servlet-name,./@id)",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] ends-with( servlet-class, 'S' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] ends-with( servlet-class, 'Servlet' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] lower-case( servlet-class )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'es-ES-Traditional_WIN' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'fr' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'fr-CA' )"
+  ]
 }
 ]
