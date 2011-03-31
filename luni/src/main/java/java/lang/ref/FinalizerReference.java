@@ -24,6 +24,8 @@ import java.lang.FinalizerThread;
 public final class FinalizerReference<T> extends Reference<T> {
     private static FinalizerReference head = null;
 
+    private T zombie;
+
     private FinalizerReference prev;
 
     private FinalizerReference next;
@@ -34,12 +36,12 @@ public final class FinalizerReference<T> extends Reference<T> {
 
     @Override
     public T get() {
-        return (T) pendingNext;
+        return zombie;
     }
 
     @Override
     public void clear() {
-        pendingNext = null;
+        zombie = null;
     }
 
     static void add(Object referent) {

@@ -130,4 +130,19 @@ public class ReferenceQueue<T> {
         head = reference;
         notify();
     }
+
+    static Reference unenqueued = null;
+
+    static void add(Reference<?> list) {
+        synchronized (ReferenceQueue.class) {
+            if (unenqueued == null) {
+                unenqueued = list;
+            } else {
+                Reference<?> next = unenqueued.pendingNext;
+                unenqueued.pendingNext = list.pendingNext;
+                list.pendingNext = next;
+            }
+            ReferenceQueue.class.notifyAll();
+        }
+    }
 }

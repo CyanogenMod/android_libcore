@@ -27,10 +27,6 @@ public final class FinalizerThread extends Thread {
     private static FinalizerThread finalizerThread;
     private static boolean idle;
 
-    static {
-        startFinalizer();
-    }
-
     private FinalizerThread() {
         super("Finalizer");
         setDaemon(true);
