@@ -19,11 +19,14 @@ package tests.api.java.util;
 
 import tests.support.Support_Locale;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
 public class CurrencyTest extends junit.framework.TestCase {
 
@@ -164,7 +167,7 @@ public class CurrencyTest extends junit.framework.TestCase {
         // includes strong requirements for returnig symbol.
         // on android platform used wrong character for yen
         // sign: \u00a5 instead of \uffe5
-        Locale[] loc1 = new Locale[]{
+        Locale[] desiredLocales = new Locale[]{
                 Locale.JAPAN,  Locale.JAPANESE,
                 Locale.FRANCE, Locale.FRENCH,
                 Locale.US,     Locale.UK,
@@ -191,10 +194,17 @@ public class CurrencyTest extends junit.framework.TestCase {
 
                 new Locale("da", ""), new Locale("ja", ""),
                 new Locale("en", "")};
-        if (!Support_Locale.areLocalesAvailable(loc1)) {
-            // locale dependent test, bug 1943269
-            return;
+
+        Set<Locale> availableLocales = new HashSet<Locale>(Arrays.asList(Locale.getAvailableLocales()));
+
+        ArrayList<Locale> locales = new ArrayList<Locale>();
+        for (Locale desiredLocale : desiredLocales) {
+            if (availableLocales.contains(desiredLocale)) {
+                locales.add(desiredLocale);
+            }
         }
+
+        Locale[] loc1 = locales.toArray(new Locale[locales.size()]);
 
         String[] euro    = new String[] {"EUR", "\u20ac"};
         // \u00a5 and \uffe5 are actually the same symbol, just different code points.

@@ -90,15 +90,12 @@ public class OldTimeZoneTest extends TestCase {
     }
 
     public void test_getDisplayNameLjava_util_Locale() {
-        Locale[] requiredLocales = {Locale.US, Locale.FRANCE};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
-        }
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("Pacific Standard Time", tz.getDisplayName(new Locale("US")));
-        // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
-        assertEquals("heure normale du Pacifique", tz.getDisplayName(Locale.FRANCE));
+        if (Support_Locale.isLocaleAvailable(Locale.FRANCE)) {
+            // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
+            assertEquals("heure normale du Pacifique", tz.getDisplayName(Locale.FRANCE));
+        }
     }
 
     public void test_getDisplayNameZI() {
@@ -110,20 +107,19 @@ public class OldTimeZoneTest extends TestCase {
 
     @AndroidOnly("fail on RI. See comment below")
     public void test_getDisplayNameZILjava_util_Locale() {
-        Locale[] requiredLocales = {Locale.US, Locale.UK, Locale.FRANCE};
-        if (!Support_Locale.areLocalesAvailable(requiredLocales)) {
-            // locale dependent test, bug 1943269
-            return;
-        }
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("PST",                   tz.getDisplayName(false, 0, Locale.US));
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true,  1, Locale.US));
-        assertEquals("Pacific Standard Time", tz.getDisplayName(false, 1, Locale.UK));
-        //RI fails on following line. RI always returns short time zone name as "PST"
-        assertEquals("UTC-08:00",             tz.getDisplayName(false, 0, Locale.FRANCE));
-        // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
-        assertEquals("heure avanc\u00e9e du Pacifique", tz.getDisplayName(true,  1, Locale.FRANCE));
-        assertEquals("heure normale du Pacifique", tz.getDisplayName(false, 1, Locale.FRANCE));
+        if (Support_Locale.isLocaleAvailable(Locale.UK)) {
+            assertEquals("Pacific Standard Time", tz.getDisplayName(false, 1, Locale.UK));
+        }
+        if (Support_Locale.isLocaleAvailable(Locale.FRANCE)) {
+            //RI fails on following line. RI always returns short time zone name as "PST"
+            assertEquals("UTC-08:00",             tz.getDisplayName(false, 0, Locale.FRANCE));
+            // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
+            assertEquals("heure avanc\u00e9e du Pacifique", tz.getDisplayName(true,  1, Locale.FRANCE));
+            assertEquals("heure normale du Pacifique", tz.getDisplayName(false, 1, Locale.FRANCE));
+        }
     }
 
     public void test_getID() {
