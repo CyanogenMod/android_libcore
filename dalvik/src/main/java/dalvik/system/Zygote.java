@@ -17,6 +17,7 @@
 package dalvik.system;
 
 import java.lang.FinalizerThread;
+import java.lang.ref.ReferenceQueueThread;
 
 /**
  * Provides access to the Dalvik "zygote" feature, which allows a VM instance to
@@ -48,10 +49,12 @@ public class Zygote {
     private Zygote() {}
 
     private static void preFork() {
+        ReferenceQueueThread.stopReferenceQueue();
         FinalizerThread.stopFinalizer();
     }
 
     private static void postFork() {
+        ReferenceQueueThread.startReferenceQueue();
         FinalizerThread.startFinalizer();
     }
 
