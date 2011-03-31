@@ -17,7 +17,10 @@
 package java.lang;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import libcore.util.BasicLruCache;
+import libcore.util.EmptyArray;
 
 /**
  * The superclass of all enumerated types. Actual enumeration types inherit from
@@ -27,6 +30,21 @@ import java.lang.reflect.Method;
 public abstract class Enum<E extends Enum<E>> implements Serializable, Comparable<E> {
 
     private static final long serialVersionUID = -4300926546619394005L;
+
+    private static final BasicLruCache<Class<? extends Enum>, Object[]> sharedConstantsCache
+            = new BasicLruCache<Class<? extends Enum>, Object[]>(64) {
+        @Override protected Object[] create(Class<? extends Enum> enumType) {
+            Method method = (Method) Class.getDeclaredConstructorOrMethod(
+                    enumType, "values", EmptyArray.CLASS);
+            try {
+                return (Object[]) method.invoke((Object[]) null);
+            } catch (IllegalAccessException impossible) {
+                throw new AssertionError();
+            } catch (InvocationTargetException impossible) {
+                throw new AssertionError();
+            }
+        }
+    };
 
     private final String name;
 
@@ -166,12 +184,23 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
         if (!enumType.isEnum()) {
             throw new IllegalArgumentException(enumType + " is not an enum type");
         }
-        for (T value : enumType.getEnumConstants()) {
+        for (T value : getSharedConstants(enumType)) {
             if (name.equals(value.name())) {
                 return value;
             }
         }
         throw new IllegalArgumentException(name + " is not a constant in " + enumType.getName());
+    }
+
+    /**
+     * Returns a shared, mutable array containing the constants of this enum. It
+     * is an error to modify the returned array.
+     *
+     * @hide
+     */
+    @SuppressWarnings("unchecked") // the cache always returns the type matching enumType
+    public static <T extends Enum<T>> T[] getSharedConstants(Class<T> enumType) {
+        return (T[]) sharedConstantsCache.get(enumType);
     }
 
     /**

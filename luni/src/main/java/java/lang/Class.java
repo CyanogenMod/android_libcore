@@ -41,7 +41,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericDeclaration;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -758,21 +757,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return an array with the {@code enum} constants or {@code null}.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // we only cast after confirming that this class is an enum
     public T[] getEnumConstants() {
         if (!isEnum()) {
             return null;
         }
-
-        Method method = (Method) Class.getDeclaredConstructorOrMethod(
-                this, "values", EmptyArray.CLASS);
-        try {
-            return (T[]) method.invoke((Object[]) null);
-        } catch (IllegalAccessException impossible) {
-            throw new AssertionError();
-        } catch (InvocationTargetException impossible) {
-            throw new AssertionError();
-        }
+        return (T[]) Enum.getSharedConstants((Class) this).clone();
     }
 
     /**
