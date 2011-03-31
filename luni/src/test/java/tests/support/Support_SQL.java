@@ -73,8 +73,13 @@ public class Support_SQL {
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(Support_SQL.sqlUrl,
-                Support_SQL.sqlLogin, Support_SQL.sqlPassword);
+        try {
+            return DriverManager.getConnection(Support_SQL.sqlUrl,
+                    Support_SQL.sqlLogin, Support_SQL.sqlPassword);
+        } catch (SQLException e) {
+            throw new SQLException("Failed to connect. url=" + Support_SQL.sqlUrl + ", sqlLogin="
+                    + Support_SQL.sqlLogin + ", sqlPassword=" + Support_SQL.sqlPassword, e);
+        }
     }
 
     public static Connection getConnection(String url, String login,
