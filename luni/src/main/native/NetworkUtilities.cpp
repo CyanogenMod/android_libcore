@@ -106,6 +106,17 @@ jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
     return byteArrayToInetAddress(env, byteArray);
 }
 
+bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+    // Get the byte array that stores the IP address bytes in the InetAddress.
+    if (inetAddress == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return false;
+    }
+    static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
+    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
+    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
+}
+
 bool setBlocking(int fd, bool blocking) {
     int flags = fcntl(fd, F_GETFL);
     if (flags == -1) {
