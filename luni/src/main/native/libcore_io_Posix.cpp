@@ -617,7 +617,7 @@ static jobject Posix_stat(JNIEnv* env, jobject, jstring javaPath) {
     return doStat(env, javaPath, false);
 }
 
-static jobject Posix_statfs(JNIEnv* env, jstring javaPath) {
+static jobject Posix_statfs(JNIEnv* env, jobject, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
         return NULL;
