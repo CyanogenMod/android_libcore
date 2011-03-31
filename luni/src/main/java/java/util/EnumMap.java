@@ -755,7 +755,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 
     private void initialization(Class<K> type) {
         keyType = type;
-        keys = keyType.getEnumConstants();
+        keys = Enum.getSharedConstants(keyType);
         enumSize = keys.length;
         values = new Object[enumSize];
         hasMapping = new boolean[enumSize];
