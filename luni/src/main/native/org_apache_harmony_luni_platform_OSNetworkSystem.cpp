@@ -163,32 +163,12 @@ private:
     sockaddr_storage mTmp;
 };
 
-/**
- * Converts an InetAddress object and port number to a native address structure.
- */
-static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress,
-        int port, sockaddr_storage* ss) {
-    // Get the byte array that stores the IP address bytes in the InetAddress.
-    if (inetAddress == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return false;
-    }
-    static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
-    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
-    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
-}
-
 // Converts a number of milliseconds to a timeval.
 static timeval toTimeval(long ms) {
     timeval tv;
     tv.tv_sec = ms / 1000;
     tv.tv_usec = (ms - tv.tv_sec*1000) * 1000;
     return tv;
-}
-
-// Converts a timeval to a number of milliseconds.
-static long toMs(const timeval& tv) {
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 /**
@@ -204,10 +184,10 @@ static long toMs(const timeval& tv) {
  * timeval.tv_usec are long
  */
 static int time_msec_clock() {
-    timeval tp;
+    timeval tv;
     struct timezone tzp;
-    gettimeofday(&tp, &tzp);
-    return toMs(tp);
+    gettimeofday(&tv, &tzp);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 /**
