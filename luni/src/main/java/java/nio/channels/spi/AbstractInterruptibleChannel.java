@@ -89,7 +89,7 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      * should invoke the corresponding {@code end(boolean)} method.
      */
     protected final void begin() {
-        Thread.currentThread().pushInterruptAction(interruptAndCloseRunnable);
+        Thread.currentThread().pushInterruptAction$(interruptAndCloseRunnable);
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class AbstractInterruptibleChannel implements Channel, Interrupt
      *             method is executing.
      */
     protected final void end(boolean success) throws AsynchronousCloseException {
-        Thread.currentThread().popInterruptAction(interruptAndCloseRunnable);
+        Thread.currentThread().popInterruptAction$(interruptAndCloseRunnable);
         if (interrupted) {
             interrupted = false;
             throw new ClosedByInterruptException();

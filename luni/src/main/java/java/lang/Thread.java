@@ -904,11 +904,11 @@ public class Thread implements Runnable {
      * single interruption.
      *
      * <p>Each call to this method must be matched with a corresponding call to
-     * {@link #popInterruptAction}.
+     * {@link #popInterruptAction$}.
      *
      * @hide used by NIO
      */
-    public void pushInterruptAction(Runnable interruptAction) {
+    public final void pushInterruptAction$(Runnable interruptAction) {
         synchronized (interruptActions) {
             interruptActions.add(interruptAction);
         }
@@ -926,7 +926,7 @@ public class Thread implements Runnable {
      *
      * @hide used by NIO
      */
-    public void popInterruptAction(Runnable interruptAction) {
+    public final void popInterruptAction$(Runnable interruptAction) {
         synchronized (interruptActions) {
             Runnable removed = interruptActions.remove(interruptActions.size() - 1);
             if (interruptAction != removed) {
