@@ -42,21 +42,9 @@
 
 #define JAVASOCKOPT_IP_MULTICAST_IF 16
 #define JAVASOCKOPT_IP_MULTICAST_IF2 31
-#define JAVASOCKOPT_IP_MULTICAST_LOOP 18
-#define JAVASOCKOPT_IP_TOS 3
 #define JAVASOCKOPT_MCAST_JOIN_GROUP 19
 #define JAVASOCKOPT_MCAST_LEAVE_GROUP 20
-#define JAVASOCKOPT_MULTICAST_TTL 17
-#define JAVASOCKOPT_SO_BROADCAST 32
-#define JAVASOCKOPT_SO_KEEPALIVE 8
-#define JAVASOCKOPT_SO_LINGER 128
-#define JAVASOCKOPT_SO_OOBINLINE  4099
-#define JAVASOCKOPT_SO_RCVBUF 4098
-#define JAVASOCKOPT_SO_TIMEOUT  4102
-#define JAVASOCKOPT_SO_REUSEADDR 4
-#define JAVASOCKOPT_SO_SNDBUF 4097
 #define JAVASOCKOPT_SO_BINDTODEVICE 8192
-#define JAVASOCKOPT_TCP_NODELAY 1
 
 /* constants for OSNetworkSystem_selectImpl */
 #define SOCKET_OP_NONE 0
@@ -851,40 +839,7 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
     }
 
-    // Since we expect to have a AF_INET6 socket even if we're communicating via IPv4, we always
-    // set the IPPROTO_IP options. As long as we fall back to creating IPv4 sockets if creating
-    // an IPv6 socket fails, we need to make setting the IPPROTO_IPV6 options conditional.
     switch (option) {
-    case JAVASOCKOPT_IP_TOS:
-        setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
-        setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
-        return;
-    case JAVASOCKOPT_SO_BROADCAST:
-        setSocketOption(env, fd, SOL_SOCKET, SO_BROADCAST, &intVal);
-        return;
-    case JAVASOCKOPT_SO_KEEPALIVE:
-        setSocketOption(env, fd, SOL_SOCKET, SO_KEEPALIVE, &intVal);
-        return;
-    case JAVASOCKOPT_SO_LINGER:
-        {
-            linger l;
-            l.l_onoff = !wasBoolean;
-            l.l_linger = intVal <= 65535 ? intVal : 65535;
-            setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &l);
-            return;
-        }
-    case JAVASOCKOPT_SO_OOBINLINE:
-        setSocketOption(env, fd, SOL_SOCKET, SO_OOBINLINE, &intVal);
-        return;
-    case JAVASOCKOPT_SO_RCVBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_RCVBUF, &intVal);
-        return;
-    case JAVASOCKOPT_SO_REUSEADDR:
-        setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
-        return;
-    case JAVASOCKOPT_SO_SNDBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
-        return;
     case JAVASOCKOPT_SO_BINDTODEVICE: {
           // intVal contains the interface index
           char ifname[IF_NAMESIZE];
@@ -901,15 +856,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
           }
           return;
         }
-    case JAVASOCKOPT_SO_TIMEOUT:
-        {
-            timeval timeout(toTimeval(intVal));
-            setSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return;
-        }
-    case JAVASOCKOPT_TCP_NODELAY:
-        setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
-        return;
     case JAVASOCKOPT_MCAST_JOIN_GROUP:
         mcastJoinLeaveGroup(env, fd.get(), optVal, true);
         return;
@@ -938,23 +884,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         // IPV6_MULTICAST_IF expects a pointer to an integer.
         setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
         return;
-    case JAVASOCKOPT_MULTICAST_TTL:
-        {
-            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-            // IPv4 multicast TTL uses a byte.
-            u_char ttl = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
-            return;
-        }
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        {
-            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-            u_char loopback = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
-            return;
-        }
     default:
         jniThrowSocketException(env, ENOPROTOOPT);
     }

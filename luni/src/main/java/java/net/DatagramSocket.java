@@ -379,15 +379,13 @@ public class DatagramSocket {
      * interface.  Broadcast datagrams received on this interface will
      * be processed by this socket. {@see SocketOptions#SO_BINDTODEVICE}
      *
-     * @hide
+     * @hide used by GoogleTV for DHCP
      */
     public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
         if (netInterface == null) {
             throw new NullPointerException("networkInterface == null");
         }
-
-        impl.setOption(SocketOptions.SO_BINDTODEVICE,
-            Integer.valueOf(netInterface.getIndex()));
+        impl.setOption(SocketOptions.SO_BINDTODEVICE, Integer.valueOf(netInterface.getIndex()));
     }
 
     /**

@@ -270,8 +270,8 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     @Override
-    public void setOption(int optID, Object val) throws SocketException {
-        Platform.NETWORK.setSocketOption(fd, optID, val);
+    public void setOption(int option, Object value) throws SocketException {
+        IoUtils.setSocketOption(fd, option, value);
     }
 
     /**

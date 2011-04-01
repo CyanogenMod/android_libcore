@@ -229,6 +229,11 @@ public final class IoUtils {
         }
     }
 
+    // Socket options used by java.net but not exposed in SocketOptions.
+    public static final int JAVA_MCAST_JOIN_GROUP = 19;
+    public static final int JAVA_MCAST_LEAVE_GROUP = 20;
+    public static final int JAVA_IP_MULTICAST_TTL = 17;
+
     /**
      * java.net has its own socket options similar to the underlying Unix ones. We paper over the
      * differences here.
@@ -240,11 +245,6 @@ public final class IoUtils {
             throw errnoException.rethrowAsSocketException();
         }
     }
-
-    // Socket options used by java.net but not exposed in SocketOptions.
-    public static final int MCAST_JOIN_GROUP = 19;
-    public static final int MCAST_LEAVE_GROUP = 20;
-    public static final int IP_MULTICAST_TTL = 17;
 
     private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws SocketException {
         switch (option) {
@@ -258,7 +258,7 @@ public final class IoUtils {
             // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
             // it doesn't matter which we return.
             return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
-        case IoUtils.IP_MULTICAST_TTL:
+        case IoUtils.JAVA_IP_MULTICAST_TTL:
             // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
             // it doesn't matter which we return.
             return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
@@ -295,6 +295,91 @@ public final class IoUtils {
 
     private static boolean booleanFromInt(int i) {
         return (i != 0);
+    }
+
+    private static int booleanToInt(boolean b) {
+        return b ? 1 : 0;
+    }
+
+    /**
+     * java.net has its own socket options similar to the underlying Unix ones. We paper over the
+     * differences here.
+     */
+    public static void setSocketOption(FileDescriptor fd, int option, Object value) throws SocketException {
+        try {
+            setSocketOptionErrno(fd, option, value);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
+    }
+
+    private static void setSocketOptionErrno(FileDescriptor fd, int option, Object value) throws SocketException {
+        switch (option) {
+        case SocketOptions.IP_MULTICAST_IF:
+            // TODO
+            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
+            return;
+        case SocketOptions.IP_MULTICAST_IF2:
+            // TODO
+            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
+            return;
+        case SocketOptions.IP_MULTICAST_LOOP:
+            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
+            Libcore.os.setsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_LOOP, booleanToInt((Boolean) value));
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, booleanToInt((Boolean) value));
+            return;
+        case IoUtils.JAVA_IP_MULTICAST_TTL:
+            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
+            // IPv4 multicast TTL uses a byte.
+            Libcore.os.setsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_TTL, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (Integer) value);
+            return;
+        case SocketOptions.IP_TOS:
+            Libcore.os.setsockoptInt(fd, IPPROTO_IP, IP_TOS, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS, (Integer) value);
+            return;
+        case SocketOptions.SO_BROADCAST:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_BROADCAST, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_KEEPALIVE:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_KEEPALIVE, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_LINGER:
+            boolean on = false;
+            int seconds = 0;
+            if (value instanceof Integer) {
+                on = true;
+                seconds = Math.min((Integer) value, 65535);
+            }
+            StructLinger linger = new StructLinger(booleanToInt(on), seconds);
+            Libcore.os.setsockoptLinger(fd, SOL_SOCKET, SO_LINGER, linger);
+            return;
+        case SocketOptions.SO_OOBINLINE:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_OOBINLINE, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_RCVBUF:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_RCVBUF, (Integer) value);
+            return;
+        case SocketOptions.SO_REUSEADDR:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_REUSEADDR, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_SNDBUF:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_SNDBUF, (Integer) value);
+            return;
+        case SocketOptions.SO_TIMEOUT:
+            int millis = (Integer) value;
+            StructTimeval tv = StructTimeval.fromMillis(millis);
+            Libcore.os.setsockoptTimeval(fd, SOL_SOCKET, SO_RCVTIMEO, tv);
+            return;
+        case SocketOptions.TCP_NODELAY:
+            Libcore.os.setsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY, booleanToInt((Boolean) value));
+            return;
+        default:
+            // TODO
+            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
+            return;
+            //throw new SocketException("unknown socket option " + option);
+        }
     }
 
     public static InetAddress getSocketLocalAddress(FileDescriptor fd) {

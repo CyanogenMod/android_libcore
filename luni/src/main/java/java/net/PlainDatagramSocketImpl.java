@@ -108,7 +108,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public int getTimeToLive() throws IOException {
-        return (Integer) getOption(IoUtils.IP_MULTICAST_TTL);
+        return (Integer) getOption(IoUtils.JAVA_IP_MULTICAST_TTL);
     }
 
     @Override
@@ -118,27 +118,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IoUtils.MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IoUtils.MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
     public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 
@@ -179,13 +179,13 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
                               port, address);
     }
 
-    public void setOption(int optID, Object val) throws SocketException {
-        Platform.NETWORK.setSocketOption(fd, optID, val);
+    public void setOption(int option, Object value) throws SocketException {
+        IoUtils.setSocketOption(fd, option, value);
     }
 
     @Override
     public void setTimeToLive(int ttl) throws IOException {
-        setOption(IoUtils.IP_MULTICAST_TTL, Integer.valueOf(ttl));
+        setOption(IoUtils.JAVA_IP_MULTICAST_TTL, Integer.valueOf(ttl));
     }
 
     @Override
