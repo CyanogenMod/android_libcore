@@ -564,7 +564,7 @@ public class NativeCryptoTest extends TestCase {
                 if (timeout == -1) {
                     return null;
                 }
-                FileDescriptor fd = NativeCrypto.getFileDescriptor(socket);
+                FileDescriptor fd = socket.getFileDescriptor$();
                 int c = hooks.getContext();
                 int s = hooks.beforeHandshake(c);
                 TestSSLHandshakeCallbacks callback = new TestSSLHandshakeCallbacks(s, hooks);
