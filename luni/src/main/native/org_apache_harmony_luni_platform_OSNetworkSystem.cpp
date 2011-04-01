@@ -81,80 +81,33 @@ static int getSocketAddressPort(sockaddr_storage* ss) {
     }
 }
 
-/**
- * Obtain the socket address family from an existing socket.
- *
- * @param socket the file descriptor of the socket to examine
- * @return an integer, the address family of the socket
- */
-static int getSocketAddressFamily(int socket) {
-    sockaddr_storage ss;
-    socklen_t namelen = sizeof(ss);
-    int ret = getsockname(socket, reinterpret_cast<sockaddr*>(&ss), &namelen);
-    if (ret != 0) {
-        return AF_UNSPEC;
-    } else {
-        return ss.ss_family;
-    }
-}
-
-// Handles translating between IPv4 and IPv6 addresses so -- where possible --
-// we can use either class of address with either an IPv4 or IPv6 socket.
+// Creates mapped addresses.
+// TODO: can this move to inetAddressToSocketAddress?
 class CompatibleSocketAddress {
 public:
-    // Constructs an address corresponding to 'ss' that's compatible with 'fd'.
-    CompatibleSocketAddress(int fd, const sockaddr_storage& ss, bool mapUnspecified) {
-        const int desiredFamily = getSocketAddressFamily(fd);
-        if (ss.ss_family == AF_INET6) {
-            if (desiredFamily == AF_INET6) {
-                // Nothing to do.
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-            } else {
-                sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&mTmp);
-                const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(&ss);
-                memset(sin, 0, sizeof(*sin));
-                sin->sin_family = AF_INET;
-                sin->sin_port = sin6->sin6_port;
-                if (IN6_IS_ADDR_V4COMPAT(&sin6->sin6_addr)) {
-                    // We have an IPv6-mapped IPv4 address, but need plain old IPv4.
-                    // Unmap the mapped address in ss into an IPv6 address in mTmp.
-                    memcpy(&sin->sin_addr.s_addr, &sin6->sin6_addr.s6_addr[12], 4);
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-                } else if (IN6_IS_ADDR_LOOPBACK(&sin6->sin6_addr)) {
-                    // Translate the IPv6 loopback address to the IPv4 one.
-                    sin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-                } else {
-                    // We can't help you. We return what you gave us, and assume you'll
-                    // get a sensible error when you use the address.
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-                }
+    CompatibleSocketAddress(const sockaddr_storage& ss, bool mapUnspecified) {
+        mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
+        if (ss.ss_family == AF_INET) {
+            // Map the IPv4 address in ss into an IPv6 address in mTmp.
+            const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(&ss);
+            sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&mTmp);
+            memset(sin6, 0, sizeof(*sin6));
+            sin6->sin6_family = AF_INET6;
+            sin6->sin6_port = sin->sin_port;
+            // TODO: mapUnspecified was introduced because kernels < 2.6.31 don't allow
+            // you to bind to ::ffff:0.0.0.0. When we move to something >= 2.6.31, we
+            // should make the code behave as if mapUnspecified were always true, and
+            // remove the parameter.
+            // TODO: this code still appears to be necessary on 2.6.32, so there's something
+            // wrong in the above comment.
+            if (sin->sin_addr.s_addr != 0 || mapUnspecified) {
+                memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
             }
-        } else /* ss.ss_family == AF_INET */ {
-            if (desiredFamily == AF_INET) {
-                // Nothing to do.
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-            } else {
-                // We have IPv4 and need IPv6.
-                // Map the IPv4 address in ss into an IPv6 address in mTmp.
-                const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(&ss);
-                sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&mTmp);
-                memset(sin6, 0, sizeof(*sin6));
-                sin6->sin6_family = AF_INET6;
-                sin6->sin6_port = sin->sin_port;
-                // TODO: mapUnspecified was introduced because kernels < 2.6.31 don't allow
-                // you to bind to ::ffff:0.0.0.0. When we move to something >= 2.6.31, we
-                // should make the code behave as if mapUnspecified were always true, and
-                // remove the parameter.
-                if (sin->sin_addr.s_addr != 0 || mapUnspecified) {
-                    memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
-                }
-                memcpy(&sin6->sin6_addr.s6_addr[12], &sin->sin_addr.s_addr, 4);
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-            }
+            memcpy(&sin6->sin6_addr.s6_addr[12], &sin->sin_addr.s_addr, 4);
+            mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
         }
     }
-    // Returns a pointer to an address compatible with the socket.
+    // Returns a pointer to an IPv6 address.
     const sockaddr* get() const {
         return mCompatibleAddress;
     }
@@ -214,7 +167,7 @@ public:
         }
 
         // Set the socket to non-blocking and initiate a connection attempt...
-        const CompatibleSocketAddress compatibleAddress(fd.get(), ss, true);
+        const CompatibleSocketAddress compatibleAddress(ss, true);
         if (!setBlocking(fd.get(), false) ||
                 connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)) == -1) {
             if (fd.isClosed()) {
@@ -470,8 +423,8 @@ static void OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor
 
 static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
         jobject inetAddress, jint port) {
-    sockaddr_storage socketAddress;
-    if (!inetAddressToSocketAddress(env, inetAddress, port, &socketAddress)) {
+    sockaddr_storage ss;
+    if (!inetAddressToSocketAddress(env, inetAddress, port, &ss)) {
         return;
     }
 
@@ -480,7 +433,7 @@ static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
         return;
     }
 
-    const CompatibleSocketAddress compatibleAddress(fd.get(), socketAddress, false);
+    const CompatibleSocketAddress compatibleAddress(ss, false);
     int rc = TEMP_FAILURE_RETRY(bind(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)));
     if (rc == -1) {
         jniThrowBindException(env, errno);
@@ -898,21 +851,13 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
     }
 
-    int family = getSocketAddressFamily(fd.get());
-    if (family != AF_INET && family != AF_INET6) {
-        jniThrowSocketException(env, EAFNOSUPPORT);
-        return;
-    }
-
     // Since we expect to have a AF_INET6 socket even if we're communicating via IPv4, we always
     // set the IPPROTO_IP options. As long as we fall back to creating IPv4 sockets if creating
     // an IPv6 socket fails, we need to make setting the IPPROTO_IPV6 options conditional.
     switch (option) {
     case JAVASOCKOPT_IP_TOS:
         setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
-        if (family == AF_INET6) {
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
-        }
+        setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
         return;
     case JAVASOCKOPT_SO_BROADCAST:
         setSocketOption(env, fd, SOL_SOCKET, SO_BROADCAST, &intVal);
@@ -978,12 +923,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
                     !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
                 return;
             }
-            // This call is IPv4 only. The socket may be IPv6, but the address
-            // that identifies the interface to join must be an IPv4 address.
-            if (sockVal.ss_family != AF_INET) {
-                jniThrowSocketException(env, EAFNOSUPPORT);
-                return;
-            }
             ip_mreqn mcast_req;
             memset(&mcast_req, 0, sizeof(mcast_req));
             mcast_req.imr_address = reinterpret_cast<sockaddr_in*>(&sockVal)->sin_addr;
@@ -991,18 +930,13 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             return;
         }
     case JAVASOCKOPT_IP_MULTICAST_IF2:
-        // TODO: is this right? should we unconditionally set the IPPROTO_IP state in case
-        // we have an IPv6 socket communicating via IPv4?
-        if (family == AF_INET) {
-            // IP_MULTICAST_IF expects a pointer to an ip_mreqn struct.
-            ip_mreqn multicastRequest;
-            memset(&multicastRequest, 0, sizeof(multicastRequest));
-            multicastRequest.imr_ifindex = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-        } else {
-            // IPV6_MULTICAST_IF expects a pointer to an integer.
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
-        }
+        // IP_MULTICAST_IF expects a pointer to an ip_mreqn struct.
+        ip_mreqn multicastRequest;
+        memset(&multicastRequest, 0, sizeof(multicastRequest));
+        multicastRequest.imr_ifindex = intVal;
+        setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
+        // IPV6_MULTICAST_IF expects a pointer to an integer.
+        setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
         return;
     case JAVASOCKOPT_MULTICAST_TTL:
         {
@@ -1010,9 +944,7 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             // IPv4 multicast TTL uses a byte.
             u_char ttl = intVal;
             setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            if (family == AF_INET6) {
-                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
-            }
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
             return;
         }
     case JAVASOCKOPT_IP_MULTICAST_LOOP:
@@ -1020,9 +952,7 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
             u_char loopback = intVal;
             setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            if (family == AF_INET6) {
-                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
-            }
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
             return;
         }
     default:

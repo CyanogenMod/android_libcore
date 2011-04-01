@@ -248,38 +248,24 @@ public final class IoUtils {
 
     private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws SocketException {
         switch (option) {
-        case SocketOptions.IP_MULTICAST_IF2:
-            if (boundIPv4(fd)) {
-                // The caller's asking for an interface index, but that's not how IPv4 works.
-                // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
-                // that will satisfy us.
-                throw new SocketException("no interface index for IPv4");
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
-            }
         case SocketOptions.IP_MULTICAST_IF:
+            // This is IPv4-only.
             return Libcore.os.getsockoptInAddr(fd, IPPROTO_IP, IP_MULTICAST_IF);
+        case SocketOptions.IP_MULTICAST_IF2:
+            // This is IPv6-only.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
         case SocketOptions.IP_MULTICAST_LOOP:
-            if (boundIPv4(fd)) {
-                // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-                // IPv4 multicast TTL uses a byte.
-                return booleanFromInt(Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_LOOP));
-            } else {
-                return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
-            }
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
         case IoUtils.IP_MULTICAST_TTL:
-            if (boundIPv4(fd)) {
-                // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-                return Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_TTL);
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
-            }
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
         case SocketOptions.IP_TOS:
-            if (boundIPv4(fd)) {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IP, IP_TOS);
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS);
-            }
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS);
         case SocketOptions.SO_BROADCAST:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_BROADCAST));
         case SocketOptions.SO_KEEPALIVE:
@@ -305,15 +291,6 @@ public final class IoUtils {
         default:
             throw new SocketException("unknown socket option " + option);
         }
-    }
-
-    private static boolean boundIPv4(FileDescriptor fd) {
-        SocketAddress sa = Libcore.os.getsockname(fd);
-        if (!(sa instanceof InetSocketAddress)) {
-            return false;
-        }
-        InetSocketAddress isa = (InetSocketAddress) sa;
-        return (isa.getAddress() instanceof Inet4Address);
     }
 
     private static boolean booleanFromInt(int i) {
