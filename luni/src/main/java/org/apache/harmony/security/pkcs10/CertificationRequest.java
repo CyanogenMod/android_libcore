@@ -38,52 +38,37 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
  *
  * Signature ::= BIT STRING
  */
-public class CertificationRequest {
+public final class CertificationRequest {
 
-    // the value of certificationRequestInfo field of the structure
+    /** the value of certificationRequestInfo field of the structure */
     private CertificationRequestInfo info;
 
-    // the value of signatureAlgorithm field of the structure
+    /** the value of signatureAlgorithm field of the structure */
     private AlgorithmIdentifier algId;
 
-    // the value of signature field of the structure
+    /** the value of signature field of the structure */
     private byte[] signature;
 
-    // the ASN.1 encoded form of CertificationRequest
+    /** the ASN.1 encoded form of CertificationRequest */
     private byte[] encoding;
 
     public CertificationRequest(CertificationRequestInfo info,
             AlgorithmIdentifier algId, byte[] signature) {
         this.info = info;
         this.algId = algId;
-        this.signature = new byte[signature.length];
-        System.arraycopy(signature, 0, this.signature, 0, signature.length);
+        this.signature = signature.clone();
     }
 
-    // private constructor with encoding given
     private CertificationRequest(CertificationRequestInfo info,
             AlgorithmIdentifier algId, byte[] signature, byte[] encoding) {
         this(info, algId, signature);
         this.encoding = encoding;
     }
 
-    /**
-     * @return Returns the algId.
-     */
-    public AlgorithmIdentifier getAlgId() {
-        return algId;
-    }
-
-    /**
-     * @return Returns the info.
-     */
     public CertificationRequestInfo getInfo() {
         return info;
     }
 
-    /**
-     * @return Returns the signature.
-     */
     public byte[] getSignature() {
         byte[] result = new byte[signature.length];
         System.arraycopy(signature, 0, result, 0, signature.length);
@@ -109,7 +94,6 @@ public class CertificationRequest {
 
         public Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
-
             return new CertificationRequest(
                     (CertificationRequestInfo) values[0],
                     (AlgorithmIdentifier) values[1],
@@ -119,7 +103,6 @@ public class CertificationRequest {
 
         protected void getValues(Object object, Object[] values) {
             CertificationRequest certReq = (CertificationRequest) object;
-
             values[0] = certReq.info;
             values[1] = certReq.algId;
             values[2] = new BitString(certReq.signature, 0);

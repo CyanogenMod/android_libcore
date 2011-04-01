@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import libcore.icu.LocaleData;
 
 /**
  * {@code Date} represents a specific moment in time, to the millisecond.
@@ -184,7 +185,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 
@@ -470,7 +471,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
                     throw new IllegalArgumentException();
                 }
             } else if (state == LETTERS && nextState != LETTERS) {
-                String text = buffer.toString().toUpperCase();
+                String text = buffer.toString().toUpperCase(Locale.US);
                 buffer.setLength(0);
                 if (text.length() == 1) {
                     throw new IllegalArgumentException();
@@ -653,31 +654,23 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
     }
 
     /**
-     * Returns the string representation of this {@code Date} in GMT in the format: 22
-     * Jun 1999 13:02:00 GMT
-     *
-     * @return the string representation of this {@code Date} in GMT.
+     * Returns the string representation of this {@code Date} in GMT in the format
+     * {@code "22 Jun 1999 13:02:00 GMT"}.
      *
      * @deprecated use {@link DateFormat}
      */
     @Deprecated
     public String toGMTString() {
-        // TODO: why does this insert the year manually instead of using one SimpleDateFormat?
-        SimpleDateFormat format1 = new SimpleDateFormat("d MMM ", Locale.US);
-        SimpleDateFormat format2 = new SimpleDateFormat(" HH:mm:ss 'GMT'", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM y HH:mm:ss 'GMT'", Locale.US);
         TimeZone gmtZone = TimeZone.getTimeZone("GMT");
-        format1.setTimeZone(gmtZone);
-        format2.setTimeZone(gmtZone);
+        sdf.setTimeZone(gmtZone);
         GregorianCalendar gc = new GregorianCalendar(gmtZone);
         gc.setTimeInMillis(milliseconds);
-        return format1.format(this) + gc.get(Calendar.YEAR)
-                + format2.format(this);
+        return sdf.format(this);
     }
 
     /**
      * Returns the string representation of this {@code Date} for the default {@code Locale}.
-     *
-     * @return the string representation of this {@code Date} for the default {@code Locale}.
      *
      * @deprecated use {@link DateFormat}
      */
@@ -693,35 +686,39 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
      * like "Tue Jun 22 13:07:00 PDT 1999". The current default time zone and
      * locale are used. If you need control over the time zone or locale,
      * use {@code SimpleDateFormat} instead.
-     *
-     * @return the string representation of this {@code Date}.
      */
     @Override
     public String toString() {
-        // BEGIN android-changed: fixed to use time zone display names ("PST")
-        // rather than ids ("America/Los_Angeles").
-        // Equivalent to the following one-liner, though that's currently 8x slower
-        // at 1655us versus 195us...
+        // TODO: equivalent to the following one-liner, though that's slower on stingray
+        // at 476us versus 69us...
         //   return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").format(d);
+        LocaleData localeData = LocaleData.get(Locale.US);
         Calendar cal = new GregorianCalendar(milliseconds);
         TimeZone tz = cal.getTimeZone();
-        return dayOfWeekNames[cal.get(Calendar.DAY_OF_WEEK) - 1] + " " + monthNames[cal.get(Calendar.MONTH)]
-                + " " + toTwoDigits(cal.get(Calendar.DAY_OF_MONTH)) + " " + toTwoDigits(cal.get(Calendar.HOUR_OF_DAY))
-                + ":" + toTwoDigits(cal.get(Calendar.MINUTE)) + ":" + toTwoDigits(cal.get(Calendar.SECOND))
-                + " " + tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT) + " " + cal.get(Calendar.YEAR);
-        // END android-changed
+        StringBuilder result = new StringBuilder();
+        result.append(localeData.shortWeekdayNames[cal.get(Calendar.DAY_OF_WEEK)]);
+        result.append(' ');
+        result.append(localeData.shortMonthNames[cal.get(Calendar.MONTH)]);
+        result.append(' ');
+        appendTwoDigits(result, cal.get(Calendar.DAY_OF_MONTH));
+        result.append(' ');
+        appendTwoDigits(result, cal.get(Calendar.HOUR_OF_DAY));
+        result.append(':');
+        appendTwoDigits(result, cal.get(Calendar.MINUTE));
+        result.append(':');
+        appendTwoDigits(result, cal.get(Calendar.SECOND));
+        result.append(' ');
+        result.append(tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT));
+        result.append(' ');
+        result.append(cal.get(Calendar.YEAR));
+        return result.toString();
     }
-    private static final String[] dayOfWeekNames =
-            { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    private static final String[] monthNames =
-            { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-    private String toTwoDigits(int n) {
-        if (n >= 10) {
-            return Integer.toString(n);
-        } else {
-            return "0" + n;
+    private static void appendTwoDigits(StringBuilder sb, int n) {
+        if (n < 10) {
+            sb.append('0');
         }
+        sb.append(n);
     }
 
     /**

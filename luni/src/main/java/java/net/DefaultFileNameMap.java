@@ -16,6 +16,7 @@
 
 package java.net;
 
+import java.util.Locale;
 import libcore.net.MimeUtils;
 
 /**
@@ -36,6 +37,6 @@ class DefaultFileNameMap implements FileNameMap {
         if (firstCharInExtension > filename.lastIndexOf('/')) {
             ext = filename.substring(firstCharInExtension, lastCharInExtension);
         }
-        return MimeUtils.guessMimeTypeFromExtension(ext.toLowerCase());
+        return MimeUtils.guessMimeTypeFromExtension(ext.toLowerCase(Locale.US));
     }
 }

@@ -43,7 +43,6 @@ public class StringReader extends Reader {
      *            the source string for this reader.
      */
     public StringReader(String str) {
-        super();
         this.str = str;
         this.count = str.length();
     }

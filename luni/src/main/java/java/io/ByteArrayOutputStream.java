@@ -44,7 +44,6 @@ public class ByteArrayOutputStream extends OutputStream {
      * array will expand.
      */
     public ByteArrayOutputStream() {
-        super();
         buf = new byte[32];
     }
 
@@ -60,7 +59,6 @@ public class ByteArrayOutputStream extends OutputStream {
      *             if {@code size} < 0.
      */
     public ByteArrayOutputStream(int size) {
-        super();
         if (size >= 0) {
             buf = new byte[size];
         } else {

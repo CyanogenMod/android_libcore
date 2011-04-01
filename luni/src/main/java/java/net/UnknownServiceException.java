@@ -34,7 +34,6 @@ public class UnknownServiceException extends IOException {
      * walkback filled in.
      */
     public UnknownServiceException() {
-        super();
     }
 
     /**

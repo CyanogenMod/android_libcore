@@ -27,20 +27,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import libcore.util.EmptyArray;
 import libcore.io.IoUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -111,9 +105,7 @@ class XMLParser {
      */
     static {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // BEGIN android-changed
         factory.setValidating(false);
-        // END android-changed
         try {
             builder = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -322,9 +314,6 @@ class XMLParser {
             case '&':
                 sb.append("&amp;");
                 break;
-            case '\\':
-                sb.append("&apos;");
-                break;
             case '"':
                 sb.append("&quot;");
                 break;
@@ -370,22 +359,12 @@ class XMLParser {
         } catch (SAXException e) {
             throw new InvalidPreferencesFormatException(e);
         }
-        // BEGIN android-removed
-        // catch (TransformerException e) {
-        //     throw new InvalidPreferencesFormatException(e);
-        // }
-        // END android-removed
     }
 
     private static void loadNode(Preferences prefs, Element node) {
-        // BEGIN android-note
-        // removed throw clause for TransformerException
-        // END android-note
         // load preferences
-        // BEGIN android-changed
         NodeList children = selectNodeList(node, "node");
         NodeList entries = selectNodeList(node, "map/entry");
-        // END android-changed
         int childNumber = children.getLength();
         Preferences[] prefChildren = new Preferences[childNumber];
         int entryNumber = entries.getLength();
@@ -413,7 +392,6 @@ class XMLParser {
         }
     }
 
-    // BEGIN android-added
     // TODO dirty implementation of a method from javax.xml.xpath
     // should be replaced with a call to a good impl of this method
     private static NodeList selectNodeList(Element documentElement, String string) {
@@ -430,8 +408,7 @@ class XMLParser {
             for(int i = 0; i < childNodes.getLength(); i++) {
                 Object next = childNodes.item(i);
                 if(next instanceof Element) {
-                    if(((Element) next).getNodeName().equals(path[0])
-                            && next instanceof Node) {
+                    if(((Element) next).getNodeName().equals(path[0])) {
                         input.add((Node)next);
                     }
                 }
@@ -440,8 +417,7 @@ class XMLParser {
             for(int i = 0; i < childNodes.getLength(); i++) {
                 Object next = childNodes.item(i);
                 if(next instanceof Element) {
-                    if(((Element) next).getNodeName().equals(path[0])
-                            && next instanceof Node) {
+                    if(((Element) next).getNodeName().equals(path[0])) {
                         NodeList nextChildNodes = ((Node)next).getChildNodes();
                         for(int j = 0; j < nextChildNodes.getLength(); j++) {
                             Object subnext = nextChildNodes.item(j);
@@ -460,40 +436,21 @@ class XMLParser {
 
         return result;
     }
-    // END android-added
 
-    /***************************************************************************
-     * utilities for FilePreferencesImpl, which is default implementation of Linux platform
-     **************************************************************************/
     /**
-     * load preferences from file, if cannot load, create a new one FIXME: need
-     * lock or not?
-     *
-     * @param file    the XML file to be read
-     * @return Properties instance which indicates the preferences key-value pairs
+     * Returns the preferences from {@code xmlFile}. Returns empty properties if
+     * any errors occur.
      */
-    static Properties loadFilePrefs(final File file) {
-        return AccessController.doPrivileged(new PrivilegedAction<Properties>() {
-            public Properties run() {
-                return loadFilePrefsImpl(file);
-            }
-        });
-    }
-
-    static Properties loadFilePrefsImpl(final File file) {
+    static Properties readXmlPreferences(File xmlFile) {
         Properties result = new Properties();
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-        } else if (file.canRead()) {
+        if (!xmlFile.exists()) {
+            xmlFile.getParentFile().mkdirs();
+        } else if (xmlFile.canRead()) {
             Reader reader = null;
-            FileLock lock = null;
             try {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                reader = new InputStreamReader(fileInputStream, "UTF-8");
-                FileChannel channel = fileInputStream.getChannel();
-                lock = channel.lock(0L, Long.MAX_VALUE, true);
-                Document doc = builder.parse(new InputSource(reader));
-                NodeList entries = selectNodeList(doc.getDocumentElement(), "entry");
+                reader = new InputStreamReader(new FileInputStream(xmlFile), "UTF-8");
+                Document document = builder.parse(new InputSource(reader));
+                NodeList entries = selectNodeList(document.getDocumentElement(), "entry");
                 int length = entries.getLength();
                 for (int i = 0; i < length; i++) {
                     Element node = (Element) entries.item(i);
@@ -501,70 +458,47 @@ class XMLParser {
                     String value = node.getAttribute("value");
                     result.setProperty(key, value);
                 }
-                return result;
-            } catch (IOException e) {
-            } catch (SAXException e) {
+            } catch (IOException ignored) {
+            } catch (SAXException ignored) {
             } finally {
-                releaseQuietly(lock);
                 IoUtils.closeQuietly(reader);
             }
         } else {
-            file.delete();
+            // the prefs API requires this to be hostile towards pre-existing files
+            xmlFile.delete();
         }
         return result;
     }
 
     /**
-     *
-     * @param file
-     * @param prefs
-     * @throws PrivilegedActionException
+     * Writes the preferences to {@code xmlFile}.
      */
-    static void flushFilePrefs(final File file, final Properties prefs) throws PrivilegedActionException {
-        AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-            public Object run() throws IOException {
-                flushFilePrefsImpl(file, prefs);
-                return null;
-            }
-        });
-    }
+    static void writeXmlPreferences(File xmlFile, Properties properties) throws IOException {
+        File parent = xmlFile.getParentFile();
+        File temporaryForWriting = new File(parent, "prefs-" + UUID.randomUUID() + ".xml.tmp");
 
-    static void flushFilePrefsImpl(File file, Properties prefs) throws IOException {
         BufferedWriter out = null;
-        FileLock lock = null;
         try {
-            FileOutputStream ostream = new FileOutputStream(file);
-            out = new BufferedWriter(new OutputStreamWriter(ostream, "UTF-8"));
-            FileChannel channel = ostream.getChannel();
-            lock = channel.lock();
+            out = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(temporaryForWriting), "UTF-8"));
             out.write(HEADER);
             out.newLine();
             out.write(FILE_PREFS);
             out.newLine();
-            if (prefs.size() == 0) {
-                exportEntries(EmptyArray.STRING, EmptyArray.STRING, out);
-            } else {
-                String[] keys = prefs.keySet().toArray(new String[prefs.size()]);
-                int length = keys.length;
-                String[] values = new String[length];
-                for (int i = 0; i < length; i++) {
-                    values[i] = prefs.getProperty(keys[i]);
-                }
-                exportEntries(keys, values, out);
+            String[] keys = properties.keySet().toArray(new String[properties.size()]);
+            int length = keys.length;
+            String[] values = new String[length];
+            for (int i = 0; i < length; i++) {
+                values[i] = properties.getProperty(keys[i]);
             }
-            out.flush();
+            exportEntries(keys, values, out);
+            out.close();
+            if (!temporaryForWriting.renameTo(xmlFile)) {
+                throw new IOException("Failed to write preferences to " + xmlFile);
+            }
         } finally {
-            releaseQuietly(lock);
             IoUtils.closeQuietly(out);
+            temporaryForWriting.delete(); // no-op unless something failed
         }
-    }
-
-    private static void releaseQuietly(FileLock lock) {
-        if (lock == null) {
-            return;
-        }
-        try {
-            lock.release();
-        } catch (IOException e) {}
     }
 }

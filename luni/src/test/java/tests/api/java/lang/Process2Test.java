@@ -18,10 +18,6 @@
 package tests.api.java.lang;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,34 +28,13 @@ import java.io.OutputStream;
 import tests.support.Support_Exec;
 import static tests.support.Support_Exec.javaProcessBuilder;
 
-@TestTargetClass(Process.class)
 public class Process2Test extends junit.framework.TestCase {
     /**
-     * @tests java.lang.Process#getInputStream(),
+     * java.lang.Process#getInputStream(),
      *        java.lang.Process#getErrorStream()
      *        java.lang.Process#getOutputStream()
      * Tests if these methods return buffered streams.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getErrorStream",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getInputStream",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "getOutputStream",
-            args = {}
-        )
-    })
     @AndroidOnly("dalvikvm specific")
     public void test_streams()
             throws IOException, InterruptedException {
@@ -69,12 +44,6 @@ public class Process2Test extends junit.framework.TestCase {
         assertNotNull(p.getOutputStream());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getErrorStream",
-        args = {}
-    )
     public void test_getErrorStream() {
         String[] commands = {"ls"};
         Process process = null;

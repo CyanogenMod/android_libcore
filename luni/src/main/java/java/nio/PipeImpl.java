@@ -19,10 +19,13 @@ package java.nio;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.channels.Pipe;
 import java.nio.channels.spi.SelectorProvider;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /*
  * Implements {@link java.nio.channels.Pipe}.
@@ -32,12 +35,15 @@ final class PipeImpl extends Pipe {
     private final PipeSourceChannel source;
 
     public PipeImpl() throws IOException {
-        int[] fds = new int[2];
-        IoUtils.pipe(fds);
-        // Which fd is used for which channel is important. Unix pipes are only guaranteed to be
-        // unidirectional, and indeed are only unidirectional on Linux. See IoUtils.pipe.
-        this.sink = new PipeSinkChannel(fds[1]);
-        this.source = new PipeSourceChannel(fds[0]);
+        try {
+            FileDescriptor[] fds = Libcore.os.pipe();
+            // Which fd is used for which channel is important. Unix pipes are only guaranteed to be
+            // unidirectional, and indeed are only unidirectional on Linux.
+            this.sink = new PipeSinkChannel(fds[1]);
+            this.source = new PipeSourceChannel(fds[0]);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
     }
 
     @Override public SinkChannel sink() {
@@ -61,14 +67,14 @@ final class PipeImpl extends Pipe {
         }
     }
 
-    private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorHandler {
+    private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorChannel {
         private final FileDescriptor fd;
-        private final FileChannelImpl channel;
+        private final FileChannel channel;
 
-        private PipeSourceChannel(int fd) throws IOException {
+        private PipeSourceChannel(FileDescriptor fd) throws IOException {
             super(SelectorProvider.provider());
-            this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = new ReadOnlyFileChannel(new FdCloser(this.fd), fd);
+            this.fd = fd;
+            this.channel = NioUtils.newFileChannel(new FdCloser(fd), fd, O_RDONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {
@@ -96,14 +102,14 @@ final class PipeImpl extends Pipe {
         }
     }
 
-    private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorHandler {
+    private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorChannel {
         private final FileDescriptor fd;
-        private final FileChannelImpl channel;
+        private final FileChannel channel;
 
-        private PipeSinkChannel(int fd) throws IOException {
+        private PipeSinkChannel(FileDescriptor fd) throws IOException {
             super(SelectorProvider.provider());
-            this.fd = IoUtils.newFileDescriptor(fd);
-            this.channel = new WriteOnlyFileChannel(new FdCloser(this.fd), fd);
+            this.fd = fd;
+            this.channel = NioUtils.newFileChannel(new FdCloser(fd), fd, O_WRONLY);
         }
 
         @Override protected void implCloseSelectableChannel() throws IOException {

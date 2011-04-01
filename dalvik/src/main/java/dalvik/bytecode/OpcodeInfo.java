@@ -55,7 +55,7 @@ public final class OpcodeInfo {
          */
         // BEGIN(libcore-maximum-values); GENERATED AUTOMATICALLY BY opcode-gen
         MAXIMUM_VALUE = 65535;
-        MAXIMUM_PACKED_VALUE = 255;
+        MAXIMUM_PACKED_VALUE = 511;
         // END(libcore-maximum-values)
     }
 

@@ -23,7 +23,7 @@ import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 import junit.framework.TestCase;
 
-public class OldDriverPropertyInfoTest extends TestCase {
+public final class OldDriverPropertyInfoTest extends TestCase {
 
     static final String validName = "testname";
     static final String validValue = "testvalue";

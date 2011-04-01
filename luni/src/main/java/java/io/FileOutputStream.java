@@ -22,8 +22,7 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * An output stream that writes bytes to a file. If the output file exists, it
@@ -54,7 +53,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     private final FileDescriptor fd;
 
-    private final boolean shouldCloseFd;
+    /** The same as 'fd' if we own the file descriptor, null otherwise. */
+    private final FileDescriptor ownedFd;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
@@ -69,9 +69,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
      *
      * @param file the file to which this stream writes.
      * @throws FileNotFoundException if file cannot be opened for writing.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public FileOutputStream(File file) throws FileNotFoundException {
         this(file, false);
@@ -85,21 +82,14 @@ public class FileOutputStream extends OutputStream implements Closeable {
      * @param file the file to which this stream writes.
      * @param append true to append to an existing file.
      * @throws FileNotFoundException if the file cannot be opened for writing.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
-     * @see java.lang.SecurityManager#checkWrite(String)
      */
-    public FileOutputStream(File file, boolean append)
-            throws FileNotFoundException {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkWrite(file.getPath());
+    public FileOutputStream(File file, boolean append) throws FileNotFoundException {
+        if (file == null) {
+            throw new NullPointerException("file == null");
         }
-        this.fd = new FileDescriptor();
-        this.mode = append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY;
-        this.fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), mode);
-        this.shouldCloseFd = true;
+        this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
+        this.fd = IoUtils.open(file.getAbsolutePath(), mode);
+        this.ownedFd = fd;
         this.guard.open("close");
     }
 
@@ -108,22 +98,15 @@ public class FileOutputStream extends OutputStream implements Closeable {
      *
      * @param fd the FileDescriptor to which this stream writes.
      * @throws NullPointerException if {@code fd} is null.
-     * @throws SecurityException if a {@code SecurityManager} is installed and
-     *     it denies the write request.
-     * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
     public FileOutputStream(FileDescriptor fd) {
         if (fd == null) {
-            throw new NullPointerException();
-        }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkWrite(fd);
+            throw new NullPointerException("fd == null");
         }
         this.fd = fd;
-        this.shouldCloseFd = false;
-        this.channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_WRONLY);
-        this.mode = IFileSystem.O_WRONLY;
+        this.ownedFd = null;
+        this.mode = O_WRONLY;
+        this.channel = NioUtils.newFileChannel(this, fd, mode);
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -149,19 +132,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            if (shouldCloseFd && fd.valid()) {
-                IoUtils.close(fd);
-            }
+            IoUtils.close(fd);
         }
     }
 
-    /**
-     * Frees any resources allocated for this stream before it is garbage
-     * collected. This method is called from the Java Virtual Machine.
-     *
-     * @throws IOException
-     *             if an error occurs attempting to finalize this stream.
-     */
     @Override protected void finalize() throws IOException {
         try {
             if (guard != null) {
@@ -186,7 +160,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd.descriptor, mode);
+                channel = NioUtils.newFileChannel(this, fd, mode);
             }
             return channel;
         }
@@ -200,30 +174,12 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     @Override
-    public void write(byte[] buffer) throws IOException {
-        write(buffer, 0, buffer.length);
-    }
-
-    @Override
-    public void write(byte[] buffer, int offset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
-        if (byteCount == 0) {
-            return;
-        }
-        checkOpen();
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, offset, byteCount);
+    public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        IoUtils.write(fd, buffer, byteOffset, byteCount);
     }
 
     @Override
     public void write(int oneByte) throws IOException {
-        checkOpen();
-        byte[] buffer = { (byte) oneByte };
-        Platform.FILE_SYSTEM.write(fd.descriptor, buffer, 0, 1);
-    }
-
-    private synchronized void checkOpen() throws IOException {
-        if (!fd.valid()) {
-            throw new IOException("stream is closed");
-        }
+        write(new byte[] { (byte) oneByte }, 0, 1);
     }
 }

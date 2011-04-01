@@ -32,7 +32,6 @@ public abstract class EventListenerProxy implements EventListener {
      *            the listener wrapped by this proxy.
      */
     public EventListenerProxy(EventListener listener) {
-        super();
         this.listener = listener;
     }
 

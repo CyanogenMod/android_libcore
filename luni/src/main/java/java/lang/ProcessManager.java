@@ -28,8 +28,6 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import libcore.io.IoUtils;
 
 /**
@@ -186,10 +184,7 @@ final class ProcessManager {
         // Handle security and safety by copying mutable inputs and checking them.
         String[] command = taintedCommand.clone();
         String[] environment = taintedEnvironment != null ? taintedEnvironment.clone() : null;
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkExec(command[0]);
-        }
+
         // Check we're not passing null Strings to the native exec.
         for (String arg : command) {
             if (arg == null) {
@@ -272,8 +267,7 @@ final class ProcessManager {
             try {
                 kill(this.id);
             } catch (IOException e) {
-                Logger.getLogger(Process.class.getName()).log(Level.FINE,
-                        "Failed to destroy process " + id + ".", e);
+                System.logI("Failed to destroy process " + id, e);
             }
             IoUtils.closeQuietly(inputStream);
             IoUtils.closeQuietly(errorStream);
@@ -369,12 +363,10 @@ final class ProcessManager {
                 super.close();
             } finally {
                 synchronized (this) {
-                    if (fd != null && fd.valid()) {
-                        try {
-                            IoUtils.close(fd);
-                        } finally {
-                            fd = null;
-                        }
+                    try {
+                        IoUtils.close(fd);
+                    } finally {
+                        fd = null;
                     }
                 }
             }
@@ -397,12 +389,10 @@ final class ProcessManager {
                 super.close();
             } finally {
                 synchronized (this) {
-                    if (fd != null && fd.valid()) {
-                        try {
-                            IoUtils.close(fd);
-                        } finally {
-                            fd = null;
-                        }
+                    try {
+                        IoUtils.close(fd);
+                    } finally {
+                        fd = null;
                     }
                 }
             }

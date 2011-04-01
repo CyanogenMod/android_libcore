@@ -19,9 +19,9 @@ package java.io;
 
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
+import libcore.io.Memory;
 import libcore.io.Streams;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * Wraps an existing {@link InputStream} and reads big-endian typed data from it.
@@ -52,24 +52,6 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      */
     public DataInputStream(InputStream in) {
         super(in);
-    }
-
-    /**
-     * Reads bytes from this stream into the byte array {@code buffer}. Returns
-     * the number of bytes that have been read.
-     *
-     * @param buffer
-     *            the buffer to read bytes into.
-     * @return the number of bytes that have been read or -1 if the end of the
-     *         stream has been reached.
-     * @throws IOException
-     *             if a problem occurs while reading from this stream.
-     * @see DataOutput#write(byte[])
-     * @see DataOutput#write(byte[], int, int)
-     */
-    @Override
-    public final int read(byte[] buffer) throws IOException {
-        return in.read(buffer, 0, buffer.length);
     }
 
     /**
@@ -135,7 +117,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     public final int readInt() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.INT);
-        return OSMemory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekInt(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     @Deprecated
@@ -175,12 +157,12 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     public final long readLong() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.LONG);
-        return OSMemory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekLong(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final short readShort() throws IOException {
         Streams.readFully(in, scratch, 0, SizeOf.SHORT);
-        return OSMemory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
+        return Memory.peekShort(scratch, 0, ByteOrder.BIG_ENDIAN);
     }
 
     public final int readUnsignedByte() throws IOException {

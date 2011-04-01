@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -43,7 +38,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs</a>
  */
-@TestTargetClass(Node.class)
 public final class HasAttributes extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -73,12 +67,6 @@ public final class HasAttributes extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that hasAttributes method returns false value.",
-        method = "hasAttributes",
-        args = {}
-    )
     public void testHasAttributes1() throws Throwable {
         Document doc;
         NodeList addrList;
@@ -90,12 +78,6 @@ public final class HasAttributes extends DOMTestCase {
         state = addrNode.hasAttributes();
         assertFalse("throw_False", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that hasAttributes method returns true value.",
-        method = "hasAttributes",
-        args = {}
-    )
     public void testHasAttributes2() throws Throwable {
         Document doc;
         NodeList addrList;

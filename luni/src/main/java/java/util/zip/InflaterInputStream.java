@@ -62,7 +62,7 @@ public class InflaterInputStream extends FilterInputStream {
 
     static final int BUF_SIZE = 512;
 
-    int nativeEndBufSize = 0; // android-only
+    int nativeEndBufSize = 0;
 
     /**
      * This is the most basic constructor. You only need to pass the {@code
@@ -110,13 +110,11 @@ public class InflaterInputStream extends FilterInputStream {
             throw new IllegalArgumentException();
         }
         this.inf = inflater;
-        // BEGIN android-only
         if (is instanceof ZipFile.RAFStream) {
             nativeEndBufSize = bsize;
         } else {
             buf = new byte[bsize];
         }
-        // END android-only
     }
 
     /**
@@ -126,13 +124,8 @@ public class InflaterInputStream extends FilterInputStream {
      * @throws IOException
      *             if an error occurs reading the byte.
      */
-    @Override
-    public int read() throws IOException {
-        byte[] b = new byte[1];
-        if (read(b, 0, 1) == -1) {
-            return -1;
-        }
-        return b[0] & 0xff;
+    @Override public int read() throws IOException {
+        return Streams.readSingleByte(this);
     }
 
     /**
@@ -193,7 +186,6 @@ public class InflaterInputStream extends FilterInputStream {
      */
     protected void fill() throws IOException {
         checkClosed();
-        // BEGIN android-only
         if (nativeEndBufSize > 0) {
             ZipFile.RAFStream is = (ZipFile.RAFStream)in;
             synchronized (is.mSharedRaf) {
@@ -207,7 +199,6 @@ public class InflaterInputStream extends FilterInputStream {
                 inf.setInput(buf, 0, len);
             }
         }
-        // END android-only
     }
 
     /**

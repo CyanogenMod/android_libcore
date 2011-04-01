@@ -17,27 +17,15 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.OutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
-@TestTargetClass(CipherOutputStream.class)
 public class CipherOutputStreamTest extends junit.framework.TestCase {
 
     /**
-     * @tests javax.crypto.CipherOutputStream#close()
+     * javax.crypto.CipherOutputStream#close()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test. Checks IllegalStateException.",
-        method = "close",
-        args = {}
-    )
     public void test_close() throws Exception {
         // regression test for HARMONY-1139
         try {

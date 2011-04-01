@@ -937,7 +937,7 @@ public final class OldPreferencesTest extends TestCase {
         public synchronized void waitForEvent() {
             try {
                 wait(500);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException expected) {
             }
         }
 
@@ -976,7 +976,7 @@ public final class OldPreferencesTest extends TestCase {
                     synchronized (this) {
                         this.wait(500);
                     }
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException expected) {
                 }
             }
         }

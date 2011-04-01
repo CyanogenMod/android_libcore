@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// Completely different implementation from harmony.  Runs much faster.
-// BEGIN android-note
-
 package java.util;
 
 /**
@@ -68,7 +64,6 @@ public class LinkedHashMap<K, V> extends HashMap<K, V> {
      * Constructs a new empty {@code LinkedHashMap} instance.
      */
     public LinkedHashMap() {
-        super();
         init();
         accessOrder = false;
     }

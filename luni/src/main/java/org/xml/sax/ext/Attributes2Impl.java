@@ -37,18 +37,16 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class Attributes2Impl extends AttributesImpl implements Attributes2
 {
-    private boolean    declared [];
-    private boolean    specified [];
+    private boolean[] declared;
+    private boolean[] specified;
 
 
     /**
      * Construct a new, empty Attributes2Impl object.
      */
     public Attributes2Impl () {
-        // BEGIN android-added
         declared = EmptyArray.BOOLEAN;
         specified = EmptyArray.BOOLEAN;
-        // END android-added
     }
 
 
@@ -246,12 +244,8 @@ public class Attributes2Impl extends AttributesImpl implements Attributes2
 
     int length = getLength ();
 
-    // BEGIN android-changed
     if (length > specified.length) {
-    // END android-changed
-        boolean    newFlags [];
-
-        newFlags = new boolean [length];
+        boolean[] newFlags = new boolean [length];
         System.arraycopy (declared, 0, newFlags, 0, declared.length);
         declared = newFlags;
 

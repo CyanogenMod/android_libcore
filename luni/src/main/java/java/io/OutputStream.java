@@ -41,7 +41,6 @@ public abstract class OutputStream implements Closeable, Flushable {
      * Default constructor.
      */
     public OutputStream() {
-        super();
     }
 
     /**
@@ -67,18 +66,9 @@ public abstract class OutputStream implements Closeable, Flushable {
     }
 
     /**
-     * Writes the entire contents of the byte array {@code buffer} to this
-     * stream.
-     *
-     * @param buffer
-     *            the buffer to be written.
-     * @throws IOException
-     *             if an error occurs while writing to this stream.
+     * Equivalent to {@code write(buffer, 0, buffer.length)}.
      */
     public void write(byte[] buffer) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         write(buffer, 0, buffer.length);
     }
 

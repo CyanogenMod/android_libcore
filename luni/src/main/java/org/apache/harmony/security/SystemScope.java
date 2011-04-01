@@ -50,7 +50,6 @@ public class SystemScope extends IdentityScope {
      * @see java.security.IdentityScope#IdentityScope()
      */
     public SystemScope() {
-        super();
     }
 
     /**

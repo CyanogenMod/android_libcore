@@ -38,7 +38,6 @@ public class Observable {
      * Constructs a new {@code Observable} object.
      */
     public Observable() {
-        super();
     }
 
     /**

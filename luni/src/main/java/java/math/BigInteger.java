@@ -15,12 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// Since the original Harmony Code of the BigInteger class was strongly modified,
-// in order to use the more efficient OpenSSL BIGNUM implementation,
-// no android-modification-tags were placed, at all.
-// END android-note
-
 package java.math;
 
 import java.io.IOException;

@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.math.BigInteger;
-import java.security.AccessController;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -47,19 +46,11 @@ import java.util.Date;
 public abstract class X509Certificate extends Certificate {
 
     private static Constructor constructor;
-
     static {
         try {
-            String classname = (String) AccessController.doPrivileged(
-                new java.security.PrivilegedAction() {
-                    public Object run() {
-                        return Security.getProperty("cert.provider.x509v1");
-                    }
-                }
-            );
+            String classname = Security.getProperty("cert.provider.x509v1");
             Class cl = Class.forName(classname);
-            constructor =
-                cl.getConstructor(new Class[] {InputStream.class});
+            constructor = cl.getConstructor(new Class[] {InputStream.class});
         } catch (Throwable e) {
         }
     }
@@ -68,7 +59,6 @@ public abstract class X509Certificate extends Certificate {
      * Creates a new {@code X509Certificate}.
      */
     public X509Certificate() {
-        super();
     }
 
     /**

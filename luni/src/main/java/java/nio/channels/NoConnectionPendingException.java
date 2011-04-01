@@ -31,6 +31,5 @@ public class NoConnectionPendingException extends IllegalStateException {
      * Constructs a {@code NoConnectionPendingException}.
      */
     public NoConnectionPendingException() {
-        super();
     }
 }

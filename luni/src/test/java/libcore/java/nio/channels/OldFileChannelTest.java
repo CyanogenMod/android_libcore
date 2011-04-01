@@ -16,10 +16,6 @@
 
 package libcore.java.nio.channels;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,17 +36,6 @@ import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
-@TestTargetClass(
-    value = FileChannel.class,
-    untestedMethods = {
-        @TestTargetNew(
-            level = TestLevel.NOT_NECESSARY,
-            notes = "empty protected constructor",
-            method = "FileChannel",
-            args = {}
-        )
-    }
-)
 public final class OldFileChannelTest extends TestCase {
 
     private static final int CAPACITY = 100;
@@ -159,15 +144,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#force(boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "force",
-        args = {boolean.class}
-    )
     public void test_forceZ() throws Exception {
         ByteBuffer writeBuffer = ByteBuffer.wrap(CONTENT_AS_BYTES);
         writeOnlyFileChannel.write(writeBuffer);
@@ -226,15 +202,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#tryLock(long, long, boolean)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "tryLock",
-        args = {long.class, long.class, boolean.class}
-    )
     public void test_tryLockJJZ_IllegalArgument() throws Exception {
         try {
             writeOnlyFileChannel.tryLock(0, -1, false);
@@ -287,15 +254,6 @@ public final class OldFileChannelTest extends TestCase {
         lockOne.release();
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer, long)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "read",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_readLByteBufferJ_Null() throws Exception {
         ByteBuffer readBuffer = null;
 
@@ -391,15 +349,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer, long)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "read",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_readLByteBufferJ_IllegalArgument() throws Exception {
         ByteBuffer readBuffer = ByteBuffer.allocate(CAPACITY);
 
@@ -451,15 +400,6 @@ public final class OldFileChannelTest extends TestCase {
     }
 
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer[])
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_read$LByteBuffer() throws Exception {
         FileChannel mockChannel = new MockFileChannel();
         ByteBuffer[] buffers = new ByteBuffer[2];
@@ -469,15 +409,6 @@ public final class OldFileChannelTest extends TestCase {
         assertTrue(((MockFileChannel)mockChannel).isReadCalled);
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer[], int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
     public void test_read$LByteBufferII_Null() throws Exception {
 
         try {
@@ -711,15 +642,7 @@ public final class OldFileChannelTest extends TestCase {
             // expected
         }
     }
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer[], int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IndexOutOfBoundsException.",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
+
     public void test_read$LByteBufferII_IndexOutOfBound() throws Exception {
         ByteBuffer[] readBuffers = new ByteBuffer[2];
         readBuffers[0] = ByteBuffer.allocate(CAPACITY);
@@ -785,15 +708,6 @@ public final class OldFileChannelTest extends TestCase {
         doTestForIOOBException(writeOnlyFileChannel, readBuffersNull);
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer[], int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
     public void test_read$LByteBufferII_EmptyFile() throws Exception {
         ByteBuffer[] readBuffers = new ByteBuffer[2];
         readBuffers[0] = ByteBuffer.allocate(CAPACITY);
@@ -804,15 +718,6 @@ public final class OldFileChannelTest extends TestCase {
         assertEquals(0, readBuffers[1].position());
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer[], int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "read",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
     public void test_read$LByteBufferII_EmptyBuffers() throws Exception {
         ByteBuffer[] readBuffers = new ByteBuffer[2];
         readBuffers[0] = ByteBuffer.allocate(CAPACITY);
@@ -835,24 +740,6 @@ public final class OldFileChannelTest extends TestCase {
         assertEquals(CONTENT_AS_BYTES_LENGTH, result);
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#isOpen()
-     * @tests java.nio.channels.FileChannel#close()
-     */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "isOpen",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "close",
-            args = {}
-        )
-    })
     public void test_isOpen() throws Exception {
         // Regression for HARMONY-40
         File logFile = File.createTempFile("out", "tmp");
@@ -865,15 +752,6 @@ public final class OldFileChannelTest extends TestCase {
         assertFalse("Assert 0: Channel is still open", channel.isOpen());
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies ClosedChannelException.",
-        method = "write",
-        args = {java.nio.ByteBuffer.class}
-    )
     public void test_writeLByteBuffer_Closed() throws Exception {
         ByteBuffer writeBuffer = ByteBuffer.allocate(CAPACITY);
 
@@ -925,15 +803,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer, long)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "write",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_writeLByteBufferJ_Null() throws Exception {
         ByteBuffer writeBuffer = null;
 
@@ -1029,15 +898,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#read(ByteBuffer,long)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IOException.",
-        method = "read",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_writeLByteBufferJ_Postion_As_Long() throws Exception {
         ByteBuffer writeBuffer = ByteBuffer.wrap(TEST_BYTES);
         try {
@@ -1047,15 +907,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer, long)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "write",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_writeLByteBufferJ_IllegalArgument() throws Exception {
         ByteBuffer writeBuffer = ByteBuffer.allocate(CAPACITY);
 
@@ -1106,15 +957,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {java.nio.ByteBuffer.class, long.class}
-    )
     public void test_writeLByteBufferJ_NonZeroPosition() throws Exception {
         final int pos = 5;
         ByteBuffer writeBuffer = ByteBuffer.wrap(CONTENT_AS_BYTES);
@@ -1135,15 +977,6 @@ public final class OldFileChannelTest extends TestCase {
         assertTrue(Arrays.equals(test.getBytes(), inputBuffer));
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[])
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies ClosedChannelException.",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_write$LByteBuffer_Closed() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.allocate(CAPACITY);
@@ -1174,15 +1007,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[])
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NonWritableChannelException",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_write$LByteBuffer_ReadOnly() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.allocate(CAPACITY);
@@ -1196,15 +1020,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[])
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_write$LByteBuffer_EmptyBuffers() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.allocate(this.CONTENT_LENGTH);
@@ -1223,15 +1038,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[])
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class}
-    )
     public void test_write$LByteBuffer() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.wrap(CONTENT_AS_BYTES);
@@ -1257,15 +1063,6 @@ public final class OldFileChannelTest extends TestCase {
         assertTrue(Arrays.equals(CONTENT_AS_BYTES, inputBuffer));
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[],int,int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
     public void test_write$LByteBufferII_Null() throws Exception {
         ByteBuffer[] writeBuffers = null;
 
@@ -1315,15 +1112,7 @@ public final class OldFileChannelTest extends TestCase {
             // expected
         }
     }
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[],int,int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IndexOutOfBoundsException.",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
+
     public void test_write$LByteBufferII_IndexOutOfBound() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.allocate(this.CONTENT_LENGTH);
@@ -1441,15 +1230,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#write(ByteBuffer[],int,int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "write",
-        args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )
     public void test_write$LByteBufferII_EmptyBuffers() throws Exception {
         ByteBuffer[] writeBuffers = new ByteBuffer[2];
         writeBuffers[0] = ByteBuffer.allocate(this.CONTENT_LENGTH);
@@ -1468,15 +1248,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.nio.channels.FileChannel#transferTo(long,long,WritableByteChannel)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "transferTo",
-        args = {long.class, long.class, java.nio.channels.WritableByteChannel.class}
-    )
     public void test_transferToJJLWritableByteChannel_IllegalArgument()
             throws Exception {
         WritableByteChannel writableByteChannel = DatagramChannel.open();

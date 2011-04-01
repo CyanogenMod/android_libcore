@@ -64,17 +64,10 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *  }
  * </pre>
  */
-public class DistributionPoint {
-
+public final class DistributionPoint {
     private final DistributionPointName distributionPoint;
     private final ReasonFlags reasons;
     private final GeneralNames cRLIssuer;
-
-    public DistributionPoint() {
-        distributionPoint = null;
-        reasons = null;
-        cRLIssuer = null;
-    }
 
     public DistributionPoint(DistributionPointName distributionPoint,
             ReasonFlags reasons, GeneralNames cRLIssuer) {
@@ -86,28 +79,24 @@ public class DistributionPoint {
         this.cRLIssuer = cRLIssuer;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix);
-        buffer.append("Distribution Point: [\n");
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix);
+        sb.append("Distribution Point: [\n");
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, prefix + "  ");
+            distributionPoint.dumpValue(sb, prefix + "  ");
         }
         if (reasons != null) {
-            reasons.dumpValue(buffer, prefix + "  ");
+            reasons.dumpValue(sb, prefix + "  ");
         }
         if (cRLIssuer != null) {
-            buffer.append(prefix);
-            buffer.append("  CRL Issuer: [\n");
-            cRLIssuer.dumpValue(buffer, prefix + "    ");
-            buffer.append(prefix);
-            buffer.append("  ]\n");
+            sb.append(prefix);
+            sb.append("  CRL Issuer: [\n");
+            cRLIssuer.dumpValue(sb, prefix + "    ");
+            sb.append(prefix);
+            sb.append("  ]\n");
         }
-        buffer.append(prefix);
-        buffer.append("]\n");
+        sb.append(prefix);
+        sb.append("]\n");
     }
 
     /**
@@ -124,13 +113,13 @@ public class DistributionPoint {
             setOptional(2);
         }
 
-        protected Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
             return new DistributionPoint((DistributionPointName) values[0],
                     (ReasonFlags) values[1], (GeneralNames) values[2]);
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             DistributionPoint dp = (DistributionPoint) object;
             values[0] = dp.distributionPoint;
             values[1] = dp.reasons;

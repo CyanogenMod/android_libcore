@@ -27,11 +27,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(AccessController.class)
 public class AccessController2Test extends junit.framework.TestCase {
 
     PrivilegedAction<Boolean> privAction = new PrivilegedAction<Boolean>() {
@@ -58,14 +54,9 @@ public class AccessController2Test extends junit.framework.TestCase {
     };
 
     /**
-     * @tests java.security.AccessController#doPrivileged(java.security.PrivilegedAction,
+     * java.security.AccessController#doPrivileged(java.security.PrivilegedAction,
      *        java.security.AccessControlContext))
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "doPrivileged",
-        args = {java.security.PrivilegedAction.class, java.security.AccessControlContext.class}
-    )
     @KnownFailure("Fails (probably) because no protection domain is set.")
     public void test_doPrivilegedLjava_security_PrivilegedActionLjava_security_AccessControlContext() {
         Boolean pass;
@@ -90,13 +81,8 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#doPrivileged(java.security.PrivilegedAction))
+     * java.security.AccessController#doPrivileged(java.security.PrivilegedAction))
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "doPrivileged",
-        args = {java.security.PrivilegedAction.class}
-    )
     @KnownFailure("Fails (probably) because no protection domain is set.")
     public void test_doPrivilegedLjava_security_PrivilegedAction() {
         Boolean pass;
@@ -114,14 +100,9 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#doPrivileged(java.security.PrivilegedExceptionAction,
+     * java.security.AccessController#doPrivileged(java.security.PrivilegedExceptionAction,
      *        java.security.AccessControlContext))
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "doPrivileged",
-        args = {java.security.PrivilegedExceptionAction.class, java.security.AccessControlContext.class}
-    )
     @KnownFailure("Fails (probably) because no protection domain is set.")
     public void test_doPrivilegedLjava_security_PrivilegedExceptionActionLjava_security_AccessControlContext() {
         Boolean pass;
@@ -159,13 +140,8 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#doPrivileged(java.security.PrivilegedExceptionAction))
+     * java.security.AccessController#doPrivileged(java.security.PrivilegedExceptionAction))
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "doPrivileged",
-        args = {java.security.PrivilegedExceptionAction.class}
-    )
     @KnownFailure("Fails (probably) because no protection domain is set.")
     public void test_doPrivilegedLjava_security_PrivilegedExceptionAction() {
         Boolean pass;
@@ -190,14 +166,8 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#checkPermission(Permission perm)
+     * java.security.AccessController#checkPermission(Permission perm)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkPermission",
-        args = {java.security.Permission.class}
-    )
     public void test_checkPermission_NullParameter() {
         //Null parameter
         try {
@@ -209,14 +179,8 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#checkPermission(Permission perm)
+     * java.security.AccessController#checkPermission(Permission perm)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkPermission",
-        args = {java.security.Permission.class}
-    )
     @KnownFailure("Fails (probably) because no protection domain is set.")
     public void test_checkPermission_InvalidPermission() {
         String[] perm_invalid = {null, "1", "", "invalid", "bla-bla", "testCtor123^%$#&^ &^$"};
@@ -246,14 +210,8 @@ public class AccessController2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessController#getContext()
+     * java.security.AccessController#getContext()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getContext",
-        args = {}
-    )
     public void test_getContext() {
         try {
             AccessControlContext acc = AccessController.getContext();

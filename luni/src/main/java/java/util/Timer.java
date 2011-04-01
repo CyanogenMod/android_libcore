@@ -175,7 +175,7 @@ public class Timer {
         private boolean finished;
 
         /**
-         * Vector consists of scheduled events, sorted according to
+         * Contains scheduled events, sorted according to
          * {@code when} field of TaskScheduled object.
          */
         private TimerHeap tasks = new TimerHeap();
@@ -324,7 +324,6 @@ public class Timer {
         private final TimerImpl impl;
 
         FinalizerHelper(TimerImpl impl) {
-            super();
             this.impl = impl;
         }
 
@@ -362,8 +361,7 @@ public class Timer {
      * @throws NullPointerException is {@code name} is {@code null}
      */
     public Timer(String name, boolean isDaemon) {
-        super();
-        if (name == null){
+        if (name == null) {
             throw new NullPointerException("name is null");
         }
         this.impl = new TimerImpl(name, isDaemon);

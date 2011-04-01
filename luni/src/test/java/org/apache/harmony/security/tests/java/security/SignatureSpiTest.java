@@ -1,10 +1,5 @@
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
@@ -21,7 +16,7 @@ import java.security.SignatureSpi;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.HashSet;
 import java.util.Set;
-@TestTargetClass(SignatureSpi.class)
+
 public class SignatureSpiTest extends TestCase {
 
     protected void setUp() throws Exception {
@@ -33,12 +28,6 @@ public class SignatureSpiTest extends TestCase {
     }
 
     @SuppressWarnings("cast")
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SignatureSpi",
-        args = {}
-    )
     public void testSignatureSpi() {
         try {
             MySignatureSpi1 ss1 = new MySignatureSpi1();
@@ -49,12 +38,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void testClone() {
         MySignatureSpi1 ss1 = new MySignatureSpi1();
         try {
@@ -73,56 +56,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetParameter",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineInitSign",
-            args = {java.security.PrivateKey.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineInitVerify",
-            args = {java.security.PublicKey.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineSetParameter",
-            args = {java.lang.String.class, java.lang.Object.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineSign",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineUpdate",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineVerify",
-            args = {byte[].class}
-        )
-    })
     public void testAbstractMethods() {
         MySignatureSpi1 ss1 = new MySignatureSpi1();
         byte[] b = {0, 1, 2, 3, 4, 5};
@@ -143,12 +76,6 @@ public class SignatureSpiTest extends TestCase {
     private boolean engineGetParametersCalled = false;
     private boolean engineGetParametersExceptionOcurred = false;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineGetParameters",
-        args = {}
-    )
     public void testEngineGetParameters() {
         // or rather test that no UnsupportedOperationException is thrown?
 
@@ -382,11 +309,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="engineInitSign",
-            args={PrivateKey.class, SecureRandom.class}
-    )
     public void testEngineInitSign_PrivateKey_SecureRandom() {
         MySignature signature = new MySignature("dummy");
 
@@ -399,11 +321,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="engineSetParameter",
-            args={AlgorithmParameterSpec.class}
-    )
     public void testEngineSetParameter()
     {
         MySignature signature = new MySignature("dummy");
@@ -419,11 +336,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="engineSign",
-            args={byte[].class,int.class, int.class}
-    )
     public void testEngineSign_BII() {
         MySignature signature = new MySignature("dummy");
         try {
@@ -454,11 +366,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="engineUpdate",
-            args={ByteBuffer.class}
-    )
     public void testEngineUpdate_ByteBuffer() {
         MySignature signature = new MySignature("dummy");
         try {
@@ -489,11 +396,6 @@ public class SignatureSpiTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="engineVerify",
-            args={byte[].class,int.class,int.class}
-    )
     public void testEngineVerify_BII() {
         MySignature signature = new MySignature("dummy");
 

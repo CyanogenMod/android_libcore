@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -44,7 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import org.apache.harmony.security.DefaultPolicyScanner;
 import org.apache.harmony.security.DefaultPolicyScanner.GrantEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.KeystoreEntry;
@@ -108,15 +106,9 @@ public class DefaultPolicyParser {
      * @return a collection of PolicyEntry objects, may be empty
      * @throws Exception IO error while reading location or file syntax error
      */
-    public Collection<PolicyEntry>parse(URL location, Properties system)
-            throws Exception {
-
+    public Collection<PolicyEntry>parse(URL location, Properties system) throws Exception {
         boolean resolve = PolicyUtils.canExpandProperties();
-        Reader r =
-            new BufferedReader(
-                    new InputStreamReader(
-                            AccessController.doPrivileged(
-                                    new PolicyUtils.URLLoader(location))));
+        Reader r = new BufferedReader(new InputStreamReader(location.openStream()));
 
         Collection<GrantEntry> grantEntries = new HashSet<GrantEntry>();
         List<KeystoreEntry> keystores = new ArrayList<KeystoreEntry>();
@@ -381,17 +373,15 @@ public class DefaultPolicyParser {
      * @throws Exception if KeyStore is <code>null</code>
      * or if it failed to provide a certificate
      */
-    protected Certificate[] resolveSigners(KeyStore ks, String signers)
-            throws Exception {
+    protected Certificate[] resolveSigners(KeyStore ks, String signers) throws Exception {
         if (ks == null) {
             throw new KeyStoreException("No KeyStore to resolve signers: " + signers);
         }
 
         Collection<Certificate> certs = new HashSet<Certificate>();
-        StringTokenizer snt = new StringTokenizer(signers, ",");
-        while (snt.hasMoreTokens()) {
+        for (String signer : signers.split(",")) {
             //XXX cache found certs ??
-            certs.add(ks.getCertificate(snt.nextToken().trim()));
+            certs.add(ks.getCertificate(signer.trim()));
         }
         return certs.toArray(new Certificate[certs.size()]);
     }
@@ -456,8 +446,7 @@ public class DefaultPolicyParser {
                 }
                 KeyStore ks = KeyStore.getInstance(ke.type);
                 URL location = new URL(base, ke.url);
-                InputStream is = AccessController
-                        .doPrivileged(new PolicyUtils.URLLoader(location));
+                InputStream is = location.openStream();
                 try {
                     ks.load(is, null);
                 }

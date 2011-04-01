@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
 import org.apache.harmony.security.asn1.ASN1Explicit;
@@ -65,23 +64,22 @@ import org.apache.harmony.security.x501.Name;
  *   }
  * </pre>
  */
-public class TBSCertList {
-
-    // the value of version field of the structure
+public final class TBSCertList {
+    /** the value of version field of the structure */
     private final int version;
-    // the value of signature field of the structure
+    /** the value of signature field of the structure */
     private final AlgorithmIdentifier signature;
-    // the value of issuer field of the structure
+    /** the value of issuer field of the structure */
     private final Name issuer;
-    // the value of thisUpdate of the structure
+    /** the value of thisUpdate of the structure */
     private final Date thisUpdate;
-    // the value of nextUpdate of the structure
+    /** the value of nextUpdate of the structure */
     private final Date nextUpdate;
-    // the value of revokedCertificates of the structure
-    private final List revokedCertificates;
-    // the value of crlExtensions field of the structure
+    /** the value of revokedCertificates of the structure */
+    private final List<RevokedCertificate> revokedCertificates;
+    /** the value of crlExtensions field of the structure */
     private final Extensions crlExtensions;
-    // the ASN.1 encoded form of TBSCertList
+    /** the ASN.1 encoded form of TBSCertList */
     private byte[] encoding;
 
     public static class RevokedCertificate {
@@ -157,20 +155,13 @@ public class TBSCertList {
                     + (crlEntryExtensions == null ? 0 : crlEntryExtensions.hashCode());
         }
 
-        /**
-         * Places the string representation of extension value
-         * into the StringBuffer object.
-         */
-        public void dumpValue(StringBuffer buffer, String prefix) {
-            buffer.append(prefix).append("Certificate Serial Number: ")
-                .append(userCertificate).append('\n');
-            buffer.append(prefix).append("Revocation Date: ")
-                .append(revocationDate);
+        public void dumpValue(StringBuilder sb, String prefix) {
+            sb.append(prefix).append("Certificate Serial Number: ").append(userCertificate).append('\n');
+            sb.append(prefix).append("Revocation Date: ").append(revocationDate);
             if (crlEntryExtensions != null) {
-                buffer.append('\n').append(prefix)
-                    .append("CRL Entry Extensions: [");
-                crlEntryExtensions.dumpValue(buffer, prefix + "  ");
-                buffer.append(prefix).append(']');
+                sb.append('\n').append(prefix).append("CRL Entry Extensions: [");
+                crlEntryExtensions.dumpValue(sb, prefix + "  ");
+                sb.append(prefix).append(']');
             }
         }
 
@@ -181,9 +172,8 @@ public class TBSCertList {
                 setOptional(2);
             }
 
-            protected Object getDecodedObject(BerInputStream in) {
+            @Override protected Object getDecodedObject(BerInputStream in) {
                 Object[] values = (Object[]) in.content;
-
                 return new RevokedCertificate(
                             new BigInteger((byte[]) values[0]),
                             (Date) values[1],
@@ -191,9 +181,8 @@ public class TBSCertList {
                         );
             }
 
-            protected void getValues(Object object, Object[] values) {
+            @Override protected void getValues(Object object, Object[] values) {
                 RevokedCertificate rcert = (RevokedCertificate) object;
-
                 values[0] = rcert.userCertificate.toByteArray();
                 values[1] = rcert.revocationDate;
                 values[2] = rcert.crlEntryExtensions;
@@ -201,63 +190,10 @@ public class TBSCertList {
         };
     }
 
-    /**
-     * Constructs the instance of TBSCertList without optional fields.
-     * Take a note, that regarding to the rfc 3280 (p. 49):
-     * "When CRLs are issued, the CRLs MUST be version 2 CRLs, include the date
-     * by which the next CRL will be issued in the nextUpdate field (section
-     * 5.1.2.5), include the CRL number extension (section 5.2.3), and include
-     * the authority key identifier extension (section 5.2.1). Conforming
-     * applications that support CRLs are REQUIRED to process both version 1 and
-     * version 2 complete CRLs that provide revocation information for all
-     * certificates issued by one CA. Conforming applications are NOT REQUIRED
-     * to support processing of delta CRLs, indirect CRLs, or CRLs with a scope
-     * other than all certificates issued by one CA."
-     * @param   signature:  AlgorithmIdentifier
-     * @param   issuer: Name
-     * @param   thisUpdate: Time
-     */
-    public TBSCertList(AlgorithmIdentifier signature,
-            Name issuer, Date thisUpdate) {
-        this.version = 1;
-        this.signature = signature;
-        this.issuer = issuer;
-        this.thisUpdate = thisUpdate;
-        this.nextUpdate = null;
-        this.revokedCertificates = null;
-        this.crlExtensions = null;
-    }
-
-    /**
-     * Constructs the instance of TBSCertList with all optional fields
-     * @param   version: version of the CRL. Should be 1 or 2.
-     * Note that if the version of CRL is 1, then nextUpdate,
-     * crlExtensions fields of CRL and crlEntryExtensions field
-     * of CRL entry must not be presented in CRL.
-     * FIXME: do check for it.
-     * @param   signature:  AlgorithmIdentifier
-     * @param   issuer: Name
-     * @param   thisUpdate: Time
-     * @param   nextUpdate: Time
-     * @param   revokedCertificates:    List
-     * @param   crlExtensions:  Extensions
-     */
-    public TBSCertList(int version, AlgorithmIdentifier signature,
-            Name issuer, Date thisUpdate, Date nextUpdate,
-            List revokedCertificates, Extensions crlExtensions) {
-        this.version = version;
-        this.signature = signature;
-        this.issuer = issuer;
-        this.thisUpdate = thisUpdate;
-        this.nextUpdate = nextUpdate;
-        this.revokedCertificates = revokedCertificates;
-        this.crlExtensions = crlExtensions;
-    }
-
-    // Constructs the object with associated ASN.1 encoding
+    /** Constructs the object with associated ASN.1 encoding */
     private TBSCertList(int version, AlgorithmIdentifier signature,
             Name issuer, Date thisUpdate, Date nextUpdate,
-            List revokedCertificates, Extensions crlExtensions,
+            List<RevokedCertificate> revokedCertificates, Extensions crlExtensions,
             byte[] encoding) {
         this.version = version;
         this.signature = signature;
@@ -271,7 +207,6 @@ public class TBSCertList {
 
     /**
      * Returns the value of version field of the structure.
-     * @return  version
      */
     public int getVersion() {
         return version;
@@ -279,7 +214,6 @@ public class TBSCertList {
 
     /**
      * Returns the value of signature field of the structure.
-     * @return  signature
      */
     public AlgorithmIdentifier getSignature() {
         return signature;
@@ -287,7 +221,6 @@ public class TBSCertList {
 
     /**
      * Returns the value of issuer field of the structure.
-     * @return  issuer
      */
     public Name getIssuer() {
         return issuer;
@@ -295,7 +228,6 @@ public class TBSCertList {
 
     /**
      * Returns the value of thisUpdate field of the structure.
-     * @return thisUpdate
      */
     public Date getThisUpdate() {
         return thisUpdate;
@@ -303,7 +235,6 @@ public class TBSCertList {
 
     /**
      * Returns the value of nextUpdate field of the structure.
-     * @return nextUpdate
      */
     public Date getNextUpdate() {
         return nextUpdate;
@@ -311,15 +242,13 @@ public class TBSCertList {
 
     /**
      * Returns the value of revokedCertificates field of the structure.
-     * @return revokedCertificates
      */
-    public List getRevokedCertificates() {
+    public List<RevokedCertificate> getRevokedCertificates() {
         return revokedCertificates;
     }
 
     /**
      * Returns the value of crlExtensions field of the structure.
-     * @return  extensions
      */
     public Extensions getCrlExtensions() {
         return crlExtensions;
@@ -327,7 +256,6 @@ public class TBSCertList {
 
     /**
      * Returns ASN.1 encoded form of this X.509 TBSCertList value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -336,66 +264,56 @@ public class TBSCertList {
         return encoding;
     }
 
-    public boolean equals(Object tbs) {
-        if (!(tbs instanceof TBSCertList)) {
+    @Override public boolean equals(Object other) {
+        if (!(other instanceof TBSCertList)) {
             return false;
         }
-        TBSCertList tbscert = (TBSCertList) tbs;
-        return (version == tbscert.version)
-            && (signature.equals(tbscert.signature))
-            // FIXME use Name.equals when it will be implemented
-            && (Arrays.equals(issuer.getEncoded(), tbscert.issuer.getEncoded()))
-            && ((thisUpdate.getTime() / 1000)
-                    == (tbscert.thisUpdate.getTime() / 1000))
-            && ((nextUpdate == null)
-                    ? tbscert.nextUpdate == null
-                    : ((nextUpdate.getTime() / 1000)
-                        == (tbscert.nextUpdate.getTime() / 1000)))
-            && ((((revokedCertificates == null)
-                            || (tbscert.revokedCertificates == null))
-                    && (revokedCertificates == tbscert.revokedCertificates))
-                || (revokedCertificates.containsAll(tbscert.revokedCertificates)
-                    && (revokedCertificates.size()
-                        == tbscert.revokedCertificates.size())))
-            && ((crlExtensions == null)
-                    ? tbscert.crlExtensions == null
-                    : crlExtensions.equals(tbscert.crlExtensions));
+        TBSCertList that = (TBSCertList) other;
+        return version == that.version
+            && signature.equals(that.signature)
+            && Arrays.equals(issuer.getEncoded(), that.issuer.getEncoded())
+            && thisUpdate.getTime() / 1000
+                    == that.thisUpdate.getTime() / 1000
+            && (nextUpdate == null
+                    ? that.nextUpdate == null
+                    : nextUpdate.getTime() / 1000
+                        == that.nextUpdate.getTime() / 1000)
+            && ((revokedCertificates == null || that.revokedCertificates == null)
+                && revokedCertificates == that.revokedCertificates
+                || revokedCertificates.equals(that.revokedCertificates))
+            && (crlExtensions == null
+                    ? that.crlExtensions == null
+                    : crlExtensions.equals(that.crlExtensions));
     }
 
-    public int hashCode() {
+    @Override public int hashCode() {
         return ((version * 37 + signature.hashCode()) * 37
-                + issuer.getEncoded().hashCode()) * 37
+                + Arrays.hashCode(issuer.getEncoded())) * 37
                 + (int)thisUpdate.getTime() / 1000;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append("X.509 CRL v").append(version);
-        buffer.append("\nSignature Algorithm: [");
-        signature.dumpValue(buffer);
-        buffer.append(']');
-        buffer.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253));
-        buffer.append("\n\nThis Update: ").append(thisUpdate);
-        buffer.append("\nNext Update: ").append(nextUpdate).append('\n');
+    public void dumpValue(StringBuilder sb) {
+        sb.append("X.509 CRL v").append(version);
+        sb.append("\nSignature Algorithm: [");
+        signature.dumpValue(sb);
+        sb.append(']');
+        sb.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253));
+        sb.append("\n\nThis Update: ").append(thisUpdate);
+        sb.append("\nNext Update: ").append(nextUpdate).append('\n');
         if (revokedCertificates != null) {
-            buffer.append("\nRevoked Certificates: ")
-                .append(revokedCertificates.size()).append(" [");
+            sb.append("\nRevoked Certificates: ").append(revokedCertificates.size()).append(" [");
             int number = 1;
-            for (Iterator it = revokedCertificates.iterator();it.hasNext();) {
-                buffer.append("\n  [").append(number++).append(']');
-                ((RevokedCertificate) it.next()).dumpValue(buffer, "  ");
-                buffer.append('\n');
+            for (RevokedCertificate revokedCertificate : revokedCertificates) {
+                sb.append("\n  [").append(number++).append(']');
+                revokedCertificate.dumpValue(sb, "  ");
+                sb.append('\n');
             }
-            buffer.append("]\n");
+            sb.append("]\n");
         }
         if (crlExtensions != null) {
-            buffer.append("\nCRL Extensions: ")
-                .append(crlExtensions.size()).append(" [");
-            crlExtensions.dumpValue(buffer, "  ");
-            buffer.append("]\n");
+            sb.append("\nCRL Extensions: ").append(crlExtensions.size()).append(" [");
+            crlExtensions.dumpValue(sb, "  ");
+            sb.append("]\n");
         }
     }
 
@@ -418,8 +336,7 @@ public class TBSCertList {
             setOptional(6);
         }
 
-        protected Object getDecodedObject(BerInputStream in)
-                        throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
             return new TBSCertList(
                         (values[0] == null)
@@ -429,13 +346,13 @@ public class TBSCertList {
                         (Name) values[2],
                         (Date) values[3],
                         (Date) values[4],
-                        (List) values[5],
+                        (List<RevokedCertificate>) values[5],
                         (Extensions) values[6],
                         in.getEncoded()
                     );
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             TBSCertList tbs = (TBSCertList) object;
             values[0] = (tbs.version > 1)
                 ? ASN1Integer.fromIntValue(tbs.version - 1) : null;

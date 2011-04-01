@@ -34,23 +34,17 @@ package java.lang;
 
 import dalvik.system.VMDebug;
 import dalvik.system.VMStack;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.nio.charset.Charsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants._SC_NPROCESSORS_ONLN;
 
 /**
  * Allows Java applications to interface with the environment in which they are
@@ -123,10 +117,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray) throws java.io.IOException {
         return exec(progArray, null, null);
@@ -148,10 +138,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray, String[] envp) throws java.io.IOException {
         return exec(progArray, envp, null);
@@ -175,15 +161,10 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String[] progArray, String[] envp, File directory) throws IOException {
-        // BEGIN android-changed: push responsibility for argument checking into ProcessManager
+        // ProcessManager is responsible for all argument checking.
         return ProcessManager.getInstance().exec(progArray, envp, directory, false);
-        // END android-changed
     }
 
     /**
@@ -197,10 +178,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog) throws java.io.IOException {
         return exec(prog, null, null);
@@ -220,10 +197,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog, String[] envp) throws java.io.IOException {
         return exec(prog, envp, null);
@@ -246,10 +219,6 @@ public class Runtime {
      *         process.
      * @throws IOException
      *             if the requested program can not be executed.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} disallows program
-     *             execution.
-     * @see SecurityManager#checkExec
      */
     public Process exec(String prog, String[] envp, File directory) throws java.io.IOException {
         // Sanity checks
@@ -272,7 +241,7 @@ public class Runtime {
     }
 
     /**
-     * Causes the virtual machine to stop running and the program to exit. If
+     * Causes the VM to stop running and the program to exit. If
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
@@ -280,18 +249,8 @@ public class Runtime {
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow the
-     *             running thread to terminate the virtual machine.
-     * @see SecurityManager#checkExit
      */
     public void exit(int code) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(code);
-        }
-
         // Make sure we don't try this several times
         synchronized(this) {
             if (!shuttingDown) {
@@ -320,7 +279,7 @@ public class Runtime {
 
                 // Ensure finalization on exit, if requested
                 if (finalizeOnExit) {
-                    runFinalization(true);
+                    runFinalization();
                 }
 
                 // Get out of here finally...
@@ -338,7 +297,7 @@ public class Runtime {
     public native long freeMemory();
 
     /**
-     * Indicates to the virtual machine that it would be a good time to run the
+     * Indicates to the VM that it would be a good time to run the
      * garbage collector. Note that this is a hint only. There is no guarantee
      * that the garbage collector will actually be run.
      */
@@ -363,18 +322,8 @@ public class Runtime {
      *            the absolute (platform dependent) path to the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library can not be loaded.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow to load
-     *             the library.
-     * @see SecurityManager#checkLink
      */
     public void load(String pathName) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkLink(pathName);
-        }
-
         load(pathName, VMStack.getCallingClassLoader());
     }
 
@@ -400,18 +349,8 @@ public class Runtime {
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library can not be loaded.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow to load
-     *             the library.
-     * @see SecurityManager#checkLink
      */
     public void loadLibrary(String libName) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkLink(libName);
-        }
-
         loadLibrary(libName, VMStack.getCallingClassLoader());
     }
 
@@ -458,26 +397,20 @@ public class Runtime {
     private static native String nativeLoad(String filename, ClassLoader loader);
 
     /**
-     * Requests proper finalization for all Objects on the heap.
-     *
-     * @param forced Decides whether the VM really needs to do this (true)
-     *               or if this is just a suggestion that can safely be ignored
-     *               (false).
-     */
-    private native void runFinalization(boolean forced);
-
-    /**
-     * Provides a hint to the virtual machine that it would be useful to attempt
+     * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
-     *
      */
     public void runFinalization() {
-        runFinalization(false);
+        try {
+            FinalizerThread.waitUntilFinalizerIsIdle();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
      * Sets the flag that indicates whether all objects are finalized when the
-     * virtual machine is about to exit. Note that all finalization which occurs
+     * VM is about to exit. Note that all finalization which occurs
      * when the system is exiting is performed after all running threads have
      * been terminated.
      *
@@ -488,10 +421,6 @@ public class Runtime {
      */
     @Deprecated
     public static void runFinalizersOnExit(boolean run) {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(0);
-        }
         finalizeOnExit = run;
     }
 
@@ -512,7 +441,6 @@ public class Runtime {
      *            off.
      */
     public void traceInstructions(boolean enable) {
-        return;
     }
 
     /**
@@ -574,28 +502,26 @@ public class Runtime {
     }
 
     /**
-     * Registers a virtual-machine shutdown hook. A shutdown hook is a
+     * Registers a VM shutdown hook. A shutdown hook is a
      * {@code Thread} that is ready to run, but has not yet been started. All
-     * registered shutdown hooks will be executed once the virtual machine shuts
-     * down properly. A proper shutdown happens when either the
-     * {@link #exit(int)} method is called or the surrounding system decides to
-     * terminate the application, for example in response to a {@code CTRL-C} or
-     * a system-wide shutdown. A termination of the virtual machine due to the
-     * {@link #halt(int)} method, an {@link Error} or a {@code SIGKILL}, in
-     * contrast, is not considered a proper shutdown. In these cases the
-     * shutdown hooks will not be run.
-     * <p>
-     * Shutdown hooks are run concurrently and in an unspecified order. Hooks
+     * registered shutdown hooks will be executed when the VM
+     * terminates normally (typically when the {@link #exit(int)} method is called).
+     *
+     * <p><i>Note that on Android, the application lifecycle does not include VM termination,
+     * so calling this method will not ensure that your code is run</i>. Instead, you should
+     * use the most appropriate lifecycle notification ({@code Activity.onPause}, say).
+     *
+     * <p>Shutdown hooks are run concurrently and in an unspecified order. Hooks
      * failing due to an unhandled exception are not a problem, but the stack
      * trace might be printed to the console. Once initiated, the whole shutdown
      * process can only be terminated by calling {@code halt()}.
-     * <p>
-     * If {@link #runFinalizersOnExit(boolean)} has been called with a {@code
+     *
+     * <p>If {@link #runFinalizersOnExit(boolean)} has been called with a {@code
      * true} argument, garbage collection and finalization will take place after
-     * all hooks are either finished or have failed. Then the virtual machine
+     * all hooks are either finished or have failed. Then the VM
      * terminates.
-     * <p>
-     * It is recommended that shutdown hooks do not do any time-consuming
+     *
+     * <p>It is recommended that shutdown hooks do not do any time-consuming
      * activities, in order to not hold up the shutdown process longer than
      * necessary.
      *
@@ -605,10 +531,7 @@ public class Runtime {
      *             if the hook has already been started or if it has already
      *             been registered.
      * @throws IllegalStateException
-     *             if the virtual machine is already shutting down.
-     * @throws SecurityException
-     *             if a SecurityManager is registered and the calling code
-     *             doesn't have the RuntimePermission("shutdownHooks").
+     *             if the VM is already shutting down.
      */
     public void addShutdownHook(Thread hook) {
         // Sanity checks
@@ -624,11 +547,6 @@ public class Runtime {
             throw new IllegalArgumentException("Hook has already been started");
         }
 
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
-        }
-
         synchronized (shutdownHooks) {
             if (shutdownHooks.contains(hook)) {
                 throw new IllegalArgumentException("Hook already registered.");
@@ -639,17 +557,14 @@ public class Runtime {
     }
 
     /**
-     * Unregisters a previously registered virtual machine shutdown hook.
+     * Unregisters a previously registered VM shutdown hook.
      *
      * @param hook
      *            the shutdown hook to remove.
      * @return {@code true} if the hook has been removed successfully; {@code
      *         false} otherwise.
      * @throws IllegalStateException
-     *             if the virtual machine is already shutting down.
-     * @throws SecurityException
-     *             if a SecurityManager is registered and the calling code
-     *             doesn't have the RuntimePermission("shutdownHooks").
+     *             if the VM is already shutting down.
      */
     public boolean removeShutdownHook(Thread hook) {
         // Sanity checks
@@ -661,57 +576,40 @@ public class Runtime {
             throw new IllegalStateException("VM already shutting down");
         }
 
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
-        }
-
         synchronized (shutdownHooks) {
             return shutdownHooks.remove(hook);
         }
     }
 
     /**
-     * Causes the virtual machine to stop running, and the program to exit.
+     * Causes the VM to stop running, and the program to exit.
      * Neither shutdown hooks nor finalizers are run before.
      *
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
-     * @throws SecurityException
-     *             if the current {@code SecurityManager} does not allow the
-     *             running thread to terminate the virtual machine.
-     * @see SecurityManager#checkExit
      * @see #addShutdownHook(Thread)
      * @see #removeShutdownHook(Thread)
      * @see #runFinalizersOnExit(boolean)
      */
     public void halt(int code) {
-        // Security checks
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkExit(code);
-        }
-
         // Get out of here...
         nativeExit(code, false);
     }
 
-
     /**
-     * Returns the number of processors available to the virtual machine.
-     *
-     * @return the number of available processors, at least 1.
+     * Returns the number of processors available to the VM, at least 1.
      */
-    public native int availableProcessors();
+    public int availableProcessors() {
+        return (int) Libcore.os.sysconf(_SC_NPROCESSORS_ONLN);
+    }
 
     /**
      * Returns the maximum amount of memory that may be used by the virtual
      * machine, or {@code Long.MAX_VALUE} if there is no such limit.
      *
-     * @return the maximum amount of memory that the virtual machine will try to
+     * @return the maximum amount of memory that the VM will try to
      *         allocate, measured in bytes.
      */
     public native long maxMemory();
-
 }

@@ -20,15 +20,12 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * A connection to a URL for reading or writing. For HTTP connections, see
@@ -276,19 +273,14 @@ public abstract class URLConnection {
             return (ContentHandler) cHandler;
         }
 
-        // search through the package list for the right class for the Content
-        // Type
-        String packageList = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "java.content.handler.pkgs"));
+        // search through the package list for the right class for the Content Type
+        String packageList = System.getProperty("java.content.handler.pkgs");
         if (packageList != null) {
-            final StringTokenizer st = new StringTokenizer(packageList, "|");
-            while (st.countTokens() > 0) {
+            for (String packageName : packageList.split("\\|")) {
+                String className = packageName + "." + typeString;
                 try {
-                    Class<?> cl = Class.forName(st.nextToken() + "."
-                            + typeString, true, ClassLoader
-                            .getSystemClassLoader());
-                    cHandler = cl.newInstance();
+                    Class<?> klass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
+                    cHandler = klass.newInstance();
                 } catch (ClassNotFoundException e) {
                 } catch (IllegalAccessException e) {
                 } catch (InstantiationException e) {
@@ -297,21 +289,14 @@ public abstract class URLConnection {
         }
 
         if (cHandler == null) {
-            cHandler = AccessController
-                    .doPrivileged(new PrivilegedAction<Object>() {
-                        public Object run() {
-                            try {
-                                // Try looking up AWT image content handlers
-                                String className = "org.apache.harmony.awt.www.content."
-                                        + typeString;
-                                return Class.forName(className).newInstance();
-                            } catch (ClassNotFoundException e) {
-                            } catch (IllegalAccessException e) {
-                            } catch (InstantiationException e) {
-                            }
-                            return null;
-                        }
-                    });
+            try {
+                // Try looking up AWT image content handlers
+                String className = "org.apache.harmony.awt.www.content." + typeString;
+                cHandler = Class.forName(className).newInstance();
+            } catch (ClassNotFoundException e) {
+            } catch (IllegalAccessException e) {
+            } catch (InstantiationException e) {
+            }
         }
         if (cHandler != null) {
             if (!(cHandler instanceof ContentHandler)) {
@@ -721,10 +706,7 @@ public abstract class URLConnection {
      * @throws IOException
      *             if an I/O error occurs while reading from the input stream.
      */
-    @SuppressWarnings("nls")
-    public static String guessContentTypeFromStream(InputStream is)
-            throws IOException {
-
+    public static String guessContentTypeFromStream(InputStream is) throws IOException {
         if (!is.markSupported()) {
             return null;
         }
@@ -789,7 +771,7 @@ public abstract class URLConnection {
         }
 
         // Check text types
-        String textHeader = header.trim().toUpperCase();
+        String textHeader = header.trim().toUpperCase(Locale.US);
         if (textHeader.startsWith("<!DOCTYPE HTML") ||
                 textHeader.startsWith("<HTML") ||
                 textHeader.startsWith("<HEAD") ||
@@ -815,15 +797,15 @@ public abstract class URLConnection {
      * @return the string to be parsed
      */
     private String parseTypeString(String typeString) {
-        StringBuilder typeStringBuffer = new StringBuilder(typeString);
-        for (int i = 0; i < typeStringBuffer.length(); i++) {
+        StringBuilder result = new StringBuilder(typeString);
+        for (int i = 0; i < result.length(); i++) {
             // if non-alphanumeric, replace it with '_'
-            char c = typeStringBuffer.charAt(i);
+            char c = result.charAt(i);
             if (!(Character.isLetter(c) || Character.isDigit(c) || c == '.')) {
-                typeStringBuffer.setCharAt(i, '_');
+                result.setCharAt(i, '_');
             }
         }
-        return typeStringBuffer.toString();
+        return result.toString();
     }
 
     /**
@@ -845,23 +827,16 @@ public abstract class URLConnection {
 
     /**
      * Sets the internally used content handler factory. The content factory can
-     * only be set if it is allowed by the security manager and only once during
-     * the lifetime of the application.
+     * only be set once during the lifetime of the application.
      *
      * @param contentFactory
      *            the content factory to be set.
      * @throws Error
-     *             if the security manager does not allow to set the content
-     *             factory or it has been already set earlier ago.
+     *             if the factory has been already set.
      */
-    public static synchronized void setContentHandlerFactory(
-            ContentHandlerFactory contentFactory) {
+    public static synchronized void setContentHandlerFactory(ContentHandlerFactory contentFactory) {
         if (contentHandlerFactory != null) {
             throw new Error("Factory already set");
-        }
-        SecurityManager sManager = System.getSecurityManager();
-        if (sManager != null) {
-            sManager.checkSetFactory();
         }
         contentHandlerFactory = contentFactory;
     }
@@ -902,7 +877,6 @@ public abstract class URLConnection {
      *
      * @param newValue
      *            the default value of the flag to be used for new connections.
-     * @see #defaultUseCaches
      * @see #useCaches
      */
     public void setDefaultUseCaches(boolean newValue) {
@@ -949,10 +923,6 @@ public abstract class URLConnection {
      *            the MIME table to be set.
      */
     public static void setFileNameMap(FileNameMap map) {
-        SecurityManager manager = System.getSecurityManager();
-        if (manager != null) {
-            manager.checkSetFactory();
-        }
         synchronized (URLConnection.class) {
             fileNameMap = map;
         }

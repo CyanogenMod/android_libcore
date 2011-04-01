@@ -1,9 +1,5 @@
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.cert.MyCertificate;
@@ -14,7 +10,6 @@ import java.io.ObjectStreamException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 
-@TestTargetClass(java.security.cert.Certificate.class)
 public class CertificateCertificateRepTest extends TestCase {
 
     private static final byte[] testEncoding = new byte[] { (byte) 1, (byte) 2,
@@ -33,12 +28,6 @@ public class CertificateCertificateRepTest extends TestCase {
      * <code>Certificate.CertificateRep(String type, byte[] data)</code>
      * method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Certificate.CertificateRep.CertificateRep",
-        args = { String.class, byte[].class}
-    )
     public final void testCertificateCertificateRep() {
         MyCertificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         MyCertificateRep rep = c1.new MyCertificateRep("TEST_TYPE", new byte[] {
@@ -67,12 +56,6 @@ public class CertificateCertificateRepTest extends TestCase {
     /**
      * Test for <code>readResolve()</code> method<br>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Certificate.CertificateRep.readResolve",
-        args = {}
-    )
     public final void testReadResolve() {
         MyCertificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         MyCertificateRep rep = c1.new MyCertificateRep("TEST_TYPE", new byte[] {

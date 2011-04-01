@@ -50,17 +50,7 @@ final class OSNetworkSystem implements INetworkSystem {
             throws IOException;
     public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
-    public native void socket(FileDescriptor fd, boolean stream) throws SocketException;
-
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;
-
-    public native InetAddress getSocketLocalAddress(FileDescriptor fd);
-
-    public native int getSocketLocalPort(FileDescriptor fd);
-
-    public native Object getSocketOption(FileDescriptor fd, int opt) throws SocketException;
-
-    public native void listen(FileDescriptor fd, int backlog) throws SocketException;
 
     public native int read(FileDescriptor fd, byte[] data, int offset, int count)
             throws IOException;
@@ -101,14 +91,8 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void sendUrgentData(FileDescriptor fd, byte value);
 
-    public native void setInetAddress(InetAddress sender, byte[] address);
-
     public native void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
-
-    public native void shutdownInput(FileDescriptor fd) throws IOException;
-
-    public native void shutdownOutput(FileDescriptor fd) throws IOException;
 
     public native void close(FileDescriptor fd) throws IOException;
 

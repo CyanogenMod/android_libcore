@@ -19,12 +19,9 @@ package org.apache.harmony.security.x509;
 
 import java.security.PublicKey;
 
-public class X509PublicKey implements PublicKey {
-
+public final class X509PublicKey implements PublicKey {
     private final String algorithm;
-
     private final byte[] encoded;
-
     private final byte[] keyBytes;
 
     public X509PublicKey(String algorithm, byte[] encoded, byte[] keyBytes) {
@@ -52,7 +49,6 @@ public class X509PublicKey implements PublicKey {
         buf.append(", params unparsed, unparsed keybits = \n");
         // TODO: implement compatible toString method()
         // buf.append(Arrays.toString(keyBytes));
-
         return buf.toString();
     }
 }

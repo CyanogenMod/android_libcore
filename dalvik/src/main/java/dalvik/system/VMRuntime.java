@@ -47,6 +47,27 @@ public final class VMRuntime {
     }
 
     /**
+     * Returns a copy of the VM's command-line property settings.
+     * These are in the form "name=value" rather than "-Dname=value".
+     */
+    public native String[] properties();
+
+    /**
+     * Returns the VM's boot class path.
+     */
+    public native String bootClassPath();
+
+    /**
+     * Returns the VM's class path.
+     */
+    public native String classPath();
+
+    /**
+     * Returns the VM's version.
+     */
+    public native String vmVersion();
+
+    /**
      * Gets the current ideal heap utilization, represented as a number
      * between zero and one.  After a GC happens, the Dalvik heap may
      * be resized so that (size of live objects) / (size of heap) is
@@ -104,17 +125,20 @@ public final class VMRuntime {
     }
 
     /**
-     * Requests that the virtual machine collect available memory,
-     * and collects any SoftReferences that are not strongly-reachable.
+     * This method exists for binary compatibility.  It used to
+     * perform a garbage collection that cleared SoftReferences.
      */
-    public native void gcSoftReferences();
+    @Deprecated
+    public void gcSoftReferences() {}
 
     /**
-     * Does not return until any pending finalizers have been called.
-     * This may or may not happen in the context of the calling thread.
-     * No exceptions will escape.
+     * This method exists for binary compatibility.  It is equivalent
+     * to {@link System#runFinalization}.
      */
-    public native void runFinalizationSync();
+    @Deprecated
+    public void runFinalizationSync() {
+        System.runFinalization();
+    }
 
     /**
      * Implements setTargetHeapUtilization().

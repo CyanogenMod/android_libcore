@@ -16,9 +16,7 @@
 
 package java.net;
 
-import java.security.AccessController;
 import libcore.util.BasicLruCache;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Implements caching for {@code InetAddress}. We use a unified cache for both positive and negative
@@ -106,15 +104,7 @@ class AddressCache {
         // Calculate the expiry time.
         String propertyName = isPositive ? "networkaddress.cache.ttl" : "networkaddress.cache.negative.ttl";
         long defaultTtlNanos = isPositive ? DEFAULT_POSITIVE_TTL_NANOS : DEFAULT_NEGATIVE_TTL_NANOS;
-        // Fast-path the default case...
         long expiryNanos = System.nanoTime() + defaultTtlNanos;
-        if (System.getSecurityManager() != null || System.getProperty(propertyName, null) != null) {
-            // ...and let those using a SecurityManager or custom properties pay full price.
-            expiryNanos = customTtl(propertyName, defaultTtlNanos);
-            if (expiryNanos == Long.MIN_VALUE) {
-                return;
-            }
-        }
         // Update the cache.
         cache.put(hostname, new AddressCacheEntry(value, expiryNanos));
     }
@@ -128,7 +118,7 @@ class AddressCache {
     }
 
     private long customTtl(String propertyName, long defaultTtlNanos) {
-        String ttlString = AccessController.doPrivileged(new PriviAction<String>(propertyName, null));
+        String ttlString = System.getProperty(propertyName, null);
         if (ttlString == null) {
             return System.nanoTime() + defaultTtlNanos;
         }

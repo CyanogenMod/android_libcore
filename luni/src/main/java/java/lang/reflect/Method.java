@@ -47,7 +47,7 @@ import org.apache.harmony.luni.lang.reflect.Types;
 public final class Method extends AccessibleObject implements GenericDeclaration, Member {
 
     /**
-     * Orders methods by their name and parameters.
+     * Orders methods by their name, parameters and return type.
      *
      * @hide
      */
@@ -68,7 +68,12 @@ public final class Method extends AccessibleObject implements GenericDeclaration
                 }
             }
 
-            return aParameters.length - bParameters.length;
+            if (aParameters.length != bParameters.length) {
+                return aParameters.length - bParameters.length;
+            }
+
+            // this is necessary for methods that have covariant return types.
+            return a.getReturnType().getName().compareTo(b.getReturnType().getName());
         }
     };
 
@@ -149,8 +154,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * Returns the Signature annotation for this method. Returns {@code null} if
      * not found.
      */
-    native private Object[] getSignatureAnnotation(Class declaringClass,
-            int slot);
+    static native Object[] getSignatureAnnotation(Class declaringClass, int slot);
 
     /**
      * Returns the string representation of the method's declaration, including
@@ -262,8 +266,25 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     public Annotation[] getDeclaredAnnotations() {
         return getDeclaredAnnotations(declaringClass, slot);
     }
-    native private Annotation[] getDeclaredAnnotations(Class declaringClass,
-        int slot);
+    static native Annotation[] getDeclaredAnnotations(Class<?> declaringClass, int slot);
+
+    @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return getAnnotation(declaringClass, slot, annotationType);
+    }
+    static native <A extends Annotation> A getAnnotation(
+            Class<?> declaringClass, int slot, Class<A> annotationType);
+
+    @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return isAnnotationPresent(declaringClass, slot, annotationType);
+    }
+    static native boolean isAnnotationPresent(
+            Class<?> declaringClass, int slot, Class<? extends Annotation> annotationType);
 
     private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
 
@@ -295,8 +316,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         return parameterAnnotations;
     }
 
-    native private Annotation[][] getParameterAnnotations(Class declaringClass,
-        int slot);
+    static native Annotation[][] getParameterAnnotations(Class declaringClass, int slot);
 
     /**
      * Indicates whether or not this method takes a variable number argument.
@@ -396,7 +416,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         return getMethodModifiers(declaringClass, slot);
     }
 
-    private native int getMethodModifiers(Class<?> decl_class, int slot);
+    static native int getMethodModifiers(Class<?> declaringClass, int slot);
 
     /**
      * Returns the name of the method represented by this {@code Method}

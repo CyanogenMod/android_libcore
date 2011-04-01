@@ -85,7 +85,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * Creates a socket channel and connects it to a socket address.
      * <p>
      * This method performs a call to {@code open()} followed by a call to
-     * {@code connect(SocketAdress)}.
+     * {@code connect(SocketAddress)}.
      *
      * @param address
      *            the socket address to be connected to.
@@ -97,9 +97,6 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      *             if another thread interrupts the calling thread while this
      *             operation is executing. The calling thread will have the
      *             interrupt state set and the channel will be closed.
-     * @throws SecurityException
-     *             if there is a security manager and it denies the access of
-     *             {@code address}.
      * @throws UnresolvedAddressException
      *             if the address is not resolved.
      * @throws UnsupportedAddressTypeException
@@ -156,7 +153,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * Connects this channel's socket with a remote address.
      * <p>
      * If this channel is blocking, this method will suspend until connecting is
-     * finished or an I/O exception occurrs. If the channel is non-blocking,
+     * finished or an I/O exception occurs. If the channel is non-blocking,
      * this method will return {@code true} if the connection is finished at
      * once or return {@code false} when the connection must be finished later
      * by calling {@code finishConnect()}.
@@ -187,9 +184,6 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      *             if the address is not resolved.
      * @throws UnsupportedAddressTypeException
      *             if the address type is not supported.
-     * @throws SecurityException
-     *             if there is a security manager and it denies the access of
-     *             {@code address}.
      * @throws IOException
      *             if an I/O error occurs.
      */
@@ -296,8 +290,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * @see java.nio.channels.ScatteringByteChannel#read(java.nio.ByteBuffer[],
      *      int, int)
      */
-    public abstract long read(ByteBuffer[] targets, int offset, int length)
-            throws IOException;
+    public abstract long read(ByteBuffer[] targets, int offset, int length) throws IOException;
 
     /**
      * Reads bytes from this socket channel and stores them in the specified
@@ -328,8 +321,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * @throws NotYetConnectedException
      *             if this channel is not yet connected.
      */
-    public synchronized final long read(ByteBuffer[] targets)
-            throws IOException {
+    public synchronized final long read(ByteBuffer[] targets) throws IOException {
         return read(targets, 0, targets.length);
     }
 
@@ -401,8 +393,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * @see java.nio.channels.GatheringByteChannel#write(java.nio.ByteBuffer[],
      *      int, int)
      */
-    public abstract long write(ByteBuffer[] sources, int offset, int length)
-            throws IOException;
+    public abstract long write(ByteBuffer[] sources, int offset, int length) throws IOException;
 
     /**
      * Writes bytes from all the given byte buffers to this socket channel.
@@ -428,8 +419,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      *             if this channel is not yet connected.
      * @see java.nio.channels.GatheringByteChannel#write(java.nio.ByteBuffer[])
      */
-    public synchronized final long write(ByteBuffer[] sources)
-            throws IOException {
+    public synchronized final long write(ByteBuffer[] sources) throws IOException {
         return write(sources, 0, sources.length);
     }
 }

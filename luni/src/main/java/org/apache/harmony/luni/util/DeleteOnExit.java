@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-// BEGIN android-changed
 /**
  * Implements the actual DeleteOnExit mechanism. Is registered as a shutdown
  * hook in the Runtime, once it is actually being used.
@@ -77,4 +76,3 @@ public class DeleteOnExit extends Thread {
         }
     }
 }
-// END android-changed

@@ -17,10 +17,6 @@
 
 package tests.api.java.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.File;
 import java.io.FilePermission;
 import java.security.AccessControlContext;
@@ -38,7 +34,6 @@ import java.util.PropertyPermission;
 import javax.security.auth.Subject;
 import javax.security.auth.SubjectDomainCombiner;
 
-@TestTargetClass(AccessControlContext.class)
 public class AccessControlContextTest extends junit.framework.TestCase {
 
     private class TestSecurityManager extends SecurityManager {
@@ -62,14 +57,8 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlContext#AccessControlContext(java.security.ProtectionDomain[])
+     * java.security.AccessControlContext#AccessControlContext(java.security.ProtectionDomain[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "AccessControlContext",
-        args = {java.security.ProtectionDomain[].class}
-    )
     public void test_Constructor$Ljava_security_ProtectionDomain() {
         // Test for method
         // java.security.AccessControlContext(java.security.ProtectionDomain [])
@@ -118,14 +107,9 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlContext#AccessControlContext(java.security.AccessControlContext,
+     * java.security.AccessControlContext#AccessControlContext(java.security.AccessControlContext,
      *        java.security.DomainCombiner)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        method = "AccessControlContext",
-        args = {java.security.AccessControlContext.class, java.security.DomainCombiner.class}
-    )
     public void test_ConstructorLjava_security_AccessControlContextLjava_security_DomainCombiner() {
         AccessControlContext context = AccessController.getContext();
         try {
@@ -143,14 +127,8 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#checkPermission(Permission)
+     * java.security.AccessControlException#checkPermission(Permission)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkPermission",
-        args = {java.security.Permission.class}
-    )
     public void test_checkPermission() {
         char s = File.separatorChar;
         FilePermission perm[] = new FilePermission[7];
@@ -218,14 +196,8 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#equals()
+     * java.security.AccessControlException#equals()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equals() {
         final Permission perm1 = new PropertyPermission("java.class.path",
                 "read");
@@ -275,13 +247,8 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#getDomainCombiner()
+     * java.security.AccessControlException#getDomainCombiner()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getDomainCombiner",
-        args = {}
-    )
     public void test_getDomainCombiner() {
         AccessControlContext context = AccessController.getContext();
 
@@ -305,14 +272,8 @@ public class AccessControlContextTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.AccessControlException#hashCode()
+     * java.security.AccessControlException#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         final Permission perm1 = new PropertyPermission("java.class.path",
                 "read");

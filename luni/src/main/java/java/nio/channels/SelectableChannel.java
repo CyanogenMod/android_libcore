@@ -38,7 +38,6 @@ public abstract class SelectableChannel extends AbstractInterruptibleChannel
      * Constructs a new {@code SelectableChannel}.
      */
     protected SelectableChannel() {
-        super();
     }
 
     /**

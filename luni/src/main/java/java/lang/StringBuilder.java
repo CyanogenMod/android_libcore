@@ -52,7 +52,6 @@ public final class StringBuilder extends AbstractStringBuilder implements
      * @see #capacity()
      */
     public StringBuilder() {
-        super();
     }
 
     /**

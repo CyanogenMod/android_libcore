@@ -93,37 +93,18 @@ public abstract class ProxySelector {
 
     private static ProxySelector defaultSelector = new ProxySelectorImpl();
 
-    private final static NetPermission getProxySelectorPermission
-            = new NetPermission("getProxySelector");
-    private final static NetPermission setProxySelectorPermission
-            = new NetPermission("setProxySelector");
-
     /**
      * Returns the default proxy selector, or null if none exists.
-     *
-     * @throws SecurityException if a security manager is installed but it
-     *     doesn't have the NetPermission("getProxySelector").
      */
     public static ProxySelector getDefault() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(getProxySelectorPermission);
-        }
         return defaultSelector;
     }
 
     /**
      * Sets the default proxy selector. If {@code selector} is null, the current
      * proxy selector will be removed.
-     *
-     * @throws SecurityException if a security manager is installed but it
-     *     doesn't have the NetPermission("setProxySelector").
      */
     public static void setDefault(ProxySelector selector) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(setProxySelectorPermission);
-        }
         defaultSelector = selector;
     }
 

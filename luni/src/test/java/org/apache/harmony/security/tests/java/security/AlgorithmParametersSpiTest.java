@@ -17,11 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AlgorithmParametersSpi;
 import java.security.spec.AlgorithmParameterSpec;
 
@@ -32,7 +27,6 @@ import junit.framework.TestCase;
  * and methods.
  *
  */
-@TestTargetClass(AlgorithmParametersSpi.class)
 public class AlgorithmParametersSpiTest extends TestCase {
 
 
@@ -40,56 +34,6 @@ public class AlgorithmParametersSpiTest extends TestCase {
      * Test for <code>AlgorithmParametersSpi</code> constructor
      * Assertion: constructs AlgorithmParametersSpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "AlgorithmParametersSpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetEncoded",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetEncoded",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetParameterSpec",
-            args = {java.lang.Class.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineInit",
-            args = {java.security.spec.AlgorithmParameterSpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineInit",
-            args = {byte[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineInit",
-            args = {byte[].class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineToString",
-            args = {}
-        )
-    })
     public void testAlgorithmParametersSpi() {
         byte[] bt = new byte[10];
         MyAlgorithmParametersSpi algParSpi = new MyAlgorithmParametersSpi();

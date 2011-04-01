@@ -50,7 +50,7 @@ public class OldJarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File)
+     * java.util.jar.JarFile#JarFile(java.io.File)
      */
     public void test_ConstructorLjava_io_File() throws IOException {
         try {
@@ -77,7 +77,7 @@ public class OldJarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.lang.String)
+     * java.util.jar.JarFile#JarFile(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() throws IOException {
         try {
@@ -105,7 +105,7 @@ public class OldJarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.lang.String, boolean)
+     * java.util.jar.JarFile#JarFile(java.lang.String, boolean)
      */
     public void test_ConstructorLjava_lang_StringZ() throws IOException {
         try {
@@ -133,7 +133,7 @@ public class OldJarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File, boolean)
+     * java.util.jar.JarFile#JarFile(java.io.File, boolean)
      */
     public void test_ConstructorLjava_io_FileZ() throws IOException {
         try {
@@ -160,7 +160,7 @@ public class OldJarFileTest extends TestCase {
     }
 
     /**
-     * @tests java.util.jar.JarFile#JarFile(java.io.File, boolean, int)
+     * java.util.jar.JarFile#JarFile(java.io.File, boolean, int)
      */
     public void test_ConstructorLjava_io_FileZI() {
         try {
@@ -220,7 +220,7 @@ public class OldJarFileTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
+     * java.util.jar.JarFile#getInputStream(java.util.zip.ZipEntry)
      */
     public void test_getInputStreamLjava_util_jar_JarEntry() throws IOException {
         File localFile = null;

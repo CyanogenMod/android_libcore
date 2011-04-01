@@ -22,17 +22,11 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.IllegalBlockSizeException;
 
 import junit.framework.TestCase;
 
 
-@TestTargetClass(IllegalBlockSizeException.class)
 /**
  * Tests for <code>IllegalBlockSizeException</code> class constructors and
  * methods.
@@ -51,12 +45,6 @@ public class IllegalBlockSizeExceptionTest extends TestCase {
      * Test for <code>IllegalBlockSizeException()</code> constructor
      * Assertion: constructs IllegalBlockSizeException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IllegalBlockSizeException",
-        args = {}
-    )
     public void testIllegalBlockSizeException01() {
         IllegalBlockSizeException tE = new IllegalBlockSizeException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -68,12 +56,6 @@ public class IllegalBlockSizeExceptionTest extends TestCase {
      * Assertion: constructs IllegalBlockSizeException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IllegalBlockSizeException",
-        args = {java.lang.String.class}
-    )
     public void testIllegalBlockSizeException02() {
         IllegalBlockSizeException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -89,12 +71,6 @@ public class IllegalBlockSizeExceptionTest extends TestCase {
      * Assertion: constructs IllegalBlockSizeException when <code>msg</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IllegalBlockSizeException",
-        args = {java.lang.String.class}
-    )
     public void testIllegalBlockSizeException03() {
         String msg = null;
         IllegalBlockSizeException tE = new IllegalBlockSizeException(msg);

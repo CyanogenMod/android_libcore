@@ -22,11 +22,6 @@
 
 package tests.api.javax.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import javax.security.cert.CertificateParsingException;
@@ -36,7 +31,6 @@ import javax.security.cert.CertificateParsingException;
  * Tests for <code>DigestException</code> class constructors and methods.
  *
  */
-@TestTargetClass(CertificateParsingException.class)
 public class CertificateParsingExceptionTest extends TestCase {
 
 
@@ -51,12 +45,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Test for <code>CertificateParsingException()</code> constructor
      * Assertion: constructs CertificateParsingException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateParsingException",
-        args = {}
-    )
     public void testCertificateParsingException01() {
         CertificateParsingException tE = new CertificateParsingException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -68,12 +56,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Assertion: constructs CertificateParsingException with detail message
      * msg. Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateParsingException cobstructor with valid parameters.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateParsingException02() {
         CertificateParsingException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -89,12 +71,6 @@ public class CertificateParsingExceptionTest extends TestCase {
      * Assertion: constructs CertificateParsingException when <code>msg</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateParsingException constructor with null as a parameter.",
-        method = "CertificateParsingException",
-        args = {java.lang.String.class}
-    )
     public void testCertificateParsingException03() {
         String msg = null;
         CertificateParsingException tE = new CertificateParsingException(msg);

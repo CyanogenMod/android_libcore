@@ -67,18 +67,22 @@ public abstract class Reference<T> {
     volatile Reference queueNext;
 
     /**
-     * Used internally by the VM.  This field forms a singly-linked
-     * list of reference objects awaiting processing by the garbage
-     * collector.
+     * Used internally by the VM.  This field forms a circular and
+     * singly linked list of reference objects discovered by the
+     * garbage collector and awaiting processing by the reference
+     * queue thread.
      */
-    @SuppressWarnings("unchecked")
-    volatile Reference pendingNext;
+    volatile Reference<?> pendingNext;
 
     /**
      * Constructs a new instance of this class.
      */
     Reference() {
-        super();
+    }
+
+    Reference(T r, ReferenceQueue q) {
+        referent = r;
+        queue = q;
     }
 
     /**
@@ -90,24 +94,12 @@ public abstract class Reference<T> {
     }
 
     /**
-     * An implementation of .enqueue() that is safe for the VM to call.
-     * If a Reference object is a subclass of any of the
-     * java.lang.ref.*Reference classes and that subclass overrides enqueue(),
-     * the VM may not call the overridden method.
-     * VM requirement: this method <em>must</em> be called "enqueueInternal",
-     * have the signature "()Z", and be private.
+     * Adds an object to its reference queue.
      *
      * @return {@code true} if this call has caused the {@code Reference} to
      * become enqueued, or {@code false} otherwise
      */
-    @SuppressWarnings("unchecked")
-    private synchronized boolean enqueueInternal() {
-        /* VM requirement:
-         * The VM assumes that this function only does work
-         * if "(queue != null && queueNext == null)".
-         * If that changes, Dalvik needs to change, too.
-         * (see MarkSweep.c:enqueueReference())
-         */
+    final synchronized boolean enqueueInternal() {
         if (queue != null && queueNext == null) {
             queue.enqueue(this);
             queue = null;

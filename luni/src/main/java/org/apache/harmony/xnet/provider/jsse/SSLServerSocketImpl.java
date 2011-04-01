@@ -44,9 +44,7 @@ public class SSLServerSocketImpl extends SSLServerSocket {
      * @param   sslParameters:  SSLParameters
      * @throws  IOException
      */
-    protected SSLServerSocketImpl(SSLParametersImpl sslParameters)
-        throws IOException {
-        super();
+    protected SSLServerSocketImpl(SSLParametersImpl sslParameters) throws IOException {
         this.sslParameters = sslParameters;
     }
 
@@ -249,16 +247,6 @@ public class SSLServerSocketImpl extends SSLServerSocket {
         SSLSocketImpl s = new SSLSocketImpl(
                 (SSLParametersImpl) sslParameters.clone());
         implAccept(s);
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            try {
-                sm.checkAccept(s.getInetAddress().getHostAddress(),
-                        s.getPort());
-            } catch(SecurityException e) {
-                s.close();
-                throw e;
-            }
-        }
         s.init();
         if (logger != null) {
             logger.println("SSLServerSocketImpl: accepted, initialized");
@@ -276,4 +264,3 @@ public class SSLServerSocketImpl extends SSLServerSocket {
 
     // -----------------------------------------------------------------
 }
-

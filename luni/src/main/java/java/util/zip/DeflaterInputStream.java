@@ -99,13 +99,8 @@ public class DeflaterInputStream extends FilterInputStream {
      *
      * @return the byte or -1 if the end of the stream has been reached.
      */
-    @Override
-    public int read() throws IOException {
-        byte[] result = new byte[1];
-        if (read(result, 0, 1) == -1) {
-            return -1;
-        }
-        return result[0] & 0xff;
+    @Override public int read() throws IOException {
+        return Streams.readSingleByte(this);
     }
 
     /**
@@ -114,8 +109,7 @@ public class DeflaterInputStream extends FilterInputStream {
      * @return the number of bytes read or -1 if the end of the compressed input
      *         stream has been reached.
      */
-    @Override
-    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+    @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
         checkClosed();
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (byteCount == 0) {

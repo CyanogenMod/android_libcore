@@ -32,8 +32,7 @@ import java.util.TimeZone;
  *
  * @see http://asn1.elibel.tm.fr/en/standards/index.htm
  */
-
-public class ASN1GeneralizedTime extends ASN1Time {
+public final class ASN1GeneralizedTime extends ASN1Time {
 
     // default implementation
     private static final ASN1GeneralizedTime ASN1 = new ASN1GeneralizedTime();
@@ -62,12 +61,6 @@ public class ASN1GeneralizedTime extends ASN1Time {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     public Object decode(BerInputStream in) throws IOException {
         in.readGeneralizedTime();
 
@@ -76,12 +69,6 @@ public class ASN1GeneralizedTime extends ASN1Time {
         }
         return getDecodedObject(in);
     }
-
-    //
-    //
-    // Encode
-    //
-    //
 
     public void encodeContent(BerOutputStream out) {
         out.encodeGeneralizedTime();
@@ -93,10 +80,9 @@ public class ASN1GeneralizedTime extends ASN1Time {
     // four digit year, seconds always presented
     // and fractional-seconds elements without
     // trailing 0's (must be cut later from content)
-    private final static String GEN_PATTERN = "yyyyMMddHHmmss.SSS";
+    private static final String GEN_PATTERN = "yyyyMMddHHmmss.SSS";
 
     public void setEncodingContent(BerOutputStream out) {
-
         SimpleDateFormat sdf = new SimpleDateFormat(GEN_PATTERN);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         String temp = sdf.format(out.content);

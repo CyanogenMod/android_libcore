@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
@@ -33,10 +34,6 @@
 #include <cutils/jstring.h>
 
 #define BUCKET_COUNT 128
-
-static void throw_OutOfMemoryError(JNIEnv* env) {
-    jniThrowException(env, "java/lang/OutOfMemoryError", "Out of memory.");
-}
 
 /**
  * Wrapper around an interned string.
@@ -76,7 +73,7 @@ public:
             int newCapacity = capacity * 2;
             jstring* newArray = new jstring[newCapacity];
             if (newArray == NULL) {
-                throw_OutOfMemoryError(env);
+                jniThrowOutOfMemoryError(env, NULL);
                 return;
             }
             memcpy(newArray, array, capacity * sizeof(jstring));
@@ -250,7 +247,7 @@ static InternedString* newInternedString(JNIEnv* env, const char* bytes, int has
     // Allocate a new wrapper.
     UniquePtr<InternedString> wrapper(new InternedString);
     if (wrapper.get() == NULL) {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
         return NULL;
     }
 
@@ -258,7 +255,7 @@ static InternedString* newInternedString(JNIEnv* env, const char* bytes, int has
     // TODO: sometimes we already know the length. Reuse it if so.
     char* copy = new char[strlen(bytes) + 1];
     if (copy == NULL) {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
         return NULL;
     }
     strcpy(copy, bytes);
@@ -380,7 +377,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
         // Expand the bucket.
         bucket = expandInternedStringBucket(bucket, internedString);
         if (bucket == NULL) {
-            throw_OutOfMemoryError(env);
+            jniThrowOutOfMemoryError(env, NULL);
             return NULL;
         }
 
@@ -395,7 +392,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
         // Create a new bucket with one entry.
         bucket = newInternedStringBucket(internedString);
         if (bucket == NULL) {
-            throw_OutOfMemoryError(env);
+            jniThrowOutOfMemoryError(env, NULL);
             return NULL;
         }
 
@@ -847,7 +844,7 @@ static jint ExpatParser_createEntityParser(JNIEnv* env, jobject, jint parentPars
     XML_Parser parent = (XML_Parser) parentParser;
     XML_Parser entityParser = XML_ExternalEntityParserCreate(parent, context.c_str(), NULL);
     if (entityParser == NULL) {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
     }
 
     return (jint) entityParser;
@@ -956,7 +953,7 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
     // Allocate parsing context.
     UniquePtr<ParsingContext> context(new ParsingContext(object));
     if (context.get() == NULL) {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
         return 0;
     }
 
@@ -992,7 +989,7 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
         XML_SetUnparsedEntityDeclHandler(parser, unparsedEntityDecl);
         XML_SetUserData(parser, context.release());
     } else {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
         return 0;
     }
 
@@ -1278,7 +1275,7 @@ static jint ExpatParser_cloneAttributes(JNIEnv* env, jobject, jint address, jint
 
     char* buffer = new char[totalSize];
     if (buffer == NULL) {
-        throw_OutOfMemoryError(env);
+        jniThrowOutOfMemoryError(env, NULL);
         return 0;
     }
 

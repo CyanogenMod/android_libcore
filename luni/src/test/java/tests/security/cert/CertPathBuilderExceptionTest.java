@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.cert.CertPathBuilderException;
@@ -37,7 +32,6 @@ import java.security.cert.CertPathBuilderException;
  * methods.
  *
  */
-@TestTargetClass(CertPathBuilderException.class)
 public class CertPathBuilderExceptionTest extends TestCase {
 
     private static String[] msgs = {
@@ -51,12 +45,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * Test for <code>CertPathBuilderException()</code> constructor Assertion:
      * constructs CertPathBuilderException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertPathBuilderException",
-        args = {}
-    )
     public void testCertPathBuilderException01() {
         CertPathBuilderException tE = new CertPathBuilderException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -68,12 +56,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * Assertion: constructs CertPathBuilderException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class}
-    )
     public void testCertPathBuilderException02() {
         CertPathBuilderException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -89,12 +71,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * Assertion: constructs CertPathBuilderException when <code>msg</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class}
-    )
     public void testCertPathBuilderException03() {
         String msg = null;
         CertPathBuilderException tE = new CertPathBuilderException(msg);
@@ -107,12 +83,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * Assertion: constructs CertPathBuilderException when <code>cause</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "CertPathBuilderException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException04() {
         Throwable cause = null;
         CertPathBuilderException tE = new CertPathBuilderException(cause);
@@ -125,12 +95,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * Assertion: constructs CertPathBuilderException when <code>cause</code>
      * is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertPathBuilderException",
-        args = {java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException05() {
         CertPathBuilderException tE = new CertPathBuilderException(tCause);
         if (tE.getMessage() != null) {
@@ -149,12 +113,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * constructor Assertion: constructs CertPathBuilderException when
      * <code>cause</code> is null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as parameters.",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException06() {
         CertPathBuilderException tE = new CertPathBuilderException(null, null);
         assertNull("getMessage() must return null", tE.getMessage());
@@ -166,12 +124,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * constructor Assertion: constructs CertPathBuilderException when
      * <code>cause</code> is null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as the second parameter.",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException07() {
         CertPathBuilderException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -187,12 +139,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * constructor Assertion: constructs CertPathBuilderException when
      * <code>cause</code> is not null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as the first parameter.",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException08() {
         CertPathBuilderException tE = new CertPathBuilderException(null, tCause);
         if (tE.getMessage() != null) {
@@ -211,12 +157,6 @@ public class CertPathBuilderExceptionTest extends TestCase {
      * constructor Assertion: constructs CertPathBuilderException when
      * <code>cause</code> is not null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive case.",
-        method = "CertPathBuilderException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testCertPathBuilderException09() {
         CertPathBuilderException tE;
         for (int i = 0; i < msgs.length; i++) {

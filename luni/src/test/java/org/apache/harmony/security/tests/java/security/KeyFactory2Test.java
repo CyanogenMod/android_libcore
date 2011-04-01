@@ -17,10 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -41,8 +37,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
+import libcore.java.security.StandardNames;
 
-@TestTargetClass(KeyFactory.class)
 public class KeyFactory2Test extends junit.framework.TestCase {
 
     private static final String KEYFACTORY_ID = "KeyFactory.";
@@ -90,16 +86,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         return null;
     }
 
-    /**
-     * @tests java.security.KeyFactory#KeyFactory(java.security.KeyFactorySpi,
-     *        java.security.Provider, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyFactory",
-        args = {java.security.KeyFactorySpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void test_constructor() {
         KeyFactorySpi kfs = new KeyFactorySpiStub();
 
@@ -122,15 +108,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#generatePrivate(java.security.spec.KeySpec)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "generatePrivate",
-        args = {java.security.spec.KeySpec.class}
-    )
     public void test_generatePrivateLjava_security_spec_KeySpec() {
         // Test for method java.security.PrivateKey
         // java.security.KeyFactory.generatePrivate(java.security.spec.KeySpec)
@@ -142,7 +119,7 @@ public class KeyFactory2Test extends junit.framework.TestCase {
                         .getInstance(keyfactAlgs[i]);
                 SecureRandom random = new SecureRandom(); // We don't use
                 // getInstance
-                keyGen.initialize(1024, random);
+                keyGen.initialize(StandardNames.getMinimumKeySize(keyfactAlgs[i]), random);
                 KeepAlive keepalive = createKeepAlive(keyfactAlgs[i]);
                 KeyPair keys = keyGen.generateKeyPair();
                 if (keepalive != null) {
@@ -150,7 +127,7 @@ public class KeyFactory2Test extends junit.framework.TestCase {
                 }
 
                 KeySpec privateKeySpec = fact.getKeySpec(keys.getPrivate(),
-                        getPrivateKeySpecClass(keyfactAlgs[i]));
+                        StandardNames.getPrivateKeySpecClass(keyfactAlgs[i]));
                 PrivateKey privateKey = fact.generatePrivate(privateKeySpec);
                 boolean samePrivate = Arrays.equals(keys.getPrivate()
                         .getEncoded(), privateKey.getEncoded());
@@ -170,15 +147,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#generatePublic(java.security.spec.KeySpec)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidKeySpecException checking missed",
-        method = "generatePublic",
-        args = {java.security.spec.KeySpec.class}
-    )
     public void test_generatePublicLjava_security_spec_KeySpec() {
         // Test for method java.security.PublicKey
         // java.security.KeyFactory.generatePublic(java.security.spec.KeySpec)
@@ -190,14 +158,14 @@ public class KeyFactory2Test extends junit.framework.TestCase {
                         .getInstance(keyfactAlgs[i]);
                 // We don't use getInstance
                 SecureRandom random = new SecureRandom();
-                keyGen.initialize(1024, random);
+                keyGen.initialize(StandardNames.getMinimumKeySize(keyfactAlgs[i]), random);
                 KeepAlive keepalive = createKeepAlive(keyfactAlgs[i]);
                 KeyPair keys = keyGen.generateKeyPair();
                 if (keepalive != null) {
                     keepalive.interrupt();
                 }
                 KeySpec publicKeySpec = fact.getKeySpec(keys.getPublic(),
-                        getPublicKeySpecClass(keyfactAlgs[i]));
+                        StandardNames.getPublicKeySpecClass(keyfactAlgs[i]));
                 PublicKey publicKey = fact.generatePublic(publicKeySpec);
                 boolean samePublic = Arrays.equals(keys.getPublic()
                         .getEncoded(), publicKey.getEncoded());
@@ -214,15 +182,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#getAlgorithm()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() {
         // Test for method java.lang.String
         // java.security.KeyFactory.getAlgorithm()
@@ -240,15 +199,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }// end for
     }
 
-    /**
-     * @tests java.security.KeyFactory#getInstance(java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() {
         // Test for method java.security.KeyFactory
         // java.security.KeyFactory.getInstance(java.lang.String)
@@ -261,18 +211,7 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }// end for
     }
 
-    /**
-     * @tests java.security.KeyFactory#getInstance(java.lang.String,
-     *        java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException, NoSuchProviderException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String() {
-
         // Test1: Test for method java.security.KeyFactory
         // java.security.KeyFactory.getInstance(java.lang.String,
         // java.lang.String)
@@ -302,17 +241,7 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#getInstance(java.lang.String, Provider)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException checking missed",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider() {
-
         // Test1: Test for method java.security.KeyFactory
         // java.security.KeyFactory.getInstance(java.lang.String,
         // java.security.Provider)
@@ -342,16 +271,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#getKeySpec(java.security.Key,
-     *        java.lang.Class)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidKeySpecException checking missed",
-        method = "getKeySpec",
-        args = {java.security.Key.class, java.lang.Class.class}
-    )
     public void test_getKeySpecLjava_security_KeyLjava_lang_Class() {
         // Test for method java.security.spec.KeySpec
         // java.security.KeyFactory.getKeySpec(java.security.Key,
@@ -365,16 +284,16 @@ public class KeyFactory2Test extends junit.framework.TestCase {
 
                 // We don't use getInstance
                 SecureRandom random = new SecureRandom();
-                keyGen.initialize(1024, random);
+                keyGen.initialize(StandardNames.getMinimumKeySize(keyfactAlgs[i]), random);
                 KeepAlive keepalive = createKeepAlive(keyfactAlgs[i]);
                 KeyPair keys = keyGen.generateKeyPair();
                 if (keepalive != null) {
                     keepalive.interrupt();
                 }
                 KeySpec privateKeySpec = fact.getKeySpec(keys.getPrivate(),
-                        getPrivateKeySpecClass(keyfactAlgs[i]));
+                        StandardNames.getPrivateKeySpecClass(keyfactAlgs[i]));
                 KeySpec publicKeySpec = fact.getKeySpec(keys.getPublic(),
-                        getPublicKeySpecClass(keyfactAlgs[i]));
+                        StandardNames.getPublicKeySpecClass(keyfactAlgs[i]));
                 PrivateKey privateKey = fact.generatePrivate(privateKeySpec);
                 PublicKey publicKey = fact.generatePublic(publicKeySpec);
                 boolean samePublic = Arrays.equals(keys.getPublic()
@@ -406,15 +325,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.security.KeyFactory#getProvider()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() {
         // Test for method java.security.Provider
         // java.security.KeyFactory.getProvider()
@@ -430,15 +340,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }// end for
     }
 
-    /**
-     * @tests java.security.KeyFactory#translateKey(java.security.Key)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "InvalidKeyException checking missed",
-        method = "translateKey",
-        args = {java.security.Key.class}
-    )
     public void test_translateKeyLjava_security_Key() {
         // Test for method java.security.Key
         // java.security.KeyFactory.translateKey(java.security.Key)
@@ -451,7 +352,7 @@ public class KeyFactory2Test extends junit.framework.TestCase {
 
                 // We don't use getInstance
                 SecureRandom random = new SecureRandom();
-                keyGen.initialize(1024, random);
+                keyGen.initialize(StandardNames.getMinimumKeySize(keyfactAlgs[i]), random);
                 KeepAlive keepalive = createKeepAlive(keyfactAlgs[i]);
                 KeyPair keys = keyGen.generateKeyPair();
                 if (keepalive != null) {
@@ -502,34 +403,6 @@ public class KeyFactory2Test extends junit.framework.TestCase {
         }
 
         return algs.toArray(new String[algs.size()]);
-    }
-
-    /**
-     * Returns the public key spec class for a given algorithm, or null if it is
-     * not known.
-     */
-    private Class<? extends KeySpec> getPrivateKeySpecClass(String algName) {
-        if (algName.equals("RSA")) {
-            return java.security.spec.RSAPrivateCrtKeySpec.class;
-        }
-        if (algName.equals("DSA")) {
-            return java.security.spec.DSAPrivateKeySpec.class;
-        }
-        return null;
-    }
-
-    /**
-     * Returns the private key spec class for a given algorithm, or null if it
-     * is not known.
-     */
-    private Class<? extends KeySpec> getPublicKeySpecClass(String algName) {
-        if (algName.equals("RSA")) {
-            return java.security.spec.RSAPublicKeySpec.class;
-        }
-        if (algName.equals("DSA")) {
-            return java.security.spec.DSAPublicKeySpec.class;
-        }
-        return null;
     }
 
     public class KeyFactoryStub extends KeyFactory {

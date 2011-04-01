@@ -21,17 +21,10 @@
 
 #include <stdlib.h>
 
-namespace android {
-    extern int register_dalvik_system_TouchDex(JNIEnv* env);
-}
-
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
-extern int register_java_io_FileDescriptor(JNIEnv* env);
 extern int register_java_io_ObjectStreamClass(JNIEnv* env);
 extern int register_java_lang_Character(JNIEnv* env);
-extern int register_java_lang_Double(JNIEnv* env);
-extern int register_java_lang_Float(JNIEnv* env);
 extern int register_java_lang_Math(JNIEnv* env);
 extern int register_java_lang_ProcessManager(JNIEnv* env);
 extern int register_java_lang_RealToString(JNIEnv* env);
@@ -42,6 +35,7 @@ extern int register_java_net_InetAddress(JNIEnv* env);
 extern int register_java_net_NetworkInterface(JNIEnv* env);
 extern int register_java_nio_ByteOrder(JNIEnv* env);
 extern int register_java_nio_charset_Charsets(JNIEnv* env);
+extern int register_java_text_Bidi(JNIEnv* env);
 extern int register_java_util_regex_Matcher(JNIEnv* env);
 extern int register_java_util_regex_Pattern(JNIEnv* env);
 extern int register_java_util_zip_Adler32(JNIEnv* env);
@@ -57,14 +51,13 @@ extern int register_libcore_icu_NativeIDN(JNIEnv* env);
 extern int register_libcore_icu_NativeNormalizer(JNIEnv* env);
 extern int register_libcore_icu_NativePluralRules(JNIEnv* env);
 extern int register_libcore_icu_TimeZones(JNIEnv* env);
-extern int register_libcore_io_IoUtils(JNIEnv* env);
+extern int register_libcore_io_Memory(JNIEnv* env);
+extern int register_libcore_io_OsConstants(JNIEnv* env);
+extern int register_libcore_io_Posix(JNIEnv* env);
 extern int register_libcore_net_RawSocket(JNIEnv* env);
 extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
-extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
-extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
-extern int register_org_apache_harmony_text_NativeBidi(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
 
@@ -77,11 +70,8 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
     bool result =
             register_java_io_Console(env) != -1 &&
             register_java_io_File(env) != -1 &&
-            register_java_io_FileDescriptor(env) != -1 &&
             register_java_io_ObjectStreamClass(env) != -1 &&
             register_java_lang_Character(env) != -1 &&
-            register_java_lang_Double(env) != -1 &&
-            register_java_lang_Float(env) != -1 &&
             register_java_lang_Math(env) != -1 &&
             register_java_lang_ProcessManager(env) != -1 &&
             register_java_lang_RealToString(env) != -1 &&
@@ -92,6 +82,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_net_NetworkInterface(env) != -1 &&
             register_java_nio_ByteOrder(env) != -1 &&
             register_java_nio_charset_Charsets(env) != -1 &&
+            register_java_text_Bidi(env) != -1 &&
             register_java_util_regex_Matcher(env) != -1 &&
             register_java_util_regex_Pattern(env) != -1 &&
             register_java_util_zip_Adler32(env) != -1 &&
@@ -107,18 +98,16 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_icu_NativeNormalizer(env) != -1 &&
             register_libcore_icu_NativePluralRules(env) != -1 &&
             register_libcore_icu_TimeZones(env) != -1 &&
-            register_libcore_io_IoUtils(env) != -1 &&
+            register_libcore_io_Memory(env) != -1 &&
+            register_libcore_io_OsConstants(env) != -1 &&
+            register_libcore_io_Posix(env) != -1 &&
             register_libcore_net_RawSocket(env) != -1 &&
-            register_org_apache_harmony_luni_platform_OSFileSystem(env) != -1 &&
-            register_org_apache_harmony_luni_platform_OSMemory(env) != -1 &&
+            register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
-            register_org_apache_harmony_text_NativeBidi(env) != -1 &&
+            register_org_apache_harmony_xml_ExpatParser(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
-            // Initialize the Android classes last, as they have dependencies on the "corer" core classes.
-            android::register_dalvik_system_TouchDex(env) != -1 &&
-            register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
-            register_org_apache_harmony_xml_ExpatParser(env) != -1;
+            true;
 
     if (!result) {
         LOGE("Failed to initialize the core libraries; aborting...");

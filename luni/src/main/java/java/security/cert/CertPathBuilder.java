@@ -17,7 +17,6 @@
 
 package java.security.cert;
 
-import java.security.AccessController;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -193,12 +192,7 @@ public class CertPathBuilder {
      *         determined.
      */
     public static final String getDefaultType() {
-        String defaultType = AccessController
-                .doPrivileged(new java.security.PrivilegedAction<String>() {
-                    public String run() {
-                        return Security.getProperty(PROPERTYNAME);
-                    }
-                });
+        String defaultType = Security.getProperty(PROPERTYNAME);
         return (defaultType != null ? defaultType : DEFAULTPROPERTY);
     }
 }

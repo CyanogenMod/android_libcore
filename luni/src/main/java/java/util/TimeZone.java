@@ -19,7 +19,7 @@ package java.util;
 
 import java.io.Serializable;
 import libcore.icu.TimeZones;
-import org.apache.harmony.luni.internal.util.ZoneInfoDB;
+import libcore.util.ZoneInfoDB;
 
 /**
  * {@code TimeZone} represents a time zone, primarily used for configuring a {@link Calendar} or
@@ -170,10 +170,13 @@ public abstract class TimeZone implements Serializable, Cloneable {
 
         boolean useDaylight = daylightTime && useDaylightTime();
 
-        String result = TimeZones.getDisplayName(getID(), daylightTime, style, locale);
+        String[][] zoneStrings = TimeZones.getZoneStrings(locale);
+        String result = TimeZones.getDisplayName(zoneStrings, getID(), daylightTime, style);
         if (result != null) {
             return result;
         }
+
+        // TODO: do we ever get here?
 
         int offset = getRawOffset();
         if (useDaylight && this instanceof SimpleTimeZone) {

@@ -60,15 +60,15 @@ bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int por
     return true;
 }
 
-jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss) {
-    void* rawAddress;
+jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss) {
+    const void* rawAddress;
     size_t addressLength;
     if (ss->ss_family == AF_INET) {
-        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
+        const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
     } else if (ss->ss_family == AF_INET6) {
-        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+        const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
     } else {
@@ -85,7 +85,7 @@ jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss) {
     if (byteArray == NULL) {
         return NULL;
     }
-    env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<jbyte*>(rawAddress));
+    env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<const jbyte*>(rawAddress));
     return byteArray;
 }
 
@@ -101,9 +101,20 @@ jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
     return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod, byteArray);
 }
 
-jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss) {
+jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
     jbyteArray byteArray = socketAddressToByteArray(env, ss);
     return byteArrayToInetAddress(env, byteArray);
+}
+
+bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+    // Get the byte array that stores the IP address bytes in the InetAddress.
+    if (inetAddress == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return false;
+    }
+    static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
+    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
+    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
 }
 
 bool setBlocking(int fd, bool blocking) {

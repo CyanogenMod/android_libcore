@@ -17,11 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.cert.CertPathParameters;
 import javax.net.ssl.CertPathTrustManagerParameters;
 
@@ -32,21 +27,14 @@ import junit.framework.TestCase;
  * and methods.
  *
  */
-@TestTargetClass(CertPathTrustManagerParameters.class)
 public class CertPathTrustManagerParametersTest extends TestCase {
 
     /**
-     * @tests javax.net.ssl.CertPathTrustManagerParameters#
+     * javax.net.ssl.CertPathTrustManagerParameters#
      *     CertPathTrustManagerParameters(java.security.cert.CertPathParameters)
      * Case 1: Try to construct object.
      * Case 2: Check NullPointerException.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertPathTrustManagerParameters",
-        args = {java.security.cert.CertPathParameters.class}
-    )
     public void test_ConstructorLjava_security_cert_CertPathParameters() {
         // case 1: Try to construct object.
         try {
@@ -69,14 +57,8 @@ public class CertPathTrustManagerParametersTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.CertPathTrustManagerParameters#getParameters()
+     * javax.net.ssl.CertPathTrustManagerParameters#getParameters()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameters",
-        args = {}
-    )
     public void test_getParameters() {
         CertPathParameters parameters = new MyCertPathParameters();
         CertPathTrustManagerParameters p = new CertPathTrustManagerParameters(

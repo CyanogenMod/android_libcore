@@ -21,7 +21,6 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "java_lang_Float.h"
 
 static jdouble StrictMath_sin(JNIEnv*, jclass, jdouble a) {
     return ieee_sin(a);
@@ -119,24 +118,6 @@ static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_nextafter(a, b);
 }
 
-// TODO: we should make Float.floatToRawBits and Float.intBitsToFloat intrinsics, and move
-// this kind of code into Java.
-static jfloat StrictMath_nextafterf(JNIEnv*, jclass, jfloat arg1, jfloat arg2) {
-    jint hx = Float::floatToRawIntBits(arg1);
-    jint hy = Float::floatToRawIntBits(arg2);
-
-    if (!(hx & 0x7fffffff)) { /* arg1 == 0 */
-        return Float::intBitsToFloat((hy & 0x80000000) | 0x1);
-    }
-
-    if ((hx > 0) ^ (hx > hy)) { /* |arg1| < |arg2| */
-        hx += 1;
-    } else {
-        hx -= 1;
-    }
-    return Float::intBitsToFloat(hx);
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StrictMath, IEEEremainder, "(DD)D"),
     NATIVE_METHOD(StrictMath, acos, "(D)D"),
@@ -155,7 +136,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StrictMath, log10, "(D)D"),
     NATIVE_METHOD(StrictMath, log1p, "(D)D"),
     NATIVE_METHOD(StrictMath, nextafter, "(DD)D"),
-    NATIVE_METHOD(StrictMath, nextafterf, "(FF)F"),
     NATIVE_METHOD(StrictMath, pow, "(DD)D"),
     NATIVE_METHOD(StrictMath, rint, "(D)D"),
     NATIVE_METHOD(StrictMath, sin, "(D)D"),

@@ -132,21 +132,7 @@ public final class NetworkInterface extends Object {
      * @return the address list of the represented network interface.
      */
     public Enumeration<InetAddress> getInetAddresses() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm == null || addresses.isEmpty()) {
-            return Collections.enumeration(addresses);
-        }
-        // TODO: Android should ditch SecurityManager and the associated pollution.
-        List<InetAddress> result = new ArrayList<InetAddress>(addresses.size());
-        for (InetAddress address : addresses) {
-            try {
-                sm.checkConnect(address.getHostName(), CHECK_CONNECT_NO_PORT);
-            } catch (SecurityException e) {
-                continue;
-            }
-            result.add(address);
-        }
-        return Collections.enumeration(result);
+        return Collections.enumeration(addresses);
     }
 
     /**
@@ -343,31 +329,11 @@ public final class NetworkInterface extends Object {
     }
 
     /**
-     * Returns a List the InterfaceAddresses for this network interface.
-     * <p>
-     * If there is a security manager, its checkConnect method is called with
-     * the InetAddress for each InterfaceAddress. Only InterfaceAddresses where
-     * the checkConnect doesn't throw a SecurityException will be returned.
-     *
-     * @return a List of the InterfaceAddresses for this network interface.
+     * Returns a List of the InterfaceAddresses for this network interface.
      * @since 1.6
      */
     public List<InterfaceAddress> getInterfaceAddresses() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm == null) {
-            return Collections.unmodifiableList(interfaceAddresses);
-        }
-        // TODO: Android should ditch SecurityManager and the associated pollution.
-        List<InterfaceAddress> result = new ArrayList<InterfaceAddress>(interfaceAddresses.size());
-        for (InterfaceAddress ia : interfaceAddresses) {
-            try {
-                sm.checkConnect(ia.getAddress().getHostName(), CHECK_CONNECT_NO_PORT);
-            } catch (SecurityException e) {
-                continue;
-            }
-            result.add(ia);
-        }
-        return result;
+        return Collections.unmodifiableList(interfaceAddresses);
     }
 
     /**

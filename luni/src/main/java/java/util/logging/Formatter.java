@@ -32,7 +32,6 @@ public abstract class Formatter {
      * Constructs a {@code Formatter} object.
      */
     protected Formatter() {
-        super();
     }
 
     /**

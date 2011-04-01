@@ -45,19 +45,13 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *
  * TODO: this class needs to be finished.
  */
-public class ORAddress {
+public final class ORAddress {
 
-    // the ASN.1 encoded form of ORAddress
+    /** the ASN.1 encoded form of ORAddress */
     private byte[] encoding;
 
     /**
-     * TODO
-     */
-    public ORAddress() {}
-
-    /**
      * Returns ASN.1 encoded form of this X.509 ORAddress value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -71,21 +65,16 @@ public class ORAddress {
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             new ASN1Sequence(new ASN1Type[] {}) {
-                protected Object getDecodedObject(Object[] values) {
-                    return null;
-                }
-
-                protected void getValues(Object object, Object[] values) {
-                }
+                @Override protected void getValues(Object object, Object[] values) {}
             }}) {
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             return new ORAddress();
         }
 
-        private final Object foo = new Object();  //$NON-LOCK-1$
+        private final Object foo = new Object();
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             values[0] = foo;
         }
     };

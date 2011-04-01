@@ -309,7 +309,6 @@ public class Inflater {
 
     private native void setInputImpl(byte[] buf, int offset, int byteCount, long handle);
 
-    // BEGIN android-only
     synchronized int setFileInput(FileDescriptor fd, long offset, int byteCount) {
         checkOpen();
         inRead = 0;
@@ -318,7 +317,6 @@ public class Inflater {
     }
 
     private native int setFileInputImpl(FileDescriptor fd, long offset, int byteCount, long handle);
-    // END android-only
 
     private void checkOpen() {
         if (streamHandle == -1) {

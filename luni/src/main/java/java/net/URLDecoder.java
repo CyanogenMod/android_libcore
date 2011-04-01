@@ -18,11 +18,8 @@
 package java.net;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
+import libcore.net.UriCodec;
 
 /**
  * This class is used to decode a string which is encoded in the {@code
@@ -45,7 +42,7 @@ public class URLDecoder {
      */
     @Deprecated
     public static String decode(String s) {
-        return decode(s, Charset.defaultCharset());
+        return UriCodec.decode(s, true, Charset.defaultCharset());
     }
 
     /**
@@ -67,76 +64,6 @@ public class URLDecoder {
      *             if the specified encoding scheme is invalid.
      */
     public static String decode(String s, String encoding) throws UnsupportedEncodingException {
-        if (encoding == null) {
-            throw new NullPointerException();
-        }
-        if (encoding.isEmpty()) {
-            throw new UnsupportedEncodingException(encoding);
-        }
-
-        if (s.indexOf('%') == -1) {
-            if (s.indexOf('+') == -1)
-                return s;
-            char[] str = s.toCharArray();
-            for (int i = 0; i < str.length; i++) {
-                if (str[i] == '+')
-                    str[i] = ' ';
-            }
-            return new String(str);
-        }
-
-        Charset charset = null;
-        try {
-            charset = Charset.forName(encoding);
-        } catch (IllegalCharsetNameException e) {
-            throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                    encoding).initCause(e));
-        } catch (UnsupportedCharsetException e) {
-            throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                    encoding).initCause(e));
-        }
-
-        return decode(s, charset);
-    }
-
-    private static String decode(String s, Charset charset) {
-
-        char[] str_buf = new char[s.length()];
-        byte[] buf = new byte[s.length() / 3];
-        int buf_len = 0;
-
-        for (int i = 0; i < s.length();) {
-            char c = s.charAt(i);
-            if (c == '+') {
-                str_buf[buf_len] = ' ';
-            } else if (c == '%') {
-
-                int len = 0;
-                do {
-                    if (i + 2 >= s.length()) {
-                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
-                    }
-                    int d1 = Character.digit(s.charAt(i + 1), 16);
-                    int d2 = Character.digit(s.charAt(i + 2), 16);
-                    if (d1 == -1 || d2 == -1) {
-                        throw new IllegalArgumentException("Invalid % sequence " +
-                                s.substring(i, i + 3) + " at " + i);
-                    }
-                    buf[len++] = (byte) ((d1 << 4) + d2);
-                    i += 3;
-                } while (i < s.length() && s.charAt(i) == '%');
-
-                CharBuffer cb = charset.decode(ByteBuffer.wrap(buf, 0, len));
-                len = cb.length();
-                System.arraycopy(cb.array(), 0, str_buf, buf_len, len);
-                buf_len += len;
-                continue;
-            } else {
-                str_buf[buf_len] = c;
-            }
-            i++;
-            buf_len++;
-        }
-        return new String(str_buf, 0, buf_len);
+        return UriCodec.decode(s, true, Charset.forName(encoding));
     }
 }

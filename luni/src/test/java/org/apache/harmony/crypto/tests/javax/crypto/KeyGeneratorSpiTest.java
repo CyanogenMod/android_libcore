@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
@@ -37,12 +32,10 @@ import org.apache.harmony.crypto.tests.support.MyKeyGeneratorSpi;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(KeyGeneratorSpi.class)
 /**
  * Tests for <code>KeyGeneratorSpi</code> class constructors and methods.
  *
  */
-
 public class KeyGeneratorSpiTest extends TestCase {
     class Mock_KeyGeneratorSpi extends MyKeyGeneratorSpi {
 
@@ -73,7 +66,6 @@ public class KeyGeneratorSpiTest extends TestCase {
      * Test for <code>KeyGeneratorSpi</code> constructor Assertion: constructs
      * KeyGeneratorSpi
      */
-    @TestTargetNew(level = TestLevel.COMPLETE, notes = "", method = "KeyGeneratorSpi", args = {})
     public void testKeyGeneratorSpi01() throws InvalidAlgorithmParameterException {
         Mock_KeyGeneratorSpi kgSpi = new Mock_KeyGeneratorSpi();
         assertNull("Not null result", kgSpi.engineGenerateKey());

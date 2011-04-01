@@ -48,25 +48,18 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
  * TODO: This class is not fully implemented, implemented only work
  * with OIDs.
  */
-
-public class PolicyInformation {
-
-    // the value of policyIdentifier field of the structure
-    private String policyIdentifier;
-    // the ASN.1 encoded form of PolicyInformation
+public final class PolicyInformation {
+    /** the value of policyIdentifier field of the structure */
+    private final String policyIdentifier;
+    /** the ASN.1 encoded form of PolicyInformation */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   policyIdentifier:   String
-     */
     public PolicyInformation(String policyIdentifier) {
         this.policyIdentifier = policyIdentifier;
     }
 
     /**
      * Returns the value of policyIdentifier field of the structure.
-     * @return  policyIdentifier
      */
     public String getPolicyIdentifier() {
         return policyIdentifier;
@@ -74,7 +67,6 @@ public class PolicyInformation {
 
     /**
      * Returns ASN.1 encoded form of this X.509 PolicyInformation value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -83,13 +75,8 @@ public class PolicyInformation {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append("Policy Identifier [")
-            .append(policyIdentifier).append(']');
+    public void dumpValue(StringBuilder sb) {
+        sb.append("Policy Identifier [").append(policyIdentifier).append(']');
     }
 
     /**
@@ -101,18 +88,14 @@ public class PolicyInformation {
             setOptional(1);
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
-            return new PolicyInformation(ObjectIdentifier
-                    .toString((int[]) values[0]));
+            return new PolicyInformation(ObjectIdentifier.toString((int[]) values[0]));
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             PolicyInformation pi = (PolicyInformation) object;
-
             values[0] = ObjectIdentifier.toIntArray(pi.policyIdentifier);
         }
     };
 }
-

@@ -44,32 +44,19 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * }
  * </pre>
  */
-public class PrivateKeyUsagePeriod {
-
-    // the value of notBeforeDate field of the structure
+public final class PrivateKeyUsagePeriod {
+    /** the value of notBeforeDate field of the structure */
     private final Date notBeforeDate;
-    // the value of notAfterDate field of the structure
+    /** the value of notAfterDate field of the structure */
     private final Date notAfterDate;
-    // the ASN.1 encoded form of PrivateKeyUsagePeriod
+    /** the ASN.1 encoded form of PrivateKeyUsagePeriod */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   notBeforeDate:  Date
-     * @param   notAfterDate:   Date
-     */
     public PrivateKeyUsagePeriod(Date notBeforeDate, Date notAfterDate) {
         this(notBeforeDate, notAfterDate, null);
     }
 
-    //
-    // TODO
-    // @param   notBeforeDate:  Date
-    // @param   notAfterDate:   Date
-    // @param   encoding:   byte[]
-    //
-    private PrivateKeyUsagePeriod(Date notBeforeDate,
-                                  Date notAfterDate, byte[] encoding) {
+    private PrivateKeyUsagePeriod(Date notBeforeDate, Date notAfterDate, byte[] encoding) {
         this.notBeforeDate = notBeforeDate;
         this.notAfterDate = notAfterDate;
         this.encoding = encoding;
@@ -77,7 +64,6 @@ public class PrivateKeyUsagePeriod {
 
     /**
      * Returns the value of notBefore field of the structure.
-     * @return  notBefore
      */
     public Date getNotBefore() {
         return notBeforeDate;
@@ -85,7 +71,6 @@ public class PrivateKeyUsagePeriod {
 
     /**
      * Returns the value of notAfter field of the structure.
-     * @return  notAfter
      */
     public Date getNotAfter() {
         return notAfterDate;
@@ -93,7 +78,6 @@ public class PrivateKeyUsagePeriod {
 
     /**
      * Returns ASN.1 encoded form of this X.509 PrivateKeyUsagePeriod value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -113,17 +97,13 @@ public class PrivateKeyUsagePeriod {
             setOptional(1);
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[])in.content;
-            return
-                new PrivateKeyUsagePeriod((Date) values[0], (Date) values[1],
-                        in.getEncoded());
+            return new PrivateKeyUsagePeriod((Date) values[0], (Date) values[1], in.getEncoded());
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             PrivateKeyUsagePeriod pkup = (PrivateKeyUsagePeriod) object;
-
             values[0] = pkup.notBeforeDate;
             values[1] = pkup.notAfterDate;
         }

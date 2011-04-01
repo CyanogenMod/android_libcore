@@ -29,9 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.harmony.security.Util;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.SecurityAccess;
 import org.apache.harmony.security.fortress.Services;
@@ -51,70 +48,20 @@ public final class Security {
     // - load statically registered providers
     // - if no provider description file found then load default providers
     static {
-        AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
-            public Void run() {
-                boolean loaded = false;
-
-                // BEGIN android-added
-                /*
-                 * Android only uses a local "security.properties" resource
-                 * for configuration. TODO: Reevaluate this decision.
-                 */
-                try {
-                    InputStream configStream =
-                        getClass().getResourceAsStream("security.properties");
-                    InputStream input = new BufferedInputStream(configStream);
-                    secprops.load(input);
-                    loaded = true;
-                    configStream.close();
-                } catch (Exception ex) {
-                    Logger.global.log(Level.SEVERE,
-                            "Could not load Security properties.", ex);
-                }
-                // END android-added
-
-                // BEGIN android-removed
-//                if (Util.equalsIgnoreCase("true", secprops.getProperty("security.allowCustomPropertiesFile", "true"))) {
-//                    String securityFile = System.getProperty("java.security.properties");
-//                    if (securityFile != null) {
-//                        if (securityFile.startsWith("=")) { // overwrite
-//                            secprops = new Properties();
-//                            loaded = false;
-//                            securityFile = securityFile.substring(1);
-//                        }
-//                        try {
-//                            securityFile = PolicyUtils.expand(securityFile, System.getProperties());
-//                        } catch (PolicyUtils.ExpansionFailedException e) {
-////                            System.err.println("Could not load custom Security properties file "
-////                                    + securityFile +": " + e);
-//                        }
-//                        f = new File(securityFile);
-//                        InputStream is;
-//                        try {
-//                            if (f.exists()) {
-//                                FileInputStream fis = new FileInputStream(f);
-//                                is = new BufferedInputStream(fis);
-//                            } else {
-//                                URL url = new URL(securityFile);
-//                                is = new BufferedInputStream(url.openStream());
-//                            }
-//                            secprops.load(is);
-//                            loaded = true;
-//                            is.close();
-//                        } catch (IOException e) {
-// //                           System.err.println("Could not load custom Security properties file "
-// //                                   + securityFile +": " + e);
-//                        }
-//                    }
-//                }
-                // END android-removed
-                if (!loaded) {
-                    registerDefaultProviders();
-                }
-                Engine.door = new SecurityDoor();
-                return null;
-            }
-        });
+        boolean loaded = false;
+        try {
+            InputStream configStream = Security.class.getResourceAsStream("security.properties");
+            InputStream input = new BufferedInputStream(configStream);
+            secprops.load(input);
+            loaded = true;
+            configStream.close();
+        } catch (Exception ex) {
+            System.logE("Could not load 'security.properties'", ex);
+        }
+        if (!loaded) {
+            registerDefaultProviders();
+        }
+        Engine.door = new SecurityDoor();
     }
 
     /**
@@ -148,16 +95,13 @@ public final class Security {
         if (algName == null || propName == null) {
             return null;
         }
-        // BEGIN android-changed
         String prop = "Alg." + propName + "." + algName;
-        // END android-changed
         Provider[] providers = getProviders();
-        for (int i = 0; i < providers.length; i++) {
-            for (Enumeration e = providers[i].propertyNames(); e
-                    .hasMoreElements();) {
-                String pname = (String) e.nextElement();
-                if (Util.equalsIgnoreCase(prop, pname)) {
-                    return providers[i].getProperty(pname);
+        for (Provider provider : providers) {
+            for (Enumeration e = provider.propertyNames(); e.hasMoreElements(); ) {
+                String propertyName = (String) e.nextElement();
+                if (propertyName.equalsIgnoreCase(prop)) {
+                    return provider.getProperty(propertyName);
                 }
             }
         }
@@ -168,11 +112,6 @@ public final class Security {
      * Insert the given {@code Provider} at the specified {@code position}. The
      * positions define the preference order in which providers are searched for
      * requested algorithms.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code insertProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @param provider
      *            the provider to insert.
@@ -181,20 +120,12 @@ public final class Security {
      * @return the actual position or {@code -1} if the given {@code provider}
      *         was already in the list. The actual position may be different
      *         from the desired position.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
-    public static synchronized int insertProviderAt(Provider provider,
-            int position) {
-        // check security access; check that provider is not already
+    public static synchronized int insertProviderAt(Provider provider, int position) {
+        // check that provider is not already
         // installed, else return -1; if (position <1) or (position > max
         // position) position = max position + 1; insert provider, shift up
         // one position for next providers; Note: The position is 1-based
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("insertProvider." + provider.getName());
-        }
         if (getProvider(provider.getName()) != null) {
             return -1;
         }
@@ -206,19 +137,11 @@ public final class Security {
     /**
      * Adds the given {@code provider} to the collection of providers at the
      * next available position.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code insertProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @param provider
      *            the provider to be added.
      * @return the actual position or {@code -1} if the given {@code provider}
      *         was already in the list.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public static int addProvider(Provider provider) {
         return insertProviderAt(provider, 0);
@@ -229,20 +152,12 @@ public final class Security {
      * of providers. If the the {@code Provider} with the specified name is
      * removed, all provider at a greater position are shifted down one
      * position.
-     * <p>
-     * Returns silently if {@code name} is {@code null} or no provider with the
+     *
+     * <p>Returns silently if {@code name} is {@code null} or no provider with the
      * specified name is installed.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code removeProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @param name
      *            the name of the provider to remove.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public static synchronized void removeProvider(String name) {
         // It is not clear from spec.:
@@ -258,10 +173,6 @@ public final class Security {
         p = getProvider(name);
         if (p == null) {
             return;
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("removeProvider." + name);
         }
         Services.removeProvider(p.getProviderNumber());
         renumProviders();
@@ -418,26 +329,14 @@ public final class Security {
 
     /**
      * Returns the value of the security property named by the argument.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code getProperty.KEY} (where KEY is the
-     * specified {@code key}) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
      *
      * @param key
      *            the name of the requested security property.
      * @return the value of the security property.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public static String getProperty(String key) {
         if (key == null) {
             throw new NullPointerException("key == null");
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("getProperty." + key);
         }
         String property = secprops.getProperty(key);
         if (property != null) {
@@ -448,26 +347,9 @@ public final class Security {
 
     /**
      * Sets the value of the specified security property.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code setProperty.KEY} (where KEY is the
-     * specified {@code key}) to be granted, otherwise a {@code
-     * SecurityException} will be thrown.
-     *
-     * @param key
-     *            the name of the security property.
-     * @param datnum
-     *            the value of the security property.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
-    public static void setProperty(String key, String datnum) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setProperty." + key);
-        }
-        secprops.put(key, datnum);
+    public static void setProperty(String key, String value) {
+        secprops.put(key, value);
     }
 
     /**
@@ -484,18 +366,14 @@ public final class Security {
      */
     public static Set<String> getAlgorithms(String serviceName) {
         Set<String> result = new HashSet<String>();
-        // BEGIN android-added
         // compatibility with RI
         if (serviceName == null) {
             return result;
         }
-        // END android-added
-        Provider[] p = getProviders();
-        for (int i = 0; i < p.length; i++) {
-            for (Iterator it = p[i].getServices().iterator(); it.hasNext();) {
-                Provider.Service s = (Provider.Service) it.next();
-                if (Util.equalsIgnoreCase(s.getType(),serviceName)) {
-                    result.add(s.getAlgorithm());
+        for (Provider provider : getProviders()) {
+            for (Provider.Service service: provider.getServices()) {
+                if (service.getType().equalsIgnoreCase(serviceName)) {
+                    result.add(service.getAlgorithm());
                 }
             }
         }

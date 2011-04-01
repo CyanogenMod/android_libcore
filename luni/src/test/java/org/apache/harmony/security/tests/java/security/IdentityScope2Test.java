@@ -27,11 +27,7 @@ import java.util.Hashtable;
 
 import org.apache.harmony.security.tests.java.security.Identity2Test.IdentitySubclass;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 @SuppressWarnings("deprecation")
-@TestTargetClass(IdentityScope.class)
 public class IdentityScope2Test extends junit.framework.TestCase {
 
     static PublicKey pubKey;
@@ -119,27 +115,15 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#IdentityScope()
+     * java.security.IdentityScope#IdentityScope()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityScope",
-        args = {}
-    )
     public void test_Constructor() {
         new IdentityScopeSubclass();
     }
 
     /**
-     * @tests java.security.IdentityScope#IdentityScope(java.lang.String)
+     * java.security.IdentityScope#IdentityScope(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityScope",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         String[] str = {"test", "", null};
         IdentityScopeSubclass iss;
@@ -156,15 +140,9 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#IdentityScope(java.lang.String,
+     * java.security.IdentityScope#IdentityScope(java.lang.String,
      *        java.security.IdentityScope)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityScope",
-        args = {java.lang.String.class, java.security.IdentityScope.class}
-    )
     public void test_ConstructorLjava_lang_StringLjava_security_IdentityScope() {
         String nameNull = null;
         String[] str = {"test", "", "!@#$%^&*()", "identity name"};
@@ -200,14 +178,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#addIdentity(java.security.Identity)
+     * java.security.IdentityScope#addIdentity(java.security.Identity)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addIdentity",
-        args = {java.security.Identity.class}
-    )
     public void test_addIdentityLjava_security_Identity() throws Exception {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
@@ -225,14 +197,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#removeIdentity(java.security.Identity)
+     * java.security.IdentityScope#removeIdentity(java.security.Identity)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeIdentity",
-        args = {java.security.Identity.class}
-    )
     public void test_removeIdentityLjava_security_Identity() throws Exception {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
@@ -249,14 +215,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#identities()
+     * java.security.IdentityScope#identities()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "identities",
-        args = {}
-    )
     public void test_identities() throws Exception {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
@@ -270,13 +230,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#getIdentity(java.security.Principal)
+     * java.security.IdentityScope#getIdentity(java.security.Principal)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getIdentity",
-        args = {java.security.Principal.class}
-    )
     public void test_getIdentityLjava_security_Principal() throws Exception {
         Identity id = new IdentitySubclass("principal name");
         id.setPublicKey(pubKey);
@@ -311,13 +266,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#getIdentity(java.security.PublicKey)
+     * java.security.IdentityScope#getIdentity(java.security.PublicKey)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getIdentity",
-        args = {java.security.PublicKey.class}
-    )
     public void test_getIdentityLjava_security_PublicKey() throws Exception {
         IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                 new IdentityScopeSubclass());
@@ -337,14 +287,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#getIdentity(java.lang.String)
+     * java.security.IdentityScope#getIdentity(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getIdentity",
-        args = {java.lang.String.class}
-    )
     public void test_getIdentityLjava_lang_String() throws Exception {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
@@ -357,14 +301,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#size()
+     * java.security.IdentityScope#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() throws Exception {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
@@ -375,14 +313,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.IdentityScope#toString()
+     * java.security.IdentityScope#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws Exception {
             IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                     new IdentityScopeSubclass());
@@ -393,12 +325,6 @@ public class IdentityScope2Test extends junit.framework.TestCase {
             assertTrue("Not a valid String ", sub.toString().length() > 0);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test",
-        method = "getIdentity",
-        args = {java.lang.String.class}
-    )
     public void test_getIdentity() throws Exception {
         //Regression for HARMONY-1173
         IdentityScope scope = IdentityScope.getSystemScope();

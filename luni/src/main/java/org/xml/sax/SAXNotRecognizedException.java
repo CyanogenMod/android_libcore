@@ -34,7 +34,6 @@ public class SAXNotRecognizedException extends SAXException
      */
     public SAXNotRecognizedException ()
     {
-    super();
     }
 
 

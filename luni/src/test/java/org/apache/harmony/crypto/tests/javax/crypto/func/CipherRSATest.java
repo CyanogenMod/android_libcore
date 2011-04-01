@@ -16,20 +16,11 @@
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
 public class CipherRSATest extends TestCase {
 // 3 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_RSAShortKey() {
         CipherRSAThread rsa = new CipherRSAThread("RSA", new int[] {512},
                 new String[] {"ECB"}, new String[] {
@@ -64,12 +55,6 @@ public class CipherRSATest extends TestCase {
         assertEquals(rsa.getFailureMessages(), 0, rsa.getTotalFailuresNumber());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     @AndroidOnly("Fails on RI but succeeds on Android.")
     public void test_RSANoPadding() {
         CipherRSAThread rsa = new CipherRSAThread("RSA", new int[] {1024},

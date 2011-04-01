@@ -26,15 +26,6 @@ import java.lang.reflect.Array;
  * @since 1.2
  */
 public class Arrays {
-    // BEGIN android-changed
-    // Replaced Bentely-McIlroy-based sort w/ DualPivotQuicksort
-    // BEGIN android-changed
-
-    // BEGIN android-removed
-    /* Specifies when to switch to insertion sort */
-    // private static final int SIMPLE_LENGTH = 7;
-    // END android-removed
-
     private static class ArrayList<E> extends AbstractList<E> implements
             List<E>, Serializable, RandomAccess {
 
@@ -1737,8 +1728,8 @@ public class Arrays {
      */
     public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
         if ((offset | count) < 0 || offset > arrayLength || arrayLength - offset < count) {
-            throw new ArrayIndexOutOfBoundsException("offset=" + offset + ", count=" + count +
-                    ", array length=" + arrayLength);
+            throw new ArrayIndexOutOfBoundsException(arrayLength, offset,
+                    count);
         }
     }
 
@@ -1944,7 +1935,7 @@ public class Arrays {
      *    {@code ((Comparable)first).compareTo(Second)}.
      * If not, you are better off deleting ComparableTimSort to eliminate the
      * code duplication.  In other words, the commented out code below
-     * is the preferable implementation for sorting arrays of comparbles if it
+     * is the preferable implementation for sorting arrays of Comparables if it
      * offers sufficient performance.
      */
 
@@ -1952,10 +1943,9 @@ public class Arrays {
 //     * A comparator that implements the natural order of a group of
 //     * mutually comparable elements.  Using this comparator saves us
 //     * from duplicating most of the code in this file (one version for
-//     * commparables, one for explicit comparators).
+//     * Comparables, one for explicit comparators).
 //     */
-//    private static final Comparator<Object> NATURAL_ORDER =
-//            new Comparator<Object>() {
+//    private static final Comparator<Object> NATURAL_ORDER = new Comparator<Object>() {
 //        @SuppressWarnings("unchecked")
 //        public int compare(Object first, Object second) {
 //            return ((Comparable<Object>)first).compareTo(second);
@@ -1983,9 +1973,7 @@ public class Arrays {
      * @see #sort(Object[], int, int)
      */
     public static void sort(Object[] array) {
-        // BEGIN android-changed
         ComparableTimSort.sort(array);
-        // END android-changed
     }
 
     /**
@@ -2009,54 +1997,8 @@ public class Arrays {
      *                if {@code start < 0} or {@code end > array.length}.
      */
     public static void sort(Object[] array, int start, int end) {
-        // BEGIN android-changed
         ComparableTimSort.sort(array, start, end);
-        // END android-changed
     }
-
-    // BEGIN android-removed
-    /*
-    private static void sort(int start, int end, Object[] array) {
-            ...
-    }
-    private static void swap(int a, int b, Object[] arr) {
-            ...
-    }
-    private static void mergeSort(Object[] in, Object[] out, int start,
-            int end) {
-            ...
-    }
-    private static void mergeSort(Object[] in, Object[] out, int start,
-            int end, Comparator c) {
-            ...
-    }
-    private static int find(Object[] arr, Comparable val, int bnd, int l, int r) {
-            ...
-    }
-    private static int find(Object[] arr, Object val, int bnd, int l, int r,
-            Comparator c) {
-            ...
-    }
-    private static int medChar(int a, int b, int c, String[] arr, int id) {
-            ...
-    }
-    private static int charAt(String str, int i) {
-            ...
-    }
-    private static void copySwap(Object[] src, int from, Object[] dst, int to,
-            int len) {
-            ...
-    }
-    private static void stableStringSort(String[] arr, int start,
-            int end) {
-            ...
-    }
-    private static void stableStringSort(String[] arr, String[] src,
-            String[] dst, int start, int end, int chId) {
-            ...
-    }
-    */
-    // END android-removed
 
     /**
      * Sorts the specified range in the array using the specified {@code Comparator}.
@@ -2079,11 +2021,8 @@ public class Arrays {
      * @throws ArrayIndexOutOfBoundsException
      *                if {@code start < 0} or {@code end > array.length}.
      */
-    public static <T> void sort(T[] array, int start, int end,
-            Comparator<? super T> comparator) {
-        // BEGIN android-changed
+    public static <T> void sort(T[] array, int start, int end, Comparator<? super T> comparator) {
         TimSort.sort(array, start, end, comparator);
-        // END android-changed
     }
 
     /**
@@ -2099,9 +2038,7 @@ public class Arrays {
      *                using the {@code Comparator}.
      */
     public static <T> void sort(T[] array, Comparator<? super T> comparator) {
-        // BEGIN android-changed
         TimSort.sort(array, comparator);
-        // END android-changed
     }
 
     /**
@@ -2123,7 +2060,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 7);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2153,7 +2090,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 6);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2183,7 +2120,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 3); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 3);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2213,7 +2150,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 7);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2243,7 +2180,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 7);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2273,7 +2210,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 6);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2303,7 +2240,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 6);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2333,7 +2270,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 6);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2363,7 +2300,7 @@ public class Arrays {
         if (array.length == 0) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
+        StringBuilder sb = new StringBuilder(array.length * 7);
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
@@ -2397,7 +2334,7 @@ public class Arrays {
             return "null";
         }
         // delegate this to the recursive method
-        StringBuilder buf = new StringBuilder(array.length * 9); // android-changed
+        StringBuilder buf = new StringBuilder(array.length * 9);
         deepToStringImpl(array, new Object[] { array }, buf);
         return buf.toString();
     }

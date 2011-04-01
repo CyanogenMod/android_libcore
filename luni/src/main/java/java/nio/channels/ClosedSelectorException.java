@@ -28,6 +28,5 @@ public class ClosedSelectorException extends IllegalStateException {
      * Constructs a {@code ClosedSelectorException}.
      */
     public ClosedSelectorException() {
-        super();
     }
 }

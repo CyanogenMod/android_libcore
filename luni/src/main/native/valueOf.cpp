@@ -41,3 +41,13 @@ jobject integerValueOf(JNIEnv* env, jint value) {
 jobject longValueOf(JNIEnv* env, jlong value) {
     return valueOf(env, JniConstants::longClass, "(J)Ljava/lang/Long;", value);
 }
+
+jboolean booleanValue(JNIEnv* env, jobject javaLangBoolean) {
+    static jfieldID fid = env->GetFieldID(JniConstants::booleanClass, "value", "Z");
+    return env->GetBooleanField(javaLangBoolean, fid);
+}
+
+jint intValue(JNIEnv* env, jobject javaLangInteger) {
+    static jfieldID fid = env->GetFieldID(JniConstants::integerClass, "value", "I");
+    return env->GetIntField(javaLangInteger, fid);
+}

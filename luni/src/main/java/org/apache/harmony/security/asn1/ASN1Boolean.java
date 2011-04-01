@@ -30,10 +30,9 @@ import java.io.IOException;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
+public final class ASN1Boolean extends ASN1Primitive {
 
-public class ASN1Boolean extends ASN1Primitive {
-
-    // default implementation
+    /** default implementation */
     private static final ASN1Boolean ASN1 = new ASN1Boolean();
 
     /**
@@ -60,12 +59,6 @@ public class ASN1Boolean extends ASN1Primitive {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     public Object decode(BerInputStream in) throws IOException {
         in.readBoolean();
 
@@ -81,18 +74,12 @@ public class ASN1Boolean extends ASN1Primitive {
      * @param in - BER input stream
      * @return java.lang.Boolean object
      */
-    public Object getDecodedObject(BerInputStream in) throws IOException {
+    @Override public Object getDecodedObject(BerInputStream in) throws IOException {
         if (in.buffer[in.contentOffset] == 0) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }
-
-    //
-    //
-    // Encode
-    //
-    //
 
     public void encodeContent(BerOutputStream out) {
         out.encodeBoolean();

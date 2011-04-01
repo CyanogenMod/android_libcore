@@ -103,4 +103,79 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         c.setTime(d);
         return c;
     }
+
+    // http://code.google.com/p/android/issues/detail?id=13420
+    public void testParsingUncommonTimeZoneAbbreviations() {
+        String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
+        String date = "2010-12-23 12:44:57.0 CET";
+        // ICU considers "CET" (Central European Time) to be common in Britain...
+        assertEquals(1293104697000L, parseDate(Locale.UK, fmt, date).getTimeInMillis());
+        // ...but not in the US. Check we can parse such a date anyway.
+        assertEquals(1293104697000L, parseDate(Locale.US, fmt, date).getTimeInMillis());
+    }
+
+    public void testFormattingUncommonTimeZoneAbbreviations() {
+        // In Honeycomb, only one Olson id was associated with CET (or any
+        // other "uncommon" abbreviation).
+        String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
+        String date = "1970-01-01 01:00:00.000 CET";
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+        assertEquals(date, sdf.format(new Date(0)));
+        sdf = new SimpleDateFormat(fmt, Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+        assertEquals(date, sdf.format(new Date(0)));
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=8258
+    public void testTimeZoneFormatting() throws Exception {
+        Date epoch = new Date(0);
+
+        // Create a SimpleDateFormat that defaults to America/Chicago...
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Chicago"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        // We should see something appropriate to America/Chicago...
+        assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
+        // We can set any TimeZone we want:
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
+
+        // A new SimpleDateFormat will default to America/Chicago...
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        // ...and parsing an America/Los_Angeles time will *not* change that...
+        sdf.parse("2010-12-03 00:00:00 -0800");
+        // ...so our time zone here is "America/Chicago":
+        assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
+        // We can set any TimeZone we want:
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = sdf.parse("2010-07-08 02:44:48");
+        assertEquals(1278557088000L, date.getTime());
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals("2010-07-07T19:44:48-0700", sdf.format(date));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
+    }
+
+    public void testLocales() throws Exception {
+        // Just run through them all. Handy as a poor man's benchmark, and a sanity check.
+        for (Locale l : Locale.getAvailableLocales()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzzz", l);
+            sdf.format(new Date(0));
+        }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=14963
+    public void testParseTimezoneOnly() throws Exception {
+        new SimpleDateFormat("z", Locale.FRANCE).parse("UTC");
+        new SimpleDateFormat("z", Locale.US).parse("UTC");
+    }
 }

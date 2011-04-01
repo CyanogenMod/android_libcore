@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +47,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS</a>
  */
-@TestTargetClass(Document.class)
 public final class DocumentCreateAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -82,12 +76,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS1() throws Throwable {
         Document doc;
         Attr attribute;
@@ -110,12 +98,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS2() throws Throwable {
         Document doc;
         Attr attribute1;
@@ -156,12 +138,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
         assertEquals("documentcreateattributeNS02_att2_namespaceURI",
                 "http://www.w3.org/2000/xmlns/", namespaceURI);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException with INVALID_CHARACTER_ERR code.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS3() throws Throwable {
         Document doc;
 
@@ -193,12 +169,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
             }
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS4() throws Throwable {
         Document doc;
 
@@ -228,12 +198,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
             }
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS5() throws Throwable {
         Document doc;
         Document newDoc;
@@ -259,12 +223,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
             assertTrue("documentcreateattributeNS05", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createElementNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS6() throws Throwable {
         Document doc;
         Document newDoc;
@@ -289,12 +247,6 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
             assertTrue("documentcreateattributeNS06", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that createAttributeNS throws DOMException with NAMESPACE_ERR code.",
-        method = "createAttributeNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCreateAttributeNS7() throws Throwable {
         Document doc;
 

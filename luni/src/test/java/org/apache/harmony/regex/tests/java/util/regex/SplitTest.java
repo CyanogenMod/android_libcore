@@ -1,33 +1,13 @@
 package org.apache.harmony.regex.tests.java.util.regex;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-
 import junit.framework.TestCase;
 import java.util.regex.*;
 
-@TestTargetClass(java.util.regex.Pattern.class)
 /**
  * TODO Type description
  *
  */
 public class SplitTest extends TestCase {
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the basic functionality of split(java.lang.CharSequence) & compile(java.lang.String)methods.",
-            method = "split",
-            args = {java.lang.CharSequence.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the basic functionality of split(java.lang.CharSequence) & compile(java.lang.String)methods.",
-            method = "compile",
-            args = {java.lang.String.class}
-        )
-    })
     public void testSimple() {
         Pattern p = Pattern.compile("/");
         String[] results = p.split("have/you/done/it/right");
@@ -35,14 +15,6 @@ public class SplitTest extends TestCase {
         assertArraysEqual(expected, results);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the basic functionality of split with empty matches.",
-            method = "split",
-            args = {java.lang.CharSequence.class}
-        )
-    })
     public void testEmptySplits() {
         // Trailing empty matches are removed.
         assertArraysEqual(new String[0], "hello".split("."));
@@ -88,12 +60,6 @@ public class SplitTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of split(java.lang.CharSequence). Test uses not empty pattern.",
-        method = "split",
-        args = {java.lang.CharSequence.class, int.class}
-    )
     public void testSplit1() throws PatternSyntaxException {
         Pattern p = Pattern.compile(" ");
 
@@ -185,12 +151,6 @@ public class SplitTest extends TestCase {
         assertEquals("dle z", tokens[2]);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies the functionality of split(java.lang.CharSequence). Test uses empty pattern.",
-        method = "split",
-        args = {java.lang.CharSequence.class, int.class}
-    )
     public void testSplit2() {
         Pattern p = Pattern.compile("");
         String s[];
@@ -218,20 +178,6 @@ public class SplitTest extends TestCase {
     }
 
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of split(java.lang.CharSequence) & compile(java.lang.String, int) methods. Test uses empty pattern and supplementary chars.",
-            method = "split",
-            args = {java.lang.CharSequence.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies the functionality of split(java.lang.CharSequence) & compile(java.lang.String, int) methods. Test uses empty pattern and supplementary chars.",
-            method = "compile",
-            args = {java.lang.String.class}
-        )
-    })
     public void testSplitSupplementaryWithEmptyString() {
 
         /*

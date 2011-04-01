@@ -30,7 +30,6 @@ public class Stack<E> extends Vector<E> {
      * Constructs a stack with the default size of {@code Vector}.
      */
     public Stack() {
-        super();
     }
 
     /**

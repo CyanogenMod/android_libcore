@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.math.BigInteger;
 
 import javax.crypto.spec.DHPublicKeySpec;
@@ -35,42 +30,14 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(DHPublicKeySpec.class)
 /**
  */
-
 public class DHPublicKeySpecTest extends TestCase {
 
     /**
      * DHPublicKeySpec class testing. Tests the equivalence of parameters
      * specified in the constructor with the values returned by getters.
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "DHPublicKeySpec",
-            args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getG",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getP",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "All functionality tested in one method. Probably it should be divided into several tests.",
-            method = "getY",
-            args = {}
-        )
-    })
     public void testDHPrivateKeySpec() {
         BigInteger[] ys = {new BigInteger("-1000000000000"), BigInteger.ZERO,
                             BigInteger.ONE, new BigInteger("1000000000000")};

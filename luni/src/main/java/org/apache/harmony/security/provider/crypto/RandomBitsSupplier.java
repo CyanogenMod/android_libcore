@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.AccessController;
 import java.security.ProviderException;
-
 
 /**
  *  The static class providing access on Linux platform
@@ -37,25 +35,24 @@ import java.security.ProviderException;
  *  If no device available the service is not available,
  *  that is, provider shouldn't register the algorithm. <BR>
  */
-
-
 public class RandomBitsSupplier implements SHA1_Data {
 
 
     /**
-     *  BufferedInputStream to read from device
+     * InputStream to read from device
+     *
+     * Using a BufferedInputStream leads to problems
+     * on Android in rare cases, since the
+     * BufferedInputStream's available() issues an
+     * ioctl(), and the pseudo device doesn't seem
+     * to like that. Since we're reading bigger
+     * chunks and not single bytes, the FileInputStream
+     * shouldn't be slower, so we use that. Same might
+     * apply to other Linux platforms.
+     *
+     * TODO: the above doesn't sound true.
      */
-    // BEGIN android-changed
-    // Using a BufferedInputStream leads to problems
-    // on Android in rare cases, since the
-    // BufferedInputStream's available() issues an
-    // iotcl(), and the pseudo device doesn't seem
-    // to like that. Since we're reading bigger
-    // chunks and not single bytes, the FileInputStream
-    // shouldn't be slower, so we use that. Same might
-    // apply to other Linux platforms.
-    private static FileInputStream bis = null;
-    // END android-changed
+    private static FileInputStream fis = null;
 
     /**
      * File to connect to device
@@ -67,41 +64,23 @@ public class RandomBitsSupplier implements SHA1_Data {
      */
     private static boolean serviceAvailable = false;
 
+    /**
+     *  names of random devices on Linux platform
+     */
+    private static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };
 
     static {
-        AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-                public Object run() {
-
-                    for ( int i = 0 ; i < DEVICE_NAMES.length ; i++ ) {
-                        File file = new File(DEVICE_NAMES[i]);
-
-                        try {
-                            if ( file.canRead() ) {
-                                // BEGIN android-modified
-                                bis = new FileInputStream(file);
-                                // END android-modified
-                                randomFile = file;
-                                serviceAvailable = true;
-                                return null;
-                            }
-                        } catch (FileNotFoundException e) {
-                        }
-                    }
-
-                    // BEGIN android-removed
-//                    // If we have come out of the above loop, then we have been unable to
-//                    // access /dev/*random, so try to fall back to using the system random() API
-//                    try {
-//                        System.loadLibrary(LIBRARY_NAME);
-//                        serviceAvailable = true;
-//                    } catch (UnsatisfiedLinkError e) {
-//                        serviceAvailable = false;
-//                    }
-                    return null;
+        for (String deviceName : DEVICE_NAMES) {
+            try {
+                File file = new File(deviceName);
+                if (file.canRead()) {
+                    fis = new FileInputStream(file);
+                    randomFile = file;
+                    serviceAvailable = true;
                 }
+            } catch (FileNotFoundException e) {
             }
-        );
+        }
     }
 
 
@@ -129,7 +108,7 @@ public class RandomBitsSupplier implements SHA1_Data {
         try {
             for ( ; ; ) {
 
-                bytesRead = bis.read(bytes, offset, numBytes-total);
+                bytesRead = fis.read(bytes, offset, numBytes-total);
 
 
                 // the below case should not occur because /dev/random or /dev/urandom is a special file
@@ -155,18 +134,6 @@ public class RandomBitsSupplier implements SHA1_Data {
         return bytes;
     }
 
-
-    // BEGIN android-removed
-//    /**
-//     * On platforms with no "random" devices available, this native
-//     * method uses system API calls to generate random numbers<BR>
-//     *
-//     * In case of any runtime failure ProviderException gets thrown.
-//     */
-//    private static native synchronized boolean getUnixSystemRandom(byte[] randomBits, int numBytes);
-    // END android-removed
-
-
     /**
      * The method returns byte array of requested length provided service is available.
      * ProviderException gets thrown otherwise.
@@ -179,7 +146,6 @@ public class RandomBitsSupplier implements SHA1_Data {
      *       InvalidArgumentException - if numBytes <= 0
      */
     public static byte[] getRandomBits(int numBytes) {
-
         if (numBytes <= 0) {
             throw new IllegalArgumentException(Integer.toString(numBytes));
         }
@@ -190,8 +156,6 @@ public class RandomBitsSupplier implements SHA1_Data {
             throw new ProviderException("ATTENTION: service is not available : no random devices");
         }
 
-        // BEGIN android-changed
         return getUnixDeviceRandom(numBytes);
-        // END android-changed
     }
 }

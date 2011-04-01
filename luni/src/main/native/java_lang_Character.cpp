@@ -39,6 +39,20 @@ static jboolean Character_isMirroredImpl(JNIEnv*, jclass, jint codePoint) {
     return u_isMirrored(codePoint);
 }
 
+static jstring Character_getNameImpl(JNIEnv* env, jclass, jint codePoint) {
+    // U_UNICODE_CHAR_NAME gives us the modern names for characters. For control characters,
+    // we need U_EXTENDED_CHAR_NAME to get "NULL" rather than "BASIC LATIN 0" and so on.
+    // We could just use U_EXTENDED_CHAR_NAME except that it returns strings for characters
+    // that aren't unassigned but that don't have names, and those strings aren't in the form
+    // Java specifies.
+    bool isControl = (codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f));
+    UCharNameChoice nameType = isControl ? U_EXTENDED_CHAR_NAME : U_UNICODE_CHAR_NAME;
+    UErrorCode status = U_ZERO_ERROR;
+    char buf[BUFSIZ]; // TODO: is there a more sensible upper bound?
+    int32_t byteCount = u_charName(codePoint, nameType, &buf[0], sizeof(buf), &status);
+    return (U_FAILURE(status) || byteCount == 0) ? NULL : env->NewStringUTF(buf);
+}
+
 static jint Character_getNumericValueImpl(JNIEnv*, jclass, jint codePoint) {
     double result = u_getNumericValue(codePoint);
     if (result == U_NO_NUMERIC_VALUE) {
@@ -125,6 +139,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Character, digitImpl, "(II)I"),
     NATIVE_METHOD(Character, forNameImpl, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(Character, getDirectionalityImpl, "(I)B"),
+    NATIVE_METHOD(Character, getNameImpl, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Character, getNumericValueImpl, "(I)I"),
     NATIVE_METHOD(Character, getTypeImpl, "(I)I"),
     NATIVE_METHOD(Character, isDefinedImpl, "(I)Z"),

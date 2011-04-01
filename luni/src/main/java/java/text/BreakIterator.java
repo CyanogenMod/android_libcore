@@ -237,7 +237,6 @@ public abstract class BreakIterator implements Cloneable {
      * Default constructor, for use by subclasses.
      */
     protected BreakIterator() {
-        super();
     }
 
     /*
@@ -490,7 +489,7 @@ public abstract class BreakIterator implements Cloneable {
             cloned.wrapped = (NativeBreakIterator) wrapped.clone();
             return cloned;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 }

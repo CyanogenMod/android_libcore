@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -48,7 +43,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-@TestTargetClass(Node.class)
 public final class NodeGetOwnerDocument extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -78,12 +72,6 @@ public final class NodeGetOwnerDocument extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getOwnerDocument method returns null.",
-        method = "getOwnerDocument",
-        args = {}
-    )
     public void testGetOwnerDocument1() throws Throwable {
         Document doc;
         Document ownerDoc;
@@ -97,12 +85,6 @@ public final class NodeGetOwnerDocument extends DOMTestCase {
         ownerDoc = docType.getOwnerDocument();
         assertNull("nodegetownerdocument01", ownerDoc);
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getOwnerDocument",
-        args = {}
-    )
     public void testGetOwnerDocument2() throws Throwable {
         Document doc;
         Document newDoc;

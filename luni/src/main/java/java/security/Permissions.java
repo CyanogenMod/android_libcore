@@ -45,7 +45,8 @@ public final class Permissions extends PermissionCollection implements
 
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("perms", Hashtable.class),
-        new ObjectStreamField("allPermission", PermissionCollection.class), };
+        new ObjectStreamField("allPermission", PermissionCollection.class),
+    };
 
     // Hash to store PermissionCollection's
     private transient Map klasses = new HashMap();
@@ -107,7 +108,7 @@ public final class Permissions extends PermissionCollection implements
      * collection of PermissionCollections.
      *
      */
-    final static class MetaEnumeration implements Enumeration {
+    static final class MetaEnumeration implements Enumeration {
 
         private Iterator pcIter;
 

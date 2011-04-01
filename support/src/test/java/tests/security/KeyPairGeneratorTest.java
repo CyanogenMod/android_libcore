@@ -16,9 +16,6 @@
 
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -50,23 +47,6 @@ public abstract class KeyPairGeneratorTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level = TestLevel.ADDITIONAL,
-                method = "initialize",
-                args = {int.class}
-            ),
-            @TestTargetNew(
-                level = TestLevel.ADDITIONAL,
-                method = "generateKeyPair",
-                args = {}
-            ),
-            @TestTargetNew(
-                level=TestLevel.COMPLETE,
-                method="method",
-                args={}
-            )
-    })
     public void testKeyPairGenerator() throws NoSuchAlgorithmException {
         generator.initialize(1024);
 

@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// address length was changed from long to int for performance reasons.
-// END android-note
-
 package org.apache.harmony.luni.platform;
 
 import java.io.FileDescriptor;
@@ -61,20 +57,10 @@ public interface INetworkSystem {
 
     public void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public void socket(FileDescriptor fd, boolean stream) throws SocketException;
-
-    public void shutdownInput(FileDescriptor descriptor) throws IOException;
-
-    public void shutdownOutput(FileDescriptor descriptor) throws IOException;
-
     public void sendUrgentData(FileDescriptor fd, byte value);
-
-    public void listen(FileDescriptor fd, int backlog) throws SocketException;
 
     public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
             throws SocketException;
-
-    public InetAddress getSocketLocalAddress(FileDescriptor fd);
 
     /**
      * Select the given file descriptors for read and write operations.
@@ -111,25 +97,6 @@ public interface INetworkSystem {
             throws SocketException;
 
     /*
-     * Query the IP stack for the local port to which this socket is bound.
-     *
-     * @param fd the socket descriptor
-     * @return int the local port to which the socket is bound
-     */
-    public int getSocketLocalPort(FileDescriptor fd);
-
-    /*
-     * Query the IP stack for the nominated socket option.
-     *
-     * @param fd the socket descriptor @param opt the socket option type
-     * @return the nominated socket option value
-     *
-     * @throws SocketException if the option is invalid
-     */
-    public Object getSocketOption(FileDescriptor fd, int opt)
-            throws SocketException;
-
-    /*
      * Set the nominated socket option in the IP stack.
      *
      * @param fd the socket descriptor @param opt the option selector @param
@@ -145,8 +112,4 @@ public interface INetworkSystem {
      * concurrently.
      */
     public void close(FileDescriptor fd) throws IOException;
-
-    // TODO: change the single caller so that recv/recvDirect
-    // can mutate the InetAddress as a side-effect.
-    public void setInetAddress(InetAddress sender, byte[] address);
 }

@@ -31,28 +31,16 @@ import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.spec.DHParameterSpec;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.BrokenTest;
-
 
 /**
  * Tests for <code>DHPrivateKey</code> class field
  *
  */
-@TestTargetClass(DHPrivateKey.class)
 public class DHPrivateKeyTest extends TestCase {
 
     /**
      * Test for <code>serialVersionUID</code> field
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "tests serialVersionUID for a fixed value",
-        method = "!field:serialVersionUID"
-    )
     public void testField() {
         checkDHPrivateKey key = new checkDHPrivateKey();
         assertEquals("Incorrect serialVersionUID",
@@ -60,23 +48,9 @@ public class DHPrivateKeyTest extends TestCase {
                 2211791113380396553L);
     }
 
-@TestTargets({
-    @TestTargetNew(
-          level = TestLevel.COMPLETE,
-          method = "getX",
-          args = {}
-        ),
-    @TestTargetNew(
-          level = TestLevel.COMPLETE,
-          clazz = DHKey.class,
-          method = "getParams",
-          args = {}
-        )
-    })
-    @BrokenTest("Too slow - disabling for now")
     public void test_getParams() throws Exception {
         KeyPairGenerator kg = KeyPairGenerator.getInstance("DH");
-        kg.initialize(1024);
+        kg.initialize(192);
         KeyPair kp1 = kg.genKeyPair();
         KeyPair kp2 = kg.genKeyPair();
         DHPrivateKey pk1 = (DHPrivateKey) kp1.getPrivate();

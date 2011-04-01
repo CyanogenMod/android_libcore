@@ -26,7 +26,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
  * A class for turning a byte stream into a character stream. Data read from the
@@ -138,11 +137,9 @@ public class InputStreamReader extends Reader {
     @Override
     public void close() throws IOException {
         synchronized (lock) {
-            // BEGIN android-added
             if (decoder != null) {
                 decoder.reset();
             }
-            // END android-added
             decoder = null;
             if (in != null) {
                 in.close();
@@ -152,17 +149,16 @@ public class InputStreamReader extends Reader {
     }
 
     /**
-     * Returns the name of the encoding used to convert bytes into characters.
-     * The value {@code null} is returned if this reader has been closed.
-     *
-     * @return the name of the character converter or {@code null} if this
-     *         reader is closed.
+     * Returns the historical name of the encoding used by this writer to convert characters to
+     * bytes, or null if this writer has been closed. Most callers should probably keep
+     * track of the String or Charset they passed in; this method may not return the same
+     * name.
      */
     public String getEncoding() {
         if (!isOpen()) {
             return null;
         }
-        return HistoricalNamesUtil.getHistoricalName(decoder.charset().name());
+        return HistoricalCharsetNames.get(decoder.charset());
     }
 
     /**
@@ -243,17 +239,17 @@ public class InputStreamReader extends Reader {
                         // available didn't work so just try the read
                     }
 
-                    int to_read = bytes.capacity() - bytes.limit();
+                    int desiredByteCount = bytes.capacity() - bytes.limit();
                     int off = bytes.arrayOffset() + bytes.limit();
-                    int was_red = in.read(bytes.array(), off, to_read);
+                    int actualByteCount = in.read(bytes.array(), off, desiredByteCount);
 
-                    if (was_red == -1) {
+                    if (actualByteCount == -1) {
                         endOfInput = true;
                         break;
-                    } else if (was_red == 0) {
+                    } else if (actualByteCount == 0) {
                         break;
                     }
-                    bytes.limit(bytes.limit() + was_red);
+                    bytes.limit(bytes.limit() + actualByteCount);
                     needInput = false;
                 }
 
@@ -278,10 +274,8 @@ public class InputStreamReader extends Reader {
                 decoder.flush(out);
                 decoder.reset();
             }
-            if (result.isMalformed()) {
-                throw new MalformedInputException(result.length());
-            } else if (result.isUnmappable()) {
-                throw new UnmappableCharacterException(result.length());
+            if (result.isMalformed() || result.isUnmappable()) {
+                result.throwException();
             }
 
             return out.position() - offset == 0 ? -1 : out.position() - offset;

@@ -105,7 +105,7 @@ public class AttributedString {
                 }
                 return clone;
             } catch (CloneNotSupportedException e) {
-                throw new AssertionError(e); // android-changed
+                throw new AssertionError(e);
             }
         }
 
@@ -506,15 +506,9 @@ public class AttributedString {
      */
     public AttributedString(AttributedCharacterIterator iterator, int start,
             int end, AttributedCharacterIterator.Attribute[] attributes) {
-        // BEGIN android-removed
-        // this(iterator, start, end, new HashSet<Attribute>(Arrays
-        //         .asList(attributes)));
-        // END android-removed
-        // BEGIN android-added
         this(iterator, start, end, (attributes == null
                 ? new HashSet<Attribute>()
                 : new HashSet<Attribute>(Arrays.asList(attributes))));
-        // END android-added
     }
 
     /**

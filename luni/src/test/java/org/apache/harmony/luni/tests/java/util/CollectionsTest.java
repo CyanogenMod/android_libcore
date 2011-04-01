@@ -17,11 +17,6 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.io.Serializable;
@@ -49,7 +44,6 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 import tests.util.SerializationTester;
 
-@TestTargetClass(Collections.class)
 public class CollectionsTest extends TestCase {
 
     private static final SerializableAssert comparator = new SerializableAssert() {
@@ -59,15 +53,9 @@ public class CollectionsTest extends TestCase {
     };
 
     /**
-     * @tests java.util.Collections#binarySearch(java.util.List,
+     * java.util.Collections#binarySearch(java.util.List,
      *        java.lang.Object, java.util.Comparator)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "binarySearch",
-        args = {java.util.List.class, java.lang.Object.class, java.util.Comparator.class}
-    )
     public void test_binarySearchLjava_util_ListLjava_lang_ObjectLjava_util_Comparator() {
         // Regression for HARMONY-94
         LinkedList<Integer> lst = new LinkedList<Integer>();
@@ -93,15 +81,9 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#binarySearch(java.util.List,
+     * java.util.Collections#binarySearch(java.util.List,
      *        java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "binarySearch",
-        args = {java.util.List.class, java.lang.Object.class}
-    )
     @SuppressWarnings("unchecked")
     public void test_binarySearchLjava_util_ListLjava_lang_Object() {
         // regression for Harmony-1367
@@ -132,14 +114,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#rotate(java.util.List, int)
+     * java.util.Collections#rotate(java.util.List, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "UnsupportedOperationException is not tested.",
-        method = "rotate",
-        args = {java.util.List.class, int.class}
-    )
     public void test_rotateLjava_util_ListI() {
         // Regression for HARMONY-19 Rotate an *empty* list
         Collections.rotate(new ArrayList<Object>(), 25);
@@ -166,14 +142,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#synchronizedCollection(java.util.Collection)
+     * java.util.Collections#synchronizedCollection(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "synchronizedCollection",
-        args = {java.util.Collection.class}
-    )
     public void test_synchronizedCollectionLjava_util_Collection() {
         try {
             // Regression for HARMONY-93
@@ -185,14 +155,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#synchronizedSortedMap(java.util.SortedMap)
+     * java.util.Collections#synchronizedSortedMap(java.util.SortedMap)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "synchronizedSortedMap",
-        args = {java.util.SortedMap.class}
-    )
     public void test_synchronizedSortedMapLjava_util_SortedMap() {
         try {
             // Regression for HARMONY-93
@@ -204,14 +168,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#synchronizedMap(java.util.Map)
+     * java.util.Collections#synchronizedMap(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "synchronizedMap",
-        args = {java.util.Map.class}
-    )
     public void test_synchronizedMapLjava_util_Map() {
         try {
             // Regression for HARMONY-93
@@ -223,14 +181,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#synchronizedSet(java.util.Set)
+     * java.util.Collections#synchronizedSet(java.util.Set)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "synchronizedSet",
-        args = {java.util.Set.class}
-    )
     public void test_synchronizedSetLjava_util_Set() {
         try {
             // Regression for HARMONY-93
@@ -242,14 +194,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#synchronizedSortedSet(java.util.SortedSet)
+     * java.util.Collections#synchronizedSortedSet(java.util.SortedSet)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "synchronizedSortedSet",
-        args = {java.util.SortedSet.class}
-    )
     public void test_synchronizedSortedSetLjava_util_SortedSet() {
         try {
             // Regression for HARMONY-93
@@ -261,14 +207,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#unmodifiableCollection(java.util.Collection)
+     * java.util.Collections#unmodifiableCollection(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "unmodifiableCollection",
-        args = {java.util.Collection.class}
-    )
     public void test_unmodifiableCollectionLjava_util_Collection() {
         try {
             // Regression for HARMONY-93
@@ -280,14 +220,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#unmodifiableMap(java.util.Map)
+     * java.util.Collections#unmodifiableMap(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "unmodifiableMap",
-        args = {java.util.Map.class}
-    )
     public void test_unmodifiableMapLjava_util_Map() {
         try {
             // Regression for HARMONY-93
@@ -299,14 +233,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#unmodifiableSet(java.util.Set)
+     * java.util.Collections#unmodifiableSet(java.util.Set)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "unmodifiableSet",
-        args = {java.util.Set.class}
-    )
     public void test_unmodifiableSetLjava_util_Set() {
         try {
             // Regression for HARMONY-93
@@ -318,14 +246,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#unmodifiableSortedMap(java.util.SortedMap)
+     * java.util.Collections#unmodifiableSortedMap(java.util.SortedMap)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "unmodifiableSortedMap",
-        args = {java.util.SortedMap.class}
-    )
     public void test_unmodifiableSortedMapLjava_util_SortedMap() {
         try {
             // Regression for HARMONY-93
@@ -337,14 +259,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#unmodifiableSortedSet(java.util.SortedSet)
+     * java.util.Collections#unmodifiableSortedSet(java.util.SortedSet)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException.",
-        method = "unmodifiableSortedSet",
-        args = {java.util.SortedSet.class}
-    )
     public void test_unmodifiableSortedSetLjava_util_SortedSet() {
         try {
             // Regression for HARMONY-93
@@ -356,14 +272,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#frequency(java.util.Collection,Object)
+     * java.util.Collections#frequency(java.util.Collection,Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "frequency",
-        args = {java.util.Collection.class, java.lang.Object.class}
-    )
     public void test_frequencyLjava_util_CollectionLint() {
         try {
             Collections.frequency(null, null);
@@ -398,14 +308,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#reverseOrder()
+     * java.util.Collections#reverseOrder()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "reverseOrder",
-        args = {}
-    )
     public void test_reverseOrder() {
         Comparator<String> roc = Collections.reverseOrder();
         assertNotNull("Assert 0: comparator must not be null", roc);
@@ -421,14 +325,8 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections#reverseOrder(java.util.Comparator)
+     * java.util.Collections#reverseOrder(java.util.Comparator)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "reverseOrder",
-        args = {java.util.Comparator.class}
-    )
     public void test_reverseOrderLjava_util_Comparator() {
         Comparator<String> roc = Collections
                 .reverseOrder(String.CASE_INSENSITIVE_ORDER);
@@ -564,12 +462,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {java.util.Collection.class, java.lang.Object[].class}
-    )
     public void test_AddAll() {
         List<Object> l = new ArrayList<Object>();
         assertFalse(Collections.addAll(l, new Object[] {}));
@@ -618,12 +510,6 @@ public class CollectionsTest extends TestCase {
         Collections.addAll(c, new String[] { "String",
                 "", "Correct element" });
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "disjoint",
-        args = {java.util.Collection.class, java.util.Collection.class}
-    )
     public void test_Disjoint() {
         Object[] arr1 = new Object[10];
         for (int i = 0; i < arr1.length; i++) {
@@ -697,132 +583,66 @@ public class CollectionsTest extends TestCase {
     }
 
     /**
-     * @tests java.util.Collections.EmptyList#readResolve()
+     * java.util.Collections.EmptyList#readResolve()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_EmptyList_readResolve() throws Exception {
         SerializationTest.verifySelf(Collections.EMPTY_LIST, comparator);
     }
 
     /**
-     * @tests java.util.Collections.EmptyMap#readResolve()
+     * java.util.Collections.EmptyMap#readResolve()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_EmptyMap_readResolve() throws Exception {
         SerializationTest.verifySelf(Collections.EMPTY_MAP, comparator);
     }
 
     /**
-     * @tests java.util.Collections.EmptySet#readResolve()
+     * java.util.Collections.EmptySet#readResolve()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_EmptySet_readResolve() throws Exception {
         SerializationTest.verifySelf(Collections.EMPTY_SET, comparator);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedCollectionSerializationCompatability() throws Exception {
         Collection<String> c = Collections.emptySet();
         c = Collections.checkedCollection(c, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedCollection.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedListRandomAccessSerializationCompatability() throws Exception {
         List<String> c = new ArrayList<String>();
         assertTrue(c instanceof RandomAccess);
         c = Collections.checkedList(c, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedListRandomAccess.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedListSerializationCompatability() throws Exception {
         List<String> c = new LinkedList<String>();
         assertFalse(c instanceof RandomAccess);
         c = Collections.checkedList(c, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedList.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedSetSerializationCompatability() throws Exception {
         Set<String> c = new HashSet<String>();
         assertFalse(c instanceof SortedSet);
         c = Collections.checkedSet(c, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSet.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedMapSerializationCompatability() throws Exception {
         Map<String, String> c = new HashMap<String, String>();
         assertFalse(c instanceof SortedMap);
         c = Collections.checkedMap(c, String.class, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedMap.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedSortedSetSerializationCompatability() throws Exception {
         SortedSet<String> c = new TreeSet<String>();
         c = Collections.checkedSortedSet(c, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSortedSet.golden.ser");
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_checkedSortedMapSerializationCompatability() throws Exception {
         SortedMap<String, String> c = new TreeMap<String, String>();
         c = Collections.checkedSortedMap(c, String.class, String.class);
         SerializationTester.assertCompabilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSortedMap.golden.ser");
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedCollection",
-        args = {java.util.Collection.class, java.lang.Class.class}
-    )
     public void test_checkedCollectionLjava_util_CollectionLjava_lang_Class() {
         ArrayList al = new ArrayList<Integer>();
 
@@ -838,12 +658,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedList",
-        args = {java.util.List.class, java.lang.Class.class}
-    )
     public void test_checkedListLjava_util_ListLjava_lang_Class() {
         ArrayList al = new ArrayList<Integer>();
 
@@ -859,12 +673,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedMap",
-        args = {java.util.Map.class, java.lang.Class.class, java.lang.Class.class}
-    )
     public void test_checkedMapLjava_util_MapLjava_lang_ClassLjava_lang_Class() {
         HashMap hm = new HashMap<Integer, String>();
 
@@ -888,12 +696,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedSet",
-        args = {java.util.Set.class, java.lang.Class.class}
-    )
     public void test_checkedSetLjava_util_SetLjava_lang_Class() {
         HashSet hs = new HashSet<Integer>();
 
@@ -909,12 +711,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedSortedMap",
-        args = {java.util.SortedMap.class, java.lang.Class.class, java.lang.Class.class}
-    )
     public void test_checkedSortedMapLjava_util_SortedMapLjava_lang_ClassLjava_lang_Class() {
         TreeMap tm = new TreeMap<Integer, String>();
 
@@ -938,12 +734,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "checkedSortedSet",
-        args = {java.util.SortedSet.class, java.lang.Class.class}
-    )
     public void test_checkedSortedSetLjava_util_SortedSetLjava_lang_Class() {
         TreeSet ts = new TreeSet<Integer>();
 
@@ -959,12 +749,6 @@ public class CollectionsTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "emptyList",
-        args = {}
-    )
     public void test_emptyList() {
         List<String> ls = Collections.emptyList();
         List<Integer> li = Collections.emptyList();
@@ -973,12 +757,6 @@ public class CollectionsTest extends TestCase {
         assertTrue(li.equals(Collections.EMPTY_LIST));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "emptyMap",
-        args = {}
-    )
     public void test_emptyMap() {
         Map<Integer, String> mis = Collections.emptyMap();
         Map<String, Integer> msi = Collections.emptyMap();
@@ -987,12 +765,6 @@ public class CollectionsTest extends TestCase {
         assertTrue(msi.equals(Collections.EMPTY_MAP));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "emptySet",
-        args = {}
-    )
     public void test_emptySet() {
         Set<String> ss = Collections.emptySet();
         Set<Integer> si = Collections.emptySet();

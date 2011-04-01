@@ -43,15 +43,10 @@ import junit.framework.TestCase;
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 import org.apache.harmony.xnet.tests.support.MySSLContextSpi;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 /**
  * Tests for <code>SSLContext</code> class constructors and methods.
  *
  */
-@TestTargetClass(SSLContext.class)
 public class SSLContext1Test extends TestCase {
 
     private static String srvSSLContext = "SSLContext";
@@ -98,12 +93,6 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>SSLContext</code> constructor Assertion: returns
      * SSLContext object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLContext",
-        args = {javax.net.ssl.SSLContextSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void test_ConstructorLjavax_net_ssl_SSLContextSpiLjava_security_ProviderLjava_lang_String()
         throws NoSuchAlgorithmException,
             KeyManagementException {
@@ -149,14 +138,8 @@ public class SSLContext1Test extends TestCase {
 
     /**
      * @throws KeyManagementException
-     * @tests javax.net.ssl.SSLContext#createSSLEngine()
+     * javax.net.ssl.SSLContext#createSSLEngine()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "UnsupportedOperationException checking missed",
-        method = "createSSLEngine",
-        args = {}
-    )
     public void test_createSSLEngine() throws KeyManagementException {
         if (!DEFSupported) fail(NotSupportMsg);
         SSLContextSpi spi = new MySSLContextSpi();
@@ -169,14 +152,8 @@ public class SSLContext1Test extends TestCase {
 
     /**
      * @throws KeyManagementException
-     * @tests javax.net.ssl.SSLContext#createSSLEngine(java.lang.String, int)
+     * javax.net.ssl.SSLContext#createSSLEngine(java.lang.String, int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "UnsupportedOperationException checking missed",
-        method = "createSSLEngine",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_createSSLEngineLjava_lang_StringI()
         throws KeyManagementException {
         if (!DEFSupported) fail(NotSupportMsg);
@@ -194,12 +171,6 @@ public class SSLContext1Test extends TestCase {
      * methods Assertion: returns correspondent object
      * @throws KeyManagementException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getClientSessionContext",
-        args = {}
-    )
     public void test_getClientSessionContext() throws NoSuchAlgorithmException, KeyManagementException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -220,12 +191,6 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>getInstance(String protocol)</code> method Assertion:
      * returns SSLContext object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String01()
             throws NoSuchAlgorithmException {
         if (!DEFSupported) {
@@ -246,12 +211,6 @@ public class SSLContext1Test extends TestCase {
      * throws NullPointerException when protocol is null; throws
      * NoSuchAlgorithmException when protocol is not correct;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String02() {
         try {
             SSLContext.getInstance(null);
@@ -274,12 +233,6 @@ public class SSLContext1Test extends TestCase {
      * method Assertion: throws IllegalArgumentException when provider is null
      * or empty
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String01() throws NoSuchProviderException,
             NoSuchAlgorithmException {
         if (!DEFSupported) {
@@ -306,12 +259,6 @@ public class SSLContext1Test extends TestCase {
      * method Assertion: throws NullPointerException when protocol is null;
      * throws NoSuchAlgorithmException when protocol is not correct;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String02() throws NoSuchProviderException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -338,12 +285,6 @@ public class SSLContext1Test extends TestCase {
      * method Assertion: throws NoSuchProviderException when provider has
      * invalid value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String03() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -366,12 +307,6 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>getInstance(String protocol, String provider)</code>
      * method Assertion: returns instance of SSLContext
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_lang_String04() throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (!DEFSupported) {
@@ -394,12 +329,6 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>getInstance(String protocol, Provider provider)</code>
      * method Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider01() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -420,12 +349,6 @@ public class SSLContext1Test extends TestCase {
      * method Assertion: throws NullPointerException when protocol is null;
      * throws NoSuchAlgorithmException when protocol is not correct;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider02() {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -450,12 +373,6 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>getInstance(String protocol, Provider provider)</code>
      * method Assertion: returns instance of SSLContext
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void test_getInstanceLjava_lang_StringLjava_security_Provider03() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -474,14 +391,8 @@ public class SSLContext1Test extends TestCase {
     /**
      * @throws NoSuchAlgorithmException
      * @throws NoSuchProviderException
-     * @tests javax.net.ssl.SSLContext#getProtocol()
+     * javax.net.ssl.SSLContext#getProtocol()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProtocol",
-        args = {}
-    )
     public void test_getProtocol()
         throws NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) fail(NotSupportMsg);
@@ -507,14 +418,8 @@ public class SSLContext1Test extends TestCase {
     /**
      * @throws NoSuchAlgorithmException
      * @throws NoSuchProviderException
-     * @tests javax.net.ssl.SSLContext#getProvider()
+     * javax.net.ssl.SSLContext#getProvider()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider()
         throws NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) fail(NotSupportMsg);
@@ -532,14 +437,8 @@ public class SSLContext1Test extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLContext#getServletSessionContext()
+     * javax.net.ssl.SSLContext#getServletSessionContext()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getServerSessionContext",
-        args = {}
-    )
     public void test_getServerSessionContext() throws NoSuchAlgorithmException,
         KeyManagementException, KeyStoreException,
         UnrecoverableKeyException {
@@ -572,12 +471,6 @@ public class SSLContext1Test extends TestCase {
      * methods Assertion: returns correspondent object
      *
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getServerSocketFactory",
-        args = {}
-    )
      public void test_getServerSocketFactory() throws NoSuchAlgorithmException,
             KeyManagementException, KeyStoreException,
             UnrecoverableKeyException {
@@ -619,14 +512,8 @@ public class SSLContext1Test extends TestCase {
     }
 
      /**
-      * @tests javax.net.ssl.SSLContext#getSocketFactory()
+      * javax.net.ssl.SSLContext#getSocketFactory()
       */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSocketFactory",
-        args = {}
-    )
      public void test_getSocketFactory() throws NoSuchAlgorithmException,
          KeyManagementException, KeyStoreException,
          UnrecoverableKeyException {
@@ -657,16 +544,10 @@ public class SSLContext1Test extends TestCase {
      * @throws KeyStoreException
      * @throws FileNotFoundException
      * @throws KeyManagementException
-     * @tests javax.net.ssl.SSLContext#
+     * javax.net.ssl.SSLContext#
       *     init(javax.net.ssl.KeyManager[], javax.net.ssl.TrustManager[],
       *     java.security.SecureRandom)
       */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "init",
-        args = {javax.net.ssl.KeyManager[].class, javax.net.ssl.TrustManager[].class, java.security.SecureRandom.class}
-    )
      public void test_init$Ljavax_net_ssl_KeyManager$Ljavax_net_ssl_TrustManagerLjava_security_SecureRandom()
          throws Exception {
          if (!DEFSupported) fail(NotSupportMsg);

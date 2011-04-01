@@ -159,9 +159,7 @@ public class ObjectStreamField implements Comparable<Object> {
      *
      * @return A Class object representing the type of the field
      */
-    // BEGIN android-note
     // Changed from private to default visibility for usage in ObjectStreamClass
-    // END android-note
     /* package */ Class<?> getTypeInternal() {
         if (type instanceof WeakReference) {
             return (Class<?>) ((WeakReference<?>) type).get();
@@ -206,21 +204,21 @@ public class ObjectStreamField implements Comparable<Object> {
     }
 
     private char typeCodeOf(Class<?> type) {
-        if (type == Integer.TYPE) {
+        if (type == int.class) {
             return 'I';
-        } else if (type == Byte.TYPE) {
+        } else if (type == byte.class) {
             return 'B';
-        } else if (type == Character.TYPE) {
+        } else if (type == char.class) {
             return 'C';
-        } else if (type == Short.TYPE) {
+        } else if (type == short.class) {
             return 'S';
-        } else if (type == Boolean.TYPE) {
+        } else if (type == boolean.class) {
             return 'Z';
-        } else if (type == Long.TYPE) {
+        } else if (type == long.class) {
             return 'J';
-        } else if (type == Float.TYPE) {
+        } else if (type == float.class) {
             return 'F';
-        } else if (type == Double.TYPE) {
+        } else if (type == double.class) {
             return 'D';
         } else if (type.isArray()) {
             return '[';
@@ -333,28 +331,28 @@ public class ObjectStreamField implements Comparable<Object> {
     private boolean defaultResolve() {
         switch (typeString.charAt(0)) {
         case 'I':
-            type = Integer.TYPE;
+            type = int.class;
             return true;
         case 'B':
-            type = Byte.TYPE;
+            type = byte.class;
             return true;
         case 'C':
-            type = Character.TYPE;
+            type = char.class;
             return true;
         case 'S':
-            type = Short.TYPE;
+            type = short.class;
             return true;
         case 'Z':
-            type = Boolean.TYPE;
+            type = boolean.class;
             return true;
         case 'J':
-            type = Long.TYPE;
+            type = long.class;
             return true;
         case 'F':
-            type = Float.TYPE;
+            type = float.class;
             return true;
         case 'D':
-            type = Double.TYPE;
+            type = double.class;
             return true;
         default:
             type = Object.class;

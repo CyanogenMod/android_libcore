@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -49,12 +44,10 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SecretKeyFactory.class)
 /**
  * Tests for <code>SecretKeyFactory</code> class constructors and methods.
  *
  */
-
 public class SecretKeyFactoryTest extends TestCase {
 
     public static final String srvSecretKeyFactory = "SecretKeyFactory";
@@ -124,12 +117,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * Test for <code>SecretKeyFactory</code> constructor
      * Assertion: returns SecretKeyFactory object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SecretKeyFactory",
-        args = {javax.crypto.SecretKeyFactorySpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testSecretKeyFactory01() throws NoSuchAlgorithmException,
             InvalidKeySpecException, InvalidKeyException {
         if (!DEFSupported) {
@@ -161,12 +148,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm has invalid value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testSecretKeyFactory02() throws NoSuchAlgorithmException {
         try {
             SecretKeyFactory.getInstance(null);
@@ -187,12 +168,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertion: returns SecretKeyObject
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testSecretKeyFactory03() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -213,12 +188,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is invalid
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testSecretKeyFactory04() throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (!DEFSupported) {
@@ -249,12 +218,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * throws IllegalArgumentException when provider is null or empty;
      * throws NoSuchProviderException when provider has invalid value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testSecretKeyFactory05() throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (!DEFSupported) {
@@ -293,12 +256,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * method
      * Assertion: returns SecretKeyFactory object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testSecretKeyFactory06() throws NoSuchProviderException,
             NoSuchAlgorithmException {
         if (!DEFSupported) {
@@ -321,12 +278,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * Assertion: throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is invalid
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testSecretKeyFactory07() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -353,12 +304,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * method
      * Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testSecretKeyFactory08() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -380,12 +325,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * method
      * Assertion: returns SecretKeyFactory object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is a complete subset of tests for getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testSecretKeyFactory09() throws NoSuchAlgorithmException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -408,34 +347,6 @@ public class SecretKeyFactoryTest extends TestCase {
      * Assertion:
      * throw InvalidKeySpecException if parameter is inappropriate
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tis test is checking two methods.",
-            method = "generateSecret",
-            args = {java.security.spec.KeySpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tis test is checking two methods.",
-            clazz = SecretKeyFactorySpi.class,
-            method = "engineGenerateSecret",
-            args = {java.security.spec.KeySpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tis test is checking two methods.",
-            method = "getKeySpec",
-            args = {javax.crypto.SecretKey.class, java.lang.Class.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Tis test is checking two methods.",
-            clazz = SecretKeyFactorySpi.class,
-            method = "engineGetKeySpec",
-            args = {javax.crypto.SecretKey.class, java.lang.Class.class}
-        )
-    })
     public void testSecretKeyFactory10() throws InvalidKeyException,
             InvalidKeySpecException {
         if (!DEFSupported) {
@@ -508,12 +419,6 @@ public class SecretKeyFactoryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void test_getAlgorithm() throws NoSuchAlgorithmException {
         for (int i = 0; i < validValues.length; i++) {
             SecretKeyFactory secKF = SecretKeyFactory
@@ -532,12 +437,6 @@ public class SecretKeyFactoryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void test_getProvider() throws NoSuchAlgorithmException {
         for (int i = 0; i < validValues.length; i++) {
             SecretKeyFactory secKF = SecretKeyFactory
@@ -549,21 +448,6 @@ public class SecretKeyFactoryTest extends TestCase {
         assertNull(msf.getProvider());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "translateKey",
-            args = {javax.crypto.SecretKey.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = SecretKeyFactorySpi.class,
-            method = "engineTranslateKey",
-            args = {javax.crypto.SecretKey.class}
-        )
-    })
     public void test_translateKeyLjavax_crypto_SecretKey()
             throws NoSuchAlgorithmException, InvalidKeyException {
         KeyGenerator kg = null;

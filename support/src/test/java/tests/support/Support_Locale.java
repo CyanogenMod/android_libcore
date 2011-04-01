@@ -22,27 +22,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-
 /**
- * Helper class for {@link Locale} tests
+ * Helper class for tests that rely on locale data.
  */
 public class Support_Locale {
-
-    /**
-     * Helper method to determine if given locales are available.
-     *
-     * @param requiredLocales - the set of {@link Locale} to check
-     *
-     * @return true if all requiredLocales are available.
-     */
-    public static boolean areLocalesAvailable(Locale... requiredLocales) {
-        Locale[] availableLocales = Locale.getAvailableLocales();
-        Set<Locale> localeSet = new HashSet<Locale>(Arrays.asList(availableLocales));
-        for (Locale requiredLocale : requiredLocales) {
-            if (!localeSet.contains(requiredLocale)) {
-                return false;
-            }
-        }
-        return true;
+    public static boolean isLocaleAvailable(Locale requiredLocale) {
+        Set<Locale> localeSet = new HashSet<Locale>(Arrays.asList(Locale.getAvailableLocales()));
+        return localeSet.contains(requiredLocale);
     }
 }

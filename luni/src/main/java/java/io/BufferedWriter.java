@@ -17,10 +17,8 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.SneakyThrow;
+import libcore.util.SneakyThrow;
 
 /**
  * Wraps an existing {@link Writer} and <em>buffers</em> the output. Expensive
@@ -45,9 +43,6 @@ public class BufferedWriter extends Writer {
     private char[] buf;
 
     private int pos;
-
-    private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator"));
 
     /**
      * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer
@@ -156,15 +151,14 @@ public class BufferedWriter extends Writer {
     }
 
     /**
-     * Writes a newline to this writer. A newline is determined by the System
-     * property "line.separator". The target writer may or may not be flushed
-     * when a newline is written.
+     * Writes a newline to this writer. On Android, this is {@code "\n"}.
+     * The target writer may or may not be flushed when a newline is written.
      *
      * @throws IOException
      *             if an error occurs attempting to write to this writer.
      */
     public void newLine() throws IOException {
-        write(lineSeparator, 0, lineSeparator.length());
+        write(System.lineSeparator());
     }
 
     /**

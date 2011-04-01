@@ -55,16 +55,11 @@ public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of non-RSA keys
-        TestKeyStore testKeyStore
-                = TestKeyStore.create(new String[] { "RSA", "DSA", "EC", "EC_RSA" },
-                                      null,
-                                      null,
-                                      "rsa-dsa-ec",
-                                      TestKeyStore.localhost(),
-                                      0,
-                                      true,
-                                      null,
-                                      null);
+        TestKeyStore testKeyStore = new TestKeyStore.Builder()
+                .keyAlgorithms("RSA", "DSA", "EC", "EC_RSA")
+                .aliasPrefix("rsa-dsa-ec")
+                .ca(true)
+                .build();
         if (StandardNames.IS_RI) {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             StandardNames.JSSE_PROVIDER_NAME,
@@ -382,9 +377,12 @@ public class SSLSocketTest extends TestCase {
                     if (false) {
                         System.out.println("Session=" + session);
                         System.out.println("CipherSuite=" + cipherSuite);
-                        System.out.println("LocalCertificates=" + localCertificates);
-                        System.out.println("PeerCertificates=" + peerCertificates);
-                        System.out.println("PeerCertificateChain=" + peerCertificateChain);
+                        System.out.println("LocalCertificates="
+                                + Arrays.toString(localCertificates));
+                        System.out.println("PeerCertificates="
+                                + Arrays.toString(peerCertificates));
+                        System.out.println("PeerCertificateChain="
+                                + Arrays.toString(peerCertificateChain));
                         System.out.println("PeerPrincipal=" + peerPrincipal);
                         System.out.println("LocalPrincipal=" + localPrincipal);
                         System.out.println("Socket=" + socket);
@@ -1058,7 +1056,7 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * Not run by default by JUnit, but can be run by Vogar by
-     * specifying it explictly (or with main method below)
+     * specifying it explicitly (or with main method below)
      */
     public void stress_test_TestSSLSocketPair_create() {
         final boolean verbose = true;
@@ -1081,7 +1079,7 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
-    public static final void main (String[] args) {
+    public static void main (String[] args) {
         new SSLSocketTest().stress_test_TestSSLSocketPair_create();
     }
 }

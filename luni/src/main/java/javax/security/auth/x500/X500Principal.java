@@ -223,7 +223,7 @@ public final class X500Principal implements Serializable, Principal {
         String rfc1779Name = dn.getName(RFC1779);
         String rfc2253Name = dn.getName(RFC2253);
 
-        if (format.toUpperCase().equals("RFC1779")) {
+        if (format.equalsIgnoreCase("RFC1779")) {
             StringBuilder resultName = new StringBuilder(rfc1779Name);
             int fromIndex = resultName.length();
             int equalIndex = -1;
@@ -243,7 +243,7 @@ public final class X500Principal implements Serializable, Principal {
                 fromIndex = commaIndex;
             }
             return resultName.toString();
-        } else if (format.toUpperCase().equals("RFC2253")) {
+        } else if (format.equalsIgnoreCase("RFC2253")) {
             StringBuilder resultName = new StringBuilder(rfc2253Name);
             StringBuilder subsidyName = new StringBuilder(rfc1779Name);
 

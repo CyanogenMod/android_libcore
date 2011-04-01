@@ -41,8 +41,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * </pre>
  * (as specified in RFC 3280 http://www.ietf.org/rfc/rfc3280.txt)
  */
-public class IssuingDistributionPoint extends ExtensionValue {
-
+public final class IssuingDistributionPoint extends ExtensionValue {
     // values of the fields of the structure
     private DistributionPointName distributionPoint;
     private boolean onlyContainsUserCerts = false;
@@ -101,79 +100,25 @@ public class IssuingDistributionPoint extends ExtensionValue {
         this.onlyContainsAttributeCerts = onlyContainsAttributeCerts;
     }
 
-    /**
-     * Returns value of distributionPoint field of the structure.
-     */
-    public DistributionPointName getDistributionPoint() {
-        return distributionPoint;
-    }
-
-    /**
-     * Returns value of onlyContainsUserCerts field of the structure.
-     */
-    public boolean getOnlyContainsUserCerts() {
-        return onlyContainsUserCerts;
-    }
-
-    /**
-     * Returns value of onlyContainsCACerts field of the structure.
-     */
-    public boolean getOnlyContainsCACerts() {
-        return onlyContainsCACerts;
-    }
-
-    /**
-     * Returns value of onlySomeReasons field of the structure.
-     */
-    public ReasonFlags getOnlySomeReasons() {
-        return onlySomeReasons;
-    }
-
-    /**
-     * Returns value of indirectCRL field of the structure.
-     */
-    public boolean getIndirectCRL() {
-        return indirectCRL;
-    }
-
-    /**
-     * Returns value of onlyContainsAttributeCerts field of the structure.
-     */
-    public boolean getOnlyContainsAttributeCerts() {
-        return onlyContainsAttributeCerts;
-    }
-
-    /**
-     * Returns ASN.1 encoded form of this X.509 IssuingDistributionPoint value.
-     * @return a byte array containing ASN.1 encoded form.
-     */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(this);
         }
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Issuing Distribution Point: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Issuing Distribution Point: [\n");
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, "  " + prefix);
+            distributionPoint.dumpValue(sb, "  " + prefix);
         }
-        buffer.append(prefix).append("  onlyContainsUserCerts: ")
-            .append(onlyContainsUserCerts).append('\n');
-        buffer.append(prefix).append("  onlyContainsCACerts: ")
-            .append(onlyContainsCACerts).append('\n');
+        sb.append(prefix).append("  onlyContainsUserCerts: ").append(onlyContainsUserCerts).append('\n');
+        sb.append(prefix).append("  onlyContainsCACerts: ").append(onlyContainsCACerts).append('\n');
         if (onlySomeReasons != null) {
-            onlySomeReasons.dumpValue(buffer, prefix + "  ");
+            onlySomeReasons.dumpValue(sb, prefix + "  ");
         }
-        buffer.append(prefix).append("  indirectCRL: ")
-            .append(indirectCRL).append('\n');
-        buffer.append(prefix).append("  onlyContainsAttributeCerts: ")
-            .append(onlyContainsAttributeCerts).append('\n');
+        sb.append(prefix).append("  indirectCRL: ").append(indirectCRL).append('\n');
+        sb.append(prefix).append("  onlyContainsAttributeCerts: ").append(onlyContainsAttributeCerts).append('\n');
     }
 
     /**
@@ -200,26 +145,20 @@ public class IssuingDistributionPoint extends ExtensionValue {
 
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
-            IssuingDistributionPoint idp =
-                new IssuingDistributionPoint(
-                        (DistributionPointName) values[0],
-                        (ReasonFlags) values[3]);
+            IssuingDistributionPoint idp = new IssuingDistributionPoint(
+                    (DistributionPointName) values[0], (ReasonFlags) values[3]);
             idp.encoding = in.getEncoded();
             if (values[1] != null) {
-                idp.setOnlyContainsUserCerts(
-                        ((Boolean) values[1]).booleanValue());
+                idp.setOnlyContainsUserCerts((Boolean) values[1]);
             }
             if (values[2] != null) {
-                idp.setOnlyContainsCACerts(
-                        ((Boolean) values[2]).booleanValue());
+                idp.setOnlyContainsCACerts((Boolean) values[2]);
             }
             if (values[4] != null) {
-                idp.setIndirectCRL(
-                        ((Boolean) values[4]).booleanValue());
+                idp.setIndirectCRL((Boolean) values[4]);
             }
             if (values[5] != null) {
-                idp.setOnlyContainsAttributeCerts(
-                        ((Boolean) values[5]).booleanValue());
+                idp.setOnlyContainsAttributeCerts((Boolean) values[5]);
             }
             return idp;
         }
@@ -236,4 +175,3 @@ public class IssuingDistributionPoint extends ExtensionValue {
     };
 
 }
-

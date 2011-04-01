@@ -19,8 +19,8 @@ package java.nio.charset;
 
 import java.io.UTFDataFormatException;
 import java.nio.ByteOrder;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * @hide internal use only
@@ -64,7 +64,7 @@ public class ModifiedUtf8 {
     }
 
     /**
-     * Returns the number of bytes the modified UTF8 representation of 's' would take. Note
+     * Returns the number of bytes the modified UTF-8 representation of 's' would take. Note
      * that this is just the space for the bytes representing the characters, not the length
      * which precedes those bytes, because different callers represent the length differently,
      * as two, four, or even eight bytes. If {@code shortLength} is true, we'll throw an
@@ -118,7 +118,7 @@ public class ModifiedUtf8 {
     public static byte[] encode(String s) throws UTFDataFormatException {
         int utfCount = (int) ModifiedUtf8.countBytes(s, true);
         byte[] result = new byte[SizeOf.SHORT + utfCount];
-        OSMemory.pokeShort(result, 0, (short) utfCount, ByteOrder.BIG_ENDIAN);
+        Memory.pokeShort(result, 0, (short) utfCount, ByteOrder.BIG_ENDIAN);
         ModifiedUtf8.encode(result, SizeOf.SHORT, s);
         return result;
     }

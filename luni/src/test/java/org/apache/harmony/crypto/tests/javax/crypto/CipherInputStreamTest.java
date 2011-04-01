@@ -17,11 +17,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -32,18 +27,11 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NullCipher;
 
-@TestTargetClass(CipherInputStream.class)
 public class CipherInputStreamTest extends TestCase {
 
     /**
-     * @tests javax.crypto.CipherInputStream#read(byte[] b, int off, int len)
+     * javax.crypto.CipherInputStream#read(byte[] b, int off, int len)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test. Checks NullPointerException",
-        method = "read",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testReadBII() throws Exception {
         // Regression for HARMONY-1080
         CipherInputStream stream = new CipherInputStream(null, new NullCipher());
@@ -56,14 +44,8 @@ public class CipherInputStreamTest extends TestCase {
     }
 
     /**
-     * @tests javax.crypto.CipherInputStream#close()
+     * javax.crypto.CipherInputStream#close()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test. Checks IllegalStateException",
-        method = "close",
-        args = {}
-    )
     public void testClose() throws Exception {
         // Regression for HARMONY-1087
         try {

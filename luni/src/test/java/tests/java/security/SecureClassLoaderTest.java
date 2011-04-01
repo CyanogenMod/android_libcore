@@ -23,9 +23,6 @@
 package tests.java.security;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
@@ -38,25 +35,7 @@ import java.security.PermissionCollection;
 import java.security.ProtectionDomain;
 import java.security.SecureClassLoader;
 import java.security.cert.Certificate;
-@TestTargetClass(value=SecureClassLoader.class,
-        untestedMethods={
-            @TestTargetNew(
-                    level = TestLevel.NOT_FEASIBLE,
-                    notes = "cannot be tested",
-                    method = "defineClass",
-                    args = {
-                        java.lang.String.class, byte[].class, int.class,
-                        int.class, java.security.CodeSource.class}
-            ),
-            @TestTargetNew(
-                    level = TestLevel.NOT_FEASIBLE,
-                    notes = "cannot be tested",
-                    method = "defineClass",
-                    args = {
-                        java.lang.String.class, java.nio.ByteBuffer.class,
-                        java.security.CodeSource.class}
-            )
-})
+
 /**
  * Unit test for SecureClassLoader.
  *
@@ -186,15 +165,6 @@ public class SecureClassLoaderTest extends TestCase {
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0x00,
             (byte) 0x21, };
 
-    /**
-     * Tests SecureClassLoader(ClassLoader)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verification with null parameter missed",
-        method = "SecureClassLoader",
-        args = {java.lang.ClassLoader.class}
-    )
     @KnownFailure("Android doesn't allow null parent.")
     public void testSecureClassLoaderClassLoader() throws Exception {
         URL[] urls = new URL[] { new URL("http://localhost") };
@@ -208,15 +178,6 @@ public class SecureClassLoaderTest extends TestCase {
         }
     }
 
-    /**
-     * Tests getPermission
-     */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "",
-        method = "getPermissions",
-        args = {java.security.CodeSource.class}
-    )
     public void testGetPermissions() throws Exception {
         URL url = new URL("http://localhost");
         CodeSource cs = new CodeSource(url, (Certificate[]) null);
@@ -228,12 +189,6 @@ public class SecureClassLoaderTest extends TestCase {
 //    /**
 //     * Tests defineClass(String, byte[], int, int, CodeSource)
 //     */
-//    @TestTargetNew(
-//        level = TestLevel.NOT_FEASIBLE,
-//        notes = "ClassFormatError, IndexOutOfBoundsException, SecurityException checking missed",
-//        method = "defineClass",
-//        args = {java.lang.String.class, byte[].class, int.class, int.class, java.security.CodeSource.class}
-//    )
 //    public void _testDefineClassStringbyteArrayintintCodeSource() {
 //        MyClassLoader ldr = new MyClassLoader();
 //        Class klass = ldr.define(null, klassData, 0, klassData.length, null);
@@ -243,12 +198,6 @@ public class SecureClassLoaderTest extends TestCase {
 //    /**
 //     * Tests defineClass(String, ByteBuffer, CodeSource)
 //     */
-//    @TestTargetNew(
-//        level = TestLevel.NOT_FEASIBLE,
-//        notes = "ClassFormatError, SecurityException checking missed",
-//        method = "defineClass",
-//        args = {java.lang.String.class, java.nio.ByteBuffer.class, java.security.CodeSource.class}
-//    )
 //    public void _testDefineClassStringByteBufferCodeSource() {
 //        MyClassLoader ldr = new MyClassLoader();
 //        ByteBuffer bbuf = ByteBuffer.wrap(klassData);

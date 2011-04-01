@@ -548,7 +548,6 @@ public class TwoKeyHashMap<E, K, V> extends AbstractMap<String, V> {
         private EntryIteratorImpl itr;
 
         ValueIteratorImpl() {
-            super();
             this.itr = new EntryIteratorImpl();
         }
 

@@ -17,11 +17,6 @@
 
 package tests.api.javax.security.auth;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import javax.security.auth.AuthPermission;
@@ -43,18 +38,11 @@ import java.security.ProtectionDomain;
  * Tests for <code>Subject</code> class constructors and methods.
  *
  */
-@TestTargetClass(Subject.class)
 public class SubjectTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.Subject#Subject()
+     * javax.security.auth.Subject#Subject()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Subject",
-        args = {}
-    )
     public void test_Constructor_01() {
         try {
             Subject s = new Subject();
@@ -68,14 +56,8 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#doAs(Subject subject, PrivilegedAction action)
+     * javax.security.auth.Subject#doAs(Subject subject, PrivilegedAction action)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doAs",
-        args = {Subject.class, PrivilegedAction.class}
-    )
     public void test_doAs_01() {
         Subject subj = new Subject();
         PrivilegedAction<Object> pa = new myPrivilegedAction();
@@ -101,14 +83,8 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#doAs(Subject subject, PrivilegedExceptionAction action)
+     * javax.security.auth.Subject#doAs(Subject subject, PrivilegedExceptionAction action)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doAs",
-        args = {Subject.class, PrivilegedExceptionAction.class}
-    )
     public void test_doAs_02() {
         Subject subj = new Subject();
         PrivilegedExceptionAction<Object> pea = new myPrivilegedExceptionAction();
@@ -146,16 +122,10 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject,
+     * javax.security.auth.Subject#doAsPrivileged(Subject subject,
      *                                                   PrivilegedAction action,
      *                                                   AccessControlContext acc)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doAsPrivileged",
-        args = {Subject.class, PrivilegedAction.class, AccessControlContext.class}
-    )
     public void test_doAsPrivileged_01() {
         Subject subj = new Subject();
         PrivilegedAction<Object> pa = new myPrivilegedAction();
@@ -182,16 +152,10 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject,
+     * javax.security.auth.Subject#doAsPrivileged(Subject subject,
      *                                                   PrivilegedExceptionAction action,
      *                                                   AccessControlContext acc)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "doAsPrivileged",
-        args = {Subject.class, PrivilegedExceptionAction.class, AccessControlContext.class}
-    )
     public void test_doAsPrivileged_02() {
         Subject subj = new Subject();
         PrivilegedExceptionAction<Object> pea = new myPrivilegedExceptionAction();
@@ -230,14 +194,8 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#getSubject(AccessControlContext acc)
+     * javax.security.auth.Subject#getSubject(AccessControlContext acc)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSubject",
-        args = {AccessControlContext.class}
-    )
     public void test_getSubject() {
         Subject subj = new Subject();
         AccessControlContext acc = new AccessControlContext(new ProtectionDomain[0]);
@@ -250,14 +208,8 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#toString()
+     * javax.security.auth.Subject#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         Subject subj = new Subject();
 
@@ -269,14 +221,8 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#hashCode()
+     * javax.security.auth.Subject#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "SecurityException wasn't tested",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         Subject subj = new Subject();
 

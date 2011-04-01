@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,7 +19,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBId</a>
  */
-@TestTargetClass(Document.class)
 public final class DocumentGeteEementById extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,12 +48,6 @@ public final class DocumentGeteEementById extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify getElementById method for existent element.",
-        method = "getElementById",
-        args = {java.lang.String.class}
-    )
     public void testGetElementById() throws Throwable {
         Document doc;
         Element element;

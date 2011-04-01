@@ -17,9 +17,6 @@
 
 package libcore.java.util;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,22 +26,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-@TestTargetClass(TreeSet.class)
 public class OldTreeSetTest extends junit.framework.TestCase {
 
     TreeSet ts;
 
     Object objArray[] = new Object[1000];
 
-    /**
-     * @tests java.util.TreeSet#TreeSet(java.util.Collection)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeSet",
-        args = {java.util.Collection.class}
-    )
     public void test_ConstructorLjava_util_Collection() {
         // Test for method java.util.TreeSet(java.util.Collection)
         TreeSet myTreeSet = new TreeSet(Arrays.asList(objArray));
@@ -73,15 +60,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#TreeSet(java.util.SortedSet)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeSet",
-        args = {java.util.SortedSet.class}
-    )
     public void test_ConstructorLjava_util_SortedSet() {
         try {
             new TreeSet((SortedSet)null);
@@ -91,15 +69,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#add(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void test_addLjava_lang_Object() {
         // Test for method boolean java.util.TreeSet.add(java.lang.Object)
         ts.add(new Integer(-8));
@@ -119,15 +88,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#addAll(java.util.Collection)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {java.util.Collection.class}
-    )
     public void test_addAllLjava_util_Collection() {
         // Test for method boolean
         // java.util.TreeSet.addAll(java.util.Collection)
@@ -157,15 +117,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#first()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "first",
-        args = {}
-    )
     public void test_first() {
         // Test for method java.lang.Object java.util.TreeSet.first()
         assertTrue("Returned incorrect first element",
@@ -180,15 +131,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#headSet(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "headSet",
-        args = {java.lang.Object.class}
-    )
     public void test_headSetLjava_lang_Object() {
         // Test for method java.util.SortedSet
         // java.util.TreeSet.headSet(java.lang.Object)
@@ -220,15 +162,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#last()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "last",
-        args = {}
-    )
     public void test_last() {
         // Test for method java.lang.Object java.util.TreeSet.last()
         assertTrue("Returned incorrect last element",
@@ -243,15 +176,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#subSet(java.lang.Object, java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "subSet",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_subSetLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.util.SortedSet
         // java.util.TreeSet.subSet(java.lang.Object, java.lang.Object)
@@ -293,15 +217,6 @@ public class OldTreeSetTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.util.TreeSet#tailSet(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "tailSet",
-        args = {java.lang.Object.class}
-    )
     public void test_tailSetLjava_lang_Object() {
         // Test for method java.util.SortedSet
         // java.util.TreeSet.tailSet(java.lang.Object)

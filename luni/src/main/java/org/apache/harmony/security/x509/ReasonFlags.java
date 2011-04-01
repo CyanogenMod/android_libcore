@@ -49,7 +49,7 @@ import org.apache.harmony.security.asn1.BerOutputStream;
  *  }
  *  </pre>
  */
-public class ReasonFlags {
+public final class ReasonFlags {
 
     /**
      * The names of the reasons.
@@ -66,8 +66,8 @@ public class ReasonFlags {
         "aACompromise"
     };
 
-    // the value of extension
-    private boolean[] flags;
+    /** the value of extension */
+    private final boolean[] flags;
 
     /**
      * Creates the extension object corresponding to the given flags.
@@ -76,21 +76,16 @@ public class ReasonFlags {
         this.flags = flags;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix);
-        buffer.append("ReasonFlags [\n");
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix);
+        sb.append("ReasonFlags [\n");
         for (int i=0; i<flags.length; i++) {
             if (flags[i]) {
-                buffer.append(prefix).append("  ")
-                    .append(REASONS[i]).append('\n');
+                sb.append(prefix).append("  ").append(REASONS[i]).append('\n');
             }
         }
-        buffer.append(prefix);
-        buffer.append("]\n");
+        sb.append(prefix);
+        sb.append("]\n");
     }
 
     /**
@@ -108,4 +103,3 @@ public class ReasonFlags {
         }
     };
 }
-

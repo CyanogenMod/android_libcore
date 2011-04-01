@@ -22,12 +22,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.LocatorImpl;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-@TestTargetClass(SAXParseException.class)
 public class SAXParseExceptionTest extends TestCase {
 
     public static final String ERR = "Houston, we have a problem";
@@ -40,43 +34,6 @@ public class SAXParseExceptionTest extends TestCase {
 
     public static final int COL = 2;
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "SAXParseException",
-            args = { String.class, Locator.class, Exception.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getMessage",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getException",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getPublicId",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getSystemId",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getLineNumber",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getColumnNumber",
-            args = { }
-        )
-    })
     public void testSAXParseException_String_Locator_Exception() {
         LocatorImpl l = new LocatorImpl();
         l.setPublicId(PUB);
@@ -131,11 +88,6 @@ public class SAXParseExceptionTest extends TestCase {
         assertEquals(COL, e.getColumnNumber());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXParseException",
-        args = { String.class, Locator.class }
-    )
     public void testSAXParseException_String_Locator() {
         LocatorImpl l = new LocatorImpl();
         l.setPublicId(PUB);
@@ -178,12 +130,6 @@ public class SAXParseExceptionTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXParseException",
-        args = { String.class, String.class, String.class, int.class, int.class,
-                 Exception.class }
-    )
     public void testSAXParseException_String_String_String_int_int_Exception() {
         Exception c = new Exception();
 
@@ -232,12 +178,6 @@ public class SAXParseExceptionTest extends TestCase {
         assertEquals(COL, e.getColumnNumber());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SAXParseException",
-        args = { String.class, String.class, String.class, int.class,
-                 int.class }
-        )
     public void testSAXParseException_String_String_String_int_int() {
         // Ordinary case
         SAXParseException e = new SAXParseException(ERR, PUB, SYS, ROW, COL);

@@ -15,9 +15,6 @@
  */
 
 package tests.security.interfaces;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
@@ -26,22 +23,15 @@ import java.security.interfaces.DSAKey;
 import java.security.interfaces.DSAParams;
 import java.security.spec.DSAParameterSpec;
 
-@TestTargetClass(DSAKey.class)
 public class DSAKeyTest extends TestCase {
 
     /**
-     * @tests java.security.interfaces.DSAKey
+     * java.security.interfaces.DSAKey
      * #getParams()
      * test covers following use cases
      *   Case 1: check private key
      *   Case 2: check public key
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParams",
-        args = {}
-    )
     public void test_getParams() throws Exception {
         DSAParams param = new DSAParameterSpec(Util.P, Util.Q, Util.G);
 

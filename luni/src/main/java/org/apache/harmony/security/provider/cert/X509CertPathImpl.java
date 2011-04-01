@@ -171,14 +171,14 @@ public class X509CertPathImpl extends CertPath {
                     throw new CertificateException(
                             "Incorrect PKCS7 encoded form: missing signed data");
                 }
-                List certs = sd.getCertificates();
+                List<Certificate> certs = sd.getCertificates();
                 if (certs == null) {
                     // empty chain of certificates
-                    certs = new ArrayList();
+                    certs = new ArrayList<Certificate>();
                 }
-                List result = new ArrayList();
-                for (int i=0; i<certs.size(); i++) {
-                    result.add(new X509CertImpl((Certificate) certs.get(i)));
+                List<X509CertImpl> result = new ArrayList<X509CertImpl>();
+                for (Certificate cert : certs) {
+                    result.add(new X509CertImpl(cert));
                 }
                 return new X509CertPathImpl(result, PKCS7, ci.getEncoded());
             }
@@ -224,13 +224,13 @@ public class X509CertPathImpl extends CertPath {
                 if (sd == null) {
                     throw new CertificateException("Incorrect PKCS7 encoded form: missing signed data");
                 }
-                List certs = sd.getCertificates();
+                List<Certificate> certs = sd.getCertificates();
                 if (certs == null) {
-                    certs = new ArrayList();
+                    certs = new ArrayList<Certificate>();
                 }
-                List result = new ArrayList();
-                for (int i=0; i<certs.size(); i++) {
-                    result.add(new X509CertImpl((Certificate) certs.get(i)));
+                List<X509CertImpl> result = new ArrayList<X509CertImpl>();
+                for (Certificate cert : certs) {
+                    result.add(new X509CertImpl(cert));
                 }
                 return new X509CertPathImpl(result, PKCS7, ci.getEncoded());
             }

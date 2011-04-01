@@ -17,7 +17,7 @@
 package libcore.io;
 
 import java.nio.ByteOrder;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * Iterates over big- or little-endian bytes in a Java byte[].
@@ -59,19 +59,19 @@ public final class HeapBufferIterator extends BufferIterator {
     }
 
     public int readInt() {
-        int result = OSMemory.peekInt(buffer, offset + position, order);
+        int result = Memory.peekInt(buffer, offset + position, order);
         position += SizeOf.INT;
         return result;
     }
 
     public void readIntArray(int[] dst, int dstOffset, int intCount) {
         final int byteCount = intCount * SizeOf.INT;
-        OSMemory.unsafeBulkGet(dst, dstOffset, byteCount, buffer, offset + position, SizeOf.INT, order.needsSwap);
+        Memory.unsafeBulkGet(dst, dstOffset, byteCount, buffer, offset + position, SizeOf.INT, order.needsSwap);
         position += byteCount;
     }
 
     public short readShort() {
-        short result = OSMemory.peekShort(buffer, offset + position, order);
+        short result = Memory.peekShort(buffer, offset + position, order);
         position += SizeOf.SHORT;
         return result;
     }

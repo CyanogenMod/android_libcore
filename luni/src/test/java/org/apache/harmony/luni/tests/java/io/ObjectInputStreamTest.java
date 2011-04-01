@@ -128,7 +128,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readObject()
+     * java.io.ObjectInputStream#readObject()
      */
     public void test_readObjectMissingClasses() throws Exception {
         SerializationTest.verifySelf(new A1(), new SerializableAssert() {
@@ -140,7 +140,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
+     * java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
      */
     public void test_ConstructorLjava_io_InputStream() throws IOException {
         oos.writeDouble(Double.MAX_VALUE);
@@ -158,7 +158,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests {@link java.io.ObjectInputStream#resolveProxyClass(String[])}
+     * {@link java.io.ObjectInputStream#resolveProxyClass(String[])}
      */
     public void test_resolveProxyClass() throws IOException,
             ClassNotFoundException {
@@ -208,7 +208,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#available()
+     * java.io.ObjectInputStream#available()
      */
     public void test_available() throws IOException {
         oos.writeBytes("HelloWorld");
@@ -219,7 +219,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#close()
+     * java.io.ObjectInputStream#close()
      */
     public void test_close() throws IOException {
         oos.writeBytes("HelloWorld");
@@ -229,7 +229,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#defaultReadObject()
+     * java.io.ObjectInputStream#defaultReadObject()
      */
     public void test_defaultReadObject() throws Exception {
         // SM. This method may as well be private, as if called directly it
@@ -249,7 +249,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#read()
+     * java.io.ObjectInputStream#read()
      */
     public void test_read() throws IOException {
         oos.write('T');
@@ -260,7 +260,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#read(byte[], int, int)
+     * java.io.ObjectInputStream#read(byte[], int, int)
      */
     public void test_read$BII() throws IOException {
         byte[] buf = new byte[10];
@@ -274,7 +274,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readBoolean()
+     * java.io.ObjectInputStream#readBoolean()
      */
     public void test_readBoolean() throws IOException {
         oos.writeBoolean(true);
@@ -285,7 +285,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readByte()
+     * java.io.ObjectInputStream#readByte()
      */
     public void test_readByte() throws IOException {
         oos.writeByte(127);
@@ -296,7 +296,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readChar()
+     * java.io.ObjectInputStream#readChar()
      */
     public void test_readChar() throws IOException {
         oos.writeChar('T');
@@ -307,7 +307,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readDouble()
+     * java.io.ObjectInputStream#readDouble()
      */
     public void test_readDouble() throws IOException {
         oos.writeDouble(Double.MAX_VALUE);
@@ -319,7 +319,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readFields()
+     * java.io.ObjectInputStream#readFields()
      */
     public void test_readFields() throws Exception {
 
@@ -344,7 +344,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readFloat()
+     * java.io.ObjectInputStream#readFloat()
      */
     public void test_readFloat() throws IOException {
         oos.writeFloat(Float.MAX_VALUE);
@@ -356,7 +356,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readFully(byte[])
+     * java.io.ObjectInputStream#readFully(byte[])
      */
     public void test_readFully$B() throws IOException {
         byte[] buf = new byte[10];
@@ -370,7 +370,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readFully(byte[], int, int)
+     * java.io.ObjectInputStream#readFully(byte[], int, int)
      */
     public void test_readFully$BII() throws IOException {
         byte[] buf = new byte[10];
@@ -384,7 +384,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readInt()
+     * java.io.ObjectInputStream#readInt()
      */
     public void test_readInt() throws IOException {
         oos.writeInt(Integer.MAX_VALUE);
@@ -396,7 +396,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readLine()
+     * java.io.ObjectInputStream#readLine()
      */
     @SuppressWarnings("deprecation")
     public void test_readLine() throws IOException {
@@ -410,7 +410,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readLong()
+     * java.io.ObjectInputStream#readLong()
      */
     public void test_readLong() throws IOException {
         oos.writeLong(Long.MAX_VALUE);
@@ -422,7 +422,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readObject()
+     * java.io.ObjectInputStream#readObject()
      */
     public void test_readObject() throws Exception {
         String s = "HelloWorld";
@@ -510,7 +510,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readObjectOverride()
+     * java.io.ObjectInputStream#readObjectOverride()
      */
     public void test_readObjectOverride() throws Exception {
         // Regression for HARMONY-846
@@ -540,7 +540,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readObject()
+     * java.io.ObjectInputStream#readObject()
      */
     public void test_readObjectCorrupt() throws IOException, ClassNotFoundException {
         byte[] bytes = { 00, 00, 00, 0x64, 0x43, 0x48, (byte) 0xFD, 0x71, 00,
@@ -556,7 +556,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readShort()
+     * java.io.ObjectInputStream#readShort()
      */
     public void test_readShort() throws IOException {
         oos.writeShort(Short.MAX_VALUE);
@@ -568,7 +568,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readUnsignedByte()
+     * java.io.ObjectInputStream#readUnsignedByte()
      */
     public void test_readUnsignedByte() throws IOException {
         oos.writeByte(-1);
@@ -580,7 +580,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readUnsignedShort()
+     * java.io.ObjectInputStream#readUnsignedShort()
      */
     public void test_readUnsignedShort() throws IOException {
         oos.writeShort(-1);
@@ -592,7 +592,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#readUTF()
+     * java.io.ObjectInputStream#readUTF()
      */
     public void test_readUTF() throws IOException {
         oos.writeUTF("HelloWorld");
@@ -603,7 +603,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#skipBytes(int)
+     * java.io.ObjectInputStream#skipBytes(int)
      */
     public void test_skipBytesI() throws IOException {
         byte[] buf = new byte[10];
@@ -777,7 +777,7 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * @tests java.io.ObjectInputStream#resolveObject(Object)
+     * java.io.ObjectInputStream#resolveObject(Object)
      */
     public void test_resolveObjectLjava_lang_Object() throws Exception {
         // Write an Integer object into memory

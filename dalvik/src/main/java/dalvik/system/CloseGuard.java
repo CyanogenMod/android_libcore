@@ -16,9 +16,6 @@
 
 package dalvik.system;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * CloseGuard is a mechanism for flagging implicit finalizer cleanup of
  * resources that should have been cleaned up by explicit close
@@ -223,13 +220,11 @@ public final class CloseGuard {
     }
 
     /**
-     * Default Reporter which uses a Logger to report CloseGuard
-     * violations.
+     * Default Reporter which reports CloseGuard violations to the log.
      */
     private static final class DefaultReporter implements Reporter {
         public void report (String message, Throwable allocationSite) {
-            Logger.getLogger(CloseGuard.class.getName())
-                    .log(Level.WARNING, message, allocationSite);
+            System.logW(message, allocationSite);
         }
     }
 }

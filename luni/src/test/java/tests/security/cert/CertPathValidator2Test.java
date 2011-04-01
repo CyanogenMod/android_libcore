@@ -22,10 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -46,7 +42,6 @@ import java.security.cert.PKIXParameters;
 /**
  * Tests for CertPathValidator class constructors and methods
  */
-@TestTargetClass(CertPathValidator.class)
 public class CertPathValidator2Test extends TestCase {
     private static final String defaultAlg = "CertPB";
 
@@ -110,9 +105,6 @@ public class CertPathValidator2Test extends TestCase {
      * NoSuchAlgorithmException when algorithm is not available returns
      * CertPathValidator object
      */
-    @TestTargetNew(level = TestLevel.COMPLETE, notes = "", method = "getInstance", args = {
-        java.lang.String.class
-    })
     public void testGetInstance01() throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, CertPathValidatorException {
         try {
@@ -146,9 +138,6 @@ public class CertPathValidator2Test extends TestCase {
      * NoSuchProviderException when provider is available; returns
      * CertPathValidator object
      */
-    @TestTargetNew(level = TestLevel.COMPLETE, notes = "", method = "getInstance", args = {
-            java.lang.String.class, java.lang.String.class
-    })
     public void testGetInstance02() throws NoSuchAlgorithmException, NoSuchProviderException,
             IllegalArgumentException, InvalidAlgorithmParameterException,
             CertPathValidatorException {
@@ -207,9 +196,6 @@ public class CertPathValidator2Test extends TestCase {
      * IllegalArgumentException when provider is null; returns CertPathValidator
      * object
      */
-    @TestTargetNew(level = TestLevel.COMPLETE, notes = "", method = "getInstance", args = {
-            java.lang.String.class, java.security.Provider.class
-    })
     public void testGetInstance03() throws NoSuchAlgorithmException, IllegalArgumentException,
             InvalidAlgorithmParameterException, CertPathValidatorException {
         try {
@@ -244,9 +230,6 @@ public class CertPathValidator2Test extends TestCase {
         }
     }
 
-    @TestTargetNew(level = TestLevel.PARTIAL_COMPLETE, method = "validate", args = {
-            CertPath.class, CertPathParameters.class
-    })
     public void testValidate() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         MyCertPath mCP = new MyCertPath(new byte[0]);
         CertPathParameters params = new PKIXParameters(TestUtils.getTrustAnchorSet());

@@ -23,6 +23,7 @@ import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.UUID;
+import libcore.io.Libcore;
 
 public class FileTest extends junit.framework.TestCase {
     private static File createTemporaryDirectory() throws Exception {
@@ -181,11 +182,54 @@ public class FileTest extends junit.framework.TestCase {
         assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
     }
 
-    private static void ln_s(File target, File linkName) throws Exception {
+    private static void ln_s(File target, File linkName) {
         ln_s(target.toString(), linkName.toString());
     }
 
-    private static void ln_s(String target, String linkName) throws Exception {
-        File.symlink(target, linkName);
+    private static void ln_s(String target, String linkName) {
+        Libcore.os.symlink(target, linkName);
+    }
+
+    public void test_createNewFile() throws Exception {
+        File f = File.createTempFile("FileTest", "tmp");
+        assertFalse(f.createNewFile()); // EEXIST -> false
+        assertFalse(f.getParentFile().createNewFile()); // EEXIST -> false, even if S_ISDIR
+        try {
+            new File(f, "poop").createNewFile(); // ENOTDIR -> throw
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            new File("").createNewFile(); // ENOENT -> throw
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
+    public void test_rename() throws Exception {
+        File f = File.createTempFile("FileTest", "tmp");
+        assertFalse(f.renameTo(new File("")));
+        assertFalse(new File("").renameTo(f));
+        assertFalse(f.renameTo(new File(".")));
+        assertTrue(f.renameTo(f));
+    }
+
+    public void test_getAbsolutePath() throws Exception {
+        String originalUserDir = System.getProperty("user.dir");
+        try {
+            File f = new File("poop");
+            System.setProperty("user.dir", "/a");
+            assertEquals("/a/poop", f.getAbsolutePath());
+            System.setProperty("user.dir", "/b");
+            assertEquals("/b/poop", f.getAbsolutePath());
+        } finally {
+            System.setProperty("user.dir", originalUserDir);
+        }
+    }
+
+    public void test_getSpace() throws Exception {
+        assertTrue(new File("/").getFreeSpace() >= 0);
+        assertTrue(new File("/").getTotalSpace() >= 0);
+        assertTrue(new File("/").getUsableSpace() >= 0);
     }
 }

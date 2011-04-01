@@ -31,7 +31,6 @@ import dalvik.system.VMStack;
  * exceptions in the runtime. Access to the OS components is restricted to
  * trusted code running on the system classpath.
  *
- * @see IFileSystem
  * @see INetworkSystem
  */
 public class Platform {
@@ -39,9 +38,6 @@ public class Platform {
     // now they do because ThreadLocal lookups will be done on most operations, which
     // should be relatively less than the speed of the operation.
     // TODO: measure & fix if needed.
-    public static final IFileSystem FILE_SYSTEM =
-            new BlockGuard.WrappedFileSystem(OSFileSystem.getOSFileSystem());
-
     public static final INetworkSystem NETWORK =
             new BlockGuard.WrappedNetworkSystem(OSNetworkSystem.getOSNetworkSystem());
 }

@@ -22,16 +22,9 @@
 
 package org.apache.harmony.security.provider.cert;
 
-import java.security.AccessController;
 import java.security.Provider;
 
-
-/**
- * Master class (provider) for X509 Certificate Factory
- * Implementation.
- */
 public final class DRLCertFactory extends Provider {
-
     /**
      * @serial
      */
@@ -42,22 +35,10 @@ public final class DRLCertFactory extends Provider {
      */
     public DRLCertFactory() {
         // specification of the provider name, version, and description.
-
-        // BEGIN android-changed
-        // Avoid using a message resource string here, since it forces loading
-        // all the messages in a non-error context.
         super("DRLCertFactory", 1.0, "ASN.1, DER, PkiPath, PKCS7");
-        // END android-changed
-
-        AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
-            public Void run() {
-                // register the service
-                put("CertificateFactory.X509",
-                    "org.apache.harmony.security.provider.cert.X509CertFactoryImpl");
-                // mapping the alias
-                put("Alg.Alias.CertificateFactory.X.509", "X509");
-                    return null;
-            }
-        });
+        // register the service
+        put("CertificateFactory.X509", "org.apache.harmony.security.provider.cert.X509CertFactoryImpl");
+        // mapping the alias
+        put("Alg.Alias.CertificateFactory.X.509", "X509");
     }
 }

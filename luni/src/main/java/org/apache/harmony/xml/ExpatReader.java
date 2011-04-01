@@ -53,24 +53,26 @@ public class ExpatReader implements XMLReader {
             = "http://xml.org/sax/properties/lexical-handler";
 
     private static class Feature {
-
         private static final String BASE_URI = "http://xml.org/sax/features/";
-
         private static final String VALIDATION = BASE_URI + "validation";
         private static final String NAMESPACES = BASE_URI + "namespaces";
-        private static final String NAMESPACE_PREFIXES
-                = BASE_URI + "namespace-prefixes";
-        private static final String STRING_INTERNING
-                = BASE_URI + "string-interning";
+        private static final String NAMESPACE_PREFIXES = BASE_URI + "namespace-prefixes";
+        private static final String STRING_INTERNING = BASE_URI + "string-interning";
+        private static final String EXTERNAL_GENERAL_ENTITIES
+                = BASE_URI + "external-general-entities";
+        private static final String EXTERNAL_PARAMETER_ENTITIES
+                = BASE_URI + "external-parameter-entities";
     }
 
     public boolean getFeature(String name)
             throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name == null) {
-            throw new NullPointerException("name");
+            throw new NullPointerException("name == null");
         }
 
-        if (name.equals(Feature.VALIDATION)) {
+        if (name.equals(Feature.VALIDATION)
+                || name.equals(Feature.EXTERNAL_GENERAL_ENTITIES)
+                || name.equals(Feature.EXTERNAL_PARAMETER_ENTITIES)) {
             return false;
         }
 
@@ -92,10 +94,12 @@ public class ExpatReader implements XMLReader {
     public void setFeature(String name, boolean value)
             throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name == null) {
-            throw new NullPointerException("name");
+            throw new NullPointerException("name == null");
         }
 
-        if (name.equals(Feature.VALIDATION)) {
+        if (name.equals(Feature.VALIDATION)
+                || name.equals(Feature.EXTERNAL_GENERAL_ENTITIES)
+                || name.equals(Feature.EXTERNAL_PARAMETER_ENTITIES)) {
             if (value) {
                 throw new SAXNotSupportedException("Cannot enable " + name);
             } else {
@@ -129,7 +133,7 @@ public class ExpatReader implements XMLReader {
     public Object getProperty(String name)
             throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name == null) {
-            throw new NullPointerException("name");
+            throw new NullPointerException("name == null");
         }
 
         if (name.equals(LEXICAL_HANDLER_PROPERTY)) {
@@ -142,7 +146,7 @@ public class ExpatReader implements XMLReader {
     public void setProperty(String name, Object value)
             throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name == null) {
-            throw new NullPointerException("name");
+            throw new NullPointerException("name == null");
         }
 
         if (name.equals(LEXICAL_HANDLER_PROPERTY)) {

@@ -39,7 +39,6 @@ public abstract class IdentityScope extends Identity {
      * Constructs a new instance of {@code IdentityScope}.
      */
     protected IdentityScope() {
-        super();
     }
 
     /**
@@ -81,11 +80,7 @@ public abstract class IdentityScope extends Identity {
          * implementation as fallback, i.e., return null if fails to init an instance.
          */
         if (systemScope == null) {
-            String className = AccessController.doPrivileged(new PrivilegedAction<String>(){
-                public String run() {
-                    return Security.getProperty("system.scope");
-                }
-            });
+            String className = Security.getProperty("system.scope");
             if(className != null){
                 try {
                     systemScope = (IdentityScope) Class.forName(className).newInstance();
@@ -104,10 +99,6 @@ public abstract class IdentityScope extends Identity {
      *            the scope to set.
      */
     protected static void setSystemScope(IdentityScope scope) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setSystemScope");
-        }
         systemScope = scope;
     }
 

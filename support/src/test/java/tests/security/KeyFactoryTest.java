@@ -15,9 +15,6 @@
  */
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -58,28 +55,6 @@ public abstract class KeyFactoryTest<PublicKeySpec extends KeySpec, PrivateKeySp
         return null;
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.ADDITIONAL,
-            method = "getKeySpec",
-            args = {Key.class, Class.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.ADDITIONAL,
-            method = "generatePrivate",
-            args = {KeySpec.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.ADDITIONAL,
-            method = "generatePublic",
-            args = {KeySpec.class}
-        ),
-        @TestTargetNew(
-            level=TestLevel.COMPLETE,
-            method="method",
-            args={}
-        )
-    })
     public void testKeyFactory() {
         PrivateKeySpec privateKeySpec = null;
         try {

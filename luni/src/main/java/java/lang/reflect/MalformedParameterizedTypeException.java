@@ -31,6 +31,5 @@ public class MalformedParameterizedTypeException extends RuntimeException {
      * Constructs a new {@code MalformedParameterizedTypeException} instance.
      */
     public MalformedParameterizedTypeException() {
-        super();
     }
 }

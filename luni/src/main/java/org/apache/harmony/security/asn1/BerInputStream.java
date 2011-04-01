@@ -35,38 +35,42 @@ import java.util.ArrayList;
 
 public class BerInputStream {
 
-    /**
-     * Associated <code>InputStream</code>
-     */
-    protected InputStream in;
-
-    /**
-     * Internal buffer for storing encoded array
-     */
+    private final InputStream in;
     protected byte[] buffer;
 
     /**
      * The position in the buffer.
-     *
      * Next read must place data into the buffer from this offset
      */
     protected int offset = 0;
 
-    // The buffer increment size.
-    // Must be reasonable big to reallocate memory not to often.
-    // Primary is used for decoding indefinite length encoding
+    /**
+     * The buffer increment size.
+     * Must be reasonable big to reallocate memory not to often.
+     * Primary is used for decoding indefinite length encoding
+     */
     private static final int BUF_INCREASE_SIZE = 1024 * 16;
 
-    /**
-     * Indicates indefinite length of the current type
-     */
+    /** Indicates indefinite length of the current type */
     protected static final int INDEFINIT_LENGTH = -1;
+
+    /** Current decoded tag */
+    public int tag;
+
+    /** Current decoded length */
+    protected int length;
+
+    /** Current decoded content */
+    public Object content;
+
+    /** Current decoded tag offset */
+    protected int tagOffset;
+
+    /** Current decoded content offset */
+    protected int contentOffset;
 
     /**
      * Creates stream for decoding.
-     *
-     * @param encoded - bytes array to be decoded
-     * @throws IOException - if an error occurs
      */
     public BerInputStream(byte[] encoded) throws IOException {
         this(encoded, 0, encoded.length);
@@ -75,19 +79,13 @@ public class BerInputStream {
     /**
      * Creates stream for decoding.
      *
-     * @param encoded -
-     *            bytes array to be decoded
-     * @param offset -
-     *            the encoding offset
-     * @param expectedLength -
-     *            expected length of full encoding, this includes identifier,
-     *            length an content octets
-     * @throws IOException -
-     *             if an error occurs
+     * @param encoded bytes array to be decoded
+     * @param offset the encoding offset
+     * @param expectedLength expected length of full encoding, this includes
+     *     identifier, length an content octets
      */
-    public BerInputStream(byte[] encoded, int offset, int expectedLength)
-            throws IOException {
-
+    public BerInputStream(byte[] encoded, int offset, int expectedLength) throws IOException {
+        this.in = null;
         this.buffer = encoded;
         this.offset = offset;
 
@@ -104,8 +102,6 @@ public class BerInputStream {
      * Creates stream for decoding.
      *
      * Allocates initial buffer of default size
-     *
-     * @param is associated <code>InputStream</code>
      */
     public BerInputStream(InputStream in) throws IOException {
         this(in, BUF_INCREASE_SIZE);
@@ -114,13 +110,9 @@ public class BerInputStream {
     /**
      * Creates stream for decoding.
      *
-     * Allocates initial buffer of <code>initialSize</code> size
-     *
      * @param initialSize the internal buffer initial size
-     * @param is associated <code>InputStream</code>
      */
     public BerInputStream(InputStream in, int initialSize) throws IOException {
-
         this.in = in;
         buffer = new byte[initialSize];
 
@@ -143,49 +135,22 @@ public class BerInputStream {
     /**
      * Resets this stream to initial state.
      *
-     * @param encoded - a new bytes array to be decoded
-     * @throws IOException - if an error occurs
+     * @param encoded a new bytes array to be decoded
+     * @throws IOException if an error occurs
      */
     public final void reset(byte[] encoded) throws IOException {
         buffer = encoded;
-
         next();
     }
-
-    /**
-     * Current decoded tag
-     */
-    public int tag;
-
-    /**
-     * Current decoded length
-     */
-    protected int length;
-
-    /**
-     * Current decoded content
-     */
-    public Object content;
-
-    /**
-     * Current decoded tag offset
-     */
-    protected int tagOffset;
-
-    /**
-     * Current decoded content offset
-     */
-    protected int contentOffset;
 
     /**
      * Decodes next encoded type.
      * Initializes tag, length, tagOffset and contentOffset variables
      *
      * @return next decoded tag
-     * @throws IOException - if error occured
+     * @throws IOException if error occured
      */
     public int next() throws IOException {
-
         tagOffset = offset;
 
         // read tag
@@ -242,11 +207,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 bitstring type
-     *
-     * @throws IOException - if error occured
      */
     public void readBitString() throws IOException {
-
         if (tag == ASN1Constants.TAG_BITSTRING) {
 
             if (length == 0) {
@@ -257,11 +219,13 @@ public class BerInputStream {
 
             // content: check unused bits
             if (buffer[contentOffset] > 7) {
-                throw new ASN1Exception("ASN.1 Bitstring: wrong content at [" + contentOffset + "]. A number of unused bits MUST be in range 0 to 7");
+                throw new ASN1Exception("ASN.1 Bitstring: wrong content at [" + contentOffset
+                        + "]. A number of unused bits MUST be in range 0 to 7");
             }
 
             if (length == 1 && buffer[contentOffset] != 0) {
-                throw new ASN1Exception("ASN.1 Bitstring: wrong content at [" + contentOffset + "]. For empty string unused bits MUST be 0");
+                throw new ASN1Exception("ASN.1 Bitstring: wrong content at [" + contentOffset
+                        + "]. For empty string unused bits MUST be 0");
             }
 
         } else if (tag == ASN1Constants.TAG_C_BITSTRING) {
@@ -273,47 +237,38 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Enumerated type
-     *
-     * @throws IOException - if error occured
      */
     public void readEnumerated() throws IOException {
-
         if (tag != ASN1Constants.TAG_ENUM) {
             throw expected("enumerated");
         }
 
-        //
-        // all checks are the same as for ASN.1 integer type
-        //
-
         // check encoded length
         if (length == 0) {
-            throw new ASN1Exception("ASN.1 enumerated: wrong length for identifier at [" + tagOffset + "]");
+            throw new ASN1Exception("ASN.1 enumerated: wrong length for identifier at ["
+                    + tagOffset + "]");
         }
 
         readContent();
 
         // check encoded content
         if (length > 1) {
-
             int bits = buffer[contentOffset] & 0xFF;
             if (buffer[contentOffset + 1] < 0) {
                 bits += 0x100;
             }
 
             if (bits == 0 || bits == 0x1FF) {
-                throw new ASN1Exception("ASN.1 enumerated: wrong content at [" + contentOffset + "]. An integer MUST be encoded in minimum number of octets");
+                throw new ASN1Exception("ASN.1 enumerated: wrong content at [" + contentOffset
+                        + "]. An integer MUST be encoded in minimum number of octets");
             }
         }
     }
 
     /**
      * Decodes ASN.1 boolean type
-     *
-     * @throws IOException - if error occured
      */
     public void readBoolean() throws IOException {
-
         if (tag != ASN1Constants.TAG_BOOLEAN) {
             throw expected("boolean");
         }
@@ -326,25 +281,19 @@ public class BerInputStream {
         readContent();
     }
 
-    /**
-     * The last choice index
-     */
+    /** The last choice index */
     public int choiceIndex;
 
-    /**
-     * Keeps last decoded: year, month, day, hour, minute, second, millisecond
-     */
+    /** Keeps last decoded: year, month, day, hour, minute, second, millisecond */
     public int[] times;
 
     /**
      * Decodes ASN.1 GeneralizedTime type
      *
-     * @throws IOException - if error occured
+     * @throws IOException if error occured
      */
     public void readGeneralizedTime() throws IOException {
-
         if (tag == ASN1Constants.TAG_GENERALIZEDTIME) {
-
             // FIXME: any other optimizations?
             readContent();
             // FIXME store string somewhere to allow a custom time type perform
@@ -357,17 +306,17 @@ public class BerInputStream {
             }
 
             // check syntax: MUST be YYYYMMDDHHMMSS[(./,)DDD]'Z'
-            if (length != 15 && (length < 17 || length > 19)) // invalid
-                                                                // length
-            {
-                throw new ASN1Exception("ASN.1 GeneralizedTime wrongly encoded at [" + contentOffset + "]");
+            if (length != 15 && (length < 17 || length > 19)) {
+                throw new ASN1Exception("ASN.1 GeneralizedTime wrongly encoded at ["
+                        + contentOffset + "]");
             }
 
             // check content: milliseconds
             if (length > 16) {
                 byte char14 = buffer[contentOffset + 14];
                 if (char14 != '.' && char14 != ',') {
-                    throw new ASN1Exception("ASN.1 GeneralizedTime wrongly encoded at [" + contentOffset + "]");
+                    throw new ASN1Exception("ASN.1 GeneralizedTime wrongly encoded at ["
+                            + contentOffset + "]");
                 }
             }
 
@@ -403,12 +352,10 @@ public class BerInputStream {
     /**
      * Decodes ASN.1 UTCTime type
      *
-     * @throws IOException - if an I/O error occurs or the end of the stream is reached
+     * @throws IOException if an I/O error occurs or the end of the stream is reached
      */
     public void readUTCTime() throws IOException {
-
         if (tag == ASN1Constants.TAG_UTCTIME) {
-
             switch (length) {
             case ASN1UTCTime.UTC_HM:
             case ASN1UTCTime.UTC_HMS:
@@ -461,15 +408,10 @@ public class BerInputStream {
         }
     }
 
-    //TODO comment me
     private int strToInt(int off, int count) throws ASN1Exception {
-
-        //FIXME works only with buffer
-
-        int c;
         int result = 0;
         for (int i = off, end = off + count; i < end; i++) {
-            c = buffer[i] - 48;
+            int c = buffer[i] - 48;
             if (c < 0 || c > 9) {
                 throw new ASN1Exception("Time encoding has invalid char");
             }
@@ -480,11 +422,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Integer type
-     *
-     * @throws IOException - if error occured
      */
     public void readInteger() throws IOException {
-
         if (tag != ASN1Constants.TAG_INTEGER) {
             throw expected("integer");
         }
@@ -498,7 +437,6 @@ public class BerInputStream {
 
         // check encoded content
         if (length > 1) {
-
             byte firstByte = buffer[offset - length];
             byte secondByte = (byte) (buffer[offset - length + 1] & 0x80);
 
@@ -511,11 +449,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Octetstring type
-     *
-     * @throws IOException - if error occured
      */
     public void readOctetString() throws IOException {
-
         if (tag == ASN1Constants.TAG_OCTETSTRING) {
             readContent();
         } else if (tag == ASN1Constants.TAG_C_OCTETSTRING) {
@@ -529,16 +464,12 @@ public class BerInputStream {
         throw new ASN1Exception("ASN.1 " + what + " identifier expected at [" + tagOffset + "], got " + Integer.toHexString(tag));
     }
 
-    //FIXME comment me
     public int oidElement;
 
     /**
      * Decodes ASN.1 ObjectIdentifier type
-     *
-     * @throws IOException - if error occured
      */
     public void readOID() throws IOException {
-
         if (tag != ASN1Constants.TAG_OID) {
             throw expected("OID");
         }
@@ -557,18 +488,6 @@ public class BerInputStream {
 
         oidElement = 1;
         for (int i = 0; i < length; i++, ++oidElement) {
-
-            // According to ASN.1 BER spec:
-            //    leading octet of subidentifier MUST not be 0x80
-            // This assertion is not verified
-            //
-            //if (buffer[contentOffset + i] == (byte)0x80) {
-            //    throw new ASN1Exception(
-            //            "Wrong content for ASN.1 object identifier at ["
-            //                    + contentOffset
-            //                    + "]. Subidentifier MUST be encoded in minimum number of octets");
-            //}
-
             while ((buffer[contentOffset + i] & 0x80) == 0x80) {
                 i++;
             }
@@ -577,12 +496,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Sequence type
-     *
-     * @param sequence - ASN.1 sequence to be decoded
-     * @throws IOException - if error occured
      */
     public void readSequence(ASN1Sequence sequence) throws IOException {
-
         if (tag != ASN1Constants.TAG_C_SEQUENCE) {
             throw expected("sequence");
         }
@@ -618,7 +533,6 @@ public class BerInputStream {
             }
 
         } else {
-
             int seqTagOffset = tagOffset; //store tag offset
 
             Object[] values = new Object[type.length];
@@ -661,12 +575,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 SequenceOf type
-     *
-     * @param sequenceOf - ASN.1 sequence to be decoded
-     * @throws IOException - if error occured
      */
     public void readSequenceOf(ASN1SequenceOf sequenceOf) throws IOException {
-
         if (tag != ASN1Constants.TAG_C_SEQUENCEOF) {
             throw expected("sequenceOf");
         }
@@ -676,12 +586,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Set type
-     *
-     * @param set - ASN.1 set to be decoded
-     * @throws IOException - if error occured
      */
     public void readSet(ASN1Set set) throws IOException {
-
         if (tag != ASN1Constants.TAG_C_SET) {
             throw expected("set");
         }
@@ -691,12 +597,8 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 SetOf type
-     *
-     * @param set - ASN.1 set to be decoded
-     * @throws IOException - if error occured
      */
     public void readSetOf(ASN1SetOf setOf) throws IOException {
-
         if (tag != ASN1Constants.TAG_C_SETOF) {
             throw expected("setOf");
         }
@@ -704,9 +606,7 @@ public class BerInputStream {
         decodeValueCollection(setOf);
     }
 
-    private final void decodeValueCollection(ASN1ValueCollection collection)
-            throws IOException {
-
+    private void decodeValueCollection(ASN1ValueCollection collection) throws IOException {
         int begOffset = offset;
         int endOffset = begOffset + length;
 
@@ -718,15 +618,15 @@ public class BerInputStream {
                 type.decode(this);
             }
         } else {
-
             int seqTagOffset = tagOffset; //store tag offset
 
-            ArrayList values = new ArrayList();
+            ArrayList<Object> values = new ArrayList<Object>();
             while (endOffset > offset) {
                 next();
                 values.add(type.decode(this));
             }
 
+            values.trimToSize();
             content = values;
 
             tagOffset = seqTagOffset; //retrieve tag offset
@@ -740,11 +640,9 @@ public class BerInputStream {
     /**
      * Decodes ASN.1 String type
      *
-     * @throws IOException - if an I/O error occurs or the end of the stream is reached
+     * @throws IOException if an I/O error occurs or the end of the stream is reached
      */
     public void readString(ASN1StringType type) throws IOException {
-
-        //FIXME check string content
         if (tag == type.id) {
             readContent();
         } else if (tag == type.constrId) {
@@ -767,8 +665,6 @@ public class BerInputStream {
 
     /**
      * Returns internal buffer used for decoding
-     *
-     * @return - buffer
      */
     public final byte[] getBuffer() {
         return buffer;
@@ -776,8 +672,6 @@ public class BerInputStream {
 
     /**
      * Returns length of the current content for decoding
-     *
-     * @return - length of content
      */
     public final int getLength() {
         return length;
@@ -785,8 +679,6 @@ public class BerInputStream {
 
     /**
      * Returns the current offset
-     *
-     * @return - offset
      */
     public final int getOffset() {
         return offset;
@@ -794,8 +686,6 @@ public class BerInputStream {
 
     /**
      * Returns end offset for the current encoded type
-     *
-     * @return - offset
      */
     public final int getEndOffset() {
         return offset + length;
@@ -803,15 +693,9 @@ public class BerInputStream {
 
     /**
      * Returns start offset for the current encoded type
-     *
-     * @return - offset
      */
     public final int getTagOffset() {
         return tagOffset;
-    }
-
-    public final int getContentOffset() {
-        return contentOffset;
     }
 
     /**
@@ -845,12 +729,8 @@ public class BerInputStream {
 
     /**
      * Reads the next encoded byte from the encoded input stream.
-     *
-     * @return the next encoded byte
-     * @throws IOException - if error occured
      */
     protected int read() throws IOException {
-
         if (offset == buffer.length) {
             throw new ASN1Exception("Unexpected end of encoding");
         }
@@ -872,8 +752,6 @@ public class BerInputStream {
     /**
      * Reads the next encoded content from the encoded input stream.
      * The method MUST be used for reading a primitive encoded content.
-     *
-     * @throws IOException - if error occured
      */
     public void readContent() throws IOException {
         if (offset + length > buffer.length) {
@@ -902,16 +780,6 @@ public class BerInputStream {
         }
     }
 
-    //    // reallocates internal buffer for indefined reading mode
-    //    private void reallocateBuffer(int n) {
-    //        int newSize;
-    //        for (newSize = buffer.length * 2; newSize < buffer.length + n; newSize = newSize * 2)
-    //            ;
-    //        byte[] newBuffer = new byte[newSize];
-    //        System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
-    //        buffer = newBuffer;
-    //    }
-
     /**
      * Reallocates the buffer in order to make it
      * exactly the size of data it contains
@@ -925,17 +793,9 @@ public class BerInputStream {
             buffer = newBuffer;
         }
     }
-
-    //
-    //
-    //
-    //
-    //
-
     private Object[][] pool;
 
     public void put(Object key, Object entry) {
-
         if (pool == null) {
             pool = new Object[2][10];
         }
@@ -960,7 +820,6 @@ public class BerInputStream {
     }
 
     public Object get(Object key) {
-
         if (pool == null) {
             return null;
         }

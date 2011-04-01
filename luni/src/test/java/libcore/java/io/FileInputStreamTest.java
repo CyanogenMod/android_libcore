@@ -18,22 +18,16 @@ package libcore.java.io;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import junit.framework.TestCase;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 
 public final class FileInputStreamTest extends TestCase {
     private static final int TOTAL_SIZE = 1024;
     private static final int SKIP_SIZE = 100;
-
-    private static void createPipes(FileDescriptor pipe[]) throws IOException {
-        int fds[] = new int[2];
-        IoUtils.pipe(fds);
-        pipe[0] = IoUtils.newFileDescriptor(fds[0]);
-        pipe[1] = IoUtils.newFileDescriptor(fds[1]);
-    }
 
     private static class DataFeeder extends Thread {
         private FileDescriptor mOutFd;
@@ -62,8 +56,7 @@ public final class FileInputStreamTest extends TestCase {
         }
     }
 
-    private void verifyData(FileInputStream is, int start, int count)
-            throws IOException {
+    private void verifyData(FileInputStream is, int start, int count) throws IOException {
         byte buffer[] = new byte[count];
         assertEquals(count, is.read(buffer));
         for (int i = 0; i < count; ++i) {
@@ -71,15 +64,8 @@ public final class FileInputStreamTest extends TestCase {
         }
     }
 
-    private static void closeQuietly(FileDescriptor fd) {
-        try {
-            if (fd != null) IoUtils.close(fd);
-        } catch (Throwable t) {}
-    }
-
     public void testSkipInPipes() throws Exception {
-        FileDescriptor pipe[] = new FileDescriptor[2];
-        createPipes(pipe);
+        FileDescriptor[] pipe = Libcore.os.pipe();
         DataFeeder feeder = new DataFeeder(pipe[1]);
         try {
             feeder.start();
@@ -90,7 +76,15 @@ public final class FileInputStreamTest extends TestCase {
             feeder.join(1000);
             assertFalse(feeder.isAlive());
         } finally {
-            closeQuietly(pipe[0]);
+            IoUtils.closeQuietly(pipe[0]);
+        }
+    }
+
+    public void testDirectories() throws Exception {
+        try {
+            new FileInputStream(".");
+            fail();
+        } catch (FileNotFoundException expected) {
         }
     }
 }

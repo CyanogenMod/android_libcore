@@ -23,10 +23,10 @@
 package org.apache.harmony.security.x501;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
@@ -40,22 +40,22 @@ import org.apache.harmony.security.x509.DNParser;
 /**
  * X.501 Name
  */
-public class Name {
+public final class Name {
 
-    //ASN.1 DER encoding of Name
+    /** ASN.1 DER encoding of Name */
     private volatile byte[] encoded;
 
-    // RFC1779 string
+    /** RFC1779 string */
     private String rfc1779String;
 
-    // RFC2253 string
+    /** RFC2253 string */
     private String rfc2253String;
 
-    //CANONICAL string
+    /** CANONICAL string */
     private String canonicalString;
 
-    //Collection of RDNs
-    private List rdn;
+    /** Collection of RDNs */
+    private List<List<AttributeTypeAndValue>> rdn;
 
     /**
      * Creates new <code>Name</code> instance from its DER encoding
@@ -64,7 +64,6 @@ public class Name {
      * @throws IOException - if encoding is wrong
      */
     public Name(byte[] encoding) throws IOException {
-
         DerInputStream in = new DerInputStream(encoding);
 
         if (in.getEndOffset() != encoding.length) {
@@ -73,7 +72,7 @@ public class Name {
 
         ASN1.decode(in);
 
-        this.rdn = (List) in.content;
+        this.rdn = (List<List<AttributeTypeAndValue>>) in.content;
     }
 
     /**
@@ -86,8 +85,7 @@ public class Name {
         rdn = new DNParser(name).parse();
     }
 
-    // Creates Name instance
-    private Name(List rdn) {
+    private Name(List<List<AttributeTypeAndValue>> rdn) {
         this.rdn = rdn;
     }
 
@@ -105,13 +103,10 @@ public class Name {
      * Returns Relative Distinguished Name as <code>String</code> according
      * the format requested
      *
-     * @param format
-     *            Name format requested
-     * @return Relative Distinguished Name as <code>String</code> according
-     *         the format requested
+     * @param format one of X500Principal.CANONICAL, X500Principal.RFC1779, or
+     *     X500Principal.RFC2253, case insensitive
      */
     public String getName(String format) {
-
         //
         // check X500Principal constants first
         //
@@ -169,31 +164,24 @@ public class Name {
     /**
      * Returns Relative Distinguished Name as <code>String</code> according
      * the format requested, format is int value
-     *
-     * @param format
-     *            Name format requested
-     * @return Relative Distinguished Name as <code>String</code> according
-     *         the format requested
      */
     private String getName0(String format) {
-
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
 
         // starting with the last element and moving to the first.
         for (int i = rdn.size() - 1; i >= 0; i--) {
-            List atavList = (List) rdn.get(i);
+            List<AttributeTypeAndValue> atavList = rdn.get(i);
 
             if (X500Principal.CANONICAL == format) {
-                List sortedList = new LinkedList(atavList);
-                Collections.sort(sortedList, new AttributeTypeAndValueComparator());
-                atavList = sortedList;
+                atavList = new ArrayList<AttributeTypeAndValue>(atavList);
+                Collections.sort(atavList, new AttributeTypeAndValueComparator());
             }
 
             // Relative Distinguished Name to string
-            Iterator it = atavList.iterator();
+            Iterator<AttributeTypeAndValue> it = atavList.iterator();
             while (it.hasNext()) {
-                AttributeTypeAndValue _ava = (AttributeTypeAndValue) it.next();
-                _ava.appendName(format, name);
+                AttributeTypeAndValue attributeTypeAndValue = it.next();
+                attributeTypeAndValue.appendName(format, name);
                 if (it.hasNext()) {
                     // multi-valued RDN
                     if (X500Principal.RFC1779 == format) {
@@ -244,18 +232,17 @@ public class Name {
      *     SET OF AttributeTypeAndValue
      *
      */
-
     public static final ASN1SetOf ASN1_RDN = new ASN1SetOf(
             AttributeTypeAndValue.ASN1);
 
     public static final ASN1SequenceOf ASN1 = new ASN1SequenceOf(ASN1_RDN) {
 
         public Object getDecodedObject(BerInputStream in) {
-            return new Name((List) in.content);
+            return new Name((List<List<AttributeTypeAndValue>>) in.content);
         }
 
         public Collection getValues(Object object) {
-            return ((Name) object).rdn; //FIXME what about get method?
+            return ((Name) object).rdn;
         }
     };
 }

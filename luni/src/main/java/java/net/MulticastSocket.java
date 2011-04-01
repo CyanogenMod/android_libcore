@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 
 /**
  * This class implements a multicast socket for sending and receiving IP
@@ -41,7 +40,6 @@ public class MulticastSocket extends DatagramSocket {
      *             if an error occurs creating or binding the socket.
      */
     public MulticastSocket() throws IOException {
-        super();
         setReuseAddress(true);
     }
 
@@ -204,8 +202,6 @@ public class MulticastSocket extends DatagramSocket {
      *            received.
      * @throws IOException
      *                if the specified address is not a multicast address.
-     * @throws SecurityException
-     *                if the caller is not authorized to join the group.
      * @throws IllegalArgumentException
      *                if no multicast group is specified.
      * @since 1.4
@@ -224,8 +220,6 @@ public class MulticastSocket extends DatagramSocket {
      *                if {@code groupAddr} is {@code null}.
      * @throws IOException
      *                if the specified group address is not a multicast address.
-     * @throws SecurityException
-     *                if the caller is not authorized to leave the group.
      */
     public void leaveGroup(InetAddress groupAddr) throws IOException {
         checkJoinOrLeave(groupAddr);
@@ -242,8 +236,6 @@ public class MulticastSocket extends DatagramSocket {
      *            dropped.
      * @throws IOException
      *                if the specified group address is not a multicast address.
-     * @throws SecurityException
-     *                if the caller is not authorized to leave the group.
      * @throws IllegalArgumentException
      *                if {@code groupAddress} is {@code null}.
      * @since 1.4
@@ -276,20 +268,12 @@ public class MulticastSocket extends DatagramSocket {
         if (!groupAddr.isMulticastAddress()) {
             throw new IOException("Not a multicast group: " + groupAddr);
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkMulticast(groupAddr);
-        }
     }
 
     private void checkJoinOrLeave(InetAddress groupAddr) throws IOException {
         checkClosedAndBind(false);
         if (!groupAddr.isMulticastAddress()) {
             throw new IOException("Not a multicast group: " + groupAddr);
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkMulticast(groupAddr);
         }
     }
 
@@ -310,14 +294,6 @@ public class MulticastSocket extends DatagramSocket {
     public void send(DatagramPacket pack, byte ttl) throws IOException {
         checkClosedAndBind(false);
         InetAddress packAddr = pack.getAddress();
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            if (packAddr.isMulticastAddress()) {
-                security.checkMulticast(packAddr, ttl);
-            } else {
-                security.checkConnect(packAddr.getHostName(), pack.getPort());
-            }
-        }
         int currTTL = getTimeToLive();
         if (packAddr.isMulticastAddress() && (byte) currTTL != ttl) {
             try {

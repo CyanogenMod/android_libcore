@@ -121,11 +121,8 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      *             if another thread interrupts the calling thread while the
      *             operation is in progress. The calling thread will have the
      *             interrupt state set and the channel will be closed.
-     * @throws SecurityException
-     *             if there is a security manager, and the address is not
-     *             permitted to be accessed.
      * @throws IOException
-     *             if some other I/O error occurrs.
+     *             if some other I/O error occurs.
      */
     public abstract DatagramChannel connect(SocketAddress address)
             throws IOException;
@@ -175,9 +172,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      *             if another thread interrupts the calling thread while the
      *             operation is in progress. The calling thread will have the
      *             interrupt state set and the channel will be closed.
-     * @throws SecurityException
-     *             if there is a security manager, and the address is not
-     *             permitted to be accessed.
      * @throws IOException
      *             some other I/O error occurs.
      */
@@ -216,14 +210,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      *             if another thread interrupts the calling thread while the
      *             operation is in progress. The calling thread will have the
      *             interrupt state set and the channel will be closed.
-     * @throws SecurityException
-     *             if there is a security manager, and the address is not
-     *             permitted to access.
      * @throws IOException
      *             some other I/O error occurs.
      */
-    public abstract int send(ByteBuffer source, SocketAddress address)
-            throws IOException;
+    public abstract int send(ByteBuffer source, SocketAddress address) throws IOException;
 
     /**
      * Reads a datagram from this channel into the byte buffer.

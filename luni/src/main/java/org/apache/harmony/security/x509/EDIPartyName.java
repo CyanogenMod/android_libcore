@@ -51,56 +51,22 @@ import org.apache.harmony.security.x501.DirectoryString;
  *   }
  * </pre>
  */
-public class EDIPartyName {
-    // the value of nameAssigner field of the structure
-    private String nameAssigner;
-    // the value of partyName field of the structure
-    private String partyName;
-    // the ASN.1 encoded form of EDIPartyName
+public final class EDIPartyName {
+    /** the value of nameAssigner field of the structure */
+    private final String nameAssigner;
+    /** the value of partyName field of the structure */
+    private final String partyName;
+    /** the ASN.1 encoded form of EDIPartyName */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   nameAssigner:   String
-     * @param   partyName:  String
-     */
-    public EDIPartyName(String nameAssigner, String partyName) {
-        this.nameAssigner = nameAssigner;
-        this.partyName = partyName;
-    }
-
-    //
-    // TODO
-    // @param   nameAssigner:   String
-    // @param   partyName:  String
-    // @param   encoding:   byte[]
-    //
-    private EDIPartyName(String nameAssigner, String partyName,
-                         byte[] encoding) {
+    private EDIPartyName(String nameAssigner, String partyName, byte[] encoding) {
         this.nameAssigner = nameAssigner;
         this.partyName = partyName;
         this.encoding = encoding;
     }
 
     /**
-     * Returns the value of nameAssigner field of the structure.
-     * @return  nameAssigner
-     */
-    public String getNameAssigner() {
-        return nameAssigner;
-    }
-
-    /**
-     * Returns the value of partyName field of the structure.
-     * @return  partyName
-     */
-    public String getPartyName() {
-        return partyName;
-    }
-
-    /**
      * Returns ASN.1 encoded form of this X.509 EDIPartyName value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -121,13 +87,13 @@ public class EDIPartyName {
             setOptional(0);
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new EDIPartyName((String) values[0], (String) values[1],
                     in.getEncoded());
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             EDIPartyName epn = (EDIPartyName) object;
             values[0] = epn.nameAssigner;
             values[1] = epn.partyName;

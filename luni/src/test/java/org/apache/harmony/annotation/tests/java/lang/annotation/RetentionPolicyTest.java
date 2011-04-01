@@ -22,22 +22,11 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-/**
- * Test case of java.lang.annotation.RetentionPolicy
- */
 public class RetentionPolicyTest extends TestCase {
-    /**
-     * @throws Exception
-     * @tests java.lang.annotation.RetentionPolicy#valueOf(String)
-     */
-    @SuppressWarnings("nls")
     public void test_valueOfLjava_lang_String() throws Exception {
-        assertSame(RetentionPolicy.CLASS, RetentionPolicy
-                .valueOf("CLASS"));
-        assertSame(RetentionPolicy.RUNTIME, RetentionPolicy
-                .valueOf("RUNTIME"));
-        assertSame(RetentionPolicy.SOURCE, RetentionPolicy
-                .valueOf("SOURCE"));
+        assertSame(RetentionPolicy.CLASS, RetentionPolicy.valueOf("CLASS"));
+        assertSame(RetentionPolicy.RUNTIME, RetentionPolicy.valueOf("RUNTIME"));
+        assertSame(RetentionPolicy.SOURCE, RetentionPolicy.valueOf("SOURCE"));
         try {
             RetentionPolicy.valueOf("OTHER");
             fail("Should throw an IllegalArgumentException");
@@ -46,11 +35,6 @@ public class RetentionPolicyTest extends TestCase {
         }
     }
 
-    /**
-     * @throws Exception
-     * @tests java.lang.annotation.RetentionPolicy#values()
-     */
-    @SuppressWarnings("nls")
     public void test_values() throws Exception {
         RetentionPolicy[] values = RetentionPolicy.values();
         assertTrue(values.length > 1);

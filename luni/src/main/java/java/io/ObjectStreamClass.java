@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
-import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -33,9 +32,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
+import libcore.io.Memory;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.OSMemory;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Represents a descriptor for identifying a class during serialization and
@@ -221,7 +219,6 @@ public class ObjectStreamClass implements Serializable {
      * Constructs a new instance of this class.
      */
     ObjectStreamClass() {
-        super();
     }
 
     /**
@@ -333,7 +330,7 @@ public class ObjectStreamClass implements Serializable {
         if (!useReflectFields) {
             // The user declared a collection of emulated fields. Use them.
             // We have to be able to fetch its value, even if it is private
-            AccessController.doPrivileged(new PriviAction<Object>(f));
+            f.setAccessible(true);
             try {
                 // static field, pass null
                 _fields = (ObjectStreamField[]) f.get(null);
@@ -395,7 +392,7 @@ public class ObjectStreamClass implements Serializable {
          */
         for (int i = 0; i < fields.length; i++) {
             final Field field = fields[i];
-            if (Long.TYPE == field.getType()) {
+            if (field.getType() == long.class) {
                 int modifiers = field.getModifiers();
                 if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
                     if (UID_FIELD_NAME.equals(field.getName())) {
@@ -404,8 +401,7 @@ public class ObjectStreamClass implements Serializable {
                          * visibility. That is why we set accessible first (new
                          * API in reflect 1.2)
                          */
-                        AccessController.doPrivileged(new PriviAction<Object>(
-                                field));
+                        field.setAccessible(true);
                         try {
                             // Static field, parameter is ignored
                             return field.getLong(null);
@@ -586,7 +582,7 @@ public class ObjectStreamClass implements Serializable {
 
         // now compute the UID based on the SHA
         byte[] hash = digest.digest(sha.toByteArray());
-        return OSMemory.peekLong(hash, 0, ByteOrder.LITTLE_ENDIAN);
+        return Memory.peekLong(hash, 0, ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
@@ -1139,7 +1135,7 @@ public class ObjectStreamClass implements Serializable {
             Class<?>[] param) {
         try {
             Method method = cl.getDeclaredMethod(methodName, param);
-            if (Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == Void.TYPE) {
+            if (Modifier.isPrivate(method.getModifiers()) && method.getReturnType() == void.class) {
                 method.setAccessible(true);
                 return method;
             }
@@ -1279,19 +1275,19 @@ public class ObjectStreamClass implements Serializable {
     }
 
     private int primitiveSize(Class<?> type) {
-        if (type == Byte.TYPE || type == Boolean.TYPE) {
+        if (type == byte.class || type == boolean.class) {
             return 1;
         }
-        if (type == Short.TYPE || type == Character.TYPE) {
+        if (type == short.class || type == char.class) {
             return 2;
         }
-        if (type == Integer.TYPE || type == Float.TYPE) {
+        if (type == int.class || type == float.class) {
             return 4;
         }
-        if (type == Long.TYPE || type == Double.TYPE) {
+        if (type == long.class || type == double.class) {
             return 8;
         }
-        return 0;
+        throw new AssertionError();
     }
 
     /**

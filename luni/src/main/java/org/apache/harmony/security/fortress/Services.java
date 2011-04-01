@@ -22,15 +22,13 @@
 
 package org.apache.harmony.security.fortress;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import org.apache.harmony.security.Util;
 
 
 /**
@@ -42,16 +40,14 @@ import org.apache.harmony.security.Util;
 public class Services {
 
     // The HashMap that contains information about preferred implementations for
-    // all serviceName.algName in the registered providers
-    // BEGIN android-changed
-    // set the initial size to 600 so we don't grow to 1024 by default because
+    // all serviceName.algName in the registered providers.
+    // Set the initial size to 600 so we don't grow to 1024 by default because
     // initialization adds a few entries more than the growth threshold.
     private static final Map<String, Provider.Service> services
             = new HashMap<String, Provider.Service>(600);
-    // save default SecureRandom service as well.
-    // avoids similar provider/services iteration in SecureRandom constructor
+    // Save default SecureRandom service as well.
+    // Avoids similar provider/services iteration in SecureRandom constructor
     private static Provider.Service secureRandom;
-    // END android-changed
 
     // Need refresh flag
     private static boolean needRefresh; // = false;
@@ -66,14 +62,8 @@ public class Services {
 
     // Hash for quick provider access by name
     private static final Map<String, Provider> providersNames = new HashMap<String, Provider>(20);
-
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                loadProviders();
-                return null;
-            }
-        });
+        loadProviders();
     }
 
     // Load statically registered providers and init Services Info
@@ -167,23 +157,17 @@ public class Services {
      * @param p
      */
     public static void initServiceInfo(Provider p) {
-        StringBuilder sb = new StringBuilder(128);
-
         for (Provider.Service serv : p.getServices()) {
             String type = serv.getType();
             if (secureRandom == null && type.equals("SecureRandom")) {
                 secureRandom = serv;
             }
-            sb.delete(0, sb.length());
-            String key = sb.append(type).append(".").append(
-                    Util.toUpperCase(serv.getAlgorithm())).toString();
+            String key = type + "." + serv.getAlgorithm().toUpperCase(Locale.US);
             if (!services.containsKey(key)) {
                 services.put(key, serv);
             }
             for (String alias : Engine.door.getAliases(serv)) {
-                sb.delete(0, sb.length());
-                key = sb.append(type).append(".").append(Util.toUpperCase(alias))
-                        .toString();
+                key = type + "." + alias.toUpperCase(Locale.US);
                 if (!services.containsKey(key)) {
                     services.put(key, serv);
                 }

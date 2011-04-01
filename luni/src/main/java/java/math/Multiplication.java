@@ -79,8 +79,7 @@ class Multiplication {
         }
     }
 
-    // BEGIN android-note
-    // The method multiply has been removed in favor of using OpenSSL BIGNUM
+    // BEGIN android-note: multiply has been removed in favor of using OpenSSL BIGNUM
     // END android-note
 
     /**

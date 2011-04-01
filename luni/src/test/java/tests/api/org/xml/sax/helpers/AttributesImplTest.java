@@ -21,11 +21,6 @@ import junit.framework.TestCase;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
-@TestTargetClass(AttributesImpl.class)
 public class AttributesImplTest extends TestCase {
 
     private AttributesImpl empty = new AttributesImpl();
@@ -45,21 +40,11 @@ public class AttributesImplTest extends TestCase {
         multi.addAttribute("", "", "gabba:hey", "string", "1-2-3-4");
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "AttributesImpl",
-        args = { }
-    )
     public void testAttributesImpl() {
         assertEquals(0, empty.getLength());
         assertEquals(5, multi.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "AttributesImpl",
-        args = { Attributes.class }
-    )
     public void testAttributesImplAttributes() {
         // Ordinary case
         AttributesImpl ai = new AttributesImpl(empty);
@@ -79,11 +64,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getLength",
-        args = { }
-    )
     public void testGetLength() {
         AttributesImpl ai = new AttributesImpl(empty);
         assertEquals(0, ai.getLength());
@@ -97,11 +77,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getURI",
-        args = { int.class }
-    )
     public void testGetURI() {
         // Ordinary cases
         assertEquals("http://some.uri", multi.getURI(0));
@@ -115,11 +90,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getURI(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getLocalName",
-        args = { int.class }
-    )
     public void testGetLocalName() {
         // Ordinary cases
         assertEquals("foo", multi.getLocalName(0));
@@ -133,11 +103,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getLocalName(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getQName",
-        args = { int.class }
-    )
     public void testGetQName() {
         // Ordinary cases
         assertEquals("ns1:foo", multi.getQName(0));
@@ -151,11 +116,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getQName(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = { int.class }
-    )
     public void testGetTypeInt() {
         // Ordinary cases
         assertEquals("string", multi.getType(0));
@@ -169,11 +129,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getType(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getValue",
-        args = { int.class }
-    )
     public void testGetValueInt() {
         // Ordinary cases
         assertEquals("abc", multi.getValue(0));
@@ -187,11 +142,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getValue(5));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getIndex",
-        args = { String.class, String.class }
-    )
     public void testGetIndexStringString() {
         // Ordinary cases
         assertEquals(0, multi.getIndex("http://some.uri", "foo"));
@@ -206,11 +156,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(-1, multi.getIndex(null, "foo"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getIndex",
-        args = { String.class }
-    )
     public void testGetIndexString() {
         // Ordinary cases
         assertEquals(0, multi.getIndex("ns1:foo"));
@@ -225,11 +170,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(-1, multi.getIndex(null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = { String.class, String.class }
-    )
     public void testGetTypeStringString() {
         // Ordinary cases
         assertEquals("string", multi.getType("http://some.uri", "foo"));
@@ -244,11 +184,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getType(null, "foo"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getType",
-        args = { String.class }
-    )
     public void testGetTypeString() {
         // Ordinary cases
         assertEquals("string", multi.getType("ns1:foo"));
@@ -263,11 +198,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getType(null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getValue",
-        args = { String.class, String.class }
-    )
     public void testGetValueStringString() {
         // Ordinary cases
         assertEquals("abc", multi.getValue("http://some.uri", "foo"));
@@ -282,11 +212,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getValue(null, "foo"));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getValue",
-        args = { String.class }
-    )
     public void testGetValueString() {
         // Ordinary cases
         assertEquals("abc", multi.getValue("ns1:foo"));
@@ -301,22 +226,12 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getValue(null));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "clear",
-        args = { }
-    )
     public void testClear() {
         assertEquals(5, multi.getLength());
         multi.clear();
         assertEquals(0, multi.getLength());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setAttributes",
-        args = { Attributes.class }
-    )
     public void testSetAttributes() {
         // Ordinary cases
         AttributesImpl attrs = new AttributesImpl();
@@ -347,12 +262,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "addAttribute",
-        args = { String.class, String.class, String.class, String.class,
-                 String.class }
-    )
     public void testAddAttribute() {
         // Ordinary case
         multi.addAttribute("http://yet.another.uri", "doe", "john:doe",
@@ -383,12 +292,6 @@ public class AttributesImplTest extends TestCase {
         assertEquals(null, multi.getValue(7));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setAttribute",
-        args = { int.class, String.class, String.class, String.class,
-                 String.class, String.class }
-    )
     public void testSetAttribute() {
         // Ordinary case
         multi.setAttribute(0, "http://yet.another.uri", "doe", "john:doe",
@@ -425,11 +328,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "removeAttribute",
-        args = { int.class }
-    )
     public void testRemoveAttribute() {
         // Ordinary case
         multi.removeAttribute(0);
@@ -455,11 +353,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setURI",
-        args = { int.class, String.class }
-    )
     public void testSetURI() {
         // Ordinary case
         multi.setURI(0, "http://yet.another.uri");
@@ -485,11 +378,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setLocalName",
-        args = { int.class, String.class }
-    )
     public void testSetLocalName() {
         // Ordinary case
         multi.setLocalName(0, "john");
@@ -515,11 +403,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setQName",
-        args = { int.class, String.class }
-    )
     public void testSetQName() {
         // Ordinary case
         multi.setQName(0, "john:doe");
@@ -545,11 +428,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setType",
-        args = { int.class, String.class }
-    )
     public void testSetType() {
         // Ordinary case
         multi.setType(0, "float");
@@ -575,11 +453,6 @@ public class AttributesImplTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setValue",
-        args = { int.class, String.class }
-    )
     public void testSetValue() {
         // Ordinary case
         multi.setValue(0, "too much");

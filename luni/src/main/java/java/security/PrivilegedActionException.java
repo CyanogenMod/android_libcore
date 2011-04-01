@@ -18,21 +18,7 @@
 package java.security;
 
 /**
- * {@code PrivilegedActionException} wraps exceptions which are thrown from
- * within privileged operations.
- * <p>
- * Privileged actions which can throw exceptions are of type {@code
- * PrivilegedExceptionAction} and are thrown by
- * <ul>
- * {@code AccessController#doPrivileged(PrivilegedExceptionAction)}<br>
- * {@code AccessController#doPrivileged(PrivilegedExceptionAction,
- * AccessControlContext)} </br>
- * </ul>
- *
- * @see PrivilegedExceptionAction
- * @see AccessController#doPrivileged(PrivilegedExceptionAction)
- * @see AccessController#doPrivileged(PrivilegedExceptionAction,
- *      AccessControlContext)
+ * Legacy security code; this class exists for compatibility only.
  */
 public class PrivilegedActionException extends Exception {
 

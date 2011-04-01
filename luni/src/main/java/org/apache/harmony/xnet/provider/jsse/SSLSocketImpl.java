@@ -48,10 +48,10 @@ public class SSLSocketImpl extends SSLSocket {
     // alert protocol to be used
     private AlertProtocol alertProtocol;
     // application data input stream, this stream is presented by
-    // ssl socket as an input stream. Additionaly this object is a
+    // ssl socket as an input stream. Additionally this object is a
     // place where application data will be stored by record protocol
     private SSLSocketInputStream appDataIS;
-    // outcoming application data stream
+    // outgoing application data stream
     private SSLSocketOutputStream appDataOS;
     // active session object
     private SSLSessionImpl session;
@@ -82,7 +82,6 @@ public class SSLSocketImpl extends SSLSocket {
      * for more information.
      */
     protected SSLSocketImpl(SSLParametersImpl sslParameters) {
-        super();
         this.sslParameters = sslParameters;
         // init should be called after creation!
     }
@@ -450,9 +449,6 @@ public class SSLSocketImpl extends SSLSocket {
         }
     }
 
-
-    // ---------------- Socket's methods overridings -------------------
-
     /**
      * This method works according to the specification of implemented class.
      * @see javax.net.ssl.SSLSocket#getInputStream()
@@ -550,8 +546,7 @@ public class SSLSocketImpl extends SSLSocket {
      */
     @Override
     public void shutdownOutput() {
-        throw new UnsupportedOperationException(
-                "Method shutdownOutput() is not supported.");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -559,21 +554,11 @@ public class SSLSocketImpl extends SSLSocket {
      */
     @Override
     public void shutdownInput() {
-        throw new UnsupportedOperationException(
-                "Method shutdownInput() is not supported.");
-    }
-
-    /**
-     * Returns the string representation of the object.
-     */
-    @Override
-    public String toString() {
-        return "[SSLSocketImpl]";
+        throw new UnsupportedOperationException();
     }
 
     // -----------------------------------------------------------------
 
-    // Shutdownes the ssl socket and makes all cleanup work.
     private void shutdown() {
         if (handshake_started) {
             alertProtocol.shutdown();
@@ -588,7 +573,7 @@ public class SSLSocketImpl extends SSLSocket {
 
     /**
      * This method is called by SSLSocketInputStream class
-     * when client application tryes to read application data from
+     * when client application tries to read application data from
      * the stream, but there is no data in its underlying buffer.
      * @throws  IOException
      */
@@ -635,7 +620,7 @@ public class SSLSocketImpl extends SSLSocket {
                                     + type + " has been got"));
                 }
                 if (alertProtocol.hasAlert()) {
-                    // warning alert occured during wrap or unwrap
+                    // warning alert occurred during wrap or unwrap
                     // (note: fatal alert causes AlertException
                     // to be thrown)
                     output.write(alertProtocol.wrap());
@@ -660,11 +645,10 @@ public class SSLSocketImpl extends SSLSocket {
     }
 
     /**
-     * This method is called by SSLSocketOutputStream when client application
-     * tryes to send the data over ssl protocol.
+     * This method is called by SSLSocketOutputStream when a client application
+     * tries to send the data over ssl protocol.
      */
-    protected void writeAppData(byte[] data, int offset, int len)
-                                                    throws IOException {
+    protected void writeAppData(byte[] data, int offset, int len) throws IOException {
         if (!handshake_started) {
             startHandshake();
         }
@@ -698,14 +682,14 @@ public class SSLSocketImpl extends SSLSocket {
     }
 
     /*
-     * Performs handshake proccess over this connection. The handshake
+     * Performs handshake process over this connection. The handshake
      * process is directed by the handshake status code provided by
      * handshake protocol. If this status is NEED_WRAP, method retrieves
      * handshake message from handshake protocol and sends it to another peer.
      * If this status is NEED_UNWRAP, method receives and processes handshake
      * message from another peer. Each of this stages (wrap/unwrap) change
      * the state of handshake protocol and this process is performed
-     * until handshake status is FINISHED. After handshake process is finnished
+     * until handshake status is FINISHED. After handshake process is finished
      * handshake completed event are sent to the registered listeners.
      * For more information about the handshake process see
      * TLS v1 specification (http://www.ietf.org/rfc/rfc2246.txt) p 7.3.
@@ -766,7 +750,7 @@ public class SSLSocketImpl extends SSLSocket {
                             "Handshake passed unexpected status: "+status));
                 }
                 if (alertProtocol.hasAlert()) {
-                    // warning alert uccured during wrap or unwrap
+                    // warning alert occurred during wrap or unwrap
                     // (note: fatal alert causes AlertException
                     // to be thrown)
                     output.write(alertProtocol.wrap());
@@ -840,4 +824,3 @@ public class SSLSocketImpl extends SSLSocket {
         throw reason;
     }
 }
-

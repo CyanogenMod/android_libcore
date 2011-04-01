@@ -142,20 +142,10 @@ public abstract class InputStream extends Object implements Closeable {
     public abstract int read() throws IOException;
 
     /**
-     * Reads bytes from this stream and stores them in the byte array {@code b}.
-     *
-     * @param b
-     *            the byte array in which to store the bytes read.
-     * @return the number of bytes actually read or -1 if the end of the stream
-     *         has been reached.
-     * @throws IOException
-     *             if this stream is closed or another IOException occurs.
+     * Equivalent to {@code read(buffer, 0, buffer.length)}.
      */
-    public int read(byte[] b) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        return read(b, 0, b.length);
+    public int read(byte[] buffer) throws IOException {
+        return read(buffer, 0, buffer.length);
     }
 
     /**

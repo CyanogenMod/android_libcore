@@ -50,7 +50,6 @@ public class DatatypeConfigurationException extends Exception {
      */
 
     public DatatypeConfigurationException() {
-        super();
     }
 
     /**

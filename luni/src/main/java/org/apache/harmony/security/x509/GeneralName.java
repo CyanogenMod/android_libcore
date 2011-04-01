@@ -23,13 +23,15 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charsets;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
 import org.apache.harmony.security.asn1.ASN1Choice;
 import org.apache.harmony.security.asn1.ASN1Implicit;
@@ -39,6 +41,7 @@ import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
+import org.apache.harmony.security.utils.Array;
 import org.apache.harmony.security.x501.Name;
 
 /**
@@ -83,10 +86,14 @@ import org.apache.harmony.security.x501.Name;
  *
  * </pre>
  *
+ * <p>This class doesn't support masked addresses like "10.9.8.0/255.255.255.0".
+ * These are only necessary for NameConstraints, which are not exposed in the
+ * Java certificate API.
+ *
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
  */
-public class GeneralName {
+public final class GeneralName {
 
     /**
      * The values of the tags of fields
@@ -116,13 +123,13 @@ public class GeneralName {
         nameASN1[REG_ID] = ASN1Oid.getInstance();
     }
 
-    // the tag of the name type
+    /** the tag of the name type */
     private int tag;
-    // the name value (can be String or byte array)
+    /** the name value (can be String or byte array) */
     private Object name;
-    // the ASN.1 encoded form of GeneralName
+    /** the ASN.1 encoded form of GeneralName */
     private byte[] encoding;
-    // the ASN.1 encoded form of GeneralName's field
+    /** the ASN.1 encoded form of GeneralName's field */
     private byte[] name_encoding;
 
     /**
@@ -141,7 +148,6 @@ public class GeneralName {
      * To make the GeneralName object with such names use another constructor.
      * @param tag is an integer which value corresponds to the name type.
      * @param name is a name value corresponding to the tag.
-     * <pre>
      */
     public GeneralName(int tag, String name) throws IOException {
         if (name == null) {
@@ -183,37 +189,21 @@ public class GeneralName {
         }
     }
 
-    /**
-     * TODO
-     * @param   name:   OtherName
-     */
     public GeneralName(OtherName name) {
         this.tag = OTHER_NAME;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   ORAddress
-     */
     public GeneralName(ORAddress name) {
         this.tag = X400_ADDR;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   Name
-     */
     public GeneralName(Name name) {
         this.tag = DIR_NAME;
         this.name = name;
     }
 
-    /**
-     * TODO
-     * @param   name:   EDIPartyName
-     */
     public GeneralName(EDIPartyName name) {
         this.tag = EDIP_NAME;
         this.name = name;
@@ -259,7 +249,6 @@ public class GeneralName {
 
     /**
      * Returns the tag of the name in the structure
-     * @return the tag of the name
      */
     public int getTag() {
         return tag;
@@ -288,16 +277,11 @@ public class GeneralName {
         return name;
     }
 
-    /**
-     * TODO
-     * @param   _gname: Object
-     * @return
-     */
-    public boolean equals(Object _gname) {
-        if (!(_gname instanceof GeneralName)) {
+    public boolean equals(Object other) {
+        if (!(other instanceof GeneralName)) {
             return false;
         }
-        GeneralName gname = (GeneralName) _gname;
+        GeneralName gname = (GeneralName) other;
         if (this.tag != gname.tag) {
             return false;
         }
@@ -320,7 +304,6 @@ public class GeneralName {
             default:
                 // should never happen
         }
-        //System.out.println(false);
         return false;
     }
 
@@ -336,7 +319,7 @@ public class GeneralName {
         case X400_ADDR:
         case OTHER_NAME:
         case EDIP_NAME:
-            return getEncoded().hashCode();
+            return Arrays.hashCode(getEncoded());
         default:
             return super.hashCode();
         }
@@ -365,8 +348,8 @@ public class GeneralName {
                 // Mail address [1]:
                 // a@b.c - particular address is acceptable by the same address,
                 // or by b.c - host name.
-                return ((String) gname.getName()).toLowerCase()
-                    .endsWith(((String) name).toLowerCase());
+                return ((String) gname.getName()).toLowerCase(Locale.US)
+                    .endsWith(((String) name).toLowerCase(Locale.US));
             case DNS_NAME:
                 // DNS name [2] that can be constructed by simply adding
                 // to the left hand side of the name satisfies the name
@@ -376,7 +359,7 @@ public class GeneralName {
                 if (dns.equalsIgnoreCase(_dns)) {
                     return true;
                 } else {
-                    return _dns.toLowerCase().endsWith("." + dns.toLowerCase());
+                    return _dns.toLowerCase(Locale.US).endsWith("." + dns.toLowerCase(Locale.US));
                 }
             case UR_ID:
                 // For URIs the constraint ".xyz.com" is satisfied by both
@@ -398,7 +381,7 @@ public class GeneralName {
                                 ? uri.substring(begin)
                                 : uri.substring(begin, end);
                 if (host.startsWith(".")) {
-                    return _host.toLowerCase().endsWith(host.toLowerCase());
+                    return _host.toLowerCase(Locale.US).endsWith(host.toLowerCase(Locale.US));
                 } else {
                     return host.equalsIgnoreCase(_host);
                 }
@@ -411,9 +394,12 @@ public class GeneralName {
                 if (length == _length) {
                     return Arrays.equals(address, _address);
                 } else if (length == 2*_length) {
-                    for (int i=0; i<_address.length; i++) {
-                        if ((_address[i] < address[i])
-                                || (_address[i] > address[i+_length])) {
+                    for (int i = 0; i < _address.length; i++) {
+                        // TODO: should the 2nd IP address be treated as a range or as a mask?
+                        int octet = _address[i] & 0xff;
+                        int min = address[i] & 0xff;
+                        int max = address[i + _length] & 0xff;
+                        if ((octet < min) || (octet > max)) {
                             return false;
                         }
                     }
@@ -457,9 +443,9 @@ public class GeneralName {
      * otherName, X400Address, ediPartyName returned as byte arrays
      * containing the ASN.1 DER encoded form of the name.
      */
-    public List getAsList() {
-        ArrayList result = new ArrayList();
-        result.add(Integer.valueOf(tag)); // android-changed
+    public List<Object> getAsList() {
+        ArrayList<Object> result = new ArrayList<Object>();
+        result.add(tag);
         switch (tag) {
             case OTHER_NAME:
                 result.add(((OtherName) name).getEncoded());
@@ -490,33 +476,12 @@ public class GeneralName {
         return Collections.unmodifiableList(result);
     }
 
-    //
-    // TODO
-    // @param   data:   byte[]
-    // @return
-    //
-    private String getBytesAsString(byte[] data) {
-        String result = "";
-        for (int i=0; i<data.length; i++) {
-            String tail = Integer.toHexString(0x00ff & data[i]);
-            if (tail.length() == 1) {
-                tail = "0" + tail;
-            }
-            result += tail + " ";
-        }
-        return result;
-    }
-
-    /**
-     * TODO
-     * @return
-     */
     public String toString() {
         String result = "";
         switch (tag) {
             case OTHER_NAME:
                 result = "otherName[0]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case RFC822_NAME:
                 result = "rfc822Name[1]: " + name;
@@ -532,7 +497,7 @@ public class GeneralName {
                 break;
             case X400_ADDR:
                 result = "x400Address[3]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case DIR_NAME:
                 result = "directoryName[4]: "
@@ -540,7 +505,7 @@ public class GeneralName {
                 break;
             case EDIP_NAME:
                 result = "ediPartyName[5]: "
-                         + getBytesAsString(getEncoded());
+                         + Array.getBytesAsString(getEncoded());
                 break;
             case IP_ADDR:
                 result = "iPAddress[7]: " + ipBytesToStr((byte[]) name);
@@ -553,7 +518,6 @@ public class GeneralName {
 
     /**
      * Returns ASN.1 encoded form of this X.509 GeneralName value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -580,13 +544,14 @@ public class GeneralName {
      * by RFC 1123 (section 2.1).
      */
     public static void checkDNS(String dns) throws IOException {
-        byte[] bytes = dns.toLowerCase().getBytes(Charsets.UTF_8);
+        String string = dns.toLowerCase(Locale.US);
+        int length = string.length();
         // indicates if it is a first letter of the label
         boolean first_letter = true;
-        for (int i=0; i<bytes.length; i++) {
-            byte ch = bytes[i];
+        for (int i = 0; i < length; i++) {
+            char ch = string.charAt(i);
             if (first_letter) {
-                if ((bytes.length > 2) && (ch == '*') && (bytes[1] == '.')) {
+                if ((length > 2) && (ch == '*') && (string.charAt(1) == '.')) {
                     first_letter = false;
                     continue;
                 }
@@ -603,7 +568,7 @@ public class GeneralName {
             if (ch == '.') {
                 // check the end of the previous label, it should not
                 // be '-' sign
-                if (bytes[i-1] == '-') {
+                if (string.charAt(i-1) == '-') {
                     throw new IOException("Incorrect DNS name: label ends with '-': " + dns);
                 }
                 first_letter = true;
@@ -631,231 +596,64 @@ public class GeneralName {
     }
 
     /**
-     * Converts OID into array of bytes.
+     * Converts OID into array of ints.
      */
     public static int[] oidStrToInts(String oid) throws IOException {
-        byte[] bytes = oid.getBytes(Charsets.UTF_8);
-        if (bytes[bytes.length-1] == '.') {
+        int length = oid.length();
+        if (oid.charAt(length-1) == '.') {
             throw new IOException("Bad OID: " + oid);
         }
-        int[] result = new int[bytes.length/2+1]; // best case: a.b.c.d.e
+        int[] result = new int[length/2+1]; // best case: a.b.c.d.e
         int number = 0; // the number of OID's components
-        for (int i=0; i<bytes.length; i++) {
+        for (int i = 0; i < length; i++) {
             int value = 0;
             int pos = i;
-            while ((i < bytes.length) && (bytes[i] >= '0')
-                        && (bytes[i] <= '9')) {
-                value = 10 * value + (bytes[i++] - 48);
+            for (; i < length; i++) {
+                char ch = oid.charAt(i);
+                if ((ch < '0') || (ch > '9')) {
+                    break;
+                }
+                value = 10 * value + (ch - '0');
             }
             if (i == pos) {
                 // the number was not read
                 throw new IOException("Bad OID: " + oid);
             }
             result[number++] = value;
-            if (i >= bytes.length) {
+            if (i == length) {
                 break;
             }
-            if (bytes[i] != '.') {
+            char ch = oid.charAt(i);
+            if (ch != '.') {
                 throw new IOException("Bad OID: " + oid);
             }
         }
         if (number < 2) {
             throw new IOException("OID should consist of no less than 2 components: " + oid);
         }
-        int[] res = new int[number];
-        for (int i=0; i<number; i++) {
-            res[i] = result[i];
-        }
-        return res;
+        return Arrays.copyOfRange(result, 0, number);
     }
 
     /**
-     * Helper method. Converts the String representation of IP address
-     * to the array of bytes. IP addresses are expected in two versions:<br>
-     * IPv4 - in dot-decimal notation<br>
-     * IPv6 - in colon hexadecimal notation<br>
-     * Also method works with the ranges of the addresses represented
-     * as 2 addresses separated by '/' character.
-     * @param   address :   String representation of IP address
-     * @return  byte representation of IP address
+     * Returns the bytes of the given IP address or masked IP address.
      */
     public static byte[] ipStrToBytes(String ip) throws IOException {
-        boolean isIPv4 = (ip.indexOf('.') > 0);
-        // number of components (should be 4 or 8)
-        int num_components = (isIPv4) ? 4 : 16;
-        if (ip.indexOf('/') > 0) {
-            num_components *= 2; // this is a range of addresses
+        if (!InetAddress.isNumeric(ip)) {
+            throw new IOException("Not an IP address: " + ip);
         }
-        // the resulting array
-        byte[] result = new byte[num_components];
-        byte[] ip_bytes = ip.getBytes(Charsets.UTF_8);
-        // number of address component to be read
-        int component = 0;
-        // if it is reading the second bound of a range
-        boolean reading_second_bound = false;
-        if (isIPv4) {
-            // IPv4 address is expected in the form of dot-decimal notation:
-            //      1.100.2.200
-            // or in the range form:
-            //      1.100.2.200/1.100.3.300
-            int i = 0;
-            while (i < ip_bytes.length) {
-                int digits = 0;
-                // the value of the address component
-                int value = 0;
-                while ((i < ip_bytes.length) && (ip_bytes[i] >= '0') && (ip_bytes[i] <= '9')) {
-                    digits++;
-                    if (digits > 3) {
-                        throw new IOException("Component of IPv4 address should consist of no more than 3 decimal digits: " + ip);
-                    }
-                    value = 10 * value + (ip_bytes[i] - 48);
-                    i++;
-                }
-                if (digits == 0) {
-                    // ip_bytes[i] is not a number
-                    throw badIp(4, ip);
-                }
-                result[component] = (byte) value;
-                component++;
-                if (i >= ip_bytes.length) {
-                    // no more bytes
-                    break;
-                }
-                // check the reached delimiter
-                if ((ip_bytes[i] != '.' && ip_bytes[i] != '/')) {
-                    throw badIp(4, ip);
-                }
-                // check the correctness of the range
-                if (ip_bytes[i] == '/') {
-                    if (reading_second_bound) {
-                        // more than 2 bounds in the range
-                        throw badIp(4, ip);
-                    }
-                    if (component != 4) {
-                        throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-                    }
-                    reading_second_bound = true;
-                }
-                // check the number of the components
-                if (component > ((reading_second_bound) ? 7 : 3)) {
-                    throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-                }
-                i++;
-            }
-            // check the number of read components
-            if (component != num_components) {
-                throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
-            }
-        } else {
-            // IPv6 address is expected in the form of
-            // colon hexadecimal notation:
-            // 010a:020b:3337:1000:FFFA:ABCD:9999:0000
-            // or in a range form:
-            // 010a:020b:3337:1000:FFFA:ABCD:9999:0000/010a:020b:3337:1000:FFFA:ABCD:9999:1111
-            if (ip_bytes.length != 39 && ip_bytes.length != 79) {
-                // incorrect length of the string representation
-                throw badIp(6, ip);
-            }
-            int value = 0;
-            // indicates the reading of the second half of byte
-            boolean second_hex = false;
-            // if the delimiter (':' or '/') is expected
-            boolean expect_delimiter = false;
-            for (int i=0; i<ip_bytes.length; i++) {
-                byte bytik = ip_bytes[i];
-                if ((bytik >= '0') && (bytik <= '9')) {
-                    value = (bytik - 48); // '0':0, '1':1, ... , '9':9
-                } else if ((bytik >= 'A') && (bytik <= 'F')) {
-                    value = (bytik - 55); // 'A':10, 'B':11, ... , 'F':15
-                } else if ((bytik >= 'a') && (bytik <= 'f')) {
-                    value = (bytik - 87); // 'a':10, 'b':11, ... , 'f':15
-                } else if (second_hex) {
-                    // second hex value of a byte is expected but was not read
-                    // (it is the situation like: ...ABCD:A:ABCD...)
-                    throw badIp(6, ip);
-                } else if ((bytik == ':') || (bytik == '/')) {
-                    if (component % 2 == 1) {
-                        // second byte of the component is omitted
-                        // (it is the situation like: ... ABDC:AB:ABCD ...)
-                        throw badIp(6, ip);
-                    }
-                    if (bytik == '/') {
-                        if (reading_second_bound) {
-                            // more than 2 bounds in the range
-                            throw badIp(6, ip);
-                        }
-                        if (component != 16) {
-                            // check the number of read components
-                            throw new IOException("IPv6 address should consist of 8 hexadecimal numbers: " + ip);
-                        }
-                        reading_second_bound = true;
-                    }
-                    expect_delimiter = false;
-                    continue;
-                } else {
-                    throw badIp(6, ip);
-                }
-                if (expect_delimiter) { // delimiter is expected but was not read
-                    throw badIp(6, ip);
-                }
-                if (!second_hex) {
-                    // first half of byte has been read
-                    result[component] = (byte) (value << 4);
-                    second_hex = true;
-                } else {
-                    // second half of byte has been read
-                    result[component] = (byte)
-                        ((result[component] & 0xFF) | value);
-                    // delimiter is expected if 2 bytes were read
-                    expect_delimiter = (component % 2 == 1);
-                    second_hex = false;
-                    component++;
-                }
-            }
-            // check the correctness of the read address:
-            if (second_hex || (component % 2 == 1)) {
-                throw badIp(6, ip);
-            }
-        }
-        return result;
-    }
-
-    private static IOException badIp(int v, String ip) throws IOException {
-        throw new IOException("Incorrect IPv" + v + " representation: " + ip);
+        return InetAddress.getByName(ip).getAddress();
     }
 
     /**
-     * Helper method. Converts the byte array representation of ip address
-     * to the String.
-     * @param   ip :   byte array representation of ip address
-     *  If the length of byte array 4 then it represents an IP v4
-     *  and the output String will be in the dotted quad form.
-     *  If the length is 16 then it represents an IP v6
-     *  and the output String will be returned in format "p1:p2:...:p8",
-     *  where p1-p8 are hexadecimal values representing the eight 16-bit
-     *  pieces of the address.
-     *  If the length is 8 or 32 then it represents an address range (RFC 1519)
-     *  and the output String will contain 2 IP address divided by "/"
-     * @return  String representation of ip address
+     * Returns the string form of the given IP address. Addresses of length 2x
+     * the canonical length are treated as a route/mask pair.
      */
     public static String ipBytesToStr(byte[] ip) {
-        String result = "";
-        if (ip.length < 9) { // IP v4
-            for (int i=0; i<ip.length; i++) {
-                result += Integer.toString(ip[i] & 0xff);
-                if (i != ip.length-1) {
-                    result += (i == 3) ? "/": ".";
-                }
-            }
-        } else {
-            for (int i=0; i<ip.length; i++) {
-                result += Integer.toHexString(0x00ff & ip[i]);
-                if ((i % 2 != 0) && (i != ip.length-1)) {
-                    result += (i == 15) ? "/": ":";
-                }
-            }
+        try {
+            return InetAddress.getByAddress(null, ip).getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Unexpected IP address: " + Arrays.toString(ip));
         }
-        return result;
     }
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
@@ -877,7 +675,7 @@ public class GeneralName {
             return  ((GeneralName) object).tag;
         }
 
-        public Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override public Object getDecodedObject(BerInputStream in) throws IOException {
             GeneralName result;
             switch (in.choiceIndex) {
                 case OTHER_NAME: // OtherName
@@ -917,44 +715,4 @@ public class GeneralName {
             return result;
         }
     };
-
-    // public static void printAsHex(int perLine,
-    //         String prefix,
-    //         String delimiter,
-    //         byte[] data) {
-    //     for (int i=0; i<data.length; i++) {
-    //         String tail = Integer.toHexString(0x000000ff & data[i]);
-    //         if (tail.length() == 1) {
-    //             tail = "0" + tail;
-    //         }
-    //         System.out.print(prefix + "0x" + tail + delimiter);
-
-    //         if (((i+1)%perLine) == 0) {
-    //             System.out.println();
-    //         }
-    //     }
-    //     System.out.println();
-    // }
-
-    // public static void main(String[] args) {
-    //     System.out.println(">> "+new BigInteger(new byte[] {(byte)23, (byte)255}).toString(2));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     System.out.println(ipBytesToStr(new byte[] {(byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130,
-    //                                                 (byte)255, (byte)23, (byte)128, (byte)130}));
-    //     ipStrToBytes("1.2.3.4");
-    //     ipStrToBytes("1.2.3.4/4.3.2.1");
-    //     printAsHex(8, "", " ", ipStrToBytes("ff17:8082:ff17:8082:ff17:8082:ff17:8082/ff17:8082:ff17:8082:ff17:8082:ff17:8082"));
-    // }
 }

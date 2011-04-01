@@ -19,10 +19,13 @@ package libcore.io;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Libcore;
+import libcore.io.Memory;
+import static libcore.io.OsConstants.*;
 
 /**
  * A memory-mapped file. Use {@link #mmap} to map a file, {@link #close} to unmap a file,
@@ -30,36 +33,26 @@ import org.apache.harmony.luni.platform.OSMemory;
  * {@link BufferIterator} over the mapped data.
  */
 public final class MemoryMappedFile implements Closeable {
-    private int address;
+    private long address;
+    private final long size;
 
-    // Until we have 64-bit address spaces, we only need an int for 'size'.
-    private final int size;
-
-    private MemoryMappedFile(int address, int size) {
+    /**
+     * Use this if you've called {@code mmap} yourself.
+     */
+    public MemoryMappedFile(long address, long size) {
         this.address = address;
         this.size = size;
     }
 
-    public static MemoryMappedFile mmap(FileChannel fc, FileChannel.MapMode mapMode, long start, long size) throws IOException {
-        return mmap(NioUtils.getFd(fc), mapMode, start, size);
-    }
-
-    public static MemoryMappedFile mmap(FileDescriptor fd, FileChannel.MapMode mapMode, long start, long size) throws IOException {
-        return mmap(IoUtils.getFd(fd), mapMode, start, size);
-    }
-
-    private static MemoryMappedFile mmap(int fd, FileChannel.MapMode mapMode, long start, long size) throws IOException {
-        if (start < 0) {
-            throw new IllegalArgumentException("start < 0: " + start);
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("size <= 0: " + size);
-        }
-        if ((start + size) > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("(start + size) > Integer.MAX_VALUE");
-        }
-        int address = OSMemory.mmap(fd, start, size, mapMode);
-        return new MemoryMappedFile(address, (int) size);
+    /**
+     * Use this to mmap the whole file read-only.
+     */
+    public static MemoryMappedFile mmapRO(String path) {
+        FileDescriptor fd = Libcore.os.open(path, O_RDONLY, 0);
+        long size = Libcore.os.fstat(fd).st_size;
+        long address = Libcore.os.mmap(0L, size, PROT_READ, MAP_SHARED, fd, 0);
+        Libcore.os.close(fd);
+        return new MemoryMappedFile(address, size);
     }
 
     /**
@@ -70,9 +63,9 @@ public final class MemoryMappedFile implements Closeable {
      * Calling this method invalidates any iterators over this {@code MemoryMappedFile}. It is an
      * error to use such an iterator after calling {@code close}.
      */
-    public synchronized void close() throws IOException {
+    public synchronized void close() {
         if (address != 0) {
-            OSMemory.munmap(address, size);
+            Libcore.os.munmap(address, size);
             address = 0;
         }
     }
@@ -81,20 +74,20 @@ public final class MemoryMappedFile implements Closeable {
      * Returns a new iterator that treats the mapped data as big-endian.
      */
     public BufferIterator bigEndianIterator() {
-        return new NioBufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN);
+        return new NioBufferIterator((int) address, (int) size, ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN);
     }
 
     /**
      * Returns a new iterator that treats the mapped data as little-endian.
      */
     public BufferIterator littleEndianIterator() {
-        return new NioBufferIterator(address, size, ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN);
+        return new NioBufferIterator((int) address, (int) size, ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
      * Returns the size in bytes of the memory-mapped region.
      */
-    public int size() {
+    public long size() {
         return size;
     }
 }

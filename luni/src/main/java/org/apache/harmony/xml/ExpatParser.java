@@ -22,8 +22,6 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import libcore.io.IoUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -39,7 +37,6 @@ import org.xml.sax.ext.LexicalHandler;
  * Adapts SAX API to the Expat native XML parser. Not intended for reuse
  * across documents.
  *
- * @see org.apache.harmony.xml.ExpatPullParser
  * @see org.apache.harmony.xml.ExpatReader
  */
 class ExpatParser {
@@ -278,8 +275,7 @@ class ExpatParser {
                     systemId = systemUri.toString();
                 }
             } catch (Exception e) {
-                Logger.getLogger(ExpatParser.class.getName()).log(Level.INFO,
-                        "Could not resolve '" + systemId + "' relative to"
+                System.logI("Could not resolve '" + systemId + "' relative to"
                         + " '" + this.systemId + "' at " + locator, e);
             }
         }

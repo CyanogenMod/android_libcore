@@ -22,22 +22,16 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.KeyStore;
 
 import javax.security.auth.DestroyFailedException;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyStore.PasswordProtection.class)
+
 /**
  * Tests for <code>KeyStore.PasswordProtection</code> class constructor and methods
  *
  */
-
 public class KSPasswordProtectionTest extends TestCase {
 
     /**
@@ -50,32 +44,6 @@ public class KSPasswordProtectionTest extends TestCase {
      * getPassword() returns password or throws IllegalArgumentException
      * if PasswordProtection is destroyed
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "PasswordProtection",
-            args = {char[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPassword",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isDestroyed",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "",
-            method = "destroy",
-            args = {}
-        )
-    })
     public void testGetPassword() throws DestroyFailedException {
         char [] pass = {'a', 'b', 'c'};
         KeyStore.PasswordProtection ksPWP = new KeyStore.PasswordProtection(pass);

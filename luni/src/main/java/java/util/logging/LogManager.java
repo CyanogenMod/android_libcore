@@ -17,12 +17,6 @@
 
 package java.util.logging;
 
-// BEGIN android-note
-// this file contains cleaned up documentation and style for contribution
-// upstream.
-// javax.management support (MBeans) has been dropped.
-// END android-note
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedInputStream;
@@ -30,8 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -124,9 +116,6 @@ import libcore.io.IoUtils;
  */
 public class LogManager {
 
-    /** The line separator of the underlying OS. */
-    private static final String lineSeparator = getPrivilegedSystemProperty("line.separator");
-
     /** The shared logging permission. */
     private static final LoggingPermission perm = new LoggingPermission("control", null);
 
@@ -159,34 +148,28 @@ public class LogManager {
 
     static {
         // init LogManager singleton instance
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                String className = System.getProperty("java.util.logging.manager");
+        String className = System.getProperty("java.util.logging.manager");
+        if (className != null) {
+            manager = (LogManager) getInstanceByClass(className);
+        }
+        if (manager == null) {
+            manager = new LogManager();
+        }
 
-                if (className != null) {
-                    manager = (LogManager) getInstanceByClass(className);
-                }
-                if (manager == null) {
-                    manager = new LogManager();
-                }
+        // read configuration
+        try {
+            manager.readConfiguration();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-                // read configuration
-                try {
-                    manager.readConfiguration();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        // if global logger has been initialized, set root as its parent
+        Logger root = new Logger("", null);
+        root.setLevel(Level.INFO);
+        Logger.global.setParent(root);
 
-                // if global logger has been initialized, set root as its parent
-                Logger root = new Logger("", null);
-                root.setLevel(Level.INFO);
-                Logger.global.setParent(root);
-
-                manager.addLogger(root);
-                manager.addLogger(Logger.global);
-                return null;
-            }
-        });
+        manager.addLogger(root);
+        manager.addLogger(Logger.global);
     }
 
     /**
@@ -201,42 +184,17 @@ public class LogManager {
         listeners = new PropertyChangeSupport(this);
         // add shutdown hook to ensure that the associated resource will be
         // freed when JVM exits
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
-                    public void run() {
-                        reset();
-                    }
-                });
-                return null;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override public void run() {
+                reset();
             }
         });
     }
 
-    /*
-     * Package private utilities Returns the line separator of the underlying
-     * OS.
-     */
-    static String getSystemLineSeparator() {
-        return lineSeparator;
-    }
-
     /**
-     * Check that the caller has {@code LoggingPermission("control")} so
-     * that it is trusted to modify the configuration for logging framework. If
-     * the check passes, just return, otherwise {@code SecurityException}
-     * will be thrown.
-     *
-     * @throws SecurityException
-     *             if there is a security manager in operation and the invoker
-     *             of this method does not have the required security permission
-     *             {@code LoggingPermission("control")}
+     * Does nothing.
      */
     public void checkAccess() {
-        if (System.getSecurityManager() != null) {
-            System.getSecurityManager().checkPermission(perm);
-        }
     }
 
     /**
@@ -295,16 +253,9 @@ public class LogManager {
         Collection<Logger> allLoggers = loggers.values();
         for (final Logger child : allLoggers) {
             Logger oldParent = child.getParent();
-            if (parent == oldParent
-                    && (name.length() == 0 || child.getName().startsWith(
-                            nameDot))) {
+            if (parent == oldParent && (name.length() == 0 || child.getName().startsWith(nameDot))) {
                 final Logger thisLogger = logger;
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        child.setParent(thisLogger);
-                        return null;
-                    }
-                });
+                child.setParent(thisLogger);
                 if (oldParent != null) {
                     // -- remove from old parent as the parent has been changed
                     oldParent.children.remove(child);
@@ -362,9 +313,6 @@ public class LogManager {
      *
      * @throws IOException
      *             if any IO related problems happened.
-     * @throws SecurityException
-     *             if security manager exists and it determines that caller does
-     *             not have the required permissions to perform this action.
      */
     public void readConfiguration() throws IOException {
         // check config class
@@ -397,15 +345,6 @@ public class LogManager {
         }
     }
 
-    // use privilege code to get system property
-    static String getPrivilegedSystemProperty(final String key) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key);
-            }
-        });
-    }
-
     // use SystemClassLoader to load class from system classpath
     static Object getInstanceByClass(final String className) {
         try {
@@ -421,7 +360,6 @@ public class LogManager {
                 return null;
             }
         }
-
     }
 
     // actual initialization process from a given input stream
@@ -469,9 +407,6 @@ public class LogManager {
      *            the input stream
      * @throws IOException
      *             if any IO related problems happened.
-     * @throws SecurityException
-     *             if security manager exists and it determines that caller does
-     *             not have the required permissions to perform this action.
      */
     public void readConfiguration(InputStream ins) throws IOException {
         checkAccess();
@@ -480,15 +415,10 @@ public class LogManager {
 
     /**
      * Reset configuration.
-     * <p>
-     * All handlers are closed and removed from any named loggers. All loggers'
+     *
+     * <p>All handlers are closed and removed from any named loggers. All loggers'
      * level is set to null, except the root logger's level is set to
      * {@code Level.INFO}.
-     * </p>
-     *
-     * @throws SecurityException
-     *             if security manager exists and it determines that caller does
-     *             not have the required permissions to perform this action.
      */
     public synchronized void reset() {
         checkAccess();
@@ -513,9 +443,6 @@ public class LogManager {
      *
      * @param l
      *            the {@code PropertyChangeListener} to be added.
-     * @throws SecurityException
-     *             if security manager exists and it determines that caller does
-     *             not have the required permissions to perform this action.
      */
     public void addPropertyChangeListener(PropertyChangeListener l) {
         if (l == null) {
@@ -531,9 +458,6 @@ public class LogManager {
      *
      * @param l
      *            the {@code PropertyChangeListener} to be removed.
-     * @throws SecurityException
-     *             if security manager exists and it determines that caller does
-     *             not have the required permissions to perform this action.
      */
     public void removePropertyChangeListener(PropertyChangeListener l) {
         checkAccess();
@@ -570,7 +494,7 @@ public class LogManager {
             setLevelRecursively(logger, null);
         }
         newParent.children.add(logger);
-        logger.updateDalvikLogHandler(); // android-only
+        logger.updateDalvikLogHandler();
     }
 
     /**

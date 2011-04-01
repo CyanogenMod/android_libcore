@@ -45,7 +45,6 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      * synchronize critical sections.
      */
     protected Writer() {
-        super();
         lock = this;
     }
 
@@ -92,9 +91,6 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      *             if this writer is closed or another I/O error occurs.
      */
     public void write(char[] buf) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         write(buf, 0, buf.length);
     }
 
@@ -114,11 +110,7 @@ public abstract class Writer implements Appendable, Closeable, Flushable {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public abstract void write(char[] buf, int offset, int count)
-            throws IOException;
-    // BEGIN android-note
-    // changed array notation to be consistent with the rest of harmony
-    // END android-note
+    public abstract void write(char[] buf, int offset, int count) throws IOException;
 
     /**
      * Writes one character to the target. Only the two least significant bytes

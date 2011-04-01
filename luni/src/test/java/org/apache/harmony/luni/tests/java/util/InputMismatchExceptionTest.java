@@ -28,7 +28,7 @@ public class InputMismatchExceptionTest extends TestCase {
     private static final String ERROR_MESSAGE = "for serialization test";
 
     /**
-     * @tests java.util.InputMismatchException#InputMismatchException()
+     * java.util.InputMismatchException#InputMismatchException()
      */
     @SuppressWarnings("cast")
     public void test_Constructor() {
@@ -39,7 +39,7 @@ public class InputMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.InputMismatchException#InputMismatchException(String)
+     * java.util.InputMismatchException#InputMismatchException(String)
      */
     public void test_ConstructorLjava_lang_String() {
         InputMismatchException exception = new InputMismatchException(
@@ -49,7 +49,7 @@ public class InputMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -57,7 +57,7 @@ public class InputMismatchExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

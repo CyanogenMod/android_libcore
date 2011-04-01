@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.InvalidKeyException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -39,8 +34,6 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>SecretKeyFactorySpi</code> class constructors and methods.
  */
-
-@TestTargetClass(SecretKeyFactorySpi.class)
 public class SecretKeyFactorySpiTest extends TestCase {
     class Mock_SecretKeyFactorySpi extends MySecretKeyFactorySpi {
 
@@ -66,7 +59,6 @@ public class SecretKeyFactorySpiTest extends TestCase {
      * Test for <code>SecretKeyFactorySpi</code> constructor Assertion:
      * constructs SecretKeyFactorySpi
      */
-    @TestTargetNew(level = TestLevel.COMPLETE, notes = "", method = "SecretKeyFactorySpi", args = {})
     public void testSecretKeyFactorySpi01() throws InvalidKeyException, InvalidKeySpecException {
         Mock_SecretKeyFactorySpi skfSpi = new Mock_SecretKeyFactorySpi();
         SecretKey sk = null;

@@ -33,7 +33,6 @@ public class SQLInvalidAuthorizationSpecException extends
      * set to 0.
      */
     public SQLInvalidAuthorizationSpecException() {
-        super();
     }
 
     /**

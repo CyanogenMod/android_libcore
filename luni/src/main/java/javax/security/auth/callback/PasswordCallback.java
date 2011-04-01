@@ -50,7 +50,6 @@ public class PasswordCallback implements Callback, Serializable {
      *            determines whether the user input should be echoed
      */
     public PasswordCallback(String prompt, boolean echoOn) {
-        super();
         setPrompt(prompt);
         this.echoOn = echoOn;
     }

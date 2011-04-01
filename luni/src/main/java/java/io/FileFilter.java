@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// the abstract modifier of the interface was removed.
-// END android-note
-
 package java.io;
 
 /**

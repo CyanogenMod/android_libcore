@@ -326,9 +326,7 @@ public class PushbackInputStream extends FilterInputStream {
      *            the number of bytes that can be read from this stream before
      *            the mark is invalidated; this parameter is ignored.
      */
-    @Override
-    public void mark(int readlimit) {
-        return;
+    @Override public void mark(int readlimit) {
     }
 
     /**

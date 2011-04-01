@@ -98,9 +98,6 @@ public abstract class Preferences {
      */
     public static final int MAX_VALUE_LENGTH = 8192;
 
-    //permission
-    private static final RuntimePermission PREFS_PERM = new RuntimePermission("preferences");
-
     //factory used to get user/system prefs root
     private static final PreferencesFactory factory = findPreferencesFactory();
 
@@ -122,7 +119,6 @@ public abstract class Preferences {
      * Default constructor, for use by subclasses only.
      */
     protected Preferences() {
-        super();
     }
 
     /**
@@ -440,12 +436,8 @@ public abstract class Preferences {
      *             valid XML document.
      * @throws IOException
      *             if an error occurs while importing.
-     * @throws SecurityException
-     *             if {@code RuntimePermission("preferences")} is denied by a
-     *             SecurityManager.
      */
     public static void importPreferences (InputStream istream) throws InvalidPreferencesFormatException, IOException {
-        checkSecurity();
         if (istream == null){
             throw new MalformedURLException("Inputstream cannot be null");
         }
@@ -803,12 +795,8 @@ public abstract class Preferences {
      * @return the system preference node for the package of the given class.
      * @throws NullPointerException
      *             if the given class is {@code null}.
-     * @throws SecurityException
-     *             if the {@code RuntimePermission("preferences")} is denied by
-     *             a SecurityManager.
      */
     public static Preferences systemNodeForPackage (Class<?> c) {
-        checkSecurity();
         return factory.systemRoot().node(getNodeName(c));
     }
 
@@ -816,21 +804,9 @@ public abstract class Preferences {
      * Returns the root node of the system preference hierarchy.
      *
      * @return the system preference hierarchy root node.
-     * @throws SecurityException
-     *             if the {@code RuntimePermission("preferences")} is denied by
-     *             a SecurityManager.
      */
     public static Preferences systemRoot() {
-        checkSecurity();
         return factory.systemRoot();
-    }
-
-    //check the RuntimePermission("preferences")
-    private static void checkSecurity() {
-        SecurityManager manager = System.getSecurityManager();
-        if (manager != null){
-            manager.checkPermission(PREFS_PERM);
-        }
     }
 
     /**
@@ -849,12 +825,8 @@ public abstract class Preferences {
      * @return the user preference node for the package of the given class.
      * @throws NullPointerException
      *             if the given class is {@code null}.
-     * @throws SecurityException
-     *             if the {@code RuntimePermission("preferences")} is denied by
-     *             a SecurityManager.
      */
     public static Preferences userNodeForPackage (Class<?> c) {
-        checkSecurity();
         return factory.userRoot().node(getNodeName(c));
     }
 
@@ -871,12 +843,8 @@ public abstract class Preferences {
      * Returns the root node of the user preference hierarchy.
      *
      * @return the user preference hierarchy root node.
-     * @throws SecurityException
-     *             if the {@code RuntimePermission("preferences")} is denied by
-     *             a SecurityManager.
      */
     public static Preferences userRoot() {
-        checkSecurity();
         return factory.userRoot();
     }
 

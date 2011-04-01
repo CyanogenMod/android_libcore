@@ -16,11 +16,6 @@
 
 package tests.security;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.BasicPermission;
@@ -32,7 +27,6 @@ import java.security.ProtectionDomain;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AccessController.class)
 public class AccessControllerTest extends TestCase {
 
     private static void setProtectionDomain(Class<?> c, ProtectionDomain pd){
@@ -68,16 +62,6 @@ public class AccessControllerTest extends TestCase {
         super.setUp();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies that checkPermission does not throw a SecurityException " +
-                    "if all classes on the call stack refer to a protection domain " +
-                    "which contains the necessary permissions.",
-            method = "checkPermission",
-            args = {Permission.class}
-        )
-    })
     public void test_do_privileged2() {
         // add TestPermission to T0, T1, T2
         c0.add(p);

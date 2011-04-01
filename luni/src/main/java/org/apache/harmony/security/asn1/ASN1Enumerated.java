@@ -23,6 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
@@ -30,8 +31,7 @@ import java.io.IOException;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
-public class ASN1Enumerated extends ASN1Primitive {
+public final class ASN1Enumerated extends ASN1Primitive {
 
     // default implementation
     private static final ASN1Enumerated ASN1 = new ASN1Enumerated();
@@ -60,12 +60,6 @@ public class ASN1Enumerated extends ASN1Primitive {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     public Object decode(BerInputStream in) throws IOException {
         in.readEnumerated();
 
@@ -78,21 +72,11 @@ public class ASN1Enumerated extends ASN1Primitive {
     /**
      * Extracts array of bytes from BER input stream.
      *
-     * @param in - BER input stream
      * @return array of bytes
      */
     public Object getDecodedObject(BerInputStream in) throws IOException {
-        byte[] bytesEncoded = new byte[in.length];
-        System.arraycopy(in.buffer, in.contentOffset, bytesEncoded, 0,
-                in.length);
-        return bytesEncoded;
+        return Arrays.copyOfRange(in.buffer, in.contentOffset, in.contentOffset + in.length);
     }
-
-    //
-    //
-    // Encode
-    //
-    //
 
     public void encodeContent(BerOutputStream out) {
         out.encodeInteger();

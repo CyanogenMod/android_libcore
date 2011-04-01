@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DOMImplementation;
@@ -24,7 +19,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-@TestTargetClass(DocumentType.class)
 public final class DocumentTypeInternalSubset extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,12 +48,6 @@ public final class DocumentTypeInternalSubset extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't check positive case.",
-        method = "getInternalSubset",
-        args = {}
-    )
     public void testGetInternalSubset() throws Throwable {
         Document doc;
         DocumentType docType;

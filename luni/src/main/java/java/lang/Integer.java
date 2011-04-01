@@ -120,9 +120,17 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since 1.2
      */
     public int compareTo(Integer object) {
-        int thisValue = value;
-        int thatValue = object.value;
-        return thisValue < thatValue ? -1 : (thisValue == thatValue ? 0 : 1);
+        return compare(value, object.value);
+    }
+
+    /**
+     * Compares two {@code int} values.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int compare(int lhs, int rhs) {
+        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }
 
     private static NumberFormatException invalidInt(String s) {
@@ -410,7 +418,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @return the hexadecimal string representation of {@code i}.
      */
     public static String toHexString(int i) {
-        return IntegralToString.intToHexString(i);
+        return IntegralToString.intToHexString(i, false);
     }
 
     /**
@@ -581,14 +589,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since 1.5
      */
     public static int numberOfTrailingZeros(int i) {
-        // Seal's algorithm - Hacker's Delight 5-18
-        // BEGIN android-changed - Harmony version should be one-liner in comment below
-        i &= -i;
-        i = (i <<  4) + i;    // x *= 17
-        i = (i <<  6) + i;    // x *= 65
-        i = (i << 16) - i;    // x *= 65535
-        return NTZ_TABLE[i >>> 26]; // NTZ_TABLE[((i & -i) * 0x0450FBAF) >>> 26]
-        // END android-changed
+        return NTZ_TABLE[((i & -i) * 0x0450FBAF) >>> 26];
     }
 
     /**

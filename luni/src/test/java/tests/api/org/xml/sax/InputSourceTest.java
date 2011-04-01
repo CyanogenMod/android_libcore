@@ -25,19 +25,8 @@ import junit.framework.TestCase;
 
 import org.xml.sax.InputSource;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-@TestTargetClass(InputSource.class)
 public class InputSourceTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "InputSource",
-        args = { }
-    )
     public void testInputSource() {
         InputSource i = new InputSource();
 
@@ -48,11 +37,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getSystemId());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "InputSource",
-        args = { String.class }
-    )
     public void testInputSourceString() {
         InputSource i = new InputSource("Foo");
 
@@ -63,11 +47,6 @@ public class InputSourceTest extends TestCase {
         assertEquals("Foo", i.getSystemId());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "InputSource",
-        args = { InputStream.class }
-    )
     public void testInputSourceInputStream() {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
 
@@ -90,11 +69,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getSystemId());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "InputSource",
-        args = { Reader.class }
-    )
     public void testInputSourceReader() {
         StringReader sr = new StringReader("Hello, world.");
 
@@ -117,18 +91,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getSystemId());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setPublicId",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getPublicId",
-            args = {  }
-        )
-    })
     public void testSetPublicIdGetPublicId() {
         InputSource i = new InputSource();
 
@@ -139,18 +101,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getPublicId());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setSystemId",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getSystemId",
-            args = {  }
-        )
-    })
     public void testSetSystemIdGetSystemId() {
         InputSource i = new InputSource();
 
@@ -161,18 +111,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getSystemId());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setByteStream",
-            args = { InputStream.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getByteStream",
-            args = {  }
-        )
-    })
     public void testSetByteStreamGetByteStream() {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
 
@@ -189,18 +127,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getByteStream());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setEncoding",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getEncoding",
-            args = {  }
-        )
-    })
     public void testSetEncodingGetEncoding() {
         InputSource i = new InputSource();
 
@@ -215,18 +141,6 @@ public class InputSourceTest extends TestCase {
         assertNull(i.getEncoding());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setCharacterStream",
-            args = { Reader.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getCharacterStream",
-            args = {  }
-        )
-    })
     public void testSetCharacterStreamGetCharacterStream() {
         StringReader sr = new StringReader("Hello, world.");
 

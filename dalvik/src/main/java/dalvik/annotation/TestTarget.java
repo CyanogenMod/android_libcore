@@ -25,9 +25,12 @@ import java.lang.annotation.Target;
  * Defines an annotation used be used within the TestInfo annotation. It
  * specifies a single method target for the test (but can be used multiple
  * times).
+ *
+ * @deprecated Obsolete
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
+@Deprecated
 public @interface TestTarget {
 
     /**

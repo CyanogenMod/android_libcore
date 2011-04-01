@@ -30,7 +30,6 @@ class FilePreferencesFactoryImpl implements PreferencesFactory {
     private static final Preferences SYSTEM_ROOT = new FilePreferencesImpl(false);
 
     public FilePreferencesFactoryImpl() {
-        super();
     }
 
     public Preferences userRoot() {

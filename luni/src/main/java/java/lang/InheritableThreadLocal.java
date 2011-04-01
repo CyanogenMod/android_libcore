@@ -35,7 +35,6 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
      * Creates a new inheritable thread-local variable.
      */
     public InheritableThreadLocal() {
-        super();
     }
 
     /**
@@ -51,7 +50,6 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
         return parentValue;
     }
 
-    // BEGIN android-added
     @Override
     Values values(Thread current) {
         return current.inheritableValues;
@@ -61,5 +59,4 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
     Values initializeValues(Thread current) {
         return current.inheritableValues = new Values();
     }
-    // END android-added
 }

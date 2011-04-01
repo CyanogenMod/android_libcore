@@ -1,7 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass;
-
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.DOMException;
@@ -20,7 +18,6 @@ import org.w3c.dom.NamedNodeMap;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class HCEntitiesSetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;

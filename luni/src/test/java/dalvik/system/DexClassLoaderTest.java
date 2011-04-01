@@ -74,10 +74,15 @@ public class DexClassLoaderTest extends TestCase {
     }
 
     /**
-     * Copy a resource in the package directory to the indicated file.
+     * Copy a resource in the package directory to the indicated
+     * target file, but only if the target file doesn't exist.
      */
     private static void copyResource(ClassLoader loader, String resourceName,
             File destination) throws IOException {
+        if (destination.exists()) {
+            return;
+        }
+
         InputStream in =
             loader.getResourceAsStream(PACKAGE_PATH + resourceName);
         FileOutputStream out = new FileOutputStream(destination);

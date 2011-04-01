@@ -50,7 +50,6 @@ public abstract class Selector {
      * Constructs a new {@code Selector}.
      */
     protected Selector() {
-        super();
     }
 
     /**

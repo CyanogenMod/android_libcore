@@ -31,7 +31,6 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements
      * Constructs a new instance of this AbstractSet.
      */
     protected AbstractSet() {
-        super();
     }
 
     /**

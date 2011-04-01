@@ -23,22 +23,10 @@ import java.util.Iterator;
  * The service provider class for character sets.
  */
 public abstract class CharsetProvider {
-
-    // The permission required to construct a new provider.
-    private static final RuntimePermission CONSTRUCT_PERM = new RuntimePermission(
-            "charsetProvider");
-
     /**
      * Constructor for subclassing with concrete types.
-     *
-     * @throws SecurityException
-     *             if there is a security manager installed that does not permit
-     *             the runtime permission labeled "charsetProvider".
      */
     protected CharsetProvider() {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null)
-            securityManager.checkPermission(CONSTRUCT_PERM);
     }
 
     /**

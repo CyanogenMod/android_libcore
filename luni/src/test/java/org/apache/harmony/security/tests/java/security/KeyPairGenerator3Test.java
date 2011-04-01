@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AlgorithmParameters;
 import java.security.AlgorithmParametersSpi;
 import java.security.KeyPair;
@@ -41,12 +36,11 @@ import org.apache.harmony.security.tests.java.security.AlgorithmParametersTest.m
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyPairGenerator.class)
+
 /**
  * Tests for KeyPairGenerator class
  *
  */
-
 public class KeyPairGenerator3Test extends TestCase {
 
     private static String validProviderName = null;
@@ -93,20 +87,6 @@ public class KeyPairGenerator3Test extends TestCase {
      * Assertion: KeyPairGenerator was initialized before the invocation
      * of these methods
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "generateKeyPair",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "genKeyPair",
-            args = {}
-        )
-    })
     public void testGenKeyPair01() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException {
         if (!DSASupported) {
@@ -133,20 +113,6 @@ public class KeyPairGenerator3Test extends TestCase {
      * methods
      * Assertion: these methods are used without previously initialization
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "generateKeyPair",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "genKeyPair",
-            args = {}
-        )
-    })
     public void testGenKeyPair02() throws NoSuchAlgorithmException,
             NoSuchProviderException, IllegalArgumentException {
         if (!DSASupported) {
@@ -170,12 +136,6 @@ public class KeyPairGenerator3Test extends TestCase {
      * Test for <code>KeyPairGenerator</code> constructor
      * Assertion: returns KeyPairGenerator object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "KeyPairGenerator",
-        args = {java.lang.String.class}
-    )
     public void testKeyPairGeneratorConst() {
         String[] alg = {null, "", "AsDfGh!#$*", "DSA", "RSA"};
         MykeyPGen kpg;

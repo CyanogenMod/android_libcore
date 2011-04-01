@@ -16,28 +16,17 @@
 
 package tests.api.org.xml.sax.helpers;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import org.xml.sax.helpers.ParserFactory;
 
 @SuppressWarnings("deprecation")
-@TestTargetClass(ParserFactory.class)
 public class ParserFactoryTest extends TestCase {
 
     @Override protected void tearDown() throws Exception {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "makeParser",
-        args = { },
-        notes = "Checks everything except META-INF case"
-    )
     public void testMakeParser() throws ClassNotFoundException,
             IllegalAccessException, InstantiationException {
 
@@ -102,11 +91,6 @@ public class ParserFactoryTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "makeParser",
-        args = { String.class }
-    )
     public void testMakeParserString() throws ClassNotFoundException,
             IllegalAccessException, InstantiationException {
         // No class

@@ -19,8 +19,8 @@ package java.security;
 
 import java.nio.ByteOrder;
 import java.util.Random;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.Services;
 import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
@@ -56,9 +56,8 @@ import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
  * seed will cause the instance to return a predictable sequence of numbers.
  * This may be useful for testing but it is not appropriate for secure use.
  *
- * <p>Although it is common practice to seed {@link Random} with the current
- * time, that is dangerous with {@code SecureRandom} since that value is
- * predictable to an attacker and not appropriate for secure use.
+ * <p>It is dangerous to seed {@code SecureRandom} with the current time because
+ * that value is more predictable to an attacker than the default seed.
  *
  * <p>Calling {@link #setSeed} on a {@code SecureRandom} <i>after</i> it has
  * been used to generate random numbers (ie. calling {@link #nextBytes}) will
@@ -259,7 +258,7 @@ public class SecureRandom extends Random {
             return;
         }
         byte[] byteSeed = new byte[SizeOf.LONG];
-        OSMemory.pokeLong(byteSeed, 0, seed, ByteOrder.BIG_ENDIAN);
+        Memory.pokeLong(byteSeed, 0, seed, ByteOrder.BIG_ENDIAN);
         setSeed(byteSeed);
     }
 

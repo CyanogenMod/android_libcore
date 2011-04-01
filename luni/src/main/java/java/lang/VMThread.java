@@ -16,9 +16,6 @@
 
 package java.lang;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 class VMThread {
     Thread thread;
     int vmData;
@@ -46,41 +43,11 @@ class VMThread {
         VMThread.create(thread, stackSize);
     }
 
-    private static final String UNSUPPORTED_THREAD_METHOD
-            = "Deprecated Thread methods are not supported.";
-
-    /**
-     * Suspends the Thread.
-     */
-    @SuppressWarnings("ThrowableInstanceNeverThrown")
-    void suspend() {
-        Logger.global.log(Level.SEVERE, UNSUPPORTED_THREAD_METHOD,
-                new UnsupportedOperationException());
-    }
-
-    /**
-     * Resumes the Thread, assuming it is suspended.
-     */
-    @SuppressWarnings("ThrowableInstanceNeverThrown")
-    void resume() {
-        Logger.global.log(Level.SEVERE, UNSUPPORTED_THREAD_METHOD,
-                new UnsupportedOperationException());
-    }
-
     /**
      * Queries whether this Thread holds a monitor lock on the
      * given object.
      */
     native boolean holdsLock(Object object);
-
-    /**
-     * Stops the Thread, passing it a Throwable (which might be ThreadDeath).
-     */
-    @SuppressWarnings("ThrowableInstanceNeverThrown")
-    void stop(Throwable throwable) {
-        Logger.global.log(Level.SEVERE, UNSUPPORTED_THREAD_METHOD,
-                new UnsupportedOperationException());
-    }
 
     native void setPriority(int newPriority);
     native int getStatus();
@@ -108,4 +75,3 @@ class VMThread {
      */
     native void nameChanged(String newName);
 }
-

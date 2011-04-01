@@ -53,33 +53,27 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
  *   unauthenticatedAttributes
  *     [1] IMPLICIT Attributes OPTIONAL
  *  }
- *
  */
-public class SignerInfo {
+public final class SignerInfo {
+    private final int version;
+    private final X500Principal issuer;
+    private final BigInteger serialNumber;
+    private final AlgorithmIdentifier digestAlgorithm;
+    private final AuthenticatedAttributes authenticatedAttributes;
+    private final AlgorithmIdentifier digestEncryptionAlgorithm;
+    private final byte[] encryptedDigest;
+    private final List<?> unauthenticatedAttributes;
 
-    private int version;
-    private X500Principal issuer;
-    private BigInteger serialNumber;
-
-    private AlgorithmIdentifier digestAlgorithm;
-    private AuthenticatedAttributes authenticatedAttributes;
-    private AlgorithmIdentifier digestEncryptionAlgorithm;
-    private byte[] encryptedDigest;
-    private List unauthenticatedAttributes;
-
-    public SignerInfo(int version,
+    private SignerInfo(int version,
             Object[] issuerAndSerialNumber,
             AlgorithmIdentifier digestAlgorithm,
             AuthenticatedAttributes authenticatedAttributes,
             AlgorithmIdentifier digestEncryptionAlgorithm,
             byte[] encryptedDigest,
-            List unauthenticatedAttributes
-            ) {
+            List<?> unauthenticatedAttributes) {
         this.version = version;
         this.issuer = ((Name)issuerAndSerialNumber[0]).getX500Principal();
-        // BEGIN android-changed
         this.serialNumber = ASN1Integer.toBigIntegerValue(issuerAndSerialNumber[1]);
-        // END android-changed
         this.digestAlgorithm = digestAlgorithm;
         this.authenticatedAttributes = authenticatedAttributes;
         this.digestEncryptionAlgorithm = digestEncryptionAlgorithm;
@@ -99,15 +93,11 @@ public class SignerInfo {
         return digestAlgorithm.getAlgorithm();
     }
 
-    public String getdigestAlgorithm() {
-        return digestAlgorithm.getAlgorithm();
-    }
-
     public String getDigestEncryptionAlgorithm() {
         return digestEncryptionAlgorithm.getAlgorithm();
     }
 
-    public List getAuthenticatedAttributes() {
+    public List<AttributeTypeAndValue> getAuthenticatedAttributes() {
         if (authenticatedAttributes == null) {
             return null;
         }
@@ -159,7 +149,7 @@ public class SignerInfo {
             })
         {
             // method to encode
-            public void getValues(Object object, Object[] values) {
+            @Override public void getValues(Object object, Object[] values) {
                 Object [] issAndSerial = (Object[])object;
                 values[0] = issAndSerial[0];
                 values[1] = issAndSerial[1];
@@ -182,7 +172,7 @@ public class SignerInfo {
             setOptional(6); // unauthenticatedAttributes is optional
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             SignerInfo si = (SignerInfo) object;
             values[0] = new byte[] {(byte)si.version};
             try {
@@ -201,7 +191,7 @@ public class SignerInfo {
             values[6] = si.unauthenticatedAttributes;
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new SignerInfo(
                         ASN1Integer.toIntValue(values[0]),

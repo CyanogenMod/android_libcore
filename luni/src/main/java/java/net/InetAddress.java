@@ -26,15 +26,15 @@ import java.io.ObjectStreamException;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.nio.ByteOrder;
-import java.security.AccessController;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Libcore;
+import libcore.io.IoUtils;
+import libcore.io.Memory;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and
@@ -269,19 +269,14 @@ public class InetAddress implements Serializable {
             return new InetAddress[] { makeInetAddress(bytes, null) };
         }
 
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkConnect(host, -1);
-        }
-
         return lookupHostByName(host);
     }
 
-    private static InetAddress makeInetAddress(byte[] bytes, String hostname) throws UnknownHostException {
+    private static InetAddress makeInetAddress(byte[] bytes, String hostName) throws UnknownHostException {
         if (bytes.length == 4) {
-            return new Inet4Address(bytes, hostname);
+            return new Inet4Address(bytes, hostName);
         } else if (bytes.length == 16) {
-            return new Inet6Address(bytes, hostname, 0);
+            return new Inet6Address(bytes, hostName, 0);
         } else {
             throw badAddressLength(bytes);
         }
@@ -292,8 +287,7 @@ public class InetAddress implements Serializable {
     static native byte[] ipStringToByteArray(String address);
 
     static boolean preferIPv6Addresses() {
-        String propertyName = "java.net.preferIPv6Addresses";
-        String propertyValue = AccessController.doPrivileged(new PriviAction<String>(propertyName));
+        String propertyValue = System.getProperty("java.net.preferIPv6Addresses");
         return Boolean.parseBoolean(propertyValue);
     }
 
@@ -335,7 +329,7 @@ public class InetAddress implements Serializable {
             if (hostName == null) {
                 int address = 0;
                 if (ipaddress.length == 4) {
-                    address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+                    address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                     if (address == 0) {
                         return hostName = byteArrayToIpString(ipaddress);
                     }
@@ -349,47 +343,25 @@ public class InetAddress implements Serializable {
         } catch (UnknownHostException e) {
             return hostName = byteArrayToIpString(ipaddress);
         }
-        SecurityManager security = System.getSecurityManager();
-        try {
-            // Only check host names, not addresses
-            if (security != null && !isNumeric(hostName)) {
-                security.checkConnect(hostName, -1);
-            }
-        } catch (SecurityException e) {
-            return byteArrayToIpString(ipaddress);
-        }
         return hostName;
     }
 
     /**
-     * Gets the fully qualified domain name for the host associated with this IP
-     * address. If a security manager is set, it is checked if the method caller
-     * is allowed to get the hostname. Otherwise, the textual representation in
-     * a dotted-quad-notation is returned.
-     *
-     * @return the fully qualified domain name of this IP address.
+     * Returns the fully qualified domain name for the host associated with this IP
+     * address.
      */
     public String getCanonicalHostName() {
         String canonicalName;
         try {
             int address = 0;
             if (ipaddress.length == 4) {
-                address = OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
+                address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
                 if (address == 0) {
                     return byteArrayToIpString(ipaddress);
                 }
             }
             canonicalName = getHostByAddrImpl(ipaddress).hostName;
         } catch (UnknownHostException e) {
-            return byteArrayToIpString(ipaddress);
-        }
-        SecurityManager security = System.getSecurityManager();
-        try {
-            // Only check host names, not addresses
-            if (security != null && !isNumeric(canonicalName)) {
-                security.checkConnect(canonicalName, -1);
-            }
-        } catch (SecurityException e) {
             return byteArrayToIpString(ipaddress);
         }
         return canonicalName;
@@ -433,18 +405,9 @@ public class InetAddress implements Serializable {
      *             if the address lookup fails.
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
-        String host = gethostname();
-        SecurityManager security = System.getSecurityManager();
-        try {
-            if (security != null) {
-                security.checkConnect(host, -1);
-            }
-        } catch (SecurityException e) {
-            return Inet4Address.LOOPBACK;
-        }
+        String host = Libcore.os.uname().nodename; // Can only throw EFAULT (which can't happen).
         return lookupHostByName(host)[0];
     }
-    private static native String gethostname();
 
     /**
      * Gets the hashcode of the represented IP address.
@@ -525,17 +488,11 @@ public class InetAddress implements Serializable {
      */
     private static native String getnameinfo(byte[] addr);
 
-    static String getHostNameInternal(String host, boolean isCheck) throws UnknownHostException {
+    static String getHostNameInternal(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             return Inet4Address.LOOPBACK.getHostAddress();
         }
         if (!isNumeric(host)) {
-            if (isCheck) {
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm.checkConnect(host, -1);
-                }
-            }
             return lookupHostByName(host)[0].getHostAddress();
         }
         return host;
@@ -593,6 +550,15 @@ public class InetAddress implements Serializable {
         } else {
             return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
         }
+    }
+
+    /**
+     * Returns the IPv6 loopback address {@code ::1} or the IPv4 loopback address {@code 127.0.0.1}.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static InetAddress getLoopbackAddress() {
+        return loopbackAddresses()[0];
     }
 
     /**
@@ -882,11 +848,9 @@ public class InetAddress implements Serializable {
         return false;
     }
 
-    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout)
-            throws IOException {
-        FileDescriptor fd = new FileDescriptor();
+    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout) throws IOException {
+        FileDescriptor fd = IoUtils.socket(true);
         boolean reached = false;
-        Platform.NETWORK.socket(fd, true);
         try {
             if (source != null) {
                 Platform.NETWORK.bind(fd, source, 0);
@@ -906,46 +870,77 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Returns the {@code InetAddress} corresponding to the array of bytes. In
-     * the case of an IPv4 address there must be exactly 4 bytes and for IPv6
-     * exactly 16 bytes. If not, an {@code UnknownHostException} is thrown.
-     * <p>
-     * The IP address is not validated by a name service.
-     * <p>
-     * The high order byte is {@code ipAddress[0]}.
+     * Equivalent to {@code getByAddress(null, ipAddress, 0)}. Handy for IPv4 addresses with
+     * no associated hostname.
      *
-     * @param ipAddress
-     *            is either a 4 (IPv4) or 16 (IPv6) byte long array.
-     * @return an {@code InetAddress} instance representing the given IP address
-     *         {@code ipAddress}.
-     * @throws UnknownHostException
-     *             if the given byte array has no valid length.
+     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
+     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
      */
-    public static InetAddress getByAddress(byte[] ipAddress)
-            throws UnknownHostException {
-        // simply call the method by the same name specifying the default scope
-        // id of 0
+    public static InetAddress getByAddress(byte[] ipAddress) throws UnknownHostException {
         return getByAddressInternal(null, ipAddress, 0);
     }
 
     /**
-     * Returns the {@code InetAddress} corresponding to the array of bytes. In
-     * the case of an IPv4 address there must be exactly 4 bytes and for IPv6
-     * exactly 16 bytes. If not, an {@code UnknownHostException} is thrown. The
-     * IP address is not validated by a name service. The high order byte is
-     * {@code ipAddress[0]}.
+     * Equivalent to {@code getByAddress(null, ipAddress, scopeId)}. Handy for IPv6 addresses
+     * with no associated hostname.
      *
-     * @param ipAddress
-     *            either a 4 (IPv4) or 16 (IPv6) byte array.
-     * @param scope_id
-     *            the scope id for an IPv6 scoped address. If not a scoped
-     *            address just pass in 0.
-     * @return the InetAddress
-     * @throws UnknownHostException
+     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
+     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
      */
-    static InetAddress getByAddress(byte[] ipAddress, int scope_id)
+    static InetAddress getByAddress(byte[] ipAddress, int scopeId) throws UnknownHostException {
+        return getByAddressInternal(null, ipAddress, scopeId);
+    }
+
+    /**
+     * Equivalent to {@code getByAddress(hostName, ipAddress, 0)}. Handy for IPv4 addresses
+     * with an associated hostname.
+     *
+     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
+     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
+     */
+    public static InetAddress getByAddress(String hostName, byte[] ipAddress) throws UnknownHostException {
+        return getByAddressInternal(hostName, ipAddress, 0);
+    }
+
+    /**
+     * Returns an {@code InetAddress} corresponding to the given network-order
+     * bytes {@code ipAddress} and {@code scopeId}.
+     *
+     * <p>For an IPv4 address, the byte array must be of length 4, and the scopeId is ignored.
+     * For IPv6, the byte array must be of length 16. Any other length will cause an {@code
+     * UnknownHostException}.
+     *
+     * <p>No reverse lookup is performed. The given {@code hostName} (which may be null) is
+     * associated with the new {@code InetAddress} with no validation done.
+     *
+     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
+     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
+     *
+     * @throws UnknownHostException if {@code ipAddress} is null or the wrong length.
+     */
+    static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scopeId)
             throws UnknownHostException {
-        return getByAddressInternal(null, ipAddress, scope_id);
+        if (ipAddress == null) {
+            throw new UnknownHostException("ipAddress == null");
+        }
+        if (ipAddress.length == 4) {
+            return new Inet4Address(ipAddress.clone(), hostName);
+        } else if (ipAddress.length == 16) {
+            // First check to see if the address is an IPv6-mapped
+            // IPv4 address. If it is, then we can make it a IPv4
+            // address, otherwise, we'll create an IPv6 address.
+            if (isIPv4MappedAddress(ipAddress)) {
+                return new Inet4Address(ipv4MappedToIPv4(ipAddress), hostName);
+            } else {
+                return new Inet6Address(ipAddress.clone(), hostName, scopeId);
+            }
+        } else {
+            throw badAddressLength(ipAddress);
+        }
+    }
+
+    private static UnknownHostException badAddressLength(byte[] bytes) throws UnknownHostException {
+        throw new UnknownHostException("Address is neither 4 or 16 bytes: " + Arrays.toString(bytes));
     }
 
     private static boolean isIPv4MappedAddress(byte[] ipAddress) {
@@ -974,89 +969,18 @@ public class InetAddress implements Serializable {
         return ipv4Address;
     }
 
-    /**
-     * Returns the {@code InetAddress} corresponding to the array of bytes, and
-     * the given hostname. In the case of an IPv4 address there must be exactly
-     * 4 bytes and for IPv6 exactly 16 bytes. If not, an {@code
-     * UnknownHostException} will be thrown.
-     * <p>
-     * The host name and IP address are not validated.
-     * <p>
-     * The hostname either be a machine alias or a valid IPv6 or IPv4 address
-     * format.
-     * <p>
-     * The high order byte is {@code ipAddress[0]}.
-     *
-     * @param hostName
-     *            the string representation of hostname or IP address.
-     * @param ipAddress
-     *            either a 4 (IPv4) or 16 (IPv6) byte long array.
-     * @return an {@code InetAddress} instance representing the given IP address
-     *         and hostname.
-     * @throws UnknownHostException
-     *             if the given byte array has no valid length.
-     */
-    public static InetAddress getByAddress(String hostName, byte[] ipAddress)
-            throws UnknownHostException {
-        // just call the method by the same name passing in a default scope id
-        // of 0
-        return getByAddressInternal(hostName, ipAddress, 0);
-    }
-
-    /**
-     * Returns the {@code InetAddress} corresponding to the array of bytes, and
-     * the given hostname. In the case of an IPv4 address there must be exactly
-     * 4 bytes and for IPv6 exactly 16 bytes. If not, an {@code
-     * UnknownHostException} is thrown. The host name and IP address are not
-     * validated. The hostname either be a machine alias or a valid IPv6 or IPv4
-     * address format. The high order byte is {@code ipAddress[0]}.
-     *
-     * @param hostName
-     *            string representation of hostname or IP address.
-     * @param ipAddress
-     *            either a 4 (IPv4) or 16 (IPv6) byte array.
-     * @param scope_id
-     *            the scope id for a scoped address. If not a scoped address
-     *            just pass in 0.
-     * @return the InetAddress
-     * @throws UnknownHostException
-     */
-    static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scope_id)
-            throws UnknownHostException {
-        if (ipAddress == null) {
-            throw new UnknownHostException("ipAddress == null");
-        }
-        if (ipAddress.length == 4) {
-            return new Inet4Address(ipAddress.clone(), hostName);
-        } else if (ipAddress.length == 16) {
-            // First check to see if the address is an IPv6-mapped
-            // IPv4 address. If it is, then we can make it a IPv4
-            // address, otherwise, we'll create an IPv6 address.
-            if (isIPv4MappedAddress(ipAddress)) {
-                return new Inet4Address(ipv4MappedToIPv4(ipAddress), hostName);
-            } else {
-                return new Inet6Address(ipAddress.clone(), hostName, scope_id);
-            }
-        } else {
-            throw badAddressLength(ipAddress);
-        }
-    }
-
-    private static UnknownHostException badAddressLength(byte[] bytes) throws UnknownHostException {
-        throw new UnknownHostException("Address is neither 4 or 16 bytes: " + Arrays.toString(bytes));
-    }
-
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("address", Integer.TYPE),
-            new ObjectStreamField("family", Integer.TYPE),
-            new ObjectStreamField("hostName", String.class) };
+        new ObjectStreamField("address", int.class),
+        new ObjectStreamField("family", int.class),
+        new ObjectStreamField("hostName", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
         if (ipaddress == null) {
             fields.put("address", 0);
         } else {
-            fields.put("address", OSMemory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN));
+            fields.put("address", Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN));
         }
         fields.put("family", family);
         fields.put("hostName", hostName);
@@ -1068,7 +992,7 @@ public class InetAddress implements Serializable {
         ObjectInputStream.GetField fields = stream.readFields();
         int addr = fields.get("address", 0);
         ipaddress = new byte[4];
-        OSMemory.pokeInt(ipaddress, 0, addr, ByteOrder.BIG_ENDIAN);
+        Memory.pokeInt(ipaddress, 0, addr, ByteOrder.BIG_ENDIAN);
         hostName = (String) fields.get("hostName", null);
         family = fields.get("family", 2);
     }

@@ -21,10 +21,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.StringTokenizer;
-import org.apache.harmony.luni.platform.INetworkSystem;
-import org.apache.harmony.luni.platform.Platform;
+import java.util.Locale;
+import libcore.net.UriCodec;
 
 /**
  * This class represents an instance of a URI as defined by RFC 2396.
@@ -35,9 +33,47 @@ public final class URI implements Comparable<URI>, Serializable {
 
     static final String UNRESERVED = "_-!.~\'()*";
     static final String PUNCTUATION = ",;:$&+=";
-    static final String RESERVED = PUNCTUATION + "?/[]@";
-    static final String SOME_LEGAL = UNRESERVED + PUNCTUATION;
-    static final String ALL_LEGAL = UNRESERVED + RESERVED;
+
+    static final UriCodec USER_INFO_ENCODER = new PartEncoder("");
+    static final UriCodec PATH_ENCODER = new PartEncoder("/@");
+    static final UriCodec AUTHORITY_ENCODER = new PartEncoder("@[]");
+
+    /** for java.net.URL, which foolishly combines these two parts */
+    static final UriCodec FILE_AND_QUERY_ENCODER = new PartEncoder("/@?");
+
+    /** for query, fragment, and scheme-specific part */
+    static final UriCodec ALL_LEGAL_ENCODER = new PartEncoder("?/[]@");
+
+    /** Retains all ASCII chars including delimiters. */
+    private static final UriCodec ASCII_ONLY = new UriCodec() {
+        @Override protected boolean isRetained(char c) {
+            return c <= 127;
+        }
+    };
+
+    /**
+     * Encodes the unescaped characters of {@code s} that are not permitted.
+     * Permitted characters are:
+     * <ul>
+     *   <li>Unreserved characters in RFC 2396.
+     *   <li>{@code extraOkayChars},
+     *   <li>non-ASCII, non-control, non-whitespace characters
+     * </ul>
+     */
+    private static class PartEncoder extends UriCodec {
+        private final String extraLegalCharacters;
+
+        PartEncoder(String extraLegalCharacters) {
+            this.extraLegalCharacters = extraLegalCharacters;
+        }
+
+        @Override protected boolean isRetained(char c) {
+            return UNRESERVED.indexOf(c) != -1
+                    || PUNCTUATION.indexOf(c) != -1
+                    || extraLegalCharacters.indexOf(c) != -1
+                    || (c > 127 && !Character.isSpaceChar(c) && !Character.isISOControl(c));
+        }
+    }
 
     private String string;
     private transient String scheme;
@@ -95,13 +131,11 @@ public final class URI implements Comparable<URI>, Serializable {
             uri.append(':');
         }
         if (ssp != null) {
-            // QUOTE ILLEGAL CHARACTERS
-            uri.append(quoteComponent(ssp, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, ssp);
         }
         if (frag != null) {
             uri.append('#');
-            // QUOTE ILLEGAL CHARACTERS
-            uri.append(quoteComponent(frag, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, frag);
         }
 
         parseURI(uri.toString(), false);
@@ -160,8 +194,7 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         if (userInfo != null) {
-            // QUOTE ILLEGAL CHARACTERS in userInfo
-            uri.append(quoteComponent(userInfo, SOME_LEGAL));
+            USER_INFO_ENCODER.appendEncoded(uri, userInfo);
             uri.append('@');
         }
 
@@ -181,20 +214,17 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         if (path != null) {
-            // QUOTE ILLEGAL CHARS
-            uri.append(quoteComponent(path, "/@" + SOME_LEGAL));
+            PATH_ENCODER.appendEncoded(uri, path);
         }
 
         if (query != null) {
             uri.append('?');
-            // QUOTE ILLEGAL CHARS
-            uri.append(quoteComponent(query, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, query);
         }
 
         if (fragment != null) {
-            // QUOTE ILLEGAL CHARS
             uri.append('#');
-            uri.append(quoteComponent(fragment, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, fragment);
         }
 
         parseURI(uri.toString(), true);
@@ -260,23 +290,19 @@ public final class URI implements Comparable<URI>, Serializable {
         }
         if (authority != null) {
             uri.append("//");
-            // QUOTE ILLEGAL CHARS
-            uri.append(quoteComponent(authority, "@[]" + SOME_LEGAL));
+            AUTHORITY_ENCODER.appendEncoded(uri, authority);
         }
 
         if (path != null) {
-            // QUOTE ILLEGAL CHARS
-            uri.append(quoteComponent(path, "/@" + SOME_LEGAL));
+            PATH_ENCODER.appendEncoded(uri, path);
         }
         if (query != null) {
-            // QUOTE ILLEGAL CHARS
             uri.append('?');
-            uri.append(quoteComponent(query, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, query);
         }
         if (fragment != null) {
-            // QUOTE ILLEGAL CHARS
             uri.append('#');
-            uri.append(quoteComponent(fragment, ALL_LEGAL));
+            ALL_LEGAL_ENCODER.appendEncoded(uri, fragment);
         }
 
         parseURI(uri.toString(), false);
@@ -390,7 +416,7 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         try {
-            URIEncoderDecoder.validateSimple(scheme, "+-.");
+            UriCodec.validateSimple(scheme, "+-.");
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri, "Illegal character in scheme", index + e.getIndex());
         }
@@ -399,7 +425,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private void validateSsp(String uri, String ssp, int index)
             throws URISyntaxException {
         try {
-            URIEncoderDecoder.validate(ssp, ALL_LEGAL);
+            ALL_LEGAL_ENCODER.validate(ssp);
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri,
                     e.getReason() + " in schemeSpecificPart", index + e.getIndex());
@@ -409,7 +435,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private void validateAuthority(String uri, String authority, int index)
             throws URISyntaxException {
         try {
-            URIEncoderDecoder.validate(authority, "@[]" + SOME_LEGAL);
+            AUTHORITY_ENCODER.validate(authority);
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri, e.getReason() + " in authority", index + e.getIndex());
         }
@@ -418,7 +444,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private void validatePath(String uri, String path, int index)
             throws URISyntaxException {
         try {
-            URIEncoderDecoder.validate(path, "/@" + SOME_LEGAL);
+            PATH_ENCODER.validate(path);
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri, e.getReason() + " in path", index + e.getIndex());
         }
@@ -427,7 +453,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private void validateQuery(String uri, String query, int index)
             throws URISyntaxException {
         try {
-            URIEncoderDecoder.validate(query, ALL_LEGAL);
+            ALL_LEGAL_ENCODER.validate(query);
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri, e.getReason() + " in query", index + e.getIndex());
 
@@ -437,7 +463,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private void validateFragment(String uri, String fragment, int index)
             throws URISyntaxException {
         try {
-            URIEncoderDecoder.validate(fragment, ALL_LEGAL);
+            ALL_LEGAL_ENCODER.validate(fragment);
         } catch (URISyntaxException e) {
             throw new URISyntaxException(uri, e.getReason() + " in fragment", index + e.getIndex());
         }
@@ -588,15 +614,14 @@ public final class URI implements Comparable<URI>, Serializable {
 
     private boolean isValidDomainName(String host) {
         try {
-            URIEncoderDecoder.validateSimple(host, "-.");
+            UriCodec.validateSimple(host, "-.");
         } catch (URISyntaxException e) {
             return false;
         }
 
         String lastLabel = null;
-        StringTokenizer st = new StringTokenizer(host, ".");
-        while (st.hasMoreTokens()) {
-            lastLabel = st.nextToken();
+        for (String token : host.split("\\.")) {
+            lastLabel = token;
             if (lastLabel.startsWith("-") || lastLabel.endsWith("-")) {
                 return false;
             }
@@ -613,27 +638,6 @@ public final class URI implements Comparable<URI>, Serializable {
             }
         }
         return true;
-    }
-
-    /**
-     * Quote illegal chars for each component, but not the others
-     *
-     * @param component java.lang.String the component to be converted
-     * @param legalSet the legal character set allowed in the component
-     * @return java.lang.String the converted string
-     */
-    private String quoteComponent(String component, String legalSet) {
-        try {
-            /*
-             * Use a different encoder than URLEncoder since: 1. chars like "/",
-             * "#", "@" etc needs to be preserved instead of being encoded, 2.
-             * UTF-8 char set needs to be used for encoding instead of default
-             * platform one
-             */
-            return URIEncoderDecoder.quoteIllegal(component, legalSet);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
     }
 
     /**
@@ -800,7 +804,7 @@ public final class URI implements Comparable<URI>, Serializable {
         int index, prevIndex = 0;
         while ((index = s.indexOf('%', prevIndex)) != -1) {
             result.append(s.substring(prevIndex, index + 1));
-            result.append(s.substring(index + 1, index + 3).toLowerCase());
+            result.append(s.substring(index + 1, index + 3).toLowerCase(Locale.US));
             index += 3;
             prevIndex = index;
         }
@@ -1399,36 +1403,8 @@ public final class URI implements Comparable<URI>, Serializable {
         return resolve(create(relative));
     }
 
-    /**
-     * Encode unicode chars that are not part of US-ASCII char set into the
-     * escaped form
-     *
-     * i.e. The Euro currency symbol is encoded as "%E2%82%AC".
-     */
-    private String encodeNonAscii(String s) {
-        try {
-            /*
-             * Use a different encoder than URLEncoder since: 1. chars like "/",
-             * "#", "@" etc needs to be preserved instead of being encoded, 2.
-             * UTF-8 char set needs to be used for encoding instead of default
-             * platform one 3. Only other chars need to be converted
-             */
-            return URIEncoderDecoder.encodeOthers(s);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
-    }
-
     private String decode(String s) {
-        if (s == null) {
-            return s;
-        }
-
-        try {
-            return URIEncoderDecoder.decode(s);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
+        return s != null ? UriCodec.decode(s) : null;
     }
 
     /**
@@ -1438,7 +1414,9 @@ public final class URI implements Comparable<URI>, Serializable {
      * @return the US-ASCII string representation of this URI.
      */
     public String toASCIIString() {
-        return encodeNonAscii(toString());
+        StringBuilder result = new StringBuilder();
+        ASCII_ONLY.appendEncoded(result, toString());
+        return result.toString();
     }
 
     /**
@@ -1490,7 +1468,7 @@ public final class URI implements Comparable<URI>, Serializable {
     private String getHashString() {
         StringBuilder result = new StringBuilder();
         if (scheme != null) {
-            result.append(scheme.toLowerCase());
+            result.append(scheme.toLowerCase(Locale.US));
             result.append(':');
         }
         if (opaque) {
@@ -1504,7 +1482,7 @@ public final class URI implements Comparable<URI>, Serializable {
                     if (userInfo != null) {
                         result.append(userInfo + "@");
                     }
-                    result.append(host.toLowerCase());
+                    result.append(host.toLowerCase(Locale.US));
                     if (port != -1) {
                         result.append(":" + port);
                     }

@@ -18,8 +18,6 @@
 package java.net;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
-import java.util.Locale;
 import libcore.util.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
@@ -313,144 +311,54 @@ public abstract class URLStreamHandler {
         if (authority != null && !authority.isEmpty()) {
             result.append("//");
             if (escapeIllegalCharacters) {
-                authority = fixEncoding(authority, "$,;@&=+:[]");
+                URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, authority);
+            } else {
+                result.append(authority);
             }
-            result.append(authority);
         }
 
         String fileAndQuery = url.getFile();
         if (fileAndQuery != null) {
             if (escapeIllegalCharacters) {
-                fileAndQuery = fixEncoding(fileAndQuery, "$,;@&=+:/?");
+                URI.FILE_AND_QUERY_ENCODER.appendPartiallyEncoded(result, fileAndQuery);
+            } else {
+                result.append(fileAndQuery);
             }
-            result.append(fileAndQuery);
         }
 
         String ref = url.getRef();
         if (ref != null) {
             result.append('#');
             if (escapeIllegalCharacters) {
-                ref = fixEncoding(ref, "$,;@&=+:/?[]");
+                URI.ALL_LEGAL_ENCODER.appendPartiallyEncoded(result, ref);
+            } else {
+                result.append(ref);
             }
-            result.append(ref);
         }
 
         return result.toString();
     }
 
     /**
-     * Escapes the unescaped characters of {@code s} that are not permitted.
-     * Permitted characters are:
-     * <ul>
-     *   <li>Unreserved characters in RFC 2396.
-     *   <li>{@code extraOkayChars},
-     *   <li>non-ASCII, non-control, non-whitespace characters
-     * </ul>
-     *
-     * <p>Unlike the methods in {@code URI}, this method ignores input that has
-     * already been escaped. For example, input of "hello%20world" is unchanged
-     * by this method but would be double-escaped to "hello%2520world" by URI.
-     *
-     * <p>UTF-8 is used to encode escaped characters. A single input character
-     * like "\u0080" may be encoded to multiple octets like %C2%80.
+     * Returns true if {@code a} and {@code b} have the same protocol, host,
+     * port, file, and reference.
      */
-    private String fixEncoding(String s, String extraPermittedChars) {
-        StringBuilder result = null;
-        int copiedCount = 0;
-
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-
-            if (c == '%') {
-                i += 2; // this is a 3-character sequence like "%20"
-                continue;
-            }
-
-            // unreserved characters: alphanum | mark
-            if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
-                    || c == '-' || c == '_' || c == '.' || c == '!' || c == '~'
-                    || c == '*' || c == '\'' || c == '(' || c == ')') {
-                continue;
-            }
-
-            // characters permitted in this context
-            if (extraPermittedChars.indexOf(c) != -1) {
-                continue;
-            }
-
-            // other characters
-            if (c > 0x7f && !Character.isISOControl(c) && !Character.isSpaceChar(c)) {
-                continue;
-            }
-
-            /*
-             * We've encountered a character that must be escaped.
-             */
-            if (result == null) {
-                result = new StringBuilder();
-            }
-            result.append(s, copiedCount, i);
-
-            if (c < 0x7f) {
-                appendHex(result, c);
-            } else {
-                for (byte b : s.substring(i, i + 1).getBytes(Charsets.UTF_8)) {
-                    appendHex(result, b & 0xff);
-                }
-            }
-
-            copiedCount = i + 1;
-        }
-
-        if (result == null) {
-            return s;
-        } else {
-            result.append(s, copiedCount, s.length());
-            return result.toString();
-        }
-    }
-
-    private void appendHex(StringBuilder stringBuilder, int b) {
-        String hex = Integer.toHexString(b).toUpperCase(Locale.US);
-        stringBuilder.append(hex.length() == 1 ? "%0" : "%").append(hex); // always 2 hex digits
-    }
-
-    /**
-     * Compares two URL objects whether they represent the same URL. Two URLs
-     * are equal if they have the same file, host, port, protocol, query, and
-     * reference components.
-     *
-     * @param url1
-     *            the first URL to compare.
-     * @param url2
-     *            the second URL to compare.
-     * @return {@code true} if the URLs are the same, {@code false} otherwise.
-     * @see #hashCode
-     */
-    protected boolean equals(URL url1, URL url2) {
-        if (!sameFile(url1, url2)) {
-            return false;
-        }
-        return Objects.equal(url1.getRef(), url2.getRef())
-                && Objects.equal(url1.getQuery(), url2.getQuery());
+    protected boolean equals(URL a, URL b) {
+        return sameFile(a, b)
+                && Objects.equal(a.getRef(), b.getRef())
+                && Objects.equal(a.getQuery(), b.getQuery());
     }
 
     /**
      * Returns the default port of the protocol used by the handled URL. The
-     * current implementation returns always {@code -1}.
-     *
-     * @return the appropriate default port number of the protocol.
+     * default implementation always returns {@code -1}.
      */
     protected int getDefaultPort() {
         return -1;
     }
 
     /**
-     * Returns the host address of the given URL.
-     *
-     * @param url
-     *            the URL object where to read the host address from.
-     * @return the host address of the specified URL.
+     * Returns the host address of {@code url}.
      */
     protected InetAddress getHostAddress(URL url) {
         try {
@@ -465,70 +373,33 @@ public abstract class URLStreamHandler {
     }
 
     /**
-     * Returns the hashcode value for the given URL object.
-     *
-     * @param url
-     *            the URL to determine the hashcode.
-     * @return the hashcode of the given URL.
+     * Returns the hash code of {@code url}.
      */
     protected int hashCode(URL url) {
         return toExternalForm(url).hashCode();
     }
 
     /**
-     * Compares two URL objects whether they refer to the same host.
-     *
-     * @param a the first URL to be compared.
-     * @param b the second URL to be compared.
-     * @return {@code true} if both URLs refer to the same host, {@code false}
-     *         otherwise.
+     * Returns true if the hosts of {@code a} and {@code b} are equal.
      */
     protected boolean hostsEqual(URL a, URL b) {
-        /*
-         * URLs with the same case-insensitive host name have equal hosts
-         */
+        // URLs with the same case-insensitive host name have equal hosts
         String aHost = getHost(a);
         String bHost = getHost(b);
-        if (aHost != null && aHost.equalsIgnoreCase(bHost)) {
-            return true;
-        }
-
-        /*
-         * Call out to DNS to resolve the host addresses. If this succeeds for
-         * both addresses and both addresses yield the same InetAddress, report
-         * equality.
-         *
-         * Although it's consistent with historical behavior of the RI, this
-         * approach is fundamentally broken. In particular, acting upon this
-         * result is bogus because a single server may serve content for many
-         * unrelated host names.
-         */
-        InetAddress aResolved = getHostAddress(a);
-        return aResolved != null && aResolved.equals(getHostAddress(b));
+        return aHost != null && aHost.equalsIgnoreCase(bHost);
     }
 
     /**
-     * Compares two URL objects whether they refer to the same file. In the
-     * comparison included are the URL components protocol, host, port and file.
-     *
-     * @param url1
-     *            the first URL to be compared.
-     * @param url2
-     *            the second URL to be compared.
-     * @return {@code true} if both URLs refer to the same file, {@code false}
-     *         otherwise.
+     * Returns true if {@code a} and {@code b} have the same protocol, host,
+     * port and file.
      */
-    protected boolean sameFile(URL url1, URL url2) {
-        return Objects.equal(url1.getProtocol(), url2.getProtocol())
-                && Objects.equal(url1.getFile(), url2.getFile())
-                && hostsEqual(url1, url2)
-                && url1.getEffectivePort() == url2.getEffectivePort();
+    protected boolean sameFile(URL a, URL b) {
+        return Objects.equal(a.getProtocol(), b.getProtocol())
+                && hostsEqual(a, b)
+                && a.getEffectivePort() == b.getEffectivePort()
+                && Objects.equal(a.getFile(), b.getFile());
     }
 
-    /*
-     * If the URL host is empty while protocal is file, the host is regarded as
-     * localhost.
-     */
     private static String getHost(URL url) {
         String host = url.getHost();
         if ("file".equals(url.getProtocol()) && host != null && host.isEmpty()) {

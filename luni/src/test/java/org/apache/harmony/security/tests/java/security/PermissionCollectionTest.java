@@ -22,22 +22,16 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.util.*;
 
 import junit.framework.TestCase;
-@TestTargetClass(PermissionCollection.class)
+
 /**
  * Tests for <code>PermissionCollection</code>
  *
  */
-
 public class PermissionCollectionTest extends TestCase {
 
     // Bare extension to instantiate abstract PermissionCollection class
@@ -69,20 +63,6 @@ public class PermissionCollectionTest extends TestCase {
     }
 
     /** Test read-only flag. Should be false by default and can be set once forever. */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isReadOnly",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setReadOnly",
-            args = {}
-        )
-    })
     public void testReadOnly()
     {
         PermissionCollection pc = new RealPermissionCollection(null);
@@ -93,12 +73,6 @@ public class PermissionCollectionTest extends TestCase {
         assertTrue("more calls to setReadOnly() should not harm", pc.isReadOnly());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void testToString() {
         Set<Permission> perm = new HashSet<Permission>();
         Permission p = new RealPermission("TestPermission");

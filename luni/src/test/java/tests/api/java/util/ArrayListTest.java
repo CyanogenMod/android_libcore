@@ -16,11 +16,6 @@
  */
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +28,6 @@ import java.util.Vector;
 
 import tests.support.Support_ListTest;
 
-@TestTargetClass(ArrayList.class)
 public class ArrayListTest extends junit.framework.TestCase {
 
     List alist;
@@ -41,14 +35,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     Object[] objArray;
 
     /**
-     * @tests java.util.ArrayList#ArrayList()
+     * java.util.ArrayList#ArrayList()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ArrayList",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.ArrayList()
         new Support_ListTest("", alist).runTest();
@@ -60,14 +48,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ArrayList(int)
+     * java.util.ArrayList#ArrayList(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ArrayList",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.ArrayList(int)
         ArrayList al = new ArrayList(5);
@@ -82,14 +64,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ArrayList(java.util.Collection)
+     * java.util.ArrayList#ArrayList(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Doesn't verify NullPointerException.",
-        method = "ArrayList",
-        args = {java.util.Collection.class}
-    )
     public void test_ConstructorLjava_util_Collection() {
         // Test for method java.util.ArrayList(java.util.Collection)
         ArrayList al = new ArrayList(Arrays.asList(objArray));
@@ -109,14 +85,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#add(int, java.lang.Object)
+     * java.util.ArrayList#add(int, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {int.class, java.lang.Object.class}
-    )
     public void test_addILjava_lang_Object() {
         // Test for method void java.util.ArrayList.add(int, java.lang.Object)
         Object o;
@@ -147,14 +117,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#add(java.lang.Object)
+     * java.util.ArrayList#add(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void test_addLjava_lang_Object() {
         // Test for method boolean java.util.ArrayList.add(java.lang.Object)
         Object o = new Object();
@@ -165,14 +129,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#addAll(int, java.util.Collection)
+     * java.util.ArrayList#addAll(int, java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void test_addAllILjava_util_Collection() {
         // Test for method boolean java.util.ArrayList.addAll(int,
         // java.util.Collection)
@@ -233,14 +191,8 @@ public class ArrayListTest extends junit.framework.TestCase {
 // preference to NullPointerException when the caller desserves both.
 //
 //    /**
-//     * @tests java.util.ArrayList#addAll(int, java.util.Collection)
+//     * java.util.ArrayList#addAll(int, java.util.Collection)
 //     */
-//    @TestTargetNew(
-//        level = TestLevel.PARTIAL_COMPLETE,
-//        notes = "Verifies IndexOutOfBoundsException.",
-//        method = "addAll",
-//        args = {int.class, java.util.Collection.class}
-//    )
 //    public void test_addAllILjava_util_Collection_2() {
 //        // Regression for HARMONY-467
 //        ArrayList obj = new ArrayList();
@@ -253,14 +205,8 @@ public class ArrayListTest extends junit.framework.TestCase {
 // END android-removed
 
     /**
-     * @tests java.util.ArrayList#addAll(java.util.Collection)
+     * java.util.ArrayList#addAll(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Doesn't verify NullPointerException.",
-        method = "addAll",
-        args = {java.util.Collection.class}
-    )
     public void test_addAllLjava_util_Collection() {
         // Test for method boolean
         // java.util.ArrayList.addAll(java.util.Collection)
@@ -319,14 +265,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#clear()
+     * java.util.ArrayList#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.ArrayList.clear()
         alist.clear();
@@ -345,14 +285,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#clone()
+     * java.util.ArrayList#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.ArrayList.clone()
         ArrayList x = (ArrayList) (((ArrayList) (alist)).clone());
@@ -373,14 +307,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#contains(java.lang.Object)
+     * java.util.ArrayList#contains(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
     public void test_containsLjava_lang_Object() {
         // Test for method boolean
         // java.util.ArrayList.contains(java.lang.Object)
@@ -398,14 +326,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ensureCapacity(int)
+     * java.util.ArrayList#ensureCapacity(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ensureCapacity",
-        args = {int.class}
-    )
     public void test_ensureCapacityI() {
         // Test for method void java.util.ArrayList.ensureCapacity(int)
         // TODO : There is no good way to test this as it only really impacts on
@@ -437,14 +359,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#get(int)
+     * java.util.ArrayList#get(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {int.class}
-    )
     public void test_getI() {
         // Test for method java.lang.Object java.util.ArrayList.get(int)
         assertTrue("Returned incorrect element", alist.get(22) == objArray[22]);
@@ -456,14 +372,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#indexOf(java.lang.Object)
+     * java.util.ArrayList#indexOf(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "indexOf",
-        args = {java.lang.Object.class}
-    )
     public void test_indexOfLjava_lang_Object() {
         // Test for method int java.util.ArrayList.indexOf(java.lang.Object)
         assertEquals("Returned incorrect index",
@@ -477,14 +387,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#isEmpty()
+     * java.util.ArrayList#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.ArrayList.isEmpty()
         assertTrue("isEmpty returned false for new list", new ArrayList()
@@ -494,14 +398,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#lastIndexOf(java.lang.Object)
+     * java.util.ArrayList#lastIndexOf(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "lastIndexOf",
-        args = {java.lang.Object.class}
-    )
     public void test_lastIndexOfLjava_lang_Object() {
         // Test for method int java.util.ArrayList.lastIndexOf(java.lang.Object)
         alist.add(new Integer(99));
@@ -516,14 +414,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#remove(int)
+     * java.util.ArrayList#remove(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {int.class}
-    )
     public void test_removeI() {
         // Test for method java.lang.Object java.util.ArrayList.remove(int)
         alist.remove(10);
@@ -569,14 +461,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#set(int, java.lang.Object)
+     * java.util.ArrayList#set(int, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "set",
-        args = {int.class, java.lang.Object.class}
-    )
     public void test_setILjava_lang_Object() {
         // Test for method java.lang.Object java.util.ArrayList.set(int,
         // java.lang.Object)
@@ -604,14 +490,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#size()
+     * java.util.ArrayList#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.ArrayList.size()
         assertEquals("Returned incorrect size for exiting list",
@@ -621,14 +501,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#toArray()
+     * java.util.ArrayList#toArray()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toArray",
-        args = {}
-    )
     public void test_toArray() {
         // Test for method java.lang.Object [] java.util.ArrayList.toArray()
         alist.set(25, null);
@@ -649,14 +523,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#toArray(java.lang.Object[])
+     * java.util.ArrayList#toArray(java.lang.Object[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toArray",
-        args = {java.lang.Object[].class}
-    )
     public void test_toArray$Ljava_lang_Object() {
         // Test for method java.lang.Object []
         // java.util.ArrayList.toArray(java.lang.Object [])
@@ -688,14 +556,8 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#trimToSize()
+     * java.util.ArrayList#trimToSize()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "trimToSize",
-        args = {}
-    )
     public void test_trimToSize_01() {
         // Test for method void java.util.ArrayList.trimToSize()
         for (int i = 99; i > 24; i--)
@@ -720,12 +582,6 @@ public class ArrayListTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "trimToSize",
-        args = {}
-    )
     public void test_trimToSize_02() {
         ArrayList list = new ArrayList(Arrays.asList(new String[] { "a", "b", "c",
                 "d", "e", "f", "g" }));
@@ -737,12 +593,6 @@ public class ArrayListTest extends junit.framework.TestCase {
     /**
      * @test java.util.ArrayList#addAll(int, Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify NullPointerException.",
-        method = "addAll",
-        args = {int.class, java.util.Collection.class}
-    )
     public void test_addAll() {
         ArrayList list = new ArrayList();
         list.add("one");
@@ -781,12 +631,6 @@ public class ArrayListTest extends junit.framework.TestCase {
         assertEquals(14, list.size());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         List list = new ArrayList(Arrays.asList(new String[] { "a", "b", "c",
                 "d", "e", "f", "g" }));
@@ -807,12 +651,6 @@ public class ArrayListTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "removeRange",
-        args = {int.class, int.class}
-    )
     public void test_removeRangeII() {
         Mock_ArrayList mal = new Mock_ArrayList();
         mal.add("a");

@@ -93,7 +93,6 @@ public class CoderResult {
      *            the length of the erroneous input
      */
     private CoderResult(int type, int length) {
-        super();
         this.type = type;
         this.length = length;
     }

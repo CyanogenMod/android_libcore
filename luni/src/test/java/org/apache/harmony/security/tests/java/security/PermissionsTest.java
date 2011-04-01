@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AllPermission;
 import java.security.BasicPermission;
 import java.security.Permission;
@@ -42,22 +37,15 @@ import java.util.NoSuchElementException;
 
 
 import junit.framework.TestCase;
-@TestTargetClass(Permissions.class)
+
 /**
  * Tests for <code>Permissions</code>
  *
  */
-
 public class PermissionsTest extends TestCase {
     /**
      * Can add any type of permissions. Cannot add if collection is read-only.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.security.Permission.class}
-    )
     public void testAdd() {
         Permissions ps = new Permissions();
         Permission ap = new AllPermission();
@@ -93,12 +81,6 @@ public class PermissionsTest extends TestCase {
      * non-empty collection, should always return enumeration over unique
      * elements.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "elements",
-        args = {}
-    )
     public void testElements() {
         Permissions ps = new Permissions();
         Permission ap = new AllPermission();
@@ -147,14 +129,6 @@ public class PermissionsTest extends TestCase {
     /**
      * input parameter is null
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "implies",
-            args = {java.security.Permission.class}
-        )
-    })
     public void testNull(){
         Permissions ps = new Permissions();
         try {

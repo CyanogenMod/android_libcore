@@ -98,9 +98,8 @@ public class KeyFactory {
      *             if the requested provider is not available.
      * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
-    @SuppressWarnings("nls")
     public static KeyFactory getInstance(String algorithm, String provider)
-                                throws NoSuchAlgorithmException, NoSuchProviderException {
+            throws NoSuchAlgorithmException, NoSuchProviderException {
         if (provider == null || provider.isEmpty()) {
             throw new IllegalArgumentException();
         }

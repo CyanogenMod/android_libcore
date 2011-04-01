@@ -17,10 +17,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,17 +30,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-@TestTargetClass(
-        value = Constructor.class,
-        untestedMethods = {
-            @TestTargetNew(
-               level = TestLevel.NOT_FEASIBLE,
-               method = "isSynthetic",
-               args = {},
-               notes =  "Since code which relies on synthetic members is not " +
-               "portable, this should not be tested"
-            )
-        })
 public class ConstructorTest extends junit.framework.TestCase {
 
 
@@ -118,15 +103,6 @@ public class ConstructorTest extends junit.framework.TestCase {
 //        }
 //    }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getDeclaredAnnotations()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameterAnnotations",
-        args = {}
-    )
     public void test_getParameterAnnotations() throws Exception {
         Constructor<ConstructorTestHelper> ctor1 = ConstructorTestHelper.class
                 .getConstructor(Object.class);
@@ -147,15 +123,6 @@ public class ConstructorTest extends junit.framework.TestCase {
     }
 
 
-    /**
-     * @tests java.lang.reflect.Constructor#getDeclaredAnnotations()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaredAnnotations",
-        args = {}
-    )
     public void test_getDeclaredAnnotations() throws Exception {
         Constructor<ConstructorTestHelper> ctor1 = null;
         ctor1 = ConstructorTestHelper.class.getConstructor(new Class[0]);
@@ -172,15 +139,6 @@ public class ConstructorTest extends junit.framework.TestCase {
                 .contains(ConstructorTestAnnotationRuntime1.class));
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#isVarargs()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isVarArgs",
-        args = {}
-    )
     public void test_isVarArgs() throws Exception {
         Constructor<ConstructorTestHelper> varArgCtor = ConstructorTestHelper.class
                 .getConstructor(String[].class);
@@ -192,15 +150,6 @@ public class ConstructorTest extends junit.framework.TestCase {
                 nonVarArgCtor.isVarArgs());
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#hashCode()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() throws Exception {
         Constructor<ConstructorTestHelper> constructor = ConstructorTestHelper.class
                 .getConstructor();
@@ -210,16 +159,7 @@ public class ConstructorTest extends junit.framework.TestCase {
                         .hashCode());
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#toGenericString()
-     */
     @SuppressWarnings("unchecked")
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toGenericString",
-        args = {}
-    )
     public void test_toGenericString() throws Exception {
         Constructor<GenericConstructorTestHelper> genericCtor = GenericConstructorTestHelper.class
                 .getConstructor(Object.class, Object.class);
@@ -235,15 +175,6 @@ public class ConstructorTest extends junit.framework.TestCase {
                 ctor.toGenericString());
     }
 
- /**
-     * @tests java.lang.reflect.Constructor#equals(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         Constructor<ConstructorTestHelper> ctor1 = null, ctor2 = null;
         try {
@@ -256,15 +187,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertTrue("Different Contructors returned equal", !ctor1.equals(ctor2));
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getDeclaringClass()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDeclaringClass",
-        args = {}
-    )
     public void test_getDeclaringClass() {
         boolean val = false;
         try {
@@ -277,15 +199,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect declaring class", val);
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getExceptionTypes()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getExceptionTypes",
-        args = {}
-    )
     public void test_getExceptionTypes() {
         // Test for method java.lang.Class []
         // java.lang.reflect.Constructor.getExceptionTypes()
@@ -304,15 +217,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect exception", exceptions[0].equals(ex));
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getModifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getModifiers",
-        args = {}
-    )
     public void test_getModifiers() {
         // Test for method int java.lang.reflect.Constructor.getModifiers()
         int mod = 0;
@@ -350,15 +254,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getName()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void test_getName() {
         // Test for method java.lang.String
         // java.lang.reflect.Constructor.getName()
@@ -376,15 +271,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getParameterTypes()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParameterTypes",
-        args = {}
-    )
     public void test_getParameterTypes() {
         // Test for method java.lang.Class []
         // java.lang.reflect.Constructor.getParameterTypes()
@@ -413,15 +299,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertTrue("Incorrect parameter returned", types[0].equals(parms[0]));
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getGenericParameterTypes()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGenericParameterTypes",
-        args = {}
-    )
     @SuppressWarnings("unchecked")
     public void test_getGenericParameterTypes() {
         Type[] types = null;
@@ -463,15 +340,6 @@ public class ConstructorTest extends junit.framework.TestCase {
                 ((TypeVariable)types[1]).getName());
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getGenericParameterTypes()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getGenericExceptionTypes",
-        args = {}
-    )
     @SuppressWarnings("unchecked")
     public void test_getGenericExceptionTypes() {
         Type[] types = null;
@@ -504,16 +372,6 @@ public class ConstructorTest extends junit.framework.TestCase {
     }
 
 
-
-    /**
-     * @tests java.lang.reflect.Constructor#newInstance(java.lang.Object[])
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.Object[].class}
-    )
     public void test_newInstance$Ljava_lang_Object() {
         // Test for method java.lang.Object
         // java.lang.reflect.Constructor.newInstance(java.lang.Object [])
@@ -529,15 +387,6 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertEquals("improper instance created", 99, test.check());
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#toString()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String
         // java.lang.reflect.Constructor.toString()
@@ -559,15 +408,6 @@ public class ConstructorTest extends junit.framework.TestCase {
                                 "public tests.api.java.lang.reflect.ConstructorTest$ConstructorTestHelper(java.lang.Object)"));
     }
 
-    /**
-     * @tests java.lang.reflect.Constructor#getConstructor((Class[]) null)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getConstructor",
-        args = {}
-    )
     public void test_getConstructor() throws Exception {
         // Passing new Class[0] should be equivalent to (Class[]) null.
         Class<ConstructorTestHelper> c2 = ConstructorTestHelper.class;

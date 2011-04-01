@@ -57,9 +57,7 @@ public class PhantomReference<T> extends Reference<T> {
      * @param q the queue to register the phantom reference object with
      */
     public PhantomReference(T r, ReferenceQueue<? super T> q) {
-        super();
-        referent = r;
-        queue = q;
+        super(r, q);
     }
 
     /**

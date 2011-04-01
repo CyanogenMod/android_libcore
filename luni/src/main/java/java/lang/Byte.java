@@ -55,7 +55,7 @@ public final class Byte extends Number implements Comparable<Byte> {
     @SuppressWarnings("unchecked")
     public static final Class<Byte> TYPE
             = (Class<Byte>) byte[].class.getComponentType();
-    // Note: This can't be set to "byte.class", since *that* is
+    // Note: Byte.TYPE can't be set to "byte.class", since *that* is
     // defined to be "java.lang.Byte.TYPE";
 
     /**
@@ -105,7 +105,17 @@ public final class Byte extends Number implements Comparable<Byte> {
      * @since 1.2
      */
     public int compareTo(Byte object) {
-        return value > object.value ? 1 : (value < object.value ? -1 : 0);
+        return compare(value, object.value);
+    }
+
+    /**
+     * Compares two {@code byte} values.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static int compare(byte lhs, byte rhs) {
+        return lhs > rhs ? 1 : (lhs < rhs ? -1 : 0);
     }
 
     /**
@@ -216,6 +226,14 @@ public final class Byte extends Number implements Comparable<Byte> {
     @Override
     public String toString() {
         return Integer.toString(value);
+    }
+
+    /**
+     * Returns a two-digit hex string. That is, -1 becomes "ff" or "FF" and 2 becomes "02".
+     * @hide internal use only
+     */
+    public static String toHexString(byte b, boolean upperCase) {
+        return IntegralToString.byteToHexString(b, upperCase);
     }
 
     /**

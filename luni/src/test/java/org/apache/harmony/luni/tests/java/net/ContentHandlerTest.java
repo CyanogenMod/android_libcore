@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class ContentHandlerTest extends TestCase {
 
     /**
-     * @tests java.net.ContentHandler#getContent(java.net.URLConnection,
+     * java.net.ContentHandler#getContent(java.net.URLConnection,
      *        java.lang.Class[])
      */
     public void test_getContent() throws IOException {

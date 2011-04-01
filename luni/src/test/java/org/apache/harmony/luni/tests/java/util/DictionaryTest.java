@@ -16,18 +16,12 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 
-@TestTargetClass(Dictionary.class)
 public class DictionaryTest extends TestCase {
 
     class Mock_Dictionary extends Dictionary {
@@ -68,12 +62,6 @@ public class DictionaryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Dictionary",
-        args = {}
-    )
     public void testDictionary() {
         Dictionary md = new Mock_Dictionary();
         assertNotNull(md);

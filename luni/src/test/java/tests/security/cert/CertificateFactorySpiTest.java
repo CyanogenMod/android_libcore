@@ -23,11 +23,6 @@
 package tests.security.cert;
 
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.cert.MyCertificateFactorySpi;
@@ -49,19 +44,12 @@ import java.util.List;
  * Tests for <code>CertificateFactorySpi</code> class constructors and methods
  *
  */
-@TestTargetClass(CertificateFactorySpi.class)
 public class CertificateFactorySpiTest extends TestCase {
 
     /**
      * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies exceptions.",
-        method = "CertificateFactorySpi",
-        args = {}
-    )
     public void testCertificateFactorySpi01() throws CertificateException,
             CRLException {
         CertificateFactorySpi certFactorySpi = new extCertificateFactorySpi();
@@ -123,20 +111,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",
-            method = "CertificateFactorySpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetCertPathEncodings",
-            args = {}
-        )
-    })
     public void testCertificateFactorySpi02() throws CertificateException,
             CRLException {
         CertificateFactorySpi certFactorySpi = new MyCertificateFactorySpi();
@@ -207,12 +181,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "CertificateFactorySpi",
-        args = {}
-    )
     public void testCertificateFactorySpi03() throws CertificateException,
             CRLException {
         CertificateFactorySpi certFactorySpi = new MyCertificateFactorySpi();
@@ -280,12 +248,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * Assertion: Generates a <code>CertPath</code> object and initializes it
      * with the data read from the <code>InputStream</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that engineGenerateCertPath method returns null.",
-        method = "engineGenerateCertPath",
-        args = {java.io.InputStream.class}
-    )
     public void testEngineGenerateCertPathLjava_io_InputStream01() {
         CertificateFactorySpi certFactorySpi = new MyCertificateFactorySpi();
 
@@ -305,12 +267,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * Assertion: Generates a <code>CertPath</code> object and initializes it
      * with the data read from the <code>InputStream</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies UnsupportedOperationException.",
-        method = "engineGenerateCertPath",
-        args = {java.io.InputStream.class}
-    )
     public void testEngineGenerateCertPathLjava_io_InputStream02() {
         CertificateFactorySpi certFactorySpi = new extCertificateFactorySpi();
 
@@ -332,12 +288,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * method. Assertion: generates a <code>CertPath</code> object and
      * initializes it with the data read from the <code>InputStream</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateException.",
-        method = "engineGenerateCertPath",
-        args = {java.io.InputStream.class, java.lang.String.class}
-    )
     public void testEngineGenerateCertPathLjava_io_InputStream_Ljava_lang_String01() {
         CertificateFactorySpi certFactorySpi = new MyCertificateFactorySpi();
         MyCertificateFactorySpi.putMode(true);
@@ -364,12 +314,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * method. Assertion: generates a <code>CertPath</code> object and
      * initializes it with the data read from the <code>InputStream</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies UnsupportedOperationException.",
-        method = "engineGenerateCertPath",
-        args = {java.io.InputStream.class, java.lang.String.class}
-    )
     public void testEngineGenerateCertPathLjava_io_InputStream_Ljava_lang_String02() {
         CertificateFactorySpi certFactorySpi = new extCertificateFactorySpi();
 
@@ -391,12 +335,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * method Assertion: generates a <code>CertPath</code> object and
      * initializes it with a <code>List</code> of <code>Certificates</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that engineGenerateCertPath method returns null.",
-        method = "engineGenerateCertPath",
-        args = {java.util.List.class}
-    )
     public void testEngineGenerateCertPathLJava_util_List01() {
         CertificateFactorySpi certFactorySpi = new MyCertificateFactorySpi();
         MyCertificateFactorySpi.putMode(true);
@@ -423,12 +361,6 @@ public class CertificateFactorySpiTest extends TestCase {
      * method Assertion: generates a <code>CertPath</code> object and
      * initializes it with a <code>List</code> of <code>Certificates</code>
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies UnsupportedOperationException.",
-        method = "engineGenerateCertPath",
-        args = {java.util.List.class}
-    )
     public void testEngineGenerateCertPathLJava_util_List02() {
         CertificateFactorySpi certFactorySpi = new extCertificateFactorySpi();
 
@@ -444,32 +376,6 @@ public class CertificateFactorySpiTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGenerateCRL",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGenerateCRLs",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGenerateCertificate",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGenerateCertificates",
-            args = {java.io.InputStream.class}
-        )
-    })
     public void testAbstractMethods() {
         CertificateFactorySpi certFactorySpi = new extCertificateFactorySpi();
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[3]);

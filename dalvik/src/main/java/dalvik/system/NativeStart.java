@@ -30,11 +30,10 @@ package dalvik.system;
  * JNI AttachCurrentThread call.  If they attach the thread and start
  * creating objects, we need a fake frame to store stuff in.
  */
-class NativeStart implements Runnable {
+class NativeStart {
     private NativeStart() {}
 
     private static native void main(String[] dummy);
 
-    public native void run();
+    private static native void run();
 }
-

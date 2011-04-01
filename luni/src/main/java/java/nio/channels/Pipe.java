@@ -93,7 +93,6 @@ public abstract class Pipe {
      * The protected default constructor.
      */
     protected Pipe() {
-        super();
     }
 
     /**

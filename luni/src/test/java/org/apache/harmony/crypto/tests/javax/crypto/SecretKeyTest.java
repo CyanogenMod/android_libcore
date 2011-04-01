@@ -22,17 +22,11 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
 
 
-@TestTargetClass(SecretKey.class)
 /**
  * Tests for <code>SecretKey</code> class field
  *
@@ -42,12 +36,6 @@ public class SecretKeyTest extends TestCase {
     /**
      * Test for <code>serialVersionUID</code> field
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "!Constants",
-        args = {}
-    )
     public void testField() {
         checkSecretKey sk = new checkSecretKey();
         assertEquals("Incorrect serialVersionUID",

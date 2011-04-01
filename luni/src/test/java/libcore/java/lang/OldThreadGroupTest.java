@@ -17,7 +17,11 @@
 
 package libcore.java.lang;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import junit.framework.TestCase;
 
 public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExceptionHandler {
@@ -118,67 +122,43 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
                 inListOfThreads(listOfThreads));
     }
 
-    public void test_enumerateLThreadArrayLZtest_enumerateLThreadArrayLZ() {
-        int numThreads = initialThreadGroup.activeCount();
-        Thread[] listOfThreads = new Thread[numThreads];
+    public void test_enumerateLThreadArrayLZtest_enumerateLThreadArrayLZ() throws Exception {
+        // capture the initial condition
+        int initialThreadCount = initialThreadGroup.activeCount();
+        Thread[] initialThreads = new Thread[initialThreadCount];
+        assertEquals(initialThreadCount, initialThreadGroup.enumerate(initialThreads, false));
+        assertEquals(initialThreadCount, initialThreadGroup.enumerate(initialThreads, true));
+        assertTrue(inListOfThreads(initialThreads));
 
-        int countThread = initialThreadGroup.enumerate(listOfThreads, false);
-        assertEquals(numThreads, countThread);
-
-        countThread = initialThreadGroup.enumerate(listOfThreads, true);
-        assertEquals(numThreads, countThread);
-        assertTrue("Current thread must be in enumeration of threads",
-                inListOfThreads(listOfThreads));
-
-        ThreadGroup subGroup = new ThreadGroup(initialThreadGroup, "Test Group 1");
-        int subThreadsCount = 3;
-        Vector<MyThread> subThreads = populateGroupsWithThreads(subGroup,
-                subThreadsCount);
-
-        countThread = initialThreadGroup.enumerate(listOfThreads, true);
-        assertEquals(numThreads, countThread);
-        assertTrue("Current thread must be in enumeration of threads",
-                inListOfThreads(listOfThreads));
-
-        for(MyThread thr:subThreads) {
-            thr.start();
+        // start some the threads and see how the count changes
+        ThreadGroup group = new ThreadGroup(initialThreadGroup, "enumerateThreadArray");
+        int groupSize = 3;
+        List<MyThread> newThreads = populateGroupsWithThreads(group, groupSize);
+        assertEquals(initialThreadCount, initialThreadGroup.enumerate(initialThreads, true));
+        assertTrue(inListOfThreads(initialThreads));
+        for(MyThread thread : newThreads) {
+            thread.start();
         }
-        // lets give them some time to start
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ie) {
-            fail("Should not be interrupted");
+        Thread.sleep(500); // starting threads isn't instant!
+        int afterStartCount = initialThreadGroup.activeCount();
+        Set<Thread> initialPlusNew = new HashSet<Thread>();
+        initialPlusNew.addAll(Arrays.asList(initialThreads));
+        initialPlusNew.addAll(newThreads);
+        Thread[] afterStartThreads = new Thread[afterStartCount];
+        assertEquals(afterStartCount, initialThreadGroup.enumerate(afterStartThreads, true));
+        assertEquals(initialPlusNew, new HashSet<Thread>(Arrays.asList(afterStartThreads)));
+        assertTrue(inListOfThreads(afterStartThreads));
+
+        // kill the threads and count 'em again
+        for(MyThread thread : newThreads) {
+            thread.interrupt();
         }
-
-        int numThreads2 = initialThreadGroup.activeCount();
-        listOfThreads = new Thread[numThreads2];
-
-        assertEquals(numThreads + subThreadsCount, numThreads2);
-
-        countThread = initialThreadGroup.enumerate(listOfThreads, true);
-        assertEquals(numThreads2, countThread);
-        assertTrue("Current thread must be in enumeration of threads",
-                inListOfThreads(listOfThreads));
-
-        for(MyThread thr:subThreads) {
-            thr.interrupt();
-        }
-        // lets give them some time to die
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ie) {
-            fail("Should not be interrupted");
-        }
-
-        int numThreads3 = initialThreadGroup.activeCount();
-        listOfThreads = new Thread[numThreads3];
-
-        assertEquals(numThreads, numThreads3);
-
-        countThread = initialThreadGroup.enumerate(listOfThreads, false);
-        assertEquals(numThreads3, countThread);
-        assertTrue("Current thread must be in enumeration of threads",
-                inListOfThreads(listOfThreads));
+        Thread.sleep(500); // killing threads isn't instant
+        int afterDeathCount = initialThreadGroup.activeCount();
+        Thread[] afterDeathThreads = new Thread[afterDeathCount];
+        assertEquals(afterDeathCount, initialThreadGroup.enumerate(afterDeathThreads, false));
+        assertEquals(Arrays.asList(initialThreads), Arrays.asList(afterDeathThreads));
+        assertTrue(inListOfThreads(afterDeathThreads));
     }
 
     public void test_enumerateLThreadGroupArray() {
@@ -204,7 +184,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
 
     public void test_enumerateLThreadGroupArrayLZ() {
         ThreadGroup thrGroup = new ThreadGroup("Test Group 1");
-        Vector<MyThread> subThreads = populateGroupsWithThreads(thrGroup, 3);
+        List<MyThread> subThreads = populateGroupsWithThreads(thrGroup, 3);
         int numGroupThreads = thrGroup.activeGroupCount();
         ThreadGroup[] listOfGroups = new ThreadGroup[numGroupThreads];
 
@@ -222,7 +202,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
         assertEquals(0, thrGroup.enumerate(listOfGroups, false));
 
         ThreadGroup subGroup1 = new ThreadGroup(thrGroup, "Test Group 2");
-        Vector<MyThread> subThreads1 = populateGroupsWithThreads(subGroup1, 3);
+        List<MyThread> subThreads1 = populateGroupsWithThreads(subGroup1, 3);
         numGroupThreads = thrGroup.activeGroupCount();
         listOfGroups = new ThreadGroup[numGroupThreads];
 
@@ -243,7 +223,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
          }
 
         ThreadGroup subGroup2 = new ThreadGroup(subGroup1, "Test Group 3");
-        Vector<MyThread> subThreads2 = populateGroupsWithThreads(subGroup2, 3);
+        List<MyThread> subThreads2 = populateGroupsWithThreads(subGroup2, 3);
         numGroupThreads = thrGroup.activeGroupCount();
         listOfGroups = new ThreadGroup[numGroupThreads];
 
@@ -252,7 +232,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
     }
 
     /**
-     * @tests java.lang.ThreadGroup#interrupt()
+     * java.lang.ThreadGroup#interrupt()
      */
     private static boolean interrupted = false;
     public void test_interrupt() {
@@ -303,10 +283,11 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
             // Ignore
         }
 
-        // No-op in Android. Must neither have an effect nor throw an exception.
-        Thread.State state = thread.getState();
-        group.resume();
-        assertEquals(state, thread.getState());
+        try {
+            group.resume();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     private Thread launchFiveSecondDummyThread(ThreadGroup group) {
@@ -356,7 +337,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
     }
 
     private ThreadGroup[] groups(ThreadGroup parent) {
-        // No API to get the count of immediate children only ?
+        // No API to get the count of immediate children only
         int count = parent.activeGroupCount();
         ThreadGroup[] all = new ThreadGroup[count];
         parent.enumerate(all, false);
@@ -367,42 +348,24 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
                 break;
             }
         }
-        ThreadGroup[] result;
-        if (actualSize == all.length) {
-            result = all;
-        } else {
-            result = new ThreadGroup[actualSize];
-            System.arraycopy(all, 0, result, 0, actualSize);
-        }
-
-        return result;
-
+        return Arrays.copyOfRange(all, 0, actualSize);
     }
 
-    private Vector<MyThread> populateGroupsWithThreads(final ThreadGroup aGroup,
-            final int threadCount) {
-        Vector<MyThread> result = new Vector<MyThread>();
-        populateGroupsWithThreads(aGroup, threadCount, result);
+    private List<MyThread> populateGroupsWithThreads(ThreadGroup group, int threadCount) {
+        List<MyThread> result = new ArrayList<MyThread>();
+        populateGroupsWithThreads(group, threadCount, result);
         return result;
-
     }
 
-    private void populateGroupsWithThreads(final ThreadGroup aGroup,
-            final int threadCount, final Vector<MyThread> allCreated) {
+    private void populateGroupsWithThreads(ThreadGroup group, int threadCount, List<MyThread> out) {
         for (int i = 0; i < threadCount; i++) {
-            final int iClone = i;
-            final String name = "(MyThread)N =" + iClone + "/" + threadCount
-                    + " ,Vector size at creation: " + allCreated.size();
-
-            MyThread t = new MyThread(aGroup, name);
-            allCreated.addElement(t);
+            out.add(new MyThread(group, "MyThread " + i + " of " + threadCount));
         }
 
         // Recursively for subgroups (if any)
-        ThreadGroup[] children = groups(aGroup);
+        ThreadGroup[] children = groups(group);
         for (ThreadGroup element : children) {
-            populateGroupsWithThreads(element, threadCount, allCreated);
+            populateGroupsWithThreads(element, threadCount, out);
         }
-
     }
 }

@@ -35,10 +35,6 @@ public abstract class ResponseCache {
      * Returns the system's default response cache, or null.
      */
     public static ResponseCache getDefault() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new NetPermission("getResponseCache"));
-        }
         return defaultResponseCache;
     }
 
@@ -46,10 +42,6 @@ public abstract class ResponseCache {
      * Sets the system's default response cache. Use null to remove the response cache.
      */
     public static void setDefault(ResponseCache responseCache) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new NetPermission("setResponseCache"));
-        }
         defaultResponseCache = responseCache;
     }
 

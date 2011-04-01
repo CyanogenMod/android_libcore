@@ -1,10 +1,6 @@
 package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.SideEffect;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
@@ -18,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-@TestTargetClass(ContentHandlerFactory.class)
 public class ContentHandlerFactoryTest extends TestCase {
 
     ContentHandlerFactory oldFactory = null;
@@ -29,21 +24,6 @@ public class ContentHandlerFactoryTest extends TestCase {
     boolean isGetContentCalled = false;
     boolean isCreateContentHandlerCalled = false;
 
-    @TestTargets ({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "createContentHandler",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive case, and java.lang.Error.",
-            clazz = URLConnection.class,
-            method = "setContentHandlerFactory",
-            args = { ContentHandlerFactory.class }
-        )
-    })
     @SideEffect("This test affects tests that are run after this one." +
             " The reason are side effects due to caching in URLConnection." +
             " Maybe this test needs to be run in isolation.")

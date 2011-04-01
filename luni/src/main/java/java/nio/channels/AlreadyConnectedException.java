@@ -28,6 +28,5 @@ public class AlreadyConnectedException extends IllegalStateException {
      * Constructs an {@code AlreadyConnectedException}.
      */
     public AlreadyConnectedException() {
-        super();
     }
 }

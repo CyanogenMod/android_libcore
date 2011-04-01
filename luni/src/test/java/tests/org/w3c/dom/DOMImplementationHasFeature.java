@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-5CED94D7">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-5CED94D7</a>
  */
-@TestTargetClass(DOMImplementation.class)
 public final class DOMImplementationHasFeature extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -58,12 +52,6 @@ public final class DOMImplementationHasFeature extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that hasFeature returns true value.",
-        method = "hasFeature",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasFeatureCore() throws Throwable {
         Document doc;
         DOMImplementation domImpl;
@@ -73,12 +61,6 @@ public final class DOMImplementationHasFeature extends DOMTestCase {
         state = domImpl.hasFeature("core", "2.0");
         assertTrue("domimplementationFeaturecoreAssert", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that hasFeature returns true value.",
-        method = "hasFeature",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasFeatureXml() throws Throwable {
         Document doc;
         DOMImplementation domImpl;
@@ -88,12 +70,6 @@ public final class DOMImplementationHasFeature extends DOMTestCase {
         state = domImpl.hasFeature("xml", "2.0");
         assertTrue("domimplementationFeaturexmlVersion2Assert", state);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that hasFeature method returns false.",
-        method = "hasFeature",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasFeature1() throws Throwable {
         Document doc;
         DOMImplementation domImpl;
@@ -129,12 +105,6 @@ public final class DOMImplementationHasFeature extends DOMTestCase {
             assertTrue("domimplementationhasfeature01_Core_3", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that hasFeature method returns false.",
-        method = "hasFeature",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testHasFeature2() throws Throwable {
         Document doc;
         DOMImplementation domImpl;

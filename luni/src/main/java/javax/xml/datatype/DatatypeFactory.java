@@ -69,6 +69,7 @@ public abstract class DatatypeFactory {
      *
      * <p>Default value is <code>org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl</code>.</p>
      */
+    // This uses "new String" to avoid being inlined as a constant.
     public static final String DATATYPEFACTORY_IMPLEMENTATION_CLASS = new String("org.apache.xerces.jaxp.datatype.DatatypeFactoryImpl");
 
     /**

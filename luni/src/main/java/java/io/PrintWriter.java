@@ -17,11 +17,9 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Wraps either an existing {@link OutputStream} or an existing {@link Writer}
@@ -45,10 +43,7 @@ public class PrintWriter extends Writer {
      * Indicates whether or not this PrintWriter should flush its contents after
      * printing a new line.
      */
-    private boolean autoflush;
-
-    private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator"));
+    private boolean autoFlush;
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
@@ -66,20 +61,20 @@ public class PrintWriter extends Writer {
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
-     * stream. The parameter {@code autoflush} determines if the print writer
+     * stream. The parameter {@code autoFlush} determines if the print writer
      * automatically flushes its contents to the target stream when a newline is
      * encountered.
      *
      * @param out
      *            the target output stream.
-     * @param autoflush
+     * @param autoFlush
      *            indicates whether contents are flushed upon encountering a
      *            newline sequence.
      * @throws NullPointerException
      *             if {@code out} is {@code null}.
      */
-    public PrintWriter(OutputStream out, boolean autoflush) {
-        this(new OutputStreamWriter(out), autoflush);
+    public PrintWriter(OutputStream out, boolean autoFlush) {
+        this(new OutputStreamWriter(out), autoFlush);
     }
 
     /**
@@ -98,27 +93,27 @@ public class PrintWriter extends Writer {
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
-     * writer. The parameter {@code autoflush} determines if the print writer
+     * writer. The parameter {@code autoFlush} determines if the print writer
      * automatically flushes its contents to the target writer when a newline is
      * encountered.
      *
      * @param wr
      *            the target writer.
-     * @param autoflush
+     * @param autoFlush
      *            indicates whether to flush contents upon encountering a
      *            newline sequence.
      * @throws NullPointerException
      *             if {@code out} is {@code null}.
      */
-    public PrintWriter(Writer wr, boolean autoflush) {
+    public PrintWriter(Writer wr, boolean autoFlush) {
         super(wr);
-        this.autoflush = autoflush;
+        this.autoFlush = autoFlush;
         out = wr;
     }
 
     /**
      * Constructs a new {@code PrintWriter} with {@code file} as its target. The
-     * virtual machine's default character set is used for character encoding.
+     * VM's default character set is used for character encoding.
      * The print writer does not automatically flush its contents to the target
      * file when a newline is encountered. The output to the file is buffered.
      *
@@ -127,9 +122,6 @@ public class PrintWriter extends Writer {
      *            removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintWriter(File file) throws FileNotFoundException {
         this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file))), false);
@@ -150,9 +142,6 @@ public class PrintWriter extends Writer {
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */
@@ -164,7 +153,7 @@ public class PrintWriter extends Writer {
 
     /**
      * Constructs a new {@code PrintWriter} with the file identified by {@code
-     * fileName} as its target. The virtual machine's default character set is
+     * fileName} as its target. The VM's default character set is
      * used for character encoding. The print writer does not automatically
      * flush its contents to the target file when a newline is encountered. The
      * output to the file is buffered.
@@ -174,9 +163,6 @@ public class PrintWriter extends Writer {
      *            contents are removed, otherwise a new file is created.
      * @throws FileNotFoundException
      *             if an error occurs while opening or creating the target file.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      */
     public PrintWriter(String fileName) throws FileNotFoundException {
         this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fileName))),
@@ -199,9 +185,6 @@ public class PrintWriter extends Writer {
      *             if an error occurs while opening or creating the target file.
      * @throws NullPointerException
      *             if {@code csn} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it denies writing to the
-     *             target file.
      * @throws UnsupportedEncodingException
      *             if the encoding specified by {@code csn} is not supported.
      */
@@ -324,7 +307,7 @@ public class PrintWriter extends Writer {
             throw new NullPointerException("format == null");
         }
         new Formatter(this, l).format(format, args);
-        if (autoflush) {
+        if (autoFlush) {
             flush();
         }
         return this;
@@ -332,8 +315,10 @@ public class PrintWriter extends Writer {
 
     /**
      * Prints a formatted string. The behavior of this method is the same as
-     * this writer's {@code #format(String, Object...)} method. For the locale,
-     * the default value of the current virtual machine instance is used.
+     * this writer's {@code #format(String, Object...)} method.
+     *
+     * <p>The {@code Locale} used is the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
      * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
@@ -480,122 +465,84 @@ public class PrintWriter extends Writer {
     }
 
     /**
-     * Prints the string representation of the system property {@code
-     * "line.separator"} to the target. Flushes this writer if the autoflush
-     * flag is set to {@code true}.
+     * Prints a newline. Flushes this writer if the autoFlush flag is set to {@code true}.
      */
     public void println() {
         synchronized (lock) {
-            print(lineSeparator);
-            if (autoflush) {
+            print(System.lineSeparator());
+            if (autoFlush) {
                 flush();
             }
         }
     }
 
     /**
-     * Prints the string representation of the specified character array
-     * followed by the system property {@code "line.separator"} to the target.
-     * Flushes this writer if the autoflush flag is set to {@code true}.
-     *
-     * @param charArray
-     *            the character array to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the character array {@code chars} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(char[] charArray) {
-        println(new String(charArray, 0, charArray.length));
+    public void println(char[] chars) {
+        println(new String(chars, 0, chars.length));
     }
 
     /**
-     * Prints the string representation of the specified character followed by
-     * the system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param ch
-     *            the character to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the char {@code c} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(char ch) {
-        println(String.valueOf(ch));
+    public void println(char c) {
+        println(String.valueOf(c));
     }
 
     /**
-     * Prints the string representation of the specified double followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param dnum
-     *            the double value to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the double {@code d} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(double dnum) {
-        println(String.valueOf(dnum));
+    public void println(double d) {
+        println(String.valueOf(d));
     }
 
     /**
-     * Prints the string representation of the specified float followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param fnum
-     *            the float value to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the float {@code f} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(float fnum) {
-        println(String.valueOf(fnum));
+    public void println(float f) {
+        println(String.valueOf(f));
     }
 
     /**
-     * Prints the string representation of the specified integer followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param inum
-     *            the integer value to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the int {@code i} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(int inum) {
-        println(String.valueOf(inum));
+    public void println(int i) {
+        println(String.valueOf(i));
     }
 
     /**
-     * Prints the string representation of the specified long followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param lnum
-     *            the long value to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the long {@code l} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(long lnum) {
-        println(String.valueOf(lnum));
+    public void println(long l) {
+        println(String.valueOf(l));
     }
 
     /**
-     * Prints the string representation of the specified object followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param obj
-     *            the object to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the object {@code o}, or {@code "null},
+     * followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
     public void println(Object obj) {
         println(String.valueOf(obj));
     }
 
     /**
-     * Prints a string followed by the system property {@code "line.separator"}
-     * to the target. The string is converted to an array of bytes using the
+     * Prints the string representation of the string {@code s} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
+     *
+     * <p>The string is converted to an array of bytes using the
      * encoding chosen during the construction of this writer. The bytes are
      * then written to the target with {@code write(int)}. Finally, this writer
-     * is flushed if the autoflush flag is set to {@code true}.
-     * <p>
-     * If an I/O error occurs, this writer's error flag is set to {@code true}.
+     * is flushed if the autoFlush flag is set to {@code true}.
      *
-     * @param str
-     *            the string to print to the target.
-     * @see #write(int)
+     * <p>If an I/O error occurs, this writer's error flag is set to {@code true}.
      */
     public void println(String str) {
         synchronized (lock) {
@@ -605,16 +552,11 @@ public class PrintWriter extends Writer {
     }
 
     /**
-     * Prints the string representation of the specified boolean followed by the
-     * system property {@code "line.separator"} to the target. Flushes this
-     * writer if the autoflush flag is set to {@code true}.
-     *
-     * @param bool
-     *            the boolean value to print to the target.
-     * @see #print(String)
+     * Prints the string representation of the boolean {@code b} followed by a newline.
+     * Flushes this writer if the autoFlush flag is set to {@code true}.
      */
-    public void println(boolean bool) {
-        println(String.valueOf(bool));
+    public void println(boolean b) {
+        println(String.valueOf(b));
     }
 
     /**
@@ -634,9 +576,6 @@ public class PrintWriter extends Writer {
      */
     @Override
     public void write(char[] buf) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         write(buf, 0, buf.length);
     }
 
@@ -659,9 +598,6 @@ public class PrintWriter extends Writer {
      */
     @Override
     public void write(char[] buf, int offset, int count) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         doWrite(buf, offset, count);
     }
 
@@ -681,9 +617,6 @@ public class PrintWriter extends Writer {
     }
 
     private final void doWrite(char[] buf, int offset, int count) {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         synchronized (lock) {
             if (out != null) {
                 try {

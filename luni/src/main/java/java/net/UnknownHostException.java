@@ -31,7 +31,6 @@ public class UnknownHostException extends IOException {
      * Callers should usually supply a detail message.
      */
     public UnknownHostException() {
-        super();
     }
 
     /**

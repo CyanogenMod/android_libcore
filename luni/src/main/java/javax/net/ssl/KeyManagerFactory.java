@@ -17,13 +17,11 @@
 
 package javax.net.ssl;
 
-import java.security.AccessController;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -51,11 +49,7 @@ public class KeyManagerFactory {
      * @return the default algorithm name.
      */
     public static final String getDefaultAlgorithm() {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return Security.getProperty(PROPERTY_NAME);
-            }
-        });
+        return Security.getProperty(PROPERTY_NAME);
     }
 
     /**

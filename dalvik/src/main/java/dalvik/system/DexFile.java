@@ -19,9 +19,7 @@ package dalvik.system;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.ProtectionDomain;
 import java.util.Enumeration;
-
 
 /**
  * Manipulates DEX files. The class is similar in principle to
@@ -74,10 +72,6 @@ public final class DexFile {
      *             access rights missing for opening it
      */
     public DexFile(String fileName) throws IOException {
-        String wantDex = System.getProperty("android.vm.dexfile", "false");
-        if (!wantDex.equals("true"))
-            throw new UnsupportedOperationException("No dex in this VM");
-
         mCookie = openDexFile(fileName, null, 0);
         mFileName = fileName;
         guard.open("close");
@@ -95,13 +89,7 @@ public final class DexFile {
      * @param flags
      *  Enable optional features.
      */
-    private DexFile(String sourceName, String outputName, int flags)
-        throws IOException {
-
-        String wantDex = System.getProperty("android.vm.dexfile", "false");
-        if (!wantDex.equals("true"))
-            throw new UnsupportedOperationException("No dex in this VM");
-
+    private DexFile(String sourceName, String outputName, int flags) throws IOException {
         mCookie = openDexFile(sourceName, outputName, flags);
         mFileName = sourceName;
         guard.open("close");
@@ -204,13 +192,10 @@ public final class DexFile {
      * @hide
      */
     public Class loadClassBinaryName(String name, ClassLoader loader) {
-        return defineClass(name, loader, mCookie,
-            null);
-            //new ProtectionDomain(name) /*DEBUG ONLY*/);
+        return defineClass(name, loader, mCookie);
     }
 
-    native private static Class defineClass(String name, ClassLoader loader,
-        int cookie, ProtectionDomain pd);
+    private native static Class defineClass(String name, ClassLoader loader, int cookie);
 
     /**
      * Enumerate the names of the classes in this DEX file.

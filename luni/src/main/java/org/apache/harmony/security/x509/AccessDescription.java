@@ -34,25 +34,18 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
  *  AccessDescription  ::=  SEQUENCE {
  *      accessMethod          OBJECT IDENTIFIER,
  *      accessLocation        GeneralName  }
- *
  */
-public class AccessDescription {
+public final class AccessDescription {
 
-    // the value of access method
+    /** the value of access method */
     private final String accessMethod;
 
-    // the value of accessLocation
+    /** the value of accessLocation */
     private final GeneralName accessLocation;
 
-    private byte [] encoding;
+    private byte[] encoding;
 
-    public AccessDescription(String accessMethod, GeneralName accessLocation) {
-        this.accessMethod = accessMethod;
-        this.accessLocation = accessLocation;
-    }
-
-    private AccessDescription(String accessMethod, GeneralName accessLocation,
-            byte[] encoding) {
+    private AccessDescription(String accessMethod, GeneralName accessLocation, byte[] encoding) {
         this.accessMethod = accessMethod;
         this.accessLocation = accessLocation;
         this.encoding = encoding;
@@ -60,7 +53,6 @@ public class AccessDescription {
 
     /**
      * Returns ASN.1 encoded form of this X.509 AccessDescription.
-     * @return a byte array containing ASN.1 encoded form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -69,7 +61,7 @@ public class AccessDescription {
         return encoding;
     }
 
-    public String toString() {
+    @Override public String toString() {
         StringBuilder res = new StringBuilder();
         res.append("\n-- AccessDescription:");
         res.append("\naccessMethod:  ");
@@ -81,41 +73,24 @@ public class AccessDescription {
     }
 
     /**
-     * @return Returns the accessLocation.
-     */
-    public GeneralName getAccessLocation() {
-        return accessLocation;
-    }
-
-    /**
-     * @return Returns the accessMethod.
-     */
-    public String getAccessMethod() {
-        return accessMethod;
-    }
-
-    /**
      * Custom AccessDescription DER encoder/decoder
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             ASN1Oid.getInstance(),
             GeneralName.ASN1 }) {
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new AccessDescription(
                     ObjectIdentifier.toString((int[]) values[0]),
                     (GeneralName) values[1], in.getEncoded());
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             AccessDescription ad = (AccessDescription) object;
-
             values[0] = ObjectIdentifier.toIntArray(ad.accessMethod);
             values[1] = ad.accessLocation;
         }
     };
-
 }
 

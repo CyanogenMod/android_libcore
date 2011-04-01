@@ -517,7 +517,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", "1000000", bd.toString());
     }
     /**
-     * @tests java.math.BigDecimal#add(java.math.BigDecimal)
+     * java.math.BigDecimal#add(java.math.BigDecimal)
      */
     public void test_addBigDecimal() {
         BigDecimal add1 = new BigDecimal("23.456");
@@ -534,7 +534,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.MathContext) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeUP() {
@@ -549,7 +549,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeDOWN() {
@@ -564,7 +564,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeCEILING() {
@@ -579,7 +579,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeFLOOR() {
@@ -594,7 +594,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeHALF_UP() {
@@ -609,7 +609,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeHALF_DOWN() {
@@ -628,7 +628,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingModeHALF_EVEN() {
@@ -643,7 +643,7 @@ public class OldBigDecimalArithmeticTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#divide(java.math.BigDecimal,
+     * java.math.BigDecimal#divide(java.math.BigDecimal,
      *        java.math.RoundingMode) divide(BigDecimal, RoundingMode)
      */
     public void test_DivideBigDecimalRoundingExc() {

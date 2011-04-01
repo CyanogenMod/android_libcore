@@ -50,16 +50,9 @@ public final class AccessControlContext {
 
     DomainCombiner combiner;
 
-    // An AccessControlContext inherited by the current thread from its parent
-    private AccessControlContext inherited;
-
     /**
      * Constructs a new instance of {@code AccessControlContext} with the
      * specified {@code AccessControlContext} and {@code DomainCombiner}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this constructor
-     * need the {@code SecurityPermission} {@code createAccessControlContext} to
-     * be granted, otherwise a {@code SecurityException} will be thrown.
      *
      * @param acc
      *            the {@code AccessControlContext} related to the given {@code
@@ -67,19 +60,10 @@ public final class AccessControlContext {
      * @param combiner
      *            the {@code DomainCombiner} related to the given {@code
      *            AccessControlContext}
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this constructor
      * @throws NullPointerException
      *             if {@code acc} is {@code null}
      */
-    public AccessControlContext(AccessControlContext acc,
-            DomainCombiner combiner) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new SecurityPermission(
-                    "createAccessControlContext"));
-        }
+    public AccessControlContext(AccessControlContext acc, DomainCombiner combiner) {
         // no need to clone() here as ACC is immutable
         this.context = acc.context;
         this.combiner = combiner;
@@ -119,44 +103,6 @@ public final class AccessControlContext {
     }
 
     /**
-     * Package-level ctor which is used in AccessController.<br>
-     * ProtectionDomains passed as <code>stack</code> is then passed into
-     * {@link #AccessControlContext(ProtectionDomain[])}, therefore:<br>
-     * <il>
-     * <li>it must not be null
-     * <li>duplicates will be removed
-     * <li>null-s will be removed
-     * </li>
-     *
-     * @param stack - array of ProtectionDomains
-     * @param inherited - inherited context, which may be null
-     */
-    AccessControlContext(ProtectionDomain[] stack,
-            AccessControlContext inherited) {
-        this(stack); // removes dups, removes nulls, checks for stack==null
-        this.inherited = inherited;
-    }
-
-    /**
-     * Package-level ctor which is used in AccessController.<br>
-     * ProtectionDomains passed as <code>stack</code> is then passed into
-     * {@link #AccessControlContext(ProtectionDomain[])}, therefore:<br>
-     * <il>
-     * <li>it must not be null
-     * <li>duplicates will be removed
-     * <li>null-s will be removed
-     * </li>
-     *
-     * @param stack - array of ProtectionDomains
-     * @param combiner - combiner
-     */
-    AccessControlContext(ProtectionDomain[] stack,
-            DomainCombiner combiner) {
-        this(stack); // removes dups, removes nulls, checks for stack==null
-        this.combiner = combiner;
-    }
-
-    /**
      * Checks the specified permission against the vm's current security policy.
      * The check is based on this {@code AccessControlContext} as opposed to the
      * {@link AccessController#checkPermission(Permission)} method which
@@ -189,12 +135,8 @@ public final class AccessControlContext {
         }
         for (int i = 0; i < context.length; i++) {
             if (!context[i].implies(perm)) {
-                throw new AccessControlException("Permission check failed "
-                        + perm, perm);
+                throw new AccessControlException("Permission check failed " + perm, perm);
             }
-        }
-        if (inherited != null) {
-            inherited.checkPermission(perm);
         }
     }
 
@@ -223,12 +165,10 @@ public final class AccessControlContext {
                     .matchSubset(that.context, context))) {
                 return false;
             }
-            // BEGIN android-changed
             if (combiner != null) {
                 return combiner.equals(that.combiner);
             }
             return that.combiner == null;
-            // END android-changed
         }
         return false;
     }
@@ -236,22 +176,11 @@ public final class AccessControlContext {
     /**
      * Returns the {@code DomainCombiner} associated with this {@code
      * AccessControlContext}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code getDomainCombiner} to be granted,
-     * otherwise a {@code SecurityException} will be thrown.
      *
      * @return the {@code DomainCombiner} associated with this {@code
      *         AccessControlContext}
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method
      */
     public DomainCombiner getDomainCombiner() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new SecurityPermission("getDomainCombiner"));
-        }
         return combiner;
     }
 

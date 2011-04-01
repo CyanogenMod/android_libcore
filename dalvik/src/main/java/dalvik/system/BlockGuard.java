@@ -24,8 +24,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketOptions;
-import org.apache.harmony.luni.platform.IFileSystem;
+import libcore.io.Libcore;
+import libcore.io.StructLinger;
 import org.apache.harmony.luni.platform.INetworkSystem;
+import static libcore.io.OsConstants.*;
 
 /**
  * Mechanism to let threads set restrictions on what code is allowed
@@ -115,7 +117,7 @@ public final class BlockGuard {
     /**
      * The default, permissive policy that doesn't prevent any operations.
      */
-    public static Policy LAX_POLICY = new Policy() {
+    public static final Policy LAX_POLICY = new Policy() {
             public void onWriteToDisk() {}
             public void onReadFromDisk() {}
             public void onNetwork() {}
@@ -154,104 +156,6 @@ public final class BlockGuard {
     }
 
     private BlockGuard() {}
-
-    /**
-     * A filesystem wrapper that calls the policy check functions
-     * on reads and writes.
-     */
-    public static class WrappedFileSystem implements IFileSystem {
-        private final IFileSystem mFileSystem;
-
-        public WrappedFileSystem(IFileSystem fileSystem) {
-            mFileSystem = fileSystem;
-        }
-
-        public long read(int fileDescriptor, byte[] bytes, int offset, int length)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onReadFromDisk();
-            return mFileSystem.read(fileDescriptor, bytes, offset, length);
-        }
-
-        public long write(int fileDescriptor, byte[] bytes, int offset, int length)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            return mFileSystem.write(fileDescriptor, bytes, offset, length);
-        }
-
-        public long readv(int fileDescriptor, int[] addresses, int[] offsets,
-                          int[] lengths, int size) throws IOException {
-            BlockGuard.getThreadPolicy().onReadFromDisk();
-            return mFileSystem.readv(fileDescriptor, addresses, offsets, lengths, size);
-        }
-
-        public long writev(int fileDescriptor, int[] addresses, int[] offsets,
-                           int[] lengths, int size) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            return mFileSystem.writev(fileDescriptor, addresses, offsets, lengths, size);
-        }
-
-        public long readDirect(int fileDescriptor, int address, int offset,
-                               int length) throws IOException {
-            BlockGuard.getThreadPolicy().onReadFromDisk();
-            return mFileSystem.readDirect(fileDescriptor, address, offset, length);
-        }
-
-        public long writeDirect(int fileDescriptor, int address, int offset,
-                                int length) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            return mFileSystem.writeDirect(fileDescriptor, address, offset, length);
-        }
-
-        public boolean lock(int fileDescriptor, long start, long length, int type,
-                            boolean waitFlag) throws IOException {
-            return mFileSystem.lock(fileDescriptor, start, length, type, waitFlag);
-        }
-
-        public void unlock(int fileDescriptor, long start, long length)
-                throws IOException {
-            mFileSystem.unlock(fileDescriptor, start, length);
-        }
-
-        public long seek(int fileDescriptor, long offset, int whence)
-                throws IOException {
-            return mFileSystem.seek(fileDescriptor, offset, whence);
-        }
-
-        public void fsync(int fileDescriptor, boolean metadata) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            mFileSystem.fsync(fileDescriptor, metadata);
-        }
-
-        public void truncate(int fileDescriptor, long size) throws IOException {
-            BlockGuard.getThreadPolicy().onWriteToDisk();
-            mFileSystem.truncate(fileDescriptor, size);
-        }
-
-        public int getAllocGranularity() {
-            return mFileSystem.getAllocGranularity();
-        }
-
-        public int open(String path, int mode) throws FileNotFoundException {
-            BlockGuard.getThreadPolicy().onReadFromDisk();
-            if (mode != 0) {  // 0 is read-only
-                BlockGuard.getThreadPolicy().onWriteToDisk();
-            }
-            return mFileSystem.open(path, mode);
-        }
-
-        public long transfer(int fileHandler, FileDescriptor socketDescriptor,
-                             long offset, long count) throws IOException {
-            return mFileSystem.transfer(fileHandler, socketDescriptor, offset, count);
-        }
-
-        public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException {
-            return mFileSystem.ioctlAvailable(fileDescriptor);
-        }
-
-        public long length(int fd) {
-            return mFileSystem.length(fd);
-        }
-    }
 
     /**
      * A network wrapper that calls the policy check functions.
@@ -343,24 +247,8 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void socket(FileDescriptor aFD, boolean stream) throws SocketException {
-            mNetwork.socket(aFD, stream);
-        }
-
-        public void shutdownInput(FileDescriptor descriptor) throws IOException {
-            mNetwork.shutdownInput(descriptor);
-        }
-
-        public void shutdownOutput(FileDescriptor descriptor) throws IOException {
-            mNetwork.shutdownOutput(descriptor);
-        }
-
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
-        }
-
-        public void listen(FileDescriptor aFD, int backlog) throws SocketException {
-            mNetwork.listen(aFD, backlog);
         }
 
         public void connect(FileDescriptor aFD, InetAddress inetAddress, int port,
@@ -369,24 +257,11 @@ public final class BlockGuard {
             mNetwork.connect(aFD, inetAddress, port, timeout);
         }
 
-        public InetAddress getSocketLocalAddress(FileDescriptor aFD) {
-            return mNetwork.getSocketLocalAddress(aFD);
-        }
-
         public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
                 int numReadable, int numWritable, long timeout, int[] flags)
                 throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
-        }
-
-        public int getSocketLocalPort(FileDescriptor aFD) {
-            return mNetwork.getSocketLocalPort(aFD);
-        }
-
-        public Object getSocketOption(FileDescriptor aFD, int opt)
-                throws SocketException {
-            return mNetwork.getSocketOption(aFD, opt);
         }
 
         public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
@@ -404,19 +279,10 @@ public final class BlockGuard {
             mNetwork.close(aFD);
         }
 
-        public void setInetAddress(InetAddress sender, byte[] address) {
-            mNetwork.setInetAddress(sender, address);
-        }
-
         private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
             try {
-                Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);
-                if (lingerValue instanceof Boolean) {
-                    return (Boolean) lingerValue;
-                } else if (lingerValue instanceof Integer) {
-                    return ((Integer) lingerValue) != 0;
-                }
-                throw new AssertionError(lingerValue.getClass().getName());
+                StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
+                return linger.isOn() && linger.l_linger > 0;
             } catch (Exception ignored) {
                 // We're called via Socket.close (which doesn't ask for us to be called), so we
                 // must not throw here, because Socket.close must not throw if asked to close an

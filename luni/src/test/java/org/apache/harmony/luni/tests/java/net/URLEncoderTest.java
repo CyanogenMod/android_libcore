@@ -20,14 +20,14 @@ package org.apache.harmony.luni.tests.java.net;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
+import java.nio.charset.UnsupportedCharsetException;
 import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 
 public class URLEncoderTest extends TestCase {
 
     /**
-     * @tests java.net.URLEncoder#encode(java.lang.String)
+     * java.net.URLEncoder#encode(java.lang.String)
      */
     @SuppressWarnings("deprecation")
     public void test_encodeLjava_lang_String() {
@@ -44,7 +44,7 @@ public class URLEncoderTest extends TestCase {
     }
 
     /**
-     * @tests URLEncoder#encode(String, String)
+     * URLEncoder#encode(String, String)
      */
     public void test_encodeLjava_lang_StringLjava_lang_String()
             throws Exception {
@@ -53,6 +53,7 @@ public class URLEncoderTest extends TestCase {
             URLEncoder.encode("str", "unknown_enc");
             fail("Assert 0: Should throw UEE for invalid encoding");
         } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedCharsetException e) {
             // expected
         }
 
@@ -60,8 +61,8 @@ public class URLEncoderTest extends TestCase {
         try {
             URLEncoder.encode(null, "harmony");
             fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
+        } catch (UnsupportedCharsetException expected) {
         }
     }
 }

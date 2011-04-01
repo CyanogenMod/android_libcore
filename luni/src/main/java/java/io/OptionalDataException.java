@@ -46,7 +46,6 @@ public class OptionalDataException extends ObjectStreamException {
      * filled in.
      */
     OptionalDataException() {
-        super();
     }
 
     /**

@@ -16,6 +16,8 @@
 
 package libcore.java.net;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URL;
 import junit.framework.TestCase;
 
@@ -39,6 +41,37 @@ public class URLTest extends TestCase {
         assertEquals("www.google.com", url.getHost());
         assertEquals("foo:bar/baz", url.getRef());
         assertEquals(-1, url.getPort());
+    }
+
+    /**
+     * Android's URL.equals() works as if the network is down. This is different
+     * from the RI, which does potentially slow and inconsistent DNS lookups in
+     * URL.equals.
+     */
+    public void testEqualsDoesNotDoHostnameResolution() throws Exception {
+        for (InetAddress inetAddress : InetAddress.getAllByName("localhost")) {
+            String address = inetAddress.getHostAddress();
+            if (inetAddress instanceof Inet6Address) {
+                address = "[" + address + "]";
+            }
+            URL urlByHostName = new URL("http://localhost/foo?bar=baz#quux");
+            URL urlByAddress = new URL("http://" + address + "/foo?bar=baz#quux");
+            assertFalse("Expected " + urlByHostName + " to not equal " + urlByAddress,
+                    urlByHostName.equals(urlByAddress));
+        }
+    }
+
+    public void testEqualsCaseMapping() throws Exception {
+        assertEquals(new URL("HTTP://localhost/foo?bar=baz#quux"),
+                new URL("HTTP://localhost/foo?bar=baz#quux"));
+        assertTrue(new URL("http://localhost/foo?bar=baz#quux").equals(
+                new URL("http://LOCALHOST/foo?bar=baz#quux")));
+        assertFalse(new URL("http://localhost/foo?bar=baz#quux").equals(
+                new URL("http://localhost/FOO?bar=baz#quux")));
+        assertFalse(new URL("http://localhost/foo?bar=baz#quux").equals(
+                new URL("http://localhost/foo?BAR=BAZ#quux")));
+        assertFalse(new URL("http://localhost/foo?bar=baz#quux").equals(
+                new URL("http://localhost/foo?bar=baz#QUUX")));
     }
 
     public void testEqualsWithNullHost() throws Exception {

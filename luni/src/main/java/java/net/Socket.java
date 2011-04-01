@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import org.apache.harmony.luni.net.PlainSocketImpl;
-import org.apache.harmony.luni.platform.Platform;
+import libcore.io.IoUtils;
 
 /**
  * Provides a client-side TCP socket.
@@ -73,29 +72,14 @@ public class Socket {
      * @throws IllegalArgumentException
      *             if the argument {@code proxy} is {@code null} or of an
      *             invalid type.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given proxy.
      * @see SocketImplFactory
      * @see SocketImpl
      */
     public Socket(Proxy proxy) {
-        this.proxy = proxy;
         if (proxy == null || proxy.type() == Proxy.Type.HTTP) {
-            throw new IllegalArgumentException("Proxy is null or invalid type");
+            throw new IllegalArgumentException("Invalid proxy: " + proxy);
         }
-        InetSocketAddress address = (InetSocketAddress) proxy.address();
-        if (address != null) {
-            InetAddress addr = address.getAddress();
-            String host;
-            if (addr != null) {
-                host = addr.getHostAddress();
-            } else {
-                host = address.getHostName();
-            }
-            int port = address.getPort();
-            checkConnectPermission(host, port);
-        }
+        this.proxy = proxy;
         this.impl = factory != null ? factory.createSocketImpl() : new PlainSocketImpl(proxy);
     }
 
@@ -117,9 +101,6 @@ public class Socket {
      *             if the host name could not be resolved into an IP address.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      */
     private void tryAllAddresses(String dstName, int dstPort, InetAddress
             localAddress, int localPort, boolean streaming) throws IOException {
@@ -134,8 +115,7 @@ public class Socket {
                 checkDestination(dstAddress, dstPort);
                 startupSocket(dstAddress, dstPort, localAddress, localPort, streaming);
                 return;
-            } catch (SecurityException e1) {
-            } catch (IOException e2) {
+            } catch (IOException ex) {
             }
         }
 
@@ -163,9 +143,6 @@ public class Socket {
      *             if the host name could not be resolved into an IP address.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      */
     public Socket(String dstName, int dstPort) throws UnknownHostException, IOException {
         this(dstName, dstPort, null, 0);
@@ -195,9 +172,6 @@ public class Socket {
      *             if the host name could not be resolved into an IP address.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      */
     public Socket(String dstName, int dstPort, InetAddress localAddress, int localPort) throws IOException {
         this();
@@ -224,9 +198,6 @@ public class Socket {
      *             if the host name could not be resolved into an IP address.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      * @deprecated Use {@code Socket(String, int)} instead of this for streaming
      *             sockets or an appropriate constructor of {@code
      *             DatagramSocket} for UDP transport.
@@ -248,9 +219,6 @@ public class Socket {
      *            the port on the target host to connect to.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      */
     public Socket(InetAddress dstAddress, int dstPort) throws IOException {
         this();
@@ -274,9 +242,6 @@ public class Socket {
      *            the port on the local host to bind to.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      */
     public Socket(InetAddress dstAddress, int dstPort,
             InetAddress localAddress, int localPort) throws IOException {
@@ -299,9 +264,6 @@ public class Socket {
      *            socket otherwise.
      * @throws IOException
      *             if an error occurs while creating the socket.
-     * @throws SecurityException
-     *             if a security manager exists and it denies the permission to
-     *             connect to the given address and port.
      * @deprecated Use {@code Socket(InetAddress, int)} instead of this for
      *             streaming sockets or an appropriate constructor of {@code
      *             DatagramSocket} for UDP transport.
@@ -338,22 +300,6 @@ public class Socket {
     private void checkDestination(InetAddress destAddr, int dstPort) {
         if (dstPort < 0 || dstPort > 65535) {
             throw new IllegalArgumentException("Port out of range: " + dstPort);
-        }
-        checkConnectPermission(destAddr.getHostAddress(), dstPort);
-    }
-
-    /**
-     * Checks whether the connection destination satisfies the security policy.
-     *
-     * @param hostname
-     *            the destination hostname.
-     * @param dstPort
-     *            the port on the destination host.
-     */
-    private void checkConnectPermission(String hostname, int dstPort) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkConnect(hostname, dstPort);
         }
     }
 
@@ -519,10 +465,6 @@ public class Socket {
      */
     public static synchronized void setSocketImplFactory(SocketImplFactory fac)
             throws IOException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkSetFactory();
-        }
         if (factory != null) {
             throw new SocketException("Factory already set");
         }
@@ -1006,7 +948,7 @@ public class Socket {
     }
 
     private void cacheLocalAddress() {
-        this.localAddress = Platform.NETWORK.getSocketLocalAddress(impl.fd);
+        this.localAddress = IoUtils.getSocketLocalAddress(impl.fd);
     }
 
     /**

@@ -27,9 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A HostnameVerifier that works the same way as Curl and Firefox.
@@ -51,7 +48,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
      * Looks like we're the only implementation guarding against this.
      * Firefox, Curl, Sun Java 1.4, 5, 6 don't bother with this check.
      */
-    private final static String[] BAD_COUNTRY_2LDS =
+    private static final String[] BAD_COUNTRY_2LDS =
           { "ac", "co", "com", "ed", "edu", "go", "gouv", "gov", "info",
             "lg", "ne", "net", "or", "org" };
 
@@ -159,12 +156,10 @@ class DefaultHostnameVerifier implements HostnameVerifier {
          * I tested it with "&#x82b1;&#x5b50;.co.jp" and it worked fine.
          */
         String subjectPrincipal = cert.getSubjectX500Principal().toString();
-        StringTokenizer st = new StringTokenizer(subjectPrincipal, ",");
-        while (st.hasMoreTokens()) {
-            String tok = st.nextToken();
-            int x = tok.indexOf("CN=");
+        for (String token : subjectPrincipal.split(",")) {
+            int x = token.indexOf("CN=");
             if (x >= 0) {
-                return tok.substring(x + 3);
+                return token.substring(x + 3);
             }
         }
         return null;
@@ -185,11 +180,10 @@ class DefaultHostnameVerifier implements HostnameVerifier {
         try {
             subjectAlternativeNames = cert.getSubjectAlternativeNames();
         } catch (CertificateParsingException cpe) {
-            Logger.getLogger(DefaultHostnameVerifier.class.getName())
-                    .log(Level.FINE, "Error parsing certificate.", cpe);
+            System.logI("Error parsing certificate", cpe);
             return Collections.emptyList();
         }
-        
+
         if (subjectAlternativeNames == null) {
             return Collections.emptyList();
         }

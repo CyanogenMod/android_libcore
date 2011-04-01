@@ -818,7 +818,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             clone.zone = (TimeZone) zone.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 
@@ -1028,8 +1028,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @return a {@code Calendar} subclass instance set to the current date and time in
      *         the specified timezone.
      */
-    public static synchronized Calendar getInstance(TimeZone timezone,
-            Locale locale) {
+    public static synchronized Calendar getInstance(TimeZone timezone, Locale locale) {
         return new GregorianCalendar(timezone, locale);
     }
 
@@ -1353,20 +1352,16 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
 
     /**
      * Returns the string representation of this {@code Calendar}.
-     *
-     * @return the string representation of this {@code Calendar}.
      */
     @Override
-    @SuppressWarnings("nls")
     public String toString() {
-        StringBuilder result = new StringBuilder(getClass().getName() + "[time="
-                + (isTimeSet ? String.valueOf(time) : "?")
-                + ",areFieldsSet="
-                + areFieldsSet
-                + // ",areAllFieldsSet=" + areAllFieldsSet +
-                ",lenient=" + lenient + ",zone=" + zone + ",firstDayOfWeek="
-                + firstDayOfWeek + ",minimalDaysInFirstWeek="
-                + minimalDaysInFirstWeek);
+        StringBuilder result = new StringBuilder(getClass().getName() +
+                "[time=" + (isTimeSet ? String.valueOf(time) : "?") +
+                ",areFieldsSet=" + areFieldsSet +
+                ",lenient=" + lenient +
+                ",zone=" + zone.getID() +
+                ",firstDayOfWeek=" + firstDayOfWeek +
+                ",minimalDaysInFirstWeek=" + minimalDaysInFirstWeek);
         for (int i = 0; i < FIELD_COUNT; i++) {
             result.append(',');
             result.append(FIELD_NAMES[i]);
@@ -1502,21 +1497,20 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         }
     }
 
-    @SuppressWarnings("nls")
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("areFieldsSet", Boolean.TYPE),
-            new ObjectStreamField("fields", int[].class),
-            new ObjectStreamField("firstDayOfWeek", Integer.TYPE),
-            new ObjectStreamField("isSet", boolean[].class),
-            new ObjectStreamField("isTimeSet", Boolean.TYPE),
-            new ObjectStreamField("lenient", Boolean.TYPE),
-            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE),
-            new ObjectStreamField("nextStamp", Integer.TYPE),
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
-            new ObjectStreamField("time", Long.TYPE),
-            new ObjectStreamField("zone", TimeZone.class), };
+        new ObjectStreamField("areFieldsSet", boolean.class),
+        new ObjectStreamField("fields", int[].class),
+        new ObjectStreamField("firstDayOfWeek", int.class),
+        new ObjectStreamField("isSet", boolean[].class),
+        new ObjectStreamField("isTimeSet", boolean.class),
+        new ObjectStreamField("lenient", boolean.class),
+        new ObjectStreamField("minimalDaysInFirstWeek", int.class),
+        new ObjectStreamField("nextStamp", int.class),
+        new ObjectStreamField("serialVersionOnStream", int.class),
+        new ObjectStreamField("time", long.class),
+        new ObjectStreamField("zone", TimeZone.class),
+    };
 
-    @SuppressWarnings("nls")
     private void writeObject(ObjectOutputStream stream) throws IOException {
         complete();
         ObjectOutputStream.PutField putFields = stream.putFields();
@@ -1534,9 +1528,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         stream.writeFields();
     }
 
-    @SuppressWarnings("nls")
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField readFields = stream.readFields();
         areFieldsSet = readFields.get("areFieldsSet", false);
         this.fields = (int[]) readFields.get("fields", null);

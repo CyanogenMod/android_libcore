@@ -17,15 +17,9 @@
 
 package tests.api.java.lang.ref;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
-@TestTargetClass(WeakReference.class)
 public class WeakReferenceTest extends junit.framework.TestCase {
     static Boolean bool;
 
@@ -34,15 +28,9 @@ public class WeakReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.WeakReference#WeakReference(java.lang.Object,
+     * java.lang.ref.WeakReference#WeakReference(java.lang.Object,
      *        java.lang.ref.ReferenceQueue)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "WeakReference",
-        args = {java.lang.Object.class, java.lang.ref.ReferenceQueue.class}
-    )
     public void test_ConstructorLjava_lang_ObjectLjava_lang_ref_ReferenceQueue() {
         ReferenceQueue rq = new ReferenceQueue();
         bool = new Boolean(true);
@@ -67,14 +55,8 @@ public class WeakReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.WeakReference#WeakReference(java.lang.Object)
+     * java.lang.ref.WeakReference#WeakReference(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "WeakReference",
-        args = {java.lang.Object.class}
-    )
     public void test_ConstructorLjava_lang_Object() {
         bool = new Boolean(true);
         try {

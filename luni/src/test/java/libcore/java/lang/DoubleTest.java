@@ -19,9 +19,110 @@ package libcore.java.lang;
 import junit.framework.TestCase;
 
 public class DoubleTest extends TestCase {
-    // http://b/3238333
-    public void test3238333() throws Exception {
+    public void testDoubleToStringUnsignedDivide() throws Exception {
+        // http://b/3238333
         assertEquals("0.008", Double.toString(0.008));
         assertEquals("0.008366", Double.toString(0.008366));
+        // http://code.google.com/p/android/issues/detail?id=14033
+        assertEquals("0.009", Double.toString(0.009));
+        // http://code.google.com/p/android/issues/detail?id=14302
+        assertEquals("0.008567856012638986", Double.toString(0.008567856012638986));
+        assertEquals("0.010206713752229896", Double.toString(0.010206713752229896));
+    }
+
+    public void testNamedDoubles() throws Exception {
+        assertEquals(Double.NaN, Double.parseDouble("NaN"));
+        assertEquals(Double.NaN, Double.parseDouble("-NaN"));
+        assertEquals(Double.NaN, Double.parseDouble("+NaN"));
+        try {
+            Double.parseDouble("NNaN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Double.parseDouble("NaNN");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("+Infinity"));
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("Infinity"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-Infinity"));
+        try {
+            Double.parseDouble("IInfinity");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+        try {
+            Double.parseDouble("Infinityy");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+    }
+
+    public void testSuffixParsing() throws Exception {
+        String[] badStrings = { "1ff", "1fd", "1df", "1dd" };
+        for (String string : badStrings) {
+            try {
+                Double.parseDouble(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+        assertEquals(1.0, Double.parseDouble("1f"));
+        assertEquals(1.0, Double.parseDouble("1d"));
+        assertEquals(1.0, Double.parseDouble("1F"));
+        assertEquals(1.0, Double.parseDouble("1D"));
+        assertEquals(1.0, Double.parseDouble("1.D"));
+        assertEquals(1.0, Double.parseDouble("1.E0D"));
+        assertEquals(1.0, Double.parseDouble(".1E1D"));
+    }
+
+    public void testExponentParsing() throws Exception {
+        String[] strings = {
+            // Exponents missing integer values.
+            "1.0e", "1.0e+", "1.0e-",
+            // Exponents with too many explicit signs.
+            "1.0e++1", "1.0e+-1", "1.0e-+1", "1.0e--1"
+        };
+        for (String string : strings) {
+            try {
+                Double.parseDouble(string);
+                fail(string);
+            } catch (NumberFormatException expected) {
+            }
+        }
+
+        assertEquals(1.0e-323, Double.parseDouble("1.0e-323"));
+        assertEquals(0.0, Double.parseDouble("1.0e-324"));
+        assertEquals(-1.0e-323, Double.parseDouble("-1.0e-323"));
+        assertEquals(-0.0, Double.parseDouble("-1.0e-324"));
+
+        assertEquals(1.0e+308, Double.parseDouble("1.0e+308"));
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("1.0e+309"));
+        assertEquals(-1.0e+308, Double.parseDouble("-1.0e+308"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-1.0e+309"));
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("1.0e+9999999999"));
+        assertEquals(Double.NEGATIVE_INFINITY, Double.parseDouble("-1.0e+9999999999"));
+        assertEquals(0.0, Double.parseDouble("1.0e-9999999999"));
+        assertEquals(-0.0, Double.parseDouble("-1.0e-9999999999"));
+
+        assertEquals(Double.POSITIVE_INFINITY, Double.parseDouble("320.0e+2147483647"));
+        assertEquals(-0.0, Double.parseDouble("-1.4e-2147483314"));
+    }
+
+    /**
+     * This value has been known to cause javac and java to infinite loop.
+     * http://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308/
+     */
+    public void testParseLargestSubnormalDoublePrecision() {
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.2250738585072012e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("0.00022250738585072012e-304"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("00000002.2250738585072012e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.225073858507201200000e-308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.2250738585072012e-00308"));
+        assertEquals(2.2250738585072014E-308, Double.parseDouble("2.22507385850720129978001e-308"));
+        assertEquals(-2.2250738585072014E-308, Double.parseDouble("-2.2250738585072012e-308"));
     }
 }

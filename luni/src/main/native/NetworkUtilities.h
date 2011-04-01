@@ -25,11 +25,13 @@ jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray);
 bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int port, sockaddr_storage* ss);
 
 // Convert from sockaddr_storage to byte[].
-jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss);
+jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss);
 
 // Convert from sockaddr_storage to InetAddress.
-jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss);
+jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss);
 
+// Convert from InetAddress to sockaddr_storage.
+bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
 
 
 // Changes 'fd' to be blocking/non-blocking. Returns false and sets errno on failure.

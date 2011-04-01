@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// Completely different implementation from harmony.  Runs much faster.
-// BEGIN android-note
-
 package java.util;
 
 import java.io.IOException;
@@ -1000,14 +996,8 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
 
     private static final long serialVersionUID = 362498820763181265L;
 
-    /**
-     * Serializable fields.
-     *
-     * @serialField loadFactor float
-     *              load factor for this HashMap
-     */
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("loadFactor", Float.TYPE)
+        new ObjectStreamField("loadFactor", float.class)
     };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {

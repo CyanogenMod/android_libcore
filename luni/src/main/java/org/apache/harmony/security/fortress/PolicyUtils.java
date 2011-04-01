@@ -28,19 +28,15 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.apache.harmony.security.Util;
 
 /**
  * This class consist of a number of static methods, which provide a common functionality
@@ -51,166 +47,6 @@ public class PolicyUtils {
 
     // No reason to instantiate
     private PolicyUtils() {}
-
-    /**
-     * Auxiliary action for opening InputStream from specified location.
-     */
-    public static class URLLoader implements PrivilegedExceptionAction<InputStream> {
-
-        /**
-         * URL of target location.
-         */
-        public URL location;
-
-        /**
-         *  Constructor with target URL parameter.
-         */
-        public URLLoader(URL location) {
-            this.location = location;
-        }
-
-        /**
-         * Returns InputStream from the target URL.
-         */
-        public InputStream run() throws Exception {
-            return location.openStream();
-        }
-    }
-
-    /**
-     * Auxiliary action for accessing system properties in a bundle.
-     */
-    public static class SystemKit implements PrivilegedAction<Properties> {
-
-        /**
-         * Returns system properties.
-         */
-        public Properties run() {
-            return System.getProperties();
-        }
-    }
-
-    /**
-     * Auxiliary action for accessing specific system property.
-     */
-    public static class SystemPropertyAccessor implements PrivilegedAction<String> {
-
-        /**
-         * A key of a required system property.
-         */
-        public String key;
-
-        /**
-         * Constructor with a property key parameter.
-         */
-        public SystemPropertyAccessor(String key) {
-            this.key = key;
-        }
-
-        /**
-         * Handy one-line replacement of
-         * &quot;provide key and supply action&quot; code block,
-         * for reusing existing action instance.
-         */
-        public PrivilegedAction<String> key(String key) {
-            this.key = key;
-            return this;
-        }
-
-        /**
-         * Returns specified system property.
-         */
-        public String run() {
-            return System.getProperty(key);
-        }
-    }
-
-    /**
-     * Auxiliary action for accessing specific security property.
-     */
-    public static class SecurityPropertyAccessor implements PrivilegedAction<String> {
-
-        private String key;
-
-        /**
-         * Constructor with a property key parameter.
-         */
-        public SecurityPropertyAccessor(String key) {
-            super();
-            this.key = key;
-        }
-
-        public PrivilegedAction<String> key(String key) {
-            this.key = key;
-            return this;
-        }
-
-        /**
-         * Returns specified security property.
-         */
-        public String run() {
-            return Security.getProperty(key);
-        }
-    }
-
-    /**
-     * Auxiliary action for loading a provider by specific security property.
-     */
-    public static class ProviderLoader<T> implements PrivilegedAction<T> {
-
-        private String key;
-
-        /**
-         * Acceptable provider superclass.
-         */
-        private Class<T> expectedType;
-
-        /**
-         * Constructor taking property key and acceptable provider
-         * superclass parameters.
-         */
-        public ProviderLoader(String key, Class<T> expected) {
-            super();
-            this.key = key;
-            this.expectedType = expected;
-        }
-
-        /**
-         * Returns provider instance by specified security property.
-         * The <code>key</code> should map to a fully qualified classname.
-         *
-         * @throws SecurityException if no value specified for the key
-         * in security properties or if an Exception has occurred
-         * during classloading and instantiating.
-         */
-        public T run() {
-            String klassName = Security.getProperty(key);
-            if (klassName == null || klassName.length() == 0) {
-                throw new SecurityException("Provider implementation should be specified via '" +
-                        key + "' security property");
-            }
-            // TODO accurate classloading
-            try {
-                Class<?> klass = Class.forName(klassName, true,
-                        Thread.currentThread().getContextClassLoader());
-                if (expectedType != null && klass.isAssignableFrom(expectedType)){
-                    throw new SecurityException("Provided class " + klassName +
-                            " does not implement " + expectedType.getName());
-                }
-                //FIXME expectedType.cast(klass.newInstance());
-                return (T)klass.newInstance();
-            }
-            catch (SecurityException se){
-                throw se;
-            }
-            catch (Exception e) {
-                // TODO log error ??
-                SecurityException se = new SecurityException("Unable to instantiate provider: " + klassName);
-                se.initCause(e);
-                throw se;
-            }
-        }
-    }
 
     /**
      * Specific exception to signal that property expansion failed
@@ -421,8 +257,7 @@ public class PolicyUtils {
      * @see #expand(String, Properties)
      */
     public static boolean canExpandProperties() {
-        return !Util.equalsIgnoreCase(FALSE,AccessController
-                .doPrivileged(new SecurityPropertyAccessor(POLICY_EXPAND)));
+        return !Security.getProperty(POLICY_EXPAND).equalsIgnoreCase(FALSE);
     }
 
     /**
@@ -460,15 +295,12 @@ public class PolicyUtils {
     public static URL[] getPolicyURLs(final Properties system,
             final String systemUrlKey, final String securityUrlPrefix) {
 
-        final SecurityPropertyAccessor security = new SecurityPropertyAccessor(
-                null);
         final List<URL> urls = new ArrayList<URL>();
         boolean dynamicOnly = false;
         URL dynamicURL = null;
 
         //first check if policy is set via system properties
-        if (!Util.equalsIgnoreCase(FALSE, AccessController
-                .doPrivileged(security.key(POLICY_ALLOW_DYNAMIC)))) {
+        if (!Security.getProperty(POLICY_ALLOW_DYNAMIC).equalsIgnoreCase(FALSE)) {
             String location = system.getProperty(systemUrlKey);
             if (location != null) {
                 if (location.startsWith("=")) {
@@ -480,17 +312,10 @@ public class PolicyUtils {
                     location = expandURL(location, system);
                     // location can be a file, but we need an url...
                     final File f = new File(location);
-                    dynamicURL = AccessController
-                            .doPrivileged(new PrivilegedExceptionAction<URL>() {
-
-                                public URL run() throws Exception {
-                                    if (f.exists()) {
-                                        return f.toURI().toURL();
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            });
+                    dynamicURL = null;
+                    if (f.exists()) {
+                        dynamicURL = f.toURI().toURL();
+                    }
                     if (dynamicURL == null) {
                         dynamicURL = new URL(location);
                     }
@@ -505,9 +330,7 @@ public class PolicyUtils {
         if (!dynamicOnly) {
             int i = 1;
             while (true) {
-                String location = AccessController
-                        .doPrivileged(security.key(new StringBuilder(
-                                securityUrlPrefix).append(i++).toString()));
+                String location = Security.getProperty(securityUrlPrefix + (i++));
                 if (location == null) {
                     break;
                 }

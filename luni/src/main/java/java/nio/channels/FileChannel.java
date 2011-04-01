@@ -71,7 +71,7 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  * will also block when there are any other operations in-flight.
  * <p>
  * The logical view of the underlying file is consistent across all FileChannels
- * and I/O streams opened on the same file by the same virtual machine process.
+ * and I/O streams opened on the same file by the same VM.
  * Therefore, modifications performed via a channel will be visible to the
  * stream and vice versa; this includes modifications to the file position,
  * content, size, etc.
@@ -105,7 +105,6 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
          * Private constructor prevents others creating new modes.
          */
         private MapMode(String displayName) {
-            super();
             this.displayName = displayName;
         }
 
@@ -124,7 +123,6 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
      * Protected default constructor.
      */
     protected FileChannel() {
-        super();
     }
 
     /**

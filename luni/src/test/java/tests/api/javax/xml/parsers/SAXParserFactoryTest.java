@@ -37,12 +37,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
-@TestTargetClass(SAXParserFactory.class)
 public class SAXParserFactoryTest extends TestCase {
 
     SAXParserFactory spf;
@@ -70,12 +65,6 @@ public class SAXParserFactoryTest extends TestCase {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SAXParserFactory",
-        args = {}
-    )
     @AndroidOnly("Android SAX implementation is non-validating")
     public void test_Constructor() {
         MySAXParserFactory mpf = new MySAXParserFactory();
@@ -84,7 +73,7 @@ public class SAXParserFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.SAXParserFactory#getSchema().
+     * javax.xml.parsers.SAXParserFactory#getSchema().
      * TBD getSchema() IS NOT SUPPORTED
      */
     /*   public void test_getSchema() {
@@ -101,20 +90,6 @@ public class SAXParserFactoryTest extends TestCase {
     }
      */
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isNamespaceAware",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setNamespaceAware",
-            args = {boolean.class}
-        )
-    })
     public void test_setIsNamespaceAware() {
         spf.setNamespaceAware(true);
         assertTrue(spf.isNamespaceAware());
@@ -124,20 +99,6 @@ public class SAXParserFactoryTest extends TestCase {
         assertTrue(spf.isNamespaceAware());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isValidating",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "",
-            method = "setValidating",
-            args = {boolean.class}
-        )
-    })
     public void test_setIsValidating() {
         spf.setValidating(true);
         assertTrue(spf.isValidating());
@@ -147,20 +108,6 @@ public class SAXParserFactoryTest extends TestCase {
         assertTrue(spf.isValidating());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isXIncludeAware",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "",
-            method = "setXIncludeAware",
-            args = {boolean.class}
-        )
-    })
     public void test_setIsXIncludeAware() {
         spf.setXIncludeAware(true);
         assertTrue(spf.isXIncludeAware());
@@ -168,12 +115,6 @@ public class SAXParserFactoryTest extends TestCase {
         assertFalse(spf.isXIncludeAware());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {}
-    )
     @KnownFailure("Dalvik doesn't honor system properties when choosing a SAX implementation")
     public void test_newInstance() {
         try {
@@ -206,12 +147,6 @@ public class SAXParserFactoryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "SAXException untested; unused on Android",
-        method = "newSAXParser",
-        args = {}
-    )
     public void test_newSAXParser() {
         // Ordinary case
         try {
@@ -233,20 +168,6 @@ public class SAXParserFactoryTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            method = "setFeature",
-            notes = "ParserConfigurationException untested; unused on Android",
-            args = {java.lang.String.class, boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            method = "getFeature",
-            notes = "ParserConfigurationException untested; unused on Android",
-            args = {java.lang.String.class}
-        )
-    })
     public void test_setFeatureLjava_lang_StringZ() {
         // We can't verify ParserConfigurationException and
         // SAXNotSupportedException since these are never
@@ -309,11 +230,6 @@ public class SAXParserFactoryTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setNamespaceAware",
-        args = {boolean.class}
-    )
     public void test_setNamespaceAwareZ() throws Exception {
         MyHandler mh = new MyHandler();
 

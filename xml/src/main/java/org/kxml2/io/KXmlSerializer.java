@@ -22,6 +22,7 @@
 package org.kxml2.io;
 
 import java.io.*;
+import java.util.Locale;
 import org.xmlpull.v1.*;
 
 public class KXmlSerializer implements XmlSerializer {
@@ -332,21 +333,19 @@ public class KXmlSerializer implements XmlSerializer {
                 ? new OutputStreamWriter(os)
                 : new OutputStreamWriter(os, encoding));
         this.encoding = encoding;
-        if (encoding != null
-            && encoding.toLowerCase().startsWith("utf"))
+        if (encoding != null && encoding.toLowerCase(Locale.US).startsWith("utf")) {
             unicode = true;
+        }
     }
 
-    public void startDocument(
-        String encoding,
-        Boolean standalone)
-        throws IOException {
+    public void startDocument(String encoding, Boolean standalone) throws IOException {
         writer.write("<?xml version='1.0' ");
 
         if (encoding != null) {
             this.encoding = encoding;
-            if (encoding.toLowerCase().startsWith("utf"))
+            if (encoding.toLowerCase(Locale.US).startsWith("utf")) {
                 unicode = true;
+            }
         }
 
         if (this.encoding != null) {

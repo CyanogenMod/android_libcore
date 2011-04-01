@@ -28,6 +28,5 @@ public class BufferOverflowException extends RuntimeException {
      * Constructs a <code>BufferOverflowException</code>.
      */
     public BufferOverflowException() {
-        super();
     }
 }

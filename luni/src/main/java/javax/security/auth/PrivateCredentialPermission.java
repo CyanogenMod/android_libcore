@@ -342,7 +342,6 @@ public final class PrivateCredentialPermission extends Permission {
 
         // Creates a new CredOwner with the specified Principal Class and Principal Name
         CredOwner(String principalClass, String principalName) {
-            super();
             if ("*".equals(principalClass)) {
                 isClassWildcard = true;
             }
@@ -382,9 +381,13 @@ public final class PrivateCredentialPermission extends Permission {
 
         // Checks two CredOwner objects for equality.
         @Override
-        public boolean equals(Object obj) {
-            return principalClass.equals(((CredOwner) obj).principalClass)
-                    && principalName.equals(((CredOwner) obj).principalName);
+        public boolean equals(Object o) {
+            if (!(o instanceof CredOwner)) {
+                return false;
+            }
+            CredOwner lhs = (CredOwner) o;
+            return principalClass.equals(lhs.principalClass) &&
+                    principalName.equals(lhs.principalName);
         }
 
         // Returns the hash code value for this object.

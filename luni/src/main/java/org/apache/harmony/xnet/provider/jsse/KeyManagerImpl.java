@@ -26,11 +26,12 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
+import java.util.Locale;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.security.auth.x500.X500Principal;
@@ -58,7 +59,6 @@ public class KeyManagerImpl extends X509ExtendedKeyManager {
      * @param pwd
      */
     public KeyManagerImpl(KeyStore keyStore, char[] pwd) {
-        super();
         this.hash = new Hashtable<String, PrivateKeyEntry>();
         final Enumeration<String> aliases;
         try {
@@ -95,11 +95,9 @@ public class KeyManagerImpl extends X509ExtendedKeyManager {
     }
 
     public X509Certificate[] getCertificateChain(String alias) {
-        // BEGIN android-changed
         if (alias == null) {
             return null;
         }
-        // END android-changed
         if (hash.containsKey(alias)) {
             Certificate[] certs = hash.get(alias).getCertificateChain();
             if (certs[0] instanceof X509Certificate) {
@@ -123,11 +121,9 @@ public class KeyManagerImpl extends X509ExtendedKeyManager {
     }
 
     public PrivateKey getPrivateKey(String alias) {
-        // BEGIN android-changed
         if (alias == null) {
             return null;
         }
-        // END android-changed
         if (hash.containsKey(alias)) {
             return hash.get(alias).getPrivateKey();
         }
@@ -151,7 +147,7 @@ public class KeyManagerImpl extends X509ExtendedKeyManager {
             return null;
         }
         List<Principal> issuersList = (issuers == null) ? null : Arrays.asList(issuers);
-        Vector<String> found = new Vector<String>();
+        ArrayList<String> found = new ArrayList<String>();
         for (Enumeration<String> aliases = hash.keys(); aliases.hasMoreElements();) {
             final String alias = aliases.nextElement();
             final KeyStore.PrivateKeyEntry entry = hash.get(alias);
@@ -159,7 +155,7 @@ public class KeyManagerImpl extends X509ExtendedKeyManager {
             final Certificate cert = chain[0];
             final String certKeyAlg = cert.getPublicKey().getAlgorithm();
             final String certSigAlg = (cert instanceof X509Certificate
-                                       ? ((X509Certificate) cert).getSigAlgName().toUpperCase()
+                                       ? ((X509Certificate) cert).getSigAlgName().toUpperCase(Locale.US)
                                        : null);
             for (String keyAlgorithm : keyTypes) {
                 if (keyAlgorithm == null) {

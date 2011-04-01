@@ -24,7 +24,7 @@ import java.math.RoundingMode;
 public class MathContextTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.math.MathContext#MathContext(...)
+     * java.math.MathContext#MathContext(...)
      */
     public void test_MathContextConstruction() {
         String a = "-12380945E+61";

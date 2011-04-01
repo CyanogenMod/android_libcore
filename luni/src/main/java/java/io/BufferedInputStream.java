@@ -343,19 +343,12 @@ public class BufferedInputStream extends FilterInputStream {
      */
     @Override
     public synchronized void reset() throws IOException {
-        // BEGIN android-changed
-        /*
-         * These exceptions get thrown in some "normalish" circumstances,
-         * so it is preferable to avoid loading up the whole big set of
-         * messages just for these cases.
-         */
         if (buf == null) {
             throw new IOException("Stream is closed");
         }
         if (-1 == markpos) {
             throw new IOException("Mark has been invalidated.");
         }
-        // END android-changed
         pos = markpos;
     }
 

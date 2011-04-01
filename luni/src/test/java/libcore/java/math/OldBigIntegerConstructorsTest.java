@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class OldBigIntegerConstructorsTest extends TestCase {
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrString1() {
         String s = "0";
@@ -37,7 +37,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrString2() {
         String s = "-2147483648";
@@ -48,7 +48,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrString3() {
         String s = "2147483647";
@@ -59,7 +59,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrStringExc1() {
         try {
@@ -70,7 +70,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrStringExc2() {
         try {
@@ -81,7 +81,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrStringExc3() {
         try {
@@ -92,7 +92,7 @@ public class OldBigIntegerConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstrStringExc4() {
         try {

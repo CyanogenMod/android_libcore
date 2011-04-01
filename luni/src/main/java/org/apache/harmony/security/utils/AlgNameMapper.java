@@ -25,10 +25,10 @@ package org.apache.harmony.security.utils;
 import java.security.Provider;
 import java.security.Security;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.apache.harmony.security.Util;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
 
 /**
@@ -83,7 +83,7 @@ public class AlgNameMapper {
 
     static {
         for (String[] element : knownAlgMappings) {
-            String algUC = Util.toUpperCase(element[1]);
+            String algUC = element[1].toUpperCase(Locale.US);
             alg2OidMap.put(algUC, element[0]);
             oid2AlgMap.put(element[0], algUC);
             // map upper case alg name to its original name
@@ -113,7 +113,7 @@ public class AlgNameMapper {
      */
     public static String map2OID(String algName) {
         // alg2OidMap map contains upper case keys
-        return alg2OidMap.get(Util.toUpperCase(algName));
+        return alg2OidMap.get(algName.toUpperCase(Locale.US));
     }
 
     /**
@@ -136,7 +136,7 @@ public class AlgNameMapper {
      * @return algorithm name
      */
     public static String getStandardName(String algName) {
-        return algAliasesMap.get(Util.toUpperCase(algName));
+        return algAliasesMap.get(algName.toUpperCase(Locale.US));
     }
 
     // Searches given provider for mappings like
@@ -153,7 +153,7 @@ public class AlgNameMapper {
                 if (key.startsWith(keyPrfix2find)) {
                     String alias = key.substring(keyPrfix2find.length());
                     String alg = (String)me.getValue();
-                    String algUC = Util.toUpperCase(alg);
+                    String algUC = alg.toUpperCase(Locale.US);
                     if (isOID(alias)) {
                         if (alias.startsWith("OID.")) {
                             alias = alias.substring(4);
@@ -172,8 +172,8 @@ public class AlgNameMapper {
                             algAliasesMap.put(algUC, alg);
                         }
                            // Do not override known standard names
-                    } else if (!algAliasesMap.containsKey(Util.toUpperCase(alias))) {
-                        algAliasesMap.put(Util.toUpperCase(alias), alg);
+                    } else if (!algAliasesMap.containsKey(alias.toUpperCase(Locale.US))) {
+                        algAliasesMap.put(alias.toUpperCase(Locale.US), alg);
                     }
                 }
             }
@@ -187,9 +187,7 @@ public class AlgNameMapper {
      * @return 'true' if parameter represents OID
      */
     public static boolean isOID(String alias) {
-        // BEGIN android-changed
         return ObjectIdentifier.isOID(normalize(alias));
-        // END android-changed
     }
 
     /**
@@ -202,19 +200,5 @@ public class AlgNameMapper {
         return oid.startsWith("OID.")
             ? oid.substring(4)
             : oid;
-    }
-
-    /**
-     * Present all internal maps as formatted string
-     * @return Internal maps String representation
-     */
-    public static String dump() {
-        StringBuilder sb = new StringBuilder("alg2OidMap: ");
-        sb.append(alg2OidMap);
-        sb.append("\noid2AlgMap: ");
-        sb.append(oid2AlgMap);
-        sb.append("\nalgAliasesMap: ");
-        sb.append(algAliasesMap);
-        return sb.toString();
     }
 }

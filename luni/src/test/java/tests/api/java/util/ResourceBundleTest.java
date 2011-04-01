@@ -18,10 +18,6 @@
 package tests.api.java.util;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,19 +31,12 @@ import java.util.Vector;
 import tests.api.java.util.support.B;
 import tests.support.resource.Support_Resources;
 
-@TestTargetClass(ResourceBundle.class)
 public class ResourceBundleTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.ResourceBundle#getBundle(java.lang.String,
+     * java.util.ResourceBundle#getBundle(java.lang.String,
      *        java.util.Locale)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBundle",
-        args = {java.lang.String.class, java.util.Locale.class}
-    )
     public void test_getBundleLjava_lang_StringLjava_util_Locale() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -96,15 +85,9 @@ public class ResourceBundleTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ResourceBundle#getBundle(java.lang.String,
+     * java.util.ResourceBundle#getBundle(java.lang.String,
      *        java.util.Locale, java.lang.ClassLoader)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBundle",
-        args = {java.lang.String.class, java.util.Locale.class, java.lang.ClassLoader.class}
-    )
     @KnownFailure("It's not allowed to pass null as parent class loader to"
             + " a new ClassLoader anymore. Maybe we need to change"
             + " URLClassLoader to allow this? It's not specified.")
@@ -175,14 +158,8 @@ public class ResourceBundleTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ResourceBundle#getString(java.lang.String)
+     * java.util.ResourceBundle#getString(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getString",
-        args = {java.lang.String.class}
-    )
     public void test_getStringLjava_lang_String() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -224,12 +201,6 @@ public class ResourceBundleTest extends junit.framework.TestCase {
             //expected
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Regression test. Doesn't verify NullPointerException.",
-        method = "getBundle",
-        args = {java.lang.String.class}
-    )
     public void test_getBundle_getClassName() {
         // Regression test for Harmony-1759
         Locale locale = Locale.GERMAN;
@@ -270,22 +241,10 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ResourceBundle",
-        args = {}
-    )
     public void test_constructor() {
         assertNotNull(new Mock_ResourceBundle());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getLocale",
-        args = {}
-    )
     public void test_getLocale() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -313,12 +272,6 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         Locale.setDefault(loc);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getObject",
-        args = {java.lang.String.class}
-    )
     public void test_getObjectLjava_lang_String() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -356,20 +309,6 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getStringArray",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setParent",
-            args = {java.util.ResourceBundle.class}
-        )
-    })
     public void test_getStringArrayLjava_lang_String() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";
@@ -403,12 +342,6 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getBundle",
-        args = {java.lang.String.class}
-    )
     public void test_getBundleLjava_lang_String() {
         ResourceBundle bundle;
         String name = "tests.support.Support_TestResource";

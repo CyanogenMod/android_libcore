@@ -26,13 +26,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
+import libcore.io.Streams;
 
 /**
  * This class provides random read access to a <i>ZIP-archive</i> file.
@@ -60,7 +59,7 @@ public class ZipFile implements ZipConstants {
      * versions of PKZIP recognize this bit for any
      * compression method.)
      */
-    static final int GPBF_DATA_DESCRIPTOR_FLAG = 1 << 3; // android-added
+    static final int GPBF_DATA_DESCRIPTOR_FLAG = 1 << 3;
 
     /**
      * General Purpose Bit Flags, Bit 11.
@@ -68,7 +67,7 @@ public class ZipFile implements ZipConstants {
      * the filename and comment fields for this file
      * must be encoded using UTF-8.
      */
-    static final int GPBF_UTF8_FLAG = 1 << 11; // android-added
+    static final int GPBF_UTF8_FLAG = 1 << 11;
 
     /**
      * Open ZIP file for read.
@@ -122,14 +121,7 @@ public class ZipFile implements ZipConstants {
             throw new IllegalArgumentException();
         }
 
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(fileName);
-        }
         if ((mode & OPEN_DELETE) != 0) {
-            if (security != null) {
-                security.checkDelete(fileName);
-            }
             fileToDeleteOnClose = file; // file.deleteOnExit();
         } else {
             fileToDeleteOnClose = null;
@@ -183,13 +175,7 @@ public class ZipFile implements ZipConstants {
                 raf.close();
             }
             if (fileToDeleteOnClose != null) {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        new File(fileName).delete();
-                        return null;
-                    }
-                });
-                // fileToDeleteOnClose.delete();
+                fileToDeleteOnClose.delete();
                 fileToDeleteOnClose = null;
             }
         }
@@ -401,23 +387,15 @@ public class ZipFile implements ZipConstants {
             mLength = raf.length();
         }
 
-        @Override
-        public int available() throws IOException {
+        @Override public int available() throws IOException {
             return (mOffset < mLength ? 1 : 0);
         }
 
-        @Override
-        public int read() throws IOException {
-            byte[] singleByteBuf = new byte[1];
-            if (read(singleByteBuf, 0, 1) == 1) {
-                return singleByteBuf[0] & 0XFF;
-            } else {
-                return -1;
-            }
+        @Override public int read() throws IOException {
+            return Streams.readSingleByte(this);
         }
 
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        @Override public int read(byte[] b, int off, int len) throws IOException {
             synchronized (mSharedRaf) {
                 mSharedRaf.seek(mOffset);
                 if (len > mLength - mOffset) {

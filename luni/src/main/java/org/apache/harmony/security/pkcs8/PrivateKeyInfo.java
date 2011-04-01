@@ -47,22 +47,15 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
  *
  *  Attributes ::= SET OF Attribute
  */
-
-public class PrivateKeyInfo {
-
-    private int version;
-
-    private AlgorithmIdentifier privateKeyAlgorithm;
-
-    private byte[] privateKey;
-
-    private List attributes;
-
+public final class PrivateKeyInfo {
+    private final int version;
+    private final AlgorithmIdentifier privateKeyAlgorithm;
+    private final byte[] privateKey;
+    private final List<?> attributes;
     private byte[] encoding;
 
     public PrivateKeyInfo(int version, AlgorithmIdentifier privateKeyAlgorithm,
             byte[] privateKey, List attributes) {
-
         this.version = version;
         this.privateKeyAlgorithm = privateKeyAlgorithm;
         this.privateKey = privateKey;
@@ -76,29 +69,20 @@ public class PrivateKeyInfo {
         this.encoding = encoding;
     }
 
-    /**
-     * @return Returns version.
-     */
     public int getVersion() {
         return version;
     }
 
-    /**
-     * @return Returns AlgorithmIdentifier.
-     */
     public AlgorithmIdentifier getAlgorithmIdentifier() {
         return privateKeyAlgorithm;
     }
 
-    /**
-     * @return Returns List of attributes.
-     */
     public List getAttributes() {
         return attributes;
     }
 
     /**
-     * @return Returns the OCTET STRING.
+     * Returns the OCTET STRING.
      */
     public byte[] getPrivateKey() {
         return privateKey;
@@ -106,7 +90,6 @@ public class PrivateKeyInfo {
 
     /**
      * Returns ASN.1 encoded form of this PrivateKeyInfo.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -129,23 +112,18 @@ public class PrivateKeyInfo {
         }
 
         protected Object getDecodedObject(BerInputStream in) {
-
             Object[] values = (Object[]) in.content;
-
             return new PrivateKeyInfo(ASN1Integer.toIntValue(values[0]),
                     (AlgorithmIdentifier) values[1], (byte[]) values[2],
                     (List) values[3], in.getEncoded());
         }
 
         protected void getValues(Object object, Object[] values) {
-
             PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) object;
-
             values[0] = ASN1Integer.fromIntValue(privateKeyInfo.version);
             values[1] = privateKeyInfo.privateKeyAlgorithm;
             values[2] = privateKeyInfo.privateKey;
             values[3] = privateKeyInfo.attributes;
         }
     };
-
 }

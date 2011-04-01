@@ -19,6 +19,7 @@ package libcore.java.lang.reflect;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -51,15 +52,15 @@ public final class ReflectionTest extends TestCase {
         assertEquals(fieldOneRaw, fieldOne.toGenericString());
 
         Field fieldTwo = C.class.getDeclaredField("fieldTwo");
-        assertEquals("transient volatile java.util.Map " + classC + ".fieldTwo",
+        assertEquals("private transient volatile java.util.Map " + classC + ".fieldTwo",
                 fieldTwo.toString());
-        assertEquals("transient volatile java.util.Map<" + classA + ", java.lang.String> "
+        assertEquals("private transient volatile java.util.Map<" + classA + ", java.lang.String> "
                 + classC + ".fieldTwo", fieldTwo.toGenericString());
 
         Field fieldThree = C.class.getDeclaredField("fieldThree");
-        String fieldThreeRaw = "java.lang.Object[] " + classC + ".fieldThree";
+        String fieldThreeRaw = "protected java.lang.Object[] " + classC + ".fieldThree";
         assertEquals(fieldThreeRaw, fieldThree.toString());
-        String fieldThreeGeneric = "K[] " + classC + ".fieldThree";
+        String fieldThreeGeneric = "protected K[] " + classC + ".fieldThree";
         assertEquals(fieldThreeGeneric, fieldThree.toGenericString());
 
         Field fieldFour = C.class.getDeclaredField("fieldFour");
@@ -132,6 +133,127 @@ public final class ReflectionTest extends TestCase {
         assertEquals(RandomAccess.class, bounds[2]);
     }
 
+    public void testGetFieldNotFound() throws Exception {
+        try {
+            D.class.getField("noField");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldNotFound() throws Exception {
+        try {
+            D.class.getDeclaredField("noField");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetFieldNull() throws Exception {
+        try {
+            D.class.getField(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldNull() throws Exception {
+        try {
+            D.class.getDeclaredField(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testGetFieldIsRecursive() throws Exception {
+        Field field = D.class.getField("fieldOne");
+        assertEquals(C.class, field.getDeclaringClass());
+    }
+
+    public void testGetDeclaredFieldIsNotRecursive() {
+        try {
+            D.class.getDeclaredField("fieldOne");
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetFieldIsPublicOnly() throws Exception {
+        C.class.getField("fieldOne"); // public
+        try {
+            C.class.getField("fieldTwo"); // private
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+        try {
+            C.class.getField("fieldThree"); // protected
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+        try {
+            C.class.getField("fieldFour"); // package-private
+            fail();
+        } catch (NoSuchFieldException expected) {
+        }
+    }
+
+    public void testGetDeclaredFieldIsAllVisibilities() throws Exception {
+        C.class.getDeclaredField("fieldOne"); // public
+        C.class.getDeclaredField("fieldTwo"); // private
+        C.class.getDeclaredField("fieldThree"); // protected
+        C.class.getDeclaredField("fieldFour"); // package-private
+    }
+
+    public void testGetFieldViaExtendsThenImplements() throws Exception {
+        Field field = ExtendsImplementsDefinesMember.class.getField("field");
+        assertEquals(DefinesMember.class, field.getDeclaringClass());
+    }
+
+    public void testGetFieldViaImplementsThenExtends() throws Exception {
+        Field field = ImplementsExtendsDefinesMember.class.getField("field");
+        assertEquals(DefinesMember.class, field.getDeclaringClass());
+    }
+
+    public void testGetFieldsViaExtendsThenImplements() throws Exception {
+        Field[] fields = ExtendsImplementsDefinesMember.class.getFields();
+        assertTrue(names(fields).contains("field"));
+    }
+
+    public void testGetFieldsViaImplementsThenExtends() throws Exception {
+        Field[] fields = ImplementsExtendsDefinesMember.class.getFields();
+        assertTrue(names(fields).contains("field"));
+    }
+
+    public void testGetMethodViaExtendsThenImplements() throws Exception {
+        Method method = ExtendsImplementsDefinesMember.class.getMethod("method");
+        assertEquals(DefinesMember.class, method.getDeclaringClass());
+    }
+
+    public void testGetMethodViaImplementsThenExtends() throws Exception {
+        Method method = ImplementsExtendsDefinesMember.class.getMethod("method");
+        assertEquals(DefinesMember.class, method.getDeclaringClass());
+    }
+
+    public void testGetMethodsViaExtendsThenImplements() throws Exception {
+        Method[] methods = ExtendsImplementsDefinesMember.class.getMethods();
+        assertTrue(names(methods).contains("method"));
+    }
+
+    public void testGetMethodsViaImplementsThenExtends() throws Exception {
+        Method[] methods = ImplementsExtendsDefinesMember.class.getMethods();
+        assertTrue(names(methods).contains("method"));
+    }
+
+    public void testGetMethodsContainsNoDuplicates() throws Exception {
+        Method[] methods = ExtendsAndImplementsDefinesMember.class.getMethods();
+        assertEquals(1, count(names(methods), "method"));
+    }
+
+    public void testGetFieldsContainsNoDuplicates() throws Exception {
+        Field[] fields = ExtendsAndImplementsDefinesMember.class.getFields();
+        assertEquals(1, count(names(fields), "field"));
+    }
+
     static class A {}
     static class AList extends ArrayList<A> {}
 
@@ -139,8 +261,8 @@ public final class ReflectionTest extends TestCase {
 
     public static abstract class C<K> {
         public static A fieldOne;
-        transient volatile Map<A, String> fieldTwo;
-        K[] fieldThree;
+        private transient volatile Map<A, String> fieldTwo;
+        protected K[] fieldThree;
         Map<? super Integer, Integer[]> fieldFour;
         String[][][][][] fieldFive;
 
@@ -158,5 +280,43 @@ public final class ReflectionTest extends TestCase {
         public <T extends Comparable<T> & Serializable & RandomAccess> T methodFour(Set<T> t) {
             return null;
         }
+    }
+
+    public static class D extends C<String> {
+        public D(A a) throws B {
+            super(a);
+        }
+        @Override public Map<A, String> methodTwo(List<A> onlyParameter) {
+            return null;
+        }
+    }
+
+    interface DefinesMember {
+        String field = "s";
+        void method();
+    }
+    static abstract class ImplementsDefinesMember implements DefinesMember {}
+    static abstract class ExtendsImplementsDefinesMember extends ImplementsDefinesMember {}
+    interface ExtendsDefinesMember extends DefinesMember {}
+    static abstract class ImplementsExtendsDefinesMember implements ExtendsDefinesMember {}
+    static abstract class ExtendsAndImplementsDefinesMember extends ImplementsDefinesMember
+            implements DefinesMember {}
+
+    private List<String> names(Member[] methods) {
+        List<String> result = new ArrayList<String>();
+        for (Member method : methods) {
+            result.add(method.getName());
+        }
+        return result;
+    }
+
+    private int count(List<?> list, Object element) {
+        int result = 0;
+        for (Object o : list) {
+            if (o.equals(element)) {
+                result++;
+            }
+        }
+        return result;
     }
 }

@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -49,7 +44,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=238">http://www.w3.org/Bugs/Public/show_bug.cgi?id=238</a>
  */
-@TestTargetClass(Attr.class)
 public final class NamespaceURI extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -94,12 +88,6 @@ public final class NamespaceURI extends DOMTestCase {
 //        attrNamespaceURI = addrAttr.getNamespaceURI();
 //        assertEquals("namespaceURI", "http://www.nist.gov", attrNamespaceURI);
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that getNamespaceURI method returns null.",
-        method = "getNamespaceURI",
-        args = {}
-    )
     public void testGetNamespaceURI2() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -115,12 +103,6 @@ public final class NamespaceURI extends DOMTestCase {
         attrNamespaceURI = addrAttr.getNamespaceURI();
         assertEquals("namespaceURI", "http://www.nist.gov", attrNamespaceURI);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify that getNamespaceURI method returns null.",
-        method = "getNamespaceURI",
-        args = {}
-    )
     public void testGetNamespaceURI3() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -133,12 +115,6 @@ public final class NamespaceURI extends DOMTestCase {
         employeeNamespace = testEmployee.getNamespaceURI();
         assertEquals("namespaceURI", "http://www.nist.gov", employeeNamespace);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getNamespaceURI method returns null.",
-        method = "getNamespaceURI",
-        args = {}
-    )
     public void testGetNamespaceURI4() throws Throwable {
         Document doc;
         NodeList elementList;

@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.SortedMap;
 
 /**
@@ -52,23 +50,14 @@ public abstract class Pack200 {
      * @return an instance of {@code Packer}
      */
     public static Pack200.Packer newPacker() {
-        return (Packer) AccessController
-                .doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        String className = System
-                                .getProperty(SYSTEM_PROPERTY_PACKER,
-                                        "org.apache.harmony.pack200.Pack200PackerAdapter");
-                        try {
-                            // TODO Not sure if this will cause problems with
-                            // loading the packer
-                            return ClassLoader.getSystemClassLoader()
-                                    .loadClass(className).newInstance();
-                        } catch (Exception e) {
-                            throw new Error("Can't load class " + className, e);
-                        }
-                    }
-                });
-
+        String className = System.getProperty(SYSTEM_PROPERTY_PACKER, "org.apache.harmony.pack200.Pack200PackerAdapter");
+        try {
+            // TODO Not sure if this will cause problems with
+            // loading the packer
+            return (Packer) ClassLoader.getSystemClassLoader().loadClass(className).newInstance();
+        } catch (Exception e) {
+            throw new Error("Can't load class " + className, e);
+        }
     }
 
     /**
@@ -82,20 +71,12 @@ public abstract class Pack200 {
      * @return a instance of {@code Unpacker}.
      */
     public static Pack200.Unpacker newUnpacker() {
-        return (Unpacker) AccessController
-                .doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        String className = System
-                                .getProperty(SYSTEM_PROPERTY_UNPACKER,
-                                        "org.apache.harmony.unpack200.Pack200UnpackerAdapter");
-                        try {
-                            return ClassLoader.getSystemClassLoader()
-                                    .loadClass(className).newInstance();
-                        } catch (Exception e) {
-                            throw new Error("Can't load class " + className, e);
-                        }
-                    }
-                });
+        String className = System.getProperty(SYSTEM_PROPERTY_UNPACKER, "org.apache.harmony.unpack200.Pack200UnpackerAdapter");
+        try {
+            return (Unpacker) ClassLoader.getSystemClassLoader().loadClass(className).newInstance();
+        } catch (Exception e) {
+            throw new Error("Can't load class " + className, e);
+        }
     }
 
     /**

@@ -26,15 +26,18 @@ public final class FloatingPointParser {
 
     private static final class StringExponentPair {
         String s;
-
-        int e;
-
+        long e;
         boolean negative;
 
-        StringExponentPair(String s, int e, boolean negative) {
-            this.s = s;
-            this.e = e;
-            this.negative = negative;
+        // Flags for two special non-error failure cases.
+        boolean infinity;
+        boolean zero;
+
+        public float specialValue() {
+            if (infinity) {
+                return negative ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
+            }
+            return negative ? -0.0f : 0.0f;
         }
     }
 
@@ -43,16 +46,7 @@ public final class FloatingPointParser {
      * integer value (or zero). The exponent will be used to calculate the
      * floating point number by taking the positive integer the String
      * represents and multiplying by 10 raised to the power of the of the
-     * exponent. Returns the closest double value to the real number
-     *
-     * @param s
-     *            the String that will be parsed to a floating point
-     * @param e
-     *            an int represent the 10 to part
-     * @return the double closest to the real number
-     *
-     * @exception NumberFormatException
-     *                if the String doesn't represent a positive integer value
+     * exponent. Returns the closest double value to the real number, or Double.longBitsToDouble(-1).
      */
     private static native double parseDblImpl(String s, int e);
 
@@ -61,16 +55,7 @@ public final class FloatingPointParser {
      * integer value (or zero). The exponent will be used to calculate the
      * floating point number by taking the positive integer the String
      * represents and multiplying by 10 raised to the power of the of the
-     * exponent. Returns the closest float value to the real number
-     *
-     * @param s
-     *            the String that will be parsed to a floating point
-     * @param e
-     *            an int represent the 10 to part
-     * @return the float closest to the real number
-     *
-     * @exception NumberFormatException
-     *                if the String doesn't represent a positive integer value
+     * exponent. Returns the closest float value to the real number, or Float.intBitsToFloat(-1).
      */
     private static native float parseFltImpl(String s, int e);
 
@@ -79,33 +64,22 @@ public final class FloatingPointParser {
     }
 
     /**
-     * Takes a String and does some initial parsing. Should return a
-     * StringExponentPair containing a String with no leading or trailing white
+     * Returns a StringExponentPair containing a String with no leading or trailing white
      * space and trailing zeroes eliminated. The exponent of the
      * StringExponentPair will be used to calculate the floating point number by
      * taking the positive integer the String represents and multiplying by 10
      * raised to the power of the of the exponent.
-     *
-     * @param s
-     *            the String that will be parsed to a floating point
-     * @param length
-     *            the length of s
-     * @return a StringExponentPair with necessary values
-     *
-     * @exception NumberFormatException
-     *                if the String doesn't pass basic tests
      */
     private static StringExponentPair initialParse(String s, int length, boolean isDouble) {
-        boolean negative = false;
-        char c;
-        int start, end, decimal;
-        int e = 0;
-
-        start = 0;
+        StringExponentPair result = new StringExponentPair();
         if (length == 0) {
             throw invalidReal(s, isDouble);
         }
-        c = s.charAt(length - 1);
+        result.negative = (s.charAt(0) == '-');
+
+        // We ignore trailing double or float indicators; the method you called determines
+        // what you'll get.
+        char c = s.charAt(length - 1);
         if (c == 'D' || c == 'd' || c == 'F' || c == 'f') {
             length--;
             if (length == 0) {
@@ -113,28 +87,49 @@ public final class FloatingPointParser {
             }
         }
 
-        end = Math.max(s.indexOf('E'), s.indexOf('e'));
-        if (end > -1) {
+        int end = Math.max(s.indexOf('E'), s.indexOf('e'));
+        if (end != -1) {
+            // Is there anything after the 'e'?
             if (end + 1 == length) {
                 throw invalidReal(s, isDouble);
             }
 
-            int exponent_offset = end + 1;
-            if (s.charAt(exponent_offset) == '+') {
-                if (s.charAt(exponent_offset + 1) == '-') {
-                    throw invalidReal(s, isDouble);
-                }
-                exponent_offset++; // skip the plus sign
-            }
-            try {
-                e = Integer.parseInt(s.substring(exponent_offset, length));
-            } catch (NumberFormatException ex) {
-                // ex contains the exponent substring
-                // only so throw a new exception with
-                // the correct string
-                throw invalidReal(s, isDouble);
+            // Do we have an optional explicit sign?
+            int exponentOffset = end + 1;
+            boolean negativeExponent = false;
+            char firstExponentChar = s.charAt(exponentOffset);
+            if (firstExponentChar == '+' || firstExponentChar == '-') {
+                negativeExponent = (firstExponentChar == '-');
+                ++exponentOffset;
             }
 
+            // Do we have a valid positive integer?
+            String exponentString = s.substring(exponentOffset, length);
+            if (exponentString.isEmpty()) {
+                throw invalidReal(s, isDouble);
+            }
+            for (int i = 0; i < exponentString.length(); ++i) {
+                char ch = exponentString.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    throw invalidReal(s, isDouble);
+                }
+            }
+
+            // Parse the integer exponent.
+            try {
+                result.e = Integer.parseInt(exponentString);
+                if (negativeExponent) {
+                    result.e = -result.e;
+                }
+            } catch (NumberFormatException ex) {
+                // We already checked the string, so the exponent must have been out of range for an int.
+                if (negativeExponent) {
+                    result.zero = true;
+                } else {
+                    result.infinity = true;
+                }
+                return result;
+            }
         } else {
             end = length;
         }
@@ -142,11 +137,12 @@ public final class FloatingPointParser {
             throw invalidReal(s, isDouble);
         }
 
+        int start = 0;
         c = s.charAt(start);
         if (c == '-') {
             ++start;
             --length;
-            negative = true;
+            result.negative = true;
         } else if (c == '+') {
             ++start;
             --length;
@@ -155,9 +151,9 @@ public final class FloatingPointParser {
             throw invalidReal(s, isDouble);
         }
 
-        decimal = s.indexOf('.');
+        int decimal = s.indexOf('.');
         if (decimal > -1) {
-            e -= end - decimal - 1;
+            result.e -= end - decimal - 1;
             s = s.substring(start, decimal) + s.substring(decimal + 1, end);
         } else {
             s = s.substring(start, end);
@@ -178,84 +174,60 @@ public final class FloatingPointParser {
         }
 
         if (end != length || start != 0) {
-            e += length - end;
+            result.e += length - end;
             s = s.substring(start, end);
         }
 
+        // This is a hack for https://issues.apache.org/jira/browse/HARMONY-329
         // Trim the length of very small numbers, natives can only handle down
         // to E-309
         final int APPROX_MIN_MAGNITUDE = -359;
         final int MAX_DIGITS = 52;
         length = s.length();
-        if (length > MAX_DIGITS && e < APPROX_MIN_MAGNITUDE) {
-            int d = Math.min(APPROX_MIN_MAGNITUDE - e, length - 1);
+        if (length > MAX_DIGITS && result.e < APPROX_MIN_MAGNITUDE) {
+            int d = Math.min(APPROX_MIN_MAGNITUDE - (int) result.e, length - 1);
             s = s.substring(0, length - d);
-            e += d;
+            result.e += d;
         }
 
-        return new StringExponentPair(s, e, negative);
+        // This is a hack for https://issues.apache.org/jira/browse/HARMONY-6641
+        // The magic 1024 was determined experimentally; the more plausible -324 and +309 were
+        // not sufficient to pass both our tests and harmony's tests.
+        if (result.e < -1024) {
+            result.zero = true;
+            return result;
+        } else if (result.e > 1024) {
+            result.infinity = true;
+            return result;
+        }
+
+        result.s = s;
+        return result;
     }
 
-    /*
-     * Assumes the string is trimmed.
-     */
-    private static double parseDblName(String namedDouble, int length) {
-        // Valid strings are only +Nan, NaN, -Nan, +Infinity, Infinity,
-        // -Infinity.
-        if ((length != 3) && (length != 4) && (length != 8) && (length != 9)) {
-            throw invalidReal(namedDouble, true);
-        }
-
+    // Parses "+Nan", "NaN", "-Nan", "+Infinity", "Infinity", and "-Infinity", case-insensitively.
+    private static float parseName(String name, boolean isDouble) {
+        // Explicit sign?
         boolean negative = false;
         int i = 0;
-        char firstChar = namedDouble.charAt(i);
+        int length = name.length();
+        char firstChar = name.charAt(i);
         if (firstChar == '-') {
             negative = true;
             ++i;
+            --length;
         } else if (firstChar == '+') {
             ++i;
+            --length;
         }
 
-        if (namedDouble.regionMatches(false, i, "Infinity", 0, 8)) {
-            return negative ? Double.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
-        }
-
-        if (namedDouble.regionMatches(false, i, "NaN", 0, 3)) {
-            return Double.NaN;
-        }
-
-        throw invalidReal(namedDouble, true);
-    }
-
-    /*
-     * Assumes the string is trimmed.
-     */
-    private static float parseFltName(String namedFloat, int length) {
-        // Valid strings are only +Nan, NaN, -Nan, +Infinity, Infinity,
-        // -Infinity.
-        if ((length != 3) && (length != 4) && (length != 8) && (length != 9)) {
-            throw invalidReal(namedFloat, false);
-        }
-
-        boolean negative = false;
-        int i = 0;
-        char firstChar = namedFloat.charAt(i);
-        if (firstChar == '-') {
-            negative = true;
-            ++i;
-        } else if (firstChar == '+') {
-            ++i;
-        }
-
-        if (namedFloat.regionMatches(false, i, "Infinity", 0, 8)) {
+        if (length == 8 && name.regionMatches(false, i, "Infinity", 0, 8)) {
             return negative ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
         }
-
-        if (namedFloat.regionMatches(false, i, "NaN", 0, 3)) {
+        if (length == 3 && name.regionMatches(false, i, "NaN", 0, 3)) {
             return Float.NaN;
         }
-
-        throw invalidReal(namedFloat, false);
+        throw invalidReal(name, isDouble);
     }
 
     /**
@@ -278,25 +250,25 @@ public final class FloatingPointParser {
 
         // See if this could be a named double
         char last = s.charAt(length - 1);
-        if ((last == 'y') || (last == 'N')) {
-            return parseDblName(s, length);
+        if (last == 'y' || last == 'N') {
+            return parseName(s, true);
         }
 
-        // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) {
+        // See if it could be a hexadecimal representation.
+        // We don't use startsWith because there might be a leading sign.
+        if (s.indexOf("0x") != -1 || s.indexOf("0X") != -1) {
             return HexStringParser.parseDouble(s);
         }
 
         StringExponentPair info = initialParse(s, length, true);
-
-        double result = parseDblImpl(info.s, info.e);
+        if (info.infinity || info.zero) {
+            return info.specialValue();
+        }
+        double result = parseDblImpl(info.s, (int) info.e);
         if (Double.doubleToRawLongBits(result) == 0xffffffffffffffffL) {
             throw invalidReal(s, true);
         }
-        if (info.negative) {
-            result = -result;
-        }
-        return result;
+        return info.negative ? -result : result;
     }
 
     /**
@@ -319,23 +291,24 @@ public final class FloatingPointParser {
 
         // See if this could be a named float
         char last = s.charAt(length - 1);
-        if ((last == 'y') || (last == 'N')) {
-            return parseFltName(s, length);
+        if (last == 'y' || last == 'N') {
+            return parseName(s, false);
         }
 
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) {
+        // We don't use startsWith because there might be a leading sign.
+        if (s.indexOf("0x") != -1 || s.indexOf("0X") != -1) {
             return HexStringParser.parseFloat(s);
         }
 
         StringExponentPair info = initialParse(s, length, false);
-        float result = parseFltImpl(info.s, info.e);
+        if (info.infinity || info.zero) {
+            return info.specialValue();
+        }
+        float result = parseFltImpl(info.s, (int) info.e);
         if (Float.floatToRawIntBits(result) == 0xffffffff) {
             throw invalidReal(s, false);
         }
-        if (info.negative) {
-            result = -result;
-        }
-        return result;
+        return info.negative ? -result : result;
     }
 }

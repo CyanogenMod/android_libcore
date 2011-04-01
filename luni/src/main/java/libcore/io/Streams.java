@@ -30,7 +30,39 @@ public final class Streams {
     private Streams() {}
 
     /**
-     * Implements {@link java.io.DataInputStream#readFully(byte[], int, int)}.
+     * Implements InputStream.read(int) in terms of InputStream.read(byte[], int, int).
+     * InputStream assumes that you implement InputStream.read(int) and provides default
+     * implementations of the others, but often the opposite is more efficient.
+     */
+    public static int readSingleByte(InputStream in) throws IOException {
+        byte[] buffer = new byte[1];
+        int result = in.read(buffer, 0, 1);
+        return (result != -1) ? buffer[0] & 0xff : -1;
+    }
+
+    /**
+     * Implements OutputStream.write(int) in terms of OutputStream.write(byte[], int, int).
+     * OutputStream assumes that you implement OutputStream.write(int) and provides default
+     * implementations of the others, but often the opposite is more efficient.
+     */
+    public static void writeSingleByte(OutputStream out, int b) throws IOException {
+        byte[] buffer = new byte[1];
+        buffer[0] = (byte) (b & 0xff);
+        out.write(buffer);
+    }
+
+    /**
+     * Fills 'dst' with bytes from 'in', throwing EOFException if insufficient bytes are available.
+     */
+    public static void readFully(InputStream in, byte[] dst) throws IOException {
+        readFully(in, dst, 0, dst.length);
+    }
+
+    /**
+     * Reads exactly 'byteCount' bytes from 'in' (into 'dst' at offset 'offset'), and throws
+     * EOFException if insufficient bytes are available.
+     *
+     * Used to implement {@link java.io.DataInputStream#readFully(byte[], int, int)}.
      */
     public static void readFully(InputStream in, byte[] dst, int offset, int byteCount) throws IOException {
         if (byteCount == 0) {

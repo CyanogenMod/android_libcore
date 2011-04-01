@@ -1,10 +1,5 @@
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
@@ -19,7 +14,6 @@ import org.apache.harmony.xnet.tests.support.X509TrustManagerImpl;
 /**
  * Tests for <code>X509TrustManager</code> class constructors and methods.
  */
-@TestTargetClass(X509TrustManager.class)
 public class X509TrustManagerTest extends TestCase {
 
     private X509Certificate[] setX509Certificate() {
@@ -51,14 +45,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkClientTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkClientTrusted_01() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = null;
@@ -103,14 +91,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkClientTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkClientTrusted_02() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = setInvalid();
@@ -124,14 +106,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkClientTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkClientTrusted_03() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = setX509Certificate();
@@ -144,14 +120,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkServerTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkServerTrusted_01() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = null;
@@ -196,14 +166,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkServerTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkServerTrusted_02() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = setInvalid();
@@ -217,14 +181,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
+     * javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "checkServerTrusted",
-        args = {java.security.cert.X509Certificate[].class, java.lang.String.class}
-    )
     public void test_checkServerTrusted_03() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
         X509Certificate[] xcert = setX509Certificate();
@@ -237,14 +195,8 @@ public class X509TrustManagerTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.X509TrustManager#getAcceptedIssuers()
+     * javax.net.ssl.X509TrustManager#getAcceptedIssuers()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAcceptedIssuers",
-        args = {}
-    )
     public void test_getAcceptedIssuers() {
         X509TrustManagerImpl xtm = new X509TrustManagerImpl();
 

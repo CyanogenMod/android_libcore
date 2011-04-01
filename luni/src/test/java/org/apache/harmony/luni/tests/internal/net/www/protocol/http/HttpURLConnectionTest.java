@@ -18,12 +18,6 @@
 package org.apache.harmony.luni.tests.internal.net.www.protocol.http;
 
 import dalvik.annotation.SideEffect;
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -47,7 +41,6 @@ import junit.framework.TestCase;
  * Tests for <code>HTTPURLConnection</code> class constructors and methods.
  *
  */
-@TestTargetClass(HttpURLConnection.class)
 public class HttpURLConnectionTest extends TestCase {
 
     private final static Object bound = new Object();
@@ -165,14 +158,8 @@ public class HttpURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests org.apache.harmony.luni.internal.net.www.http.getOutputStream()
+     * org.apache.harmony.luni.internal.net.www.http.getOutputStream()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Regression test.",
-        method = "getOutputStream",
-        args = {}
-    )
     public void testGetOutputStream() throws Exception {
         // Regression for HARMONY-482
         MockServer httpServer =
@@ -198,12 +185,6 @@ public class HttpURLConnectionTest extends TestCase {
      * Test checks if the proxy specified in openConnection
      * method will be used for connection to the server
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies if the proxy specified in openConnection method will be used for connection to the server.",
-        method = "usingProxy",
-        args = {}
-    )
     public void testUsingProxy() throws Exception {
         // Regression for HARMONY-570
         MockServer server = new MockServer("server");
@@ -244,12 +225,6 @@ public class HttpURLConnectionTest extends TestCase {
      * Test checks if the proxy provided by proxy selector
      * will be used for connection to the server
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies if the proxy provided by proxy selector will be used for connection to the server.",
-        method = "usingProxy",
-        args = {}
-    )
     public void testUsingProxySelector() throws Exception {
         // Regression for HARMONY-570
         MockServer server = new MockServer("server");
@@ -291,20 +266,6 @@ public class HttpURLConnectionTest extends TestCase {
             ProxySelector.setDefault(defPS);
         }
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "getResponseCode",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Regression test.",
-            method = "connect",
-            args = {}
-        )
-    })
     @SideEffect("Suffers from side effect of other, currently unknown test")
     public void testProxyAuthorization() throws Exception {
         // Set up test Authenticator

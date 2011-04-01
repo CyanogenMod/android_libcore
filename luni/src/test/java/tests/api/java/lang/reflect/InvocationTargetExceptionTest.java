@@ -17,11 +17,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.PrintStream;
@@ -31,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-@TestTargetClass(InvocationTargetException.class)
 public class InvocationTargetExceptionTest extends junit.framework.TestCase {
 
     static class TestMethod {
@@ -118,14 +112,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     class SubInvocationTargetException extends InvocationTargetException {}
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#InvocationTargetException()
+     * java.lang.reflect.InvocationTargetException#InvocationTargetException()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "InvocationTargetException",
-        args = {}
-    )
     public void test_Constructor() throws Exception {
         Constructor<InvocationTargetException> ctor = InvocationTargetException.class
                 .getDeclaredConstructor();
@@ -137,14 +125,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#InvocationTargetException(java.lang.Throwable)
+     * java.lang.reflect.InvocationTargetException#InvocationTargetException(java.lang.Throwable)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "InvocationTargetException",
-        args = {java.lang.Throwable.class}
-    )
     public void test_ConstructorLjava_lang_Throwable() {
         // Test for method
         // java.lang.reflect.InvocationTargetException(java.lang.Throwable)
@@ -163,15 +145,9 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#InvocationTargetException(java.lang.Throwable,
+     * java.lang.reflect.InvocationTargetException#InvocationTargetException(java.lang.Throwable,
      *        java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "InvocationTargetException",
-        args = {java.lang.Throwable.class, java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_ThrowableLjava_lang_String() {
         // Test for method
         // java.lang.reflect.InvocationTargetException(java.lang.Throwable,
@@ -192,14 +168,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#getTargetException()
+     * java.lang.reflect.InvocationTargetException#getTargetException()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTargetException",
-        args = {}
-    )
     public void test_getTargetException() {
         // Test for method java.lang.Throwable
         // java.lang.reflect.InvocationTargetException.getTargetException()
@@ -220,14 +190,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#getCause()
+     * java.lang.reflect.InvocationTargetException#getCause()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCause",
-        args = {}
-    )
     public void test_getCause() {
         // java.lang.reflect.InvocationTargetException.getCause()
         try {
@@ -248,14 +212,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#printStackTrace()
+     * java.lang.reflect.InvocationTargetException#printStackTrace()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "printStackTrace",
-        args = {}
-    )
     public void test_printStackTrace() {
         // Test for method void
         // java.lang.reflect.InvocationTargetException.printStackTrace()
@@ -278,14 +236,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#printStackTrace(java.io.PrintStream)
+     * java.lang.reflect.InvocationTargetException#printStackTrace(java.io.PrintStream)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "printStackTrace",
-        args = {java.io.PrintStream.class}
-    )
     public void test_printStackTraceLjava_io_PrintStream() {
         // Test for method void
         // java.lang.reflect.InvocationTargetException.printStackTrace(java.io.PrintStream)
@@ -301,14 +253,8 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.reflect.InvocationTargetException#printStackTrace(java.io.PrintWriter)
+     * java.lang.reflect.InvocationTargetException#printStackTrace(java.io.PrintWriter)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "printStackTrace",
-        args = {java.io.PrintWriter.class}
-    )
     public void test_printStackTraceLjava_io_PrintWriter() {
         // Test for method void
         // java.lang.reflect.InvocationTargetException.printStackTrace(java.io.PrintWriter)

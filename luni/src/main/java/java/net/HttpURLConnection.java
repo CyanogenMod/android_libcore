@@ -19,7 +19,8 @@ package java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
+import java.util.Arrays;
+import libcore.net.http.HttpURLConnectionImpl;
 
 /**
  * An {@link URLConnection} for HTTP (<a
@@ -47,7 +48,8 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *       empty stream.
  *   <li>Disconnect. Once the response body has been read, the {@code
  *       HttpURLConnection} should be closed by calling {@link #disconnect()}.
- *       Disconnecting frees all resources held by a connection.
+ *       Disconnecting releases the resources held by a connection so they may
+ *       be closed or reused.
  * </ol>
  *
  * <p>For example, to retrieve the webpage at {@code http://www.android.com/}:
@@ -121,8 +123,8 @@ import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionI
  *
  * <p>To reduce latency, this class may reuse the same underlying {@code Socket}
  * for multiple request/response pairs. As a result, HTTP connections may be
- * held open longer than necessary. Calls to {@link #disconnect()} return the
- * socket to a pool of connected sockets. This behavior can be disabled by
+ * held open longer than necessary. Calls to {@link #disconnect()} may return
+ * the socket to a pool of connected sockets. This behavior can be disabled by
  * setting the "http.keepAlive" system property to "false" before issuing any
  * HTTP requests. The "http.maxConnections" property may be used to control how
  * many idle connections to each server will be held.
@@ -293,152 +295,152 @@ public abstract class HttpURLConnection extends URLConnection {
     /**
      * Numeric status code, 202: Accepted
      */
-    public final static int HTTP_ACCEPTED = 202;
+    public static final int HTTP_ACCEPTED = 202;
 
     /**
      * Numeric status code, 502: Bad Gateway
      */
-    public final static int HTTP_BAD_GATEWAY = 502;
+    public static final int HTTP_BAD_GATEWAY = 502;
 
     /**
      * Numeric status code, 405: Bad Method
      */
-    public final static int HTTP_BAD_METHOD = 405;
+    public static final int HTTP_BAD_METHOD = 405;
 
     /**
      * Numeric status code, 400: Bad Request
      */
-    public final static int HTTP_BAD_REQUEST = 400;
+    public static final int HTTP_BAD_REQUEST = 400;
 
     /**
      * Numeric status code, 408: Client Timeout
      */
-    public final static int HTTP_CLIENT_TIMEOUT = 408;
+    public static final int HTTP_CLIENT_TIMEOUT = 408;
 
     /**
      * Numeric status code, 409: Conflict
      */
-    public final static int HTTP_CONFLICT = 409;
+    public static final int HTTP_CONFLICT = 409;
 
     /**
      * Numeric status code, 201: Created
      */
-    public final static int HTTP_CREATED = 201;
+    public static final int HTTP_CREATED = 201;
 
     /**
      * Numeric status code, 413: Entity too large
      */
-    public final static int HTTP_ENTITY_TOO_LARGE = 413;
+    public static final int HTTP_ENTITY_TOO_LARGE = 413;
 
     /**
      * Numeric status code, 403: Forbidden
      */
-    public final static int HTTP_FORBIDDEN = 403;
+    public static final int HTTP_FORBIDDEN = 403;
 
     /**
      * Numeric status code, 504: Gateway timeout
      */
-    public final static int HTTP_GATEWAY_TIMEOUT = 504;
+    public static final int HTTP_GATEWAY_TIMEOUT = 504;
 
     /**
      * Numeric status code, 410: Gone
      */
-    public final static int HTTP_GONE = 410;
+    public static final int HTTP_GONE = 410;
 
     /**
      * Numeric status code, 500: Internal error
      */
-    public final static int HTTP_INTERNAL_ERROR = 500;
+    public static final int HTTP_INTERNAL_ERROR = 500;
 
     /**
      * Numeric status code, 411: Length required
      */
-    public final static int HTTP_LENGTH_REQUIRED = 411;
+    public static final int HTTP_LENGTH_REQUIRED = 411;
 
     /**
      * Numeric status code, 301 Moved permanently
      */
-    public final static int HTTP_MOVED_PERM = 301;
+    public static final int HTTP_MOVED_PERM = 301;
 
     /**
      * Numeric status code, 302: Moved temporarily
      */
-    public final static int HTTP_MOVED_TEMP = 302;
+    public static final int HTTP_MOVED_TEMP = 302;
 
     /**
      * Numeric status code, 300: Multiple choices
      */
-    public final static int HTTP_MULT_CHOICE = 300;
+    public static final int HTTP_MULT_CHOICE = 300;
 
     /**
      * Numeric status code, 204: No content
      */
-    public final static int HTTP_NO_CONTENT = 204;
+    public static final int HTTP_NO_CONTENT = 204;
 
     /**
      * Numeric status code, 406: Not acceptable
      */
-    public final static int HTTP_NOT_ACCEPTABLE = 406;
+    public static final int HTTP_NOT_ACCEPTABLE = 406;
 
     /**
      * Numeric status code, 203: Not authoritative
      */
-    public final static int HTTP_NOT_AUTHORITATIVE = 203;
+    public static final int HTTP_NOT_AUTHORITATIVE = 203;
 
     /**
      * Numeric status code, 404: Not found
      */
-    public final static int HTTP_NOT_FOUND = 404;
+    public static final int HTTP_NOT_FOUND = 404;
 
     /**
      * Numeric status code, 501: Not implemented
      */
-    public final static int HTTP_NOT_IMPLEMENTED = 501;
+    public static final int HTTP_NOT_IMPLEMENTED = 501;
 
     /**
      * Numeric status code, 304: Not modified
      */
-    public final static int HTTP_NOT_MODIFIED = 304;
+    public static final int HTTP_NOT_MODIFIED = 304;
 
     /**
      * Numeric status code, 200: OK
      */
-    public final static int HTTP_OK = 200;
+    public static final int HTTP_OK = 200;
 
     /**
      * Numeric status code, 206: Partial
      */
-    public final static int HTTP_PARTIAL = 206;
+    public static final int HTTP_PARTIAL = 206;
 
     /**
      * Numeric status code, 402: Payment required
      */
-    public final static int HTTP_PAYMENT_REQUIRED = 402;
+    public static final int HTTP_PAYMENT_REQUIRED = 402;
 
     /**
      * Numeric status code, 412: Precondition failed
      */
-    public final static int HTTP_PRECON_FAILED = 412;
+    public static final int HTTP_PRECON_FAILED = 412;
 
     /**
      * Numeric status code, 407: Proxy authentication required
      */
-    public final static int HTTP_PROXY_AUTH = 407;
+    public static final int HTTP_PROXY_AUTH = 407;
 
     /**
      * Numeric status code, 414: Request too long
      */
-    public final static int HTTP_REQ_TOO_LONG = 414;
+    public static final int HTTP_REQ_TOO_LONG = 414;
 
     /**
      * Numeric status code, 205: Reset
      */
-    public final static int HTTP_RESET = 205;
+    public static final int HTTP_RESET = 205;
 
     /**
      * Numeric status code, 303: See other
      */
-    public final static int HTTP_SEE_OTHER = 303;
+    public static final int HTTP_SEE_OTHER = 303;
 
     /**
      * Numeric status code, 500: Internal error
@@ -446,32 +448,32 @@ public abstract class HttpURLConnection extends URLConnection {
      * @deprecated Use {@link #HTTP_INTERNAL_ERROR}
      */
     @Deprecated
-    public final static int HTTP_SERVER_ERROR = 500;
+    public static final int HTTP_SERVER_ERROR = 500;
 
     /**
      * Numeric status code, 305: Use proxy
      */
-    public final static int HTTP_USE_PROXY = 305;
+    public static final int HTTP_USE_PROXY = 305;
 
     /**
      * Numeric status code, 401: Unauthorized
      */
-    public final static int HTTP_UNAUTHORIZED = 401;
+    public static final int HTTP_UNAUTHORIZED = 401;
 
     /**
      * Numeric status code, 415: Unsupported type
      */
-    public final static int HTTP_UNSUPPORTED_TYPE = 415;
+    public static final int HTTP_UNSUPPORTED_TYPE = 415;
 
     /**
      * Numeric status code, 503: Unavailable
      */
-    public final static int HTTP_UNAVAILABLE = 503;
+    public static final int HTTP_UNAVAILABLE = 503;
 
     /**
      * Numeric status code, 505: Version not supported
      */
-    public final static int HTTP_VERSION = 505;
+    public static final int HTTP_VERSION = 505;
 
     /**
      * Constructs a new {@code HttpURLConnection} instance pointing to the
@@ -601,18 +603,12 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Sets the flag of whether this connection will follow redirects returned
-     * by the remote server. This method can only be called with the permission
-     * from the security manager.
+     * by the remote server.
      *
      * @param auto
      *            the value to enable or disable this option.
-     * @see SecurityManager#checkSetFactory()
      */
     public static void setFollowRedirects(boolean auto) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkSetFactory();
-        }
         followRedirects = auto;
     }
 
@@ -641,7 +637,8 @@ public abstract class HttpURLConnection extends URLConnection {
             }
         }
         // if none matches, then throw ProtocolException
-        throw new ProtocolException();
+        throw new ProtocolException("Unknown method '" + method + "'; must be one of " +
+                Arrays.toString(HttpURLConnectionImpl.PERMITTED_USER_METHODS));
     }
 
     /**

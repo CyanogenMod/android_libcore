@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -369,6 +367,31 @@ public final class MimeUtils {
         extensionToMimeTypeMap.put(extension, mimeType);
     }
 
+    private static InputStream getContentTypesPropertiesStream() {
+        // User override?
+        String userTable = System.getProperty("content.types.user.table");
+        if (userTable != null) {
+            File f = new File(userTable);
+            if (f.exists()) {
+                try {
+                    return new FileInputStream(f);
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        // Standard location?
+        File f = new File(System.getProperty("java.home"), "lib" + File.separator + "content-types.properties");
+        if (f.exists()) {
+            try {
+                return new FileInputStream(f);
+            } catch (IOException ignored) {
+            }
+        }
+
+        return null;
+    }
+
     /**
      * This isn't what the RI does. The RI doesn't have hard-coded defaults, so supplying your
      * own "content.types.user.table" means you don't get any of the built-ins, and the built-ins
@@ -376,34 +399,7 @@ public final class MimeUtils {
      */
     private static void applyOverrides() {
         // Get the appropriate InputStream to read overrides from, if any.
-        InputStream stream = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-            public InputStream run() {
-                // User override?
-                String userTable = System.getProperty("content.types.user.table");
-                if (userTable != null) {
-                    File f = new File(userTable);
-                    if (f.exists()) {
-                        try {
-                            return new FileInputStream(f);
-                        } catch (IOException ignored) {
-                        }
-                    }
-                }
-
-                // Standard location?
-                File f = new File(System.getProperty("java.home"),
-                        "lib" + File.separator + "content-types.properties");
-                if (f.exists()) {
-                    try {
-                        return new FileInputStream(f);
-                    } catch (IOException ignored) {
-                    }
-                }
-
-                return null;
-            }
-        });
-
+        InputStream stream = getContentTypesPropertiesStream();
         if (stream == null) {
             return;
         }

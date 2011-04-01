@@ -16,11 +16,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -30,7 +25,6 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
 
-@TestTargetClass(ECPublicKeySpec.class)
 public class ECPublicKeySpecTest extends TestCase {
     ECPoint w;
 
@@ -64,12 +58,6 @@ public class ECPublicKeySpecTest extends TestCase {
      * case 2: catch NullPointerException - if w is null.
      * case 3: catch NullPointerException - if params is null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ECPublicKeySpec",
-        args = {java.security.spec.ECPoint.class, java.security.spec.ECParameterSpec.class}
-    )
     public final void test_constructorLjava_security_spec_ECPointLjava_security_spec_ECParameterSpec() {
 
         // case 1: creating object with valid parameters
@@ -96,12 +84,6 @@ public class ECPublicKeySpecTest extends TestCase {
     /**
      * test for getW() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getW",
-        args = {}
-    )
     public final void testGetW() {
         assertEquals("wrong w value", w, ecpks.getW());
     }
@@ -109,12 +91,6 @@ public class ECPublicKeySpecTest extends TestCase {
     /**
      * test for getParams() meyhod
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParams",
-        args = {}
-    )
     public final void testGetParams() {
         assertEquals("wrong params value", params, ecpks.getParams());
     }

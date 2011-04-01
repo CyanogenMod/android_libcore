@@ -18,44 +18,30 @@
 package tests.api.java.util;
 
 import tests.support.Support_Locale;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.AndroidOnly;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
-@TestTargetClass(Currency.class)
 public class CurrencyTest extends junit.framework.TestCase {
 
     private static Locale defaultLocale = Locale.getDefault();
 
     /**
-     * @tests java.util.Currency#getInstance(java.lang.String)
+     * java.util.Currency#getInstance(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "getInstance(String) method is tested in test_getInstanceLjava_util_Locale() test.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void test_getInstanceLjava_lang_String() {
         // see test_getInstanceLjava_util_Locale() tests
     }
 
     /**
-     * @tests java.util.Currency#getInstance(java.util.Locale)
+     * java.util.Currency#getInstance(java.util.Locale)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getInstance",
-        args = {java.util.Locale.class}
-    )
     public void test_getInstanceLjava_util_Locale() {
         /*
          * the behaviour in all these three cases should be the same since this
@@ -139,20 +125,9 @@ public class CurrencyTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Currency#getSymbol()
+     * java.util.Currency#getSymbol()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSymbol",
-        args = {}
-    )
-    @AndroidOnly("icu and the RI have different data. Because Android"
-            + "only defines a few locales as a must have, it was not possible"
-            + "to find a set of combinations where no differences between"
-            + "the RI and Android exist.")
     public void test_getSymbol() {
-
         Currency currK = Currency.getInstance("KRW");
         Currency currI = Currency.getInstance("IEP");
         Currency currUS = Currency.getInstance("USD");
@@ -185,21 +160,14 @@ public class CurrencyTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Currency#getSymbol(java.util.Locale)
+     * java.util.Currency#getSymbol(java.util.Locale)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSymbol",
-        args = {java.util.Locale.class}
-    )
-    @AndroidOnly("specification doesn't include strong requirements for returnig symbol. On android platform used wrong character for yen sign: \u00a5 instead of \uffe5. Both of them give correct image though")
     public void test_getSymbolLjava_util_Locale() {
         //Tests was simplified because java specification not
         // includes strong requirements for returnig symbol.
         // on android platform used wrong character for yen
         // sign: \u00a5 instead of \uffe5
-        Locale[] loc1 = new Locale[]{
+        Locale[] desiredLocales = new Locale[]{
                 Locale.JAPAN,  Locale.JAPANESE,
                 Locale.FRANCE, Locale.FRENCH,
                 Locale.US,     Locale.UK,
@@ -226,10 +194,17 @@ public class CurrencyTest extends junit.framework.TestCase {
 
                 new Locale("da", ""), new Locale("ja", ""),
                 new Locale("en", "")};
-        if (!Support_Locale.areLocalesAvailable(loc1)) {
-            // locale dependent test, bug 1943269
-            return;
+
+        Set<Locale> availableLocales = new HashSet<Locale>(Arrays.asList(Locale.getAvailableLocales()));
+
+        ArrayList<Locale> locales = new ArrayList<Locale>();
+        for (Locale desiredLocale : desiredLocales) {
+            if (availableLocales.contains(desiredLocale)) {
+                locales.add(desiredLocale);
+            }
         }
+
+        Locale[] loc1 = locales.toArray(new Locale[locales.size()]);
 
         String[] euro    = new String[] {"EUR", "\u20ac"};
         // \u00a5 and \uffe5 are actually the same symbol, just different code points.
@@ -321,14 +296,8 @@ public class CurrencyTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Currency#getDefaultFractionDigits()
+     * java.util.Currency#getDefaultFractionDigits()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultFractionDigits",
-        args = {}
-    )
     public void test_getDefaultFractionDigits() {
 
         Currency c1 = Currency.getInstance("TND");
@@ -357,17 +326,11 @@ public class CurrencyTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Currency#getCurrencyCode() Note: lines under remarks
+     * java.util.Currency#getCurrencyCode() Note: lines under remarks
      *        (Locale.CHINESE, Locale.ENGLISH, Locale.FRENCH, Locale.GERMAN,
      *        Locale.ITALIAN, Locale.JAPANESE, Locale.KOREAN) raises exception
      *        on SUN VM
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCurrencyCode",
-        args = {}
-    )
     public void test_getCurrencyCode() {
         final Collection<Locale> locVal = Arrays.asList(
                 Locale.CANADA,
@@ -398,17 +361,11 @@ public class CurrencyTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Currency#toString() Note: lines under remarks
+     * java.util.Currency#toString() Note: lines under remarks
      *        (Locale.CHINESE, Locale.ENGLISH, Locale.FRENCH, Locale.GERMAN,
      *        Locale.ITALIAN, Locale.JAPANESE, Locale.KOREAN) raises exception
      *        on SUN VM
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         final Collection<Locale> locVal = Arrays.asList(
                 Locale.CANADA,

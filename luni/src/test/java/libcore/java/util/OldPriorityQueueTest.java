@@ -16,9 +16,6 @@
 
 package libcore.java.util;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -26,20 +23,10 @@ import java.util.PriorityQueue;
 import junit.framework.TestCase;
 import tests.util.SerializationTester;
 
-@TestTargetClass(PriorityQueue.class)
 public class OldPriorityQueueTest extends TestCase {
 
     private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser";
 
-    /**
-     * @tests java.util.PriorityQueue#PriorityQueue(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PriorityQueue",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         PriorityQueue<Object> queue = new PriorityQueue<Object>(100);
         assertNotNull(queue);
@@ -54,16 +41,6 @@ public class OldPriorityQueueTest extends TestCase {
         }
     }
 
-    /**
-     * @tests java.util.PriorityQueue#remove(Object)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_remove_Ljava_lang_Object_using_comparator() {
         PriorityQueue<String> queue = new PriorityQueue<String>(10,
                 new MockComparatorStringByLength());
@@ -78,16 +55,6 @@ public class OldPriorityQueueTest extends TestCase {
         assertTrue(queue.remove("AA"));
     }
 
-    /**
-     * @tests java.util.PriorityQueue#remove(Object)
-     *
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies ClassCastException.",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_remove_Ljava_lang_Object_not_exists() {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
@@ -97,15 +64,6 @@ public class OldPriorityQueueTest extends TestCase {
         assertFalse(integerQueue.remove(""));
     }
 
-    /**
-     * @tests serialization/deserialization.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization.",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_Serialization() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
@@ -120,15 +78,6 @@ public class OldPriorityQueueTest extends TestCase {
         assertEquals(0, destIntegerQueue.size());
     }
 
-    /**
-     * @tests serialization/deserialization.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization.",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void test_Serialization_casting() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
@@ -143,15 +92,6 @@ public class OldPriorityQueueTest extends TestCase {
         assertEquals(array[0], I);
     }
 
-    /**
-     * @tests serialization/deserialization compatibility with RI.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization compatibility.",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void test_SerializationCompatibility_cast() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);

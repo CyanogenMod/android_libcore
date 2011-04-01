@@ -22,11 +22,6 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -50,7 +45,6 @@ import javax.xml.parsers.DocumentBuilder;
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-normalize">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-normalize</a>
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-72AB8359">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-72AB8359</a>
 */
-@TestTargetClass(Element.class)
 public final class Normalize extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -77,12 +71,6 @@ public final class Normalize extends DOMTestCase {
     * Runs the test case.
     * @throws Throwable Any uncaught exception causes test to fail
     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "normalize",
-        args = {}
-    )
    public void testNormalize() throws Throwable {
       Document doc;
       Element root;

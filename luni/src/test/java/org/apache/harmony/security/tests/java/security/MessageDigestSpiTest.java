@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.nio.ByteBuffer;
 import java.security.DigestException;
 import java.security.MessageDigest;
@@ -34,7 +29,7 @@ import java.security.MessageDigestSpi;
 import java.security.NoSuchAlgorithmException;
 
 import junit.framework.TestCase;
-@TestTargetClass(MessageDigestSpi.class)
+
 /**
  * Tests for <code>MessageDigestSpi</code> constructor and methods
  */
@@ -44,38 +39,6 @@ public class MessageDigestSpiTest extends TestCase {
     * java.security.MessageDigestSpi#MessageDigestSpi()
     */
     @SuppressWarnings("cast")
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "MessageDigestSpi",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineDigest",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineReset",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineUpdate",
-            args = {byte.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineUpdate",
-            args = {byte[].class, int.class, int.class}
-        )
-    })
    public void test_constructor() {
         MyMessageDigest mds;
         try {
@@ -101,12 +64,6 @@ public class MessageDigestSpiTest extends TestCase {
     /**
      * java.security.MessageDigestSpi#engineDigest(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineDigest",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_engineDigestLB$LILI() throws Exception {
 
         final int DIGEST_LENGTH = 2;
@@ -169,12 +126,6 @@ public class MessageDigestSpiTest extends TestCase {
     /**
      * java.security.MessageDigestSpi#engineGetDigestLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineGetDigestLength",
-        args = {}
-    )
     public void test_engineGetDigestLength() {
         MyMessageDigest md = new MyMessageDigest();
         assertEquals(0, md.engineGetDigestLength());
@@ -191,12 +142,6 @@ public class MessageDigestSpiTest extends TestCase {
     /**
      * java.security.MessageDigestSpi#engineUpdate(ByteBuffer)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "engineUpdate",
-        args = {java.nio.ByteBuffer.class}
-    )
     public void test_engineUpdateLjava_nio_ByteBuffer() {
         MyMessageDigest md = new MyMessageDigest();
         byte[] b = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -218,14 +163,8 @@ public class MessageDigestSpiTest extends TestCase {
     }
 
     /**
-     * @tests java.security.MessageDigestSpi#clone()
+     * java.security.MessageDigestSpi#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() throws CloneNotSupportedException {
         MyMessageDigest md = new MyMessageDigest();
         try {

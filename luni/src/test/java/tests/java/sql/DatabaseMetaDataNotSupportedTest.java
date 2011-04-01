@@ -17,9 +17,6 @@
 package tests.java.sql;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -37,7 +34,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 
-@TestTargetClass(DatabaseMetaData.class)
 public class DatabaseMetaDataNotSupportedTest extends TestCase {
 
     private static String VIEW_NAME = "myView";
@@ -130,30 +126,12 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#allProceduresAreCallable()
+     * java.sql.DatabaseMetaData#allProceduresAreCallable()
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "Granting not supported.",
-        method = "allProceduresAreCallable",
-        args = {}
-    )
     public void test_allProceduresAreCallable() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.allProceduresAreCallable());
     }
 
-    /**
-     * @tests {@link java.sql.DatabaseMetaData#allTablesAreSelectable()}
-     *
-     * // NOT_FEASIBLE GRANT and REVOKE are not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "test fails. GRANT and REVOKE not supported",
-        method = "allTablesAreSelectable",
-        args = {}
-    )
     @KnownFailure("Not supported ops applied")
     public void test_allTablesAreSelectable() throws SQLException {
         // grant SELECT privileges
@@ -196,86 +174,42 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#dataDefinitionCausesTransactionCommit()
+     * java.sql.DatabaseMetaData#dataDefinitionCausesTransactionCommit()
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "dataDefinitionCausesTransactionCommit",
-        args = {}
-    )
-    public void test_dataDefinitionCausesTransactionCommit()
-            throws SQLException {
+    public void test_dataDefinitionCausesTransactionCommit() throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#dataDefinitionIgnoredInTransactions()
+     * java.sql.DatabaseMetaData#dataDefinitionIgnoredInTransactions()
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "dataDefinitionIgnoredInTransactions",
-        args = {}
-    )
     public void test_dataDefinitionIgnoredInTransactions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.dataDefinitionIgnoredInTransactions());
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#deletesAreDetected(int)
+     * java.sql.DatabaseMetaData#deletesAreDetected(int)
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "deletesAreDetected",
-        args = {int.class}
-    )
     public void test_deletesAreDetectedI() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.deletesAreDetected(0));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#doesMaxRowSizeIncludeBlobs()
+     * java.sql.DatabaseMetaData#doesMaxRowSizeIncludeBlobs()
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "doesMaxRowSizeIncludeBlobs",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_doesMaxRowSizeIncludeBlobs() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.doesMaxRowSizeIncludeBlobs());
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData #getAttributes(java.lang.String,
+     * java.sql.DatabaseMetaData #getAttributes(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getAttributes",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_getAttributesLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#getCatalogs()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. not supported. Received result wasn't checked.",
-        method = "getCatalogs",
-        args = {}
-    )
     public void test_getCatalogs() throws SQLException {
         ResultSet rs = meta.getCatalogs();
         // NOT_FEASIBLE getCatalog is not supported
@@ -290,60 +224,30 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getCatalogSeparator()
+     * java.sql.DatabaseMetaData#getCatalogSeparator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getCatalogSeparator",
-        args = {}
-    )
     public void test_getCatalogSeparator() throws SQLException {
         assertTrue("Incorrect catalog separator", "".equals(meta
                 .getCatalogSeparator().trim()));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getCatalogTerm()
+     * java.sql.DatabaseMetaData#getCatalogTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getCatalogTerm",
-        args = {}
-    )
     public void test_getCatalogTerm() throws SQLException {
         assertTrue("Incorrect catalog term", "".equals(meta
                 .getCatalogSeparator().trim()));
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getExtraNameCharacters()
+     * java.sql.DatabaseMetaData#getExtraNameCharacters()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getExtraNameCharacters",
-        args = {}
-    )
     public void test_getExtraNameCharacters() throws SQLException {
         assertNotNull("Incorrect extra name characters", meta
                 .getExtraNameCharacters());
 
     }
 
-    /**
-     * @tests {@link java.sql.DatabaseMetaData #getIndexInfo(java.lang.String,
-     *        java.lang.String, java.lang.String, boolean, boolean)}
-     *
-     *  NOT_FEASIBLE getCatalog is not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. not supported. Received result wasn't checked.",
-        method = "getIndexInfo",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, boolean.class, boolean.class}
-    )
     @KnownFailure("not supported")
     public void test_getIndexInfoLjava_lang_StringLjava_lang_StringLjava_lang_StringZZ()
             throws SQLException {
@@ -389,18 +293,6 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
         rs.close();
     }
 
-    /**
-     * @tests {@link java.sql.DatabaseMetaData #getColumnPrivileges(java.lang.String,
-     *        java.lang.String, java.lang.String, java.lang.String)}
-     *
-     *  NOT_FEASIBLE GRANT is not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. Received result wasn't checked.",
-        method = "getColumnPrivileges",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("not supported. Privileges are not supported.")
      public void test_getColumnPrivilegesLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -449,18 +341,6 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
 
-    /**
-     * @tests {@link java.sql.DatabaseMetaData #getExportedKeys(java.lang.String,
-     *        java.lang.String, java.lang.String)}
-     *
-     * NOT_FEASIBLE foreign keys are not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. not supported. Received result wasn't checked.",
-        method = "getExportedKeys",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("not supported")
      public void test_getExportedKeysLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -513,46 +393,19 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
         rs.close();
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getProcedureColumns(java.lang.String,
-     *        java.lang.String, java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getProcedureColumns",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_getProcedureColumnsLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         meta.getProcedureColumns("", "", "", "");
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getProcedures(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getProcedures",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_getProceduresLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getProcedureTerm()
+     * java.sql.DatabaseMetaData#getProcedureTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProcedureTerm",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getProcedureTerm() throws SQLException {
         assertTrue("Incorrect procedure term", "".equals(meta
@@ -570,14 +423,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getSchemaTerm()
+     * java.sql.DatabaseMetaData#getSchemaTerm()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getSchemaTerm",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getSchemaTerm() throws SQLException {
         String term = meta.getSchemaTerm();
@@ -596,48 +443,16 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
          }
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getSuperTables(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getSuperTables",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_getSuperTablesLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getSuperTypes(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getSuperTypes",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     public void test_getSuperTypesLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getTablePrivileges(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     *
-     *  NOT_FEASIBLE GRANT is not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. Received result wasn't checked.",
-        method = "getTablePrivileges",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("not supported. Privileges are not supported.")
     public void test_getTablePrivilegesLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -734,33 +549,11 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
         privileges.close();
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getUDTs(java.lang.String,
-     *        java.lang.String, java.lang.String, int[])
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "getUDTs",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class, int[].class}
-    )
     public void test_getUDTsLjava_lang_StringLjava_lang_StringLjava_lang_String$I()
             throws SQLException {
         // NOT_FEASIBLE: JDBC does not implement this functionality
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData #getVersionColumns(java.lang.String,
-     *        java.lang.String, java.lang.String)
-     *
-     *  NOT_FEASIBLE trigger is not supported
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. Received result wasn't checked.Triggers not supported",
-        method = "getVersionColumns",
-        args = {java.lang.String.class, java.lang.String.class, java.lang.String.class}
-    )
     @KnownFailure("Not supported ops applied")
     public void test_getVersionColumnsLjava_lang_StringLjava_lang_StringLjava_lang_String()
             throws SQLException {
@@ -784,14 +577,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#isCatalogAtStart()
+     * java.sql.DatabaseMetaData#isCatalogAtStart()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isCatalogAtStart",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_isCatalogAtStart() throws SQLException {
         assertFalse(
@@ -809,100 +596,34 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
          }
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#locatorsUpdateCopy()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "locatorsUpdateCopy",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_locatorsUpdateCopy() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.locatorsUpdateCopy());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#nullPlusNonNullIsNull()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "nullPlusNonNullIsNull",
-        args = {}
-    )
     public void test_nullPlusNonNullIsNull() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.nullPlusNonNullIsNull());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#nullsAreSortedAtEnd()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "nullsAreSortedAtEnd",
-        args = {}
-    )
     public void test_nullsAreSortedAtEnd() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.nullsAreSortedAtEnd());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#nullsAreSortedAtStart()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "nullsAreSortedAtStart",
-        args = {}
-    )
     public void test_nullsAreSortedAtStart() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.nullsAreSortedAtStart());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#nullsAreSortedHigh()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "nullsAreSortedHigh",
-        args = {}
-    )
     public void test_nullsAreSortedHigh() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.nullsAreSortedHigh());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#nullsAreSortedLow()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "nullsAreSortedLow",
-        args = {}
-    )
     public void test_nullsAreSortedLow() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.nullsAreSortedLow());
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#ownDeletesAreVisible(int)
+     * java.sql.DatabaseMetaData#ownDeletesAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Not Fully Supported.",
-        method = "ownDeletesAreVisible",
-        args = {int.class}
-    )
     public void test_ownDeletesAreVisibleI() throws SQLException {
         // NOT_FEASIBLE not supported
 //        assertFalse(
@@ -919,14 +640,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#ownInsertsAreVisible(int)
+     * java.sql.DatabaseMetaData#ownInsertsAreVisible(int)
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "not supported.",
-        method = "ownInsertsAreVisible",
-        args = {int.class}
-    )
     public void test_ownInsertsAreVisibleI() throws SQLException {
 //        assertFalse(
 //                "result set's own inserts are visible for TYPE_FORWARD_ONLY type",
@@ -955,645 +670,191 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
                 meta.ownUpdatesAreVisible(100));
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#storesLowerCaseIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "storesLowerCaseIdentifiers",
-        args = {}
-    )
     public void test_storesLowerCaseIdentifiers() throws SQLException {
         assertFalse(meta.storesLowerCaseIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#storesLowerCaseQuotedIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "storesLowerCaseQuotedIdentifiers",
-        args = {}
-    )
     public void test_storesLowerCaseQuotedIdentifiers() throws SQLException {
         assertFalse(meta.storesLowerCaseQuotedIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#storesUpperCaseIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "storesUpperCaseIdentifiers",
-        args = {}
-    )
     public void test_storesUpperCaseIdentifiers() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.storesUpperCaseIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#storesUpperCaseQuotedIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "storesUpperCaseQuotedIdentifiers",
-        args = {}
-    )
     public void test_storesUpperCaseQuotedIdentifiers() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.storesUpperCaseQuotedIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsANSI92EntryLevelSQL()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsANSI92EntryLevelSQL",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_supportsANSI92EntryLevelSQL() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsANSI92EntryLevelSQL());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsANSI92FullSQL()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsANSI92FullSQL",
-        args = {}
-    )
     public void test_supportsANSI92FullSQL() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsANSI92FullSQL());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsANSI92IntermediateSQL()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsANSI92IntermediateSQL",
-        args = {}
-    )
     public void test_supportsANSI92IntermediateSQL() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsANSI92IntermediateSQL());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsAlterTableWithAddColumn()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsAlterTableWithAddColumn",
-        args = {}
-    )
     public void test_supportsAlterTableWithAddColumn() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsAlterTableWithAddColumn());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsAlterTableWithDropColumn()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsAlterTableWithDropColumn",
-        args = {}
-    )
     public void test_supportsAlterTableWithDropColumn() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsAlterTableWithDropColumn());
-
     }
 
     public void test_supportsBatchUpdates() throws SQLException {
         assertTrue(meta.supportsBatchUpdates());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCatalogsInDataManipulation()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCatalogsInDataManipulation",
-        args = {}
-    )
     public void test_supportsCatalogsInDataManipulation() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCatalogsInDataManipulation());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCatalogsInIndexDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCatalogsInIndexDefinitions",
-        args = {}
-    )
     public void test_supportsCatalogsInIndexDefinitions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCatalogsInIndexDefinitions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCatalogsInPrivilegeDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCatalogsInPrivilegeDefinitions",
-        args = {}
-    )
-    public void test_supportsCatalogsInPrivilegeDefinitions()
-            throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
+    public void test_supportsCatalogsInPrivilegeDefinitions() throws SQLException {
         assertFalse(meta.supportsCatalogsInPrivilegeDefinitions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCatalogsInProcedureCalls()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCatalogsInProcedureCalls",
-        args = {}
-    )
     public void test_supportsCatalogsInProcedureCalls() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCatalogsInProcedureCalls());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCatalogsInTableDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCatalogsInTableDefinitions",
-        args = {}
-    )
     public void test_supportsCatalogsInTableDefinitions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCatalogsInTableDefinitions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsConvert()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsConvert",
-        args = {}
-    )
     public void test_supportsConvert() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsConvert());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsConvert(int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsConvert",
-        args = {int.class, int.class}
-    )
     public void test_supportsConvertII() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsConvert());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCoreSQLGrammar()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCoreSQLGrammar",
-        args = {}
-    )
     public void test_supportsCoreSQLGrammar() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCoreSQLGrammar());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsCorrelatedSubqueries()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsCorrelatedSubqueries",
-        args = {}
-    )
     public void test_supportsCorrelatedSubqueries() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsCorrelatedSubqueries());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsDataDefinitionAndDataManipulationTransactions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsDataDefinitionAndDataManipulationTransactions",
-        args = {}
-    )
     @KnownFailure("not supported")
-    public void test_supportsDataDefinitionAndDataManipulationTransactions()
-            throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
+    public void test_supportsDataDefinitionAndDataManipulationTransactions() throws SQLException {
         assertFalse(meta.supportsDataDefinitionAndDataManipulationTransactions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsDataManipulationTransactionsOnly()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsDataManipulationTransactionsOnly",
-        args = {}
-    )
-    public void test_supportsDataManipulationTransactionsOnly()
-            throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
+    public void test_supportsDataManipulationTransactionsOnly() throws SQLException {
         assertFalse(meta.supportsDataManipulationTransactionsOnly());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsDifferentTableCorrelationNames()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsDifferentTableCorrelationNames",
-        args = {}
-    )
-    public void test_supportsDifferentTableCorrelationNames()
-            throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
+    public void test_supportsDifferentTableCorrelationNames() throws SQLException {
         assertFalse(meta.supportsDifferentTableCorrelationNames());
     }
 
-
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsExtendedSQLGrammar()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsExtendedSQLGrammar",
-        args = {}
-    )
     public void test_supportsExtendedSQLGrammar() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsExtendedSQLGrammar());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsFullOuterJoins()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsFullOuterJoins",
-        args = {}
-    )
     public void test_supportsFullOuterJoins() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsFullOuterJoins());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsGetGeneratedKeys",
-        args = {}
-    )
     public void test_supportsGetGeneratedKeys() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsGetGeneratedKeys());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsGroupByBeyondSelect()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsGroupByBeyondSelect",
-        args = {}
-    )
     public void test_supportsGroupByBeyondSelect() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsGroupByBeyondSelect());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsIntegrityEnhancementFacility()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsIntegrityEnhancementFacility",
-        args = {}
-    )
     public void test_supportsIntegrityEnhancementFacility() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsIntegrityEnhancementFacility());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsLikeEscapeClause()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsLikeEscapeClause",
-        args = {}
-    )
     public void test_supportsLikeEscapeClause() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsLikeEscapeClause());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsLimitedOuterJoins()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsLimitedOuterJoins",
-        args = {}
-    )
     public void test_supportsLimitedOuterJoins() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsLimitedOuterJoins());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMinimumSQLGrammar()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMinimumSQLGrammar",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_supportsMinimumSQLGrammar() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMinimumSQLGrammar());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMixedCaseIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMixedCaseIdentifiers",
-        args = {}
-    )
     public void test_supportsMixedCaseIdentifiers() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMixedCaseIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMixedCaseQuotedIdentifiers()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMixedCaseQuotedIdentifiers",
-        args = {}
-    )
     public void test_supportsMixedCaseQuotedIdentifiers() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMixedCaseQuotedIdentifiers());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMultipleOpenResults()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMultipleOpenResults",
-        args = {}
-    )
     public void test_supportsMultipleOpenResults() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMultipleOpenResults());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMultipleResultSets()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMultipleResultSets",
-        args = {}
-    )
     public void test_supportsMultipleResultSets() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMultipleResultSets());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsMultipleTransactions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsMultipleTransactions",
-        args = {}
-    )
     public void test_supportsMultipleTransactions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsMultipleTransactions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsNamedParameters()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsNamedParameters",
-        args = {}
-    )
     public void test_supportsNamedParameters() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsNamedParameters());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsOpenCursorsAcrossCommit()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsOpenCursorsAcrossCommit",
-        args = {}
-    )
     public void test_supportsOpenCursorsAcrossCommit() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsOpenCursorsAcrossCommit());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsOpenCursorsAcrossRollback()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsOpenCursorsAcrossRollback",
-        args = {}
-    )
     public void test_supportsOpenCursorsAcrossRollback() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsOpenCursorsAcrossRollback());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsOpenStatementsAcrossCommit()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsOpenStatementsAcrossCommit",
-        args = {}
-    )
     public void test_supportsOpenStatementsAcrossCommit() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsOpenStatementsAcrossCommit());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsOpenStatementsAcrossRollback()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsOpenStatementsAcrossRollback",
-        args = {}
-    )
     public void test_supportsOpenStatementsAcrossRollback() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsOpenStatementsAcrossRollback());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsOuterJoins()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsOuterJoins",
-        args = {}
-    )
     public void test_supportsOuterJoins() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsOuterJoins());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsPositionedDelete()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsPositionedDelete",
-        args = {}
-    )
     public void test_supportsPositionedDelete() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsPositionedDelete());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsPositionedUpdate()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsPositionedUpdate",
-        args = {}
-    )
     public void test_supportsPositionedUpdate() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsPositionedUpdate());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsResultSetConcurrency(int, int)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsResultSetConcurrency",
-        args = {int.class, int.class}
-    )
     public void test_supportsResultSetConcurrencyII() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsResultSetConcurrency(0,0));
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsResultSetHoldability(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsResultSetHoldability",
-        args = {int.class}
-    )
     public void test_supportsResultSetHoldabilityI() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsResultSetHoldability(0));
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsResultSetType(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported. Verification with invalid parameters missed.",
-        method = "supportsResultSetType",
-        args = {int.class}
-    )
     @KnownFailure("not supported")
     public void test_supportsResultSetTypeI() throws SQLException {
-        // NOT_FEASIBLE not supported
         assertTrue("database supports TYPE_FORWARD_ONLY type", meta
                 .supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
         assertFalse("database doesn't support TYPE_SCROLL_INSENSITIVE type",
@@ -1604,170 +865,52 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
                 .supportsResultSetType(100));
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSavepoints()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSavepoints",
-        args = {}
-    )
     public void test_supportsSavepoints() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSavepoints());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSchemasInDataManipulation()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSchemasInDataManipulation",
-        args = {}
-    )
     public void test_supportsSchemasInDataManipulation() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSchemasInDataManipulation());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSchemasInIndexDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSchemasInIndexDefinitions",
-        args = {}
-    )
     public void test_supportsSchemasInIndexDefinitions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSchemasInIndexDefinitions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSchemasInPrivilegeDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSchemasInPrivilegeDefinitions",
-        args = {}
-    )
-    public void test_supportsSchemasInPrivilegeDefinitions()
-            throws SQLException {
+    public void test_supportsSchemasInPrivilegeDefinitions() throws SQLException {
         // NOT_FEASIBLE: SQLITE does not implement this functionality
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSchemasInProcedureCalls()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSchemasInProcedureCalls",
-        args = {}
-    )
     public void test_supportsSchemasInProcedureCalls() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSchemasInProcedureCalls());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSchemasInTableDefinitions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSchemasInTableDefinitions",
-        args = {}
-    )
     public void test_supportsSchemasInTableDefinitions() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSchemasInTableDefinitions());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsStatementPooling()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsStatementPooling",
-        args = {}
-    )
     public void test_supportsStatementPooling() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsStatementPooling());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsStoredProcedures()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsStoredProcedures",
-        args = {}
-    )
     public void test_supportsStoredProcedures() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsStoredProcedures());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSubqueriesInComparisons()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSubqueriesInComparisons",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_supportsSubqueriesInComparisons() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSubqueriesInComparisons());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSubqueriesInIns()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSubqueriesInIns",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_supportsSubqueriesInIns() throws SQLException {
         assertFalse(meta.supportsSubqueriesInIns());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsSubqueriesInQuantifieds()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsSubqueriesInQuantifieds",
-        args = {}
-    )
     public void test_supportsSubqueriesInQuantifieds() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.supportsSubqueriesInQuantifieds());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#supportsTransactions()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "supportsTransactions",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_supportsTransactions() throws SQLException {
         assertFalse(meta.supportsTransactions());
@@ -1781,265 +924,143 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
         assertTrue(meta.supportsUnionAll());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#usesLocalFilePerTable()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "usesLocalFilePerTable",
-        args = {}
-    )
     public void test_usesLocalFilePerTable() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.usesLocalFilePerTable());
     }
 
-    /**
-     * @tests java.sql.DatabaseMetaData#usesLocalFiles()
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "not supported",
-        method = "usesLocalFiles",
-        args = {}
-    )
     @KnownFailure("not supported")
     public void test_usesLocalFiles() throws SQLException {
-        // NOT_FEASIBLE: SQLITE does not implement this functionality
         assertFalse(meta.usesLocalFiles());
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxBinaryLiteralLength()
+     * java.sql.DatabaseMetaData#getMaxBinaryLiteralLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxBinaryLiteralLength",
-        args = {}
-    )
     public void test_getMaxBinaryLiteralLength() throws SQLException {
         assertTrue("Incorrect binary literal length", meta
                 .getMaxBinaryLiteralLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxCatalogNameLength()
+     * java.sql.DatabaseMetaData#getMaxCatalogNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCatalogNameLength",
-        args = {}
-    )
     public void test_getMaxCatalogNameLength() throws SQLException {
         assertTrue("Incorrect name length", meta.getMaxCatalogNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxCharLiteralLength()
+     * java.sql.DatabaseMetaData#getMaxCharLiteralLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxCharLiteralLength",
-        args = {}
-    )
     public void test_getMaxCharLiteralLength() throws SQLException {
         assertTrue("Incorrect char literal length", meta
                 .getMaxCharLiteralLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnNameLength()
+     * java.sql.DatabaseMetaData#getMaxColumnNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnNameLength",
-        args = {}
-    )
     public void test_getMaxColumnNameLength() throws SQLException {
         assertTrue("Incorrect column name length", meta
                 .getMaxColumnNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInGroupBy()
+     * java.sql.DatabaseMetaData#getMaxColumnsInGroupBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInGroupBy",
-        args = {}
-    )
     public void test_getMaxColumnsInGroupBy() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInGroupBy() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInIndex()
+     * java.sql.DatabaseMetaData#getMaxColumnsInIndex()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInIndex",
-        args = {}
-    )
     public void test_getMaxColumnsInIndex() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInIndex() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInOrderBy()
+     * java.sql.DatabaseMetaData#getMaxColumnsInOrderBy()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInOrderBy",
-        args = {}
-    )
     public void test_getMaxColumnsInOrderBy() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInOrderBy() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInSelect()
+     * java.sql.DatabaseMetaData#getMaxColumnsInSelect()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInSelect",
-        args = {}
-    )
     public void test_getMaxColumnsInSelect() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInSelect() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxColumnsInTable()
+     * java.sql.DatabaseMetaData#getMaxColumnsInTable()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxColumnsInTable",
-        args = {}
-    )
     public void test_getMaxColumnsInTable() throws SQLException {
         assertTrue("Incorrect number of columns",
                 meta.getMaxColumnsInTable() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxConnections()
+     * java.sql.DatabaseMetaData#getMaxConnections()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMaxConnections",
-        args = {}
-    )
     public void test_getMaxConnections() throws SQLException {
         assertTrue("Incorrect number of connections",
                 meta.getMaxConnections() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxIndexLength()
+     * java.sql.DatabaseMetaData#getMaxIndexLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxIndexLength",
-        args = {}
-    )
     public void test_getMaxIndexLength() throws SQLException {
         assertTrue("Incorrect length of index", meta.getMaxIndexLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxProcedureNameLength()
+     * java.sql.DatabaseMetaData#getMaxProcedureNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxProcedureNameLength",
-        args = {}
-    )
     public void test_getMaxProcedureNameLength() throws SQLException {
         assertTrue("Incorrect length of procedure name", meta
                 .getMaxProcedureNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxRowSize()
+     * java.sql.DatabaseMetaData#getMaxRowSize()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxRowSize",
-        args = {}
-    )
     public void test_getMaxRowSize() throws SQLException {
         assertTrue("Incorrect size of row", meta.getMaxRowSize() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxSchemaNameLength()
+     * java.sql.DatabaseMetaData#getMaxSchemaNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxSchemaNameLength",
-        args = {}
-    )
     public void test_getMaxSchemaNameLength() throws SQLException {
         assertTrue("Incorrect length of schema name", meta
                 .getMaxSchemaNameLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxStatementLength()
+     * java.sql.DatabaseMetaData#getMaxStatementLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxStatementLength",
-        args = {}
-    )
     public void test_getMaxStatementLength() throws SQLException {
         assertTrue("Incorrect length of statement", meta
                 .getMaxStatementLength() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxStatements()
+     * java.sql.DatabaseMetaData#getMaxStatements()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxStatements",
-        args = {}
-    )
     public void test_getMaxStatements() throws SQLException {
         assertTrue("Incorrect number of statements",
                 meta.getMaxStatements() == 0);
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxTableNameLength()
+     * java.sql.DatabaseMetaData#getMaxTableNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxTableNameLength",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxTableNameLength() throws SQLException {
         assertTrue("Now supported", meta
@@ -2057,14 +1078,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxTablesInSelect()
+     * java.sql.DatabaseMetaData#getMaxTablesInSelect()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "not supported",
-        method = "getMaxTablesInSelect",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxTablesInSelect() throws SQLException {
         assertTrue("Tables in select is now supported: change test implementation\"",
@@ -2082,14 +1097,8 @@ public class DatabaseMetaDataNotSupportedTest extends TestCase {
     }
 
     /**
-     * @tests java.sql.DatabaseMetaData#getMaxUserNameLength()
+     * java.sql.DatabaseMetaData#getMaxUserNameLength()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "usernames not supported",
-        method = "getMaxUserNameLength",
-        args = {}
-    )
     @KnownFailure("Exception test fails")
     public void test_getMaxUserNameLength() throws SQLException {
         assertTrue("Usernames are now supported: change test implementation",

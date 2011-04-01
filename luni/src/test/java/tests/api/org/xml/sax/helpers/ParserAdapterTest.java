@@ -40,13 +40,8 @@ import tests.api.org.xml.sax.support.MethodLogger;
 import tests.api.org.xml.sax.support.MockHandler;
 import tests.api.org.xml.sax.support.MockParser;
 import tests.api.org.xml.sax.support.MockResolver;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 @SuppressWarnings("deprecation")
-@TestTargetClass(ParserAdapter.class)
 public class ParserAdapterTest extends TestCase {
 
     // Note: In many cases we can only test that delegation works
@@ -88,11 +83,6 @@ public class ParserAdapterTest extends TestCase {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "ParserAdapter",
-        args = { }
-    )
     public void testParserAdapter() {
         System.setProperty("org.xml.sax.parser",
                 "tests.api.org.xml.sax.support.DoNothingParser");
@@ -104,11 +94,6 @@ public class ParserAdapterTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "ParserAdapter",
-        args = { Parser.class }
-    )
     public void testParserAdapterParser() {
         // Ordinary case
         @SuppressWarnings("unused")
@@ -123,18 +108,6 @@ public class ParserAdapterTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getFeature",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setFeature",
-            args = { String.class, boolean.class }
-        )
-    })
     public void testGetSetFeature() {
         String[] features = new String[] { NAMESPACES, NAMESPACE_PREFIXES,
                 XMLNS_URIs };
@@ -161,18 +134,6 @@ public class ParserAdapterTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getProperty",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setProperty",
-            args = { String.class, Object.class }
-        )
-    })
     public void testGetSetProperty() {
         try {
             adapter.setProperty("http://argle.bargle", ":)");
@@ -193,18 +154,6 @@ public class ParserAdapterTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getEntityResolver",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setEntityResolver",
-            args = { EntityResolver.class }
-        )
-    })
     public void testGetSetEntityResolver() {
         EntityResolver resolver = new MockResolver();
 
@@ -215,18 +164,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(null, adapter.getEntityResolver());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getDTDHandler",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setDTDHandler",
-            args = { DTDHandler.class }
-        )
-    })
     public void testGetSetDTDHandler() {
         adapter.setDTDHandler(null);
         assertEquals(null, adapter.getDTDHandler());
@@ -235,18 +172,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(handler, adapter.getDTDHandler());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getContentHandler",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setContentHandler",
-            args = { ContentHandler.class }
-        )
-    })
     public void testGetSetContentHandler() {
         adapter.setContentHandler(null);
         assertEquals(null, adapter.getContentHandler());
@@ -255,18 +180,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(handler, adapter.getContentHandler());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getErrorHandler",
-            args = { }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setErrorHandler",
-            args = { ErrorHandler.class }
-        )
-    })
     public void testGetSetErrorHandler() {
         adapter.setErrorHandler(null);
         assertEquals(null, adapter.getErrorHandler());
@@ -275,11 +188,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(handler, adapter.getErrorHandler());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "parse",
-        args = { String.class }
-    )
     public void testParseString() {
         try {
             adapter.parse("foo");
@@ -295,11 +203,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(InputSource.class, logger.getArgs()[0].getClass());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "parse",
-        args = { InputSource.class }
-    )
     public void testParseInputSource() {
         InputSource source = new InputSource("foo");
 
@@ -315,11 +218,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] { source }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setDocumentLocator",
-        args = { Locator.class }
-    )
     public void testSetDocumentLocator() {
         Locator l = new LocatorImpl();
 
@@ -336,11 +234,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] { null }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "startDocument",
-        args = { }
-    )
     public void testStartDocument() {
         try {
             adapter.startDocument();
@@ -353,11 +246,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] {}, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "endDocument",
-        args = { }
-    )
     public void testEndDocument() {
         try {
             adapter.endDocument();
@@ -370,11 +258,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] {}, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "startElement",
-        args = { String.class, AttributeList.class }
-    )
     public void testStartElement() {
         AttributeListImpl atts = new AttributeListImpl();
         atts.addAttribute("john:doe", "int", "42");
@@ -393,11 +276,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals("john:doe", ((Attributes)logger.getArgs()[3]).getQName(0));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "endElement",
-        args = { String.class }
-    )
     public void testEndElement() {
         AttributeListImpl atts = new AttributeListImpl();
         atts.addAttribute("john:doe", "int", "42");
@@ -414,11 +292,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new String[] { "", "", "foo:bar" }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "characters",
-        args = { char[].class, int.class, int.class }
-    )
     public void testCharacters() {
         char[] ch = "Android".toCharArray();
 
@@ -433,11 +306,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] { ch, 2, 5 }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "ignorableWhitespace",
-        args = { char[].class, int.class, int.class }
-    )
     public void testIgnorableWhitespace() {
         char[] ch = "     ".toCharArray();
 
@@ -452,11 +320,6 @@ public class ParserAdapterTest extends TestCase {
         assertEquals(new Object[] { ch, 0, 5 }, logger.getArgs());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "processingInstruction",
-        args = { String.class, String.class }
-    )
     public void testProcessingInstruction() {
         try {
             adapter.processingInstruction("foo", "bar");

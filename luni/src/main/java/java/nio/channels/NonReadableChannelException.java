@@ -28,6 +28,5 @@ public class NonReadableChannelException extends IllegalStateException {
      * Constructs a {@code NonReadableChannelException}.
      */
     public NonReadableChannelException() {
-        super();
     }
 }

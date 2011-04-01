@@ -306,15 +306,12 @@ public class BufferedReader extends Reader {
                  * don't read into smaller buffers because that could result in
                  * a many reads.
                  */
-                if ((mark == -1 || (pos - mark >= markLimit))
-                        && outstanding >= buf.length) {
+                if ((mark == -1 || (pos - mark >= markLimit)) && outstanding >= buf.length) {
                     int count = in.read(buffer, offset, outstanding);
                     if (count > 0) {
-                        offset += count;
                         outstanding -= count;
                         mark = -1;
                     }
-
                     break; // assume the source stream gave us all that it could
                 }
 
@@ -359,9 +356,6 @@ public class BufferedReader extends Reader {
             }
             for (int charPos = pos; charPos < end; charPos++) {
                 char ch = buf[charPos];
-                // BEGIN android-note
-                // a switch statement may be more efficient
-                // END android-note
                 if (ch > '\r') {
                     continue;
                 }

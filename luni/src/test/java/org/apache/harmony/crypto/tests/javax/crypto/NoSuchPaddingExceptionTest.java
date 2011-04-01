@@ -22,17 +22,11 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.NoSuchPaddingException;
 
 import junit.framework.TestCase;
 
 
-@TestTargetClass(NoSuchPaddingException.class)
 /**
  * Tests for <code>NoSuchPaddingException</code> class constructors and
  * methods.
@@ -51,12 +45,6 @@ public class NoSuchPaddingExceptionTest extends TestCase {
      * Test for <code>NoSuchPaddingException()</code> constructor Assertion:
      * constructs NoSuchPaddingException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NoSuchPaddingException",
-        args = {}
-    )
     public void testNoSuchPaddingException01() {
         NoSuchPaddingException tE = new NoSuchPaddingException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -68,12 +56,6 @@ public class NoSuchPaddingExceptionTest extends TestCase {
      * Assertion: constructs NoSuchPaddingException with detail message msg.
      * Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NoSuchPaddingException",
-        args = {java.lang.String.class}
-    )
     public void testNoSuchPaddingException02() {
         NoSuchPaddingException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -89,12 +71,6 @@ public class NoSuchPaddingExceptionTest extends TestCase {
      * Assertion: constructs NoSuchPaddingException when <code>msg</code> is
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NoSuchPaddingException",
-        args = {java.lang.String.class}
-    )
     public void testNoSuchPaddingException03() {
         String msg = null;
         NoSuchPaddingException tE = new NoSuchPaddingException(msg);

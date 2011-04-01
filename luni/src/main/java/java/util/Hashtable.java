@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// Completely different implementation from harmony.  Runs much faster.
-// BEGIN android-note
-
 package java.util;
 
 import java.io.IOException;
@@ -1096,15 +1092,9 @@ public class Hashtable<K, V> extends Dictionary<K, V>
 
     private static final long serialVersionUID = 1421746759512286392L;
 
-    /**
-     * Serializable fields.
-     *
-     * @serialField loadFactor float
-     *              load factor for this Hashtable
-     */
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("threshold", Integer.TYPE),
-        new ObjectStreamField("loadFactor", Float.TYPE)
+        new ObjectStreamField("threshold", int.class),
+        new ObjectStreamField("loadFactor", float.class),
     };
 
     private synchronized void writeObject(ObjectOutputStream stream)

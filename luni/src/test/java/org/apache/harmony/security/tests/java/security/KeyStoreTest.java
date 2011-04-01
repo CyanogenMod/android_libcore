@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -55,12 +50,11 @@ import org.apache.harmony.security.tests.support.MyLoadStoreParams;
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
-@TestTargetClass(KeyStore.class)
+
 /**
  * Tests for <code>KeyStore</code> constructor and methods
  *
  */
-
 public class KeyStoreTest extends TestCase {
 
     private static final String KeyStoreProviderClass = "org.apache.harmony.security.tests.support.MyKeyStore";
@@ -113,12 +107,6 @@ public class KeyStoreTest extends TestCase {
      * methods
      * Assertions: throw IllegalArgumentException if param is null;
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "NoSuchAlgorithmException, CertificateException checking missed",
-        method = "load",
-        args = {java.security.KeyStore.LoadStoreParameter.class}
-    )
     public void testLoadStore02() throws Exception {
         assertTrue(NotSupportMsg, KSSupported);
 
@@ -155,12 +143,6 @@ public class KeyStoreTest extends TestCase {
      * method
      * Assertion: stores KeyEntry.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setKeyEntry",
-        args = {java.lang.String.class, byte[].class, java.security.cert.Certificate[].class}
-    )
     public void testSetKeyEntry() throws Exception {
         assertTrue(NotSupportMsg, KSSupported);
 
@@ -201,12 +183,6 @@ public class KeyStoreTest extends TestCase {
      * Test for <code>getDefaultType()</code> method Assertion: returns
      * default security key store type or "jks" string
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultType",
-        args = {}
-    )
     public void testKeyStore01() {
         String propName = "keystore.type";
         String defKSType = Security.getProperty(propName);
@@ -235,12 +211,6 @@ public class KeyStoreTest extends TestCase {
      * throws KeyStoreException when type is not available
      *
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verification with valid parameter missed",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testKeyStore02() throws KeyStoreException {
         String[] invalidValues =  SpiEngUtils.invalidValues;
         try {
@@ -261,13 +231,6 @@ public class KeyStoreTest extends TestCase {
     /**
      * @test java.security.KeyStore.PasswordProtection.getPassword()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IllegalStateException checking missed",
-        clazz = KeyStore.PasswordProtection.class,
-        method = "getPassword",
-        args = {}
-    )
     public void testKeyStorePPGetPassword() {
         // Regression for HARMONY-1539
         // no exception expected
@@ -281,7 +244,7 @@ public class KeyStoreTest extends TestCase {
 
 
     /*
-     * @tests java.security.KeyStoreSpi.engineEntryInstanceOf(String, Class<? extends Entry>)
+     * java.security.KeyStoreSpi.engineEntryInstanceOf(String, Class<? extends Entry>)
      */
     public void testEngineEntryInstanceOf() throws Exception {
         //Regression for HARMONY-615
@@ -309,15 +272,8 @@ public class KeyStoreTest extends TestCase {
     }
 
     /**
-     * @tests java.security.KeyStore.TrustedCertificateEntry.toString()
+     * java.security.KeyStore.TrustedCertificateEntry.toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "IllegalStateException checking missed",
-        clazz = KeyStore.TrustedCertificateEntry.class,
-        method = "toString",
-        args = {}
-    )
     public void testKeyStoreTCToString() {
            // Regression for HARMONY-1542
            // no exception expected

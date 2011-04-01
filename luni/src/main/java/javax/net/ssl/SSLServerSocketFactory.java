@@ -17,9 +17,7 @@
 
 package javax.net.ssl;
 
-import java.security.AccessController;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.Security;
 import javax.net.ServerSocketFactory;
 
@@ -46,23 +44,18 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory {
             return defaultServerSocketFactory;
         }
         if (defaultName == null) {
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                public Void run() {
-                    defaultName = Security.getProperty("ssl.ServerSocketFactory.provider");
-                    if (defaultName != null) {
-                        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                        if (cl == null) {
-                            cl = ClassLoader.getSystemClassLoader();
-                        }
-                        try {
-                            final Class<?> ssfc = Class.forName(defaultName, true, cl);
-                            defaultServerSocketFactory = (ServerSocketFactory) ssfc.newInstance();
-                        } catch (Exception e) {
-                        }
-                    }
-                    return null;
+            defaultName = Security.getProperty("ssl.ServerSocketFactory.provider");
+            if (defaultName != null) {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                if (cl == null) {
+                    cl = ClassLoader.getSystemClassLoader();
                 }
-            });
+                try {
+                    final Class<?> ssfc = Class.forName(defaultName, true, cl);
+                    defaultServerSocketFactory = (ServerSocketFactory) ssfc.newInstance();
+                } catch (Exception e) {
+                }
+            }
         }
         if (defaultServerSocketFactory == null) {
             SSLContext context;
@@ -87,7 +80,6 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory {
      * Creates a new {@code SSLServerSocketFactory} instance.
      */
     protected SSLServerSocketFactory() {
-        super();
     }
 
     /**

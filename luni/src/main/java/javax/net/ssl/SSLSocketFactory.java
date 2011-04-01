@@ -19,12 +19,8 @@ package javax.net.ssl;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.security.AccessController;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.Security;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.SocketFactory;
 
 /**
@@ -46,32 +42,22 @@ public abstract class SSLSocketFactory extends SocketFactory {
      */
     public static synchronized SocketFactory getDefault() {
         if (defaultSocketFactory != null) {
-            // BEGIN android-added
-            // log("SSLSocketFactory", "Using factory " + defaultSocketFactory, null);
-            // END android-added
             return defaultSocketFactory;
         }
         if (defaultName == null) {
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                public Void run() {
-                    defaultName = Security.getProperty("ssl.SocketFactory.provider");
-                    if (defaultName != null) {
-                        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                        if (cl == null) {
-                            cl = ClassLoader.getSystemClassLoader();
-                        }
-                        try {
-                            final Class<?> sfc = Class.forName(defaultName, true, cl);
-                            defaultSocketFactory = (SocketFactory) sfc.newInstance();
-                        } catch (Exception e) {
-                            // BEGIN android-added
-                            log("SSLSocketFactory", "Problem creating " + defaultName, e);
-                            // END android-added
-                        }
-                    }
-                    return null;
+            defaultName = Security.getProperty("ssl.SocketFactory.provider");
+            if (defaultName != null) {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                if (cl == null) {
+                    cl = ClassLoader.getSystemClassLoader();
                 }
-            });
+                try {
+                    final Class<?> sfc = Class.forName(defaultName, true, cl);
+                    defaultSocketFactory = (SocketFactory) sfc.newInstance();
+                } catch (Exception e) {
+                    System.logE("Problem creating " + defaultName, e);
+                }
+            }
         }
 
         if (defaultSocketFactory == null) {
@@ -89,24 +75,13 @@ public abstract class SSLSocketFactory extends SocketFactory {
             // Use internal implementation
             defaultSocketFactory = new DefaultSSLSocketFactory("No SSLSocketFactory installed");
         }
-        // BEGIN android-added
-        // log("SSLSocketFactory", "Using factory " + defaultSocketFactory, null);
-        // END android-added
         return defaultSocketFactory;
     }
-
-    // BEGIN android-added
-    @SuppressWarnings("unchecked")
-    private static void log(String tag, String msg, Throwable throwable) {
-        Logger.getLogger(tag).log(Level.INFO, msg, throwable);
-    }
-    // END android-added
 
     /**
      * Creates a new {@code SSLSocketFactory}.
      */
     public SSLSocketFactory() {
-        super();
     }
 
     /**

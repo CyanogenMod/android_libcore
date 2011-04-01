@@ -17,7 +17,11 @@
 package libcore.util;
 
 import java.lang.ref.Reference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 public final class CollectionUtils {
     private CollectionUtils() {}
@@ -72,5 +76,23 @@ public final class CollectionUtils {
                 };
             }
         };
+    }
+
+    /**
+     * Sorts and removes duplicate elements from {@code list}. This method does
+     * not use {@link Object#equals}: only the comparator defines equality.
+     */
+    public static <T> void removeDuplicates(List<T> list, Comparator<? super T> comparator) {
+        Collections.sort(list, comparator);
+        int j = 1;
+        for (int i = 1; i < list.size(); i++) {
+            if (comparator.compare(list.get(j - 1), list.get(i)) != 0) {
+                T object = list.get(i);
+                list.set(j++, object);
+            }
+        }
+        if (j < list.size()) {
+            list.subList(j, list.size()).clear();
+        }
     }
 }

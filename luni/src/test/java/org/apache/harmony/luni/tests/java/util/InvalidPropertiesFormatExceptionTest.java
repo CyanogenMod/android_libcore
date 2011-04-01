@@ -24,7 +24,7 @@ public class InvalidPropertiesFormatExceptionTest extends
         junit.framework.TestCase {
 
     /**
-     * @tests java.util.InvalidPropertiesFormatException#SerializationTest()
+     * java.util.InvalidPropertiesFormatException#SerializationTest()
      */
     public void test_Serialization() throws Exception {
         InvalidPropertiesFormatException ipfe = new InvalidPropertiesFormatException(
@@ -37,7 +37,7 @@ public class InvalidPropertiesFormatExceptionTest extends
     }
 
     /**
-     * @tests {@link java.util.InvalidPropertiesFormatException#InvalidPropertiesFormatException(Throwable)}
+     * {@link java.util.InvalidPropertiesFormatException#InvalidPropertiesFormatException(Throwable)}
      */
     public void test_Constructor_Ljava_lang_Throwable() {
         Throwable throwable = new Throwable();

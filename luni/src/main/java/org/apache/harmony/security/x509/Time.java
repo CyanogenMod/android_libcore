@@ -41,8 +41,7 @@ import org.apache.harmony.security.asn1.ASN1UTCTime;
  * }
  * </pre>
  */
-public class Time {
-
+public final class Time {
     private static final long JAN_01_2050 = 2524608000000L;
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {

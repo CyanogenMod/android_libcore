@@ -18,9 +18,6 @@
 package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,7 +36,6 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 import tests.support.Support_Configuration;
 
-@TestTargetClass(InetAddress.class)
 public class InetAddressTest extends junit.framework.TestCase {
 
     private static boolean someoneDone[] = new boolean[2];
@@ -152,28 +148,16 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#equals(java.lang.Object)
+     * java.net.InetAddress#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.net.InetAddress.equals(java.lang.Object)
         assertTrue(ipv4Localhost.equals(ipv4LoopbackIp));
     }
 
     /**
-     * @tests java.net.InetAddress#getAddress()
+     * java.net.InetAddress#getAddress()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAddress",
-        args = {}
-    )
     public void test_getAddress() {
         // Test for method byte [] java.net.InetAddress.getAddress()
         try {
@@ -192,14 +176,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getAllByName(java.lang.String)
+     * java.net.InetAddress#getAllByName(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAllByName",
-        args = {java.lang.String.class}
-    )
     public void test_getAllByNameLjava_lang_String() throws Exception {
         // Test for method java.net.InetAddress []
         // java.net.InetAddress.getAllByName(java.lang.String)
@@ -233,14 +211,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getByName(java.lang.String)
+     * java.net.InetAddress#getByName(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getByName",
-        args = {java.lang.String.class}
-    )
     public void test_getByNameLjava_lang_String() throws Exception {
         // Test for method java.net.InetAddress
         // java.net.InetAddress.getByName(java.lang.String)
@@ -298,27 +270,15 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getHostAddress()
+     * java.net.InetAddress#getHostAddress()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHostAddress",
-        args = {}
-    )
     public void test_getHostAddress() {
         assertTrue(ipv4Localhost.getHostAddress().equals("127.0.0.1"));
     }
 
     /**
-     * @tests java.net.InetAddress#getHostName()
+     * java.net.InetAddress#getHostName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHostName",
-        args = {}
-    )
     public void test_getHostName() throws Exception {
         // Test for method java.lang.String java.net.InetAddress.getHostName()
         InetAddress ia = InetAddress
@@ -368,14 +328,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getLocalHost()
+     * java.net.InetAddress#getLocalHost()
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "UnknownHostException should be thrown if no IP address for the host could be found.",
-        method = "getLocalHost",
-        args = {}
-    )
     public void test_getLocalHost() {
         // Test for method java.net.InetAddress
         // java.net.InetAddress.getLocalHost()
@@ -392,14 +346,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#hashCode()
+     * java.net.InetAddress#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     int getHashCode(String literal) {
         InetAddress host = null;
         try {
@@ -422,14 +370,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#isMulticastAddress()
+     * java.net.InetAddress#isMulticastAddress()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMulticastAddress",
-        args = {}
-    )
     public void test_isMulticastAddress() {
         // Test for method boolean java.net.InetAddress.isMulticastAddress()
         try {
@@ -451,14 +393,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#toString()
+     * java.net.InetAddress#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() throws Exception {
         // Test for method java.lang.String java.net.InetAddress.toString()
         InetAddress ia2 = InetAddress.getByName(Support_Configuration.InetTestIP);
@@ -469,14 +405,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getByAddress(java.lang.String, byte[])
+     * java.net.InetAddress#getByAddress(java.lang.String, byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getByAddress",
-        args = {java.lang.String.class, byte[].class}
-    )
     public void test_getByAddressLjava_lang_String$B() {
         // Check an IPv4 address with an IPv6 hostname
         byte ipAddress[] = { 127, 0, 0, 1 };
@@ -510,14 +440,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#getCanonicalHostName()
+     * java.net.InetAddress#getCanonicalHostName()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCanonicalHostName",
-        args = {}
-    )
     public void test_getCanonicalHostName() throws Exception {
         assertTrue("getCanonicalHostName returned a zero length string ",
                 ipv4Localhost.getCanonicalHostName().length() != 0);
@@ -539,14 +463,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#isReachableI
+     * java.net.InetAddress#isReachableI
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "IOException checking missed (if network error occurs).",
-        method = "isReachable",
-        args = {int.class}
-    )
     public void test_isReachableI() throws Exception {
         assertTrue(ipv4LoopbackIp.isReachable(10000));
         try {
@@ -558,14 +476,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.net.InetAddress#isReachableLjava_net_NetworkInterfaceII
+     * java.net.InetAddress#isReachableLjava_net_NetworkInterfaceII
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "IOException checking missed (if network error occurs).",
-        method = "isReachable",
-        args = {java.net.NetworkInterface.class, int.class, int.class}
-    )
     @BrokenTest("Depends on external network address and shows different" +
             "behavior with WLAN and 3G networks")
     public void test_isReachableLjava_net_NetworkInterfaceII() throws Exception {
@@ -622,12 +534,6 @@ public class InetAddressTest extends junit.framework.TestCase {
     };
 
     // Regression Test for Harmony-2290
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Regeression test. Functional test.",
-        method = "isReachable",
-        args = {java.net.NetworkInterface.class, int.class, int.class}
-    )
     public void test_isReachableLjava_net_NetworkInterfaceII_loopbackInterface() throws IOException {
         final int TTL = 20;
         final int TIME_OUT = 3000;
@@ -663,40 +569,22 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility.
+     * serialization/deserialization compatibility.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks serialization.",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void testSerializationSelf() throws Exception {
         SerializationTest.verifySelf(ipv4Localhost, COMPARATOR);
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks serialization.",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void testSerializationCompatibility() throws Exception {
         SerializationTest.verifyGolden(this, ipv4Localhost, COMPARATOR);
     }
 
     /**
-     * @tests java.net.InetAddress#getByAddress(byte[])
+     * java.net.InetAddress#getByAddress(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getByAddress",
-        args = {byte[].class}
-    )
     public void test_getByAddress() {
         byte ipAddress[] = { 127, 0, 0, 1 };
         try {
@@ -732,12 +620,6 @@ public class InetAddressTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isAnyLocalAddress",
-        args = {}
-    )
     public void test_isAnyLocalAddress() throws Exception {
         byte [] ipAddress1 = { 127, 42, 42, 42 };
         InetAddress ia1 = InetAddress.getByAddress(ipAddress1);
@@ -748,12 +630,6 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue(ia2.isAnyLocalAddress());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isLinkLocalAddress",
-        args = {}
-    )
     public void test_isLinkLocalAddress() throws Exception {
         String addrName = "FE80::0";
         InetAddress addr = InetAddress.getByName(addrName);
@@ -780,12 +656,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 .isLinkLocalAddress());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isLoopbackAddress",
-        args = {}
-    )
     public void test_isLoopbackAddress() throws Exception {
         String addrName = "127.0.0.0";
         assertTrue("Loopback address " + addrName + " not detected.",
@@ -815,12 +685,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 .isLoopbackAddress());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMCGlobal",
-        args = {}
-    )
     public void test_isMCGlobal() throws Exception {
         String addrName = "224.0.0.255";
         InetAddress addr = InetAddress.getByName(addrName);
@@ -846,12 +710,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 .isMCGlobal());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMCLinkLocal",
-        args = {}
-    )
     public void test_isMCLinkLocal() throws Exception {
         String addrName = "224.0.0.255";
         InetAddress addr = InetAddress.getByName(addrName);
@@ -883,12 +741,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 !addr.isMCLinkLocal());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMCNodeLocal",
-        args = {}
-    )
     public void test_isMCNodeLocal() throws Exception {
         String addrName = "224.42.42.42";
         InetAddress addr = InetAddress.getByName(addrName);
@@ -911,12 +763,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 .isMCNodeLocal());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMCOrgLocal",
-        args = {}
-    )
     public void test_isMCOrgLocal() throws Exception {
         String addrName = "239.252.0.0"; // a multicast addr 1110
         InetAddress addr = InetAddress.getByName(addrName);
@@ -946,12 +792,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 !addr.isMCOrgLocal());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isMCSiteLocal",
-        args = {}
-    )
     public void test_isMCSiteLocal() throws Exception {
         String addrName = "FFF5:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF";
         InetAddress addr = InetAddress.getByName(addrName);
@@ -984,12 +824,6 @@ public class InetAddressTest extends junit.framework.TestCase {
                 addr.isMCSiteLocal());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isSiteLocalAddress",
-        args = {}
-    )
     public void test_isSiteLocalAddress() throws Exception {
         String addrName = "42.42.42.42";
         InetAddress addr = InetAddress.getByName(addrName);

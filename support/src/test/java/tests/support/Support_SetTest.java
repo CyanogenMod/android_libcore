@@ -17,11 +17,8 @@
 
 package tests.support;
 
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Set;
 
-@TestTargetClass(Set.class)
 public class Support_SetTest extends junit.framework.TestCase {
 
     Set<Integer> set; // must contain only the Integers 0 to 99

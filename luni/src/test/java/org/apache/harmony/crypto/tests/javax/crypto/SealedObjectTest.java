@@ -22,10 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -47,7 +43,6 @@ import javax.crypto.SealedObject;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-@TestTargetClass(SealedObject.class)
 /**
  */
 public class SealedObjectTest extends TestCase {
@@ -69,12 +64,6 @@ public class SealedObjectTest extends TestCase {
      * deserialized, the content od deserialized object equals to the content of
      * initial object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "!Serialization",
-        args = {}
-    )
     public void testReadObject() throws Exception {
         String secret = "secret string";
         SealedObject so = new SealedObject(secret, new NullCipher());
@@ -99,11 +88,6 @@ public class SealedObjectTest extends TestCase {
      * SealedObject(Serializable object, Cipher c) method testing. Tests if the
      * NullPointerException is thrown in the case of null cipher.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "SealedObject",
-        args = {java.io.Serializable.class, javax.crypto.Cipher.class}
-    )
     public void testSealedObject1() throws Exception {
         String secret = "secret string";
         try {
@@ -139,12 +123,6 @@ public class SealedObjectTest extends TestCase {
      * SealedObject(SealedObject so) method testing. Tests if the
      * NullPointerException is thrown in the case of null SealedObject.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SealedObject",
-        args = {javax.crypto.SealedObject.class}
-    )
     public void testSealedObject2() throws Exception {
         try {
             new SealedObject(null) {};
@@ -170,12 +148,6 @@ public class SealedObjectTest extends TestCase {
      * getAlgorithm() method testing. Tests if the returned value equals to the
      * corresponding value of Cipher object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void testGetAlgorithm() throws Exception {
         String secret = "secret string";
         String algorithm = "DES";
@@ -195,12 +167,6 @@ public class SealedObjectTest extends TestCase {
      * encryption algorithm and specified parameters can be retrieved by
      * specifying the cryptographic key.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Not all exceptions can be checked.",
-        method = "getObject",
-        args = {java.security.Key.class}
-    )
     public void testGetObject1() throws Exception {
         KeyGenerator kg = KeyGenerator.getInstance("DES");
         Key key = kg.generateKey();
@@ -237,12 +203,6 @@ public class SealedObjectTest extends TestCase {
      * with encryption algorithm and specified parameters can be retrieved by
      * specifying the initialized Cipher object.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Not all exceptions can be checked.",
-        method = "getObject",
-        args = {javax.crypto.Cipher.class}
-    )
     public void testGetObject2() throws Exception {
         try {
             new SealedObject("secret string", new NullCipher())
@@ -282,12 +242,6 @@ public class SealedObjectTest extends TestCase {
      * object sealed with encryption algorithm can be retrieved by specifying
      * the cryptographic key and provider name.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Not all exceptions can be checked.",
-        method = "getObject",
-        args = {java.security.Key.class, java.lang.String.class}
-    )
     public void testGetObject3() throws Exception {
         try {
             new SealedObject("secret string", new NullCipher()).getObject(

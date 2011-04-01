@@ -23,11 +23,6 @@
 package tests.security.cert;
 
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -47,7 +42,6 @@ import org.apache.harmony.security.tests.support.cert.MyCertStoreSpi;
  * Tests for <code>CertStoreSpi</code> class constructors and methods.
  *
  */
-@TestTargetClass(CertStoreSpi.class)
 public class CertStoreSpiTest extends TestCase {
 
 
@@ -55,26 +49,6 @@ public class CertStoreSpiTest extends TestCase {
      * Test for <code>CertStoreSpi</code> constructor Assertion: constructs
      * CertStoreSpi
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "CertStoreSpi",
-            args = {java.security.cert.CertStoreParameters.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetCertificates",
-            args = {java.security.cert.CertSelector.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "engineGetCRLs",
-            args = {java.security.cert.CRLSelector.class}
-        )
-    })
     public void testCertStoreSpi01() throws InvalidAlgorithmParameterException,
             CertStoreException {
         CertStoreSpi certStoreSpi = null;

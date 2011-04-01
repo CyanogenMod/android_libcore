@@ -20,11 +20,13 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.security.AccessController;
 import java.util.Hashtable;
-import java.util.StringTokenizer;
-import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.Util;
+import java.util.Locale;
+import libcore.net.http.HttpHandler;
+import libcore.net.http.HttpsHandler;
+import libcore.net.url.FileHandler;
+import libcore.net.url.FtpHandler;
+import libcore.net.url.JarHandler;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
@@ -107,7 +109,8 @@ public final class URL implements java.io.Serializable {
     /**
      * Cache for storing protocol handler
      */
-    private static Hashtable<String, URLStreamHandler> streamHandlers = new Hashtable<String, URLStreamHandler>();
+    private static final Hashtable<String, URLStreamHandler> streamHandlers
+            = new Hashtable<String, URLStreamHandler>();
 
     /**
      * The URL Stream (protocol) Handler
@@ -135,10 +138,6 @@ public final class URL implements java.io.Serializable {
             URLStreamHandlerFactory streamFactory) {
         if (streamHandlerFactory != null) {
             throw new Error("Factory already set");
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSetFactory();
         }
         streamHandlers.clear();
         streamHandlerFactory = streamFactory;
@@ -195,13 +194,8 @@ public final class URL implements java.io.Serializable {
      *             if the given string {@code spec} could not be parsed as a URL
      *             or an invalid protocol has been found.
      */
-    public URL(URL context, String spec, URLStreamHandler handler)
-            throws MalformedURLException {
+    public URL(URL context, String spec, URLStreamHandler handler) throws MalformedURLException {
         if (handler != null) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(specifyStreamHandlerPermission);
-            }
             strmHandler = handler;
         }
 
@@ -241,9 +235,8 @@ public final class URL implements java.io.Serializable {
                     protocol = null;
                     index = -1;
                 } else {
-                    // Ignore case in protocol names.
-                    // Scheme is defined by ASCII characters.
-                    protocol = Util.toASCIILowerCase(protocol);
+                    // Ignore case in protocol names. Scheme is defined by ASCII characters.
+                    protocol = protocol.toLowerCase(Locale.US);
                 }
             }
         }
@@ -367,10 +360,6 @@ public final class URL implements java.io.Serializable {
      * @throws MalformedURLException
      *             if the combination of all arguments do not represent a valid
      *             URL or the protocol is invalid.
-     * @throws SecurityException
-     *             if {@code handler} is non-{@code null}, and a security
-     *             manager is installed that disallows user-defined protocol
-     *             handlers.
      */
     public URL(String protocol, String host, int port, String file,
             URLStreamHandler handler) throws MalformedURLException {
@@ -411,10 +400,6 @@ public final class URL implements java.io.Serializable {
                 throw new MalformedURLException("Unknown protocol: " + protocol);
             }
         } else {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(specifyStreamHandlerPermission);
-            }
             strmHandler = handler;
         }
     }
@@ -474,21 +459,34 @@ public final class URL implements java.io.Serializable {
     }
 
     /**
-     * Compares this URL instance with the given argument {@code o} and
-     * determines if both are equal. Two URL instances are equal if all single
-     * parts are identical in their meaning. Compares the argument to the
-     * receiver, and returns true if they represent the same URL. Two URLs are
-     * equal if they have the same file, host, port, protocol, and reference
-     * components.
+     * Returns true if this URL equals {@code o}. URLs are equal if they have
+     * the same protocol, host, port, file, and reference.
      *
-     * @param o
-     *            the URL this instance has to be compared with.
-     * @return {@code true} if both instances represents the same URL, {@code
-     *         false} otherwise.
-     * @see #hashCode()
+     * <h3>Network I/O Warning</h3>
+     * <p>Some implementations of URL.equals() resolve host names over the
+     * network. This is problematic:
+     * <ul>
+     * <li><strong>The network may be slow.</strong> Many classes, including
+     * core collections like {@link java.util.Map Map} and {@link java.util.Set
+     * Set} expect that {@code equals} and {@code hashCode} will return quickly.
+     * By violating this assumption, this method posed potential performance
+     * problems.
+     * <li><strong>Equal IP addresses do not imply equal content.</strong>
+     * Virtual hosting permits unrelated sites to share an IP address. This
+     * method could report two otherwise unrelated URLs to be equal because
+     * they're hosted on the same server.</li>
+     * <li><strong>The network many not be available.</strong> Two URLs could be
+     * equal when a network is available and unequal otherwise.</li>
+     * <li><strong>The network may change.</strong> The IP address for a given
+     * host name varies by network and over time. This is problematic for mobile
+     * devices. Two URLs could be equal on some networks and unequal on
+     * others.</li>
+     * </ul>
+     * <p>This problem is fixed in Android in the Ice Cream Sandwich release. In
+     * that release, URLs are only equal if their host names are equal (ignoring
+     * case).
      */
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if (o == null) {
             return false;
         }
@@ -557,44 +555,39 @@ public final class URL implements java.io.Serializable {
 
         // Check if there is a list of packages which can provide handlers.
         // If so, then walk this list looking for an applicable one.
-        String packageList = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "java.protocol.handler.pkgs"));
+        String packageList = System.getProperty("java.protocol.handler.pkgs");
         if (packageList != null) {
-            StringTokenizer st = new StringTokenizer(packageList, "|");
-            while (st.hasMoreTokens()) {
-                String className = st.nextToken() + "." + protocol + ".Handler";
-
+            for (String packageName : packageList.split("\\|")) {
+                String className = packageName + "." + protocol + ".Handler";
                 try {
-                    strmHandler = (URLStreamHandler) Class.forName(className,
-                            true, ClassLoader.getSystemClassLoader())
-                            .newInstance();
+                    Class<?> klass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
+                    strmHandler = (URLStreamHandler) klass.newInstance();
                     if (strmHandler != null) {
                         streamHandlers.put(protocol, strmHandler);
                     }
                     return;
-                } catch (IllegalAccessException e) {
-                } catch (InstantiationException e) {
-                } catch (ClassNotFoundException e) {
+                } catch (IllegalAccessException ignored) {
+                } catch (InstantiationException ignored) {
+                } catch (ClassNotFoundException ignored) {
                 }
             }
         }
 
-        // No one else has provided a handler, so try our internal one.
-
-        String className = "org.apache.harmony.luni.internal.net.www.protocol." + protocol
-                + ".Handler";
-        try {
-            strmHandler = (URLStreamHandler) Class.forName(className)
-                    .newInstance();
-        } catch (IllegalAccessException e) {
-        } catch (InstantiationException e) {
-        } catch (ClassNotFoundException e) {
+        // Fall back to a built-in stream handler if the user didn't supply one
+        if (protocol.equals("file")) {
+            strmHandler = new FileHandler();
+        } else if (protocol.equals("ftp")) {
+            strmHandler = new FtpHandler();
+        } else if (protocol.equals("http")) {
+            strmHandler = new HttpHandler();
+        } else if (protocol.equals("https")) {
+            strmHandler = new HttpsHandler();
+        } else if (protocol.equals("jar")) {
+            strmHandler = new JarHandler();
         }
         if (strmHandler != null) {
             streamHandlers.put(protocol, strmHandler);
         }
-
     }
 
     /**
@@ -692,9 +685,6 @@ public final class URL implements java.io.Serializable {
      *         connection to this URL.
      * @throws IOException
      *             if an I/O error occurs while opening the connection.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies to connect
-     *             to the proxy.
      * @throws IllegalArgumentException
      *             if the argument proxy is {@code null} or is an invalid type.
      * @throws UnsupportedOperationException
@@ -705,15 +695,6 @@ public final class URL implements java.io.Serializable {
         if (proxy == null) {
             throw new IllegalArgumentException("proxy == null");
         }
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null && proxy.type() != Proxy.Type.DIRECT) {
-            InetSocketAddress pAddress = (InetSocketAddress) proxy.address();
-            String pHostName = pAddress.isUnresolved() ? pAddress.getHostName()
-                    : pAddress.getAddress().getHostAddress();
-            sm.checkConnect(pHostName, pAddress.getPort());
-        }
-
         return strmHandler.openConnection(this, proxy);
     }
 

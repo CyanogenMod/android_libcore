@@ -16,11 +16,6 @@
 
 package tests.api.java.lang.reflect;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -30,16 +25,9 @@ import java.lang.reflect.TypeVariable;
 /**
  * Tests type variables and their properties.
  */
-@TestTargetClass(TypeVariable.class)
 public class TypeVariableTest extends GenericReflectionTestsBase {
 
     static class A<T>{}
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Tests getGenericDeclaration of a type variable on a class.",
-        method = "getGenericDeclaration",
-        args = {}
-    )
     public void testSimpleTypeVariableOnClass(){
         Class<? extends A> clazz = A.class;
         TypeVariable[] typeParameters = clazz.getTypeParameters();
@@ -55,12 +43,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     static class B{
         <T> void b(){};
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Tests getGenericDeclaration of a type variable on a method.",
-        method = "getGenericDeclaration",
-        args = {}
-    )
     public void testSimpleTypeVariableOnMethod() throws Exception{
         Class<? extends B> clazz = B.class;
         Method method = clazz.getDeclaredMethod("b");
@@ -77,26 +59,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     static class C {
         <T>C(){}
     }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Interaction test.",
-            method = "getGenericDeclaration",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Interaction test.",
-            method = "getBounds",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Interaction test.",
-            method = "getName",
-            args = {}
-        )
-    })
     public void testSimpleTypeVariableOnConstructor() throws Exception{
         Class<? extends C> clazz = C.class;
         Constructor<?> constructor = clazz.getDeclaredConstructor();
@@ -111,12 +73,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     }
 
     static class D<Q,R,S>{}
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Interaction test.",
-        method = "getGenericDeclaration",
-        args = {}
-    )
     public void testMultipleTypeVariablesOnClass() throws Exception {
         Class<? extends D> clazz = D.class;
         TypeVariable<?>[] typeParameters = clazz.getTypeParameters();
@@ -135,12 +91,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     static class E {
         <Q,R,S> void e(){}
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void testMultipleTypeVariablesOnMethod() throws Exception {
         Class<? extends E> clazz = E.class;
         Method method = clazz.getDeclaredMethod("e");
@@ -160,12 +110,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     static class F {
         <Q,R,S> F(){}
     }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getName",
-        args = {}
-    )
     public void testMultipleTypeVariablesOnConstructor() throws Exception {
         Class<? extends F> clazz = F.class;
         Constructor<?> constructor = clazz.getDeclaredConstructor();
@@ -184,12 +128,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
 
     static class G <T extends Number>{}
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Interaction test, Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getBounds",
-        args = {}
-    )
     public void testSingleBound() throws Exception {
         Class<? extends G> clazz = G.class;
         TypeVariable[] typeParameters = clazz.getTypeParameters();
@@ -200,12 +138,6 @@ public class TypeVariableTest extends GenericReflectionTestsBase {
     }
 
     static class H <T extends Number & Serializable >{}
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Interaction test., Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
-        method = "getBounds",
-        args = {}
-    )
     public void testMultipleBound() throws Exception {
         Class<? extends H> clazz = H.class;
         TypeVariable[] typeParameters = clazz.getTypeParameters();

@@ -31,12 +31,11 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
     private int size;
 
-    // BEGIN android-changed
     /**
      * Constructs an instance.
      *
      * @param elementType non-null; type of the elements
-     * @param enums non-null; prepopulated array of constants in ordinal
+     * @param enums non-null; pre-populated array of constants in ordinal
      * order
      */
     HugeEnumSet(Class<E> elementType, E[] enums) {
@@ -44,7 +43,6 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         this.enums = enums;
         bits = new long[(enums.length + BIT_IN_LONG - 1) / BIT_IN_LONG];
     }
-    // END android-changed
 
     private class HugeEnumSetIterator implements Iterator<E> {
 

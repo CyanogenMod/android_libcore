@@ -358,7 +358,7 @@ public class Driver implements Locator, XMLReader, Attributes
                     "start tag must be read before skiping subtree"+pp.getPositionDescription());
             }
             final int[] holderForStartAndLength = new int[2];
-            final StringBuffer rawName = new StringBuffer(16);
+            final StringBuilder rawName = new StringBuilder(16);
             String prefix = null;
             String name = null;
             int level = pp.getDepth() - 1;

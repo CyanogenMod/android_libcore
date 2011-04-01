@@ -28,6 +28,5 @@ public class OverlappingFileLockException extends IllegalStateException {
      * Constructs a {@code OverlappingFileLockException}.
      */
     public OverlappingFileLockException() {
-        super();
     }
 }

@@ -75,10 +75,6 @@ public class InetSocketAddress extends SocketAddress {
      *            the specified port number to which this socket is bound.
      * @param host
      *            the specified hostname to which this socket is bound.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkConnect()} method does not allow the resolving of the
-     *             host name.
      */
     public InetSocketAddress(String host, int port) {
         this(host, port, true);
@@ -95,10 +91,6 @@ public class InetSocketAddress extends SocketAddress {
 
         InetAddress addr = null;
         if (needResolved) {
-            SecurityManager smgr = System.getSecurityManager();
-            if (smgr != null) {
-                smgr.checkConnect(hostname, port);
-            }
             try {
                 addr = InetAddress.getByName(hostname);
                 hostname = null;
@@ -147,12 +139,21 @@ public class InetSocketAddress extends SocketAddress {
     }
 
     /**
-     * Gets the hostname of this socket.
-     *
-     * @return the socket endpoint hostname.
+     * Returns the hostname, doing a reverse lookup on the {@code InetAddress} if no
+     * hostname string was provided at construction time.
      */
     public final String getHostName() {
         return (addr != null) ? addr.getHostName() : hostname;
+    }
+
+    /**
+     * Returns the hostname if known, or the result of {@code InetAddress.getHostAddress}.
+     * Unlike {@link #getHostName}, this method will never cause a DNS lookup.
+     * @since 1.7
+     * @hide 1.7 - remember to add a link in the getHostName documentation!
+     */
+    public final String getHostString() {
+        return (hostname != null) ? hostname : addr.getHostAddress();
     }
 
     /**

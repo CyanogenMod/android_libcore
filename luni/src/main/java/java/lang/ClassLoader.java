@@ -64,19 +64,16 @@ import java.util.Map;
  */
 public abstract class ClassLoader {
 
-    // BEGIN android-note
-    /*
+    /**
+     * The 'System' ClassLoader - the one that is responsible for loading
+     * classes from the classpath. It is not equal to the bootstrap class loader -
+     * that one handles the built-in classes.
+     *
      * Because of a potential class initialization race between ClassLoader and
      * java.lang.System, reproducible when using JDWP with "suspend=y", we defer
      * creation of the system class loader until first use. We use a static
      * inner class to get synchronization at init time without having to sync on
      * every access.
-     */
-    // END android-note
-    /**
-     * The 'System' ClassLoader - the one that is responsible for loading
-     * classes from the classpath. It is not equal to the bootstrap class loader -
-     * that one handles the built-in classes.
      *
      * @see #getSystemClassLoader()
      */
@@ -122,17 +119,7 @@ public abstract class ClassLoader {
     /**
      * Returns the system class loader. This is the parent for new
      * {@code ClassLoader} instances and is typically the class loader used to
-     * start the application. If a security manager is present and the caller's
-     * class loader is neither {@code null} nor the same as or an ancestor of
-     * the system class loader, then this method calls the security manager's
-     * checkPermission method with a RuntimePermission("getClassLoader")
-     * permission to ensure that it is ok to access the system class loader. If
-     * not, a {@code SecurityException} is thrown.
-     *
-     * @return the system class loader.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow access to
-     *             the system class loader.
+     * start the application.
      */
     public static ClassLoader getSystemClassLoader() {
         return SystemClassLoader.loader;
@@ -186,10 +173,6 @@ public abstract class ClassLoader {
     /**
      * Constructs a new instance of this class with the system class loader as
      * its parent.
-     *
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow the
-     *             creation of a new {@code ClassLoader}.
      */
     protected ClassLoader() {
         this(getSystemClassLoader(), false);
@@ -202,9 +185,6 @@ public abstract class ClassLoader {
      * @param parentLoader
      *            The {@code ClassLoader} to use as the new class loader's
      *            parent.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow the
-     *             creation of new a new {@code ClassLoader}.
      */
     protected ClassLoader(ClassLoader parentLoader) {
         this(parentLoader, false);
@@ -214,16 +194,9 @@ public abstract class ClassLoader {
      * constructor for the BootClassLoader which needs parent to be null.
      */
     ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkCreateClassLoader();
-        }
-
         if (parentLoader == null && !nullAllowed) {
-            throw new NullPointerException(
-                    "Parent ClassLoader may not be null");
+            throw new NullPointerException("Parent ClassLoader may not be null");
         }
-
         parent = parentLoader;
     }
 
@@ -251,7 +224,7 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(byte[] classRep, int offset, int length)
             throws ClassFormatError {
 
-        return VMClassLoader.defineClass(this, classRep, offset, length, null);
+        return VMClassLoader.defineClass(this, classRep, offset, length);
     }
 
     /**
@@ -316,8 +289,7 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(String className, byte[] classRep, int offset, int length,
             ProtectionDomain protectionDomain) throws java.lang.ClassFormatError {
 
-        return VMClassLoader.defineClass(this, className, classRep, offset, length,
-                protectionDomain);
+        return VMClassLoader.defineClass(this, className, classRep, offset, length);
     }
 
     /**
@@ -366,7 +338,7 @@ public abstract class ClassLoader {
 
     /**
      * Returns the class with the specified name if it has already been loaded
-     * by the virtual machine or {@code null} if it has not yet been loaded.
+     * by the VM or {@code null} if it has not yet been loaded.
      *
      * @param className
      *            the name of the class to look for.
@@ -400,16 +372,8 @@ public abstract class ClassLoader {
      * Returns this class loader's parent.
      *
      * @return this class loader's parent or {@code null}.
-     * @throws SecurityException
-     *             if a security manager exists and it does not allow to
-     *             retrieve the parent class loader.
      */
     public final ClassLoader getParent() {
-        SecurityManager smgr = System.getSecurityManager();
-        if (smgr != null) {
-            smgr.checkPermission(new RuntimePermission("getClassLoader"));
-        }
-
         return parent;
     }
 
@@ -422,8 +386,7 @@ public abstract class ClassLoader {
      * @param resName
      *            the name of the resource to find.
      * @return the {@code URL} object for the requested resource or {@code null}
-     *         if either the resource can not be found or a security manager
-     *         does not allow to access the resource.
+     *         if the resource can not be found
      * @see Class#getResource
      */
     public URL getResource(String resName) {
@@ -461,9 +424,7 @@ public abstract class ClassLoader {
      * {@link #getResource(String)} for a description of the lookup algorithm
      * used to find the resource.
      *
-     * @return a stream for the resource or {@code null} if either the resource
-     *         can not be found or a security manager does not allow to access
-     *         the resource.
+     * @return a stream for the resource or {@code null} if the resource can not be found
      * @param resName
      *            the name of the resource to find.
      * @see Class#getResourceAsStream
@@ -560,55 +521,6 @@ public abstract class ClassLoader {
     }
 
     /**
-     * Indicates whether this class loader is the system class loader. This
-     * method must be provided by the virtual machine vendor, as it is used by
-     * other provided class implementations in this package. A sample
-     * implementation of this method is provided by the reference
-     * implementation. This method is used by
-     * SecurityManager.classLoaderDepth(), currentClassLoader() and
-     * currentLoadedClass(). Returns true if the receiver is a system class
-     * loader.
-     * <p>
-     * Note that this method has package visibility only. It is defined here to
-     * avoid the security manager check in getSystemClassLoader, which would be
-     * required to implement this method anywhere else.
-     * </p>
-     *
-     * @return {@code true} if the receiver is a system class loader
-     * @see Class#getClassLoaderImpl()
-     */
-    final boolean isSystemClassLoader() {
-        return false;
-    }
-
-    /**
-     * <p>
-     * Returns true if the receiver is ancestor of another class loader. It also
-     * returns true if the two class loader are equal.
-     * </p>
-     * <p>
-     * Note that this method has package visibility only. It is defined here to
-     * avoid the security manager check in getParent, which would be required to
-     * implement this method anywhere else. The method is also required in other
-     * places where class loaders are accesses.
-     * </p>
-     *
-     * @param child
-     *            A child candidate
-     * @return {@code true} if the receiver is ancestor of, or equal to,
-     *         the parameter
-     */
-    final boolean isAncestorOf(ClassLoader child) {
-        for (ClassLoader current = child; current != null;
-                current = current.parent) {
-            if (current == this) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Finds the URL of the resource with the specified name. This
      * implementation just returns {@code null}; it should be overridden in
      * subclasses.
@@ -636,7 +548,7 @@ public abstract class ClassLoader {
             "unchecked", "unused"
     })
     protected Enumeration<URL> findResources(String resName) throws IOException {
-        return Collections.enumeration(Collections.<URL>emptyList());
+        return Collections.emptyEnumeration();
     }
 
     /**
@@ -669,21 +581,6 @@ public abstract class ClassLoader {
         synchronized (packages) {
             return packages.get(name);
         }
-    }
-
-    /**
-     * Gets the package with the specified name, searching it in the specified
-     * class loader.
-     *
-     * @param loader
-     *            the class loader to search the package in.
-     * @param name
-     *            the name of the package to find.
-     * @return the package with the requested name; {@code null} if the package
-     *         can not be found.
-     */
-    static Package getPackage(ClassLoader loader, String name) {
-        return loader.getPackage(name);
     }
 
     /**
@@ -745,18 +642,6 @@ public abstract class ClassLoader {
     }
 
     /**
-     * Gets the signers of the specified class. This implementation returns
-     * {@code null}.
-     *
-     * @param c
-     *            the {@code Class} object for which to get the signers.
-     * @return signers the signers of {@code c}.
-     */
-    final Object[] getSigners(Class<?> c) {
-        return null;
-    }
-
-    /**
      * Sets the signers of the specified class. This implementation does
      * nothing.
      *
@@ -766,93 +651,6 @@ public abstract class ClassLoader {
      *            the signers for {@code c}.
      */
     protected final void setSigners(Class<?> c, Object[] signers) {
-        return;
-    }
-
-    /**
-     * <p>
-     * This must be provided by the VM vendor. It is used by
-     * SecurityManager.checkMemberAccess() with depth = 3. Note that
-     * checkMemberAccess() assumes the following stack when called:<br>
-     * </p>
-     *
-     * <pre>
-     *          &lt; user code &amp;gt; &lt;- want this class
-     *          Class.getDeclared*();
-     *          Class.checkMemberAccess();
-     *          SecurityManager.checkMemberAccess(); &lt;- current frame
-     * </pre>
-     *
-     * <p>
-     * Returns the ClassLoader of the method (including natives) at the
-     * specified depth on the stack of the calling thread. Frames representing
-     * the VM implementation of java.lang.reflect are not included in the list.
-     * </p>
-     * Notes:
-     * <ul>
-     * <li>This method operates on the defining classes of methods on stack.
-     * NOT the classes of receivers.</li>
-     * <li>The item at depth zero is the caller of this method</li>
-     * </ul>
-     *
-     * @param depth
-     *            the stack depth of the requested ClassLoader
-     * @return the ClassLoader at the specified depth
-     */
-    static final ClassLoader getStackClassLoader(int depth) {
-        Class<?>[] stack = VMStack.getClasses(depth + 1, false);
-        if(stack.length < depth + 1) {
-            return null;
-        }
-        return stack[depth].getClassLoader();
-    }
-
-    /**
-     * This method must be provided by the VM vendor, as it is called by
-     * java.lang.System.loadLibrary(). System.loadLibrary() cannot call
-     * Runtime.loadLibrary() because this method loads the library using the
-     * ClassLoader of the calling method. Loads and links the library specified
-     * by the argument.
-     *
-     * @param libName
-     *            the name of the library to load
-     * @param loader
-     *            the classloader in which to load the library
-     * @throws UnsatisfiedLinkError
-     *             if the library could not be loaded
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded
-     * <p>
-     * <strong>Note: </strong>This method does nothing in the Android reference
-     * implementation.
-     * </p>
-     */
-    static void loadLibraryWithClassLoader(String libName, ClassLoader loader) {
-        return;
-    }
-
-    /**
-     * This method must be provided by the VM vendor, as it is called by
-     * java.lang.System.load(). System.load() cannot call Runtime.load() because
-     * the library is loaded using the ClassLoader of the calling method. Loads
-     * and links the library specified by the argument. No security check is
-     * done.
-     * <p>
-     * <strong>Note: </strong>This method does nothing in the Android reference
-     * implementation.
-     * </p>
-     *
-     * @param libName
-     *            the name of the library to load
-     * @param loader
-     *            the classloader in which to load the library
-     * @param libraryPath
-     *            the library path to search, or null
-     * @throws UnsatisfiedLinkError
-     *             if the library could not be loaded
-     */
-    static void loadLibraryWithPath(String libName, ClassLoader loader, String libraryPath) {
-        return;
     }
 
     /**
@@ -868,7 +666,6 @@ public abstract class ClassLoader {
      *            the new assertion status.
      */
     public void setClassAssertionStatus(String cname, boolean enable) {
-        return;
     }
 
     /**
@@ -884,7 +681,6 @@ public abstract class ClassLoader {
      *            the new assertion status.
      */
     public void setPackageAssertionStatus(String pname, boolean enable) {
-        return;
     }
 
     /**
@@ -898,7 +694,6 @@ public abstract class ClassLoader {
      *            the new assertion status.
      */
     public void setDefaultAssertionStatus(boolean enable) {
-        return;
     }
 
     /**
@@ -910,45 +705,6 @@ public abstract class ClassLoader {
      * </p>
      */
     public void clearAssertionStatus() {
-        return;
-    }
-
-    /**
-     * Returns the assertion status of the named class Returns the assertion
-     * status of the class or nested class if it has been set. Otherwise returns
-     * the assertion status of its package or superpackage if that has been set.
-     * Otherwise returns the default assertion status. Returns 1 for enabled and
-     * 0 for disabled.
-     *
-     * @return the assertion status.
-     * @param cname
-     *            the name of class.
-     */
-    boolean getClassAssertionStatus(String cname) {
-        return false;
-    }
-
-    /**
-     * Returns the assertion status of the named package Returns the assertion
-     * status of the named package or superpackage if that has been set.
-     * Otherwise returns the default assertion status. Returns 1 for enabled and
-     * 0 for disabled.
-     *
-     * @return the assertion status.
-     * @param pname
-     *            the name of package.
-     */
-    boolean getPackageAssertionStatus(String pname) {
-        return false;
-    }
-
-    /**
-     * Returns the default assertion status
-     *
-     * @return the default assertion status.
-     */
-    boolean getDefaultAssertionStatus() {
-        return false;
     }
 }
 
@@ -989,7 +745,7 @@ class TwoEnumerationsInOne implements Enumeration<URL> {
  */
 class BootClassLoader extends ClassLoader {
 
-    static BootClassLoader instance;
+    private static BootClassLoader instance;
 
     public static synchronized BootClassLoader getInstance() {
         if (instance == null) {

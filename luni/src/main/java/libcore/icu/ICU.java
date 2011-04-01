@@ -127,6 +127,16 @@ public final class ICU {
         return localesFromStrings(getAvailableNumberFormatLocalesNative());
     }
 
+    /**
+     * Returns the ICU version in use. This is "4.4" for gingerbread, for example.
+     */
+    public static native String getIcuVersion();
+
+    /**
+     * Returns the Unicode version our ICU supports. This is "5.2" for gingerbread, for example.
+     */
+    public static native String getUnicodeVersion();
+
     // --- Case mapping.
 
     public static native String toLowerCase(String s, String localeName);
@@ -141,9 +151,11 @@ public final class ICU {
     private static native String[] getAvailableLocalesNative();
     private static native String[] getAvailableNumberFormatLocalesNative();
 
-    public static native String getCurrencyCodeNative(String locale);
-    public static native int getCurrencyFractionDigitsNative(String currencyCode);
-    public static native String getCurrencySymbolNative(String locale, String currencyCode);
+    public static native String[] getAvailableCurrencyCodes();
+    public static native String getCurrencyCode(String countryCode);
+    public static native String getCurrencyDisplayName(String locale, String currencyCode);
+    public static native int getCurrencyFractionDigits(String currencyCode);
+    public static native String getCurrencySymbol(String locale, String currencyCode);
 
     public static native String getDisplayCountryNative(String countryCode, String locale);
     public static native String getDisplayLanguageNative(String languageCode, String locale);

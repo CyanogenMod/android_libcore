@@ -148,7 +148,7 @@ public class OldObjectOutputStreamTest extends TestCase implements Serializable 
     static final String INIT_STR_VALUE = "a string that is blortz";
 
     /**
-     * @tests java.io.ObjectOutputStream#ObjectOutputStream(java.io.OutputStream)
+     * java.io.ObjectOutputStream#ObjectOutputStream(java.io.OutputStream)
      */
     public void test_ConstructorLjava_io_OutputStream() throws IOException {
         oos.close();

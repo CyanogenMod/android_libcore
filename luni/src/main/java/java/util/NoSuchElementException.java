@@ -19,12 +19,8 @@ package java.util;
 
 
 /**
- * A {@code NoSuchElementException} is thrown when trying to retrieve an element
- * past the end of an Enumeration, or the first or last element from an empty
- * Vector.
- *
- * @see Enumeration
- * @see java.lang.RuntimeException
+ * Thrown when trying to retrieve an element
+ * past the end of an Enumeration or Iterator.
  */
 public class NoSuchElementException extends RuntimeException {
 
@@ -35,7 +31,6 @@ public class NoSuchElementException extends RuntimeException {
      * trace filled in.
      */
     public NoSuchElementException() {
-        super();
     }
 
     /**

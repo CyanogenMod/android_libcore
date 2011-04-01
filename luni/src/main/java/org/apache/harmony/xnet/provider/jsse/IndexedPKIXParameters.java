@@ -63,7 +63,7 @@ public final class IndexedPKIXParameters extends PKIXParameters {
         synchronized (subjectToTrustAnchors) {
             List<TrustAnchor> anchors = subjectToTrustAnchors.get(subject);
             if (anchors == null) {
-                anchors = new ArrayList<TrustAnchor>();
+                anchors = new ArrayList<TrustAnchor>(1);
                 subjectToTrustAnchors.put(subject, anchors);
             }
             anchors.add(anchor);
@@ -137,23 +137,5 @@ public final class IndexedPKIXParameters extends PKIXParameters {
             }
         }
         return false;
-    }
-
-    /**
-     * Wraps a byte[] and adds equals() and hashCode() support.
-     */
-    static class Bytes {
-        final byte[] bytes;
-        final int hash;
-        Bytes(byte[] bytes) {
-            this.bytes = bytes;
-            this.hash = Arrays.hashCode(bytes);
-        }
-        @Override public int hashCode() {
-            return hash;
-        }
-        @Override public boolean equals(Object o) {
-            return Arrays.equals(bytes, ((Bytes) o).bytes);
-        }
     }
 }

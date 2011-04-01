@@ -20,14 +20,12 @@ package java.sql;
 import dalvik.system.VMStack;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.security.AccessController;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Provides facilities for managing JDBC drivers.
@@ -70,9 +68,7 @@ public class DriverManager {
      * it is defined.
      */
     private static void loadInitialDrivers() {
-        String theDriverList = AccessController
-                .doPrivileged(new PriviAction<String>("jdbc.drivers", null));
-
+        String theDriverList = System.getProperty("jdbc.drivers", null);
         if (theDriverList == null) {
             return;
         }
@@ -99,7 +95,6 @@ public class DriverManager {
      * A private constructor to prevent allocation
      */
     private DriverManager() {
-        super();
     }
 
     /**
@@ -225,23 +220,17 @@ public class DriverManager {
      *             if there is any kind of problem accessing the database.
      */
     public static Driver getDriver(String url) throws SQLException {
-        // BEGIN android-changed
         ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
-        // END android-changed
-
         synchronized (theDrivers) {
             /*
              * Loop over the drivers in the DriverSet checking to see if one
              * does understand the supplied URL - return the first driver which
              * does understand the URL
              */
-            Iterator<Driver> theIterator = theDrivers.iterator();
-            while (theIterator.hasNext()) {
-                Driver theDriver = theIterator.next();
-                if (theDriver.acceptsURL(url)
-                        && DriverManager.isClassFromClassLoader(theDriver,
-                                callerClassLoader)) {
-                    return theDriver;
+            for (Driver driver : theDrivers) {
+                if (driver.acceptsURL(url) &&
+                        DriverManager.isClassFromClassLoader(driver, callerClassLoader)) {
+                    return driver;
                 }
             }
         }
@@ -259,28 +248,19 @@ public class DriverManager {
      *         {@code Drivers}.
      */
     public static Enumeration<Driver> getDrivers() {
-        // BEGIN android-changed
-        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
-        // END android-changed
         /*
          * Synchronize to avoid clashes with additions and removals of drivers
          * in the DriverSet
          */
+        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
         synchronized (theDrivers) {
-            /*
-             * Create the Enumeration by building a Vector from the elements of
-             * the DriverSet
-             */
-            Vector<Driver> theVector = new Vector<Driver>();
-            Iterator<Driver> theIterator = theDrivers.iterator();
-            while (theIterator.hasNext()) {
-                Driver theDriver = theIterator.next();
-                if (DriverManager.isClassFromClassLoader(theDriver,
-                        callerClassLoader)) {
-                    theVector.add(theDriver);
+            ArrayList<Driver> result = new ArrayList<Driver>();
+            for (Driver driver : theDrivers) {
+                if (DriverManager.isClassFromClassLoader(driver, callerClassLoader)) {
+                    result.add(driver);
                 }
             }
-            return theVector.elements();
+            return Collections.enumeration(result);
         }
     }
 
@@ -334,7 +314,6 @@ public class DriverManager {
          * If neither the PrintWriter not the PrintStream are set, then silently
          * do nothing the message is not recorded and no exception is generated.
          */
-        return;
     }
 
     /**
@@ -365,7 +344,6 @@ public class DriverManager {
      */
     public static void setLoginTimeout(int seconds) {
         loginTimeout = seconds;
-        return;
     }
 
     /**
@@ -378,7 +356,6 @@ public class DriverManager {
      */
     @Deprecated
     public static void setLogStream(PrintStream out) {
-        checkLogSecurity();
         thePrintStream = out;
     }
 
@@ -390,20 +367,7 @@ public class DriverManager {
      *            the {@code PrintWriter} to be used.
      */
     public static void setLogWriter(PrintWriter out) {
-        checkLogSecurity();
         thePrintWriter = out;
-    }
-
-    /*
-     * Method which checks to see if setting a logging stream is allowed by the
-     * Security manager
-     */
-    private static void checkLogSecurity() {
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            // Throws a SecurityException if setting the log is not permitted
-            securityManager.checkPermission(logPermission);
-        }
     }
 
     /**

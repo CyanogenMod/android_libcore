@@ -15,46 +15,39 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've dropped Windows support, except where it's exposed: we still support
-// non-Unix separators in serialized File objects, for example, but we don't
-// have any code for UNC paths or case-insensitivity.
-// We've also changed the JNI interface to better match what the Java actually wants.
-// (The JNI implementation is also much simpler.)
-// Some methods have been rewritten to reduce unnecessary allocation.
-// Some duplication has been factored out.
-// END android-note
-
 package java.io;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
+import libcore.io.Libcore;
+import libcore.io.StructStat;
+import libcore.io.StructStatFs;
 import org.apache.harmony.luni.util.DeleteOnExit;
-import org.apache.harmony.luni.util.PriviAction;
+import static libcore.io.OsConstants.*;
 
 /**
  * An "abstract" representation of a file system entity identified by a
  * pathname. The pathname may be absolute (relative to the root directory
  * of the file system) or relative to the current directory in which the program
  * is running.
- * <p>
- * The actual file referenced by a {@code File} may or may not exist. It may
+ *
+ * <p>The actual file referenced by a {@code File} may or may not exist. It may
  * also, despite the name {@code File}, be a directory or other non-regular
  * file.
- * <p>
- * This class provides limited functionality for getting/setting file
+ *
+ * <p>This class provides limited functionality for getting/setting file
  * permissions, file type, and last modified time.
- * <p>
- * Although Java doesn't specify a character encoding for filenames, on Android
- * Java strings are converted to UTF-8 byte sequences when sending filenames to
- * the operating system, and byte sequences returned by the operating system
- * (from the various {@code list} methods) are converted to Java strings by
- * decoding them as UTF-8 byte sequences.
+ *
+ * <p>On Android strings are converted to UTF-8 byte sequences when sending filenames to
+ * the operating system, and byte sequences returned by the operating system (from the
+ * various {@code list} methods) are converted to strings by decoding them as UTF-8
+ * byte sequences.
  *
  * @see java.io.Serializable
  * @see java.lang.Comparable
@@ -62,6 +55,12 @@ import org.apache.harmony.luni.util.PriviAction;
 public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
+
+    /**
+     * Reusing a Random makes temporary filenames slightly harder to predict.
+     * (Random is thread-safe.)
+     */
+    private static final Random tempFileRandom = new Random();
 
     /**
      * The system-dependent character used to separate components in filenames ('/').
@@ -99,16 +98,12 @@ public class File implements Serializable, Comparable<File> {
      * given, but without duplicate adjacent slashes and without trailing
      * slashes (except for the special case of the root directory). This
      * path may be the empty string.
+     *
+     * This can't be final because we override readObject.
      */
     private String path;
 
-    /**
-     * The path we return from getAbsolutePath, and pass down to native code.
-     */
-    private transient String absolutePath;
-
     static {
-        // The default protection domain grants access to these properties.
         separatorChar = System.getProperty("file.separator", "/").charAt(0);
         pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0);
         separator = String.valueOf(separatorChar);
@@ -136,7 +131,7 @@ public class File implements Serializable, Comparable<File> {
      *            the path to be used for the file.
      */
     public File(String path) {
-        init(path);
+        this.path = fixSlashes(path);
     }
 
     /**
@@ -148,18 +143,18 @@ public class File implements Serializable, Comparable<File> {
      * @param name
      *            the file's name.
      * @throws NullPointerException
-     *             if {@code name} is {@code null}.
+     *             if {@code name == null}.
      */
     public File(String dirPath, String name) {
         if (name == null) {
             throw new NullPointerException();
         }
         if (dirPath == null || dirPath.isEmpty()) {
-            init(name);
+            this.path = fixSlashes(name);
         } else if (name.isEmpty()) {
-            init(dirPath);
+            this.path = fixSlashes(dirPath);
         } else {
-            init(join(dirPath, name));
+            this.path = fixSlashes(join(dirPath, name));
         }
     }
 
@@ -180,26 +175,11 @@ public class File implements Serializable, Comparable<File> {
     public File(URI uri) {
         // check pre-conditions
         checkURI(uri);
-        init(uri.getPath());
-    }
-
-    private void init(String dirtyPath) {
-        // Cache the path and the absolute path.
-        // We can't call isAbsolute() here (http://b/2486943).
-        String cleanPath = fixSlashes(dirtyPath);
-        boolean isAbsolute = cleanPath.length() > 0 && cleanPath.charAt(0) == separatorChar;
-        if (isAbsolute) {
-            this.path = this.absolutePath = cleanPath;
-        } else {
-            String userDir = AccessController.doPrivileged(new PriviAction<String>("user.dir"));
-            this.absolutePath = cleanPath.isEmpty() ? userDir : join(userDir, cleanPath);
-            // We want path to be equal to cleanPath, but we'd like to reuse absolutePath's char[].
-            this.path = absolutePath.substring(absolutePath.length() - cleanPath.length());
-        }
+        this.path = fixSlashes(uri.getPath());
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
-    private String fixSlashes(String origPath) {
+    private static String fixSlashes(String origPath) {
         // Remove duplicate adjacent slashes.
         boolean lastWasSlash = false;
         char[] newPath = origPath.toCharArray();
@@ -226,7 +206,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     // Joins two path components, adding a separator only if necessary.
-    private String join(String prefix, String suffix) {
+    private static String join(String prefix, String suffix) {
         int prefixLength = prefix.length();
         boolean haveSlash = (prefixLength > 0 && prefix.charAt(prefixLength - 1) == separatorChar);
         if (!haveSlash) {
@@ -235,7 +215,7 @@ public class File implements Serializable, Comparable<File> {
         return haveSlash ? (prefix + suffix) : (prefix + separatorChar + suffix);
     }
 
-    private void checkURI(URI uri) {
+    private static void checkURI(URI uri) {
         if (!uri.isAbsolute()) {
             throw new IllegalArgumentException("URI is not absolute: " + uri);
         } else if (!uri.getRawSchemeSpecificPart().startsWith("/")) {
@@ -260,12 +240,8 @@ public class File implements Serializable, Comparable<File> {
     }
 
     /**
-     * Lists the file system roots. The Java platform may support zero or more
-     * file systems, each with its own platform-dependent root. Further, the
-     * {@link #getCanonicalPath canonical} path of any file on the system will
-     * always begin with one of the returned file system roots.
-     *
-     * @return the array of file system roots.
+     * Returns the file system roots. On Android and other Unix systems, there is
+     * a single root, {@code /}.
      */
     public static File[] listRoots() {
         return new File[] { new File("/") };
@@ -277,66 +253,38 @@ public class File implements Serializable, Comparable<File> {
      * to actually attempt the operation.
      *
      * @return {@code true} if this file can be executed, {@code false} otherwise.
-     * @throws SecurityException
-     *             If a security manager exists and
-     *             SecurityManager.checkExec(java.lang.String) disallows read
-     *             permission to this file object
-     * @see java.lang.SecurityManager#checkExec(String)
-     *
      * @since 1.6
      */
     public boolean canExecute() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkExec(path); // Seems bogus, but this is what the RI does.
-        }
-        return canExecuteImpl(absolutePath);
+        return doAccess(X_OK);
     }
-    private static native boolean canExecuteImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to read from this file.
      *
      * @return {@code true} if this file can be read, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public boolean canRead() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        return canReadImpl(absolutePath);
+        return doAccess(R_OK);
     }
-    private static native boolean canReadImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to write to this file.
      *
      * @return {@code true} if this file can be written, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             write request.
      */
     public boolean canWrite() {
-        if (path.isEmpty()) {
+        return doAccess(W_OK);
+    }
+
+    private boolean doAccess(int mode) {
+        try {
+            return Libcore.os.access(path, mode);
+        } catch (ErrnoException errnoException) {
             return false;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
-        return canWriteImpl(absolutePath);
     }
-    private static native boolean canWriteImpl(String path);
 
     /**
      * Returns the relative sort ordering of the paths for this file and the
@@ -359,39 +307,33 @@ public class File implements Serializable, Comparable<File> {
      * Callers must check the return value.
      *
      * @return {@code true} if this file was deleted, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             request.
-     * @see java.lang.SecurityManager#checkDelete
      */
     public boolean delete() {
-        if (path.isEmpty()) {
+        try {
+            Libcore.os.remove(path);
+            return true;
+        } catch (ErrnoException errnoException) {
             return false;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkDelete(path);
-        }
-        return deleteImpl(absolutePath);
     }
 
-    private static native boolean deleteImpl(String path);
-
     /**
-     * Schedules this file to be automatically deleted once the virtual machine
-     * terminates. This will only happen when the virtual machine terminates
-     * normally as described by the Java Language Specification section 12.9.
+     * Schedules this file to be automatically deleted when the VM terminates normally.
      *
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             request.
+     * <p><i>Note that on Android, the application lifecycle does not include VM termination,
+     * so calling this method will not ensure that files are deleted</i>. Instead, you should
+     * use the most appropriate out of:
+     * <ul>
+     * <li>Use a {@code finally} clause to manually invoke {@link #delete}.
+     * <li>Maintain your own set of files to delete, and process it at an appropriate point
+     * in your application's lifecycle.
+     * <li>Use the Unix trick of deleting the file as soon as all readers and writers have
+     * opened it. No new readers/writers will be able to access the file, but all existing
+     * ones will still have access until the last one closes the file.
+     * </ul>
      */
     public void deleteOnExit() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkDelete(path);
-        }
-        DeleteOnExit.getInstance().addFile(getAbsoluteName());
+        DeleteOnExit.getInstance().addFile(getAbsolutePath());
     }
 
     /**
@@ -416,24 +358,10 @@ public class File implements Serializable, Comparable<File> {
      * underlying file system.
      *
      * @return {@code true} if this file exists, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public boolean exists() {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        return existsImpl(absolutePath);
+        return doAccess(F_OK);
     }
-
-    private static native boolean existsImpl(String path);
 
     /**
      * Returns the absolute path of this file. An absolute path is a path that starts at a root
@@ -444,7 +372,11 @@ public class File implements Serializable, Comparable<File> {
      * child must have the same working directory as its parent.
      */
     public String getAbsolutePath() {
-        return absolutePath;
+        if (isAbsolute()) {
+            return path;
+        }
+        String userDir = System.getProperty("user.dir");
+        return path.isEmpty() ? userDir : join(userDir, path);
     }
 
     /**
@@ -452,7 +384,7 @@ public class File implements Serializable, Comparable<File> {
      * Equivalent to {@code new File(this.getAbsolutePath())}.
      */
     public File getAbsoluteFile() {
-        return new File(this.getAbsolutePath());
+        return new File(getAbsolutePath());
     }
 
     /**
@@ -479,14 +411,13 @@ public class File implements Serializable, Comparable<File> {
      *             if an I/O error occurs.
      */
     public String getCanonicalPath() throws IOException {
-        return realpath(absolutePath);
+        return realpath(getAbsolutePath());
     }
 
     /**
      * TODO: move this stuff to libcore.os.
      * @hide
      */
-    public static native void symlink(String oldPath, String newPath);
     private static native String realpath(String path);
     private static native String readlink(String path);
 
@@ -497,7 +428,6 @@ public class File implements Serializable, Comparable<File> {
      * @return the new file constructed from this file's canonical path.
      * @throws IOException
      *             if an I/O error occurs.
-     * @see java.lang.SecurityManager#checkPropertyAccess
      */
     public File getCanonicalFile() throws IOException {
         return new File(getCanonicalPath());
@@ -595,44 +525,30 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return {@code true} if this file is a directory, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isDirectory() {
-        if (path.isEmpty()) {
+        try {
+            return S_ISDIR(Libcore.os.stat(path).st_mode);
+        } catch (ErrnoException errnoException) {
+            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        return isDirectoryImpl(absolutePath);
     }
-
-    private static native boolean isDirectoryImpl(String path);
 
     /**
      * Indicates if this file represents a <em>file</em> on the underlying
      * file system.
      *
      * @return {@code true} if this file is a file, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isFile() {
-        if (path.isEmpty()) {
+        try {
+            return S_ISREG(Libcore.os.stat(path).st_mode);
+        } catch (ErrnoException errnoException) {
+            // The RI returns false on error. (Even for errors like EACCES or ELOOP.)
             return false;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        return isFileImpl(absolutePath);
     }
-
-    private static native boolean isFileImpl(String path);
 
     /**
      * Returns whether or not this file is a hidden file as defined by the
@@ -642,17 +558,10 @@ public class File implements Serializable, Comparable<File> {
      * purpose.
      *
      * @return {@code true} if the file is hidden, {@code false} otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public boolean isHidden() {
         if (path.isEmpty()) {
             return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
         }
         return getName().startsWith(".");
     }
@@ -663,22 +572,15 @@ public class File implements Serializable, Comparable<File> {
      * Returns 0 if the file does not exist.
      *
      * @return the time when this file was last modified.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public long lastModified() {
-        if (path.isEmpty()) {
+        try {
+            return Libcore.os.stat(path).st_mtime * 1000L;
+        } catch (ErrnoException errnoException) {
+            // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
             return 0;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        return lastModifiedImpl(absolutePath);
     }
-
-    private static native long lastModifiedImpl(String path);
 
     /**
      * Sets the time this file was last modified, measured in milliseconds since
@@ -693,22 +595,12 @@ public class File implements Serializable, Comparable<File> {
      *         otherwise.
      * @throws IllegalArgumentException
      *             if {@code time < 0}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access to this file.
      */
     public boolean setLastModified(long time) {
-        if (path.isEmpty()) {
-            return false;
-        }
         if (time < 0) {
             throw new IllegalArgumentException("time < 0");
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
-        return setLastModifiedImpl(absolutePath, time);
+        return setLastModifiedImpl(path, time);
     }
 
     private static native boolean setLastModifiedImpl(String path, long time);
@@ -741,21 +633,10 @@ public class File implements Serializable, Comparable<File> {
      *         pathname the operation will fail. If the underlying file system
      *         does not support execute permission and the value of executable
      *         is false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
-        return setExecutableImpl(absolutePath, executable, ownerOnly);
+        return doChmod(ownerOnly ? S_IXUSR : (S_IXUSR | S_IXGRP | S_IXOTH), executable);
     }
 
     /**
@@ -766,8 +647,6 @@ public class File implements Serializable, Comparable<File> {
     public boolean setExecutable(boolean executable) {
         return setExecutable(executable, true);
     }
-
-    private static native boolean setExecutableImpl(String path, boolean executable, boolean ownerOnly);
 
     /**
      * Manipulates the read permissions for the abstract path designated by this
@@ -785,21 +664,10 @@ public class File implements Serializable, Comparable<File> {
      *         pathname the operation will fail. If the underlying file system
      *         does not support read permission and the value of readable is
      *         false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setReadable(boolean readable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
-        return setReadableImpl(absolutePath, readable, ownerOnly);
+        return doChmod(ownerOnly ? S_IRUSR : (S_IRUSR | S_IRGRP | S_IROTH), readable);
     }
 
     /**
@@ -810,8 +678,6 @@ public class File implements Serializable, Comparable<File> {
     public boolean setReadable(boolean readable) {
         return setReadable(readable, true);
     }
-
-    private static native boolean setReadableImpl(String path, boolean readable, boolean ownerOnly);
 
     /**
      * Manipulates the write permissions for the abstract path designated by this
@@ -827,21 +693,10 @@ public class File implements Serializable, Comparable<File> {
      * @return true if and only if the operation succeeded. If the user does not
      *         have permission to change the access permissions of this abstract
      *         pathname the operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
      * @since 1.6
      */
     public boolean setWritable(boolean writable, boolean ownerOnly) {
-        if (path.isEmpty()) {
-            return false;
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-        }
-        return setWritableImpl(absolutePath, writable, ownerOnly);
+        return doChmod(ownerOnly ? S_IWUSR : (S_IWUSR | S_IWGRP | S_IWOTH), writable);
     }
 
     /**
@@ -853,7 +708,16 @@ public class File implements Serializable, Comparable<File> {
         return setWritable(writable, true);
     }
 
-    private static native boolean setWritableImpl(String path, boolean writable, boolean ownerOnly);
+    private boolean doChmod(int mask, boolean set) {
+        try {
+            StructStat sb = Libcore.os.stat(path);
+            int newMode = set ? (sb.st_mode | mask) : (sb.st_mode & ~mask);
+            Libcore.os.chmod(path, newMode);
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
+        }
+    }
 
     /**
      * Returns the length of this file in bytes.
@@ -861,19 +725,15 @@ public class File implements Serializable, Comparable<File> {
      * The result for a directory is not defined.
      *
      * @return the number of bytes in this file.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
      */
     public long length() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
+        try {
+            return Libcore.os.stat(path).st_size;
+        } catch (ErrnoException errnoException) {
+            // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
+            return 0;
         }
-        return lengthImpl(absolutePath);
     }
-
-    private static native long lengthImpl(String path);
 
     /**
      * Returns an array of strings with the file names in the directory
@@ -884,21 +744,9 @@ public class File implements Serializable, Comparable<File> {
      * directory are not returned as part of the list.
      *
      * @return an array of strings with file names or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public String[] list() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(path);
-        }
-        if (path.isEmpty()) {
-            return null;
-        }
-        return listImpl(absolutePath);
+        return listImpl(path);
     }
 
     private static native String[] listImpl(String path);
@@ -916,12 +764,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public String[] list(FilenameFilter filter) {
         String[] filenames = list();
@@ -944,11 +786,6 @@ public class File implements Serializable, Comparable<File> {
      * absolute, they are relative otherwise.
      *
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #list
-     * @see #isDirectory
      */
     public File[] listFiles() {
         return filenamesToFiles(list());
@@ -967,13 +804,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #list(FilenameFilter filter)
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public File[] listFiles(FilenameFilter filter) {
         return filenamesToFiles(list(filter));
@@ -991,12 +821,6 @@ public class File implements Serializable, Comparable<File> {
      * @param filter
      *            the filter to match names against, may be {@code null}.
      * @return an array of files or {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies read
-     *             access to this file.
-     * @see #getPath
-     * @see #isDirectory
-     * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public File[] listFiles(FileFilter filter) {
         File[] files = listFiles();
@@ -1039,20 +863,17 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return {@code true} if the directory has been created, {@code false}
      *         otherwise.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      * @see #mkdirs
      */
     public boolean mkdir() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
+        try {
+            // On Android, we don't want default permissions to allow global access.
+            Libcore.os.mkdir(path, S_IRWXU);
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
         }
-        return mkdirImpl(absolutePath);
     }
-
-    private static native boolean mkdirImpl(String path);
 
     /**
      * Creates the directory named by the trailing filename of this file,
@@ -1064,9 +885,6 @@ public class File implements Serializable, Comparable<File> {
      * @return {@code true} if the necessary directories have been created,
      *         {@code false} if the target directory already exists or one of
      *         the directories can not be created.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      * @see #mkdir
      */
     public boolean mkdirs() {
@@ -1092,30 +910,38 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Creates a new, empty file on the file system according to the path
-     * information stored in this file.
+     * information stored in this file. This method returns true if it creates
+     * a file, false if the file already existed. Note that it returns false
+     * even if the file is not a file (because it's a directory, say).
      *
-     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
-     * Callers must check the return value.
+     * <p>This method is not generally useful. For creating temporary files,
+     * use {@link #createTempFile} instead. For reading/writing files, use {@link FileInputStream},
+     * {@link FileOutputStream}, or {@link RandomAccessFile}, all of which can create files.
      *
-     * @return {@code true} if the file has been created, {@code false} if it
+     * <p>Note that this method does <i>not</i> throw {@code IOException} if the file
+     * already exists, even if it's not a regular file. Callers should always check the
+     * return value, and may additionally want to call {@link #isFile}.
+     *
+     * @return true if the file has been created, false if it
      *         already exists.
      * @throws IOException if it's not possible to create the file.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file.
      */
     public boolean createNewFile() throws IOException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
+        FileDescriptor fd = null;
+        try {
+            // On Android, we don't want default permissions to allow global access.
+            fd = Libcore.os.open(path, O_RDWR | O_CREAT | O_EXCL, 0600);
+            return true;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == EEXIST) {
+                // The file already exists.
+                return false;
+            }
+            throw errnoException.rethrowAsIOException();
+        } finally {
+            IoUtils.close(fd); // TODO: should we suppress IOExceptions thrown here?
         }
-        if (path.isEmpty()) {
-            throw new IOException("No such file or directory");
-        }
-        return createNewFileImpl(absolutePath);
     }
-
-    private static native boolean createNewFileImpl(String path);
 
     /**
      * Creates an empty temporary file using the given prefix and suffix as part
@@ -1140,7 +966,8 @@ public class File implements Serializable, Comparable<File> {
      * Creates an empty temporary file in the given directory using the given
      * prefix and suffix as part of the file name. If {@code suffix} is null, {@code .tmp} is used.
      *
-     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}.
+     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}, but see the
+     * documentation for that method before you call it manually.
      *
      * @param prefix
      *            the prefix to the temp file name.
@@ -1158,9 +985,8 @@ public class File implements Serializable, Comparable<File> {
      * @throws IOException
      *             if an error occurs when writing the file.
      */
-    @SuppressWarnings("nls")
-    public static File createTempFile(String prefix, String suffix,
-            File directory) throws IOException {
+    public static File createTempFile(String prefix, String suffix, File directory)
+            throws IOException {
         // Force a prefix null check first
         if (prefix.length() < 3) {
             throw new IllegalArgumentException("prefix must be at least 3 characters");
@@ -1170,13 +996,12 @@ public class File implements Serializable, Comparable<File> {
         }
         File tmpDirFile = directory;
         if (tmpDirFile == null) {
-            String tmpDir = AccessController.doPrivileged(
-                new PriviAction<String>("java.io.tmpdir", "."));
+            String tmpDir = System.getProperty("java.io.tmpdir", ".");
             tmpDirFile = new File(tmpDir);
         }
         File result;
         do {
-            result = new File(tmpDirFile, prefix + new Random().nextInt() + suffix);
+            result = new File(tmpDirFile, prefix + tempFileRandom.nextInt() + suffix);
         } while (!result.createNewFile());
         return result;
     }
@@ -1199,23 +1024,15 @@ public class File implements Serializable, Comparable<File> {
      *
      * @param newPath the new path.
      * @return true on success.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file or {@code newPath}.
      */
     public boolean renameTo(File newPath) {
-        if (path.isEmpty() || newPath.path.isEmpty()) {
+        try {
+            Libcore.os.rename(path, newPath.path);
+            return true;
+        } catch (ErrnoException errnoException) {
             return false;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkWrite(path);
-            security.checkWrite(newPath.path);
-        }
-        return renameToImpl(absolutePath, newPath.absolutePath);
     }
-
-    private static native boolean renameToImpl(String oldPath, String newPath);
 
     /**
      * Returns a string containing a concise, human-readable description of this
@@ -1235,15 +1052,12 @@ public class File implements Serializable, Comparable<File> {
      *
      * @return an URI for this file.
      */
-    @SuppressWarnings("nls")
     public URI toURI() {
         String name = getAbsoluteName();
         try {
             if (!name.startsWith("/")) {
                 // start with sep.
-                return new URI("file", null, new StringBuilder(
-                        name.length() + 1).append('/').append(name).toString(),
-                        null, null);
+                return new URI("file", null, "/" + name, null, null);
             } else if (name.startsWith("//")) {
                 return new URI("file", "", name, null); // UNC path
             }
@@ -1266,27 +1080,24 @@ public class File implements Serializable, Comparable<File> {
      * correct escaping of illegal characters.
      */
     @Deprecated
-    @SuppressWarnings("nls")
     public URL toURL() throws java.net.MalformedURLException {
         String name = getAbsoluteName();
         if (!name.startsWith("/")) {
             // start with sep.
-            return new URL("file", "", -1,
-                    new StringBuilder(name.length() + 1).append('/').append(name).toString(), null);
+            return new URL("file", "", -1, "/" + name, null);
         } else if (name.startsWith("//")) {
             return new URL("file:" + name); // UNC path
         }
         return new URL("file", "", -1, name, null);
     }
 
+    // TODO: is this really necessary, or can it be replaced with getAbsolutePath?
     private String getAbsoluteName() {
         File f = getAbsoluteFile();
         String name = f.getPath();
-
         if (f.isDirectory() && name.charAt(name.length() - 1) != separatorChar) {
             // Directories must end with a slash
-            name = new StringBuilder(name.length() + 1).append(name)
-                    .append('/').toString();
+            name = name + "/";
         }
         if (separatorChar != '/') { // Must convert slashes.
             name = name.replace(separatorChar, '/');
@@ -1302,7 +1113,7 @@ public class File implements Serializable, Comparable<File> {
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         char inSeparator = stream.readChar();
-        init(path.replace(inSeparator, separatorChar));
+        this.path = fixSlashes(path.replace(inSeparator, separatorChar));
     }
 
     /**
@@ -1312,13 +1123,13 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getTotalSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
+        try {
+            StructStatFs sb = Libcore.os.statfs(path);
+            return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
         }
-        return getTotalSpaceImpl(absolutePath);
     }
-    private static native long getTotalSpaceImpl(String path);
 
     /**
      * Returns the number of usable free bytes on the partition containing this path.
@@ -1334,13 +1145,13 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getUsableSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
+        try {
+            StructStatFs sb = Libcore.os.statfs(path);
+            return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
         }
-        return getUsableSpaceImpl(absolutePath);
     }
-    private static native long getUsableSpaceImpl(String path);
 
     /**
      * Returns the number of free bytes on the partition containing this path.
@@ -1352,11 +1163,11 @@ public class File implements Serializable, Comparable<File> {
      * @since 1.6
      */
     public long getFreeSpace() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
+        try {
+            StructStatFs sb = Libcore.os.statfs(path);
+            return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
+        } catch (ErrnoException errnoException) {
+            return 0;
         }
-        return getFreeSpaceImpl(absolutePath);
     }
-    private static native long getFreeSpaceImpl(String path);
 }

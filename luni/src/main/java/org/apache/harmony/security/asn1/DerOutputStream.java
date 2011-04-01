@@ -30,46 +30,36 @@ import libcore.util.Objects;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public final class DerOutputStream extends BerOutputStream {
+    private static final int initSize = 32;
+    private int index;
+    private int[][] len = new int[initSize][];
+    private Object[][] val = new Object[initSize][];
 
     public DerOutputStream(ASN1Type asn1, Object object) {
-        super();
-
         content = object;
-
         index = -1;
         asn1.setEncodingContent(this);
-
         encoded = new byte[asn1.getEncodedLength(this)];
-
         index = 0;
         asn1.encodeASN(this);
     }
 
-    public void encodeChoice(ASN1Choice choice) {
-
+    @Override public void encodeChoice(ASN1Choice choice) {
         ASN1Type type = (ASN1Type) val[index][0];
-
         content = val[index][1];
-
         index++;
-
         type.encodeASN(this);
     }
 
-    public void encodeExplicit(ASN1Explicit explicit) {
-
+    @Override public void encodeExplicit(ASN1Explicit explicit) {
         content = val[index][0];
         length = len[index][0];
-
         index++;
-
         explicit.type.encodeASN(this);
     }
 
-    public void encodeSequence(ASN1Sequence sequence) {
-
+    @Override public void encodeSequence(ASN1Sequence sequence) {
         ASN1Type[] type = sequence.type;
 
         Object[] values = val[index];
@@ -77,7 +67,6 @@ public final class DerOutputStream extends BerOutputStream {
 
         index++;
         for (int i = 0; i < type.length; i++) {
-
             if (values[i] == null) {
                 continue;
             }
@@ -89,43 +78,27 @@ public final class DerOutputStream extends BerOutputStream {
         }
     }
 
-    public void encodeSequenceOf(ASN1SequenceOf sequenceOf) {
+    @Override public void encodeSequenceOf(ASN1SequenceOf sequenceOf) {
         encodeValueCollection(sequenceOf);
     }
 
-    public void encodeSetOf(ASN1SetOf setOf) {
+    @Override public void encodeSetOf(ASN1SetOf setOf) {
         encodeValueCollection(setOf);
     }
 
-    private final void encodeValueCollection(ASN1ValueCollection collection) {
-
+    private void encodeValueCollection(ASN1ValueCollection collection) {
         Object[] values = val[index];
         int[] compLens = len[index];
 
         index++;
         for (int i = 0; i < values.length; i++) {
-
             content = values[i];
             length = compLens[i];
-
             collection.type.encodeASN(this);
         }
     }
 
-    /*
-     * DATA
-     */
-
-    private final static int initSize = 32;
-
-    private int index;
-
-    private int[][] len = new int[initSize][];
-
-    private Object[][] val = new Object[initSize][];
-
     private void push(int[] lengths, Object[] values) {
-
         index++;
         if (index == val.length) {
 
@@ -141,12 +114,7 @@ public final class DerOutputStream extends BerOutputStream {
         val[index] = values;
     }
 
-    /*
-     * LENGTH
-     */
-
-    public void getChoiceLength(ASN1Choice choice) {
-
+    @Override public void getChoiceLength(ASN1Choice choice) {
         int i = choice.getIndex(content);
         content = choice.getObjectToEncode(content);
 
@@ -161,8 +129,7 @@ public final class DerOutputStream extends BerOutputStream {
         values[1] = content;
     }
 
-    public void getExplicitLength(ASN1Explicit explicit) {
-
+    @Override public void getExplicitLength(ASN1Explicit explicit) {
         Object[] values = new Object[1];
         int[] compLens = new int[1];
 
@@ -180,8 +147,7 @@ public final class DerOutputStream extends BerOutputStream {
         length = explicit.type.getEncodedLength(this);
     }
 
-    public void getSequenceLength(ASN1Sequence sequence) {
-
+    @Override public void getSequenceLength(ASN1Sequence sequence) {
         ASN1Type[] type = sequence.type;
 
         Object[] values = new Object[type.length];
@@ -222,16 +188,15 @@ public final class DerOutputStream extends BerOutputStream {
         length = seqLen;
     }
 
-    public void getSequenceOfLength(ASN1SequenceOf sequence) {
+    @Override public void getSequenceOfLength(ASN1SequenceOf sequence) {
         getValueOfLength(sequence);
     }
 
-    public void getSetOfLength(ASN1SetOf setOf) {
+    @Override public void getSetOfLength(ASN1SetOf setOf) {
         getValueOfLength(setOf);
     }
 
     private void getValueOfLength(ASN1ValueCollection collection) {
-
         //FIXME what about another way?
         Object[] cv = collection.getValues(content).toArray();
 

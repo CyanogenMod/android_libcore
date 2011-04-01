@@ -108,19 +108,15 @@ public abstract class ChunkHandler {
     /**
      * Convert a 4-character string to a 32-bit type.
      */
-    public static int type(String typeName)
-    {
-        int val = 0;
-
-        if (typeName.length() != 4)
-            throw new RuntimeException();
-
-        for (int i = 0; i < 4; i++) {
-            val <<= 8;
-            val |= (byte) typeName.charAt(i);
+    public static int type(String typeName) {
+        if (typeName.length() != 4) {
+            throw new IllegalArgumentException("Bad type name: " + typeName);
         }
-
-        return val;
+        int result = 0;
+        for (int i = 0; i < 4; ++i) {
+            result = ((result << 8) | (typeName.charAt(i) & 0xff));
+        }
+        return result;
     }
 
     /**
@@ -139,4 +135,3 @@ public abstract class ChunkHandler {
     }
 
 }
-

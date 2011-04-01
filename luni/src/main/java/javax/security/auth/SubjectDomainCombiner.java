@@ -42,7 +42,6 @@ public class SubjectDomainCombiner implements DomainCombiner {
      *            the entity to which this domain combiner is associated.
      */
     public SubjectDomainCombiner(Subject subject) {
-        super();
         if (subject == null) {
             throw new NullPointerException();
         }
@@ -55,11 +54,6 @@ public class SubjectDomainCombiner implements DomainCombiner {
      * @return the entity to which this domain combiner is associated.
      */
     public Subject getSubject() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(_GET);
-        }
-
         return subject;
     }
 

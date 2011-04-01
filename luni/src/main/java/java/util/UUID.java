@@ -24,7 +24,7 @@ import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * UUID is an immutable representation of a 128-bit universally unique
@@ -64,7 +64,6 @@ public final class UUID implements Serializable, Comparable<UUID> {
      *            The 64 least significant bits of the UUID.
      */
     public UUID(long mostSigBits, long leastSigBits) {
-        super();
         this.mostSigBits = mostSigBits;
         this.leastSigBits = leastSigBits;
         init();
@@ -154,8 +153,8 @@ public final class UUID implements Serializable, Comparable<UUID> {
     }
 
     private static UUID makeUuid(byte[] hash, int version) {
-        long msb = OSMemory.peekLong(hash, 0, ByteOrder.BIG_ENDIAN);
-        long lsb = OSMemory.peekLong(hash, 8, ByteOrder.BIG_ENDIAN);
+        long msb = Memory.peekLong(hash, 0, ByteOrder.BIG_ENDIAN);
+        long lsb = Memory.peekLong(hash, 8, ByteOrder.BIG_ENDIAN);
         // Set the version field.
         msb &= ~(0xfL << 12);
         msb |= ((long) version) << 12;

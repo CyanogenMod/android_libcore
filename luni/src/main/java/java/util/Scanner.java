@@ -79,20 +79,10 @@ public final class Scanner implements Iterator<String> {
     private static final Pattern LINE_PATTERN;
 
     static {
-        String terminator = "\n|\r\n|\r|\u0085|\u2028|\u2029";
-
-        LINE_TERMINATOR = Pattern.compile(terminator);
-
-        // BEGIN android-note
-        // consider plain old string concatenation for better performance
-        // END android-note
-        StringBuilder multiTerminator = new StringBuilder();
-        MULTI_LINE_TERMINATOR = Pattern.compile(multiTerminator.append("(")
-                .append(terminator).append(")+").toString());
-        StringBuilder line = new StringBuilder();
-        LINE_PATTERN = Pattern.compile(line.append(".*(")
-                .append(terminator).append(")|.+(")
-                .append(terminator).append(")?").toString());
+        String NL = "\n|\r\n|\r|\u0085|\u2028|\u2029";
+        LINE_TERMINATOR = Pattern.compile(NL);
+        MULTI_LINE_TERMINATOR = Pattern.compile("(" + NL + ")+");
+        LINE_PATTERN = Pattern.compile(".*(" + NL + ")|.+(" + NL + ")?");
     }
 
     // The pattern matches anything.

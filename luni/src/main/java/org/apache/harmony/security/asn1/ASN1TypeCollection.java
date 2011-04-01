@@ -28,31 +28,23 @@ package org.apache.harmony.security.asn1;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
+public abstract class ASN1TypeCollection extends ASN1Constructed {
 
-public abstract class ASN1TypeCollection extends ASN1Constructured {
+    public final ASN1Type[] type;
 
-    public final ASN1Type[] type; //TODO comment me
+    public final boolean[] OPTIONAL;
 
-    public final boolean[] OPTIONAL; //TODO comment me
-
-    public final Object[] DEFAULT; //TODO comment me
+    public final Object[] DEFAULT;
 
     /**
      * Constructs ASN.1 collection type.
      *
-     * @param tagNumber - ASN.1 tag number
-     * @param type - a collection of one or more ASN.1 types.
-     * @throws IllegalArgumentException - if tagNumber is invalid
+     * @param tagNumber ASN.1 tag number
+     * @param type a collection of one or more ASN.1 types.
+     * @throws IllegalArgumentException if tagNumber is invalid
      */
-    public ASN1TypeCollection(int tagNumber, ASN1Type[] type) {
+    protected ASN1TypeCollection(int tagNumber, ASN1Type[] type) {
         super(tagNumber);
-        // FIXME what about empty sequence?
-        //        if (type.length == 0) {
-        //            throw new ASN1Exception("ASN1 collection type: "
-        //                    + getClass().getName()
-        //                    + " MUST have at least one component");
-        //        }
-
         this.type = type;
         this.OPTIONAL = new boolean[type.length];
         this.DEFAULT = new Object[type.length];
@@ -61,7 +53,7 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
     /**
      * Sets a collection component as optional
      *
-     * @param index - an index of a component
+     * @param index an index of a component
      */
     protected final void setOptional(int index) {
         OPTIONAL[index] = true;
@@ -71,8 +63,8 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
      * Sets a default value for a collection component.
      * The component also became an optional component.
      *
-     * @param object - a component's default value
-     * @param index - an index of a component
+     * @param object a component's default value
+     * @param index an index of a component
      */
     protected final void setDefault(Object object, int index) {
         OPTIONAL[index] = true;
@@ -87,8 +79,8 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
      *
      * The default implementation throws RuntimeException.
      *
-     * @param object - an object to be encoded
-     * @param values - an array to store an object's values to be encoded
+     * @param object an object to be encoded
+     * @param values an array to store an object's values to be encoded
      */
     protected void getValues(Object object, Object[] values) {
         throw new RuntimeException("ASN.1 type is not designed to be encoded: " + getClass().getName());

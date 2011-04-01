@@ -24,13 +24,24 @@ public final class StringIndexOutOfBoundsExceptionTest extends TestCase {
             "hello".charAt(-1);
             fail();
         } catch (StringIndexOutOfBoundsException ex) {
-            assertEquals("index=-1 length=5", ex.getMessage());
+            assertEquals("length=5; index=-1", ex.getMessage());
         }
+
         try {
             "hello".charAt(7);
             fail();
         } catch (StringIndexOutOfBoundsException ex) {
-            assertEquals("index=7 length=5", ex.getMessage());
+            assertEquals("length=5; index=7", ex.getMessage());
+        }
+    }
+
+    public void testSubstring() throws Exception {
+        try {
+            "hello there".substring(9,14);
+            fail();
+        } catch (StringIndexOutOfBoundsException ex) {
+            assertEquals("length=11; regionStart=9; regionLength=5",
+                    ex.getMessage());
         }
     }
 }

@@ -31,17 +31,12 @@ import java.io.InputStream;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public abstract class ASN1Type implements ASN1Constants {
 
-    /**
-     * Integer representation of primitive identifier.
-     */
+    /** Integer representation of primitive identifier. */
     public final int id;
 
-    /**
-     * Integer representation of constructed identifier.
-     */
+    /** Integer representation of constructed identifier. */
     public final int constrId;
 
     /**
@@ -59,7 +54,6 @@ public abstract class ASN1Type implements ASN1Constants {
      *
      * @param tagClass - tag class. MUST be
      *     CLASS_UNIVERSAL, CLASS_APPLICATION, CLASS_CONTEXTSPECIFIC, CLASS_PRIVATE
-     * @param isConstructed - is ASN.1 type is a constructed type.
      * @param tagNumber - ASN.1 tag number.
      * @throws IllegalArgumentException - if tagClass or tagNumber is invalid
      */
@@ -83,12 +77,6 @@ public abstract class ASN1Type implements ASN1Constants {
         }
         this.constrId = this.id + PC_CONSTRUCTED;
     }
-
-    //
-    //
-    // Stubs for DER
-    //
-    //
 
     public final Object decode(byte[] encoded) throws IOException {
         return decode(new DerInputStream(encoded));
@@ -116,34 +104,22 @@ public abstract class ASN1Type implements ASN1Constants {
     }
 
     public final byte[] encode(Object object) {
-
         DerOutputStream out = new DerOutputStream(this, object);
         return out.encoded;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     /**
      * Decodes ASN.1 type.
      *
-     * @param in -
-     *            BER input stream
-     * @throws IOException -
-     *             if an I/O error occurs or the end of the stream is reached
+     * @throws IOException if an I/O error occurs or the end of the stream is reached
      */
     public abstract Object decode(BerInputStream in) throws IOException;
 
     /**
      * Tests provided identifier.
      *
-     * @param identifier -
-     *            identifier to be verified
-     * @return - true if identifier is associated with this ASN.1 type,
-     *         otherwise false
+     * @param identifier identifier to be verified
+     * @return true if identifier is associated with this ASN.1 type
      */
     public abstract boolean checkTag(int identifier);
 
@@ -154,26 +130,13 @@ public abstract class ASN1Type implements ASN1Constants {
      * selected class of objects during decoding.
      *
      * The default implementation returns an object created by decoding stream.
-     *
-     * @param -
-     *            input stream
-     * @return - created object
      */
-    //FIXME make me public
     protected Object getDecodedObject(BerInputStream in) throws IOException {
         return in.content;
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-
     /**
      * Encodes ASN.1 type.
-     *
-     * @param out - BER output stream
      */
     public abstract void encodeASN(BerOutputStream out);
 
@@ -182,7 +145,6 @@ public abstract class ASN1Type implements ASN1Constants {
     public abstract void setEncodingContent(BerOutputStream out);
 
     public int getEncodedLength(BerOutputStream out) { //FIXME name
-
         //tag length
         int len = 1; //FIXME tag length = 1. what about long form?
         //for (; tag > 0; tag = tag >> 8, len++);
@@ -201,10 +163,8 @@ public abstract class ASN1Type implements ASN1Constants {
         return len;
     }
 
-    public String toString() {
+    @Override public String toString() {
         // TODO decide whether this method is necessary
-        //FIXME fix performance
-        return this.getClass().getName() + "(tag: 0x"
-                + Integer.toHexString(0xff & this.id) + ")";
+        return getClass().getName() + "(tag: 0x" + Integer.toHexString(0xff & this.id) + ")";
     }
 }

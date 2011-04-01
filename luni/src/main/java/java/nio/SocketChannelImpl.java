@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.PlainSocketImpl;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -40,15 +42,16 @@ import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.net.PlainSocketImpl;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /*
  * The default implementation class of java.nio.channels.SocketChannel.
  */
-class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
+class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
     private static final int EOF = -1;
 
@@ -104,11 +107,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      */
     public SocketChannelImpl(SelectorProvider selectorProvider, boolean connect) throws IOException {
         super(selectorProvider);
-        fd = new FileDescriptor();
         status = SOCKET_STATUS_UNCONNECTED;
-        if (connect) {
-            Platform.NETWORK.socket(fd, true);
-        }
+        fd = (connect ? IoUtils.socket(true) : new FileDescriptor());
     }
 
     /*
@@ -162,18 +162,11 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         // check the address
         InetSocketAddress inetSocketAddress = validateAddress(socketAddress);
         InetAddress normalAddr = inetSocketAddress.getAddress();
+        int port = inetSocketAddress.getPort();
 
         // When connecting, map ANY address to Localhost
         if (normalAddr.isAnyLocalAddress()) {
             normalAddr = InetAddress.getLocalHost();
-        }
-
-        int port = inetSocketAddress.getPort();
-        String hostName = normalAddr.getHostName();
-        // security check
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkConnect(hostName, port);
         }
 
         // connect result
@@ -227,8 +220,10 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     }
 
     private void initLocalAddressAndPort() {
-        localAddress = Platform.NETWORK.getSocketLocalAddress(fd);
-        localPort = Platform.NETWORK.getSocketLocalPort(fd);
+        SocketAddress sa = Libcore.os.getsockname(fd);
+        InetSocketAddress isa = (InetSocketAddress) sa;
+        localAddress = isa.getAddress();
+        localPort = isa.getPort();
         if (socket != null) {
             socket.socketImpl().initLocalPort(localPort);
         }
@@ -351,11 +346,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                 int offset = target.position();
                 int length = target.remaining();
                 if (target.isDirect()) {
-                    // BEGIN android-changed
-                    // changed address from long to int
                     int address = NioUtils.getDirectBufferAddress(target);
                     readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
-                    // END android-changed
                 } else {
                     // target is assured to have array.
                     byte[] array = target.array();
@@ -497,11 +489,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      * Get local address.
      */
     public InetAddress getLocalAddress() throws UnknownHostException {
-        if (!isBound) {
-            byte[] any_bytes = { 0, 0, 0, 0 };
-            return InetAddress.getByAddress(any_bytes);
-        }
-        return localAddress;
+        return isBound ? localAddress : Inet4Address.ANY;
     }
 
     /*
@@ -716,9 +704,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             }
             ByteBuffer buf = ByteBuffer.allocate(1);
             int result = channel.read(buf);
-            // BEGIN android-changed: input was already consumed
-            return (-1 == result) ? result : buf.get(0) & 0xFF;
-            // END android-changed
+            return (result == -1) ? result : (buf.get(0) & 0xff);
         }
 
         @Override

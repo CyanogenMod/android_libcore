@@ -16,10 +16,6 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLEngineResult;
 
 import junit.framework.TestCase;
@@ -28,18 +24,11 @@ import junit.framework.TestCase;
  * Tests for SSLEngineResult.Status class
  *
  */
-@TestTargetClass(SSLEngineResult.HandshakeStatus.class)
 public class SSLEngineResultHandshakeStatusTest extends TestCase {
 
     /**
      * Test for <code> SSLEngineResult.HandshakeStatus.values() </code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_SSLEngineResultHandshakeStatus_values() {
         String[] str = {"NOT_HANDSHAKING", "FINISHED", "NEED_TASK", "NEED_WRAP", "NEED_UNWRAP"};
         SSLEngineResult.HandshakeStatus[] enS = SSLEngineResult.HandshakeStatus.values();
@@ -56,12 +45,6 @@ public class SSLEngineResultHandshakeStatusTest extends TestCase {
     /**
      * Test for <code> SSLEngineResult.HandshakeStatus.valueOf(String name) </code>
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueOf",
-        args = {String.class}
-    )
     public void test_SSLEngineResultStatus_valueOf() {
         String[] str = {"FINISHED", "NEED_TASK", "NEED_UNWRAP", "NEED_WRAP", "NOT_HANDSHAKING"};
         String[] str_invalid = {"", "FINISHED1", "NEED_task", "NEED_UN",

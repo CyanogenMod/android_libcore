@@ -50,11 +50,6 @@ public abstract class AuthProvider extends Provider {
     /**
      * Performs a login into this {@code AuthProvider}. The specified {@code
      * CallbackHandler} is used to obtain information from the caller.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code authProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @param subject
      *            the subject that is used to login.
@@ -63,25 +58,14 @@ public abstract class AuthProvider extends Provider {
      *            caller.
      * @throws LoginException
      *             if the login fails.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public abstract void login(Subject subject, CallbackHandler handler) throws LoginException;
 
     /**
      * Performs a logout from this {@code AuthProvider}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code authProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @throws LoginException
      *             if the logout fails.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public abstract void logout() throws LoginException;
 
@@ -93,18 +77,10 @@ public abstract class AuthProvider extends Provider {
      * If no handler is set, this {@code AuthProvider} uses the {@code
      * CallbackHandler} specified by the {@code
      * auth.login.defaultCallbackHandler} security property.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code authProvider.NAME} (where NAME is
-     * the provider name) to be granted, otherwise a {@code SecurityException}
-     * will be thrown.
      *
      * @param handler
      *            the handler to obtain authentication information from the
      *            caller.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public abstract void setCallbackHandler(CallbackHandler handler);
 }

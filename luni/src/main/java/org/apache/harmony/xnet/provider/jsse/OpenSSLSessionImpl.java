@@ -23,8 +23,8 @@ import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Set;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLPermission;
@@ -363,18 +363,11 @@ public class OpenSSLSessionImpl implements SSLSession {
     /**
      * Returns the context to which the actual SSL session is bound. A SSL
      * context consists of (1) a possible delegate, (2) a provider and (3) a
-     * protocol. If the security manager is activated and one tries to access
-     * the SSL context an exception may be thrown if a
-     * <code>SSLPermission("getSSLSessionContext")</code>
-     * permission is not set.
+     * protocol.
      * @return the SSL context used for this session, or null if it is
      * unavailable.
      */
     public SSLSessionContext getSessionContext() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new SSLPermission("getSSLSessionContext"));
-        }
         return sessionContext;
     }
 
@@ -433,7 +426,7 @@ public class OpenSSLSessionImpl implements SSLSession {
      *         bound to this SSL session.
      */
     public String[] getValueNames() {
-        Vector<String> v = new Vector<String>();
+        ArrayList<String> v = new ArrayList<String>();
         AccessControlContext current = AccessController.getContext();
         Set<Map.Entry<String, Object>> set = values.entrySet();
         for (Map.Entry<String, Object> o : set) {

@@ -747,12 +747,8 @@ public class OldSocketTest extends OldSocketTestCase {
         int portNumber = Support_PortManager.getNextPort();
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport,
                 InetAddress.getLocalHost(), portNumber);
-        assertTrue("Returned incorrect string: " + s.toString()
-                + " localHost: " + InetAddress.getLocalHost(), s.toString()
-                .equals(
-                        "Socket[addr=" + InetAddress.getLocalHost() + ",port="
-                                + s.getPort() + ",localport="
-                                + s.getLocalPort() + "]"));
+        assertEquals("Socket[address=" + InetAddress.getLocalHost() + ",port=" + s.getPort()
+                + ",localPort=" + s.getLocalPort() + "]", s.toString());
     }
 
     // AndroidOnly: RI returns wrong value for EOF

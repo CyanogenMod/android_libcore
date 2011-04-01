@@ -40,7 +40,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ArrayList()
+     * java.util.ArrayList#ArrayList()
      */
     public void test_Constructor() {
         // Test for method java.util.ArrayList()
@@ -53,7 +53,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ArrayList(int)
+     * java.util.ArrayList#ArrayList(int)
      */
     public void test_ConstructorI() {
         // Test for method java.util.ArrayList(int)
@@ -72,7 +72,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ArrayList(java.util.Collection)
+     * java.util.ArrayList#ArrayList(java.util.Collection)
      */
     public void test_ConstructorLjava_util_Collection() {
         // Test for method java.util.ArrayList(java.util.Collection)
@@ -93,7 +93,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#add(int, java.lang.Object)
+     * java.util.ArrayList#add(int, java.lang.Object)
      */
     public void test_addILjava_lang_Object() {
         // Test for method void java.util.ArrayList.add(int, java.lang.Object)
@@ -154,7 +154,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#add(int, java.lang.Object)
+     * java.util.ArrayList#add(int, java.lang.Object)
      */
     public void test_addILjava_lang_Object_2() {
         Object o = new Object();
@@ -174,7 +174,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#add(java.lang.Object)
+     * java.util.ArrayList#add(java.lang.Object)
      */
     public void test_addLjava_lang_Object() {
         // Test for method boolean java.util.ArrayList.add(java.lang.Object)
@@ -186,7 +186,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#addAll(int, java.util.Collection)
+     * java.util.ArrayList#addAll(int, java.util.Collection)
      */
     public void test_addAllILjava_util_Collection() {
         // Test for method boolean java.util.ArrayList.addAll(int,
@@ -223,7 +223,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#addAll(int, java.util.Collection)
+     * java.util.ArrayList#addAll(int, java.util.Collection)
      */
     @SuppressWarnings("unchecked")
     public void test_addAllILjava_util_Collection_2() {
@@ -292,7 +292,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#addAll(int, java.util.Collection)
+     * java.util.ArrayList#addAll(int, java.util.Collection)
      */
     public void test_addAllILjava_util_Collection_3() {
         ArrayList obj = new ArrayList();
@@ -355,7 +355,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#addAll(java.util.Collection)
+     * java.util.ArrayList#addAll(java.util.Collection)
      */
     public void test_addAllLjava_util_Collection() {
         // Test for method boolean
@@ -459,7 +459,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#clear()
+     * java.util.ArrayList#clear()
      */
     public void test_clear() {
         // Test for method void java.util.ArrayList.clear()
@@ -479,7 +479,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#clone()
+     * java.util.ArrayList#clone()
      */
     public void test_clone() {
         // Test for method java.lang.Object java.util.ArrayList.clone()
@@ -501,7 +501,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#contains(java.lang.Object)
+     * java.util.ArrayList#contains(java.lang.Object)
      */
     public void test_containsLjava_lang_Object() {
         // Test for method boolean
@@ -520,7 +520,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#ensureCapacity(int)
+     * java.util.ArrayList#ensureCapacity(int)
      */
     public void test_ensureCapacityI() {
         // Test for method void java.util.ArrayList.ensureCapacity(int)
@@ -549,7 +549,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#get(int)
+     * java.util.ArrayList#get(int)
      */
     public void test_getI() {
         // Test for method java.lang.Object java.util.ArrayList.get(int)
@@ -564,7 +564,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#indexOf(java.lang.Object)
+     * java.util.ArrayList#indexOf(java.lang.Object)
      */
     public void test_indexOfLjava_lang_Object() {
         // Test for method int java.util.ArrayList.indexOf(java.lang.Object)
@@ -579,7 +579,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#isEmpty()
+     * java.util.ArrayList#isEmpty()
      */
     public void test_isEmpty() {
         // Test for method boolean java.util.ArrayList.isEmpty()
@@ -590,7 +590,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#lastIndexOf(java.lang.Object)
+     * java.util.ArrayList#lastIndexOf(java.lang.Object)
      */
     public void test_lastIndexOfLjava_lang_Object() {
         // Test for method int java.util.ArrayList.lastIndexOf(java.lang.Object)
@@ -606,7 +606,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.ArrayList#removeRange(int, int)}
+     * {@link java.util.ArrayList#removeRange(int, int)}
      */
     public void test_removeRange() {
         MockArrayList mylist = new MockArrayList();
@@ -663,7 +663,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#remove(int)
+     * java.util.ArrayList#remove(int)
      */
     public void test_removeI() {
         // Test for method java.lang.Object java.util.ArrayList.remove(int)
@@ -716,7 +716,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#set(int, java.lang.Object)
+     * java.util.ArrayList#set(int, java.lang.Object)
      */
     public void test_setILjava_lang_Object() {
         // Test for method java.lang.Object java.util.ArrayList.set(int,
@@ -767,7 +767,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#size()
+     * java.util.ArrayList#size()
      */
     public void test_size() {
         // Test for method int java.util.ArrayList.size()
@@ -778,7 +778,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractCollection#toString()
+     * java.util.AbstractCollection#toString()
      */
     public void test_toString() {
         ArrayList l = new ArrayList(1);
@@ -788,7 +788,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#toArray()
+     * java.util.ArrayList#toArray()
      */
     public void test_toArray() {
         // Test for method java.lang.Object [] java.util.ArrayList.toArray()
@@ -810,7 +810,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#toArray(java.lang.Object[])
+     * java.util.ArrayList#toArray(java.lang.Object[])
      */
     public void test_toArray$Ljava_lang_Object() {
         // Test for method java.lang.Object []
@@ -835,7 +835,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.ArrayList#trimToSize()
+     * java.util.ArrayList#trimToSize()
      */
     public void test_trimToSize() {
         // Test for method void java.util.ArrayList.trimToSize()

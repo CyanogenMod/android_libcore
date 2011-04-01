@@ -84,7 +84,6 @@ public class Manifest implements Cloneable {
      * Creates a new {@code Manifest} instance.
      */
     public Manifest() {
-        super();
     }
 
     /**
@@ -97,7 +96,6 @@ public class Manifest implements Cloneable {
      *             if an IO error occurs while creating this {@code Manifest}
      */
     public Manifest(InputStream is) throws IOException {
-        super();
         read(is);
     }
 
@@ -337,25 +335,18 @@ public class Manifest implements Cloneable {
     }
 
     private static void writeEntry(OutputStream os, Attributes.Name name,
-            String value, CharsetEncoder encoder, ByteBuffer bBuf)
-            throws IOException {
-        byte[] out = name.getBytes();
-        if (out.length > LINE_LENGTH_LIMIT) {
-            throw new IOException("Encoded header name " + name + " exceeded maximum length " +
-                    LINE_LENGTH_LIMIT);
-        }
-
-        os.write(out);
+            String value, CharsetEncoder encoder, ByteBuffer bBuf) throws IOException {
+        String nameString = name.getName();
+        os.write(nameString.getBytes(Charsets.US_ASCII));
         os.write(VALUE_SEPARATOR);
 
         encoder.reset();
-        bBuf.clear().limit(LINE_LENGTH_LIMIT - out.length - 2);
+        bBuf.clear().limit(LINE_LENGTH_LIMIT - nameString.length() - 2);
 
         CharBuffer cBuf = CharBuffer.wrap(value);
-        CoderResult r;
 
         while (true) {
-            r = encoder.encode(cBuf, bBuf, true);
+            CoderResult r = encoder.encode(cBuf, bBuf, true);
             if (CoderResult.UNDERFLOW == r) {
                 r = encoder.flush(bBuf);
             }

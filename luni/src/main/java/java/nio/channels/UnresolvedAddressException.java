@@ -28,6 +28,5 @@ public class UnresolvedAddressException extends IllegalArgumentException {
      * Constructs an {@code UnresolvedAddressException}.
      */
     public UnresolvedAddressException() {
-        super();
     }
 }

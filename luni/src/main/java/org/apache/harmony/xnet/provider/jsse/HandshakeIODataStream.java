@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Locale;
 import javax.net.ssl.SSLHandshakeException;
 
 /**
@@ -365,32 +366,6 @@ public class HandshakeIODataStream
             write_pos_beg += length;
         }
         return res;
-    }
-
-    // ---------------------- Debud functionality -------------------------
-
-    protected void printContent(PrintStream outstream) {
-        int perLine = 20;
-        String prefix = " ";
-        String delimiter = "";
-
-        for (int i=write_pos_beg; i<write_pos; i++) {
-            String tail = Integer.toHexString(
-                    0x00ff & buffer[i]).toUpperCase();
-            if (tail.length() == 1) {
-                tail = "0" + tail;
-            }
-            outstream.print(prefix + tail + delimiter);
-
-            if (((i-write_pos_beg+1)%10) == 0) {
-                outstream.print(" ");
-            }
-
-            if (((i-write_pos_beg+1)%perLine) == 0) {
-                outstream.println();
-            }
-        }
-        outstream.println();
     }
 
     // ---------------------- Message Digest Functionality ----------------

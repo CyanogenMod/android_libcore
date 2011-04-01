@@ -17,6 +17,8 @@
 
 package java.io;
 
+import java.util.Locale;
+
 /**
  * Parses a stream into a set of defined tokens, one at a time. The different
  * types of tokens that can be found are numbers, identifiers, quoted strings,
@@ -346,8 +348,10 @@ public class StreamTokenizer {
                 }
             }
             peekChar = currentChar;
-            sval = forceLowercase ? word.toString().toLowerCase() : word
-                    .toString();
+            sval = word.toString();
+            if (forceLowercase) {
+                sval = sval.toLowerCase(Locale.getDefault());
+            }
             return (ttype = TT_WORD);
         }
         // Check for quoted character

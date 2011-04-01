@@ -3,6 +3,55 @@
  */
 [
 {
+  description: "Encoded bytes don't match for EC elliptic curve keys created through KeyFactory.generatePrivate()",
+  names: [
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",
+    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_getKeySpecLjava_security_KeyLjava_lang_Class"
+  ],
+  bug: 3483365
+},
+{
+  description: "Test fails, Intermediate certificate lacks BasicConstraints",
+  name: "com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpiTest#testTrustAndRemoteCertificatesWithDifferentEncodings",
+  bug: 3474648
+},
+{
+  description: "DHParametersHelper.generateSafePrimes sometimes takes long time, other times takes a very long time",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
+  bug: 3474446
+},
+{
+  description: "KeyAgreementFunctionalTest times out even with an absurdly long timeout",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest#test_KeyAgreement",
+  bug: 3473300
+},
+{
+  description: "CipherTest.test_doFinal() is flaky",
+  name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#test_doFinal",
+  bug: 3469872
+},
+{
+  name: "libcore.java.lang.StringTest#testCaseMapping_en_US",
+  bug: 3387655
+},
+{
+  name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#testGetMaxAllowedKeyLength",
+  bug: 3387688
+},
+{
+  name: "libcore.java.io.FileTest#test_emptyFilename",
+  bug: 3387758
+},
+{
+  description: "Turkish dotless i behaves differently on dalvik vs. RI",
+  names: [
+    "libcore.java.lang.StringTest#testChangeCase_en_US",
+    "libcore.java.lang.StringTest#testEqualsIgnoreCase_en_US",
+    "libcore.java.lang.StringTest#testEqualsIgnoreCase_tr_TR"
+  ],
+  bug: 3325799
+},
+{
   description: "KxmlPullParser doesn't enforce top-level document element",
   names: [
     "libcore.xml.KxmlPullParserDtdTest#testDoctypeInDocumentElement",
@@ -125,7 +174,7 @@
 {
   description: "finalize() called on objects whose constructor didn't complete normally",
   name: "libcore.java.lang.SystemTest#testBackFromTheDead",
-  bug: 2645458
+  bug: 3342343
 },
 {
   description: "DecimalFormat is limited to 127 digits",
@@ -174,7 +223,10 @@
 },
 {
   description: "Double.parseDouble().toString does wrong rounding",
-  name: "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
+  names: [
+    "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
+    "libcore.java.lang.DoubleTest#testParseLargestSubnormalDoublePrecision"
+  ],
   bug: 1607938
 },
 {
@@ -232,10 +284,6 @@
   modes: [ "host" ]
 },
 {
-  name: "libcore.java.net.URLConnectionTest#testConnectTimeouts",
-  bug: 3032900
-},
-{
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   name: "libcore.java.io.OldFileTest#test_deleteOnExit"
@@ -259,10 +307,14 @@
   description: "Fails in CTS but passes under run-core-tests",
   result: EXEC_FAILED,
   names: [
-    "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls",
     "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
     "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion"
   ]
+},
+{
+  description: "Runtime.getRuntime().traceMethodCalls(true) doesn't return on the host, fails in CTS",
+  bug: 3447964,
+  name: "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls"
 },
 {
   description: "It's not allowed to pass null as parent class loader to a new ClassLoader anymore. Maybe we need
@@ -512,7 +564,7 @@
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_locatorsUpdateCopy",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsANSI92EntryLevelSQL",
@@ -523,445 +575,445 @@
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsSubqueriesInIns",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsTransactions",
     "tests.java.sql.DatabaseMetaDataNotSupportedTest#test_usesLocalFiles",
-    "tests.sql.ConnectionTest#testClearWarnings",
-    "tests.sql.ConnectionTest#testCreateStatementIntIntIntNotSupported"
+    "libcore.java.sql.OldConnectionTest#testClearWarnings",
+    "libcore.java.sql.OldConnectionTest#testCreateStatementIntIntIntNotSupported"
   ]
 },
 {
   description: "Scrolling on a forward only RS not allowed. conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testCreateStatement_int_int"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testCreateStatement_int_int"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testGetCatalog",
-    "tests.sql.ConnectionTest#testGetHoldability"
+    "libcore.java.sql.OldConnectionTest#testGetCatalog",
+    "libcore.java.sql.OldConnectionTest#testGetHoldability"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testGetMetaData"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testGetTransactionIsolation",
-    "tests.sql.ConnectionTest#testGetWarnings"
+    "libcore.java.sql.OldConnectionTest#testGetTransactionIsolation",
+    "libcore.java.sql.OldConnectionTest#testGetWarnings"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testIsReadOnly"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testIsReadOnly"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testPrepareStatementNotSupported",
-    "tests.sql.ConnectionTest#testPrepareStatement_String_int"
+    "libcore.java.sql.OldConnectionTest#testPrepareStatementNotSupported",
+    "libcore.java.sql.OldConnectionTest#testPrepareStatement_String_int"
   ]
 },
 {
   description: "conn.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ConnectionTest#testSetAutoCommit"
+  bug: 3403706,
+  name: "libcore.java.sql.OldConnectionTest#testSetAutoCommit"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ConnectionTest#testSetHoldability",
-    "tests.sql.ConnectionTest#testSetReadOnly"
+    "libcore.java.sql.OldConnectionTest#testSetHoldability",
+    "libcore.java.sql.OldConnectionTest#testSetReadOnly"
   ]
 },
 {
   description: "First Exception test fails: parameters not cleared.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testClearParameters"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testClearParameters"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testExecute"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testExecute"
 },
 {
   description: "it is not possible to invoke the method getMetaData on a PreparedStatement object before it is
                 executed: got NullPointerException.Test passes on RI.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testGetMetaData"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetBigDecimal"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetBigDecimal"
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetBoolean",
-    "tests.sql.PreparedStatementTest#testSetByte"
+    "libcore.java.sql.OldPreparedStatementTest#testSetBoolean",
+    "libcore.java.sql.OldPreparedStatementTest#testSetByte"
   ]
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetBytes"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetBytes"
 },
 {
   description: "preparedStatement.execute() does not return false on update. Setting a data for a declared
                 INTEGER should throw Exception",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetDate_int_Date"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetDate_int_Date"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetDate_int_Date_Calendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetDate_int_Date_Calendar"
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetDouble",
-    "tests.sql.PreparedStatementTest#testSetFloat",
-    "tests.sql.PreparedStatementTest#testSetInt",
-    "tests.sql.PreparedStatementTest#testSetLong",
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object"
+    "libcore.java.sql.OldPreparedStatementTest#testSetDouble",
+    "libcore.java.sql.OldPreparedStatementTest#testSetFloat",
+    "libcore.java.sql.OldPreparedStatementTest#testSetInt",
+    "libcore.java.sql.OldPreparedStatementTest#testSetLong",
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object"
   ]
 },
 {
   description: "Fails for Types.DATE",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object_int",
-    "tests.sql.PreparedStatementTest#testSetObject_int_Object_int_int"
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object_int",
+    "libcore.java.sql.OldPreparedStatementTest#testSetObject_int_Object_int_int"
   ]
 },
 {
   description: "exception test fails",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetShort",
-    "tests.sql.PreparedStatementTest#testSetString_charField",
-    "tests.sql.PreparedStatementTest#testSetString_longTextField"
+    "libcore.java.sql.OldPreparedStatementTest#testSetShort",
+    "libcore.java.sql.OldPreparedStatementTest#testSetString_charField",
+    "libcore.java.sql.OldPreparedStatementTest#testSetString_longTextField"
   ]
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetString_tinyTextField"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetString_tinyTextField"
 },
 {
   description: "preparedStatement.execute() does not return False on update.",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetTime_int_Time_Calendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetTime_int_Time_Calendar"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.PreparedStatementTest#testSetTimeint_Time"
+  bug: 3403706,
+  name: "libcore.java.sql.OldPreparedStatementTest#testSetTimeint_Time"
 },
 {
   description: "preparedStatement.execute() does not return false on update.",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.PreparedStatementTest#testSetTimestampIntTimestampCalendar",
-    "tests.sql.PreparedStatementTest#testSetTimestamp_int_Timestamp"
+    "libcore.java.sql.OldPreparedStatementTest#testSetTimestampIntTimestampCalendar",
+    "libcore.java.sql.OldPreparedStatementTest#testSetTimestamp_int_Timestamp"
   ]
 },
 {
   description: "last assertion fails: invalid conversion. Test passes on RI",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetGetterTests#testGetBytesStringBinary",
-    "tests.sql.ResultSetGetterTests#testGetBytesStringVarbinary"
+    "libcore.java.sql.OldResultSetGetterTests#testGetBytesStringBinary",
+    "libcore.java.sql.OldResultSetGetterTests#testGetBytesStringVarbinary"
   ]
 },
 {
   description: "Wrong value returned for Long: java.lang.String (VARCHAR)",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetMetaData"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetMetaData"
 },
 {
   description: "Wrong value returned for Long: java.lang.String",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetGetterTests#testGetObjectInt",
-    "tests.sql.ResultSetGetterTests#testGetObjectString"
+    "libcore.java.sql.OldResultSetGetterTests#testGetObjectInt",
+    "libcore.java.sql.OldResultSetGetterTests#testGetObjectString"
   ]
 },
 {
   description: "If there is no current row 0 must be returned. res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetRow"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetRow"
 },
 {
   description: "According to spec info.getStatement should return null but an exception is thrown: stale result
                 set.",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetStatement"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetStatement"
 },
 {
   description: "getTime should return Time value for a TIMESTAMP type but returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeInt"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeInt"
 },
 {
   description: "getTime on TIMESTAMP value fails: returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeIntCalendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeIntCalendar"
 },
 {
   description: "getTime should return a Time value for a TIMESTAMP type but returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeString"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeString"
 },
 {
   description: "getTime on TIMESTAMP value fails: returns null",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetTimeStringCalendar"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetTimeStringCalendar"
 },
 {
   description: "res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetGetterTests#testGetType"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetGetterTests#testGetType"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetCatalogName"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetCatalogName"
 },
 {
   description: "SQLException checking test fails",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetColumnCount"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnCount"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetColumnDisplaySize"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnDisplaySize"
 },
 {
   description: "Column label has format TABLE.COLUMN expected: COLUMN",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetMetaDataTest#testGetColumnLabel",
-    "tests.sql.ResultSetMetaDataTest#testGetColumnName"
+    "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnLabel",
+    "libcore.java.sql.OldResultSetMetaDataTest#testGetColumnName"
   ]
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetPrecision"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetPrecision"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetScale"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetScale"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetSchema"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetSchema"
 },
 {
   description: "For int = 0, exception expected",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetMetaDataTest#testGetTableName"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetMetaDataTest#testGetTableName"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetMetaDataTest#testIsCaseSensitive",
-    "tests.sql.ResultSetMetaDataTest#testIsCurrency",
-    "tests.sql.ResultSetMetaDataTest#testIsDefinitlyWritable",
-    "tests.sql.ResultSetMetaDataTest#testIsNullable",
-    "tests.sql.ResultSetMetaDataTest#testIsReadOnly",
-    "tests.sql.ResultSetMetaDataTest#testIsSearchable",
-    "tests.sql.ResultSetMetaDataTest#testIsSigned",
-    "tests.sql.ResultSetMetaDataTest#testIsWritable",
-    "tests.sql.ResultSetMetaDataTest#testisAutoIncrement"
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsCaseSensitive",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsCurrency",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsDefinitlyWritable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsNullable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsReadOnly",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsSearchable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsSigned",
+    "libcore.java.sql.OldResultSetMetaDataTest#testIsWritable",
+    "libcore.java.sql.OldResultSetMetaDataTest#testisAutoIncrement"
   ]
 },
 {
   description: "res.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testAfterLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testAfterLast"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testBeforeFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testBeforeFirst"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testClearWarnings"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testClearWarnings"
 },
 {
   description: "Resultset.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetTest#testClose1",
-    "tests.sql.ResultSetTest#testNext"
+    "libcore.java.sql.OldResultSetTest#testClose1",
+    "libcore.java.sql.OldResultSetTest#testNext"
   ]
 },
 {
   description: "no exception is thrown when moving cursor backwards on forward only statement",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testRelative"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testRelative"
 },
 {
   description: "Scrollable resultSet. Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testRelativeScrollableResultSet"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testRelativeScrollableResultSet"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testUpdateObjectStringObject"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testUpdateObjectStringObject"
 },
 {
   description: "Feature not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testUpdateStringStringString"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testUpdateStringStringString"
 },
 {
   description: "the default tests, and exception tests fail.",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testWasNull"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testWasNull"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.ResultSetTest#testtestFirst",
-    "tests.sql.ResultSetTest#testtestIsAfterLast"
+    "libcore.java.sql.OldResultSetTest#testtestFirst",
+    "libcore.java.sql.OldResultSetTest#testtestIsAfterLast"
   ]
 },
 {
   description: "In Second code block assertion fails. statement. close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsBeforeFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsBeforeFirst"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsFirst"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsFirst"
 },
 {
   description: "Second block first assertion fails. Is Last should evaluate true if the row on which the cursor
                 is actually provides a result.statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestIsLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestIsLast"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.ResultSetTest#testtestLast"
+  bug: 3403706,
+  name: "libcore.java.sql.OldResultSetTest#testtestLast"
 },
 {
   description: "Bug in implementation of cancel: Does not fulfill spec.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testCancel"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testCancel"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testClose"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testClose"
 },
 {
   description: "Return value wrong for queries below.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecute"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecute"
 },
 {
   description: "always returns 1 for no. of updates",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteBatch"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteBatch"
 },
 {
   description: "Does throw an exception on non select statement.",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteQuery_String"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteQuery_String"
 },
 {
   description: "Spec is not precise enough: should be: number of rows affected. eg. to be consistent for deletes:
                 'delete from s1;' should be different from 'delete from s1 where c1 = 1;'",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testExecuteUpdate_String"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testExecuteUpdate_String"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
-    "tests.sql.StatementTest#testGetConnection",
-    "tests.sql.StatementTest#testGetFetchDirection",
-    "tests.sql.StatementTest#testGetFetchSize"
+    "libcore.java.sql.OldStatementTest#testGetConnection",
+    "libcore.java.sql.OldStatementTest#testGetFetchDirection",
+    "libcore.java.sql.OldStatementTest#testGetFetchSize"
   ]
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetMoreResults"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetMoreResults"
 },
 {
   description: "An other value is returned than was set (X * 1000)",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetQueryTimeout"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetQueryTimeout"
 },
 {
   description: "Does not return null on update count > 0 (not a select statement)",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSet"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSet"
 },
 {
   description: "Not supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetConcurrency"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetConcurrency"
 },
 {
   description: "Test for default value fails",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetHoldability"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetHoldability"
 },
 {
   description: "not fully supported",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetResultSetType"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetResultSetType"
 },
 {
   description: "statement.close() does not wrap up",
-  result: EXEC_FAILED,
-  name: "tests.sql.StatementTest#testGetUpdateCount"
+  bug: 3403706,
+  name: "libcore.java.sql.OldStatementTest#testGetUpdateCount"
 },
 {
   description: "Handshake Status is never finished. NPE in ClientSessionContext$HostAndPort.hashCode() when host
                 is null",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#testHandshake"
 },
 {
   description: "org.apache.harmony.xnet.provider.jsse.SSLEngineImpl#getDelegatedTask() throws NPE instead of
                 returning null",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_getDelegatedTask"
 },
 {
   description: "Fixed in DonutBurger, boundary checks missing",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_02"
 },
 {
   description: "Fixed on DonutBurger, Wrong Exception thrown",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_03",
     "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_04",
@@ -973,12 +1025,12 @@
 },
 {
   description: "Fixed in DonutBurger, boundary checks missing",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_02"
 },
 {
   description: "Fixed on DonutBurger, Wrong Exception thrown",
-  result: EXEC_FAILED,
+  bug: 3403706,
   names: [
     "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_04",
     "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer$ByteBuffer_03",
@@ -988,7 +1040,7 @@
 {
   description: "ManagerFactoryParameters object is not supported and InvalidAlgorithmParameterException was
                 thrown.",
-  result: EXEC_FAILED,
+  bug: 3403706,
   name: "tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
 },
 {
@@ -1018,58 +1070,67 @@
 },
 {
   description: "method test fails once in a while. Cannot be sure that exception is thrown in every test execution.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testBusy_handler"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testBusy_handler"
 },
 {
   description: "Database does not lock values",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testBusy_timeout"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testBusy_timeout"
 },
 {
   description: "Returns wrong number for updates: returns value > 1 for select.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testChanges"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testChanges"
 },
 {
   description: "Aggregation function not called",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testCreate_aggregate"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testCreate_aggregate"
 },
 {
   description: "Reason for failure unknown: Database should be locked. Specification of interrupt is scarce.",
   result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testInterrupt"
+  name: "libcore.sqlite.OldDatabaseTest#testInterrupt"
 },
 {
   description: "not supported",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testOpen_blob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testOpen_blob"
 },
 {
   description: "Callback never made for authorization. Results of private table are returned without further checks.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testSet_authorizer"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testSet_authorizer"
 },
 {
   description: "ASCII encoding does not work: a UTF encoded val is returned. Spec is not sufficient. Might be that test impl is wrong or String constructor for the ASCII encoding.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.DatabaseTest#testSet_encoding"
+  bug: 3403706,
+  name: "libcore.sqlite.OldDatabaseTest#testSet_encoding"
 },
 {
   description: "db.open_blob is not supported.",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.BlobTest#testBlob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldBlobTest#testBlob"
 },
 {
   description: "Wrong value is returned in case of a prepared statement to which a '*' bound",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.StmtTest#testColumn_count"
+  bug: 3403706,
+  name: "libcore.sqlite.OldStmtTest#testColumn_count"
 },
 {
   description: "ZeroBlob not supported",
-  result: EXEC_FAILED,
-  name: "tests.SQLite.FunctionContextTest#testSet_result_zeroblob"
+  bug: 3403706,
+  name: "libcore.sqlite.OldFunctionContextTest#testSet_result_zeroblob"
+},
+{
+  description: "SQLite test fail",
+  bug: 3403706,
+  names: [
+    "libcore.sqlite.OldDatabaseTest#testGet_tableString",
+    "libcore.sqlite.OldDatabaseTest#testGet_tableStringStringArrayTableResult",
+    "libcore.sqlite.OldStmtTest#testColumn_type"
+  ]
 },
 {
   modes: [ "jvm" ],
@@ -1079,5 +1140,568 @@
     "libcore.java.util.FormatterTest#test_uppercaseConversions"
   ],
   result: EXEC_FAILED
+},
+{
+  description: "Android's XSLT implementation fails 524 of 3173 OASIS tests",
+  bug: 4193599,
+  names: [
+    "libcore.xml.XsltXPathConformanceTestSuite$MisspecifiedTest#test",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt005",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt017",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt018",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt019",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt020",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt022",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt024",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt029",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt033",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt034",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt038",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt039",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt044",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt045",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt047",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt052",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt054",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt055",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt056",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt058",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt061",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt062",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt063",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt064",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt067",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt069",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt070",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt074",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt075",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt077",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt079",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt083",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt085",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt086",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt089",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt090",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt091",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt094",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt095",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.BVTs_bvt098",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Completeness__84361",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err003",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err004",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err005",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err006",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err010",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err011",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err012",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err013",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err026",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err029",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err031",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err038",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err044",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err048",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err049",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err050",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err051",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err059",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err062",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err065",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err073",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err075",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err076",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err078",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err093",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err103",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err106",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_err108",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Errors_xsl_template_complicated_match_pattern_with_variable_ref",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__84423",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__84424",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__84426",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__84427",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__84435",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.Miscellaneous__91183",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_BooleanFunction",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_Bug76054",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_DocumentFunctionWithAbsoluteArgument",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_DocumentFunctionWithEntityRef",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_ElementAvailFunctionFalseTest",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_GenereateIdAppliedToNamespaceNodesOnDifferentElements",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_TestIdFuncInComplexStruct",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions_TestOfIdFunction",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10002",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10003",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10004",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10005",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10006",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10007",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10008",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10009",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10010",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10011",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10012",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10013",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10014",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10015",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10016",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10017",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10018",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10019",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10020",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10021",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10022",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10023",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10024",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10025",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10026",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__10049",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__84048",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__84049",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__84050",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__84170",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__84172",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__EuropeanPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__Non_DigitPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__Pattern-separator",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__currency",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__defaultPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__minimalValue",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__minimumValue",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__percentPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__specialCharInPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#Mixed.XSLTFunctions__testOn-0.00",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables_UseDocumentFnToReturnRootNode",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables_VariableWithinVariable",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78117",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78120",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78125",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78161",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78356",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__78360",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84633",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84634",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84636",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84637",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84697",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84709",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84710",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XPath-Data-Model.Variables__84712",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys_PerfRepro2",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys_PerfRepro3",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys__91832",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys__91833",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys__91836",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Keys__91859",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting_SortExprWithCurrentInsideForEach1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting_Sort_SortTextWithNonTextCharacters",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting_Sort_TextNodesSpanMultipleLines",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting_TurkishISortingTest",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__77516",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__77525",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__77977",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__78191",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__78286",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__78291",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__84006",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91689",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91691",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91693",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91694",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91695",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91696",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91697",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91698",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91699",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91700",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91701",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91704",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91705",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91752",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Manipulation.Sorting__91753",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91422",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91423",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91425",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91428",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91443",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Data-Model.Whitespaces__91444",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.Fallback__91825",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91841",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91844",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91848",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91849",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91853",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Extendability.ForwardComp__91856",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_AmpersandWithinHtmlAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_DoctypePublicAndSystemAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_DoctypePublicAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_DoctypeSystemAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_EmptyElement1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_EntityRefInAttribHtml",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_HtmlOutputWithAmpersandCurlyBracket",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_HtmlOutputWithLessThanInAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_Html_Op_Href_Attr_non_ascii_value",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_MediaTypeTest",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_MethodEqualsHtmlWithoutIndentSet",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_Modified84433",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_Output_UseStandAloneAttributeWithMultipleRoots",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_SignInHrefAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output_UseLiteralResultElementHead",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77929",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77930",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77936",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77939",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77940",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__77966",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78175",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78176",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78177",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78180",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78221",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78222",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78223",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78224",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78225",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78226",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78227",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__78229",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84010",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84011",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84012",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84015",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84016",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84017",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84018",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84019",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84020",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84021",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84022",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84025",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84165",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84260",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84264",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84271",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84273",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84277",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84280",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84282",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84285",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84306",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84309",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84374",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84428",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84429",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84432",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84433",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84434",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84452",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84453",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84454",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84455",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84456",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84457",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84458",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84459",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84460",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84461",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Output.Output__84462",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77536",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77562",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77564",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77574",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77591",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77596",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AVTs__77599",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets_RefToUndefinedAttributeSet",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91035",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91038",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91080",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91081",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91083",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91098",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91100",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.AttributeSets__91119",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes_Attribute_AttributeWithEmptyName",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes_Attribute_EmptyNameAttributeWithNS",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes_Attribute_InvalidNamespacePrefix",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes_Attribute_UseXmlnsNsAsNamespaceForAttribute",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78365",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78369",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78373",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78374",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78376",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78378",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__78386",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__81487",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__81551",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__89463",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__89464",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Attributes__89465",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Copying_ResultTreeFragmentWithEscapedText",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements_Element_ElementWithNSFromNameFn",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements_Element_ElementWithNoNameSpecified",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements_Element_ElementWithNoNameSpecifiedButValidNS",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements_Element_UseXslElementWIthNamespaceEqualToXmlnsUri",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements_Element_UseXslElementWithNameSpaceAttrEqualToXmlnsUri",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__78347",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__78358",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__78362",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__78363",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__83968",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__89171",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__89716",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__89717",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Elements__89718",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_DecimalFormatSameCharForDecimalAndGrpSep",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_DecimalFormatZeroDigit",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_DecimalFormatZeroDigit1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_DecimalFormatZeroDigit2",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_FormatNumber_SemiColonDelimitsToWhitespace",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_TestGrpSepr",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.FormatNumber_ValueOf_FormatNumberWithoutPositiveNumberFormatPattern",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_Conflict_XPath_XSLT",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_DefaultNamespace",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_NavigatorMethods",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_PredefinedPrefix_XML",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_PredefinedPrefix_XMLNS",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_SameQuery_DiffNamespace",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Namespace_XPath_ScopingRules",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number_NaNOrInvalidValue",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number_ValueAsEmptyNodeset",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number_ValueAsNodesetTest1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84683",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84687",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84692",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84694",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84699",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84700",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84705",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84715",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84716",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84717",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84722",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84723",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84724",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__84725",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__91026",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__91027",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__91028",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Number__91029",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction_InvalidPIName1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78196",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78202",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78204",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78217",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78218",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ProcessingInstruction__78219",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text_DoeWithCdataInText",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text_Modified78311",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78245",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78272",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78273",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78274",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78275",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78276",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78281",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78308",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78309",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text__78311",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text_modified78308",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.Text_modified78309",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset10",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset17",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset27",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset29",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset31",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset32",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset40",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset41",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribset_attribset42",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.attribvaltemplate_attribvaltemplate08",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy16",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy19",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy20",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy21",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy22",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy38",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy56",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy58",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.copy_copy60",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.extend_extend02",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.extend_extend04",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey04",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey22",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey24",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey26",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey31",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey37",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey38",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey39",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey40",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey41",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey42",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey43",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey55",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey56",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey57",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey58",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey60",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey61",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.idkey_idkey62",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.match_match11",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.message_message15",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.namespace_namespace32",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.namespace_namespace34",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numberformat_numberformat07",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numberformat_numberformat35",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numbering_numbering14",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numbering_numbering17",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numbering_numbering79",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.numbering_numbering91",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output01",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output02",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output03",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output04",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output05",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output06",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output08",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output09",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output10",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output110",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output111",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output113",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output17",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output22",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output25",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output26",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output28",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output32",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output33",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output34",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output35",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output36",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output37",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output38",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output39",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output40",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output48",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output49",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output50",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output52",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output59",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output60",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output61",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output62",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output70",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output72",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output73",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output74",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output75",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.output_output86",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.processorinfo_processorinfo03",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.select_select73",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.select_select74",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.sort_sort08",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.sort_sort27",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ver_ver05",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Result-Tree.ver_ver06",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__84614",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__84615",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91032",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91148",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91150",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91151",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91156",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91157",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91158",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Import__91165",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_Include_IncludeStylesheetWithoutXslNamespace",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_Include_IncludedStylesheetShouldHaveDifferentBaseUri",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_NestedIncludes",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest2",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest3",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest4",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest5",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include_RelUriTest6",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77489",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77504",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77515",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77736",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77745",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77750",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__77751",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__78295",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__78296",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__78398",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__84463",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Include__84464",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias_NSAlias_In_Import",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias_Namespace-Alias_NSAliasForDefaultWithExcludeResPref",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias_Namespace-Alias_Test1",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias_Namespace-Alias_Test2",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias_Namespace-Alias_WithinRTF",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias__91781",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias__91782",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias__91785",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace-alias__91786",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace_CheckXmlnsResetOnResultTree",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace__77655",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace__77665",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace__77670",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace__77675",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Namespace__78027",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91802",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91803",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91804",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91806",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91807",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91808",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91810",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91811",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Structure.Stylesheet__91816",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77619",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77622",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77870",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77879",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77897",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77898",
+    "libcore.xml.XsltXPathConformanceTestSuite$XsltTest#XSLT-Template.ConflictResolution__77902"
+  ]
+},
+{
+  description: "Android's XPath fails 29 of 250 Jaxen XPath tests",
+  bug: 3270761,
+  names: [
+    "libcore.xml.JaxenXPathTestSuite$3#xml/defaultNamespace.xml / /dummy:a/dummy:b/dummy:c",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / //metatest[ evaluate(@select) = . ]",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/*')",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/*')/dog",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object')/dog",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object')/evaluate",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/evaluate.xml / evaluate('//jumps/object/dog')",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /foo:a",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /foo:a/b",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /voo:a/b/c",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/namespaces.xml / /voo:a/bar:f",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml / //namespace::*",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml /Template/Application1 //namespace::*",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/testNamespaces.xml /Template/Application1 //namespace::xplt",
+    "libcore.xml.JaxenXPathTestSuite$3#xml/text.xml / document('xml/web.xml')",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/message.xml / document('xml/message.xml')/message/body/data/items/item[name/text()='parentinfo']/value",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/alias:x/alias:y",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/b/c",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/foo:d/foo:e",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/namespaces.xml / /foo:a/foo:x/foo:y",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/text.xml / document('xml/web.xml')/web-app/servlet[1]/servlet-name",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/text.xml /foo/bar/cheese[1] concat(./@id,document('xml/web.xml')/web-app/servlet[1]/servlet-name,./@id)",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] ends-with( servlet-class, 'S' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] ends-with( servlet-class, 'Servlet' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] lower-case( servlet-class )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'es-ES-Traditional_WIN' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'fr' )",
+    "libcore.xml.JaxenXPathTestSuite$4#xml/web.xml /web-app/servlet[1] upper-case( servlet-class, 'fr-CA' )"
+  ]
 }
 ]

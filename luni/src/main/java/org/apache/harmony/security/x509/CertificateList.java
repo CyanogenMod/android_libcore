@@ -45,23 +45,16 @@ import org.apache.harmony.security.utils.Array;
  *  }
  * </pre>
  */
-public class CertificateList {
-
-    // the value of tbsCertList field of the structure
+public final class CertificateList {
+    /** the value of tbsCertList field of the structure */
     private final TBSCertList tbsCertList;
-    // the value of signatureAlgorithm field of the structure
+    /** the value of signatureAlgorithm field of the structure */
     private final AlgorithmIdentifier signatureAlgorithm;
-    // the value of signatureValue field of the structure
+    /** the value of signatureValue field of the structure */
     private final byte[] signatureValue;
-    // the ASN.1 encoded form of CertList
+    /** the ASN.1 encoded form of CertList */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   tbsCertList: TBSCertList
-     * @param   signatureAlgorithm: AlgorithmIdentifier
-     * @param   signatureValue: byte[]
-     */
     public CertificateList(TBSCertList tbsCertList,
                        AlgorithmIdentifier signatureAlgorithm,
                        byte[] signatureValue) {
@@ -72,13 +65,6 @@ public class CertificateList {
                                                     signatureValue.length);
     }
 
-    //
-    // TODO
-    // @param   tbsCertList: TBSCertList
-    // @param   signatureAlgorithm: AlgorithmIdentifier
-    // @param   signatureValue: byte[]
-    // @param   encoding:   byte[]
-    //
     private CertificateList(TBSCertList tbsCertList,
                        AlgorithmIdentifier signatureAlgorithm,
                        byte[] signatureValue, byte[] encoding) {
@@ -88,23 +74,13 @@ public class CertificateList {
 
     /**
      * Returns the value of tbsCertList field of the structure.
-     * @return  tbsCertList
      */
     public TBSCertList getTbsCertList() {
         return tbsCertList;
     }
 
     /**
-     * Returns the value of signatureAlgorithm field of the structure.
-     * @return  signatureAlgorithm
-     */
-    public AlgorithmIdentifier getSignatureAlgorithm() {
-        return signatureAlgorithm;
-    }
-
-    /**
      * Returns the value of signatureValue field of the structure.
-     * @return  signatureValue
      */
     public byte[] getSignatureValue() {
         byte[] result = new byte[signatureValue.length];
@@ -112,17 +88,16 @@ public class CertificateList {
         return result;
     }
 
-    public String toString() {
-        StringBuffer res = new StringBuffer();
-        tbsCertList.dumpValue(res);
-        res.append("\nSignature Value:\n");
-        res.append(Array.toString(signatureValue, ""));
-        return res.toString();
+    @Override public String toString() {
+        StringBuilder result = new StringBuilder();
+        tbsCertList.dumpValue(result);
+        result.append("\nSignature Value:\n");
+        result.append(Array.toString(signatureValue, ""));
+        return result.toString();
     }
 
     /**
      * Returns ASN.1 encoded form of this X.509 TBSCertList value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -139,7 +114,7 @@ public class CertificateList {
                 {TBSCertList.ASN1, AlgorithmIdentifier.ASN1,
                     ASN1BitString.getInstance()}) {
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new CertificateList(
                     (TBSCertList) values[0],
@@ -149,14 +124,11 @@ public class CertificateList {
                     );
         }
 
-        protected void getValues(Object object, Object[] values) {
-
-            CertificateList certlist = (CertificateList) object;
-
-            values[0] = certlist.tbsCertList;
-            values[1] = certlist.signatureAlgorithm;
-            values[2] = new BitString(certlist.signatureValue, 0);
+        @Override protected void getValues(Object object, Object[] values) {
+            CertificateList certificateList = (CertificateList) object;
+            values[0] = certificateList.tbsCertList;
+            values[1] = certificateList.signatureAlgorithm;
+            values[2] = new BitString(certificateList.signatureValue, 0);
         }
     };
 }
-

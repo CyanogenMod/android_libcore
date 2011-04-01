@@ -21,23 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * {@code BasicPermission} is the common base class of all permissions which
- * have a name but no action lists. A {@code BasicPermission} is granted or it
- * is not.
- * <p>
- * Names of a BasicPermission follow the dot separated, hierarchical property
- * naming convention. Asterisk '*' can be used as wildcards. Either by itself,
- * matching anything, or at the end of the name, immediately preceded by a '.'.
- * For example:
- *
- * <pre>
- * java.io.*  grants all permissions under the java.io permission hierarchy
- * *          grants all permissions
- * </pre>
- * <p>
- * While this class ignores the action list in the
- * {@link #BasicPermission(String, String)} constructor, subclasses may
- * implement actions on top of this class.
+ * Legacy security code; this class exists for compatibility only.
  */
 public abstract class BasicPermission extends Permission implements
     Serializable {

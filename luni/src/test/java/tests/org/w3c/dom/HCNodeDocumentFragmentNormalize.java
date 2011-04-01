@@ -1,10 +1,5 @@
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
@@ -22,7 +17,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3</a>
  */
-@TestTargetClass(Node.class)
 public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -52,20 +46,6 @@ public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies positive functionality of getNodeValue method, and that getNextSibling method returns null.",
-            method = "getNodeValue",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL,
-            notes = "Verifies positive functionality of getNodeValue method, and that getNextSibling method returns null.",
-            method = "getNextSibling",
-            args = {}
-        )
-    })
     public void testNodeDocumentFragmentNormalize1() throws Throwable {
         Document doc;
         DocumentFragment docFragment;
@@ -86,12 +66,6 @@ public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
         retval = txtNode.getNextSibling();
         assertNull("singleChild", retval);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getFirstChild method returns null.",
-        method = "getFirstChild",
-        args = {}
-    )
     public void testNodeDocumentFragmentNormalize2() throws Throwable {
         Document doc;
         DocumentFragment docFragment;

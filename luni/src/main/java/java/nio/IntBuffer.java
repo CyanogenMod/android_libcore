@@ -146,7 +146,6 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
                 : otherBuffer.remaining();
         int thisPos = position;
         int otherPos = otherBuffer.position;
-        // BEGIN android-changed
         int thisInt, otherInt;
         while (compareRemaining > 0) {
             thisInt = get(thisPos);
@@ -158,7 +157,6 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
             otherPos++;
             compareRemaining--;
         }
-        // END android-changed
         return remaining() - otherBuffer.remaining();
     }
 

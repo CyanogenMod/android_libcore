@@ -17,11 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -38,7 +33,6 @@ import tests.support.Support_MapTest2;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-@TestTargetClass(IdentityHashMap.class)
 public class IdentityHashMapTest extends junit.framework.TestCase {
     private static final String ID = "hello";
 
@@ -64,14 +58,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     Object[] objArray2;
 
     /**
-     * @tests java.util.IdentityHashMap#IdentityHashMap()
+     * java.util.IdentityHashMap#IdentityHashMap()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityHashMap",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.IdentityHashMap()
         new Support_MapTest2(new IdentityHashMap()).runTest();
@@ -81,14 +69,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#IdentityHashMap(int)
+     * java.util.IdentityHashMap#IdentityHashMap(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityHashMap",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.IdentityHashMap(int)
         IdentityHashMap hm2 = new IdentityHashMap(5);
@@ -107,14 +89,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#IdentityHashMap(java.util.Map)
+     * java.util.IdentityHashMap#IdentityHashMap(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IdentityHashMap",
-        args = {java.util.Map.class}
-    )
     public void test_ConstructorLjava_util_Map() {
         // Test for method java.util.IdentityHashMap(java.util.Map)
         Map myMap = new TreeMap();
@@ -138,14 +114,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#clear()
+     * java.util.IdentityHashMap#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.IdentityHashMap.clear()
         hm.clear();
@@ -157,14 +127,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#clone()
+     * java.util.IdentityHashMap#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.IdentityHashMap.clone()
         IdentityHashMap hm2 = (IdentityHashMap) hm.clone();
@@ -198,14 +162,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#containsKey(java.lang.Object)
+     * java.util.IdentityHashMap#containsKey(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsKey",
-        args = {java.lang.Object.class}
-    )
     public void test_containsKeyLjava_lang_Object() {
         // Test for method boolean
         // java.util.IdentityHashMap.containsKey(java.lang.Object)
@@ -223,14 +181,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#containsValue(java.lang.Object)
+     * java.util.IdentityHashMap#containsValue(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsValue",
-        args = {java.lang.Object.class}
-    )
     public void test_containsValueLjava_lang_Object() {
         // Test for method boolean
         // java.util.IdentityHashMap.containsValue(java.lang.Object)
@@ -241,14 +193,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#entrySet()
+     * java.util.IdentityHashMap#entrySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
     public void test_entrySet() {
         // Test for method java.util.Set java.util.IdentityHashMap.entrySet()
         Set s = hm.entrySet();
@@ -263,14 +209,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#get(java.lang.Object)
+     * java.util.IdentityHashMap#get(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_getLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.IdentityHashMap.get(java.lang.Object)
@@ -288,14 +228,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#isEmpty()
+     * java.util.IdentityHashMap#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.IdentityHashMap.isEmpty()
         assertTrue("Returned false for new map", new IdentityHashMap()
@@ -304,14 +238,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#keySet()
+     * java.util.IdentityHashMap#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet() {
         // Test for method java.util.Set java.util.IdentityHashMap.keySet()
         Set s = hm.keySet();
@@ -364,14 +292,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
+     * java.util.IdentityHashMap#put(java.lang.Object, java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.IdentityHashMap.put(java.lang.Object, java.lang.Object)
@@ -392,14 +314,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#putAll(java.util.Map)
+     * java.util.IdentityHashMap#putAll(java.util.Map)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLjava_util_Map() {
         // Test for method void java.util.IdentityHashMap.putAll(java.util.Map)
         IdentityHashMap hm2 = new IdentityHashMap();
@@ -422,14 +338,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#remove(java.lang.Object)
+     * java.util.IdentityHashMap#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method java.lang.Object
         // java.util.IdentityHashMap.remove(java.lang.Object)
@@ -449,14 +359,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#size()
+     * java.util.IdentityHashMap#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.IdentityHashMap.size()
         assertEquals("Returned incorrect size, ", (objArray.length + 2), hm
@@ -464,14 +368,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#equals(java.lang.Object)
+     * java.util.IdentityHashMap#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         IdentityHashMap mapOne = new IdentityHashMap();
         IdentityHashMap mapTwo = new IdentityHashMap();
@@ -514,14 +412,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#values()
+     * java.util.IdentityHashMap#values()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
     public void test_values() {
         // Test for method java.util.Collection
         // java.util.IdentityHashMap.values()
@@ -544,22 +436,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.IdentityHashMap#Serialization()
+     * java.util.IdentityHashMap#Serialization()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility.",
-            method = "!SerializationSelf",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Verifies serialization/deserialization compatibility.",
-            method = "!SerializationGolden",
-            args = {}
-        )
-    })
     public void test_Serialization() throws Exception {
         IdentityHashMap<String, String> map = new IdentityHashMap<String, String>();
         map.put(ID, "world");

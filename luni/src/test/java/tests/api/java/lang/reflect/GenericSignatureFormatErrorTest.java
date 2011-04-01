@@ -2,9 +2,6 @@ package tests.api.java.lang.reflect;
 
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.SideEffect;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import dalvik.system.DexFile;
 
 import junit.framework.TestCase;
@@ -19,25 +16,12 @@ import java.lang.reflect.TypeVariable;
 
 import tests.support.Support_ClassLoader;
 
-@TestTargetClass(GenericSignatureFormatError.class)
 public class GenericSignatureFormatErrorTest extends TestCase{
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "GenericSignatureFormatError",
-        args = {}
-    )
     public void test_Constructor() {
         assertNotNull(new GenericSignatureFormatError());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "GenericSignatureFormatError",
-        args = {}
-    )
     public void test_readResource() throws Exception {
         File tf = File.createTempFile("classes", ".dex");
         // System.out.println("GenericSignatureFormatErrorTest:"
@@ -48,12 +32,6 @@ public class GenericSignatureFormatErrorTest extends TestCase{
     }
 
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "GenericSignatureFormatError",
-        args = {}
-    )
     @AndroidOnly("Uses Android specific class dalvik.system.DexFile " +
             "for loading classes.")
     @SideEffect("strange issue (exception: 'could not open dex file', " +

@@ -713,7 +713,7 @@ public class OldBigDecimalConstructorsTest extends TestCase {
 // ANDROID ADDED
 
     /**
-     * @tests java.math.BigDecimal#BigDecimal(java.math.BigInteger, int)
+     * java.math.BigDecimal#BigDecimal(java.math.BigInteger, int)
      */
     public void test_Constructor_java_math_BigInteger_int() {
         BigInteger value = new BigInteger("12345908");
@@ -732,7 +732,7 @@ public class OldBigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#BigDecimal(double)
+     * java.math.BigDecimal#BigDecimal(double)
      */
     public void test_Constructor_Double() {
         BigDecimal big = new BigDecimal(123E04);
@@ -760,7 +760,7 @@ public class OldBigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
+     * java.math.BigDecimal#BigDecimal(java.lang.String)
      */
     public void test_Constructor_java_lang_String() throws NumberFormatException {
         BigDecimal big = new BigDecimal("345.23499600293850");

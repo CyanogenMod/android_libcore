@@ -85,10 +85,8 @@ public class XmlPullParserFactory {
      * @param state if true feature will be set; if false will be ignored
      */
 
-    public void setFeature(String name,
-                           boolean state) throws XmlPullParserException {
-
-        features.put(name, new Boolean(state));
+    public void setFeature(String name, boolean state) throws XmlPullParserException {
+        features.put(name, state);
     }
 
 
@@ -116,7 +114,7 @@ public class XmlPullParserFactory {
      */
 
     public void setNamespaceAware(boolean awareness) {
-        features.put (XmlPullParser.FEATURE_PROCESS_NAMESPACES, new Boolean (awareness));
+        features.put (XmlPullParser.FEATURE_PROCESS_NAMESPACES, awareness);
     }
 
     /**
@@ -143,7 +141,7 @@ public class XmlPullParserFactory {
      */
 
     public void setValidating(boolean validating) {
-        features.put (XmlPullParser.FEATURE_VALIDATION, new Boolean (validating));
+        features.put (XmlPullParser.FEATURE_VALIDATION, validating);
     }
 
     /**
@@ -175,7 +173,7 @@ public class XmlPullParserFactory {
         if (parserClasses.size() == 0) throw new XmlPullParserException
                 ("No valid parser classes found in "+classNamesLocation);
 
-        final StringBuffer issues = new StringBuffer ();
+        final StringBuilder issues = new StringBuilder();
 
         for (int i = 0; i < parserClasses.size(); i++) {
             final Class ppClass = (Class) parserClasses.get(i);
@@ -221,7 +219,7 @@ public class XmlPullParserFactory {
                 ("No valid serializer classes found in "+classNamesLocation);
         }
 
-        final StringBuffer issues = new StringBuffer ();
+        final StringBuilder issues = new StringBuilder ();
 
         for (int i = 0; i < serializerClasses.size (); i++) {
             final Class ppClass = (Class) serializerClasses.get(i);
@@ -269,7 +267,7 @@ public class XmlPullParserFactory {
                 if (is == null) throw new XmlPullParserException
                         ("resource not found: "+RESOURCE_NAME
                              +" make sure that parser implementing XmlPull API is available");
-                final StringBuffer sb = new StringBuffer();
+                final StringBuilder sb = new StringBuilder();
 
                 while (true) {
                     final int ch = is.read();

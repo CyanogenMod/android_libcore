@@ -22,23 +22,13 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-/**
- * Test case of java.lang.annotation.ElementType
- */
 public class ElementTypeTest extends TestCase {
 
-    /**
-     * @throws Exception
-     * @tests java.lang.annotation.ElementType#valueOf(String)
-     */
-    @SuppressWarnings("nls")
     public void test_valueOfLjava_lang_String() throws Exception {
-        assertSame(ElementType.ANNOTATION_TYPE, ElementType
-                .valueOf("ANNOTATION_TYPE"));
+        assertSame(ElementType.ANNOTATION_TYPE, ElementType.valueOf("ANNOTATION_TYPE"));
         assertSame(ElementType.CONSTRUCTOR, ElementType.valueOf("CONSTRUCTOR"));
         assertSame(ElementType.FIELD, ElementType.valueOf("FIELD"));
-        assertSame(ElementType.LOCAL_VARIABLE, ElementType
-                .valueOf("LOCAL_VARIABLE"));
+        assertSame(ElementType.LOCAL_VARIABLE, ElementType.valueOf("LOCAL_VARIABLE"));
         assertSame(ElementType.METHOD, ElementType.valueOf("METHOD"));
         assertSame(ElementType.PACKAGE, ElementType.valueOf("PACKAGE"));
         assertSame(ElementType.PARAMETER, ElementType.valueOf("PARAMETER"));
@@ -51,11 +41,6 @@ public class ElementTypeTest extends TestCase {
         }
     }
 
-    /**
-     * @throws Exception
-     * @tests java.lang.annotation.ElementType#values()
-     */
-    @SuppressWarnings("nls")
     public void test_values() throws Exception {
         ElementType[] values = ElementType.values();
         assertTrue(values.length > 1);

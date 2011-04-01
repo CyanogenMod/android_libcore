@@ -38,17 +38,12 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import junit.framework.TestCase;
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 
 
 /**
  * Tests for SSLEngine class
  *
  */
-@TestTargetClass(SSLEngine.class)
 public class SSLEngineTest extends TestCase {
 
     private HandshakeHandler clientEngine;
@@ -63,12 +58,6 @@ public class SSLEngineTest extends TestCase {
      * SSLEngine object with null host and -1 port
      * @throws NoSuchAlgorithmException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLEngine",
-        args = {}
-    )
     public void test_Constructor() throws NoSuchAlgorithmException {
         SSLEngine e = getEngine();
         assertNull(e.getPeerHost());
@@ -82,12 +71,6 @@ public class SSLEngineTest extends TestCase {
      * Test for <code>SSLEngine(String host, int port)</code> constructor
      * @throws NoSuchAlgorithmException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification with incorrect parameters missed",
-        method = "SSLEngine",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_ConstructorLjava_lang_StringI01() throws NoSuchAlgorithmException {
         int port = 1010;
         SSLEngine e = getEngine(null, port);
@@ -120,12 +103,6 @@ public class SSLEngineTest extends TestCase {
      * Test for <code>SSLEngine(String host, int port)</code> constructor
      * @throws NoSuchAlgorithmException
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verification with incorrect parameters missed",
-        method = "SSLEngine",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_ConstructorLjava_lang_StringI02() throws NoSuchAlgorithmException {
         String host = "new host";
         int port = 8080;
@@ -143,12 +120,6 @@ public class SSLEngineTest extends TestCase {
      * Test for <code>getPeerHost()</code> method
      * @throws NoSuchAlgorithmException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPeerHost",
-        args = {}
-    )
     public void test_getPeerHost() throws NoSuchAlgorithmException {
         SSLEngine e = getEngine();
         assertNull(e.getPeerHost());
@@ -160,12 +131,6 @@ public class SSLEngineTest extends TestCase {
      * Test for <code>getPeerPort()</code> method
      * @throws NoSuchAlgorithmException
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPeerPort",
-        args = {}
-    )
     public void test_getPeerPort() throws NoSuchAlgorithmException {
         SSLEngine e = getEngine();
         assertEquals("Incorrect default value of peer port",
@@ -176,14 +141,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#getSupportedProtocols()
+     * javax.net.ssl.SSLEngine#getSupportedProtocols()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedProtocols",
-        args = {}
-    )
     public void test_getSupportedProtocols() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -197,23 +156,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setEnabledProtocols(String[] protocols)
-     * @tests javax.net.ssl.SSLEngine#getEnabledProtocols()
+     * javax.net.ssl.SSLEngine#setEnabledProtocols(String[] protocols)
+     * javax.net.ssl.SSLEngine#getEnabledProtocols()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnabledProtocols",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnabledProtocols",
-            args = {String[].class}
-        )
-    })
     public void test_EnabledProtocols() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         String[] pr = sse.getSupportedProtocols();
@@ -236,14 +181,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#getSupportedCipherSuites()
+     * javax.net.ssl.SSLEngine#getSupportedCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedCipherSuites",
-        args = {}
-    )
     public void test_getSupportedCipherSuites() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -257,23 +196,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setEnabledCipherSuites(String[] suites)
-     * @tests javax.net.ssl.SSLEngine#getEnabledCipherSuites()
+     * javax.net.ssl.SSLEngine#setEnabledCipherSuites(String[] suites)
+     * javax.net.ssl.SSLEngine#getEnabledCipherSuites()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnabledCipherSuites",
-            args = {String[].class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnabledCipherSuites",
-            args = {}
-        )
-    })
     public void test_EnabledCipherSuites() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         String[] st = sse.getSupportedCipherSuites();
@@ -296,23 +221,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setEnableSessionCreation(boolean flag)
-     * @tests javax.net.ssl.SSLEngine#getEnableSessionCreation()
+     * javax.net.ssl.SSLEngine#setEnableSessionCreation(boolean flag)
+     * javax.net.ssl.SSLEngine#getEnableSessionCreation()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setEnableSessionCreation",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getEnableSessionCreation",
-            args = {}
-        )
-    })
     public void test_EnableSessionCreation() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -328,23 +239,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setNeedClientAuth(boolean need)
-     * @tests javax.net.ssl.SSLEngine#getNeedClientAuth()
+     * javax.net.ssl.SSLEngine#setNeedClientAuth(boolean need)
+     * javax.net.ssl.SSLEngine#getNeedClientAuth()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setNeedClientAuth",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getNeedClientAuth",
-            args = {}
-        )
-    })
     public void test_NeedClientAuth() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -359,23 +256,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setWantClientAuth(boolean want)
-     * @tests javax.net.ssl.SSLEngine#getWantClientAuth()
+     * javax.net.ssl.SSLEngine#setWantClientAuth(boolean want)
+     * javax.net.ssl.SSLEngine#getWantClientAuth()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setWantClientAuth",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getWantClientAuth",
-            args = {}
-        )
-    })
     public void test_WantClientAuth() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -390,14 +273,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#beginHandshake()
+     * javax.net.ssl.SSLEngine#beginHandshake()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "beginHandshake",
-        args = {}
-    )
     public void test_beginHandshake() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -428,23 +305,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#setUseClientMode(boolean mode)
-     * @tests javax.net.ssl.SSLEngine#getUseClientMode()
+     * javax.net.ssl.SSLEngine#setUseClientMode(boolean mode)
+     * javax.net.ssl.SSLEngine#getUseClientMode()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setUseClientMode",
-            args = {boolean.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getUseClientMode",
-            args = {}
-        )
-    })
     @AndroidOnly("The RI doesn't throw the expected IllegalStateException.")
     public void test_UseClientMode() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
@@ -474,14 +337,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#getSession()
+     * javax.net.ssl.SSLEngine#getSession()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSession",
-        args = {}
-    )
     public void test_getSession() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -493,14 +350,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#getHandshakeStatus()
+     * javax.net.ssl.SSLEngine#getHandshakeStatus()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHandshakeStatus",
-        args = {}
-    )
     public void test_getHandshakeStatus() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
         try {
@@ -515,14 +366,8 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#getDelegatedTask()
+     * javax.net.ssl.SSLEngine#getDelegatedTask()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDelegatedTask",
-        args = {}
-    )
     @KnownFailure("org.apache.harmony.xnet.provider.jsse.SSLEngineImpl#getDelegatedTask() throws NPE instead of returning null")
     public void test_getDelegatedTask() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
@@ -536,16 +381,10 @@ public class SSLEngineTest extends TestCase {
     /**
      * @throws IOException
      * @throws InterruptedException
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     public void test_unwrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
@@ -561,16 +400,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: IndexOutOfBoundsException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     @KnownFailure("Fixed in DonutBurger, boundary checks missing")
     public void test_unwrap_02() throws SSLException {
         String host = "new host";
@@ -608,16 +441,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_03() {
         String host = "new host";
@@ -640,16 +467,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IllegalArgumentException should be thrown",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_04() {
         String host = "new host";
@@ -702,16 +523,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_unwrap_05() {
         String host = "new host";
@@ -732,15 +547,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class, int.class, int.class}
-    )
     public void test_unwrap_06() {
         String host = "new host";
         int port = 8080;
@@ -759,44 +568,19 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
-     *                                     int length, ByteBuffer dst)
-     * Exception case: SSLException should be thrown.
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "wrap cannot be forced to fail",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     public void test_wrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
-
         ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-
-        try {
-            @SuppressWarnings("unused")
-            SSLEngineResult result = clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
-            //fail("SSLException wasn't thrown");
-        } catch (SSLException ex) {
-            //expected
-        }
+        clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
      * Exception case: IndexOutOfBoundsException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed in DonutBurger, boundary checks missing")
     public void test_wrap_02() throws SSLException {
         String host = "new host";
@@ -833,16 +617,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
      * Exception case: ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     public void test_wrap_03() throws SSLException {
         String host = "new host";
         int port = 8080;
@@ -860,16 +638,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
      * Exception case: IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "IllegalArgumentException must be thrown",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_wrap_04() {
         String host = "new host";
@@ -900,16 +672,10 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
      * Exception case: IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_wrap_05() throws SSLException {
         String host = "new host";
@@ -927,15 +693,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, int.class, int.class, ByteBuffer.class}
-    )
     public void test_wrap_06() {
         String host = "new host";
         int port = 8080;
@@ -953,23 +713,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#closeOutbound()
-     * @tests javax.net.ssl.SSLEngine#isOutboundDone()
+     * javax.net.ssl.SSLEngine#closeOutbound()
+     * javax.net.ssl.SSLEngine#isOutboundDone()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "closeOutbound",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isOutboundDone",
-            args = {}
-        )
-    })
     public void test_closeOutbound() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
 
@@ -984,23 +730,9 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * @throws NoSuchAlgorithmException
-     * @tests javax.net.ssl.SSLEngine#closeInbound()
-     * @tests javax.net.ssl.SSLEngine#isInboundDone()
+     * javax.net.ssl.SSLEngine#closeInbound()
+     * javax.net.ssl.SSLEngine#isInboundDone()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "",
-            method = "closeInbound",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isInboundDone",
-            args = {}
-        )
-    })
     public void test_closeInbound() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
 
@@ -1014,15 +746,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_unwrap_ByteBuffer_ByteBuffer_01() throws InterruptedException, IOException {
         prepareEngines();
         doHandshake();
@@ -1038,15 +764,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_ByteBuffer_ByteBuffer_02() {
         String host = "new host";
@@ -1067,15 +787,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_ByteBuffer_ByteBuffer_03() {
         String host = "new host";
@@ -1119,15 +833,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_unwrap_ByteBuffer_ByteBuffer_04() {
         String host = "new host";
@@ -1147,14 +855,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_unwrap_ByteBuffer_ByteBuffer_05() {
         String host = "new host";
         int port = 8080;
@@ -1173,15 +875,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class}
-    )
     public void test_unwrap_ByteBuffer$ByteBuffer_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
@@ -1198,15 +894,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_ByteBuffer$ByteBuffer_02() {
         String host = "new host";
@@ -1228,15 +918,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_unwrap_ByteBuffer$ByteBuffer_03() {
         String host = "new host";
@@ -1291,15 +975,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_unwrap_ByteBuffer$ByteBuffer_04() {
         String host = "new host";
@@ -1319,14 +997,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
+     * javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "unwrap",
-        args = {ByteBuffer.class, ByteBuffer[].class}
-    )
     public void test_unwrap_ByteBuffer$ByteBuffer_05() {
         String host = "new host";
         int port = 8080;
@@ -1344,42 +1016,18 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    /**
-     * @throws IOException
-     * @throws InterruptedException
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
-     * SSLException should be thrown.
-     */
-    @TestTargetNew(
-        level = TestLevel.NOT_FEASIBLE,
-        notes = "wrap cannot be forced to produce SSLException",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer_ByteBuffer_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
         ByteBuffer bbs = ByteBuffer.allocate(20);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-
-        try {
-            clientEngine.engine.wrap(bbs, bbd);
-            //fail("SSLException wasn't thrown");
-        } catch (SSLException ex) {
-            //expected
-        }
+        clientEngine.engine.wrap(bbs, bbd);
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer_ByteBuffer_02() {
         String host = "new host";
         int port = 8080;
@@ -1399,15 +1047,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_wrap_ByteBuffer_ByteBuffer_03() {
         String host = "new host";
@@ -1451,15 +1093,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_wrap_ByteBuffer_ByteBuffer_04() {
         String host = "new host";
@@ -1479,14 +1115,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer.class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer_ByteBuffer_05() {
         String host = "new host";
         int port = 8080;
@@ -1506,15 +1136,9 @@ public class SSLEngineTest extends TestCase {
     /**
      * @throws IOException
      * @throws InterruptedException
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * SSLException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "wrap cannot be forced to throw SSLException",
-        method = "wrap",
-        args = {ByteBuffer[].class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer$ByteBuffer_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
@@ -1531,15 +1155,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer$ByteBuffer_02() {
         String host = "new host";
         int port = 8080;
@@ -1559,15 +1177,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, ByteBuffer.class}
-    )
     @KnownFailure("Fixed on DonutBurger, Wrong Exception thrown")
     public void test_wrap_ByteBuffer$ByteBuffer_03() {
         String host = "new host";
@@ -1611,15 +1223,9 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * IllegalStateException should be thrown.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, ByteBuffer.class}
-    )
     @AndroidOnly("The RI doesn't throw the IllegalStateException.")
     public void test_wrap_ByteBuffer$ByteBuffer_04() {
         String host = "new host";
@@ -1639,14 +1245,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
+     * javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "wrap",
-        args = {ByteBuffer[].class, ByteBuffer.class}
-    )
     public void test_wrap_ByteBuffer$ByteBuffer_05() {
         String host = "new host";
         int port = 8080;
@@ -1824,44 +1424,6 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "wrap",
-                args = {ByteBuffer.class, ByteBuffer.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "unwrap",
-                args = {ByteBuffer.class, ByteBuffer.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "beginHandshake",
-                args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "getHandshakeStatus",
-                args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "wrap",
-                args = {ByteBuffer[].class, ByteBuffer.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.PARTIAL_COMPLETE,
-                notes = "",
-                method = "getDelegatedTask",
-                args = {}
-        )
-    })
     @KnownFailure("Handshake Status is never finished. NPE in "
             + "ClientSessionContext$HostAndPort.hashCode() when host is null")
     public void testHandshake() throws IOException, InterruptedException {

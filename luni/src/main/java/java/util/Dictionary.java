@@ -32,7 +32,6 @@ public abstract class Dictionary<K, V> {
      * Constructs a new instance of this class.
      */
     public Dictionary() {
-        super();
     }
 
     /**

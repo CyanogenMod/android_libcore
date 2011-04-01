@@ -20,6 +20,7 @@
 #include <math.h>
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedUtfChars.h"
 #include "cbigint.h"
 
@@ -510,7 +511,7 @@ OutOfMemory:
   free(y);
   free(D);
   free(D2);
-  jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
+  jniThrowOutOfMemoryError(env, NULL);
   return z;
 }
 
@@ -984,7 +985,7 @@ OutOfMemory:
   free(y);
   free(D);
   free(D2);
-  jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
+  jniThrowOutOfMemoryError(env, NULL);
   return z;
 }
 

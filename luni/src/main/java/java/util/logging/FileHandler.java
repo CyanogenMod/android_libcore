@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import libcore.io.IoUtils;
 
@@ -146,12 +144,6 @@ public class FileHandler extends StreamHandler {
      *
      * @throws IOException
      *             if any I/O error occurs.
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      */
     public FileHandler() throws IOException {
         init(null, null, null, null);
@@ -216,7 +208,6 @@ public class FileHandler extends StreamHandler {
         setOutputStream(output);
     }
 
-    @SuppressWarnings("nls")
     private void initProperties(String p, Boolean a, Integer l, Integer c) {
         super.initProperties("ALL", null, "java.util.logging.XMLFormatter",
                 null);
@@ -381,12 +372,6 @@ public class FileHandler extends StreamHandler {
      *            the name pattern for the output file.
      * @throws IOException
      *             if any I/O error occurs.
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      * @throws IllegalArgumentException
      *             if the pattern is empty.
      * @throws NullPointerException
@@ -413,12 +398,6 @@ public class FileHandler extends StreamHandler {
      *            the append mode.
      * @throws IOException
      *             if any I/O error occurs.
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      * @throws IllegalArgumentException
      *             if {@code pattern} is empty.
      * @throws NullPointerException
@@ -449,12 +428,6 @@ public class FileHandler extends StreamHandler {
      *            the maximum number of files to use, can not be less than one.
      * @throws IOException
      *             if any I/O error occurs.
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      * @throws IllegalArgumentException
      *             if {@code pattern} is empty, {@code limit < 0} or
      *             {@code count < 1}.
@@ -491,12 +464,6 @@ public class FileHandler extends StreamHandler {
      *            the append mode.
      * @throws IOException
      *             if any I/O error occurs.
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      * @throws IllegalArgumentException
      *             if {@code pattern} is empty, {@code limit < 0} or
      *             {@code count < 1}.
@@ -515,13 +482,6 @@ public class FileHandler extends StreamHandler {
 
     /**
      * Flushes and closes all opened files.
-     *
-     * @throws SecurityException
-     *             if a security manager exists and it determines that the
-     *             caller does not have the required permissions to control this
-     *             handler; required permissions include
-     *             {@code LogPermission("control")},
-     *             {@code FilePermission("write")} etc.
      */
     @Override
     public void close() {
@@ -550,12 +510,7 @@ public class FileHandler extends StreamHandler {
         super.publish(record);
         flush();
         if (limit > 0 && output.getLength() >= limit) {
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                public Object run() {
-                    findNextGeneration();
-                    return null;
-                }
-            });
+            findNextGeneration();
         }
     }
 
@@ -583,12 +538,6 @@ public class FileHandler extends StreamHandler {
         public void write(int oneByte) throws IOException {
             wrapped.write(oneByte);
             length++;
-        }
-
-        @Override
-        public void write(byte[] bytes) throws IOException {
-            wrapped.write(bytes);
-            length += bytes.length;
         }
 
         @Override

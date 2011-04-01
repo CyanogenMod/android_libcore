@@ -6,11 +6,11 @@
 
 package org.xml.sax.helpers;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-
 
 /**
  * Encapsulate Namespace logic for use by applications using SAX,
@@ -86,7 +86,7 @@ public class NamespaceSupport
      * <p>This is the Namespace URI that is automatically mapped
      * to the "xml" prefix.</p>
      */
-    public final static String XMLNS =
+    public static final String XMLNS =
     "http://www.w3.org/XML/1998/namespace";
 
 
@@ -106,15 +106,14 @@ public class NamespaceSupport
      * @see #setNamespaceDeclUris
      * @see #isNamespaceDeclUris
      */
-    public final static String NSDECL =
+    public static final String NSDECL =
     "http://www.w3.org/xmlns/2000/";
 
 
     /**
      * An empty enumeration.
      */
-    private final static Enumeration EMPTY_ENUMERATION =
-    new Vector().elements();
+    private static final Enumeration EMPTY_ENUMERATION = Collections.enumeration(Collections.emptyList());
 
 
     ////////////////////////////////////////////////////////////////////
@@ -442,17 +441,16 @@ public class NamespaceSupport
      * @see #getDeclaredPrefixes
      * @see #getURI
      */
-    public Enumeration getPrefixes (String uri)
-    {
-    Vector prefixes = new Vector();
-    Enumeration allPrefixes = getPrefixes();
-    while (allPrefixes.hasMoreElements()) {
-        String prefix = (String)allPrefixes.nextElement();
-        if (uri.equals(getURI(prefix))) {
-        prefixes.addElement(prefix);
+    public Enumeration getPrefixes(String uri) {
+        ArrayList<String> prefixes = new ArrayList<String>();
+        Enumeration allPrefixes = getPrefixes();
+        while (allPrefixes.hasMoreElements()) {
+            String prefix = (String) allPrefixes.nextElement();
+            if (uri.equals(getURI(prefix))) {
+                prefixes.add(prefix);
+            }
         }
-    }
-    return prefixes.elements();
+        return Collections.enumeration(prefixes);
     }
 
 
@@ -596,32 +594,31 @@ public class NamespaceSupport
      * @param uri The associated Namespace URI.
      * @see org.xml.sax.helpers.NamespaceSupport#declarePrefix
      */
-    void declarePrefix (String prefix, String uri)
-    {
-                // Lazy processing...
-        if (!declsOK)
-        throw new IllegalStateException (
-            "can't declare any more prefixes in this context");
+    void declarePrefix(String prefix, String uri) {
+        // Lazy processing...
+        if (!declsOK) {
+            throw new IllegalStateException ("can't declare any more prefixes in this context");
+        }
         if (!declSeen) {
-        copyTables();
+            copyTables();
         }
         if (declarations == null) {
-        declarations = new Vector();
+            declarations = new ArrayList<String>();
         }
 
         prefix = prefix.intern();
         uri = uri.intern();
         if ("".equals(prefix)) {
-        if ("".equals(uri)) {
-            defaultNS = null;
+            if ("".equals(uri)) {
+                defaultNS = null;
+            } else {
+                defaultNS = uri;
+            }
         } else {
-            defaultNS = uri;
+            prefixTable.put(prefix, uri);
+            uriTable.put(uri, prefix); // may wipe out another prefix
         }
-        } else {
-        prefixTable.put(prefix, uri);
-        uriTable.put(uri, prefix); // may wipe out another prefix
-        }
-        declarations.addElement(prefix);
+        declarations.add(prefix);
     }
 
 
@@ -754,13 +751,8 @@ public class NamespaceSupport
      * @return An enumeration of prefixes (possibly empty).
      * @see org.xml.sax.helpers.NamespaceSupport#getDeclaredPrefixes
      */
-    Enumeration getDeclaredPrefixes ()
-    {
-        if (declarations == null) {
-        return EMPTY_ENUMERATION;
-        } else {
-        return declarations.elements();
-        }
+    Enumeration getDeclaredPrefixes() {
+        return (declarations == null) ? EMPTY_ENUMERATION : Collections.enumeration(declarations);
     }
 
 
@@ -831,7 +823,7 @@ public class NamespaceSupport
     // Internal state.
     ////////////////////////////////////////////////////////////////
 
-    private Vector declarations = null;
+    private ArrayList<String> declarations = null;
     private boolean declSeen = false;
     private Context parent = null;
     }

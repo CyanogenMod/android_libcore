@@ -200,21 +200,21 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
         for (EmulatedFields.ObjectSlot slot : emulatedFields.slots()) {
             Object fieldValue = slot.getFieldValue();
             Class<?> type = slot.getField().getType();
-            if (type == Integer.TYPE) {
+            if (type == int.class) {
                 output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
-            } else if (type == Byte.TYPE) {
+            } else if (type == byte.class) {
                 output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : 0);
-            } else if (type == Character.TYPE) {
+            } else if (type == char.class) {
                 output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : 0);
-            } else if (type == Short.TYPE) {
+            } else if (type == short.class) {
                 output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : 0);
-            } else if (type == Boolean.TYPE) {
+            } else if (type == boolean.class) {
                 output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
-            } else if (type == Long.TYPE) {
+            } else if (type == long.class) {
                 output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : 0);
-            } else if (type == Float.TYPE) {
+            } else if (type == float.class) {
                 output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : 0);
-            } else if (type == Double.TYPE) {
+            } else if (type == double.class) {
                 output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : 0);
             } else {
                 // Either array or Object

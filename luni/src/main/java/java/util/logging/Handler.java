@@ -19,8 +19,6 @@ package java.util.logging;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * A {@code Handler} object accepts a logging request and exports the desired
@@ -78,18 +76,12 @@ public abstract class Handler {
     }
 
     // get a instance from given class name, using context classloader
-    private Object getCustomizeInstance(final String className)
-            throws Exception {
-        Class<?> c = AccessController
-                .doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
-                    public Class<?> run() throws Exception {
-                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                        if (loader == null) {
-                            loader = ClassLoader.getSystemClassLoader();
-                        }
-                        return loader.loadClass(className);
-                    }
-                });
+    private Object getCustomizeInstance(final String className) throws Exception {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            loader = ClassLoader.getSystemClassLoader();
+        }
+        Class<?> c = loader.loadClass(className);
         return c.newInstance();
     }
 
@@ -159,10 +151,6 @@ public abstract class Handler {
      * Closes this handler. A flush operation will be performed and all the
      * associated resources will be freed. Client applications should not use
      * this handler after closing it.
-     *
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public abstract void close();
 
@@ -194,9 +182,6 @@ public abstract class Handler {
      * logging.
      *
      * @return the error manager used by this handler.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public ErrorManager getErrorManager() {
         LogManager.getLogManager().checkAccess();
@@ -298,14 +283,10 @@ public abstract class Handler {
      *
      * @param encoding
      *            the character encoding to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      * @throws UnsupportedEncodingException
      *             if the specified encoding is not supported by the runtime.
      */
-    public void setEncoding(String encoding) throws SecurityException,
-            UnsupportedEncodingException {
+    public void setEncoding(String encoding) throws UnsupportedEncodingException {
         LogManager.getLogManager().checkAccess();
         internalSetEncoding(encoding);
     }
@@ -317,9 +298,6 @@ public abstract class Handler {
      *            the error manager to set.
      * @throws NullPointerException
      *             if {@code em} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setErrorManager(ErrorManager em) {
         LogManager.getLogManager().checkAccess();
@@ -334,9 +312,6 @@ public abstract class Handler {
      *
      * @param newFilter
      *            the filter to set, may be {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setFilter(Filter newFilter) {
         LogManager.getLogManager().checkAccess();
@@ -364,9 +339,6 @@ public abstract class Handler {
      *            the formatter to set.
      * @throws NullPointerException
      *             if {@code newFormatter} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setFormatter(Formatter newFormatter) {
         LogManager.getLogManager().checkAccess();
@@ -381,9 +353,6 @@ public abstract class Handler {
      *            the logging level to set.
      * @throws NullPointerException
      *             if {@code newLevel} is {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setLevel(Level newLevel) {
         if (newLevel == null) {

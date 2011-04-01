@@ -24,9 +24,8 @@ import java.lang.reflect.Proxy;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
 import java.util.List;
-import libcore.util.EmptyArray;
+import libcore.io.Memory;
 import libcore.io.SizeOf;
-import org.apache.harmony.luni.platform.OSMemory;
 
 /**
  * A specialized {@link OutputStream} that is able to write (serialize) Java
@@ -113,11 +112,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * Allows the receiver to decide if it needs to call writeObjectOverride
      */
     private boolean subclassOverridingImplementation;
-
-
-    // BEGIN android-removed
-    // private ObjectAccessor accessor = AccessorFactory.getObjectAccessor();
-    // END android-removed
 
     /*
      * Descriptor for java.lang.reflect.Proxy
@@ -249,17 +243,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      *
      * @throws IOException
      *             if an error occurs when creating this stream.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
-     * @see SecurityManager#checkPermission(java.security.Permission)
      */
-    protected ObjectOutputStream() throws IOException, SecurityException {
-        super();
-        SecurityManager currentManager = System.getSecurityManager();
-        if (currentManager != null) {
-            currentManager.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-        }
+    protected ObjectOutputStream() throws IOException {
         /*
          * WARNING - we should throw IOException if not called from a subclass
          * according to the JavaDoc. Add the test.
@@ -277,36 +262,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      * @throws IOException
      *             if an error occurs while writing the object stream
      *             header
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
      */
     public ObjectOutputStream(OutputStream output) throws IOException {
-        Class<?> implementationClass = getClass();
-        Class<?> thisClass = ObjectOutputStream.class;
-        if (implementationClass != thisClass) {
-            boolean mustCheck = false;
-            try {
-                Method method = implementationClass.getMethod("putFields", EmptyArray.CLASS);
-                mustCheck = method.getDeclaringClass() != thisClass;
-            } catch (NoSuchMethodException e) {
-            }
-            if (!mustCheck) {
-                try {
-                    Method method = implementationClass.getMethod("writeUnshared",
-                            WRITE_UNSHARED_PARAM_TYPES);
-                    mustCheck = method.getDeclaringClass() != thisClass;
-                } catch (NoSuchMethodException e) {
-                }
-            }
-            if (mustCheck) {
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm
-                            .checkPermission(ObjectStreamConstants.SUBCLASS_IMPLEMENTATION_PERMISSION);
-                }
-            }
-        }
         this.output = (output instanceof DataOutputStream) ? (DataOutputStream) output
                 : new DataOutputStream(output);
         this.enableReplace = false;
@@ -482,22 +439,10 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
      *            {@code true} to enable object replacement; {@code false} to
      *            disable it.
      * @return the previous setting.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies enabling
-     *             object replacement for this stream.
      * @see #replaceObject
      * @see ObjectInputStream#enableResolveObject
      */
-    protected boolean enableReplaceObject(boolean enable)
-            throws SecurityException {
-        if (enable) {
-            // The Stream has to be trusted for this feature to be enabled.
-            // trusted means the stream's classloader has to be null
-            SecurityManager currentManager = System.getSecurityManager();
-            if (currentManager != null) {
-                currentManager.checkPermission(SUBSTITUTION_PERMISSION);
-            }
-        }
+    protected boolean enableReplaceObject(boolean enable) {
         boolean originalValue = enableReplace;
         enableReplace = enable;
         return originalValue;
@@ -677,21 +622,6 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
             throw new IllegalArgumentException("Unknown protocol: " + version);
         }
         protocolVersion = version;
-    }
-
-    /**
-     * Writes the entire contents of the byte array {@code buffer} to the output
-     * stream. Blocks until all bytes are written.
-     *
-     * @param buffer
-     *            the buffer to write.
-     * @throws IOException
-     *             if an error occurs while writing to the target stream.
-     */
-    @Override
-    public void write(byte[] buffer) throws IOException {
-        checkWritePrimitiveTypes();
-        primitiveTypes.write(buffer);
     }
 
     /**
@@ -972,25 +902,24 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
     private void writeFieldValues(EmulatedFieldsForDumping emulatedFields) throws IOException {
         // Access internal fields which we can set/get. Users can't do this.
         EmulatedFields accessibleSimulatedFields = emulatedFields.emulatedFields();
-        EmulatedFields.ObjectSlot[] slots = accessibleSimulatedFields.slots();
         for (EmulatedFields.ObjectSlot slot : accessibleSimulatedFields.slots()) {
             Object fieldValue = slot.getFieldValue();
             Class<?> type = slot.getField().getType();
-            if (type == Integer.TYPE) {
+            if (type == int.class) {
                 output.writeInt(fieldValue != null ? ((Integer) fieldValue).intValue() : 0);
-            } else if (type == Byte.TYPE) {
+            } else if (type == byte.class) {
                 output.writeByte(fieldValue != null ? ((Byte) fieldValue).byteValue() : 0);
-            } else if (type == Character.TYPE) {
+            } else if (type == char.class) {
                 output.writeChar(fieldValue != null ? ((Character) fieldValue).charValue() : 0);
-            } else if (type == Short.TYPE) {
+            } else if (type == short.class) {
                 output.writeShort(fieldValue != null ? ((Short) fieldValue).shortValue() : 0);
-            } else if (type == Boolean.TYPE) {
+            } else if (type == boolean.class) {
                 output.writeBoolean(fieldValue != null ? ((Boolean) fieldValue).booleanValue() : false);
-            } else if (type == Long.TYPE) {
+            } else if (type == long.class) {
                 output.writeLong(fieldValue != null ? ((Long) fieldValue).longValue() : 0);
-            } else if (type == Float.TYPE) {
+            } else if (type == float.class) {
                 output.writeFloat(fieldValue != null ? ((Float) fieldValue).floatValue() : 0);
-            } else if (type == Double.TYPE) {
+            } else if (type == double.class) {
                 output.writeDouble(fieldValue != null ? ((Double) fieldValue).doubleValue() : 0);
             } else {
                 // Either array or Object
@@ -1025,21 +954,21 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
                 if (field == null) {
                     throw new InvalidClassException(classDesc.getName() + " doesn't have a field " + fieldDesc.getName() + " of type " + type);
                 }
-                if (type == Byte.TYPE) {
+                if (type == byte.class) {
                     output.writeByte(field.getByte(obj));
-                } else if (type == Character.TYPE) {
+                } else if (type == char.class) {
                     output.writeChar(field.getChar(obj));
-                } else if (type == Double.TYPE) {
+                } else if (type == double.class) {
                     output.writeDouble(field.getDouble(obj));
-                } else if (type == Float.TYPE) {
+                } else if (type == float.class) {
                     output.writeFloat(field.getFloat(obj));
-                } else if (type == Integer.TYPE) {
+                } else if (type == int.class) {
                     output.writeInt(field.getInt(obj));
-                } else if (type == Long.TYPE) {
+                } else if (type == long.class) {
                     output.writeLong(field.getLong(obj));
-                } else if (type == Short.TYPE) {
+                } else if (type == short.class) {
                     output.writeShort(field.getShort(obj));
-                } else if (type == Boolean.TYPE) {
+                } else if (type == boolean.class) {
                     output.writeBoolean(field.getBoolean(obj));
                 } else {
                     // Reference types (including arrays).
@@ -1215,47 +1144,47 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         // elements.
 
         if (componentType.isPrimitive()) {
-            if (componentType == Integer.TYPE) {
+            if (componentType == int.class) {
                 int[] intArray = (int[]) array;
                 output.writeInt(intArray.length);
                 for (int i = 0; i < intArray.length; i++) {
                     output.writeInt(intArray[i]);
                 }
-            } else if (componentType == Byte.TYPE) {
+            } else if (componentType == byte.class) {
                 byte[] byteArray = (byte[]) array;
                 output.writeInt(byteArray.length);
                 output.write(byteArray, 0, byteArray.length);
-            } else if (componentType == Character.TYPE) {
+            } else if (componentType == char.class) {
                 char[] charArray = (char[]) array;
                 output.writeInt(charArray.length);
                 for (int i = 0; i < charArray.length; i++) {
                     output.writeChar(charArray[i]);
                 }
-            } else if (componentType == Short.TYPE) {
+            } else if (componentType == short.class) {
                 short[] shortArray = (short[]) array;
                 output.writeInt(shortArray.length);
                 for (int i = 0; i < shortArray.length; i++) {
                     output.writeShort(shortArray[i]);
                 }
-            } else if (componentType == Boolean.TYPE) {
+            } else if (componentType == boolean.class) {
                 boolean[] booleanArray = (boolean[]) array;
                 output.writeInt(booleanArray.length);
                 for (int i = 0; i < booleanArray.length; i++) {
                     output.writeBoolean(booleanArray[i]);
                 }
-            } else if (componentType == Long.TYPE) {
+            } else if (componentType == long.class) {
                 long[] longArray = (long[]) array;
                 output.writeInt(longArray.length);
                 for (int i = 0; i < longArray.length; i++) {
                     output.writeLong(longArray[i]);
                 }
-            } else if (componentType == Float.TYPE) {
+            } else if (componentType == float.class) {
                 float[] floatArray = (float[]) array;
                 output.writeInt(floatArray.length);
                 for (int i = 0; i < floatArray.length; i++) {
                     output.writeFloat(floatArray[i]);
                 }
-            } else if (componentType == Double.TYPE) {
+            } else if (componentType == double.class) {
                 double[] doubleArray = (double[]) array;
                 output.writeInt(doubleArray.length);
                 for (int i = 0; i < doubleArray.length; i++) {
@@ -1508,12 +1437,12 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         if (count <= 0xffff) {
             buffer = new byte[1 + SizeOf.SHORT + (int) count];
             buffer[offset++] = TC_STRING;
-            OSMemory.pokeShort(buffer, offset, (short) count, ByteOrder.BIG_ENDIAN);
+            Memory.pokeShort(buffer, offset, (short) count, ByteOrder.BIG_ENDIAN);
             offset += SizeOf.SHORT;
         } else {
             buffer = new byte[1 + SizeOf.LONG + (int) count];
             buffer[offset++] = TC_LONGSTRING;
-            OSMemory.pokeLong(buffer, offset, count, ByteOrder.BIG_ENDIAN);
+            Memory.pokeLong(buffer, offset, count, ByteOrder.BIG_ENDIAN);
             offset += SizeOf.LONG;
         }
         ModifiedUtf8.encode(buffer, offset, object);

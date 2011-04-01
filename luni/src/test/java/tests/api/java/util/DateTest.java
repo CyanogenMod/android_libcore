@@ -17,29 +17,17 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-@TestTargetClass(Date.class)
 public class DateTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.Date#Date()
+     * java.util.Date#Date()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.Date()
         GregorianCalendar gc = new GregorianCalendar(1998, Calendar.OCTOBER,
@@ -51,14 +39,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#Date(int, int, int)
+     * java.util.Date#Date(int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {int.class, int.class, int.class}
-    )
     public void test_ConstructorIII() {
         // Test for method java.util.Date(int, int, int)
         Date d1 = new Date(70, 0, 1); // the epoch + local time
@@ -74,14 +56,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#Date(int, int, int, int, int)
+     * java.util.Date#Date(int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorIIIII() {
         // Test for method java.util.Date(int, int, int, int, int)
 
@@ -96,14 +72,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#Date(int, int, int, int, int, int)
+     * java.util.Date#Date(int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_ConstructorIIIIII() {
         // Test for method java.util.Date(int, int, int, int, int, int)
 
@@ -118,28 +88,16 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#Date(long)
+     * java.util.Date#Date(long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {long.class}
-    )
     public void test_ConstructorJ() {
         // Test for method java.util.Date(long)
         assertTrue("Used to test", true);
     }
 
     /**
-     * @tests java.util.Date#Date(java.lang.String)
+     * java.util.Date#Date(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "Date",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.util.Date(java.lang.String)
         Date d1 = new Date("January 1, 1970, 00:00:00 GMT"); // the epoch
@@ -157,14 +115,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#after(java.util.Date)
+     * java.util.Date#after(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "after",
-        args = {java.util.Date.class}
-    )
     public void test_afterLjava_util_Date() {
         // Test for method boolean java.util.Date.after(java.util.Date)
         Date d1 = new Date(0);
@@ -181,14 +133,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#before(java.util.Date)
+     * java.util.Date#before(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "before",
-        args = {java.util.Date.class}
-    )
     public void test_beforeLjava_util_Date() {
         // Test for method boolean java.util.Date.before(java.util.Date)
         Date d1 = new Date(0);
@@ -205,14 +151,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#clone()
+     * java.util.Date#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.Date.clone()
         Date d1 = new Date(100000);
@@ -224,14 +164,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#compareTo(java.util.Date)
+     * java.util.Date#compareTo(java.util.Date)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "compareTo",
-        args = {java.util.Date.class}
-    )
     public void test_compareToLjava_util_Date() {
         // Test for method int java.util.Date.compareTo(java.util.Date)
         final int someNumber = 10000;
@@ -257,14 +191,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#equals(java.lang.Object)
+     * java.util.Date#equals(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.util.Date.equals(java.lang.Object)
         Date d1 = new Date(0);
@@ -275,14 +203,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getDate()
+     * java.util.Date#getDate()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDate",
-        args = {}
-    )
     public void test_getDate() {
         // Test for method int java.util.Date.getDate()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -291,14 +213,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getDay()
+     * java.util.Date#getDay()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDay",
-        args = {}
-    )
     public void test_getDay() {
         // Test for method int java.util.Date.getDay()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -307,14 +223,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getHours()
+     * java.util.Date#getHours()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHours",
-        args = {}
-    )
     public void test_getHours() {
         // Test for method int java.util.Date.getHours()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -323,14 +233,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getMinutes()
+     * java.util.Date#getMinutes()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMinutes",
-        args = {}
-    )
     public void test_getMinutes() {
         // Test for method int java.util.Date.getMinutes()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -339,14 +243,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getMonth()
+     * java.util.Date#getMonth()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getMonth",
-        args = {}
-    )
     public void test_getMonth() {
         // Test for method int java.util.Date.getMonth()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -355,14 +253,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getSeconds()
+     * java.util.Date#getSeconds()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSeconds",
-        args = {}
-    )
     public void test_getSeconds() {
         // Test for method int java.util.Date.getSeconds()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -371,14 +263,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getTime()
+     * java.util.Date#getTime()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTime",
-        args = {}
-    )
     public void test_getTime() {
         // Test for method long java.util.Date.getTime()
         Date d1 = new Date(0);
@@ -388,14 +274,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getTimezoneOffset()
+     * java.util.Date#getTimezoneOffset()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getTimezoneOffset",
-        args = {}
-    )
     public void test_getTimezoneOffset() {
         // Test for method int java.util.Date.getTimezoneOffset()
         assertTrue("Used to test", true);
@@ -404,14 +284,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#getYear()
+     * java.util.Date#getYear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getYear",
-        args = {}
-    )
     public void test_getYear() {
         // Test for method int java.util.Date.getYear()
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -420,14 +294,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#hashCode()
+     * java.util.Date#hashCode()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         // Test for method int java.util.Date.hashCode()
         Date d1 = new Date(0);
@@ -437,14 +305,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#parse(java.lang.String)
+     * java.util.Date#parse(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.lang.String.class}
-    )
     public void test_parseLjava_lang_String() {
         // Test for method long java.util.Date.parse(java.lang.String)
         Date d = new Date(Date.parse("13 October 1998"));
@@ -486,14 +348,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setDate(int)
+     * java.util.Date#setDate(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setDate",
-        args = {int.class}
-    )
     public void test_setDateI() {
         // Test for method void java.util.Date.setDate(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -503,14 +359,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setHours(int)
+     * java.util.Date#setHours(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setHours",
-        args = {int.class}
-    )
     public void test_setHoursI() {
         // Test for method void java.util.Date.setHours(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -520,14 +370,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setMinutes(int)
+     * java.util.Date#setMinutes(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMinutes",
-        args = {int.class}
-    )
     public void test_setMinutesI() {
         // Test for method void java.util.Date.setMinutes(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -537,14 +381,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setMonth(int)
+     * java.util.Date#setMonth(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setMonth",
-        args = {int.class}
-    )
     public void test_setMonthI() {
         // Test for method void java.util.Date.setMonth(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -554,14 +392,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setSeconds(int)
+     * java.util.Date#setSeconds(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setSeconds",
-        args = {int.class}
-    )
     public void test_setSecondsI() {
         // Test for method void java.util.Date.setSeconds(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -571,14 +403,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setTime(long)
+     * java.util.Date#setTime(long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setTime",
-        args = {long.class}
-    )
     public void test_setTimeJ() {
         // Test for method void java.util.Date.setTime(long)
         Date d1 = new Date(0);
@@ -590,14 +416,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#setYear(int)
+     * java.util.Date#setYear(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setYear",
-        args = {int.class}
-    )
     public void test_setYearI() {
         // Test for method void java.util.Date.setYear(int)
         Date d = new GregorianCalendar(1998, Calendar.OCTOBER, 13, 19, 9)
@@ -607,14 +427,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#toGMTString()
+     * java.util.Date#toGMTString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toGMTString",
-        args = {}
-    )
     public void test_toGMTString() {
         // Test for method java.lang.String java.util.Date.toGMTString()
         assertEquals("Did not convert epoch to GMT string correctly", "1 Jan 1970 00:00:00 GMT", new Date(0)
@@ -625,14 +439,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#toString()
+     * java.util.Date#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // Test for method java.lang.String java.util.Date.toString()
         Calendar cal = Calendar.getInstance();
@@ -660,14 +468,8 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.Date#UTC(int, int, int, int, int, int)
+     * java.util.Date#UTC(int, int, int, int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "UTC",
-        args = {int.class, int.class, int.class, int.class, int.class, int.class}
-    )
     public void test_UTCIIIIII() {
         // Test for method long java.util.Date.UTC(int, int, int, int, int, int)
         assertTrue("Returned incorrect UTC value for epoch", Date.UTC(70, 0, 1,
@@ -676,15 +478,9 @@ public class DateTest extends junit.framework.TestCase {
                 0, 1, 0, 0, 0) == (long) 365 * 24 * 60 * 60 * 1000);
     }
     /**
-     * @tests java.util.Date#toLocaleString() Test for method java.lang.String
+     * java.util.Date#toLocaleString() Test for method java.lang.String
      *        java.util.Date.toGMTString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toLocaleString",
-        args = {}
-    )
     public void test_toLocaleString() {
         Locale loc = Locale.getDefault();
         Locale.setDefault(Locale.US);

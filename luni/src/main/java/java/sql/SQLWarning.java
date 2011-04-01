@@ -32,7 +32,6 @@ public class SQLWarning extends SQLException implements Serializable {
      * code is set to 0.
      */
     public SQLWarning() {
-        super();
     }
 
     /**

@@ -32,7 +32,6 @@ public class SimpleFormatter extends Formatter {
      * Constructs a new {@code SimpleFormatter}.
      */
     public SimpleFormatter() {
-        super();
     }
 
     /**
@@ -49,10 +48,9 @@ public class SimpleFormatter extends Formatter {
         sb.append(MessageFormat.format("{0, date} {0, time} ",
                 new Object[] { new Date(r.getMillis()) }));
         sb.append(r.getSourceClassName()).append(" ");
-        sb.append(r.getSourceMethodName()).append(
-                LogManager.getSystemLineSeparator());
+        sb.append(r.getSourceMethodName()).append(System.lineSeparator());
         sb.append(r.getLevel().getName()).append(": ");
-        sb.append(formatMessage(r)).append(LogManager.getSystemLineSeparator());
+        sb.append(formatMessage(r)).append(System.lineSeparator());
         if (r.getThrown() != null) {
             sb.append("Throwable occurred: ");
             Throwable t = r.getThrown();

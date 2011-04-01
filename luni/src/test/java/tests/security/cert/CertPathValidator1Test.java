@@ -22,11 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -49,7 +44,6 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
  * methods.
  *
  */
-@TestTargetClass(CertPathValidator.class)
 public class CertPathValidator1Test extends TestCase {
 
     public static final String srvCertPathValidator = "CertPathValidator";
@@ -100,12 +94,6 @@ public class CertPathValidator1Test extends TestCase {
      * Test for <code>getDefaultType()</code> method
      * Assertion: returns security property "certpathvalidator.type" or "PKIX"
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultType",
-        args = {}
-    )
     public void testCertPathValidator01() {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
@@ -138,12 +126,6 @@ public class CertPathValidator1Test extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NoSuchAlgorithmException.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testCertPathValidator02() {
         try {
             CertPathValidator.getInstance(null);
@@ -163,12 +145,6 @@ public class CertPathValidator1Test extends TestCase {
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertion: returns CertPathValidator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive case.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testCertPathValidator03() throws NoSuchAlgorithmException  {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
@@ -186,12 +162,6 @@ public class CertPathValidator1Test extends TestCase {
      *
      * FIXME: verify what exception will be thrown if provider is empty
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance method throws IllegalArgumentException when provider parameter is null or empty.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator04()
             throws NoSuchAlgorithmException, NoSuchProviderException  {
         if (!PKIXSupport) {
@@ -217,12 +187,6 @@ public class CertPathValidator1Test extends TestCase {
      * Assertion:
      * throws NoSuchProviderException when provider has invalid value
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance method throws NoSuchProviderException when provider parameter has invalid value.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator05() throws NoSuchAlgorithmException {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
@@ -246,12 +210,6 @@ public class CertPathValidator1Test extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance method throws NullPointerException when algorithm is null, and NoSuchAlgorithmException when algorithm  is not available",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator06()
             throws NoSuchAlgorithmException, NoSuchProviderException  {
         if (!PKIXSupport) {
@@ -276,12 +234,6 @@ public class CertPathValidator1Test extends TestCase {
      * Test for <code>getInstance(String algorithm, String provider)</code> method
      * Assertion: returns CertPathValidator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance mwthod returns CertPathValidator object.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator07() throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (!PKIXSupport) {
@@ -303,12 +255,6 @@ public class CertPathValidator1Test extends TestCase {
      * Test for <code>getInstance(String algorithm, Provider provider)</code> method
      * Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that getInstance method throws IllegalArgumentException when provider parameter is null.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testCertPathValidator08()
             throws NoSuchAlgorithmException  {
         if (!PKIXSupport) {
@@ -331,12 +277,6 @@ public class CertPathValidator1Test extends TestCase {
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance method throws NullPointerException when algorithm is null, and  NoSuchAlgorithmException when algorithm  is not available.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator09()
             throws NoSuchAlgorithmException, NoSuchProviderException  {
         if (!PKIXSupport) {
@@ -361,12 +301,6 @@ public class CertPathValidator1Test extends TestCase {
      * Test for <code>getInstance(String algorithm, String provider)</code> method
      * Assertion: returns CertPathValidator object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that getInstance method returns CertPathValidator object.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertPathValidator10() throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (!PKIXSupport) {
@@ -389,12 +323,6 @@ public class CertPathValidator1Test extends TestCase {
      * Assertion: throws InvalidAlgorithmParameterException params is not
      * instance of PKIXParameters or null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that validate method throws InvalidAlgorithmParameterException if param is not instance of PKIXParameters or null.",
-        method = "validate",
-        args = {java.security.cert.CertPath.class, java.security.cert.CertPathParameters.class}
-    )
     public void testCertPathValidator11()
             throws NoSuchAlgorithmException, NoSuchProviderException, CertPathValidatorException {
         if (!PKIXSupport) {
@@ -424,12 +352,6 @@ public class CertPathValidator1Test extends TestCase {
      * <code>CertPathValidator</code> constructor
      * Assertion: returns CertPathValidator object
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertPathValidator",
-        args = {java.security.cert.CertPathValidatorSpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testCertPathValidator12()
             throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException,
             CertPathValidatorException, InvalidAlgorithmParameterException {
@@ -461,12 +383,6 @@ public class CertPathValidator1Test extends TestCase {
     /**
      * Test for <code>getAlgorithm()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAlgorithm",
-        args = {}
-    )
     public void testCertPathValidator13() throws NoSuchAlgorithmException {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
@@ -496,12 +412,6 @@ public class CertPathValidator1Test extends TestCase {
     /**
      * Test for <code>getProvider()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getProvider",
-        args = {}
-    )
     public void testCertPathValidator14() throws NoSuchAlgorithmException {
         if (!PKIXSupport) {
             fail(NotSupportMsg);

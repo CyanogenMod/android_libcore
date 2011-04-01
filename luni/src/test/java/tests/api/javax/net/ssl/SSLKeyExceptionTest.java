@@ -15,16 +15,10 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLKeyException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLKeyException.class)
 public class SSLKeyExceptionTest extends TestCase {
 
     private static String[] msgs = {
@@ -38,12 +32,6 @@ public class SSLKeyExceptionTest extends TestCase {
      * constructs SSLKeyException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLKeyException",
-        args = {java.lang.String.class}
-    )
     public void test_Constructor01() {
         SSLKeyException skE;
         for (int i = 0; i < msgs.length; i++) {
@@ -58,12 +46,6 @@ public class SSLKeyExceptionTest extends TestCase {
      * constructs SSLPeerUnverifiedException with detail message msg. Parameter
      * <code>msg</code> is null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLKeyException",
-        args = {java.lang.String.class}
-    )
     public void test_Constructor02() {
         String msg = null;
         SSLKeyException skE = new SSLKeyException(msg);

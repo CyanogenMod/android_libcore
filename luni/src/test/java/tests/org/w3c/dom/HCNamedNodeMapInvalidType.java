@@ -18,11 +18,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,7 +37,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/2000/11/DOM-Level-2-errata#core-4">http://www.w3.org/2000/11/DOM-Level-2-errata#core-4</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class HCNamedNodeMapInvalidType extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -72,12 +66,6 @@ public final class HCNamedNodeMapInvalidType extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItem method throws DOMException with HIERARCHY_REQUEST_ERR code.",
-        method = "setNamedItem",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testNamedNodeMapInvalidType() throws Throwable {
         Document doc;
         NamedNodeMap attributes;

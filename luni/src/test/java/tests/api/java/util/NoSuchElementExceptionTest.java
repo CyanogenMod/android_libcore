@@ -17,26 +17,14 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-@TestTargetClass(NoSuchElementException.class)
 public class NoSuchElementExceptionTest extends junit.framework.TestCase {
 
     /**
-     * @tests java.util.NoSuchElementException#NoSuchElementException()
+     * java.util.NoSuchElementException#NoSuchElementException()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NoSuchElementException",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.NoSuchElementException()
 
@@ -52,14 +40,8 @@ public class NoSuchElementExceptionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.NoSuchElementException#NoSuchElementException(java.lang.String)
+     * java.util.NoSuchElementException#NoSuchElementException(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "NoSuchElementException",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.util.NoSuchElementException(java.lang.String)
 

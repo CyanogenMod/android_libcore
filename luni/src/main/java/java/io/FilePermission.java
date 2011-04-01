@@ -17,10 +17,10 @@
 
 package java.io;
 
-import java.security.AccessController;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
+import java.util.Locale;
 import libcore.util.Objects;
 
 /**
@@ -102,16 +102,11 @@ public final class FilePermission extends Permission implements Serializable {
         if (path.equals("<<ALL FILES>>")) {
             includeAll = true;
         } else {
-            canonPath = AccessController
-                    .doPrivileged(new PrivilegedAction<String>() {
-                        public String run() {
-                            try {
-                                return new File(path).getCanonicalPath();
-                            } catch (IOException e) {
-                                return path;
-                            }
-                        }
-                    });
+            canonPath = path;
+            try {
+                canonPath = new File(path).getCanonicalPath();
+            } catch (IOException e) {
+            }
             if (path.equals("*") || path.endsWith(File.separator + "*")) {
                 allDir = true;
             }
@@ -131,7 +126,7 @@ public final class FilePermission extends Permission implements Serializable {
      * @return the string representing this permission's actions
      */
     private String toCanonicalActionString(String action) {
-        actions = action.trim().toLowerCase();
+        actions = action.trim().toLowerCase(Locale.US);
 
         // get the numerical representation of the action list
         mask = getMask(actions);

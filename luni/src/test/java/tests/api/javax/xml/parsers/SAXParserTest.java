@@ -16,10 +16,6 @@
 package tests.api.javax.xml.parsers;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -48,7 +44,6 @@ import tests.api.org.xml.sax.support.MockHandler;
 import tests.support.resource.Support_Resources;
 
 @SuppressWarnings("deprecation")
-@TestTargetClass(SAXParser.class)
 public class SAXParserTest extends TestCase {
 
     private class MockSAXParser extends SAXParser {
@@ -249,12 +244,6 @@ public class SAXParserTest extends TestCase {
 //        }
 //    }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SAXParser",
-        args = {}
-    )
     public void testSAXParser() {
         try {
             new MockSAXParser();
@@ -264,7 +253,7 @@ public class SAXParserTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parser.SAXParser#getSchema().
+     * javax.xml.parser.SAXParser#getSchema().
      * TODO getSchema() IS NOT SUPPORTED
      */
     /*   public void test_getSchema() {
@@ -283,12 +272,6 @@ public class SAXParserTest extends TestCase {
     }
      */
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isNamespaceAware",
-        args = {}
-    )
     public void testIsNamespaceAware() {
         try {
             spf.setNamespaceAware(true);
@@ -300,12 +283,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No validating parser in Android, hence not tested",
-        method = "isValidating",
-        args = {}
-    )
     public void testIsValidating() {
         try {
             spf.setValidating(false);
@@ -315,12 +292,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No XInclude-aware parser in Android, hence not tested",
-        method = "isXIncludeAware",
-        args = {}
-    )
     public void testIsXIncludeAware() {
         try {
             spf.setXIncludeAware(false);
@@ -334,12 +305,6 @@ public class SAXParserTest extends TestCase {
      * @test javax.xml.parsers.SAXParser#parse(java.io.File,
      *     org.xml.sax.helpers.DefaultHandler)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify positive functionality properly; not all exceptions are verified.",
-        method = "parse",
-        args = {java.io.File.class, org.xml.sax.helpers.DefaultHandler.class}
-    )
     public void test_parseLjava_io_FileLorg_xml_sax_helpers_DefaultHandler()
     throws Exception {
 
@@ -376,12 +341,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Sufficient while XML parser situation is still unclear",
-        method = "parse",
-        args = {java.io.File.class, org.xml.sax.HandlerBase.class}
-    )
     public void testParseFileHandlerBase() {
         for(int i = 0; i < list_wf.length; i++) {
             try {
@@ -441,12 +400,6 @@ public class SAXParserTest extends TestCase {
      * @test javax.xml.parsers.SAXParser#parse(org.xml.sax.InputSource,
      *     org.xml.sax.helpers.DefaultHandler)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify IOException.",
-        method = "parse",
-        args = {org.xml.sax.InputSource.class, org.xml.sax.helpers.DefaultHandler.class}
-    )
     public void test_parseLorg_xml_sax_InputSourceLorg_xml_sax_helpers_DefaultHandler()
             throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
@@ -490,12 +443,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Sufficient while XML parser situation is still unclear",
-        method = "parse",
-        args = {org.xml.sax.InputSource.class, org.xml.sax.HandlerBase.class}
-    )
     public void testParseInputSourceHandlerBase() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
             HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
@@ -549,12 +496,6 @@ public class SAXParserTest extends TestCase {
      * @test javax.xml.parsers.SAXParser#parse(java.io.InputStream,
      *     org.xml.sax.helpers.DefaultHandler)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify IOException.",
-        method = "parse",
-        args = {java.io.InputStream.class, org.xml.sax.helpers.DefaultHandler.class}
-    )
     public void test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandler()
     throws Exception {
 
@@ -599,12 +540,6 @@ public class SAXParserTest extends TestCase {
      * @test javax.xml.parsers.SAXParser#parse(java.io.InputStream,
      *     org.xml.sax.helpers.DefaultHandler, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify  IOException.",
-        method = "parse",
-        args = {java.io.InputStream.class, org.xml.sax.helpers.DefaultHandler.class, java.lang.String.class}
-    )
     @KnownFailure("We supply optional qnames, but this test doesn't expect them")
     public void test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String() {
         for(int i = 0; i < list_wf.length; i++) {
@@ -715,12 +650,6 @@ public class SAXParserTest extends TestCase {
 //        }*/
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Sufficient while XML parser situation is still unclear",
-        method = "parse",
-        args = {java.io.InputStream.class, org.xml.sax.HandlerBase.class}
-    )
     public void testParseInputStreamHandlerBase() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
             HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
@@ -762,12 +691,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Sufficient while XML parser situation is still unclear",
-        method = "parse",
-        args = {java.io.InputStream.class, org.xml.sax.HandlerBase.class, java.lang.String.class}
-    )
     public void testParseInputStreamHandlerBaseString() throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
             HashMap<String, String> hm = sp.readFile(list_out_hb[i].getPath());
@@ -812,12 +735,6 @@ public class SAXParserTest extends TestCase {
      * @test javax.xml.parsers.SAXParser#parse(java.lang.String,
      *     org.xml.sax.helpers.DefaultHandler)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify IOException.",
-        method = "parse",
-        args = {java.lang.String.class, org.xml.sax.helpers.DefaultHandler.class}
-    )
     public void test_parseLjava_lang_StringLorg_xml_sax_helpers_DefaultHandler()
     throws Exception {
 
@@ -855,12 +772,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "Sufficient while XML parser situation is still unclear",
-        method = "parse",
-        args = {java.lang.String.class, org.xml.sax.HandlerBase.class}
-    )
     public void testParseStringHandlerBase() {
         for(int i = 0; i < list_wf.length; i++) {
             try {
@@ -916,11 +827,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "reset",
-        args = { }
-    )
     public void testReset() {
         try {
             spf = SAXParserFactory.newInstance();
@@ -934,11 +840,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getParser",
-        args = { }
-    )
     public void testGetParser() {
         spf = SAXParserFactory.newInstance();
         try {
@@ -949,11 +850,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "getXMLReader",
-        args = { }
-    )
     public void testGetReader() {
         spf = SAXParserFactory.newInstance();
         try {
@@ -964,18 +860,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getProperty",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setProperty",
-            args = { String.class, Object.class }
-        )
-    })
     public void testSetGetProperty() {
         // Ordinary case
         String validName = "http://xml.org/sax/properties/lexical-handler";

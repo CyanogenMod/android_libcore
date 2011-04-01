@@ -25,16 +25,14 @@ package org.apache.harmony.security.asn1;
 import java.io.IOException;
 import java.math.BigInteger;
 
-
 /**
  * This class represents ASN.1 Integer type.
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
+public final class ASN1Integer extends ASN1Primitive {
 
-public class ASN1Integer extends ASN1Primitive {
-
-    // default implementation
+    /** default implementation */
     private static final ASN1Integer ASN1 = new ASN1Integer();
 
     /**
@@ -61,12 +59,6 @@ public class ASN1Integer extends ASN1Primitive {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
     public Object decode(BerInputStream in) throws IOException {
         in.readInteger();
 
@@ -79,7 +71,6 @@ public class ASN1Integer extends ASN1Primitive {
     /**
      * Extracts array of bytes from BER input stream.
      *
-     * @param in - BER input stream
      * @return array of bytes
      */
     public Object getDecodedObject(BerInputStream in) throws IOException {
@@ -89,12 +80,6 @@ public class ASN1Integer extends ASN1Primitive {
         return bytesEncoded;
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-
     public void encodeContent(BerOutputStream out) {
         out.encodeInteger();
     }
@@ -103,7 +88,6 @@ public class ASN1Integer extends ASN1Primitive {
         out.length = ((byte[]) out.content).length;
     }
 
-// BEGIN android-changed
     /**
      * Converts decoded ASN.1 Integer to int value.
      * If the object represents an integer value
@@ -113,7 +97,7 @@ public class ASN1Integer extends ASN1Primitive {
      * @return decoded int value.
      */
     public static int toIntValue(Object decoded) {
-        return new BigInteger((byte[]) decoded).intValue();//FIXME optimize
+        return new BigInteger((byte[]) decoded).intValue();
     }
 
     /**
@@ -123,9 +107,8 @@ public class ASN1Integer extends ASN1Primitive {
      * @return decoded BigInteger value.
      */
     public static BigInteger toBigIntegerValue(Object decoded) {
-        return new BigInteger((byte[]) decoded);//FIXME optimize
+        return new BigInteger((byte[]) decoded);
     }
-// END android-changed
 
     /**
      * Converts primitive int value to a form most suitable for encoding.
@@ -134,7 +117,6 @@ public class ASN1Integer extends ASN1Primitive {
      * @return object suitable for encoding
      */
     public static Object fromIntValue(int value) {
-        //FIXME optimize
         return BigInteger.valueOf(value).toByteArray();
     }
 }

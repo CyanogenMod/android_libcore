@@ -22,11 +22,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -37,18 +32,11 @@ import java.security.spec.KeySpec;
  * Tests for <code>DSAPrivateKeySpec</code>
  *
  */
-@TestTargetClass(DSAPrivateKeySpec.class)
 public class DSAPrivateKeySpecTest extends TestCase {
 
     /**
      * Test for constructor
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DSAPrivateKeySpec",
-        args = {java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class, java.math.BigInteger.class}
-    )
     public final void testDSAPrivateKeySpec() {
         KeySpec ks = new DSAPrivateKeySpec(
                 new BigInteger("1"),
@@ -62,12 +50,6 @@ public class DSAPrivateKeySpecTest extends TestCase {
     /**
      * getG() test
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getG",
-        args = {}
-    )
     public final void testGetG() {
         DSAPrivateKeySpec dpks = new DSAPrivateKeySpec(
                 new BigInteger("1"),
@@ -81,12 +63,6 @@ public class DSAPrivateKeySpecTest extends TestCase {
     /**
      * getP() test
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getP",
-        args = {}
-    )
     public final void testGetP() {
         DSAPrivateKeySpec dpks = new DSAPrivateKeySpec(
                 new BigInteger("1"),
@@ -100,12 +76,6 @@ public class DSAPrivateKeySpecTest extends TestCase {
     /**
      * getQ() test
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getQ",
-        args = {}
-    )
     public final void testGetQ() {
         DSAPrivateKeySpec dpks = new DSAPrivateKeySpec(
                 new BigInteger("1"),
@@ -119,12 +89,6 @@ public class DSAPrivateKeySpecTest extends TestCase {
     /**
      * getX() test
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getX",
-        args = {}
-    )
     public final void testGetX() {
         DSAPrivateKeySpec dpks = new DSAPrivateKeySpec(
                 new BigInteger("1"),

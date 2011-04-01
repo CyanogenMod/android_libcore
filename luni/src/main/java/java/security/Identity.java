@@ -82,25 +82,13 @@ public abstract class Identity implements Principal, Serializable {
 
     /**
      * Adds a {@code Certificate} to this {@code Identity}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code addIdentityCertificate} to be
-     * granted, otherwise a {@code SecurityException} will be thrown.
      *
      * @param certificate
      *            the {@code Certificate} to be added to this {@code Identity}.
      * @throws KeyManagementException
      *             if the certificate is not valid.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
-    public void addCertificate(Certificate certificate)
-            throws KeyManagementException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("addIdentityCertificate");
-        }
+    public void addCertificate(Certificate certificate) throws KeyManagementException {
         PublicKey certPK = certificate.getPublicKey();
         if (publicKey != null) {
             if (!checkKeysEqual(publicKey, certPK)) {
@@ -141,32 +129,17 @@ public abstract class Identity implements Principal, Serializable {
 
     /**
      * Removes the specified {@code Certificate} from this {@code Identity}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code "removeIdentityCertificate"} to be
-     * granted, otherwise a {@code SecurityException} will be thrown.
-     * <p>
      *
      * @param certificate
      *            the {@code Certificate} to be removed.
      * @throws KeyManagementException
      *             if the certificate is not found.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
-    public void removeCertificate(Certificate certificate)
-            throws KeyManagementException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("removeIdentityCertificate");
-        }
+    public void removeCertificate(Certificate certificate) throws KeyManagementException {
         if (certificates != null) {
-            // BEGIN android-added
             if (!certificates.contains(certificate)) {
                 throw new KeyManagementException("Certificate not found");
             }
-            // END android-added
             certificates.removeElement(certificate);
         }
     }
@@ -254,25 +227,14 @@ public abstract class Identity implements Principal, Serializable {
 
     /**
      * Sets the specified {@code PublicKey} to this {@code Identity}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code setIdentityPublicKey} to be
-     * granted, otherwise a {@code SecurityException} will be thrown.
      *
      * @param key
      *            the {@code PublicKey} to be set.
      * @throws KeyManagementException
      *             if another {@code Identity} in the same scope as this {@code
      *             Identity} already has the same {@code PublicKey}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public void setPublicKey(PublicKey key) throws KeyManagementException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setIdentityPublicKey");
-        }
         // this check does not always work
         if ((scope != null) && (key != null)) {
             Identity i = scope.getIdentity(key);
@@ -302,27 +264,12 @@ public abstract class Identity implements Principal, Serializable {
 
     /**
      * Sets an information string for this {@code Identity}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code setIdentityInfo} to be granted,
-     * otherwise a {@code SecurityException} will be thrown.
-     *
      * @param info
      *            the information to be set.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public void setInfo(String info) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setIdentityInfo");
-        }
         this.info = info;
     }
-
-
-
 
     /**
      * Returns the information string of this {@code Identity}.
@@ -332,9 +279,6 @@ public abstract class Identity implements Principal, Serializable {
     public String getInfo() {
         return info;
     }
-
-
-
 
     /**
      * Compares the specified object with this {@code Identity} for equality and
@@ -363,9 +307,6 @@ public abstract class Identity implements Principal, Serializable {
         return identityEquals(i);
     }
 
-
-
-
     /**
      * Returns the name of this {@code Identity}.
      *
@@ -374,9 +315,6 @@ public abstract class Identity implements Principal, Serializable {
     public final String getName() {
         return name;
     }
-
-
-
 
     /**
      * Returns the hash code value for this {@code Identity}. Returns the same
@@ -399,29 +337,14 @@ public abstract class Identity implements Principal, Serializable {
         return hash;
     }
 
-
-
-
     /**
      * Returns a string containing a concise, human-readable description of the
      * this {@code Identity} including its name and its scope.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method
-     * needs the {@code SecurityPermission} {@code printIdentity} to be granted,
-     * otherwise a {@code SecurityException} will be thrown.
      *
      * @return a printable representation for this {@code Identity}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     @Override
-    @SuppressWarnings("nls")
     public String toString() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("printIdentity");
-        }
         String s = (this.name == null ? "" : this.name);
         if (scope != null) {
             s += " [" + scope.getName() + "]";

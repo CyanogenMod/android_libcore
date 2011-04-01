@@ -18,8 +18,6 @@ package java.util.prefs;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Properties;
@@ -35,41 +33,14 @@ import java.util.Set;
  */
 class FilePreferencesImpl extends AbstractPreferences {
 
-    /*
-     * --------------------------------------------------------------
-     * Class fields
-     * --------------------------------------------------------------
-     */
-
     //prefs file name
     private static final String PREFS_FILE_NAME = "prefs.xml";
 
     //home directory for user prefs
-    private static String USER_HOME;
+    private static String USER_HOME = System.getProperty("user.home") + "/.java/.userPrefs";
 
     //home directory for system prefs
-    private static String SYSTEM_HOME;
-
-    /*
-     * --------------------------------------------------------------
-     * Class initializer
-     * --------------------------------------------------------------
-     */
-    static {
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                USER_HOME = System.getProperty("user.home") + "/.java/.userPrefs";
-                SYSTEM_HOME = System.getProperty("java.home") + "/.systemPrefs";
-                return null;
-            }
-        });
-    }
-
-    /*
-     * --------------------------------------------------------------
-     * Instance fields
-     * --------------------------------------------------------------
-     */
+    private static String SYSTEM_HOME = System.getProperty("java.home") + "/.systemPrefs";
 
     //file path for this preferences node
     private String path;
@@ -117,26 +88,16 @@ class FilePreferencesImpl extends AbstractPreferences {
 
     private void initPrefs() {
         dir = new File(path);
-        newNode = (AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-            public Boolean run() {
-                return Boolean.valueOf(!dir.exists());
-            }
-        })).booleanValue();
+        newNode = !dir.exists();
         prefsFile = new File(path + File.separator + PREFS_FILE_NAME);
-        prefs = XMLParser.loadFilePrefs(prefsFile);
+        prefs = XMLParser.readXmlPreferences(prefsFile);
     }
 
     @Override
     protected String[] childrenNamesSpi() throws BackingStoreException {
-        String[] names = AccessController
-        .doPrivileged(new PrivilegedAction<String[]>() {
-            public String[] run() {
-                return dir.list(new FilenameFilter() {
-                    public boolean accept(File parent, String name) {
-                        return new File(path + File.separator + name).isDirectory();
-                    }
-                });
-
+        String[] names = dir.list(new FilenameFilter() {
+            public boolean accept(File parent, String name) {
+                return new File(path + File.separator + name).isDirectory();
             }
         });
         if (names == null) {// file is not a directory, exception case
@@ -160,7 +121,7 @@ class FilePreferencesImpl extends AbstractPreferences {
                 return;
             }
             // reload
-            Properties currentPrefs = XMLParser.loadFilePrefs(prefsFile);
+            Properties currentPrefs = XMLParser.readXmlPreferences(prefsFile);
             // merge
             Iterator<String> it = removed.iterator();
             while (it.hasNext()) {
@@ -175,7 +136,7 @@ class FilePreferencesImpl extends AbstractPreferences {
             updated.clear();
             // flush
             prefs = currentPrefs;
-            XMLParser.flushFilePrefs(prefsFile, prefs);
+            XMLParser.writeXmlPreferences(prefsFile, prefs);
         } catch (Exception e) {
             throw new BackingStoreException(e);
         }
@@ -185,7 +146,7 @@ class FilePreferencesImpl extends AbstractPreferences {
     protected String getSpi(String key) {
         try {
             if (prefs == null) {
-                prefs = XMLParser.loadFilePrefs(prefsFile);
+                prefs = XMLParser.readXmlPreferences(prefsFile);
             }
             return prefs.getProperty(key);
         } catch (Exception e) {
@@ -208,12 +169,8 @@ class FilePreferencesImpl extends AbstractPreferences {
 
     @Override
     protected void removeNodeSpi() throws BackingStoreException {
-        boolean removeSucceed = (AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-            public Boolean run() {
-                prefsFile.delete();
-                return Boolean.valueOf(dir.delete());
-            }
-        })).booleanValue();
+        prefsFile.delete();
+        boolean removeSucceed = dir.delete();
         if (!removeSucceed) {
             throw new BackingStoreException("Cannot remove " + toString());
         }

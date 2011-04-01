@@ -17,11 +17,6 @@
 
 package java.io;
 
-// BEGIN android-note
-// Harmony uses ObjectAccessors to access fields through JNI. Android has not
-// yet migrated that API. As a consequence, there's a lot of changes here...
-// END android-note
-
 import dalvik.system.VMStack;
 import java.io.EmulatedFields.ObjectSlot;
 import java.lang.reflect.Array;
@@ -29,14 +24,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * A specialized {@link InputStream} that is able to read (deserialize) Java
@@ -50,9 +43,7 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class ObjectInputStream extends InputStream implements ObjectInput, ObjectStreamConstants {
 
-    // BEGIN android-note
-    // this is non-static to avoid sync contention. Would static be faster?
-    // END android-note
+    // TODO: this is non-static to avoid sync contention. Would static be faster?
     private InputStream emptyStream = new ByteArrayInputStream(EmptyArray.BYTE);
 
     // To put into objectsRead when reading unsharedObject
@@ -122,10 +113,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         PRIMITIVE_CLASSES.put("short", short.class);
         PRIMITIVE_CLASSES.put("void", void.class);
     }
-
-    // BEGIN android-removed
-    // private ObjectAccessor accessor = AccessorFactory.getObjectAccessor();
-    // END android-removed
 
     // Internal type used to keep track of validators & corresponding priority
     static class InputValidationDesc {
@@ -351,17 +338,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *
      * @throws IOException
      *             if an error occurs when creating this stream.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
-     * @see SecurityManager#checkPermission(java.security.Permission)
      */
-    protected ObjectInputStream() throws IOException, SecurityException {
-        super();
-        SecurityManager currentManager = System.getSecurityManager();
-        if (currentManager != null) {
-            currentManager.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-        }
+    protected ObjectInputStream() throws IOException {
         // WARNING - we should throw IOException if not called from a subclass
         // according to the JavaDoc. Add the test.
         this.subclassOverridingImplementation = true;
@@ -378,45 +356,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @throws StreamCorruptedException
      *             if the source stream does not contain serialized objects that
      *             can be read.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies subclassing
-     *             this class.
      */
-    public ObjectInputStream(InputStream input)
-            throws StreamCorruptedException, IOException {
-        final Class<?> implementationClass = getClass();
-        final Class<?> thisClass = ObjectInputStream.class;
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null && implementationClass != thisClass) {
-            boolean mustCheck = AccessController
-                    .doPrivileged(new PrivilegedAction<Boolean>() {
-                        public Boolean run() {
-                            try {
-                                Method method = implementationClass.getMethod("readFields",
-                                        EmptyArray.CLASS);
-                                if (method.getDeclaringClass() != thisClass) {
-                                    return Boolean.TRUE;
-                                }
-                            } catch (NoSuchMethodException ignored) {
-                            }
-                            try {
-                                Method method = implementationClass.getMethod("readUnshared",
-                                        EmptyArray.CLASS);
-                                if (method.getDeclaringClass() != thisClass) {
-                                    return Boolean.TRUE;
-                                }
-                            } catch (NoSuchMethodException ignored) {
-                            }
-                            return Boolean.FALSE;
-                        }
-                    });
-            if (mustCheck) {
-                sm
-                        .checkPermission(ObjectStreamConstants.SUBCLASS_IMPLEMENTATION_PERMISSION);
-            }
-        }
-        this.input = (input instanceof DataInputStream) ? (DataInputStream) input
-                : new DataInputStream(input);
+    public ObjectInputStream(InputStream input) throws StreamCorruptedException, IOException {
+        this.input = (input instanceof DataInputStream)
+                ? (DataInputStream) input : new DataInputStream(input);
         primitiveTypes = new DataInputStream(this);
         enableResolve = false;
         this.subclassOverridingImplementation = false;
@@ -524,22 +467,10 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      *            {@code true} to enable object replacement; {@code false} to
      *            disable it.
      * @return the previous setting.
-     * @throws SecurityException
-     *             if a security manager is installed and it denies enabling
-     *             object replacement for this stream.
      * @see #resolveObject
      * @see ObjectOutputStream#enableReplaceObject
      */
-    protected boolean enableResolveObject(boolean enable)
-            throws SecurityException {
-        if (enable) {
-            // The Stream has to be trusted for this feature to be enabled.
-            // trusted means the stream's class loader has to be null
-            SecurityManager currentManager = System.getSecurityManager();
-            if (currentManager != null) {
-                currentManager.checkPermission(SUBSTITUTION_PERMISSION);
-            }
-        }
+    protected boolean enableResolveObject(boolean enable) {
         boolean originalValue = enableResolve;
         enableResolve = enable;
         return originalValue;
@@ -1090,21 +1021,21 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         for (ObjectSlot element : slots) {
             element.defaulted = false;
             Class<?> type = element.field.getType();
-            if (type == Integer.TYPE) {
+            if (type == int.class) {
                 element.fieldValue = input.readInt();
-            } else if (type == Byte.TYPE) {
+            } else if (type == byte.class) {
                 element.fieldValue = input.readByte();
-            } else if (type == Character.TYPE) {
+            } else if (type == char.class) {
                 element.fieldValue = input.readChar();
-            } else if (type == Short.TYPE) {
+            } else if (type == short.class) {
                 element.fieldValue = input.readShort();
-            } else if (type == Boolean.TYPE) {
+            } else if (type == boolean.class) {
                 element.fieldValue = input.readBoolean();
-            } else if (type == Long.TYPE) {
+            } else if (type == long.class) {
                 element.fieldValue = input.readLong();
-            } else if (type == Float.TYPE) {
+            } else if (type == float.class) {
                 element.fieldValue = input.readFloat();
-            } else if (type == Double.TYPE) {
+            } else if (type == double.class) {
                 element.fieldValue = input.readDouble();
             } else {
                 // Either array or Object
@@ -1162,75 +1093,62 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // and do the other checking, so there's no null check on 'field' here.
             try {
                 Class<?> type = fieldDesc.getTypeInternal();
-                if (type == Byte.TYPE) {
+                if (type == byte.class) {
                     byte b = input.readByte();
                     if (field != null) {
                         field.setByte(obj, b);
                     }
-                } else if (type == Character.TYPE) {
+                } else if (type == char.class) {
                     char c = input.readChar();
                     if (field != null) {
                         field.setChar(obj, c);
                     }
-                } else if (type == Double.TYPE) {
+                } else if (type == double.class) {
                     double d = input.readDouble();
                     if (field != null) {
                         field.setDouble(obj, d);
                     }
-                } else if (type == Float.TYPE) {
+                } else if (type == float.class) {
                     float f = input.readFloat();
                     if (field != null) {
                         field.setFloat(obj, f);
                     }
-                } else if (type == Integer.TYPE) {
+                } else if (type == int.class) {
                     int i = input.readInt();
                     if (field != null) {
                         field.setInt(obj, i);
                     }
-                } else if (type == Long.TYPE) {
+                } else if (type == long.class) {
                     long j = input.readLong();
                     if (field != null) {
                         field.setLong(obj, j);
                     }
-                } else if (type == Short.TYPE) {
+                } else if (type == short.class) {
                     short s = input.readShort();
                     if (field != null) {
                         field.setShort(obj, s);
                     }
-                } else if (type == Boolean.TYPE) {
+                } else if (type == boolean.class) {
                     boolean z = input.readBoolean();
                     if (field != null) {
                         field.setBoolean(obj, z);
                     }
                 } else {
-                    String fieldName = fieldDesc.getName();
-                    boolean setBack = false;
-                    ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
-                    if (mustResolve && fieldDesc == null) {
-                        setBack = true;
-                        mustResolve = false;
-                    }
-                    boolean unshared = fieldDesc != null && fieldDesc.isUnshared();
-                    Object toSet = unshared ? readUnshared() : readObject();
-                    if (setBack) {
-                        mustResolve = true;
-                    }
-                    if (fieldDesc != null) {
-                        if (toSet != null) {
-                            // BEGIN android-changed
-                            // Get the field type from the local field rather than
-                            // from the stream's supplied data. That's the field
-                            // we'll be setting, so that's the one that needs to be
-                            // validated.
-                            Class<?> fieldType = localFieldDesc.getTypeInternal();
-                            // END android-added
-                            Class<?> valueType = toSet.getClass();
-                            if (!fieldType.isAssignableFrom(valueType)) {
-                                throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
-                            }
-                            if (field != null) {
-                                field.set(obj, toSet);
-                            }
+                    Object toSet = fieldDesc.isUnshared() ? readUnshared() : readObject();
+                    if (toSet != null) {
+                        // Get the field type from the local field rather than
+                        // from the stream's supplied data. That's the field
+                        // we'll be setting, so that's the one that needs to be
+                        // validated.
+                        String fieldName = fieldDesc.getName();
+                        ObjectStreamField localFieldDesc = classDesc.getField(fieldName);
+                        Class<?> fieldType = localFieldDesc.getTypeInternal();
+                        Class<?> valueType = toSet.getClass();
+                        if (!fieldType.isAssignableFrom(valueType)) {
+                            throw new ClassCastException(classDesc.getName() + "." + fieldName + " - " + fieldType + " not compatible with " + valueType);
+                        }
+                        if (field != null) {
+                            field.set(obj, toSet);
                         }
                     }
                 }
@@ -1431,8 +1349,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         try {
             if (readMethod != null) {
                 // We have to be able to fetch its value, even if it is private
-                AccessController.doPrivileged(new PriviAction<Object>(
-                        readMethod));
+                readMethod.setAccessible(true);
                 try {
                     readMethod.invoke(object, this);
                 } catch (InvocationTargetException e) {
@@ -1543,40 +1460,40 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         // the array first, and also call different methods depending on the
         // elements.
         if (componentType.isPrimitive()) {
-            if (componentType == Integer.TYPE) {
+            if (componentType == int.class) {
                 int[] intArray = (int[]) result;
                 for (int i = 0; i < size; i++) {
                     intArray[i] = input.readInt();
                 }
-            } else if (componentType == Byte.TYPE) {
+            } else if (componentType == byte.class) {
                 byte[] byteArray = (byte[]) result;
                 input.readFully(byteArray, 0, size);
-            } else if (componentType == Character.TYPE) {
+            } else if (componentType == char.class) {
                 char[] charArray = (char[]) result;
                 for (int i = 0; i < size; i++) {
                     charArray[i] = input.readChar();
                 }
-            } else if (componentType == Short.TYPE) {
+            } else if (componentType == short.class) {
                 short[] shortArray = (short[]) result;
                 for (int i = 0; i < size; i++) {
                     shortArray[i] = input.readShort();
                 }
-            } else if (componentType == Boolean.TYPE) {
+            } else if (componentType == boolean.class) {
                 boolean[] booleanArray = (boolean[]) result;
                 for (int i = 0; i < size; i++) {
                     booleanArray[i] = input.readBoolean();
                 }
-            } else if (componentType == Long.TYPE) {
+            } else if (componentType == long.class) {
                 long[] longArray = (long[]) result;
                 for (int i = 0; i < size; i++) {
                     longArray[i] = input.readLong();
                 }
-            } else if (componentType == Float.TYPE) {
+            } else if (componentType == float.class) {
                 float[] floatArray = (float[]) result;
                 for (int i = 0; i < size; i++) {
                     floatArray[i] = input.readFloat();
                 }
-            } else if (componentType == Double.TYPE) {
+            } else if (componentType == double.class) {
                 double[] doubleArray = (double[]) result;
                 for (int i = 0; i < size; i++) {
                     doubleArray[i] = input.readDouble();
@@ -1839,10 +1756,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             throws IOException, ClassNotFoundException {
         // TODO: This method is opportunity for performance enhancement
         //       We can cache the classloader and recently used interfaces.
-        // BEGIN android-changed
-        // ClassLoader loader = VM.getNonBootstrapClassLoader();
         ClassLoader loader = ClassLoader.getSystemClassLoader();
-        // END android-changed
         Class<?>[] interfaces = new Class<?>[interfaceNames.length];
         for (int i = 0; i < interfaceNames.length; i++) {
             interfaces[i] = Class.forName(interfaceNames[i], false, loader);
@@ -2079,9 +1993,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // original/outside caller
             if (++nestedLevels == 1) {
                 // Remember the caller's class loader
-                // BEGIN android-changed
                 callerClassLoader = getClosestUserClassLoader();
-                // END android-changed
             }
 
             result = readNonPrimitiveContent(unshared);
@@ -2118,11 +2030,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         return result;
     }
 
-    // BEGIN android-added
-    private static final ClassLoader bootstrapLoader
-            = Object.class.getClassLoader();
-    private static final ClassLoader systemLoader
-            = ClassLoader.getSystemClassLoader();
+    private static final ClassLoader bootstrapLoader = Object.class.getClassLoader();
+    private static final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
 
     /**
      * Searches up the call stack to find the closest user-defined class loader.
@@ -2130,7 +2039,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @return a user-defined class loader or null if one isn't found
      */
     private static ClassLoader getClosestUserClassLoader() {
-        Class<?>[] stackClasses = VMStack.getClasses(-1, false);
+        Class<?>[] stackClasses = VMStack.getClasses(-1);
         for (Class<?> stackClass : stackClasses) {
             ClassLoader loader = stackClass.getClassLoader();
             if (loader != null && loader != bootstrapLoader
@@ -2140,7 +2049,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
         return null;
     }
-    // END android-added
 
     /**
      * Method to be overridden by subclasses to read the next object from the

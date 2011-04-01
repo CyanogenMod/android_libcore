@@ -108,9 +108,6 @@ public abstract class Policy {
      * @throws NoSuchAlgorithmException
      *             if no Provider supports a PolicySpi implementation for the
      *             specified type.
-     * @throws SecurityException
-     *             if the caller does not have permission to get a Policy
-     *             instance for the specified type.
      * @throws NullPointerException
      *             if the specified type is null.
      * @throws IllegalArgumentException
@@ -119,8 +116,6 @@ public abstract class Policy {
      */
     public static Policy getInstance(String type, Policy.Parameters params)
             throws NoSuchAlgorithmException {
-        checkSecurityPermission(new SecurityPermission(CREATE_POLICY + type));
-
         if (type == null) {
             throw new NullPointerException();
         }
@@ -159,9 +154,6 @@ public abstract class Policy {
      * @throws NoSuchAlgorithmException
      *             if the specified provider does not support a PolicySpi
      *             implementation for the specified type.
-     * @throws SecurityException
-     *             if the caller does not have permission to get a Policy
-     *             instance for the specified type.
      * @throws NullPointerException
      *             if the specified type is null.
      * @throws IllegalArgumentException
@@ -175,7 +167,6 @@ public abstract class Policy {
         if ((provider == null) || provider.isEmpty()) {
             throw new IllegalArgumentException("Provider is null or empty string");
         }
-        checkSecurityPermission(new SecurityPermission(CREATE_POLICY + type));
 
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -210,25 +201,13 @@ public abstract class Policy {
      *             implementation from the specified Provider.
      * @throws NullPointerException
      *             if the specified type is null.
-     * @throws SecurityException
-     *             if the caller does not have permission to get a Policy
-     *             instance for the specified type.
      */
     public static Policy getInstance(String type, Policy.Parameters params,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
-        checkSecurityPermission(new SecurityPermission(CREATE_POLICY + type));
-
         return getInstanceImpl(type, params, provider);
-    }
-
-    private static void checkSecurityPermission(SecurityPermission permission) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(permission);
-        }
     }
 
     private static Policy getInstanceImpl(String type, Policy.Parameters params, Provider provider)
@@ -442,18 +421,10 @@ public abstract class Policy {
      * Returns the current system security policy. If no policy has been
      * instantiated then this is done using the security property {@code
      * "policy.provider"}.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code getPolicy} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
      *
      * @return the current system security policy.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public static Policy getPolicy() {
-        checkSecurityPermission(GET_POLICY);
         return getAccessiblePolicy();
     }
 
@@ -462,34 +433,18 @@ public abstract class Policy {
     // In case of any error, including undefined provider name,
     // returns new instance of org.apache.harmony.security.FilePolicy provider.
     private static Policy getDefaultProvider() {
-        final String defaultClass = AccessController
-                .doPrivileged(new PolicyUtils.SecurityPropertyAccessor(
-                        POLICY_PROVIDER));
+        final String defaultClass = Security.getProperty(POLICY_PROVIDER);
         if (defaultClass == null) {
-            // TODO log warning
-            // System.err.println("No policy provider specified. Loading the "
-            // + DefaultPolicy.class.getName());
             return new DefaultPolicy();
         }
 
         // TODO accurate classloading
-        return AccessController.doPrivileged(new PrivilegedAction<Policy>() {
-
-            public Policy run() {
-                try {
-                    return (Policy) Class.forName(defaultClass, true,
-                            ClassLoader.getSystemClassLoader()).newInstance();
-                } catch (Exception e) {
-                    //TODO log error
-                    //System.err.println("Error loading policy provider <"
-                    //                 + defaultClass + "> : " + e
-                    //                 + "\nSwitching to the default "
-                    //                 + DefaultPolicy.class.getName());
-                    return new DefaultPolicy();
-                }
-            }
-        });
-
+        try {
+            return (Policy) Class.forName(defaultClass, true,
+            ClassLoader.getSystemClassLoader()).newInstance();
+        } catch (Exception e) {
+            return new DefaultPolicy();
+        }
     }
 
     /**
@@ -518,19 +473,10 @@ public abstract class Policy {
 
     /**
      * Sets the system wide policy.
-     * <p>
-     * If a {@code SecurityManager} is installed, code calling this method needs
-     * the {@code SecurityPermission} {@code setPolicy} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
-     *
      * @param policy
      *            the {@code Policy} to set.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
     public static void setPolicy(Policy policy) {
-        checkSecurityPermission(SET_POLICY);
         synchronized (Policy.class) {
             activePolicy = policy;
         }

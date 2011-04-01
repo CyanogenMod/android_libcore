@@ -22,17 +22,10 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.crypto.ExemptionMechanismException;
 
 import junit.framework.TestCase;
 
-
-@TestTargetClass(ExemptionMechanismException.class)
 /**
  * Tests for <code>ExemptionMechanismException</code> class constructors and
  * methods.
@@ -56,12 +49,6 @@ public class ExemptionMechanismExceptionTest extends TestCase {
      * Test for <code>ExemptionMechanismException()</code> constructor
      * Assertion: constructs ExemptionMechanismException with no detail message
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ExemptionMechanismException",
-        args = {}
-    )
     public void testExemptionMechanismException01() {
         ExemptionMechanismException tE = new ExemptionMechanismException();
         assertNull("getMessage() must return null.", tE.getMessage());
@@ -78,12 +65,6 @@ public class ExemptionMechanismExceptionTest extends TestCase {
      * Assertion: constructs ExemptionMechanismException with detail message
      * msg. Parameter <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ExemptionMechanismException",
-        args = {java.lang.String.class}
-    )
     public void testExemptionMechanismException02() {
         ExemptionMechanismException tE;
         for (int i = 0; i < msgs.length; i++) {
@@ -104,12 +85,6 @@ public class ExemptionMechanismExceptionTest extends TestCase {
      * Assertion: constructs ExemptionMechanismException when <code>msg</code>
      * is null
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ExemptionMechanismException",
-        args = {java.lang.String.class}
-    )
     public void testExemptionMechanismException03() {
         String msg = null;
         ExemptionMechanismException tE = new ExemptionMechanismException(msg);

@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -50,7 +45,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1074577549">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1074577549</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class RemoveNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -80,12 +74,6 @@ public final class RemoveNamedItemNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException exception.",
-        method = "removeNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testRemoveNamedItemNS1() throws Throwable {
         Document doc;
         NodeList elementList;
@@ -103,12 +91,6 @@ public final class RemoveNamedItemNS extends DOMTestCase {
         newAttr = (Attr) attributes.getNamedItem("dmstc:domestic");
         assertNull("nodeRemoved", newAttr);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies DOMException with NOT_FOUND_ERR code.",
-        method = "removeNamedItemNS",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testRemoveNamedItemNS2() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String localName = "domest";

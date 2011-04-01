@@ -21,11 +21,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.SpiEngUtils;
@@ -56,7 +51,6 @@ import java.util.Vector;
  * Tests for <code>CertificateFactory</code> class methods and constructor
  *
  */
-@TestTargetClass(CertificateFactory.class)
 public class CertificateFactory1Test extends TestCase {
 
     public static final String srvCertificateFactory = "CertificateFactory";
@@ -110,12 +104,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>getInstance(String type)</code> method
      * Assertion: returns CertificateFactory if type is X.509
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify CertificateException.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testCertificateFactory01() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -134,12 +122,6 @@ public class CertificateFactory1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateException.",
-        method = "getInstance",
-        args = {java.lang.String.class}
-    )
     public void testCertificateFactory02() {
         try {
             CertificateFactory.getInstance(null);
@@ -161,12 +143,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>getInstance(String type, String provider)</code> method
      * Assertion: throws IllegalArgumentException when provider is null or empty
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException. IllegalArgumentException was checked instead of NoSuchProviderException",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertificateFactory03() throws CertificateException,
             NoSuchProviderException {
         if (!X509Support) {
@@ -194,12 +170,6 @@ public class CertificateFactory1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateException and NullPointerException.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertificateFactory04() throws NoSuchProviderException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -228,12 +198,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: returns CertificateFactory when type and provider have valid
      * values
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void testCertificateFactory05() throws CertificateException,
             NoSuchProviderException {
         if (!X509Support) {
@@ -255,12 +219,6 @@ public class CertificateFactory1Test extends TestCase {
      * method
      * Assertion: throws IllegalArgumentException when provider is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies IllegalArgumentException.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testCertificateFactory06() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -283,12 +241,6 @@ public class CertificateFactory1Test extends TestCase {
      * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateException.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testCertificateFactory07() {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -318,12 +270,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: returns CertificateFactorythrows when type and provider
      * have valid values
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality of getInstance method.",
-        method = "getInstance",
-        args = {java.lang.String.class, java.security.Provider.class}
-    )
     public void testCertificateFactory08() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -343,12 +289,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>getCertPathEncodings()</code> method
      * Assertion: returns encodings
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getCertPathEncodings",
-        args = {}
-    )
     public void testCertificateFactory09() {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -399,32 +339,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: throw CertificateException and CRLException when
      * inStream is null or empty
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies methods with null and empty InputStream.",
-            method = "generateCertificate",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies methods with null and empty InputStream.",
-            method = "generateCertificates",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies methods with null and empty InputStream.",
-            method = "generateCRL",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies methods with null and empty InputStream.",
-            method = "generateCRLs",
-            args = {java.io.InputStream.class}
-        )
-    })
     public void testCertificateFactory10() {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -504,32 +418,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: throw CertificateException and CRLException when inStream
      * contains incompatible datas
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive functionality of methods.",
-            method = "generateCertificate",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive functionality of methods.",
-            method = "generateCertificates",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive functionality of methods.",
-            method = "generateCRL",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies positive functionality of methods.",
-            method = "generateCRLs",
-            args = {java.io.InputStream.class}
-        )
-    })
     public void testCertificateFactory11() throws IOException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -590,20 +478,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: throws CertificateException when inStream is null or
      * when isStream contains invalid datas
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies CertificateException.",
-            method = "generateCertPath",
-            args = {java.io.InputStream.class, java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies CertificateException.",
-            method = "generateCertPath",
-            args = {java.io.InputStream.class}
-        )
-    })
     public void testCertificateFactory12() {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -652,20 +526,6 @@ public class CertificateFactory1Test extends TestCase {
      * methods
      * Assertion: throw CertificateException when isStream contains invalid datas
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies CertificateException.",
-            method = "generateCertPath",
-            args = {java.io.InputStream.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies CertificateException.",
-            method = "generateCertPath",
-            args = {java.io.InputStream.class, java.lang.String.class}
-        )
-    })
     // Test passed on RI
     public void testCertificateFactory13() throws IOException {
         if (!X509Support) {
@@ -707,12 +567,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>generateCertPath(List certificates)</code> method
      * Assertion: throw NullPointerException certificates is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies NullPointerException. Valid parameters checking missed.",
-        method = "generateCertPath",
-        args = {java.util.List.class}
-    )
     public void testCertificateFactory14() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -734,12 +588,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>generateCertPath(List certificates)</code> method
      * Assertion: returns empty CertPath if certificates is empty
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that generateCertPath method returns empty CertPath if certificates is empty. Valid parameters checking missed.",
-        method = "generateCertPath",
-        args = {java.util.List.class}
-    )
     public void testCertificateFactory15() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -760,12 +608,6 @@ public class CertificateFactory1Test extends TestCase {
      * Assertion: throws CertificateException when certificates contains
      * incorrect Certificate
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CertificateException. Valid parameters checking missed.",
-        method = "generateCertPath",
-        args = {java.util.List.class}
-    )
     public void testCertificateFactory16() {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -789,12 +631,6 @@ public class CertificateFactory1Test extends TestCase {
      * Test for <code>CertificateFactory</code> constructor
      * Assertion: returns CertificateFactory object
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies CRLException and NullPointerException.",
-        method = "generateCRLs",
-        args = {java.io.InputStream.class}
-    )
     public void testCertificateFactory17() throws CRLException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -824,12 +660,6 @@ public class CertificateFactory1Test extends TestCase {
     /**
      * Test for <code>getType()</code> method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getType",
-        args = {}
-    )
     public void testCertificateFactory18() throws CertificateException {
         if (!X509Support) {
             fail(NotSupportMsg);
@@ -858,12 +688,6 @@ public class CertificateFactory1Test extends TestCase {
     }
 
     @SuppressWarnings("cast")
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "CertificateFactory",
-        args = {java.security.cert.CertificateFactorySpi.class, java.security.Provider.class, java.lang.String.class}
-    )
     public void testCertificateFactory19() {
         if (!X509Support) {
             fail(NotSupportMsg);

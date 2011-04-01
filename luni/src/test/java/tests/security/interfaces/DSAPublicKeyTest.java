@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package tests.security.interfaces;
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
@@ -28,23 +24,16 @@ import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.spec.DSAParameterSpec;
 
-@TestTargetClass(DSAPublicKey.class)
 public class DSAPublicKeyTest extends TestCase {
 
     /**
-     * @tests java.security.interfaces.DSAPublicKey
+     * java.security.interfaces.DSAPublicKey
      * #getY()
      * test covers following use cases
      *   Case 1: check with predefined p, q, g, x
      *   Case 2: check with random p, q, g, x. It takes some time (up to
      *           minute)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getY",
-        args = {}
-    )
     public void test_getY() throws Exception {
         KeyPairGenerator keyGen = null;
         KeyPair keys = null;

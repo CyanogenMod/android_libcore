@@ -19,7 +19,6 @@ package sun.misc;
 import dalvik.system.VMStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import org.apache.harmony.kernel.vm.LangAccess;
 
 /**
  * The package name notwithstanding, this class is the quasi-standard
@@ -31,15 +30,10 @@ public final class Unsafe {
     /** non-null; unique instance of this class */
     private static final Unsafe THE_ONE = new Unsafe();
 
-    /** non-null; the lang-access utility instance */
-    private final LangAccess lang;
-
     /**
      * This class is only privately instantiable.
      */
-    private Unsafe() {
-        lang = LangAccess.getInstance();
-    }
+    private Unsafe() {}
 
     /**
      * Gets the unique instance of this class. This is only allowed in
@@ -324,9 +318,9 @@ public final class Unsafe {
      */
     public void park(boolean absolute, long time) {
         if (absolute) {
-            lang.parkUntil(time);
+            Thread.currentThread().parkUntil(time);
         } else {
-            lang.parkFor(time);
+            Thread.currentThread().parkFor(time);
         }
     }
 
@@ -340,7 +334,7 @@ public final class Unsafe {
      */
     public void unpark(Object obj) {
         if (obj instanceof Thread) {
-            lang.unpark((Thread) obj);
+            ((Thread) obj).unpark();
         } else {
             throw new IllegalArgumentException("valid for Threads only");
         }

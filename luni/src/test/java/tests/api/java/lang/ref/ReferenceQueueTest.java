@@ -17,18 +17,12 @@
 
 package tests.api.java.lang.ref;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-@TestTargetClass(ReferenceQueue.class)
 public class ReferenceQueueTest extends junit.framework.TestCase {
     static Boolean b;
 
@@ -63,14 +57,8 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
     ReferenceQueue rq;
 
     /**
-     * @tests java.lang.ref.ReferenceQueue#poll()
+     * java.lang.ref.ReferenceQueue#poll()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "poll",
-        args = {}
-    )
     public void test_poll() {
         // store in a static so it won't be gc'ed because the jit
         // optimized it out
@@ -116,14 +104,8 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.ReferenceQueue#remove()
+     * java.lang.ref.ReferenceQueue#remove()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {}
-    )
     public void test_remove() {
         // store in a static so it won't be gc'ed because the jit
         // optimized it out
@@ -169,14 +151,8 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.ReferenceQueue#remove(long)
+     * java.lang.ref.ReferenceQueue#remove(long)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {long.class}
-    )
     public void test_removeJ() {
         try {
             assertNull("Queue should be empty. (poll)", rq.poll());
@@ -256,14 +232,8 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.ReferenceQueue#ReferenceQueue()
+     * java.lang.ref.ReferenceQueue#ReferenceQueue()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ReferenceQueue",
-        args = {}
-    )
     public void test_Constructor() {
         ReferenceQueue rq = new ReferenceQueue();
         assertNull(rq.poll());

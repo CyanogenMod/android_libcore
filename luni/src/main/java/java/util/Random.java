@@ -23,6 +23,11 @@ import java.io.Serializable;
 /**
  * This class provides methods that return pseudo-random values.
  *
+ * <p>It is dangerous to seed {@code Random} with the current time because
+ * that value is more predictable to an attacker than the default seed.
+ *
+ * <p>This class is thread-safe.
+ *
  * @see java.security.SecureRandom
  */
 public class Random implements Serializable {
@@ -55,9 +60,7 @@ public class Random implements Serializable {
      * unlikely to be duplicated by a subsequent instantiation.
      *
      * <p>The initial state (that is, the seed) is <i>partially</i> based
-     * on the current time of day in milliseconds.</p>
-     *
-     * @see #setSeed
+     * on the current time of day in milliseconds.
      */
     public Random() {
         // Note: Using identityHashCode() to be hermetic wrt subclasses.
@@ -68,10 +71,8 @@ public class Random implements Serializable {
      * Construct a random generator with the given {@code seed} as the
      * initial state. Equivalent to {@code Random r = new Random(); r.setSeed(seed);}.
      *
-     * @param seed
-     *            the seed that will determine the initial state of this random
-     *            number generator.
-     * @see #setSeed
+     * <p>This constructor is mainly useful for <i>predictability</i> in tests.
+     * The default constructor is likely to provide better randomness.
      */
     public Random(long seed) {
         setSeed(seed);
@@ -133,7 +134,7 @@ public class Random implements Serializable {
     /**
      * Returns a pseudo-random (approximately) normally distributed
      * {@code double} with mean 0.0 and standard deviation 1.0.
-     * This method uses the <i>polar method<i> of G. E. P. Box, M.
+     * This method uses the <i>polar method</i> of G. E. P. Box, M.
      * E. Muller, and G. Marsaglia, as described by Donald E. Knuth in <i>The
      * Art of Computer Programming, Volume 2: Seminumerical Algorithms</i>,
      * section 3.4.1, subsection C, algorithm P.

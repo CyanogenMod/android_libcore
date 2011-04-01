@@ -21,11 +21,6 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Attr;
@@ -53,7 +48,6 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class)
 public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -86,12 +80,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS1() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -113,12 +101,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
         attrName = attribute.getNodeName();
         assertEquals("namednodemapsetnameditemns01", "streets", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Doesn't verify DOMException.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS2() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -138,12 +120,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
         attrName = attribute.getNodeName();
         assertEquals("namednodemapsetnameditemns02", "L1:att", attrName);
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItemNS throws DOMException with WRONG_DOCUMENT_ERR code.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS3() throws Throwable {
 
         Document doc;
@@ -179,12 +155,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
             assertTrue("throw_WRONG_DOCUMENT_ERR", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItemNS throws DOMException with WRONG_DOCUMENT_ERR code.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS4() throws Throwable {
         Document doc;
         DOMImplementation domImpl;
@@ -255,12 +225,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
 //            assertTrue("throw_NO_MODIFICATION_ALLOWED_ERR_notations", success);
 //        }
 //    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItemNS throws DOMException with INUSE_ATTRIBUTE_ERR code.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS6() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -287,12 +251,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
             assertTrue("namednodemapsetnameditemns06", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItemNS throws DOMException with INUSE_ATTRIBUTE_ERR code.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS7() throws Throwable {
         Document doc;
         NamedNodeMap attributes;
@@ -319,12 +277,6 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
             assertTrue("namednodemapsetnameditemns07", success);
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Verifies that setNamedItemNS throws DOMException with INUSE_ATTRIBUTE_ERR code.",
-        method = "setNamedItemNS",
-        args = {org.w3c.dom.Node.class}
-    )
     public void testSetNamedItemNS8() throws Throwable {
         Document doc;
         NamedNodeMap attributes;

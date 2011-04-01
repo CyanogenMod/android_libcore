@@ -22,8 +22,6 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass;
-
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Document;
@@ -41,7 +39,6 @@ import org.w3c.dom.NodeList;
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAttrNS</a>
 * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
 */
-@TestTargetClass(Element.class)
 public final class ElementGetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;

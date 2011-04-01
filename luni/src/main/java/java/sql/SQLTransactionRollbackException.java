@@ -27,7 +27,6 @@ public class SQLTransactionRollbackException extends SQLTransientException {
      * to 0.
      */
     public SQLTransactionRollbackException() {
-        super();
     }
 
     /**

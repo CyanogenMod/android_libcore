@@ -48,7 +48,6 @@ public abstract class SocketFactory {
      * Creates a new {@code SocketFactory} instance.
      */
     protected SocketFactory() {
-        super();
     }
 
     /**

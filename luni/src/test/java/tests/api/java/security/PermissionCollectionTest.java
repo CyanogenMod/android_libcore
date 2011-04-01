@@ -33,11 +33,7 @@ import static tests.support.Support_Exec.execAndGetOutput;
 import tests.support.Support_GetLocal;
 import tests.support.resource.Support_Resources;
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(PermissionCollection.class)
 public class PermissionCollectionTest extends junit.framework.TestCase {
 
     // The below test is known to fail. Haven't got to the bottom of
@@ -60,14 +56,8 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
     // * the cause of that NPE has still not been determined. Could it be
     // related to Harmony's current stub implementation of BigInteger ?
     /**
-     * @tests java.security.PermissionCollection#implies(java.security.Permission)
+     * java.security.PermissionCollection#implies(java.security.Permission)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "",
-        method = "implies",
-        args = {java.security.Permission.class}
-    )
     @KnownFailure("Android doesn't support protection domains.")
     public void test_impliesLjava_security_Permission() throws Exception{
 
@@ -191,14 +181,8 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.PermissionCollection#PermissionCollection()
+     * java.security.PermissionCollection#PermissionCollection()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "PermissionCollection",
-        args = {}
-    )
     public void test_Constructor() {
         // test java.security.permissionCollection.PermissionCollection()
         SecurityPermission permi = new SecurityPermission(
@@ -209,14 +193,8 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.PermissionCollection#isReadOnly()
+     * java.security.PermissionCollection#isReadOnly()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isReadOnly",
-        args = {}
-    )
     public void test_isReadOnly() {
         // test java.security.permissionCollection.isReadOnly()
         SecurityPermission permi = new SecurityPermission(
@@ -230,14 +208,8 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.PermissionCollection#setReadOnly()
+     * java.security.PermissionCollection#setReadOnly()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setReadOnly",
-        args = {}
-    )
     public void test_setReadOnly() {
         // test java.security.permissionCollection.setReadOnly()
         SecurityPermission permi = new SecurityPermission(
@@ -251,14 +223,8 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.security.PermissionCollection#toString()
+     * java.security.PermissionCollection#toString()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         // test java.security.permissionCollection.toString()
         SecurityPermission permi = new SecurityPermission(

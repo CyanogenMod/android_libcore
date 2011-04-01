@@ -18,7 +18,7 @@
 package java.io;
 
 import java.util.Arrays;
-import org.apache.harmony.luni.util.SneakyThrow;
+import libcore.util.SneakyThrow;
 
 /**
  * Wraps an existing {@link OutputStream} and performs some transformation on
@@ -86,24 +86,6 @@ public class FilterOutputStream extends OutputStream {
     @Override
     public void flush() throws IOException {
         out.flush();
-    }
-
-    /**
-     * Writes the entire contents of the byte array {@code buffer} to this
-     * stream. This implementation writes the {@code buffer} to the target
-     * stream.
-     *
-     * @param buffer
-     *            the buffer to be written.
-     * @throws IOException
-     *             if an I/O error occurs while writing to this stream.
-     */
-    @Override
-    public void write(byte[] buffer) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
-        write(buffer, 0, buffer.length);
     }
 
     /**

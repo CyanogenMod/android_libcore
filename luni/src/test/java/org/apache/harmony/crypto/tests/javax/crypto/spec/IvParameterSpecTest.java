@@ -22,11 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.spec;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.lang.NullPointerException;
 import java.lang.IllegalArgumentException;
 import java.lang.ArrayIndexOutOfBoundsException;
@@ -37,10 +32,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-@TestTargetClass(IvParameterSpec.class)
 /**
  */
-
 public class IvParameterSpecTest extends TestCase {
 
     /**
@@ -48,12 +41,6 @@ public class IvParameterSpecTest extends TestCase {
      * NullPointerException is thrown in the case of null input
      * array and that input array is copied during initialization.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IvParameterSpec",
-        args = {byte[].class}
-    )
     public void testIvParameterSpec1() {
         try {
             new IvParameterSpec(null);
@@ -74,12 +61,6 @@ public class IvParameterSpecTest extends TestCase {
      * NullPointerException is thrown in the case of null input
      * array and that input array is copied during initialization.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "IvParameterSpec",
-        args = {byte[].class, int.class, int.class}
-    )
     public void testIvParameterSpec2() {
         try {
             new IvParameterSpec(null, 1, 1);
@@ -142,12 +123,6 @@ public class IvParameterSpecTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getIV",
-        args = {}
-    )
     public void testGetIV() {
         byte[] iv = new byte[] {1, 2, 3, 4, 5};
         IvParameterSpec ivps = new IvParameterSpec(iv);

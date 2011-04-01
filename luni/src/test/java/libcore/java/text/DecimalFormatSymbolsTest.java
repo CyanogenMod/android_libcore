@@ -16,6 +16,10 @@
 
 package libcore.java.text;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
@@ -31,5 +35,23 @@ public class DecimalFormatSymbolsTest extends junit.framework.TestCase {
         // are equal. It could be that they're accidentally checking the Locale.
         checkLocaleIsEquivalentToRoot(new Locale("xx", "XX"));
         checkLocaleIsEquivalentToRoot(new Locale("not exist language", "not exist country"));
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=14495
+    public void testSerialization() throws Exception {
+        DecimalFormatSymbols originalDfs = DecimalFormatSymbols.getInstance(Locale.GERMANY);
+
+        // Serialize...
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new ObjectOutputStream(out).writeObject(originalDfs);
+        byte[] bytes = out.toByteArray();
+
+        // Deserialize...
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes));
+        DecimalFormatSymbols deserializedDfs = (DecimalFormatSymbols) in.readObject();
+        assertEquals(-1, in.read());
+
+        // The two objects should claim to be equal.
+        assertEquals(originalDfs, deserializedDfs);
     }
 }

@@ -17,11 +17,6 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collections;
@@ -38,7 +33,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-@TestTargetClass(java.util.AbstractMap.class)
 public class AbstractMapTest extends junit.framework.TestCase {
 
     static final String specialKey = "specialKey".intern();
@@ -76,14 +70,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#keySet()
+     * java.util.AbstractMap#keySet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "keySet",
-        args = {}
-    )
     public void test_keySet() {
         AbstractMap map1 = new HashMap(0);
         assertSame("HashMap(0)", map1.keySet(), map1.keySet());
@@ -108,14 +96,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#remove(java.lang.Object)
+     * java.util.AbstractMap#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         Object key = new Object();
         Object value = new Object();
@@ -152,14 +134,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#values()
+     * java.util.AbstractMap#values()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "values",
-        args = {}
-    )
     public void test_values() {
         AbstractMap map1 = new HashMap(0);
         assertSame("HashMap(0)", map1.values(), map1.values());
@@ -184,14 +160,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#clone()
+     * java.util.AbstractMap#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         class MyMap extends AbstractMap implements Cloneable {
             private Map map = new HashMap();
@@ -240,12 +210,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // normal clear()
         AbstractMap map = new HashMap();
@@ -264,14 +228,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#containsKey(Object)
+     * java.util.AbstractMap#containsKey(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "containsKey",
-        args = {java.lang.Object.class}
-    )
     public void test_containsKey() {
         AbstractMap map = new AMT();
 
@@ -289,14 +247,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#containsValue(Object)
+     * java.util.AbstractMap#containsValue(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "containsValue",
-        args = {java.lang.Object.class}
-    )
     public void test_containValue() {
         AbstractMap map = new AMT();
 
@@ -313,14 +265,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.AbstractMap#get(Object)
+     * java.util.AbstractMap#get(Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "get",
-        args = {java.lang.Object.class}
-    )
     public void test_get() {
         AbstractMap map = new AMT();
         assertNull(map.get("key"));
@@ -396,14 +342,8 @@ public class AbstractMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests {@link java.util.AbstractMap#putAll(Map)}
+     * {@link java.util.AbstractMap#putAll(Map)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "putAll",
-        args = {java.util.Map.class}
-    )
     public void test_putAllLMap() {
         Hashtable ht = new Hashtable();
         AbstractMap amt = new AMT();
@@ -412,23 +352,11 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertEquals("Should be equal", amt, ht);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "AbstractMap",
-        args = {}
-    )
     public void test_Constructor() {
         AMT amt = new AMT();
         assertNotNull(amt);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equalsLjava_lang_Object() {
         AbstractMap amt1 = new AMT();
         AbstractMap amt2 = new AMT();
@@ -447,12 +375,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertFalse("assert 5", amt1.equals(this));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() {
         AMT amt1 = new AMT();
         AMT amt2 = new AMT();
@@ -461,12 +383,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertNotSame(amt1.hashCode(), amt2.hashCode());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         AMT amt = new AMT();
         assertTrue(amt.isEmpty());
@@ -474,12 +390,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertFalse(amt.isEmpty());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "put",
-        args = {java.lang.Object.class, java.lang.Object.class}
-    )
     public void test_put() {
         AMT amt = new AMT();
         assertEquals(0, amt.size());
@@ -491,12 +401,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertEquals(3, amt.size());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         AMT amt = new AMT();
         assertEquals(0, amt.size());
@@ -508,12 +412,6 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertEquals(3, amt.size());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Class is abstract. Functionality tested in subclasses for example in java.util.HashMap.",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         AMT amt = new AMT();
         assertEquals("{}", amt.toString());

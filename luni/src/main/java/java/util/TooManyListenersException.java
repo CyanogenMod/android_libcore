@@ -32,7 +32,6 @@ public class TooManyListenersException extends Exception {
      * trace filled in.
      */
     public TooManyListenersException() {
-        super();
     }
 
     /**

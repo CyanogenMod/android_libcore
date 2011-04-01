@@ -28,7 +28,6 @@ package org.apache.harmony.security.asn1;
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public abstract class ASN1Primitive extends ASN1Type {
 
     public ASN1Primitive(int tagNumber) {
@@ -38,18 +37,14 @@ public abstract class ASN1Primitive extends ASN1Type {
     /**
      * Tests provided identifier.
      *
-     * @param identifier -
-     *            identifier to be verified
-     * @return - true if identifier correspond to primitive identifier of this
-     *         ASN.1 type, otherwise false
+     * @param identifier identifier to be verified
+     * @return true if identifier correspond to primitive identifier of this
+     *     ASN.1 type, otherwise false
      */
     public final boolean checkTag(int identifier) {
         return this.id == identifier;
     }
 
-    /**
-     * TODO
-     */
     public void encodeASN(BerOutputStream out) {
         out.encodeTag(id);
         encodeContent(out);

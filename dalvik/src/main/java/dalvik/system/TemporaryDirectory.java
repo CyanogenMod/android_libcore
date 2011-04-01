@@ -17,7 +17,6 @@
 package dalvik.system;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * Utility class to handle the setup of the core library's concept of
@@ -68,8 +67,7 @@ public class TemporaryDirectory {
      */
     public static synchronized void setUpDirectory(File baseDir) {
         if (configured) {
-            Logger.global.info("Already set to: " +
-                    System.getProperty(PROPERTY));
+            System.logE("Already set to: " + System.getProperty(PROPERTY));
             return;
         }
 

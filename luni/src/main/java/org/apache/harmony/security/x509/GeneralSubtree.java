@@ -50,40 +50,16 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralName
  */
-public class GeneralSubtree {
-
-    // the value of base field of the structure
+public final class GeneralSubtree {
+    /** the value of base field of the structure */
     private final GeneralName base;
-    // the value of minimum field of the structure
+    /** the value of minimum field of the structure */
     private final int minimum;
-    // the value of maximum field of the structure
+    /** the value of maximum field of the structure */
     private final int maximum;
-    // the ASN.1 encoded form of GeneralSubtree
+    /** the ASN.1 encoded form of GeneralSubtree */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   base:   GeneralName
-     */
-    public GeneralSubtree(GeneralName base) {
-        this(base, 0, -1);
-    }
-
-    /**
-     * TODO
-     * @param   base:   GeneralName
-     * @param   minimum:    int
-     */
-    public GeneralSubtree(GeneralName base, int minimum) {
-        this(base, minimum, -1);
-    }
-
-    /**
-     * TODO
-     * @param   base:   GeneralName
-     * @param   minimum:    int
-     * @param   maximum:    int
-     */
     public GeneralSubtree(GeneralName base, int minimum, int maximum) {
         this.base = base;
         this.minimum = minimum;
@@ -92,31 +68,13 @@ public class GeneralSubtree {
 
     /**
      * Returns the value of base field of the structure.
-     * @return  base
      */
     public GeneralName getBase() {
         return base;
     }
 
     /**
-     * Returns the value of maximum field of the structure.
-     * @return  maximum
-     */
-    public int getMaximum() {
-        return maximum;
-    }
-
-    /**
-     * Returns the value of minimum field of the structure.
-     * @return  minimum
-     */
-    public int getMinimum() {
-        return minimum;
-    }
-
-    /**
      * Returns ASN.1 encoded form of this X.509 GeneralSubtree value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -125,20 +83,14 @@ public class GeneralSubtree {
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("General Subtree: [\n");
-        buffer.append(prefix).append("  base: ").append(base).append('\n');
-        buffer.append(prefix).append("  minimum: ")
-            .append(minimum).append('\n');
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("General Subtree: [\n");
+        sb.append(prefix).append("  base: ").append(base).append('\n');
+        sb.append(prefix).append("  minimum: ").append(minimum).append('\n');
         if (maximum >= 0) {
-            buffer.append(prefix).append("  maximum: ")
-                .append(maximum).append('\n');
+            sb.append(prefix).append("  maximum: ").append(maximum).append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**
@@ -153,7 +105,7 @@ public class GeneralSubtree {
             setOptional(2);                 // maximum optional
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             int maximum = -1; // is optional maximum missing?
             if (values[2] != null) {
@@ -164,10 +116,8 @@ public class GeneralSubtree {
                     maximum);
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             GeneralSubtree gs = (GeneralSubtree) object;
-
             values[0] = gs.base;
             values[1] = ASN1Integer.fromIntValue(gs.minimum);
             if (gs.maximum > -1) {

@@ -27,74 +27,46 @@ import java.io.StreamCorruptedException;
  * precision for the numerical operations provided by class {@link BigDecimal}.
  */
 public final class MathContext implements Serializable {
+    private static final long serialVersionUID = 5579720004786848255L;
 
     /**
      * A {@code MathContext} which corresponds to the IEEE 754r quadruple
      * decimal precision format: 34 digit precision and
      * {@link RoundingMode#HALF_EVEN} rounding.
      */
-    public static final MathContext DECIMAL128 = new MathContext(34,
-            RoundingMode.HALF_EVEN);
+    public static final MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 
     /**
      * A {@code MathContext} which corresponds to the IEEE 754r single decimal
      * precision format: 7 digit precision and {@link RoundingMode#HALF_EVEN}
      * rounding.
      */
-    public static final MathContext DECIMAL32 = new MathContext(7,
-            RoundingMode.HALF_EVEN);
+    public static final MathContext DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
 
     /**
      * A {@code MathContext} which corresponds to the IEEE 754r double decimal
      * precision format: 16 digit precision and {@link RoundingMode#HALF_EVEN}
      * rounding.
      */
-    public static final MathContext DECIMAL64 = new MathContext(16,
-            RoundingMode.HALF_EVEN);
+    public static final MathContext DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
 
     /**
      * A {@code MathContext} for unlimited precision with
      * {@link RoundingMode#HALF_UP} rounding.
      */
-    public static final MathContext UNLIMITED = new MathContext(0,
-            RoundingMode.HALF_UP);
-
-    /** This is the serialVersionUID used by the sun implementation */
-    private static final long serialVersionUID = 5579720004786848255L;
+    public static final MathContext UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
 
     /**
      * The number of digits to be used for an operation; results are rounded to
      * this precision.
      */
-    private int precision;
+    private final int precision;
 
     /**
      * A {@code RoundingMode} object which specifies the algorithm to be used
      * for rounding.
      */
-    private RoundingMode roundingMode;
-
-    /**
-     * An array of {@code char} containing: {@code
-     * 'p','r','e','c','i','s','i','o','n','='}. It's used to improve the
-     * methods related to {@code String} conversion.
-     *
-     * @see #MathContext(String)
-     * @see #toString()
-     */
-    private final static char[] chPrecision = { 'p', 'r', 'e', 'c', 'i', 's',
-            'i', 'o', 'n', '=' };
-
-    /**
-     * An array of {@code char} containing: {@code
-     * 'r','o','u','n','d','i','n','g','M','o','d','e','='}. It's used to
-     * improve the methods related to {@code String} conversion.
-     *
-     * @see #MathContext(String)
-     * @see #toString()
-     */
-    private final static char[] chRoundingMode = { 'r', 'o', 'u', 'n', 'd',
-            'i', 'n', 'g', 'M', 'o', 'd', 'e', '=' };
+    private final RoundingMode roundingMode;
 
     /**
      * Constructs a new {@code MathContext} with the specified precision and
@@ -127,14 +99,9 @@ public final class MathContext implements Serializable {
      *             if {@code roundingMode} is {@code null}.
      */
     public MathContext(int precision, RoundingMode roundingMode) {
-        if (precision < 0) {
-            throw new IllegalArgumentException("precision < 0");
-        }
-        if (roundingMode == null) {
-            throw new NullPointerException("roundingMode == null");
-        }
         this.precision = precision;
         this.roundingMode = roundingMode;
+        checkValid();
     }
 
     /**
@@ -144,73 +111,47 @@ public final class MathContext implements Serializable {
      * This is the same form as the one returned by the {@link #toString}
      * method.
      *
-     * @param val
-     *            a string describing the precision and rounding mode for the
-     *            new {@code MathContext}.
      * @throws IllegalArgumentException
      *             if the string is not in the correct format or if the
      *             precision specified is < 0.
      */
-    public MathContext(String val) {
-        char[] charVal = val.toCharArray();
-        int i; // Index of charVal
-        int j; // Index of chRoundingMode
-        int digit; // It will contain the digit parsed
+    public MathContext(String s) {
+        int precisionLength = "precision=".length();
+        int roundingModeLength = "roundingMode=".length();
 
-        if ((charVal.length < 27) || (charVal.length > 45)) {
-            throw new IllegalArgumentException("Bad string format");
+        int spaceIndex;
+        if (!s.startsWith("precision=") || (spaceIndex = s.indexOf(' ', precisionLength)) == -1) {
+            throw invalidMathContext("Missing precision", s);
         }
-        // Parsing "precision=" String
-        for (i = 0; (i < chPrecision.length) && (charVal[i] == chPrecision[i]); i++) {
-            ;
-        }
-
-        if (i < chPrecision.length) {
-            throw new IllegalArgumentException("Bad string format");
-        }
-        // Parsing the value for "precision="...
-        digit = Character.digit(charVal[i], 10);
-        if (digit == -1) {
-            throw new IllegalArgumentException("Bad string format");
-        }
-        // BEGIN android-changed
-        this.precision = digit;
-        // END android-changed
-        i++;
-
-        do {
-            digit = Character.digit(charVal[i], 10);
-            if (digit == -1) {
-                if (charVal[i] == ' ') {
-                    // It parsed all the digits
-                    i++;
-                    break;
-                }
-                // It isn't  a valid digit, and isn't a white space
-                throw new IllegalArgumentException("Bad string format");
-            }
-            // Accumulating the value parsed
-            this.precision = this.precision * 10 + digit;
-            if (this.precision < 0) {
-                throw new IllegalArgumentException("Bad string format");
-            }
-            i++;
-        } while (true);
-        // Parsing "roundingMode="
-        for (j = 0; (j < chRoundingMode.length)
-                && (charVal[i] == chRoundingMode[j]); i++, j++) {
-            ;
+        String precisionString = s.substring(precisionLength, spaceIndex);
+        try {
+            this.precision = Integer.parseInt(precisionString);
+        } catch (NumberFormatException nfe) {
+            throw invalidMathContext("Bad precision", s);
         }
 
-        if (j < chRoundingMode.length) {
-            throw new IllegalArgumentException("Bad string format");
+        int roundingModeStart = spaceIndex + 1;
+        if (!s.regionMatches(roundingModeStart, "roundingMode=", 0, roundingModeLength)) {
+            throw invalidMathContext("Missing rounding mode", s);
         }
-        // Parsing the value for "roundingMode"...
-        this.roundingMode = RoundingMode.valueOf(String.valueOf(charVal, i,
-                charVal.length - i));
+        roundingModeStart += roundingModeLength;
+        this.roundingMode = RoundingMode.valueOf(s.substring(roundingModeStart));
+
+        checkValid();
     }
 
-    /* Public Methods */
+    private IllegalArgumentException invalidMathContext(String reason, String s) {
+        throw new IllegalArgumentException(reason + ": " + s);
+    }
+
+    private void checkValid() {
+        if (precision < 0) {
+            throw new IllegalArgumentException("Negative precision: " + precision);
+        }
+        if (roundingMode == null) {
+            throw new NullPointerException("roundingMode == null");
+        }
+    }
 
     /**
      * Returns the precision. The precision is the number of digits used for an
@@ -299,12 +240,10 @@ public final class MathContext implements Serializable {
      */
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        if (precision < 0) {
-            throw new StreamCorruptedException("precision < 0");
-        }
-        if (roundingMode == null) {
-            throw new StreamCorruptedException("roundingMode == null");
+        try {
+            checkValid();
+        } catch (Exception ex) {
+            throw new StreamCorruptedException(ex.getMessage());
         }
     }
-
 }

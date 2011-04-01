@@ -19,46 +19,9 @@ package org.apache.harmony.regex.tests.java.util.regex;
 import java.util.regex.PatternSyntaxException;
 
 import junit.framework.TestCase;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(PatternSyntaxException.class)
 public class PatternSyntaxExceptionTest extends TestCase {
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "PatternSyntaxException",
-            args = {java.lang.String.class, java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getDescription",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPattern",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getIndex",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getMessage",
-            args = {}
-        )
-    })
     public void testPatternSyntaxException() {
         // Normal case
         PatternSyntaxException e = new PatternSyntaxException("Foo", "Bar", 0);

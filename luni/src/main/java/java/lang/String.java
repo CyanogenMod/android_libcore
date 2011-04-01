@@ -522,7 +522,6 @@ outer:
      * @since 1.5
      */
     public String(int[] codePoints, int offset, int count) {
-        super();
         if (codePoints == null) {
             throw new NullPointerException();
         }
@@ -583,27 +582,25 @@ outer:
      * @throws IndexOutOfBoundsException
      *             if {@code index < 0} or {@code index >= length()}.
      */
-    public char charAt(int index) {
-        if (index >= 0 && index < count) {
-            return value[offset + index];
-        }
-        throw indexAndLength(index);
-    }
+    public native char charAt(int index);
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
-        throw new StringIndexOutOfBoundsException("index=" + index + " length=" + count);
+        throw new StringIndexOutOfBoundsException(this, index);
     }
 
     private StringIndexOutOfBoundsException startEndAndLength(int start, int end) {
-        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end + " length=" + count);
+        throw new StringIndexOutOfBoundsException(this, start, end - start);
     }
 
     private StringIndexOutOfBoundsException failedBoundsCheck(int arrayLength, int offset, int count) {
-        throw new StringIndexOutOfBoundsException("array length=" + arrayLength + " offset=" + offset + " count=" + count);
+        throw new StringIndexOutOfBoundsException(arrayLength, offset, count);
     }
 
-    // Optimized for ASCII
-    private char compareValue(char ch) {
+    /**
+     * This isn't equivalent to either of ICU's u_foldCase case folds, and thus any of the Unicode
+     * case folds, but it's what the RI uses.
+     */
+    private char foldCase(char ch) {
         if (ch < 128) {
             if ('A' <= ch && ch <= 'Z') {
                 return (char) (ch + ('a' - 'A'));
@@ -633,18 +630,7 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public int compareTo(String string) {
-        // Code adapted from K&R, pg 101
-        int o1 = offset, o2 = string.offset, result;
-        int end = offset + (count < string.count ? count : string.count);
-        char[] target = string.value;
-        while (o1 < end) {
-            if ((result = value[o1++] - target[o2++]) != 0) {
-                return result;
-            }
-        }
-        return count - string.count;
-    }
+    public native int compareTo(String string);
 
     /**
      * Compares the specified string to this string using the Unicode values of
@@ -675,8 +661,8 @@ outer:
             if ((c1 = value[o1++]) == (c2 = target[o2++])) {
                 continue;
             }
-            c1 = compareValue(c1);
-            c2 = compareValue(c2);
+            c1 = foldCase(c1);
+            c2 = foldCase(c2);
             if ((result = c1 - c2) != 0) {
                 return result;
             }
@@ -765,35 +751,7 @@ outer:
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-        if (object instanceof String) {
-            String s = (String) object;
-            // BEGIN android-changed
-            int hashCode1 = hashCode;
-            int hashCode2 = s.hashCode;
-            if (count != s.count
-                || (hashCode1 != hashCode2 && hashCode1 != 0 && hashCode2 != 0)) {
-                return false;
-            }
-            // inline 'return regionMatches(0, s, 0, count)'
-            // omitting unnecessary bounds checks
-            int o1 = offset, o2 = s.offset;
-            char[] value1 = value;
-            char[] value2 = s.value;
-            for (int i = 0; i < count; ++i) {
-                if (value1[o1 + i] != value2[o2 + i]) {
-                    return false;
-                }
-            }
-            return true;
-            // END android-changed
-        }
-        return false;
-    }
+    @Override public native boolean equals(Object object);
 
     /**
      * Compares the specified string to this string ignoring the case of the
@@ -811,16 +769,13 @@ outer:
         if (string == null || count != string.count) {
             return false;
         }
-
         int o1 = offset, o2 = string.offset;
         int end = offset + count;
-        char c1, c2;
         char[] target = string.value;
         while (o1 < end) {
-            if ((c1 = value[o1++]) != (c2 = target[o2++])
-                    && Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                    // Required for unicode that we test both cases
-                    && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
+            char c1 = value[o1++];
+            char c2 = target[o2++];
+            if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
                 return false;
             }
         }
@@ -855,10 +810,10 @@ outer:
                     data[index++] = (byte) value[i];
                 }
             } catch (ArrayIndexOutOfBoundsException ignored) {
+                throw failedBoundsCheck(data.length, index, end - start);
             }
         }
-        throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end
-                + " data.length=" + data.length + " index=" + index + " length=" + count);
+        throw startEndAndLength(start, end);
     }
 
     /**
@@ -940,8 +895,7 @@ outer:
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
             // We throw StringIndexOutOfBoundsException rather than System.arraycopy's AIOOBE.
-            throw new StringIndexOutOfBoundsException("start=" + start + " end=" + end +
-                    " buffer.length=" + buffer.length + " index=" + index + " length=" + count);
+            throw startEndAndLength(start, end);
         }
     }
 
@@ -1008,25 +962,7 @@ outer:
         return fastIndexOf(c, start);
     }
 
-    private int fastIndexOf(int c, int start) {
-        // BEGIN android-changed
-        int _count = count;
-        if (start < _count) {
-            if (start < 0) {
-                start = 0;
-            }
-            int _offset = offset;
-            int last = _offset + count;
-            char[] _value = value;
-            for (int i = _offset + start; i < last; i++) {
-                if (_value[i] == c) {
-                    return i - _offset;
-                }
-            }
-        }
-        return -1;
-        // END android-changed
-    }
+    private native int fastIndexOf(int c, int start);
 
     private int indexOfSupplementary(int c, int start) {
         if (!Character.isSupplementaryCodePoint(c)) {
@@ -1050,7 +986,6 @@ outer:
      *             if {@code string} is {@code null}.
      */
     public int indexOf(String string) {
-        // BEGIN android-changed
         int start = 0;
         int subCount = string.count;
         int _count = count;
@@ -1079,7 +1014,6 @@ outer:
             }
         }
         return start < _count ? start : _count;
-        // END android-changed
     }
 
     /**
@@ -1097,7 +1031,6 @@ outer:
      *             if {@code subString} is {@code null}.
      */
     public int indexOf(String subString, int start) {
-        // BEGIN android-changed
         if (start < 0) {
             start = 0;
         }
@@ -1128,43 +1061,39 @@ outer:
             }
         }
         return start < _count ? start : _count;
-        // END android-changed
     }
 
     /**
-     * Searches an internal table of strings for a string equal to this string.
-     * If the string is not in the table, it is added. Returns the string
-     * contained in the table which is equal to this string. The same string
-     * object is always returned for strings which are equal.
+     * Returns an interned string equal to this string. The VM maintains an internal set of
+     * unique strings. All string literals found in loaded classes'
+     * constant pools are automatically interned. Manually-interned strings are only weakly
+     * referenced, so calling {@code intern} won't lead to unwanted retention.
      *
-     * @return the interned string equal to this string.
+     * <p>Interning is typically used because it guarantees that for interned strings
+     * {@code a} and {@code b}, {@code a.equals(b)} can be simplified to
+     * {@code a == b}. (This is not true of non-interned strings.)
+     *
+     * <p>Many applications find it simpler and more convenient to use an explicit
+     * {@link java.util.HashMap} to implement their own pools.
      */
-    native public String intern();
+    public native String intern();
 
     /**
      * Returns true if the length of this string is 0.
      *
      * @since 1.6
      */
-    public boolean isEmpty() {
-        return count == 0;
-    }
+    public native boolean isEmpty();
 
     /**
-     * Searches in this string for the last index of the specified character.
+     * Returns the last index of the code point {@code c}, or -1.
      * The search for the character starts at the end and moves towards the
      * beginning of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int lastIndexOf(int c) {
         if (c > 0xffff) {
             return lastIndexOfSupplementary(c, Integer.MAX_VALUE);
         }
-        // BEGIN android-changed
         int _count = count;
         int _offset = offset;
         char[] _value = value;
@@ -1174,26 +1103,17 @@ outer:
             }
         }
         return -1;
-        // END android-changed
     }
 
     /**
-     * Searches in this string for the index of the specified character. The
-     * search for the character starts at the specified offset and moves towards
+     * Returns the last index of the code point {@code c}, or -1.
+     * The search for the character starts at offset {@code start} and moves towards
      * the beginning of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @param start
-     *            the starting offset.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int lastIndexOf(int c, int start) {
         if (c > 0xffff) {
             return lastIndexOfSupplementary(c, start);
         }
-        // BEGIN android-changed
         int _count = count;
         int _offset = offset;
         char[] _value = value;
@@ -1208,7 +1128,6 @@ outer:
             }
         }
         return -1;
-        // END android-changed
     }
 
     private int lastIndexOfSupplementary(int c, int start) {
@@ -1288,9 +1207,7 @@ outer:
      *
      * @return the number of characters in this string.
      */
-    public int length() {
-        return count;
-    }
+    public native int length();
 
     /**
      * Compares the specified string to this string and compares the specified
@@ -1309,8 +1226,7 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public boolean regionMatches(int thisStart, String string, int start,
-            int length) {
+    public boolean regionMatches(int thisStart, String string, int start, int length) {
         if (string == null) {
             throw new NullPointerException();
         }
@@ -1324,7 +1240,6 @@ outer:
             return true;
         }
         int o1 = offset + thisStart, o2 = string.offset + start;
-        // BEGIN android-changed
         char[] value1 = value;
         char[] value2 = string.value;
         for (int i = 0; i < length; ++i) {
@@ -1332,7 +1247,6 @@ outer:
                 return false;
             }
         }
-        // END android-changed
         return true;
     }
 
@@ -1356,36 +1270,31 @@ outer:
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
-    public boolean regionMatches(boolean ignoreCase, int thisStart,
-            String string, int start, int length) {
+    public boolean regionMatches(boolean ignoreCase, int thisStart, String string, int start, int length) {
         if (!ignoreCase) {
             return regionMatches(thisStart, string, start, length);
         }
-
-        if (string != null) {
-            if (thisStart < 0 || length > count - thisStart) {
-                return false;
-            }
-            if (start < 0 || length > string.count - start) {
-                return false;
-            }
-
-            thisStart += offset;
-            start += string.offset;
-            int end = thisStart + length;
-            char c1, c2;
-            char[] target = string.value;
-            while (thisStart < end) {
-                if ((c1 = value[thisStart++]) != (c2 = target[start++])
-                        && Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                        // Required for unicode that we test both cases
-                        && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
-                    return false;
-                }
-            }
-            return true;
+        if (string == null) {
+            throw new NullPointerException("string == null");
         }
-        throw new NullPointerException();
+        if (thisStart < 0 || length > count - thisStart) {
+            return false;
+        }
+        if (start < 0 || length > string.count - start) {
+            return false;
+        }
+        thisStart += offset;
+        start += string.offset;
+        int end = thisStart + length;
+        char[] target = string.value;
+        while (thisStart < end) {
+            char c1 = value[thisStart++];
+            char c2 = target[start++];
+            if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1532,7 +1441,7 @@ outer:
         if (start >= 0 && start <= count) {
             return new String(offset + start, count - start, value);
         }
-        throw new StringIndexOutOfBoundsException("start=" + start + " length=" + count);
+        throw indexAndLength(start);
     }
 
     /**
@@ -1573,17 +1482,17 @@ outer:
     }
 
     /**
-     * Converts this string to lowercase, using the rules of the user's default locale.
+     * Converts this string to lower case, using the rules of the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @return a new lowercase string, or {@code this} if it's already all-lowercase.
+     * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase() {
         return CaseMapper.toLowerCase(Locale.getDefault(), this, value, offset, count);
     }
 
     /**
-     * Converts this string to lowercase, using the rules of {@code locale}.
+     * Converts this string to lower case, using the rules of {@code locale}.
      *
      * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
      * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
@@ -1593,7 +1502,7 @@ outer:
      * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
      * for full details of context- and language-specific special cases.
      *
-     * @return a new lowercase string, or {@code this} if it's already all-lowercase.
+     * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase(Locale locale) {
         return CaseMapper.toLowerCase(locale, this, value, offset, count);
@@ -1601,8 +1510,6 @@ outer:
 
     /**
      * Returns this string.
-     *
-     * @return this string.
      */
     @Override
     public String toString() {
@@ -1610,17 +1517,17 @@ outer:
     }
 
     /**
-     * Converts this this string to uppercase, using the rules of the user's default locale.
+     * Converts this this string to upper case, using the rules of the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
+     * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase() {
         return CaseMapper.toUpperCase(Locale.getDefault(), this, value, offset, count);
     }
 
     /**
-     * Converts this this string to uppercase, using the rules of {@code locale}.
+     * Converts this this string to upper case, using the rules of {@code locale}.
      *
      * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
      * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
@@ -1630,7 +1537,7 @@ outer:
      * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
      * for full details of context- and language-specific special cases.
      *
-     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
+     * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase(Locale locale) {
         return CaseMapper.toUpperCase(locale, this, value, offset, count);

@@ -640,9 +640,7 @@ public class GregorianCalendar extends Calendar {
             // FIXME: this has to be wrong; useDaylightTime doesn't mean what they think it means!
             long newTimeAdjusted = newTime;
             if (timeZone.useDaylightTime()) {
-                // BEGIN android-changed: removed unnecessary cast
                 int dstSavings = timeZone.getDSTSavings();
-                // END android-changed
                 newTimeAdjusted += (dstOffset == 0) ? dstSavings : -dstSavings;
             }
 

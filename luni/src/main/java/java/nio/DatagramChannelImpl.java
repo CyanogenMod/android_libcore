@@ -26,6 +26,7 @@ import java.net.DatagramSocket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.PlainDatagramSocketImpl;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.AlreadyConnectedException;
@@ -35,15 +36,14 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
+import libcore.io.IoUtils;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
 /*
  * The default implementation class of java.nio.channels.DatagramChannel.
  */
-class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandler {
+class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChannel {
     // The fd to interact with native code
     private final FileDescriptor fd;
 
@@ -70,8 +70,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
      */
     protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
-        fd = new FileDescriptor();
-        Platform.NETWORK.socket(fd, false);
+        fd = IoUtils.socket(false);
     }
 
     /*
@@ -97,14 +96,10 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     }
 
     /**
-     * Returns the local address from the IP stack. This method should not be
-     * called directly as it does not check the security policy.
-     *
-     * @return InetAddress the local address to which the socket is bound.
-     * @see DatagramSocket
+     * Returns the local address to which the socket is bound.
      */
     InetAddress getLocalAddress() {
-        return Platform.NETWORK.getSocketLocalAddress(fd);
+        return IoUtils.getSocketLocalAddress(fd);
     }
 
     /**
@@ -129,17 +124,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         // check the address
         InetSocketAddress inetSocketAddress = SocketChannelImpl.validateAddress(address);
-
-        // security check
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            if (inetSocketAddress.getAddress().isMulticastAddress()) {
-                sm.checkMulticast(inetSocketAddress.getAddress());
-            } else {
-                sm.checkConnect(inetSocketAddress.getAddress().getHostName(),
-                        inetSocketAddress.getPort());
-            }
-        }
 
         try {
             begin();
@@ -224,17 +208,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                     receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
                     false, isConnected());
 
-            // security check
-            SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && sm != null) {
-                try {
-                    sm.checkAccept(receivePacket.getAddress().getHostAddress(),
-                            receivePacket.getPort());
-                } catch (SecurityException e) {
-                    // do discard the datagram packet
-                    receivePacket = null;
-                }
-            }
             if (receivePacket != null && receivePacket.getAddress() != null) {
 
                 if (received > 0) {
@@ -262,17 +235,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             received = Platform.NETWORK.recvDirect(fd, receivePacket, address,
                     target.position(), target.remaining(), false, isConnected());
 
-            // security check
-            SecurityManager sm = System.getSecurityManager();
-            if (!isConnected() && sm != null) {
-                try {
-                    sm.checkAccept(receivePacket.getAddress().getHostAddress(),
-                            receivePacket.getPort());
-                } catch (SecurityException e) {
-                    // do discard the datagram packet
-                    receivePacket = null;
-                }
-            }
             if (receivePacket != null && receivePacket.getAddress() != null) {
                 // copy the data of received packet
                 if (received > 0) {
@@ -302,20 +264,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             throw new IOException();
         }
 
-        if (isConnected()) {
-            if (!connectAddress.equals(isa)) {
-                throw new IllegalArgumentException();
-            }
-        } else {
-            // not connected, check security
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                if (isa.getAddress().isMulticastAddress()) {
-                    sm.checkMulticast(isa.getAddress());
-                } else {
-                    sm.checkConnect(isa.getAddress().getHostAddress(), isa.getPort());
-                }
-            }
+        if (isConnected() && !connectAddress.equals(isa)) {
+            throw new IllegalArgumentException();
         }
 
         // the return value.
@@ -328,8 +278,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
             int start = oldposition;
             if (source.isDirect()) {
                 synchronized (writeLock) {
-                    int data_address = NioUtils.getDirectBufferAddress(source);
-                    sendCount = Platform.NETWORK.sendDirect(fd, data_address, start, length,
+                    int address = NioUtils.getDirectBufferAddress(source);
+                    sendCount = Platform.NETWORK.sendDirect(fd, address, start, length,
                             isa.getPort(), isa.getAddress());
                 }
             } else {

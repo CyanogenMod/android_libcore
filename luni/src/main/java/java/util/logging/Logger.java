@@ -17,17 +17,8 @@
 
 package java.util.logging;
 
-// BEGIN android-note
-// this file contains cleaned up documentation and style for contribution
-// upstream
-// It also contains Android-specific optimizations that aren't appropriate for
-// general purpose platforms
-// END android-note
-
 import dalvik.system.DalvikLogHandler;
 import dalvik.system.DalvikLogging;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -81,7 +72,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Logger {
 
-    // BEGIN android-only
     /** A handler for use when no handler optimization is possible. */
     private static final DalvikLogHandler GENERAL_LOG_HANDLER = new DalvikLogHandler() {
         public void publish(Logger source, String tag, Level level, String message) {
@@ -91,7 +81,6 @@ public class Logger {
             source.log(record);
         }
     };
-    // END android-only
 
     /**
      * The name of the global logger. Before using this, see the discussion of how to use
@@ -107,7 +96,7 @@ public class Logger {
      * documentation.
      */
     @Deprecated
-    public final static Logger global = new Logger(GLOBAL_LOGGER_NAME, null);
+    public static final Logger global = new Logger(GLOBAL_LOGGER_NAME, null);
 
     /**
      * When converting the concurrent collection of handlers to an array, we
@@ -170,7 +159,6 @@ public class Logger {
      */
     final List<Logger> children = new ArrayList<Logger>();
 
-    // BEGIN android-only
     /** the tag used for optimized logging. Derived from the logger name. */
     private final String androidTag;
 
@@ -245,7 +233,6 @@ public class Logger {
             logger.updateDalvikLogHandler();
         }
     }
-    // END android-only
 
     /**
      * Constructs a {@code Logger} object with the supplied name and resource
@@ -265,10 +252,8 @@ public class Logger {
     protected Logger(String name, String resourceBundleName) {
         this.name = name;
         initResourceBundle(resourceBundleName);
-        // BEGIN android-only
         this.androidTag = DalvikLogging.loggerNameToTag(name);
         updateDalvikLogHandler();
-        // END android-only
     }
 
     /**
@@ -282,12 +267,7 @@ public class Logger {
      */
     static ResourceBundle loadResourceBundle(String resourceBundleName) {
         // try context class loader to load the resource
-        ClassLoader cl = AccessController
-                .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                    public ClassLoader run() {
-                        return Thread.currentThread().getContextClassLoader();
-                    }
-                });
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl != null) {
             try {
                 return ResourceBundle.getBundle(resourceBundleName, Locale
@@ -297,42 +277,25 @@ public class Logger {
             }
         }
         // try system class loader to load the resource
-        cl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                return ClassLoader.getSystemClassLoader();
-            }
-        });
+        cl = ClassLoader.getSystemClassLoader();
         if (cl != null) {
             try {
-                return ResourceBundle.getBundle(resourceBundleName, Locale
-                        .getDefault(), cl);
+                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
             } catch (MissingResourceException e) {
                 // Failed to load using system classloader, ignore
             }
         }
         // try all class loaders up the class stack
-        final Class<?>[] classes = AccessController
-                .doPrivileged(new PrivilegedAction<Class<?>[]>() {
-                    public Class<?>[] run() {
-                        return (new PrivateSecurityManager())
-                                .privateGetClassContext();
-                    }
-                });
+        final Class<?>[] classes = new PrivateSecurityManager().privateGetClassContext();
         // the first class, which is PrivateSecurityManager, is skipped
         for (int i = 1; i < classes.length; i++) {
             final int index = i;
             try {
-                cl = AccessController
-                        .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                            public ClassLoader run() {
-                                return classes[index].getClassLoader();
-                            }
-                        });
+                cl = classes[index].getClassLoader();
                 if (cl == null) {
                     continue;
                 }
-                return ResourceBundle.getBundle(resourceBundleName, Locale
-                        .getDefault(), cl);
+                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
             } catch (MissingResourceException e) {
                 // Failed to load using the current class's classloader, ignore
             }
@@ -439,14 +402,20 @@ public class Logger {
     }
 
     /**
+     * Returns the global {@code Logger}.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public static Logger getGlobal() {
+        return global;
+    }
+
+    /**
      * Adds a handler to this logger. The {@code name} will be fed with log
      * records received by this logger.
      *
      * @param handler
      *            the handler object to add, cannot be {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void addHandler(Handler handler) {
         if (handler == null) {
@@ -457,14 +426,13 @@ public class Logger {
             LogManager.getLogManager().checkAccess();
         }
         this.handlers.add(handler);
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
      * Set the logger's manager and initializes its configuration from the
      * manager's properties.
      */
-    @SuppressWarnings("nls")
     void setManager(LogManager manager) {
         String levelProperty = manager.getProperty(name + ".level");
         if (levelProperty != null) {
@@ -504,7 +472,7 @@ public class Logger {
             }
         }
 
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -522,9 +490,6 @@ public class Logger {
      *
      * @param handler
      *            the handler to be removed.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void removeHandler(Handler handler) {
         // Anonymous loggers can always remove handlers
@@ -535,7 +500,7 @@ public class Logger {
             return;
         }
         this.handlers.remove(handler);
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -552,9 +517,6 @@ public class Logger {
      *
      * @param newFilter
      *            the filter to set, may be {@code null}.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setFilter(Filter newFilter) {
         // Anonymous loggers can always set the filter
@@ -580,9 +542,6 @@ public class Logger {
      *
      * @param newLevel
      *            the logging level to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setLevel(Level newLevel) {
         // Anonymous loggers can always set the level
@@ -611,9 +570,6 @@ public class Logger {
      *
      * @param notifyParentHandlers
      *            the new flag indicating whether to use the parent's handlers.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setUseParentHandlers(boolean notifyParentHandlers) {
         // Anonymous loggers can always set the useParentHandlers flag
@@ -621,7 +577,7 @@ public class Logger {
             LogManager.getLogManager().checkAccess();
         }
         this.notifyParentHandlers = notifyParentHandlers;
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 
     /**
@@ -640,9 +596,6 @@ public class Logger {
      *
      * @param parent
      *            the parent logger to set.
-     * @throws SecurityException
-     *             if a security manager determines that the caller does not
-     *             have the required permission.
      */
     public void setParent(Logger parent) {
         if (parent == null) {
@@ -795,7 +748,6 @@ public class Logger {
      * @param params
      *            an array of parameters for the method call.
      */
-    @SuppressWarnings("nls")
     public void entering(String sourceClass, String sourceMethod,
             Object[] params) {
         if (!internalIsLoggable(Level.FINER)) {
@@ -986,10 +938,7 @@ public class Logger {
         if (!internalIsLoggable(logLevel)) {
             return;
         }
-
-        // BEGIN android-only
         dalvikLogHandler.publish(this, androidTag, logLevel, msg);
-        // END android-only
     }
 
     /**
@@ -1408,6 +1357,6 @@ public class Logger {
             }
         }
 
-        updateDalvikLogHandler(); // android-only
+        updateDalvikLogHandler();
     }
 }

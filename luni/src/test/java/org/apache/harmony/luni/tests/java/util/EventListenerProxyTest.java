@@ -16,17 +16,11 @@
 
 package org.apache.harmony.luni.tests.java.util;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.util.EventListener;
 import java.util.EventListenerProxy;
 
-@TestTargetClass(EventListenerProxy.class)
 public class EventListenerProxyTest extends TestCase {
 
     class Mock_EventListener implements EventListener {
@@ -41,23 +35,11 @@ public class EventListenerProxyTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "EventListenerProxy",
-        args = {java.util.EventListener.class}
-    )
     public void testEventListenerProxy() {
         assertNotNull(new Mock_EventListenerProxy(null));
         assertNotNull(new Mock_EventListenerProxy(new Mock_EventListener()));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getListener",
-        args = {}
-    )
     public void testGetListener() {
         EventListener el = new Mock_EventListener();
         EventListenerProxy elp = new Mock_EventListenerProxy(el);

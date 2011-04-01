@@ -15,20 +15,10 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-
 import junit.framework.TestCase;
 
 public class CipherDESedeTest extends TestCase {
 // 80 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_DESedeNoISO() {
         CipherSymmetricKeyThread DESedeNoISO = new CipherSymmetricKeyThread(
                 "DESede", new int[] {112, 168},// Keysize must be 112 or 168.
@@ -45,12 +35,6 @@ public class CipherDESedeTest extends TestCase {
     }
 
 // 40 cases checked
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "method",
-        args = {}
-    )
     public void test_DESedeISO() {
         CipherSymmetricKeyThread DESedeISO = new CipherSymmetricKeyThread(
                 "DESede", new int[] {112, 168},// Keysize must be 112 or 168.

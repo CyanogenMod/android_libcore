@@ -257,7 +257,6 @@ public abstract class ShortBuffer extends Buffer implements
      *                if {@code shortCount} is greater than {@code remaining()}.
      */
     public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
-        int length = dst.length;
         Arrays.checkOffsetAndCount(dst.length, dstOffset, shortCount);
         if (shortCount > remaining()) {
             throw new BufferUnderflowException();
@@ -399,7 +398,6 @@ public abstract class ShortBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
-        int length = src.length;
         Arrays.checkOffsetAndCount(src.length, srcOffset, shortCount);
         if (shortCount > remaining()) {
             throw new BufferOverflowException();

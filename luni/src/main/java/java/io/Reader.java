@@ -47,7 +47,6 @@ public abstract class Reader implements Readable, Closeable {
      * synchronize critical sections.
      */
     protected Reader() {
-        super();
         lock = this;
     }
 
@@ -143,9 +142,6 @@ public abstract class Reader implements Readable, Closeable {
      *             if this reader is closed or some other I/O error occurs.
      */
     public int read(char[] buf) throws IOException {
-        // BEGIN android-note
-        // changed array notation to be consistent with the rest of harmony
-        // END android-note
         return read(buf, 0, buf.length);
     }
 
@@ -167,11 +163,7 @@ public abstract class Reader implements Readable, Closeable {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    public abstract int read(char[] buf, int offset, int count)
-            throws IOException;
-    // BEGIN android-note
-    // changed array notation to be consistent with the rest of harmony
-    // END android-note
+    public abstract int read(char[] buf, int offset, int count) throws IOException;
 
     /**
      * Indicates whether this reader is ready to be read without blocking.

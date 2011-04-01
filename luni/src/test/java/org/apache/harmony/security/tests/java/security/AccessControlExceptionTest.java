@@ -22,11 +22,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.security.AccessControlException;
 import java.security.AllPermission;
 import java.security.Permission;
@@ -37,18 +32,11 @@ import junit.framework.TestCase;
 /**
  * Unit test for AccessControlException.
  */
-@TestTargetClass(AccessControlException.class)
 public class AccessControlExceptionTest extends TestCase {
 
     /**
      * Tests AccessControlException(String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "AccessControlException",
-        args = {java.lang.String.class}
-    )
     public void testAccessControlExceptionString() {
         new AccessControlException(null);
         new AccessControlException("Failure");
@@ -57,12 +45,6 @@ public class AccessControlExceptionTest extends TestCase {
     /**
      * Tests AccessControlException(String, Permission)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "AccessControlException",
-        args = {java.lang.String.class, java.security.Permission.class}
-    )
     public void testAccessControlExceptionStringPermission() {
         Permission perm = new AllPermission();
         AccessControlException controlException = new AccessControlException("001", perm);
@@ -74,12 +56,6 @@ public class AccessControlExceptionTest extends TestCase {
      *
      * Tests AccessControlException.getPermission()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getPermission",
-        args = {}
-    )
     public void testGetPermission() {
         Permission perm = new UnresolvedPermission("unresolvedType",
                 "unresolvedName", "unresolvedActions", null);

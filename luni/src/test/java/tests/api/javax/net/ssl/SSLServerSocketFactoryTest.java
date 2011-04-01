@@ -16,10 +16,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -28,7 +24,6 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLServerSocketFactory.class)
 public class SSLServerSocketFactoryTest extends TestCase {
 
     private class MockSSLServerSocketFactory extends SSLServerSocketFactory {
@@ -65,14 +60,8 @@ public class SSLServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLServerSocketFactory#SSLServerSocketFactory()
+     * javax.net.ssl.SSLServerSocketFactory#SSLServerSocketFactory()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "SSLServerSocketFactory",
-        args = {}
-    )
     public void test_Constructor() {
         try {
             MockSSLServerSocketFactory ssf = new MockSSLServerSocketFactory();
@@ -82,28 +71,16 @@ public class SSLServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLServerSocketFactory#getDefault()
+     * javax.net.ssl.SSLServerSocketFactory#getDefault()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefault",
-        args = {}
-    )
     public void test_getDefault() {
         assertNotNull("Incorrect default socket factory",
                 SSLServerSocketFactory.getDefault());
     }
 
     /**
-     * @tests javax.net.ssl.SSLServerSocketFactory#getDefaultCipherSuites()
+     * javax.net.ssl.SSLServerSocketFactory#getDefaultCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDefaultCipherSuites",
-        args = {}
-    )
     public void test_getDefaultCipherSuites() {
         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory
                 .getDefault();
@@ -115,14 +92,8 @@ public class SSLServerSocketFactoryTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.SSLServerSocketFactory#getSupportedCipherSuites()
+     * javax.net.ssl.SSLServerSocketFactory#getSupportedCipherSuites()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getSupportedCipherSuites",
-        args = {}
-    )
     public void test_getSupportedCipherSuites() {
         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory
                 .getDefault();

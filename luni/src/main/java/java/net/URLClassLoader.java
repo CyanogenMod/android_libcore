@@ -18,7 +18,6 @@
 package java.net;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,11 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.security.AccessControlContext;
-import java.security.AccessController;
+import java.nio.charset.Charsets;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
-import java.security.PrivilegedAction;
 import java.security.SecureClassLoader;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -46,6 +43,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import libcore.io.IoUtils;
+import libcore.io.Streams;
 
 /**
  * This class loader is responsible for loading classes and resources from a
@@ -63,53 +61,6 @@ public class URLClassLoader extends SecureClassLoader {
 
     private URLStreamHandlerFactory factory;
 
-    private AccessControlContext currentContext;
-
-    static class SubURLClassLoader extends URLClassLoader {
-        // The subclass that overwrites the loadClass() method
-        private boolean checkingPackageAccess = false;
-
-        SubURLClassLoader(URL[] urls) {
-            super(urls, ClassLoader.getSystemClassLoader());
-        }
-
-        SubURLClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
-        }
-
-        /**
-         * Overrides the {@code loadClass()} of {@code ClassLoader}. It calls
-         * the security manager's {@code checkPackageAccess()} before
-         * attempting to load the class.
-         *
-         * @return the Class object.
-         * @param className
-         *            String the name of the class to search for.
-         * @param resolveClass
-         *            boolean indicates if class should be resolved after
-         *            loading.
-         * @throws ClassNotFoundException
-         *             If the class could not be found.
-         */
-        @Override
-        protected synchronized Class<?> loadClass(String className,
-                                                  boolean resolveClass) throws ClassNotFoundException {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null && !checkingPackageAccess) {
-                int index = className.lastIndexOf('.');
-                if (index > 0) { // skip if class is from a default package
-                    try {
-                        checkingPackageAccess = true;
-                        sm.checkPackageAccess(className.substring(0, index));
-                    } finally {
-                        checkingPackageAccess = false;
-                    }
-                }
-            }
-            return super.loadClass(className, resolveClass);
-        }
-    }
-
     static class IndexFile {
 
         private HashMap<String, ArrayList<URL>> map;
@@ -122,10 +73,9 @@ public class URLClassLoader extends SecureClassLoader {
             try {
                 // Add mappings from resource to jar file
                 String parentURLString = getParentURL(url).toExternalForm();
-                String prefix = "jar:"
-                        + parentURLString + "/";
+                String prefix = "jar:" + parentURLString + "/";
                 is = jf.getInputStream(indexEntry);
-                in = new BufferedReader(new InputStreamReader(is, "UTF8"));
+                in = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
                 HashMap<String, ArrayList<URL>> pre_map = new HashMap<String, ArrayList<URL>>();
                 // Ignore the 2 first lines (index version)
                 if (in.readLine() == null) return null;
@@ -274,13 +224,12 @@ public class URLClassLoader extends SecureClassLoader {
 
         URL targetURL(URL base, String name) {
             try {
-                String file = base.getFile() + URIEncoderDecoder.quoteIllegal(name,
-                        "/@" + URI.SOME_LEGAL);
+                StringBuilder fileBuilder = new StringBuilder();
+                fileBuilder.append(base.getFile());
+                URI.PATH_ENCODER.appendEncoded(fileBuilder, name);
+                String file = fileBuilder.toString();
 
-                return new URL(base.getProtocol(), base.getHost(), base.getPort(),
-                        file, null);
-            } catch (UnsupportedEncodingException e) {
-                return null;
+                return new URL(base.getProtocol(), base.getHost(), base.getPort(), file, null);
             } catch (MalformedURLException e) {
                 return null;
             }
@@ -590,10 +539,6 @@ public class URLClassLoader extends SecureClassLoader {
      * @param urls
      *            the list of URLs where a specific class or file could be
      *            found.
-     * @throws SecurityException
-     *             if a security manager exists and its {@code
-     *             checkCreateClassLoader()} method doesn't allow creation of
-     *             new ClassLoaders.
      */
     public URLClassLoader(URL[] urls) {
         this(urls, ClassLoader.getSystemClassLoader(), null);
@@ -609,10 +554,6 @@ public class URLClassLoader extends SecureClassLoader {
      *            found.
      * @param parent
      *            the class loader to assign as this loader's parent.
-     * @throws SecurityException
-     *             if a security manager exists and its {@code
-     *             checkCreateClassLoader()} method doesn't allow creation of
-     *             new class loaders.
      */
     public URLClassLoader(URL[] urls, ClassLoader parent) {
         this(urls, parent, null);
@@ -646,33 +587,7 @@ public class URLClassLoader extends SecureClassLoader {
         if (name == null) {
             return null;
         }
-        ArrayList<URL> result = AccessController.doPrivileged(
-                new PrivilegedAction<ArrayList<URL>>() {
-                    public ArrayList<URL> run() {
-                        ArrayList<URL> results = new ArrayList<URL>();
-                        findResourcesImpl(name, results);
-                        return results;
-                    }
-                }, currentContext);
-        SecurityManager sm;
-        int length = result.size();
-        if (length > 0 && (sm = System.getSecurityManager()) != null) {
-            ArrayList<URL> reduced = new ArrayList<URL>(length);
-            for (int i = 0; i < length; i++) {
-                URL url = result.get(i);
-                try {
-                    sm.checkPermission(url.openConnection().getPermission());
-                    reduced.add(url);
-                } catch (IOException e) {
-                } catch (SecurityException e) {
-                }
-            }
-            result = reduced;
-        }
-        return Collections.enumeration(result);
-    }
-
-    void findResourcesImpl(String name, ArrayList<URL> result) {
+        ArrayList<URL> result = new ArrayList<URL>();
         int n = 0;
         while (true) {
             URLHandler handler = getHandler(n++);
@@ -681,8 +596,8 @@ public class URLClassLoader extends SecureClassLoader {
             }
             handler.findResources(name, result);
         }
+        return Collections.enumeration(result);
     }
-
 
     /**
      * Converts an input stream into a byte array.
@@ -691,15 +606,8 @@ public class URLClassLoader extends SecureClassLoader {
      *            the input stream
      * @return byte[] the byte array
      */
-    private static byte[] getBytes(InputStream is)
-            throws IOException {
-        byte[] buf = new byte[4096];
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
-        int count;
-        while ((count = is.read(buf)) > 0) {
-            bos.write(buf, 0, count);
-        }
-        return bos.toByteArray();
+    private static byte[] getBytes(InputStream is) throws IOException {
+        return Streams.readFully(is);
     }
 
     /**
@@ -771,49 +679,30 @@ public class URLClassLoader extends SecureClassLoader {
 
     /**
      * Returns a new {@code URLClassLoader} instance for the given URLs and the
-     * system {@code ClassLoader} as its parent. The method {@code loadClass()}
-     * of the new instance will call {@code
-     * SecurityManager.checkPackageAccess()} before loading a class.
+     * system {@code ClassLoader} as its parent.
      *
      * @param urls
      *            the list of URLs that is passed to the new {@code
-     *            URLClassloader}.
+     *            URLClassLoader}.
      * @return the created {@code URLClassLoader} instance.
      */
     public static URLClassLoader newInstance(final URL[] urls) {
-        URLClassLoader sub = AccessController
-                .doPrivileged(new PrivilegedAction<URLClassLoader>() {
-                    public URLClassLoader run() {
-                        return new SubURLClassLoader(urls);
-                    }
-                });
-        sub.currentContext = AccessController.getContext();
-        return sub;
+        return new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
     }
 
     /**
      * Returns a new {@code URLClassLoader} instance for the given URLs and the
-     * specified {@code ClassLoader} as its parent. The method {@code
-     * loadClass()} of the new instance will call the SecurityManager's {@code
-     * checkPackageAccess()} before loading a class.
+     * specified {@code ClassLoader} as its parent.
      *
      * @param urls
-     *            the list of URLs that is passed to the new URLClassloader.
+     *            the list of URLs that is passed to the new URLClassLoader.
      * @param parentCl
      *            the parent class loader that is passed to the new
-     *            URLClassloader.
+     *            URLClassLoader.
      * @return the created {@code URLClassLoader} instance.
      */
-    public static URLClassLoader newInstance(final URL[] urls,
-                                             final ClassLoader parentCl) {
-        URLClassLoader sub = AccessController
-                .doPrivileged(new PrivilegedAction<URLClassLoader>() {
-                    public URLClassLoader run() {
-                        return new SubURLClassLoader(urls, parentCl);
-                    }
-                });
-        sub.currentContext = AccessController.getContext();
-        return sub;
+    public static URLClassLoader newInstance(final URL[] urls, final ClassLoader parentCl) {
+        return new URLClassLoader(urls, parentCl);
     }
 
     /**
@@ -831,22 +720,10 @@ public class URLClassLoader extends SecureClassLoader {
      * @param factory
      *            the factory that will be used to create protocol-specific
      *            stream handlers.
-     * @throws SecurityException
-     *             if a security manager exists and its {@code
-     *             checkCreateClassLoader()} method doesn't allow creation of
-     *             new {@code ClassLoader}s.
      */
-    public URLClassLoader(URL[] searchUrls, ClassLoader parent,
-                          URLStreamHandlerFactory factory) {
+    public URLClassLoader(URL[] searchUrls, ClassLoader parent, URLStreamHandlerFactory factory) {
         super(parent);
-        // Required for pre-v1.2 security managers to work
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkCreateClassLoader();
-        }
         this.factory = factory;
-        // capture the context of the thread that creates this URLClassLoader
-        currentContext = AccessController.getContext();
         int nbUrls = searchUrls.length;
         originalUrls = new ArrayList<URL>(nbUrls);
         handlerList = new ArrayList<URLHandler>(nbUrls);
@@ -865,25 +742,30 @@ public class URLClassLoader extends SecureClassLoader {
      * class could be found, a class object representing the loaded class will
      * be returned.
      *
-     * @param clsName
-     *            the name of the class which has to be found.
-     * @return the class that has been loaded.
      * @throws ClassNotFoundException
      *             if the specified class cannot be loaded.
      */
     @Override
-    protected Class<?> findClass(final String clsName)
-            throws ClassNotFoundException {
-        Class<?> cls = AccessController.doPrivileged(
-                new PrivilegedAction<Class<?>>() {
-                    public Class<?> run() {
-                        return findClassImpl(clsName);
-                    }
-                }, currentContext);
-        if (cls != null) {
-            return cls;
+    protected Class<?> findClass(final String className) throws ClassNotFoundException {
+        String partialName = className.replace('.', '/');
+        final String classFileName = new StringBuilder(partialName).append(".class").toString();
+        String packageName = null;
+        int position = partialName.lastIndexOf('/');
+        if ((position = partialName.lastIndexOf('/')) != -1) {
+            packageName = partialName.substring(0, position);
         }
-        throw new ClassNotFoundException(clsName);
+        int n = 0;
+        while (true) {
+            URLHandler handler = getHandler(n++);
+            if (handler == null) {
+                break;
+            }
+            Class<?> res = handler.findClass(packageName, classFileName, className);
+            if (res != null) {
+                return res;
+            }
+        }
+        throw new ClassNotFoundException(className);
     }
 
     /**
@@ -926,40 +808,13 @@ public class URLClassLoader extends SecureClassLoader {
         if (name == null) {
             return null;
         }
-        URL result = AccessController.doPrivileged(new PrivilegedAction<URL>() {
-            public URL run() {
-                return findResourceImpl(name);
-            }
-        }, currentContext);
-        SecurityManager sm;
-        if (result != null && (sm = System.getSecurityManager()) != null) {
-            try {
-                sm.checkPermission(result.openConnection().getPermission());
-            } catch (IOException e) {
-                return null;
-            } catch (SecurityException e) {
-                return null;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Returns a URL among the given ones referencing the specified resource or
-     * null if no resource could be found.
-     *
-     * @param resName java.lang.String the name of the requested resource
-     * @return URL URL for the resource.
-     */
-    URL findResourceImpl(String resName) {
         int n = 0;
-
         while (true) {
             URLHandler handler = getHandler(n++);
             if (handler == null) {
                 break;
             }
-            URL res = handler.findResource(resName);
+            URL res = handler.findResource(name);
             if (res != null) {
                 return res;
             }
@@ -967,7 +822,7 @@ public class URLClassLoader extends SecureClassLoader {
         return null;
     }
 
-    URLHandler getHandler(int num) {
+    private URLHandler getHandler(int num) {
         if (num < handlerList.size()) {
             return handlerList.get(num);
         }
@@ -1122,17 +977,16 @@ public class URLClassLoader extends SecureClassLoader {
     }
 
     private boolean isSealed(Manifest manifest, String dirName) {
-        Attributes mainAttributes = manifest.getMainAttributes();
-        String value = mainAttributes.getValue(Attributes.Name.SEALED);
-        boolean sealed = value != null && value.toLowerCase().equals("true");
         Attributes attributes = manifest.getAttributes(dirName);
         if (attributes != null) {
-            value = attributes.getValue(Attributes.Name.SEALED);
+            String value = attributes.getValue(Attributes.Name.SEALED);
             if (value != null) {
-                sealed = value.toLowerCase().equals("true");
+                return value.equalsIgnoreCase("true");
             }
         }
-        return sealed;
+        Attributes mainAttributes = manifest.getMainAttributes();
+        String value = mainAttributes.getValue(Attributes.Name.SEALED);
+        return (value != null && value.equalsIgnoreCase("true"));
     }
 
     /**
@@ -1170,28 +1024,4 @@ public class URLClassLoader extends SecureClassLoader {
         }
         return addedURLs;
     }
-
-    Class<?> findClassImpl(String className) {
-        String partialName = className.replace('.', '/');
-        final String classFileName = new StringBuilder(partialName).append(".class").toString();
-        String packageName = null;
-        int position = partialName.lastIndexOf('/');
-        if ((position = partialName.lastIndexOf('/')) != -1) {
-            packageName = partialName.substring(0, position);
-        }
-        int n = 0;
-        while (true) {
-            URLHandler handler = getHandler(n++);
-            if (handler == null) {
-                break;
-            }
-            Class<?> res = handler.findClass(packageName, classFileName, className);
-            if (res != null) {
-                return res;
-            }
-        }
-        return null;
-
-    }
-
 }

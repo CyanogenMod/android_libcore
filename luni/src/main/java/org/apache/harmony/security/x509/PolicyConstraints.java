@@ -53,42 +53,18 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * @see org.apache.harmony.security.x509.GeneralSubtree
  * @see org.apache.harmony.security.x509.GeneralName
  */
-public class PolicyConstraints extends ExtensionValue {
-
-    // the value of requireExplicitPolicy field of the structure
+public final class PolicyConstraints extends ExtensionValue {
+    /** the value of requireExplicitPolicy field of the structure */
     private final BigInteger requireExplicitPolicy;
-    // the value of inhibitPolicyMapping field of the structure
+    /** the value of inhibitPolicyMapping field of the structure */
     private final BigInteger inhibitPolicyMapping;
-    // the ASN.1 encoded form of PolicyConstraints;
+    /** the ASN.1 encoded form of PolicyConstraints */
     private byte[] encoding;
 
-    /**
-     * TODO
-     */
-    public PolicyConstraints() {
-        this(null, null);
-    }
-
-    /**
-     * TODO
-     * @param   requireExplicitPolicy:  GeneralSubtrees
-     * @param   inhibitPolicyMapping:   GeneralSubtrees
-     */
     public PolicyConstraints(BigInteger requireExplicitPolicy,
             BigInteger inhibitPolicyMapping) {
         this.requireExplicitPolicy = requireExplicitPolicy;
         this.inhibitPolicyMapping = inhibitPolicyMapping;
-    }
-
-    /**
-     * TODO
-     * @param   requireExplicitPolicy:  GeneralSubtrees
-     * @param   inhibitPolicyMapping:   GeneralSubtrees
-     */
-    public PolicyConstraints(int requireExplicitPolicy,
-            int inhibitPolicyMapping) {
-        this.requireExplicitPolicy = BigInteger.valueOf(requireExplicitPolicy);
-        this.inhibitPolicyMapping = BigInteger.valueOf(inhibitPolicyMapping);
     }
 
     public PolicyConstraints(byte[] encoding) throws IOException {
@@ -98,12 +74,6 @@ public class PolicyConstraints extends ExtensionValue {
         this.inhibitPolicyMapping = pc.inhibitPolicyMapping;
     }
 
-    //
-    // TODO
-    // @param   requireExplicitPolicy:  GeneralSubtrees
-    // @param   inhibitPolicyMapping:   GeneralSubtrees
-    // @param   encoding:   byte[]
-    //
     private PolicyConstraints(BigInteger requireExplicitPolicy,
                             BigInteger inhibitPolicyMapping, byte[] encoding) {
         this(requireExplicitPolicy, inhibitPolicyMapping);
@@ -112,30 +82,23 @@ public class PolicyConstraints extends ExtensionValue {
 
     /**
      * Returns ASN.1 encoded form of this X.509 PolicyConstraints value.
-     * @return a byte array containing ASN.1 encode form.
      */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(this);
         }
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("PolicyConstraints: [\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("PolicyConstraints: [\n");
         if (requireExplicitPolicy != null) {
-            buffer.append(prefix).append("  requireExplicitPolicy: ")
-                .append(requireExplicitPolicy).append('\n');
+            sb.append(prefix).append("  requireExplicitPolicy: ").append(requireExplicitPolicy).append('\n');
         }
         if (inhibitPolicyMapping != null) {
-            buffer.append(prefix).append("  inhibitPolicyMapping: ")
-                .append(inhibitPolicyMapping).append('\n');
+            sb.append(prefix).append("  inhibitPolicyMapping: ").append(inhibitPolicyMapping).append('\n');
         }
-        buffer.append(prefix).append("]\n");
+        sb.append(prefix).append("]\n");
     }
 
     /**
@@ -149,7 +112,7 @@ public class PolicyConstraints extends ExtensionValue {
             setOptional(1);
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             BigInteger requireExplicitPolicy = null;
             BigInteger inhibitPolicyMapping = null;
@@ -164,10 +127,8 @@ public class PolicyConstraints extends ExtensionValue {
                     in.getEncoded());
         }
 
-        protected void getValues(Object object, Object[] values) {
-
+        @Override protected void getValues(Object object, Object[] values) {
             PolicyConstraints pc = (PolicyConstraints) object;
-
             values[0] = pc.requireExplicitPolicy.toByteArray();
             values[1] = pc.inhibitPolicyMapping.toByteArray();
         }

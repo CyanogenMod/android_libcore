@@ -20,10 +20,7 @@ package java.security;
 import java.io.Serializable;
 
 /**
- * {@code Permission} is the common base class of all permissions that
- * participate in the access control security framework around
- * {@link AccessController} and {@link AccessControlContext}. A permission
- * constitutes of a name and associated actions.
+ * Legacy security code; this class exists for compatibility only.
  */
 public abstract class Permission implements Guard, Serializable {
 
@@ -81,8 +78,6 @@ public abstract class Permission implements Guard, Serializable {
 
     /**
      * Indicates whether the specified permission is implied by this permission.
-     * The {@link AccessController} uses this method to check whether permission
-     * protected access is allowed with the present policy.
      *
      * @param permission
      *            the permission to check against this permission.
@@ -111,23 +106,9 @@ public abstract class Permission implements Guard, Serializable {
     }
 
     /**
-     * Invokes {@link SecurityManager#checkPermission(Permission)} with this
-     * permission as its argument. This method implements the {@link Guard}
-     * interface.
-     *
-     * @param obj
-     *            as specified in {@link Guard#checkGuard(Object)} but ignored
-     *            in this implementation.
-     * @throws SecurityException
-     *             if this permission is not granted.
-     * @see Guard
-     * @see SecurityManager#checkPermission(Permission)
+     * Does nothing.
      */
     public void checkGuard(Object obj) throws SecurityException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(this);
-        }
     }
 
     /**

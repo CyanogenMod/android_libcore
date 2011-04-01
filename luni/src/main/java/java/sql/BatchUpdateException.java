@@ -50,7 +50,6 @@ public class BatchUpdateException extends SQLException implements Serializable {
      * null} and the <i>vendor code</i> set to 0.
      */
     public BatchUpdateException() {
-        super();
     }
 
     /**
@@ -139,7 +138,6 @@ public class BatchUpdateException extends SQLException implements Serializable {
      *            in the batch that was attempted.
      */
     public BatchUpdateException(int[] updateCounts) {
-        super();
         this.updateCounts = updateCounts;
     }
 

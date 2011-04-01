@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # List of libcore directories to include in documentation.
 # Shared between libcore and frameworks/base.
 

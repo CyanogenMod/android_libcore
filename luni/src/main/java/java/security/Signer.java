@@ -36,7 +36,6 @@ public abstract class Signer extends Identity {
      * Constructs a new instance of {@code Signer}.
      */
     protected Signer() {
-        super();
     }
 
     /**
@@ -61,36 +60,19 @@ public abstract class Signer extends Identity {
      *             if a signer with the specified name already exists in the
      *             provided scope.
      */
-    public Signer(String name, IdentityScope scope)
-            throws KeyManagementException {
+    public Signer(String name, IdentityScope scope) throws KeyManagementException {
         super(name, scope);
     }
 
     /**
-     * Returns the private key of this {@code Signer}. If a {@code
-     * SecurityManager} is installed, code calling this method needs the {@code
-     * SecurityPermission} {@code "getSignerPrivateKey"} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
-     *
-     * @return the private key of this {@code Signer}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
+     * Returns the private key of this {@code Signer}.
      */
     public PrivateKey getPrivateKey() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("getSignerPrivateKey");
-        }
-
         return privateKey;
     }
 
     /**
-     * Associates the specified key pair with this {@code Signer}. If a {@code
-     * SecurityManager} is installed, code calling this method needs the {@code
-     * SecurityPermission} {@code getSignerPrivateKey} to be granted, otherwise
-     * a {@code SecurityException} will be thrown.
+     * Associates the specified key pair with this {@code Signer}.
      *
      * @param pair
      *            the key pair to associate with this {@code Signer}.
@@ -98,35 +80,16 @@ public abstract class Signer extends Identity {
      *             if the key pair is invalid.
      * @throws KeyException
      *             if any other key related problem occurs.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and the caller does
-     *             not have permission to invoke this method.
      */
-    public final void setKeyPair(KeyPair pair)
-            throws InvalidParameterException, KeyException {
-
+    public final void setKeyPair(KeyPair pair) throws InvalidParameterException, KeyException {
         if (pair == null) {
             throw new NullPointerException();
         }
 
-        if ((pair.getPrivate() == null) || (pair.getPublic() == null)) {
+        if (pair.getPrivate() == null || pair.getPublic() == null) {
             throw new InvalidParameterException();
         }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkSecurityAccess("setSignerKeyPair");
-        }
-        final PublicKey pk = pair.getPublic();
-        try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
-                public Void run() throws KeyManagementException {
-                    setPublicKey(pk);
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw new KeyException(e.getException());
-        }
+        setPublicKey(pair.getPublic());
         this.privateKey = pair.getPrivate();
     }
 

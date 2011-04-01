@@ -19,15 +19,15 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "LocalArray.h"
+#include "JniException.h"
 #include "ScopedFd.h"
-#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
-#include "StaticAssert.h"
 #include "readlink.h"
+#include "toStringArray.h"
 
 #include <string>
+#include <vector>
 
 #include <dirent.h>
 #include <errno.h>
@@ -40,73 +40,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
-
-static jboolean File_deleteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (remove(path.c_str()) == 0);
-}
-
-static bool doStat(JNIEnv* env, jstring javaPath, struct stat& sb) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (stat(path.c_str(), &sb) == 0);
-}
-
-static jlong File_lengthImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    if (!doStat(env, javaPath, sb)) {
-        // The RI returns 0 on error. (Even for errors like EACCES or ELOOP.)
-        return 0;
-    }
-    return sb.st_size;
-}
-
-static jlong File_lastModifiedImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    if (!doStat(env, javaPath, sb)) {
-        return 0;
-    }
-    return static_cast<jlong>(sb.st_mtime) * 1000L;
-}
-
-static jboolean File_isDirectoryImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    return (doStat(env, javaPath, sb) && S_ISDIR(sb.st_mode));
-}
-
-static jboolean File_isFileImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct stat sb;
-    return (doStat(env, javaPath, sb) && S_ISREG(sb.st_mode));
-}
-
-static jboolean doAccess(JNIEnv* env, jstring javaPath, int mode) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-    return (access(path.c_str(), mode) == 0);
-}
-
-static jboolean File_existsImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, F_OK);
-}
-
-static jboolean File_canExecuteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, X_OK);
-}
-
-static jboolean File_canReadImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, R_OK);
-}
-
-static jboolean File_canWriteImpl(JNIEnv* env, jclass, jstring javaPath) {
-    return doAccess(env, javaPath, W_OK);
-}
 
 static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
     ScopedUtfChars path(env, javaPath);
@@ -156,72 +89,6 @@ static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, 
     return (utime(path.c_str(), &times) == 0);
 }
 
-static jboolean doChmod(JNIEnv* env, jstring javaPath, mode_t mask, bool set) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == -1) {
-        return JNI_FALSE;
-    }
-    mode_t newMode = set ? (sb.st_mode | mask) : (sb.st_mode & ~mask);
-    return (chmod(path.c_str(), newMode) == 0);
-}
-
-static jboolean File_setExecutableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IXUSR : (S_IXUSR | S_IXGRP | S_IXOTH), set);
-}
-
-static jboolean File_setReadableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IRUSR : (S_IRUSR | S_IRGRP | S_IROTH), set);
-}
-
-static jboolean File_setWritableImpl(JNIEnv* env, jclass, jstring javaPath,
-        jboolean set, jboolean ownerOnly) {
-    return doChmod(env, javaPath, ownerOnly ? S_IWUSR : (S_IWUSR | S_IWGRP | S_IWOTH), set);
-}
-
-static bool doStatFs(JNIEnv* env, jstring javaPath, struct statfs& sb) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    int rc = statfs(path.c_str(), &sb);
-    return (rc != -1);
-}
-
-static jlong File_getFreeSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_bfree) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
-}
-
-static jlong File_getTotalSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
-}
-
-static jlong File_getUsableSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
-    struct statfs sb;
-    if (!doStatFs(env, javaPath, sb)) {
-        return 0;
-    }
-    STATIC_ASSERT(sizeof(sb.f_bavail) == sizeof(jlong), statfs_not_64_bit);
-    return sb.f_bavail * sb.f_bsize; // non-root free block count * block size in bytes.
-}
-
 // Iterates over the filenames in the given directory.
 class ScopedReaddir {
 public:
@@ -262,66 +129,7 @@ private:
     void operator=(const ScopedReaddir&);
 };
 
-// DirEntry and DirEntries is a minimal equivalent of std::forward_list
-// for the filenames.
-struct DirEntry {
-    DirEntry(const char* filename) : name(strlen(filename)) {
-        strcpy(&name[0], filename);
-        next = NULL;
-    }
-    // On Linux, the ext family all limit the length of a directory entry to
-    // less than 256 characters.
-    LocalArray<256> name;
-    DirEntry* next;
-};
-
-class DirEntries {
-public:
-    DirEntries() : mSize(0), mHead(NULL) {
-    }
-
-    ~DirEntries() {
-        while (mHead) {
-            pop_front();
-        }
-    }
-
-    bool push_front(const char* name) {
-        DirEntry* oldHead = mHead;
-        mHead = new DirEntry(name);
-        if (mHead == NULL) {
-            return false;
-        }
-        mHead->next = oldHead;
-        ++mSize;
-        return true;
-    }
-
-    const char* front() const {
-        return &mHead->name[0];
-    }
-
-    void pop_front() {
-        DirEntry* popped = mHead;
-        if (popped != NULL) {
-            mHead = popped->next;
-            --mSize;
-            delete popped;
-        }
-    }
-
-    size_t size() const {
-        return mSize;
-    }
-
-private:
-    size_t mSize;
-    DirEntry* mHead;
-
-    // Disallow copy and assignment.
-    DirEntries(const DirEntries&);
-    void operator=(const DirEntries&);
-};
+typedef std::vector<std::string> DirEntries;
 
 // Reads the directory referred to by 'pathBytes', adding each directory entry
 // to 'entries'.
@@ -338,10 +146,8 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
     const char* filename;
     while ((filename = dir.next()) != NULL) {
         if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
-            if (!entries.push_front(filename)) {
-                jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
-                return false;
-            }
+            // TODO: this hides allocation failures from us. Push directory iteration up into Java?
+            entries.push_back(filename);
         }
     }
     return true;
@@ -349,109 +155,19 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
 
 static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
     // Read the directory entries into an intermediate form.
-    DirEntries files;
-    if (!readDirectory(env, javaPath, files)) {
+    DirEntries entries;
+    if (!readDirectory(env, javaPath, entries)) {
         return NULL;
     }
     // Translate the intermediate form into a Java String[].
-    jobjectArray result = env->NewObjectArray(files.size(), JniConstants::stringClass, NULL);
-    for (int i = 0; files.size() != 0; files.pop_front(), ++i) {
-        ScopedLocalRef<jstring> javaFilename(env, env->NewStringUTF(files.front()));
-        if (env->ExceptionCheck()) {
-            return NULL;
-        }
-        env->SetObjectArrayElement(result, i, javaFilename.get());
-        if (env->ExceptionCheck()) {
-            return NULL;
-        }
-    }
-    return result;
-}
-
-static jboolean File_mkdirImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    // On Android, we don't want default permissions to allow global access.
-    return (mkdir(path.c_str(), S_IRWXU) == 0);
-}
-
-static jboolean File_createNewFileImpl(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    // On Android, we don't want default permissions to allow global access.
-    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL, 0600));
-    if (fd.get() != -1) {
-        // We created a new file. Success!
-        return JNI_TRUE;
-    }
-    if (errno == EEXIST) {
-        // The file already exists.
-        return JNI_FALSE;
-    }
-    jniThrowIOException(env, errno);
-    return JNI_FALSE; // Ignored by Java; keeps the C++ compiler happy.
-}
-
-static jboolean File_renameToImpl(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
-    ScopedUtfChars oldPath(env, javaOldPath);
-    if (oldPath.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    ScopedUtfChars newPath(env, javaNewPath);
-    if (newPath.c_str() == NULL) {
-        return JNI_FALSE;
-    }
-
-    return (rename(oldPath.c_str(), newPath.c_str()) == 0);
-}
-
-static void File_symlink(JNIEnv* env, jclass, jstring javaOldPath, jstring javaNewPath) {
-    ScopedUtfChars oldPath(env, javaOldPath);
-    if (oldPath.c_str() == NULL) {
-        return;
-    }
-
-    ScopedUtfChars newPath(env, javaNewPath);
-    if (newPath.c_str() == NULL) {
-        return;
-    }
-
-    if (symlink(oldPath.c_str(), newPath.c_str()) == -1) {
-        jniThrowIOException(env, errno);
-    }
+    return toStringArray(env, entries);
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, canExecuteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, canReadImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, canWriteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, createNewFileImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, existsImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, getUsableSpaceImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, isDirectoryImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, isFileImpl, "(Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, lastModifiedImpl, "(Ljava/lang/String;)J"),
-    NATIVE_METHOD(File, lengthImpl, "(Ljava/lang/String;)J"),
     NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
-    NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
     NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, renameToImpl, "(Ljava/lang/String;Ljava/lang/String;)Z"),
-    NATIVE_METHOD(File, setExecutableImpl, "(Ljava/lang/String;ZZ)Z"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
-    NATIVE_METHOD(File, setReadableImpl, "(Ljava/lang/String;ZZ)Z"),
-    NATIVE_METHOD(File, setWritableImpl, "(Ljava/lang/String;ZZ)Z"),
-    NATIVE_METHOD(File, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
 };
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));

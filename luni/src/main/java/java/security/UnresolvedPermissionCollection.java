@@ -43,7 +43,8 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = -7176153071733132400L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("permissions", Hashtable.class), };
+        new ObjectStreamField("permissions", Hashtable.class),
+    };
 
     // elements of the collection.
     private transient Map klasses = new HashMap();

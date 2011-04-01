@@ -53,7 +53,6 @@ public class SQLException extends Exception implements Serializable, Iterable<Th
      * error code is set to 0.
      */
     public SQLException() {
-        super();
     }
 
     /**

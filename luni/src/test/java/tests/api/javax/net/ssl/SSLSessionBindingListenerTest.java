@@ -17,11 +17,6 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
@@ -39,7 +34,6 @@ import junit.framework.TestCase;
  * Tests for SSLSessionBindingListener class
  *
  */
-@TestTargetClass(SSLSessionBindingListener.class)
 public class SSLSessionBindingListenerTest extends TestCase {
 
     public class mySSLSessionBindingListener implements SSLSessionBindingListener {
@@ -62,14 +56,8 @@ public class SSLSessionBindingListenerTest extends TestCase {
      * @throws IOException
      * @throws UnknownHostException
      * @throws InterruptedException
-     * @tests javax.net.ssl.SSLSessionBindingListener#valueBound(SSLSessionBindingEvent event)
+     * javax.net.ssl.SSLSessionBindingListener#valueBound(SSLSessionBindingEvent event)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueBound",
-        args = {SSLSessionBindingEvent.class}
-    )
     public void test_valueBound() throws UnknownHostException, IOException,
             InterruptedException {
         SSLSocket sock = (SSLSocket) SSLSocketFactory.getDefault()
@@ -83,14 +71,8 @@ public class SSLSessionBindingListenerTest extends TestCase {
     /**
      * @throws IOException
      * @throws UnknownHostException
-     * @tests javax.net.ssl.SSLSessionBindingListener#valueUnbound(SSLSessionBindingEvent event)
+     * javax.net.ssl.SSLSessionBindingListener#valueUnbound(SSLSessionBindingEvent event)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "valueUnbound",
-        args = {SSLSessionBindingEvent.class}
-    )
     public void test_valueUnbound() throws UnknownHostException, IOException {
         SSLSocket sock = (SSLSocket) SSLSocketFactory.getDefault()
                 .createSocket();

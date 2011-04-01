@@ -38,13 +38,13 @@ public final class StrictMath {
     /**
      * The double value closest to e, the base of the natural logarithm.
      */
-    public final static double E = Math.E;
+    public static final double E = Math.E;
 
     /**
      * The double value closest to pi, the ratio of a circle's circumference to
      * its diameter.
      */
-    public final static double PI = Math.PI;
+    public static final double PI = Math.PI;
 
     /**
      * Prevents this class from being instantiated.
@@ -992,21 +992,10 @@ public final class StrictMath {
      * @return the size of a ulp of the argument.
      */
     public static float ulp(float f) {
-        // special cases
-        if (Float.isNaN(f)) {
-            return Float.NaN;
-        } else if (Float.isInfinite(f)) {
-            return Float.POSITIVE_INFINITY;
-        } else if (f == Float.MAX_VALUE || f == -Float.MAX_VALUE) {
-            return (float) pow(2, 104);
-        }
-        f = Math.abs(f);
-        return nextafterf(f, Float.MAX_VALUE) - f;
+        return Math.ulp(f);
     }
 
-    private native static double nextafter(double x, double y);
-
-    private native static float nextafterf(float x, float y);
+    private static native double nextafter(double x, double y);
 
     /**
      * Returns a double with the given magnitude and the sign of {@code sign}.

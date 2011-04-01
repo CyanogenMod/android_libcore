@@ -121,7 +121,7 @@ public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
             clone.backingMap = (HashMap<E, HashSet<E>>) backingMap.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 

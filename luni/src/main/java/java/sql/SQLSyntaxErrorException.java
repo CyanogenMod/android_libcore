@@ -26,7 +26,6 @@ public class SQLSyntaxErrorException extends SQLNonTransientException {
      * null, the SQLState string is set to null and the Error Code is set to 0.
      */
     public SQLSyntaxErrorException() {
-        super();
     }
 
     /**

@@ -24,18 +24,14 @@ package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
 
-
 /**
  * This class represents explicitly tagged ASN.1 type.
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
+public final class ASN1Explicit extends ASN1Constructed {
 
-public final class ASN1Explicit extends ASN1Constructured {
-
-    /**
-     * Tagged type
-     */
+    /** Tagged type */
     public final ASN1Type type;
 
     /**
@@ -60,15 +56,8 @@ public final class ASN1Explicit extends ASN1Constructured {
      */
     public ASN1Explicit(int tagClass, int tagNumber, ASN1Type type) {
         super(tagClass, tagNumber);
-
         this.type = type;
     }
-
-    //
-    //
-    // Decode
-    //
-    //
 
     public Object decode(BerInputStream in) throws IOException {
         if (constrId != in.tag) {
@@ -86,12 +75,6 @@ public final class ASN1Explicit extends ASN1Constructured {
         return getDecodedObject(in);
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-
     public void encodeContent(BerOutputStream out) {
         out.encodeExplicit(this);
     }
@@ -100,8 +83,7 @@ public final class ASN1Explicit extends ASN1Constructured {
         out.getExplicitLength(this);
     }
 
-    public String toString() {
-        //FIXME fix performance
+    @Override public String toString() {
         return super.toString() + " for type " + type;
     }
 }

@@ -58,7 +58,6 @@ public final class ProcessBuilder {
      *             if {@code command} is {@code null}.
      */
     public ProcessBuilder(List<String> command) {
-        super();
         if (command == null) {
             throw new NullPointerException();
         }
@@ -182,14 +181,11 @@ public final class ProcessBuilder {
      *             if any of the elements of {@link #command()} is {@code null}.
      * @throws IndexOutOfBoundsException
      *             if {@link #command()} is empty.
-     * @throws SecurityException
-     *             if {@link SecurityManager#checkExec(String)} doesn't allow
-     *             process creation.
      * @throws IOException
      *             if an I/O error happens.
      */
     public Process start() throws IOException {
-        // BEGIN android-changed: push responsibility for argument checking into ProcessManager
+        // We push responsibility for argument checking into ProcessManager.
         String[] cmdArray = command.toArray(new String[command.size()]);
         String[] envArray = new String[environment.size()];
         int i = 0;
@@ -197,7 +193,5 @@ public final class ProcessBuilder {
             envArray[i++] = entry.getKey() + "=" + entry.getValue();
         }
         return ProcessManager.getInstance().exec(cmdArray, envArray, directory, redirectErrorStream);
-        // END android-changed
     }
-
 }

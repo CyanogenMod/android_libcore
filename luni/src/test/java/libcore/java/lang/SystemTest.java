@@ -18,7 +18,54 @@ package libcore.java.lang;
 
 import junit.framework.TestCase;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Formatter;
+
 public class SystemTest extends TestCase {
+
+    public void testLineSeparator() throws Exception {
+        try {
+            // Before Java 7, the small number of classes that wanted the line separator would
+            // use System.getProperty. Now they should use System.lineSeparator instead, and the
+            // "line.separator" property has no effect after the VM has started.
+
+            // Test System.lineSeparator directly.
+            assertEquals("\n", System.lineSeparator());
+            System.setProperty("line.separator", "poop");
+            assertEquals("\n", System.lineSeparator());
+            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
+
+            // java.io.BufferedWriter --- uses System.lineSeparator on Android but not on RI.
+            StringWriter sw = new StringWriter();
+            BufferedWriter bw = new BufferedWriter(sw);
+            bw.newLine();
+            bw.flush();
+            assertEquals(System.lineSeparator(), sw.toString());
+            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
+
+            // java.io.PrintStream --- uses System.lineSeparator on Android but not on RI.
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            new PrintStream(baos).println();
+            assertEquals(System.lineSeparator(), new String(baos.toByteArray(), "UTF-8"));
+            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
+
+            // java.io.PrintWriter --- uses System.lineSeparator on Android but not on RI.
+            sw = new StringWriter();
+            new PrintWriter(sw).println();
+            assertEquals(System.lineSeparator(), sw.toString());
+            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
+
+            // java.util.Formatter --- uses System.lineSeparator on both.
+            assertEquals(System.lineSeparator(), new Formatter().format("%n").toString());
+            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
+        } finally {
+            System.setProperty("line.separator", "\n");
+        }
+    }
 
     public void testArrayCopyTargetNotArray() {
         try {
@@ -59,46 +106,6 @@ public class SystemTest extends TestCase {
             assertEquals("source[2] of type Ljava/lang/String; cannot be "
                     + "stored in destination array of type [Ljava/lang/Integer;",
                     e.getMessage());
-        }
-    }
-
-    /**
-     * http://b/issue?id=2136462
-     */
-    public void testBackFromTheDead() {
-        try {
-            new ConstructionFails();
-        } catch (AssertionError expected) {
-        }
-
-        for (int i = 0; i < 20; i++) {
-            if (ConstructionFails.INSTANCE != null) {
-                fail("finalize() called, even though constructor failed!");
-            }
-
-            induceGc(i);
-        }
-    }
-
-    private void induceGc(int rev) {
-        System.gc();
-        try {
-            byte[] b = new byte[1024 << rev];
-        } catch (OutOfMemoryError e) {
-        }
-    }
-
-    static class ConstructionFails {
-        private static ConstructionFails INSTANCE;
-
-        ConstructionFails() {
-            throw new AssertionError();
-        }
-
-        @Override protected void finalize() throws Throwable {
-            INSTANCE = this;
-            new AssertionError("finalize() called, even though constructor failed!")
-                    .printStackTrace();
         }
     }
 }

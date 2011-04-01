@@ -31,17 +31,9 @@ import org.apache.harmony.security.asn1.ASN1Type;
  * </pre>
  * (as specified in RFC 3280 http://www.ietf.org/rfc/rfc3280.txt)
  */
-public class InvalidityDate extends ExtensionValue {
-
-    // invalidity date value
+public final class InvalidityDate extends ExtensionValue {
+    /** invalidity date value */
     private final Date date;
-
-    /**
-     * Constructs the object on the base of the invalidity date value.
-     */
-    public InvalidityDate(Date date) {
-        this.date = date;
-    }
 
     /**
      * Constructs the object on the base of its encoded form.
@@ -60,22 +52,16 @@ public class InvalidityDate extends ExtensionValue {
 
     /**
      * Returns ASN.1 encoded form of this X.509 InvalidityDate value.
-     * @return a byte array containing ASN.1 encoded form.
      */
-    public byte[] getEncoded() {
+    @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(date);
         }
         return encoding;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Invalidity Date: [ ")
-            .append(date).append(" ]\n");
+    @Override public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix).append("Invalidity Date: [ ").append(date).append(" ]\n");
     }
 
     /**
@@ -83,4 +69,3 @@ public class InvalidityDate extends ExtensionValue {
      */
     public static final ASN1Type ASN1 = ASN1GeneralizedTime.getInstance();
 }
-

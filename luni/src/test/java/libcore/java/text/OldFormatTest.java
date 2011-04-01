@@ -47,7 +47,7 @@ public class OldFormatTest extends TestCase {
     }
 
     /**
-     * @tests java.text.Format#clone() Test of method java.text.Format#clone().
+     * java.text.Format#clone() Test of method java.text.Format#clone().
      *        Compare of internal variables of cloned objects.
      */
     public void test_clone() {

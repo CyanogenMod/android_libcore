@@ -229,7 +229,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 "[amPmStrings=" + Arrays.toString(ampms) +
                 ",customZoneStrings=" + customZoneStrings +
                 ",eras=" + Arrays.toString(eras) +
-                ",localPatternChars=" + new String(localPatternChars) +
+                ",localPatternChars=" + localPatternChars +
                 ",months=" + Arrays.toString(months) +
                 ",shortMonths=" + Arrays.toString(shortMonths) +
                 ",shortWeekdays=" + Arrays.toString(shortWeekdays) +
@@ -327,7 +327,15 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * </ul>
      */
     public String[][] getZoneStrings() {
-        return TimeZones.clone2dStringArray(internalZoneStrings());
+        return clone2dStringArray(internalZoneStrings());
+    }
+
+    private static String[][] clone2dStringArray(String[][] array) {
+        String[][] result = new String[array.length][];
+        for (int i = 0; i < array.length; ++i) {
+            result[i] = array[i].clone();
+        }
+        return result;
     }
 
     @Override
@@ -466,7 +474,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 throw new IllegalArgumentException(Arrays.toString(row) + ".length < 5");
             }
         }
-        this.zoneStrings = TimeZones.clone2dStringArray(zoneStrings);
+        this.zoneStrings = clone2dStringArray(zoneStrings);
         this.customZoneStrings = true;
     }
 }

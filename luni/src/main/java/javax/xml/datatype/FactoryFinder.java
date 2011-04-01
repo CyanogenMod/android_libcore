@@ -21,6 +21,7 @@ package javax.xml.datatype;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +30,7 @@ import java.util.Properties;
 import libcore.io.IoUtils;
 
 /**
- * <p>Implement pluggabile Datatypes.</p>
+ * <p>Implement pluggable data types.</p>
  *
  * <p>This class is duplicated for each JAXP subpackage so keep it in
  * sync.  It is package private for secure class loading.</p>
@@ -40,29 +41,19 @@ import libcore.io.IoUtils;
  */
 final class FactoryFinder {
 
-    /**
-     * <p>Name of class to display in output messages.</p>
-     */
+    /** <p>Name of class to display in output messages.</p> */
     private static final String CLASS_NAME = "javax.xml.datatype.FactoryFinder";
 
-    /**
-     * <p>Debug flag to trace loading process.</p>
-     */
+    /** <p>Debug flag to trace loading process.</p> */
     private static boolean debug = false;
 
-    /**
-     * <p>Cache properties for performance.</p>
-     */
+    /** <p>Cache properties for performance.</p> */
     private static Properties cacheProps = new Properties();
 
-    /**
-     * <p>First time requires initialization overhead.</p>
-     */
+    /** <p>First time requires initialization overhead.</p> */
     private static boolean firstTime = true;
 
-    /**
-     * Default columns per line.
-     */
+    /** Default columns per line. */
     private static final int DEFAULT_LINE_LENGTH = 80;
 
     /**
@@ -70,16 +61,11 @@ final class FactoryFinder {
      *
      * <p>Use try/catch block to support applets, which throws
      * SecurityException out of this code.</p>
-     *
      */
     static {
-        try {
-            String val = SecuritySupport.getSystemProperty("jaxp.debug");
-            // Allow simply setting the prop to turn on debug
-            debug = val != null && (! "false".equals(val));
-        } catch (Exception x) {
-            debug = false;
-        }
+        String val = System.getProperty("jaxp.debug");
+        // Allow simply setting the prop to turn on debug
+        debug = val != null && (! "false".equals(val));
     }
 
     private FactoryFinder() {}
@@ -101,20 +87,17 @@ final class FactoryFinder {
     /**
      * <p>Find the appropriate <code>ClassLoader</code> to use.</p>
      *
-     * <p>The context ClassLoader is prefered.</p>
+     * <p>The context ClassLoader is preferred.</p>
      *
      * @return <code>ClassLoader</code> to use.
      *
      * @throws ConfigurationError If a valid <code>ClassLoader</code> cannot be identified.
      */
-    private static ClassLoader findClassLoader()
-        throws ConfigurationError {
-        ClassLoader classLoader;
-
+    private static ClassLoader findClassLoader() throws ConfigurationError {
         // Figure out which ClassLoader to use for loading the provider
         // class.  If there is a Context ClassLoader then use it.
 
-        classLoader = SecuritySupport.getContextClassLoader();
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
         if (debug) debugPrintln(
             "Using context class loader: "
@@ -165,8 +148,7 @@ final class FactoryFinder {
                 "Provider " + className + " not found", x);
         } catch (Exception x) {
             throw new ConfigurationError(
-                "Provider " + className + " could not be instantiated: " + x,
-                x);
+                "Provider " + className + " could not be instantiated: " + x, x);
         }
     }
 
@@ -182,25 +164,20 @@ final class FactoryFinder {
      *
      * @throws ConfigurationError If Class cannot be found.
      */
-    static Object find(String factoryId, String fallbackClassName)
-        throws ConfigurationError {
+    static Object find(String factoryId, String fallbackClassName) throws ConfigurationError {
 
         ClassLoader classLoader = findClassLoader();
 
         // Use the system property first
-        try {
-            String systemProp = SecuritySupport.getSystemProperty(factoryId);
-            if (systemProp != null && systemProp.length() > 0) {
-                if (debug) debugPrintln("found " + systemProp + " in the system property " + factoryId);
-                return newInstance(systemProp, classLoader);
-            }
-        } catch (SecurityException se) {
-            ; // NOP, explicitly ignore SecurityException
+        String systemProp = System.getProperty(factoryId);
+        if (systemProp != null && systemProp.length() > 0) {
+            if (debug) debugPrintln("found " + systemProp + " in the system property " + factoryId);
+            return newInstance(systemProp, classLoader);
         }
 
         // try to read from $java.home/lib/jaxp.properties
         try {
-            String javah = SecuritySupport.getSystemProperty("java.home");
+            String javah = System.getProperty("java.home");
             String configFile = javah + File.separator + "lib" + File.separator + "jaxp.properties";
             String factoryClassName = null;
             if (firstTime) {
@@ -208,9 +185,9 @@ final class FactoryFinder {
                     if (firstTime) {
                         File f = new File(configFile);
                         firstTime = false;
-                        if (SecuritySupport.doesFileExist(f)) {
+                        if (f.exists()) {
                             if (debug) debugPrintln("Read properties file " + f);
-                            cacheProps.load(SecuritySupport.getFileInputStream(f));
+                            cacheProps.load(new FileInputStream(f));
                         }
                     }
                 }
@@ -247,28 +224,19 @@ final class FactoryFinder {
      *
      * @return instance of provider class if found or null
      */
-    private static Object findJarServiceProvider(String factoryId)
-        throws ConfigurationError
-    {
-
+    private static Object findJarServiceProvider(String factoryId) throws ConfigurationError {
         String serviceId = "META-INF/services/" + factoryId;
         InputStream is = null;
 
         // First try the Context ClassLoader
-        ClassLoader cl = SecuritySupport.getContextClassLoader();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl != null) {
-            is = SecuritySupport.getResourceAsStream(cl, serviceId);
+            is = cl.getResourceAsStream(serviceId);
+        }
 
-            // If no provider found then try the current ClassLoader
-            if (is == null) {
-                cl = FactoryFinder.class.getClassLoader();
-                is = SecuritySupport.getResourceAsStream(cl, serviceId);
-            }
-        } else {
-            // No Context ClassLoader, try the current
-            // ClassLoader
+        if (is == null) {
             cl = FactoryFinder.class.getClassLoader();
-            is = SecuritySupport.getResourceAsStream(cl, serviceId);
+            is = cl.getResourceAsStream(serviceId);
         }
 
         if (is == null) {
@@ -276,8 +244,7 @@ final class FactoryFinder {
             return null;
         }
 
-        if (debug) debugPrintln("found jar resource=" + serviceId +
-               " using ClassLoader: " + cl);
+        if (debug) debugPrintln("found jar resource=" + serviceId + " using ClassLoader: " + cl);
 
         BufferedReader rd;
         try {
@@ -344,14 +311,8 @@ final class FactoryFinder {
         }
     }
 
-
-
     /**
      * Returns the location where the given Class is loaded from.
-     *
-     * @param clazz Class to find load location.
-     *
-     * @return Location where class would be loaded from.
      */
     private static String which(Class clazz) {
         try {

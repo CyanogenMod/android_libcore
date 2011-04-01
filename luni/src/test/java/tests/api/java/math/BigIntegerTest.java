@@ -78,7 +78,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     BigInteger[][] booleanPairs;
 
     /**
-     * @tests java.math.BigInteger#BigInteger(int, java.util.Random)
+     * java.math.BigInteger#BigInteger(int, java.util.Random)
      */
     public void test_ConstructorILjava_util_Random() {
         // regression test for HARMONY-1047
@@ -108,7 +108,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(int, int, java.util.Random)
+     * java.math.BigInteger#BigInteger(int, int, java.util.Random)
      */
     // BIGNUM returns no Primes smaller than 16 bits.
     public void test_ConstructorIILjava_util_Random() {
@@ -148,7 +148,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(byte[])
+     * java.math.BigInteger#BigInteger(byte[])
      */
     public void test_Constructor$B() {
         byte[] myByteArray;
@@ -162,7 +162,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(int, byte[])
+     * java.math.BigInteger#BigInteger(int, byte[])
      */
     public void test_ConstructorI$B() {
         byte[] myByteArray;
@@ -186,7 +186,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_constructor_String_empty() {
         try {
@@ -197,7 +197,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#toByteArray()
+     * java.math.BigInteger#toByteArray()
      */
     public void test_toByteArray() {
         byte[] myByteArray, anotherByteArray;
@@ -230,7 +230,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
 //    }
 
     /**
-     * @tests java.math.BigInteger#isProbablePrime(int)
+     * java.math.BigInteger#isProbablePrime(int)
      */
     public void test_isProbablePrimeI() {
         int fails = 0;
@@ -297,7 +297,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#nextProbablePrime()
+     * java.math.BigInteger#nextProbablePrime()
      */
     public void test_nextProbablePrime() {
         largePrimesProduct(
@@ -328,7 +328,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#probablePrime(int, java.util.Random)
+     * java.math.BigInteger#probablePrime(int, java.util.Random)
      */
     public void test_probablePrime() {
         for (int bitLength = 50; bitLength <= 1050; bitLength += 100) {
@@ -400,7 +400,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
 
 
     /**
-     * @tests java.math.BigInteger#equals(java.lang.Object)
+     * java.math.BigInteger#equals(java.lang.Object)
      */
     public void test_equalsLjava_lang_Object() {
         assertTrue("0=0", zero.equals(BigInteger.valueOf(0)));
@@ -415,7 +415,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#compareTo(java.math.BigInteger)
+     * java.math.BigInteger#compareTo(java.math.BigInteger)
      */
     public void test_compareToLjava_math_BigInteger() {
         assertTrue("Smaller number returned >= 0", one.compareTo(two) < 0);
@@ -426,7 +426,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#intValue()
+     * java.math.BigInteger#intValue()
      */
     public void test_intValue() {
         assertTrue("Incorrect intValue for 2**70",
@@ -435,7 +435,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#longValue()
+     * java.math.BigInteger#longValue()
      */
     public void test_longValue() {
         assertTrue("Incorrect longValue for 2**70",
@@ -444,7 +444,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#valueOf(long)
+     * java.math.BigInteger#valueOf(long)
      */
     public void test_valueOfJ() {
         assertTrue("Incurred number returned for 2", BigInteger.valueOf(2L)
@@ -454,7 +454,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#add(java.math.BigInteger)
+     * java.math.BigInteger#add(java.math.BigInteger)
      */
     public void test_addLjava_math_BigInteger() {
         assertTrue("Incorrect sum--wanted a zillion", aZillion.add(aZillion)
@@ -495,7 +495,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#negate()
+     * java.math.BigInteger#negate()
      */
     public void test_negate() {
         assertTrue("Single negation of zero did not result in zero", zero
@@ -523,7 +523,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#signum()
+     * java.math.BigInteger#signum()
      */
     public void test_signum() {
         assertTrue("Wrong positive signum", two.signum() == 1);
@@ -533,7 +533,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#abs()
+     * java.math.BigInteger#abs()
      */
     public void test_abs() {
         assertTrue("Invalid number returned for zillion", aZillion.negate()
@@ -546,7 +546,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#pow(int)
+     * java.math.BigInteger#pow(int)
      */
     public void test_powI() {
         assertTrue("Incorrect exponent returned for 2**10", two.pow(10).equals(
@@ -558,7 +558,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#modInverse(java.math.BigInteger)
+     * java.math.BigInteger#modInverse(java.math.BigInteger)
      */
     public void test_modInverseLjava_math_BigInteger() {
         BigInteger a = zero, mod, inv;
@@ -607,7 +607,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#shiftRight(int)
+     * java.math.BigInteger#shiftRight(int)
      */
     public void test_shiftRightI() {
         assertTrue("1 >> 0", BigInteger.valueOf(1).shiftRight(0).equals(
@@ -664,7 +664,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#shiftLeft(int)
+     * java.math.BigInteger#shiftLeft(int)
      */
     public void test_shiftLeftI() {
         assertTrue("1 << 0", one.shiftLeft(0).equals(one));
@@ -705,7 +705,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#multiply(java.math.BigInteger)
+     * java.math.BigInteger#multiply(java.math.BigInteger)
      */
     public void test_multiplyLjava_math_BigInteger() {
         assertTrue("Incorrect sum--wanted three zillion", aZillion
@@ -731,7 +731,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#divide(java.math.BigInteger)
+     * java.math.BigInteger#divide(java.math.BigInteger)
      */
     public void test_divideLjava_math_BigInteger() {
         testAllDivs(bi33, bi3);
@@ -789,7 +789,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#remainder(java.math.BigInteger)
+     * java.math.BigInteger#remainder(java.math.BigInteger)
      */
     public void test_remainderLjava_math_BigInteger() {
         try {
@@ -818,7 +818,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#mod(java.math.BigInteger)
+     * java.math.BigInteger#mod(java.math.BigInteger)
      */
     public void test_modLjava_math_BigInteger() {
         try {
@@ -847,7 +847,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#divideAndRemainder(java.math.BigInteger)
+     * java.math.BigInteger#divideAndRemainder(java.math.BigInteger)
      */
     public void test_divideAndRemainderLjava_math_BigInteger() {
         try {
@@ -876,7 +876,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String)
+     * java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() {
         assertTrue("new(0)", new BigInteger("0").equals(BigInteger.valueOf(0)));
@@ -890,7 +890,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#BigInteger(java.lang.String, int)
+     * java.math.BigInteger#BigInteger(java.lang.String, int)
      */
     public void test_ConstructorLjava_lang_StringI() {
         assertTrue("new(0,16)", new BigInteger("0", 16).equals(BigInteger
@@ -914,7 +914,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#toString()
+     * java.math.BigInteger#toString()
      */
     public void test_toString() {
         assertTrue("0.toString", "0".equals(BigInteger.valueOf(0).toString()));
@@ -928,7 +928,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#toString(int)
+     * java.math.BigInteger#toString(int)
      */
     public void test_toStringI() {
         assertTrue("0.toString(16)", "0".equals(BigInteger.valueOf(0).toString(
@@ -946,7 +946,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#and(java.math.BigInteger)
+     * java.math.BigInteger#and(java.math.BigInteger)
      */
     public void test_andLjava_math_BigInteger() {
         for (BigInteger[] element : booleanPairs) {
@@ -962,7 +962,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#or(java.math.BigInteger)
+     * java.math.BigInteger#or(java.math.BigInteger)
      */
     public void test_orLjava_math_BigInteger() {
         for (BigInteger[] element : booleanPairs) {
@@ -978,7 +978,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#xor(java.math.BigInteger)
+     * java.math.BigInteger#xor(java.math.BigInteger)
      */
     public void test_xorLjava_math_BigInteger() {
         for (BigInteger[] element : booleanPairs) {
@@ -994,7 +994,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#not()
+     * java.math.BigInteger#not()
      */
     public void test_not() {
         for (BigInteger[] element : booleanPairs) {
@@ -1008,7 +1008,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.math.BigInteger#andNot(java.math.BigInteger)
+     * java.math.BigInteger#andNot(java.math.BigInteger)
      */
     public void test_andNotLjava_math_BigInteger() {
         for (BigInteger[] element : booleanPairs) {

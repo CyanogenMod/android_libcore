@@ -209,9 +209,7 @@ public class Level implements Serializable {
         if (resourceBundleName != null) {
             try {
                 rb = ResourceBundle.getBundle(resourceBundleName,
-                        // BEGIN android-changed
                         Locale.getDefault(), VMStack.getCallingClassLoader());
-                        // BEGIN android-changed
             } catch (MissingResourceException e) {
                 rb = null;
             }

@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
-import org.apache.harmony.luni.net.PlainServerSocketImpl;
 
 /**
  * This class represents a server-side socket that waits for incoming client
@@ -108,9 +107,7 @@ public class ServerSocket {
      * @throws IOException
      *             if an error occurs while creating the server socket.
      */
-    public ServerSocket(int aport, int backlog, InetAddress localAddr)
-            throws IOException {
-        super();
+    public ServerSocket(int aport, int backlog, InetAddress localAddr) throws IOException {
         checkListen(aport);
         impl = factory != null ? factory.createSocketImpl()
                 : new PlainServerSocketImpl();
@@ -148,9 +145,6 @@ public class ServerSocket {
         Socket aSocket = new Socket();
         try {
             implAccept(aSocket);
-        } catch (SecurityException e) {
-            aSocket.close();
-            throw e;
         } catch (IOException e) {
             aSocket.close();
             throw e;
@@ -158,21 +152,9 @@ public class ServerSocket {
         return aSocket;
     }
 
-    /**
-     * Checks whether the server may listen for connection requests on {@code
-     * aport}. Throws an exception if the port is outside the valid range
-     * {@code 0 <= aport <= 65535 }or does not satisfy the security policy.
-     *
-     * @param aPort
-     *            the candidate port to listen on.
-     */
-    void checkListen(int aPort) {
+    private void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
             throw new IllegalArgumentException("Port out of range: " + aPort);
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkListen(aPort);
         }
     }
 
@@ -264,11 +246,6 @@ public class ServerSocket {
             impl.accept(aSocket.impl);
             aSocket.accepted();
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkAccept(aSocket.getInetAddress().getHostAddress(),
-                    aSocket.getPort());
-        }
     }
 
     /**
@@ -284,10 +261,6 @@ public class ServerSocket {
      */
     public static synchronized void setSocketFactory(SocketImplFactory aFactory)
             throws IOException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkSetFactory();
-        }
         if (factory != null) {
             throw new SocketException("Factory already set");
         }
@@ -383,10 +356,6 @@ public class ServerSocket {
                 throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
             }
             port = inetAddr.getPort();
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkListen(port);
         }
 
         synchronized (this) {

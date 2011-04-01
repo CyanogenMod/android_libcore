@@ -24,7 +24,6 @@ import java.io.ObjectStreamField;
 import java.security.BasicPermission;
 import java.security.Permission;
 import java.security.PermissionCollection;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * {@code PropertyPermission} objects represent a permission to access system
@@ -60,8 +59,7 @@ public final class PropertyPermission extends BasicPermission {
     }
 
     private void decodeActions(String actions) {
-        StringTokenizer tokenizer = new StringTokenizer(Util.toASCIILowerCase(actions),
-                " \t\n\r,");
+        StringTokenizer tokenizer = new StringTokenizer(actions.toLowerCase(Locale.US), " \t\n\r,");
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
             if (token.equals("read")) {
@@ -153,8 +151,9 @@ public final class PropertyPermission extends BasicPermission {
         return new PropertyPermissionCollection();
     }
 
-    private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-            "actions", String.class) };
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("actions", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

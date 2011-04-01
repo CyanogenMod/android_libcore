@@ -52,10 +52,8 @@ static jlong Deflater_createStream(JNIEnv * env, jobject, jint level, jint strat
      * that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
      * plus a few kilobytes for small objects."
      */
-    // TODO: should we just use DEF_WBITS (15) and DEF_MEM_LEVEL (8) now?
-    int windowBits = noHeader ? -12 : 12; // Was 15, made it 12 to reduce memory consumption. Use MAX_WBITS for fastest.
-    int memLevel = 5; // Was 9 (MAX_MEM_LEVEL), made it 5 to reduce memory consumption. Might result
-                      // in out-of-memory problems according to some web pages.
+    int windowBits = noHeader ? -DEF_WBITS : DEF_WBITS;
+    int memLevel = DEF_MEM_LEVEL;
     int err = deflateInit2(&jstream->stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err);

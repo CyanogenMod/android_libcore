@@ -27,7 +27,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 public class DuplicateFormatFlagsExceptionTest extends TestCase {
 
     /**
-     * @tests java.util.DuplicateFormatFlagsException#DuplicateFormatFlagsException(String)
+     * java.util.DuplicateFormatFlagsException#DuplicateFormatFlagsException(String)
      */
     public void test_duplicateFormatFlagsException() {
         try {
@@ -39,7 +39,7 @@ public class DuplicateFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.DuplicateFormatFlagsException#getFlags()
+     * java.util.DuplicateFormatFlagsException#getFlags()
      */
     public void test_getFlags() {
         String strFlags = "MYTESTFLAGS";
@@ -49,7 +49,7 @@ public class DuplicateFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests java.util.DuplicateFormatFlagsException#getMessage()
+     * java.util.DuplicateFormatFlagsException#getMessage()
      */
     public void test_getMessage() {
         String strFlags = "MYTESTFLAGS";
@@ -75,7 +75,7 @@ public class DuplicateFormatFlagsExceptionTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization.
+     * serialization/deserialization.
      */
     public void testSerializationSelf() throws Exception {
 
@@ -84,7 +84,7 @@ public class DuplicateFormatFlagsExceptionTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
 

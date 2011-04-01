@@ -16,11 +16,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,10 +24,9 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * @tests java.util.LinkedHashSet
+ * java.util.LinkedHashSet
  */
 
-@TestTargetClass(java.util.LinkedHashSet.class)
 public class LinkedHashSetTest extends junit.framework.TestCase {
 
     LinkedHashSet hs;
@@ -40,14 +34,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     Object[] objArray;
 
     /**
-     * @tests java.util.LinkedHashSet#LinkedHashSet()
+     * java.util.LinkedHashSet#LinkedHashSet()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "LinkedHashSet",
-        args = {}
-    )
     public void test_Constructor() {
         // Test for method java.util.LinkedHashSet()
         LinkedHashSet hs2 = new LinkedHashSet();
@@ -55,14 +43,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#LinkedHashSet(int)
+     * java.util.LinkedHashSet#LinkedHashSet(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "LinkedHashSet",
-        args = {int.class}
-    )
     public void test_ConstructorI() {
         // Test for method java.util.LinkedHashSet(int)
         LinkedHashSet hs2 = new LinkedHashSet(5);
@@ -76,14 +58,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#LinkedHashSet(int, float)
+     * java.util.LinkedHashSet#LinkedHashSet(int, float)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "LinkedHashSet",
-        args = {int.class, float.class}
-    )
     public void test_ConstructorIF() {
         // Test for method java.util.LinkedHashSet(int, float)
         LinkedHashSet hs2 = new LinkedHashSet(5, (float) 0.5);
@@ -112,14 +88,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#LinkedHashSet(java.util.Collection)
+     * java.util.LinkedHashSet#LinkedHashSet(java.util.Collection)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "LinkedHashSet",
-        args = {java.util.Collection.class}
-    )
     public void test_ConstructorLjava_util_Collection() {
         // Test for method java.util.LinkedHashSet(java.util.Collection)
         LinkedHashSet hs2 = new LinkedHashSet(Arrays.asList(objArray));
@@ -138,14 +108,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#add(java.lang.Object)
+     * java.util.LinkedHashSet#add(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "add",
-        args = {java.lang.Object.class}
-    )
     public void test_addLjava_lang_Object() {
         // Test for method boolean java.util.LinkedHashSet.add(java.lang.Object)
         int size = hs.size();
@@ -158,14 +122,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#clear()
+     * java.util.LinkedHashSet#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         // Test for method void java.util.LinkedHashSet.clear()
         Set orgSet = (Set) hs.clone();
@@ -177,14 +135,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#clone()
+     * java.util.LinkedHashSet#clone()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
     public void test_clone() {
         // Test for method java.lang.Object java.util.LinkedHashSet.clone()
         LinkedHashSet hs2 = (LinkedHashSet) hs.clone();
@@ -194,14 +146,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#contains(java.lang.Object)
+     * java.util.LinkedHashSet#contains(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies null as a parameter.",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
     public void test_containsLjava_lang_Object() {
         // Test for method boolean
         // java.util.LinkedHashSet.contains(java.lang.Object)
@@ -215,14 +161,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#isEmpty()
+     * java.util.LinkedHashSet#isEmpty()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
     public void test_isEmpty() {
         // Test for method boolean java.util.LinkedHashSet.isEmpty()
         assertTrue("Empty set returned false", new LinkedHashSet().isEmpty());
@@ -230,14 +170,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#iterator()
+     * java.util.LinkedHashSet#iterator()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "iterator",
-        args = {}
-    )
     public void test_iterator() {
         // Test for method java.util.Iterator java.util.LinkedHashSet.iterator()
         Iterator i = hs.iterator();
@@ -261,14 +195,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#remove(java.lang.Object)
+     * java.util.LinkedHashSet#remove(java.lang.Object)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't verify ClassCastException, NullPointerException, UnsupportedOperationException.",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
     public void test_removeLjava_lang_Object() {
         // Test for method boolean
         // java.util.LinkedHashSet.remove(java.lang.Object)
@@ -283,14 +211,8 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.LinkedHashSet#size()
+     * java.util.LinkedHashSet#size()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
     public void test_size() {
         // Test for method int java.util.LinkedHashSet.size()
         assertTrue("Returned incorrect size", hs.size() == (objArray.length + 1));
@@ -305,12 +227,6 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "retainAll",
-        args = {java.util.Collection.class}
-    )
     public void test_retainAllLjava_util_Collection() {
         LinkedHashSet<Integer> lhs = new LinkedHashSet<Integer>();
         Vector v = new Vector<Float>();
@@ -356,12 +272,6 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toArray",
-        args = {}
-    )
     public void test_toArray() {
         LinkedHashSet<Integer> lhs = new LinkedHashSet<Integer>();
         lhs.add(new Integer(1));
@@ -381,12 +291,6 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         assertEquals(lhs.size(), o.length);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toArray",
-        args = {java.lang.Object[].class}
-    )
     public void test_toArray$Ljava_lang_Object() {
         LinkedHashSet<Integer> lhs = new LinkedHashSet<Integer>();
         lhs.add(new Integer(1));

@@ -16,6 +16,9 @@
 
 package dalvik.system;
 
+import java.lang.FinalizerThread;
+import java.lang.ref.ReferenceQueueThread;
+
 /**
  * Provides access to the Dalvik "zygote" feature, which allows a VM instance to
  * be partially initialized and then fork()'d from the partially initialized
@@ -45,6 +48,16 @@ public class Zygote {
 
     private Zygote() {}
 
+    private static void preFork() {
+        ReferenceQueueThread.stopReferenceQueue();
+        FinalizerThread.stopFinalizer();
+    }
+
+    private static void postFork() {
+        ReferenceQueueThread.startReferenceQueue();
+        FinalizerThread.startFinalizer();
+    }
+
     /**
      * Forks a new Zygote instance, but does not leave the zygote mode.
      * The current VM must have been started with the -Xzygote flag. The
@@ -53,7 +66,14 @@ public class Zygote {
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error
      */
-    native public static int fork();
+    public static int fork() {
+        preFork();
+        int pid = nativeFork();
+        postFork();
+        return pid;
+    }
+
+    native public static int nativeFork();
 
     /**
      * Forks a new VM instance.  The current VM must have been started
@@ -75,8 +95,16 @@ public class Zygote {
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
-    native public static int forkAndSpecialize(int uid, int gid, int[] gids,
-            int debugFlags, int[][] rlimits);
+    public static int forkAndSpecialize(int uid, int gid, int[] gids,
+            int debugFlags, int[][] rlimits) {
+        preFork();
+        int pid = nativeForkAndSpecialize(uid, gid, gids, debugFlags, rlimits);
+        postFork();
+        return pid;
+    }
+
+    native public static int nativeForkAndSpecialize(int uid, int gid,
+            int[] gids, int debugFlags, int[][] rlimits);
 
     /**
      * Forks a new VM instance.
@@ -112,9 +140,16 @@ public class Zygote {
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
-    native public static int forkSystemServer(int uid, int gid,
-            int[] gids, int debugFlags, int[][] rlimits,
-            long permittedCapabilities, long effectiveCapabilities);
+    public static int forkSystemServer(int uid, int gid, int[] gids,
+            int debugFlags, int[][] rlimits,
+            long permittedCapabilities, long effectiveCapabilities) {
+        preFork();
+        int pid = nativeForkSystemServer(uid, gid, gids, debugFlags, rlimits,
+                                         permittedCapabilities,
+                                         effectiveCapabilities);
+        postFork();
+        return pid;
+    }
 
     /**
      * Special method to start the system server process.
@@ -126,4 +161,8 @@ public class Zygote {
         int debugFlags = enableDebugger ? DEBUG_ENABLE_DEBUGGER : 0;
         return forkAndSpecialize(uid, gid, gids, debugFlags, rlimits);
     }
+
+    native public static int nativeForkSystemServer(int uid, int gid,
+            int[] gids, int debugFlags, int[][] rlimits,
+            long permittedCapabilities, long effectiveCapabilities);
 }

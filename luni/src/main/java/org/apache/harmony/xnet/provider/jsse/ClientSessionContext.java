@@ -39,6 +39,10 @@ public class ClientSessionContext extends AbstractSessionContext {
         super(10, 0);
     }
 
+    public int size() {
+        return sessionsByHostAndPort.size();
+    }
+
     public void setPersistentCache(SSLClientSessionCache persistentCache) {
         this.persistentCache = persistentCache;
     }
@@ -94,7 +98,7 @@ public class ClientSessionContext extends AbstractSessionContext {
     }
 
     @Override
-    void putSession(SSLSession session) {
+    public void putSession(SSLSession session) {
         super.putSession(session);
 
         String host = session.getPeerHost();
@@ -126,16 +130,16 @@ public class ClientSessionContext extends AbstractSessionContext {
             this.port = port;
         }
 
-        @Override
-        public int hashCode() {
+        @Override public int hashCode() {
             return host.hashCode() * 31 + port;
         }
 
-        @Override
-        @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-        public boolean equals(Object o) {
-            HostAndPort other = (HostAndPort) o;
-            return host.equals(other.host) && port == other.port;
+        @Override public boolean equals(Object o) {
+            if (!(o instanceof HostAndPort)) {
+                return false;
+            }
+            HostAndPort lhs = (HostAndPort) o;
+            return host.equals(lhs.host) && port == lhs.port;
         }
     }
 }

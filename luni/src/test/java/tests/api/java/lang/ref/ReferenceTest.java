@@ -16,21 +16,13 @@
  */
 package tests.api.java.lang.ref;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
-import junit.framework.AssertionFailedError;
-
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.Vector;
+import junit.framework.AssertionFailedError;
 
-@TestTargetClass(Reference.class)
 public class ReferenceTest extends junit.framework.TestCase {
     Object tmpA, tmpB, tmpC, obj;
 
@@ -90,14 +82,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#clear()
+     * java.lang.ref.Reference#clear()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
     public void test_clear() {
         tmpA = new Object();
         tmpB = new Object();
@@ -119,22 +105,8 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#enqueue()
+     * java.lang.ref.Reference#enqueue()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "enqueue",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "isEnqueued",
-            args = {}
-        )
-    })
     public void test_enqueue() {
         ReferenceQueue rq = new ReferenceQueue();
         obj = new Object();
@@ -169,104 +141,42 @@ public class ReferenceTest extends junit.framework.TestCase {
                 && (rq.poll() == null));
     }
 
-    /**
-     * @tests java.lang.ref.Reference#enqueue()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies positive functionality for WeakReference.",
-        method = "get",
-        args = {}
-    )
-    public void test_get_WeakReference() {
+    public void test_get_WeakReference() throws Exception {
         // Test the general/overall functionality of Reference.
+        ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
 
-        class TestObject {
-            public boolean finalized;
+        r = newWeakReference(queue);
+        System.gc();
+        System.runFinalization();
+        Reference ref = queue.remove();
+        assertNotNull("Object not enqueued.", ref);
+        assertSame("Unexpected ref1", ref, r);
+        assertNull("Object could not be reclaimed1.", r.get());
 
-            public TestObject() {
-                finalized = false;
-            }
+        r = newWeakReference(queue);
+        System.gc();
+        System.runFinalization();
 
-            protected void finalize() {
-                finalized = true;
-            }
-        }
+        // wait for the reference queue thread to enqueue the newly-finalized object
+        Thread.yield();
+        Thread.sleep(200);
 
-        final ReferenceQueue rq = new ReferenceQueue();
-
-        class TestThread extends Thread {
-
-            public void run() {
-                // Create the object in a separate thread to ensure it will be
-                // gc'ed
-                Object testObj = new TestObject();
-                r = new WeakReference(testObj, rq);
-                testObj = null;
-            }
-        }
-
-        Reference ref;
-
-        try {
-            TestThread t = new TestThread();
-            t.start();
-            t.join();
-            System.gc();
-            System.runFinalization();
-            ref = rq.remove();
-            assertNotNull("Object not garbage collected1.", ref);
-            assertTrue("Unexpected ref1", ref == r);
-            assertNull("Object could not be reclaimed1.", r.get());
-        } catch (InterruptedException e) {
-            fail("InterruptedException : " + e.getMessage());
-        }
-
-        try {
-            TestThread t = new TestThread();
-            t.start();
-            t.join();
-            System.gc();
-            System.runFinalization();
-            ref = rq.poll();
-            assertNotNull("Object not garbage collected.", ref);
-            assertTrue("Unexpected ref2", ref == r);
-            assertNull("Object could not be reclaimed.", ref.get());
-            // Reference wr so it does not get collected
-            assertNull("Object could not be reclaimed.", r.get());
-        } catch (Exception e) {
-            fail("Exception : " + e.getMessage());
-        }
+        ref = queue.poll();
+        assertNotNull("Object not enqueued.", ref);
+        assertSame("Unexpected ref2", ref, r);
+        assertNull("Object could not be reclaimed.", ref.get());
+        assertNull("Object could not be reclaimed.", r.get());
     }
-
 
     /**
      * Makes sure that overridden versions of clear() and enqueue()
      * get called, and that clear/enqueue/finalize happen in the
      * right order for WeakReferences.
      *
-     * @tests java.lang.ref.Reference#clear()
-     * @tests java.lang.ref.Reference#enqueue()
-     * @tests java.lang.Object#finalize()
+     * java.lang.ref.Reference#clear()
+     * java.lang.ref.Reference#enqueue()
+     * java.lang.Object#finalize()
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Makes sure that overridden versions of clear() and enqueue()  " +
-                    "get called, and that clear/enqueue/finalize happen in the  " +
-                    "right order for WeakReferences.",
-            method = "clear",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Makes sure that overridden versions of clear() and enqueue()  " +
-                    "get called, and that clear/enqueue/finalize happen in the  " +
-                    "right order for WeakReferences.",
-            method = "enqueue",
-            args = {}
-        )
-    })
     public void test_subclass() {
         error = null;
         testObjectFinalized = false;
@@ -323,49 +233,36 @@ public class ReferenceTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.lang.ref.Reference#get()
+     * java.lang.ref.Reference#get()
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't check that get() can return null.",
-        method = "get",
-        args = {}
-    )
     public void test_get() {
-
-        Vector<StringBuffer> vec = new Vector<StringBuffer>();
-        WeakReference ref = new WeakReference(vec, new ReferenceQueue());
-        assertTrue("Get succeeded.", ref.get() == vec);
-
-        Runtime rt =  Runtime.getRuntime();
-
-        long beforeTest = rt.freeMemory();
-        while(rt.freeMemory() < beforeTest * 2/3) {
-            vec.add(new StringBuffer(1000));
-        }
-        vec = null;
+        WeakReference ref = newWeakReference(null);
 
         System.gc();
         System.runFinalization();
-        assertNull("get() doesn't return null after gc for WeakReference",
-                    ref.get());
+        assertNull("get() doesn't return null after gc for WeakReference", ref.get());
 
         obj = new Object();
-        ref = new WeakReference(obj, new ReferenceQueue());
+        ref = new WeakReference<Object>(obj, new ReferenceQueue<Object>());
         ref.clear();
-        assertNull("get() doesn't return null after clear for WeakReference",
-                ref.get());
+        assertNull("get() doesn't return null after clear for WeakReference", ref.get());
     }
 
     /**
-     * @tests java.lang.ref.Reference#isEnqueued()
+     * Helper method to prevent live-precise bugs from interfering with analysis
+     * of what is reachable. Do not inline this method; otherwise tests may fail
+     * on VMs that are not live-precise. http://b/4191345
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEnqueued",
-        args = {}
-    )
+    private WeakReference<Object> newWeakReference(ReferenceQueue<Object> queue) {
+        Object o = new Object();
+        WeakReference<Object> ref = new WeakReference<Object>(o, queue);
+        assertSame(o, ref.get());
+        return ref;
+    }
+
+    /**
+     * java.lang.ref.Reference#isEnqueued()
+     */
     public void test_isEnqueued() {
         ReferenceQueue rq = new ReferenceQueue();
         obj = new Object();
@@ -385,15 +282,6 @@ public class ReferenceTest extends junit.framework.TestCase {
      * Checks to make sure that the referent of the WeakReference
      * is still pointing to a valid object.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Contrives a situation where the only reference to a string  " +
-                "is a WeakReference from an object that is being finalized.  " +
-                "Checks to make sure that the referent of the WeakReference  " +
-                "is still pointing to a valid object.",
-        method = "get",
-        args = {}
-    )
     public void test_finalizeReferenceInteraction() {
         error = null;
         testObjectFinalized = false;

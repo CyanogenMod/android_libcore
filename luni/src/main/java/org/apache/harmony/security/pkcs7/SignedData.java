@@ -46,21 +46,18 @@ import org.apache.harmony.security.x509.CertificateList;
  *   crls
  *     [1] IMPLICIT CertificateRevocationLists OPTIONAL,
  *   signerInfos SignerInfos }
- *
  */
+public final class SignedData {
+    private final int version;
+    private final List<?> digestAlgorithms;
+    private final ContentInfo contentInfo;
+    private final List<Certificate> certificates;
+    private final List<CertificateList> crls;
+    private final List<SignerInfo> signerInfos;
 
-public class SignedData {
-
-    private int version;
-
-    private List digestAlgorithms;
-    private ContentInfo contentInfo;
-    private List certificates;
-    private List crls;
-    private List signerInfos;
-
-    public SignedData(int version, List digestAlgorithms, ContentInfo contentInfo,
-            List certificates, List crls, List signerInfos) {
+    private SignedData(int version, List<?> digestAlgorithms, ContentInfo contentInfo,
+            List<Certificate> certificates, List<CertificateList> crls,
+            List<SignerInfo> signerInfos) {
         this.version = version;
         this.digestAlgorithms = digestAlgorithms;
         this.contentInfo = contentInfo;
@@ -69,40 +66,23 @@ public class SignedData {
         this.signerInfos = signerInfos;
     }
 
-    public List getCertificates() {
+    public List<Certificate> getCertificates() {
         return certificates;
     }
 
-    public List getCRLs() {
+    public List<CertificateList> getCRLs() {
         return crls;
     }
 
-    public List getSignerInfos() {
+    public List<SignerInfo> getSignerInfos() {
         return signerInfos;
     }
 
-    /**
-     * @return Returns the contentInfo.
-     */
-    public ContentInfo getContentInfo() {
-        return contentInfo;
-    }
-
-    /**
-     * @return Returns the digestAlgorithms.
-     */
-    public List getDigestAlgorithms() {
-        return digestAlgorithms;
-    }
-
-    /**
-     * @return Returns the version.
-     */
     public int getVersion() {
         return version;
     }
 
-    public String toString() {
+    @Override public String toString() {
         StringBuilder res = new StringBuilder();
         res.append("---- SignedData:");
         res.append("\nversion: ");
@@ -138,7 +118,7 @@ public class SignedData {
             setOptional(4); // crls is optional
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
             SignedData sd = (SignedData) object;
             values[0] = new byte[] {(byte)sd.version};
             values[1] = sd.digestAlgorithms;
@@ -148,15 +128,15 @@ public class SignedData {
             values[5] = sd.signerInfos;
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new SignedData(
                         ASN1Integer.toIntValue(values[0]),
-                        (List) values[1],
+                        (List<?>) values[1],
                         (ContentInfo) values[2],
-                        (List) values[3],
-                        (List) values[4],
-                        (List) values[5]
+                        (List<Certificate>) values[3],
+                        (List<CertificateList>) values[4],
+                        (List<SignerInfo>) values[5]
                     );
         }
     };

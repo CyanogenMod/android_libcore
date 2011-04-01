@@ -16,11 +16,6 @@
 
 package tests.security.spec;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -30,7 +25,6 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.EllipticCurve;
 
-@TestTargetClass(ECPrivateKeySpec.class)
 public class ECPrivateKeySpecTest extends TestCase {
 
     BigInteger s;
@@ -66,12 +60,6 @@ public class ECPrivateKeySpecTest extends TestCase {
      * case 2: catch NullPointerException - if s is null.
      * case 3: catch NullPointerException - if params is null.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "ECPrivateKeySpec",
-        args = {java.math.BigInteger.class, java.security.spec.ECParameterSpec.class}
-    )
     public void test_constructorLjava_math_BigIntegerLjava_security_spec_ECParameterSpec() {
 
         // case 1: creating object with valid parameters
@@ -98,12 +86,6 @@ public class ECPrivateKeySpecTest extends TestCase {
     /**
      * test for getS() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getS",
-        args = {}
-    )
     public void test_GetS() {
         assertEquals("wrong private value", s, ecpks.getS());
     }
@@ -111,12 +93,6 @@ public class ECPrivateKeySpecTest extends TestCase {
     /**
      * test for getParams() method
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getParams",
-        args = {}
-    )
     public void test_GetParams() {
         assertEquals("wrong parameters", ecparams, ecpks.getParams());
     }

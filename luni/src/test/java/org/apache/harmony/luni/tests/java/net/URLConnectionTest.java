@@ -17,10 +17,6 @@
 package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
@@ -65,23 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-@TestTargetClass(
-   value = URLConnection.class,
-   untestedMethods = {
-       @TestTargetNew(
-           level = TestLevel.NOT_NECESSARY,
-           notes = "Default implementation returns always null according to spec.",
-           method = "getHeaderField",
-           args = {int.class}
-       ),
-       @TestTargetNew(
-           level = TestLevel.NOT_NECESSARY,
-           notes = "Default implementation returns always null according to spec.",
-           method = "getHeaderFieldKey",
-           args = {int.class}
-       )
-   }
-)
 public class URLConnectionTest extends TestCase {
 
     private static final String testString = "Hello World";
@@ -111,14 +90,8 @@ public class URLConnectionTest extends TestCase {
     public boolean isAbortCalled;
 
     /**
-     * @tests {@link java.net.URLConnection#addRequestProperty(String, String)}
+     * {@link java.net.URLConnection#addRequestProperty(String, String)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Exceptions checked only. Cannot test positive test since getter method is not supported.",
-        method = "addRequestProperty",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_addRequestProperty() throws MalformedURLException,
             IOException {
 
@@ -147,14 +120,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#setRequestProperty(String, String)}
+     * {@link java.net.URLConnection#setRequestProperty(String, String)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Exceptions checked only -> only partially implemented.",
-        method = "setRequestProperty",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_setRequestProperty() throws MalformedURLException,
             IOException {
 
@@ -186,14 +153,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#setUseCaches(boolean)}
+     * {@link java.net.URLConnection#setUseCaches(boolean)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Complete together with getUseCaches test.",
-        method = "setUseCaches",
-        args = {boolean.class}
-    )
     public void test_setUseCachesZ() throws MalformedURLException, IOException {
 
         // Regression for HARMONY-71
@@ -209,14 +170,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#setAllowUserInteraction(boolean)}
+     * {@link java.net.URLConnection#setAllowUserInteraction(boolean)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "Exceptions checked only.",
-        method = "setAllowUserInteraction",
-        args = {boolean.class}
-    )
     public void test_setAllowUserInteractionZ() throws MalformedURLException,
             IOException {
 
@@ -414,14 +369,8 @@ public class URLConnectionTest extends TestCase {
     /**
      * @throws URISyntaxException
      * @throws ClassNotFoundException
-     * @tests {@link java.net.URLConnection#addRequestProperty(java.lang.String,java.lang.String)}
+     * {@link java.net.URLConnection#addRequestProperty(java.lang.String,java.lang.String)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "addRequestProperty",
-        args = {java.lang.String.class, java.lang.String.class}
-    )
     public void test_addRequestPropertyLjava_lang_StringLjava_lang_String()
             throws IOException, ClassNotFoundException, URISyntaxException {
         uc.setRequestProperty("prop", "yo");
@@ -483,22 +432,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getAllowUserInteraction()}
+     * {@link java.net.URLConnection#getAllowUserInteraction()}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "getAllowUserInteraction",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.SUFFICIENT,
-            notes = "From harmony branch.",
-            method = "setAllowUserInteraction",
-            args = {boolean.class}
-        )
-    })
     public void test_getAllowUserInteraction() throws IOException {
         uc.setAllowUserInteraction(false);
         assertFalse("getAllowUserInteraction should have returned false", uc
@@ -559,14 +494,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#connect()}
+     * {@link java.net.URLConnection#connect()}
      */
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "connect",
-      args = {}
-    )
     public void test_connect() throws IOException {
 
         uc.connect();
@@ -581,14 +510,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getContent()}
+     * {@link java.net.URLConnection#getContent()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "getContent",
-        args = {}
-    )
     public void test_getContent() throws IOException {
         byte[] ba = new byte[testString.getBytes().length];
         String buf = null;
@@ -627,14 +550,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getContent(Class[])}
+     * {@link java.net.URLConnection#getContent(Class[])}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "getContent",
-        args = {java.lang.Class[].class}
-    )
     public void test_getContent_LjavalangClass() throws IOException {
         byte[] ba = new byte[600];
 
@@ -683,14 +600,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getContentEncoding()}
+     * {@link java.net.URLConnection#getContentEncoding()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getContentEncoding",
-        args = {}
-    )
     @BrokenTest("Fails in CTS, passes in CoreTestRunner")
     public void test_getContentEncoding() throws IOException {
         // faulty setup
@@ -721,14 +632,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getContentLength()}
+     * {@link java.net.URLConnection#getContentLength()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getContentLength",
-        args = {}
-    )
     public void test_getContentLength() {
         assertEquals(testString.getBytes().length,
                 fileURLCon.getContentLength());
@@ -740,14 +645,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getContentType()}
+     * {@link java.net.URLConnection#getContentType()}
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "only default encoding may be tested",
-        method = "getContentType",
-        args = {}
-    )
     public void test_getContentType() throws IOException, MalformedURLException {
 
         assertTrue("getContentType failed: " + fileURLCon.getContentType(),
@@ -775,16 +674,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getDate()}
+     * {@link java.net.URLConnection#getDate()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch. URLConnection.getDate crashes in cases " +
-                "where the returned expiration date doesn't seems to be " +
-                "parsable. The RI just returns 0.",
-        method = "getDate",
-        args = {}
-    )
     public void test_getDate() {
         // should be greater than 930000000000L which represents the past
         assertTrue("getDate gave wrong date: " + uc.getDate(),
@@ -793,22 +684,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getDefaultAllowUserInteraction()}
+     * {@link java.net.URLConnection#getDefaultAllowUserInteraction()}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "getDefaultAllowUserInteraction",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "setDefaultAllowUserInteraction",
-            args = {boolean.class}
-        )
-    })
     public void test_getDefaultAllowUserInteraction() throws IOException {
         boolean oldSetting = URLConnection.getDefaultAllowUserInteraction();
 
@@ -825,22 +702,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getDefaultRequestProperty(String)}
+     * {@link java.net.URLConnection#getDefaultRequestProperty(String)}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "getDefaultRequestProperty",
-            args = {java.lang.String.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "setDefaultRequestProperty",
-            args = {java.lang.String.class, java.lang.String.class}
-        )
-    })
     @SuppressWarnings("deprecation")
     public void test_getDefaultRequestPropertyLjava_lang_String() {
         URLConnection.setDefaultRequestProperty("Shmoo", "Blah");
@@ -859,22 +722,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link  java.net.URLConnection#getDefaultUseCaches()}
+     * {@link  java.net.URLConnection#getDefaultUseCaches()}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "getDefaultUseCaches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "setDefaultUseCaches",
-            args = {boolean.class}
-        )
-    })
     public void test_getDefaultUseCaches_CachedRC() throws IOException {
         boolean oldSetting = uc.getDefaultUseCaches();
 
@@ -932,22 +781,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getDoInput()}
+     * {@link java.net.URLConnection#getDoInput()}
      */
-    @TestTargets({
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "getDoInput",
-        args = {}
-    ),
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "setDoInput",
-            args = {boolean.class}
-        )
-    })
     public void test_getDoInput() throws IOException {
         assertTrue("Should be set to true by default", uc.getDoInput());
 
@@ -971,22 +806,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getDoOutput()}
+     * {@link java.net.URLConnection#getDoOutput()}
      */
-    @TestTargets({
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "getDoOutput",
-        args = {}
-    ),
-    @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "From harmony branch.",
-            method = "setDoOutput",
-            args = {boolean.class}
-        )
-    })
     public void test_getDoOutput() throws IOException {
         assertFalse("Should be set to false by default", uc.getDoOutput());
 
@@ -1009,16 +830,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getExpiration()}
+     * {@link java.net.URLConnection#getExpiration()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch. URLConnection.getExpiration crashes in " +
-                "cases where the returned expiration date doesn't seems to " +
-                "be parsable. The RI just returns 0.",
-        method = "getExpiration",
-        args = {}
-    )
     public void test_getExpiration() throws IOException {
 
         uc.connect();
@@ -1032,14 +845,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getFileNameMap()}
+     * {@link java.net.URLConnection#getFileNameMap()}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "From harmony branch.",
-        method = "getFileNameMap",
-        args = {}
-    )
     public void test_getFileNameMap() {
         // Tests for the standard MIME types -- users may override these
         // in their JRE
@@ -1079,14 +886,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getHeaderFieldDate(java.lang.String, long)}
+     * {@link java.net.URLConnection#getHeaderFieldDate(java.lang.String, long)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHeaderFieldDate",
-        args = {java.lang.String.class, long.class}
-    )
     public void test_getHeaderFieldDateLjava_lang_StringJ() {
         Support_TestWebData params = Support_TestWebData.testParams[0];
 
@@ -1115,14 +916,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getHeaderField(int)}
+     * {@link java.net.URLConnection#getHeaderField(int)}
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_NECESSARY,
-        notes = "not supported. Always returns null.From harmony branch.",
-        method = "getHeaderField",
-        args = {int.class}
-    )
     public void DISABLED_test_getHeaderFieldI() {
         int i = 0;
         String hf;
@@ -1149,14 +944,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getHeaderFieldKey(int)}
+     * {@link java.net.URLConnection#getHeaderFieldKey(int)}
      */
-    @TestTargetNew(
-        level = TestLevel.NOT_NECESSARY,
-        notes = "Not supported. Current implementation returns always null according to spec.",
-        method = "getHeaderFieldKey",
-        args = {int.class}
-    )
     public void DISABLED_test_getHeaderFieldKeyI() {
         String hf;
         boolean foundResponse = false;
@@ -1174,14 +963,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getHeaderFieldInt(String, int)}
+     * {@link java.net.URLConnection#getHeaderFieldInt(String, int)}
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "",
-        method = "getHeaderFieldInt",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_getHeaderFieldInt() throws IOException, ParseException {
         Support_TestWebData params = Support_TestWebData.testParams[1];
 
@@ -1208,14 +991,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getHeaderField(java.lang.String)}
+     * {@link java.net.URLConnection#getHeaderField(java.lang.String)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHeaderField",
-        args = {java.lang.String.class}
-    )
     public void test_getHeaderFieldLjava_lang_String() {
         Support_TestWebData params = Support_TestWebData.testParams[0];
 
@@ -1246,14 +1023,8 @@ public class URLConnectionTest extends TestCase {
     /**
      * @throws URISyntaxException
      * @throws ClassNotFoundException
-     * @tests {@link java.net.URLConnection#getHeaderFields()}
+     * {@link java.net.URLConnection#getHeaderFields()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getHeaderFields",
-        args = {}
-    )
     public void test_getHeaderFields() throws IOException, ClassNotFoundException, URISyntaxException {
         Support_TestWebData params = Support_TestWebData.testParams[1];
 
@@ -1297,14 +1068,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getLastModified()}
+     * {@link java.net.URLConnection#getLastModified()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "From harmony branch.",
-        method = "getLastModified",
-        args = {}
-    )
     public void test_getLastModified() throws IOException {
 
         URL url4 = new URL(Support_Configuration.hTTPURLwLastModified);
@@ -1329,12 +1094,6 @@ public class URLConnectionTest extends TestCase {
         ((HttpURLConnection) uc).disconnect();
     }
 
-    @TestTargetNew(
-      level = TestLevel.COMPLETE,
-      notes = "",
-      method = "getOutputStream",
-      args = {}
-    )
     public void test_getOutputStream() throws IOException {
         String posted = "this is a test";
         URLConnection uc3 = new URL(Support_Configuration.hTTPURLgoogle)
@@ -1376,14 +1135,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getPermission()}
+     * {@link java.net.URLConnection#getPermission()}
      */
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "From harmony branch.",
-        method = "getPermission",
-        args = {}
-    )
     public void test_getPermission() throws Exception {
         java.security.Permission p = uc.getPermission();
         assertTrue("Permission of wrong type: " + p.toString(),
@@ -1434,14 +1187,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getRequestProperties()}
+     * {@link java.net.URLConnection#getRequestProperties()}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "implementation test.From harmony branch.",
-        method = "getRequestProperties",
-        args = {}
-    )
     public void test_getRequestProperties() {
         uc.setRequestProperty("whatever", "you like");
         Map headers = uc.getRequestProperties();
@@ -1470,14 +1217,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getRequestProperties()}
+     * {@link java.net.URLConnection#getRequestProperties()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Exceptions checked only.From harmony branch.",
-        method = "getRequestProperties",
-        args = {}
-    )
     public void test_getRequestProperties_Exception() throws IOException {
         URL url = new URL("http", "test", 80, "index.html", new NewHandler());
         URLConnection urlCon = url.openConnection();
@@ -1493,14 +1234,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getRequestProperty(java.lang.String)}
+     * {@link java.net.URLConnection#getRequestProperty(java.lang.String)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Exceptions checked only.From harmony branch.",
-        method = "getRequestProperty",
-        args = { String.class }
-    )
     public void test_getRequestProperty_LString_Exception() throws IOException {
         URL url = new URL("http", "test", 80, "index.html", new NewHandler());
         URLConnection urlCon = url.openConnection();
@@ -1517,14 +1252,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getRequestProperty(java.lang.String)}
+     * {@link java.net.URLConnection#getRequestProperty(java.lang.String)}
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "From harmony branch.",
-        method = "getRequestProperty",
-        args = {java.lang.String.class}
-    )
     public void test_getRequestPropertyLjava_lang_String() {
         uc.setRequestProperty("Yo", "yo");
         assertTrue("Wrong property returned: " + uc.getRequestProperty("Yo"),
@@ -1534,36 +1263,16 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#getURL()}
+     * {@link java.net.URLConnection#getURL()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Exceptions checked only -> only partially implemented. From harmony branch.",
-        method = "getURL",
-        args = {}
-    )
     public void test_getURL() {
         assertTrue("Incorrect URL returned", uc.getURL().equals(url));
     }
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#getUseCaches()}
+     * {@link java.net.URLConnection#getUseCaches()}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Exceptions checked in setUseCaches. From harmony branch.",
-            method = "getUseCaches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Exceptions checked in setUseCaches. From harmony branch.",
-            method = "setUseCaches",
-            args = {boolean.class}
-        )
-    })
     public void test_getUseCaches() throws IOException {
         uc2.setUseCaches(false);
         assertTrue("getUseCaches should have returned false", !uc2
@@ -1586,14 +1295,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#guessContentTypeFromName(String)}
+     * {@link java.net.URLConnection#guessContentTypeFromName(String)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "guessContentTypeFromName",
-        args = {java.lang.String.class}
-    )
     public void test_guessContentTypeFromName()
             throws IOException {
 
@@ -1620,14 +1323,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#guessContentTypeFromStream(java.io.InputStream)}
+     * {@link java.net.URLConnection#guessContentTypeFromStream(java.io.InputStream)}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "guessContentTypeFromStream",
-        args = {java.io.InputStream.class}
-    )
     public void test_guessContentTypeFromStreamLjava_io_InputStream()
             throws IOException {
         assertContentTypeEquals("ASCII", "text/html", "<html>");
@@ -1678,22 +1375,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#setConnectTimeout(int)}
+     * {@link java.net.URLConnection#setConnectTimeout(int)}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setConnectTimeout",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getConnectTimeout",
-            args = {}
-        )
-    })
     public void test_setConnectTimeoutI() throws Exception {
         URLConnection uc = new URL("http://localhost").openConnection();
         assertEquals(0, uc.getConnectTimeout());
@@ -1728,22 +1411,8 @@ public class URLConnectionTest extends TestCase {
 
     /**
      * @throws IOException
-     * @tests {@link java.net.URLConnection#setFileNameMap(java.net.FileNameMap)}
+     * {@link java.net.URLConnection#setFileNameMap(java.net.FileNameMap)}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "setFileNameMap",
-            args = {java.net.FileNameMap.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getFileNameMap",
-            args = {}
-        )
-    })
     public void test_setFileNameMapLjava_net_FileNameMap() throws IOException {
         FileNameMap mapOld = URLConnection.getFileNameMap();
         // nothing happens if set null
@@ -1784,22 +1453,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#setIfModifiedSince(long)}
+     * {@link java.net.URLConnection#setIfModifiedSince(long)}
      */
-    @TestTargets ( {
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "setIfModifiedSince",
-        args = {long.class}
-    ),
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "From harmony branch.",
-        method = "getIfModifiedSince",
-        args = {}
-        )
-    })
     public void test_setIfModifiedSinceJ() throws IOException {
         URL url = new URL("http://localhost:8080/");
         URLConnection connection = url.openConnection();
@@ -1832,12 +1487,6 @@ public class URLConnectionTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "test that page was not renewed in time indicated -> page returned event though it should not.",
-        method = "getIfModifiedSince",
-        args = {}
-    )
     public void test_getIfModifiedSinceJ() throws IOException {
 
         uc2.setIfModifiedSince(Calendar.getInstance().getTimeInMillis());
@@ -1849,22 +1498,8 @@ public class URLConnectionTest extends TestCase {
 
 
     /**
-     * @tests {@link java.net.URLConnection#setReadTimeout(int)}
+     * {@link java.net.URLConnection#setReadTimeout(int)}
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "Test for SocketTimeoutException fails: instead undocumented UnknownServiceException is thrown.",
-            method = "setReadTimeout",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "Test for SocketTimeoutException fails: instead undocumented UnknownServiceException is thrown.",
-                method = "getReadTimeout",
-                args = {}
-            )
-    })
     public void test_setReadTimeoutI() throws Exception {
         assertEquals(0, uc.getReadTimeout());
         uc.setReadTimeout(0);
@@ -1902,14 +1537,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests {@link java.net.URLConnection#toString()}
+     * {@link java.net.URLConnection#toString()}
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
 
         assertTrue("Wrong toString: " + uc.toString(), uc.toString().indexOf(
@@ -1918,23 +1547,11 @@ public class URLConnectionTest extends TestCase {
                 uc.getURL().toString()) > 0);
     }
 
-    @TestTargetNew(
-      level = TestLevel.SUFFICIENT,
-      notes = "protected constructor",
-      method = "URLConnection",
-      args = {java.net.URL.class}
-    )
     public void test_URLConnection() {
         String url = uc2.getURL().toString();
         assertEquals(url2.toString(), url);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "getInputStream",
-        args = {}
-      )
     public void testGetInputStream() throws IOException {
         fileURLCon.setDoInput(true);
         fileURLCon.connect();

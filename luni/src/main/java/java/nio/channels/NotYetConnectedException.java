@@ -28,6 +28,5 @@ public class NotYetConnectedException extends IllegalStateException {
      * Constructs a {@code NotYetConnectedException}.
      */
     public NotYetConnectedException() {
-        super();
     }
 }

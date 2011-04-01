@@ -49,7 +49,7 @@ public class LocaleTest extends junit.framework.TestCase {
     // http://b/3452611; Locale.getDisplayLanguage fails for the obsolete language codes.
     public void test_getDisplayName_obsolete() throws Exception {
         // he (new) -> iw (obsolete)
-        assertObsolete("he", "iw", "\u05e2\u05d1\u05e8\u05d9\u05ea"); // "Hebrew" in Hebrew
+        assertObsolete("he", "iw", "עברית");
         // id (new) -> in (obsolete)
         assertObsolete("id", "in", "Bahasa Indonesia");
     }

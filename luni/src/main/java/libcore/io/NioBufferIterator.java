@@ -16,7 +16,7 @@
 
 package libcore.io;
 
-import org.apache.harmony.luni.platform.OSMemory;
+import libcore.io.Memory;
 
 /**
  * Iterates over big- or little-endian bytes on the native heap.
@@ -46,29 +46,29 @@ public final class NioBufferIterator extends BufferIterator {
     }
 
     public void readByteArray(byte[] dst, int dstOffset, int byteCount) {
-        OSMemory.peekByteArray(address + position, dst, dstOffset, byteCount);
+        Memory.peekByteArray(address + position, dst, dstOffset, byteCount);
         position += byteCount;
     }
 
     public byte readByte() {
-        byte result = OSMemory.peekByte(address + position);
+        byte result = Memory.peekByte(address + position);
         ++position;
         return result;
     }
 
     public int readInt() {
-        int result = OSMemory.peekInt(address + position, swap);
+        int result = Memory.peekInt(address + position, swap);
         position += SizeOf.INT;
         return result;
     }
 
     public void readIntArray(int[] dst, int dstOffset, int intCount) {
-        OSMemory.peekIntArray(address + position, dst, dstOffset, intCount, swap);
+        Memory.peekIntArray(address + position, dst, dstOffset, intCount, swap);
         position += SizeOf.INT * intCount;
     }
 
     public short readShort() {
-        short result = OSMemory.peekShort(address + position, swap);
+        short result = Memory.peekShort(address + position, swap);
         position += SizeOf.SHORT;
         return result;
     }

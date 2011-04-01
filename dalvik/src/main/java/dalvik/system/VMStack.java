@@ -49,9 +49,7 @@ public final class VMStack {
     /**
      * Creates an array of classes from the methods at the top of the stack.
      * We continue until we reach the bottom of the stack or exceed the
-     * specified maximum depth.  If stopAtPrivileged is set, the last
-     * element of the array will be the caller of the most-recent privileged
-     * method.
+     * specified maximum depth.
      * <p>
      * The topmost stack frame (this method) and the one above that (the
      * caller) are excluded from the array.  Frames with java.lang.reflect
@@ -59,16 +57,14 @@ public final class VMStack {
      * <p>
      * The classes in the array are the defining classes of the methods.
      * <p>
-     * This is expected to be identical to Harmony's VMStack.getClasses.
+     * This is similar to Harmony's VMStack.getClasses, except that this
+     * implementation doesn't have a concept of "privileged" frames.
      *
      * @param maxDepth
      *      maximum number of classes to return, or -1 for all
-     * @param stopAtPrivileged
-     *      stop when a privileged frame is reached
      * @return an array with classes for the most-recent methods on the stack
      */
-    native public static Class<?>[] getClasses(int maxDepth,
-        boolean stopAtPrivileged);
+    native public static Class<?>[] getClasses(int maxDepth);
 
     /**
      * Retrieves the stack trace from the specified thread.

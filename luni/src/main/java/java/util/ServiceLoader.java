@@ -20,8 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import libcore.io.IoUtils;
 
 /**
@@ -167,20 +165,16 @@ public final class ServiceLoader<S> implements Iterable<S> {
      * @hide
      */
     public static <S> S loadFromSystemProperty(final Class<S> service) {
-        return AccessController.doPrivileged(new PrivilegedAction<S>() {
-            public S run() {
-                try {
-                    final String className = System.getProperty(service.getName());
-                    if (className != null) {
-                        Class<?> c = ClassLoader.getSystemClassLoader().loadClass(className);
-                        return (S) c.newInstance();
-                    }
-                    return null;
-                } catch (Exception e) {
-                    throw new Error(e);
-                }
+        try {
+            final String className = System.getProperty(service.getName());
+            if (className != null) {
+                Class<?> c = ClassLoader.getSystemClassLoader().loadClass(className);
+                return (S) c.newInstance();
             }
-        });
+            return null;
+        } catch (Exception e) {
+            throw new Error(e);
+        }
     }
 
     @Override

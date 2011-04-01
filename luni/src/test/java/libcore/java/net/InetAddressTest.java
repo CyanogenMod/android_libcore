@@ -44,4 +44,8 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue(InetAddress.parseNumericAddress(null).isLoopbackAddress());
         assertTrue(InetAddress.parseNumericAddress("").isLoopbackAddress());
     }
+
+    public void test_getLoopbackAddress() throws Exception {
+        assertTrue(InetAddress.getLoopbackAddress().isLoopbackAddress());
+    }
 }

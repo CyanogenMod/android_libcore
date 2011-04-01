@@ -22,10 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.security.AccessController;
 import libcore.icu.ICU;
-import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * {@code Locale} represents a language/country/variant combination. Locales are used to
@@ -107,89 +104,85 @@ public final class Locale implements Cloneable, Serializable {
 
     private static final long serialVersionUID = 9149081749638150636L;
 
-    // Initialize a default which is used during static
-    // initialization of the default for the platform.
-    private static Locale defaultLocale = new Locale();
-
     /**
      * Locale constant for en_CA.
      */
-    public static final Locale CANADA = new Locale("en", "CA");
+    public static final Locale CANADA = new Locale(true, "en", "CA");
 
     /**
      * Locale constant for fr_CA.
      */
-    public static final Locale CANADA_FRENCH = new Locale("fr", "CA");
+    public static final Locale CANADA_FRENCH = new Locale(true, "fr", "CA");
 
     /**
      * Locale constant for zh_CN.
      */
-    public static final Locale CHINA = new Locale("zh", "CN");
+    public static final Locale CHINA = new Locale(true, "zh", "CN");
 
     /**
      * Locale constant for zh.
      */
-    public static final Locale CHINESE = new Locale("zh", "");
+    public static final Locale CHINESE = new Locale(true, "zh", "");
 
     /**
      * Locale constant for en.
      */
-    public static final Locale ENGLISH = new Locale("en", "");
+    public static final Locale ENGLISH = new Locale(true, "en", "");
 
     /**
      * Locale constant for fr_FR.
      */
-    public static final Locale FRANCE = new Locale("fr", "FR");
+    public static final Locale FRANCE = new Locale(true, "fr", "FR");
 
     /**
      * Locale constant for fr.
      */
-    public static final Locale FRENCH = new Locale("fr", "");
+    public static final Locale FRENCH = new Locale(true, "fr", "");
 
     /**
      * Locale constant for de.
      */
-    public static final Locale GERMAN = new Locale("de", "");
+    public static final Locale GERMAN = new Locale(true, "de", "");
 
     /**
      * Locale constant for de_DE.
      */
-    public static final Locale GERMANY = new Locale("de", "DE");
+    public static final Locale GERMANY = new Locale(true, "de", "DE");
 
     /**
      * Locale constant for it.
      */
-    public static final Locale ITALIAN = new Locale("it", "");
+    public static final Locale ITALIAN = new Locale(true, "it", "");
 
     /**
      * Locale constant for it_IT.
      */
-    public static final Locale ITALY = new Locale("it", "IT");
+    public static final Locale ITALY = new Locale(true, "it", "IT");
 
     /**
      * Locale constant for ja_JP.
      */
-    public static final Locale JAPAN = new Locale("ja", "JP");
+    public static final Locale JAPAN = new Locale(true, "ja", "JP");
 
     /**
      * Locale constant for ja.
      */
-    public static final Locale JAPANESE = new Locale("ja", "");
+    public static final Locale JAPANESE = new Locale(true, "ja", "");
 
     /**
      * Locale constant for ko_KR.
      */
-    public static final Locale KOREA = new Locale("ko", "KR");
+    public static final Locale KOREA = new Locale(true, "ko", "KR");
 
     /**
      * Locale constant for ko.
      */
-    public static final Locale KOREAN = new Locale("ko", "");
+    public static final Locale KOREAN = new Locale(true, "ko", "");
 
     /**
      * Locale constant for zh_CN.
      */
-    public static final Locale PRC = new Locale("zh", "CN");
+    public static final Locale PRC = new Locale(true, "zh", "CN");
 
     /**
      * Locale constant for the root locale. The root locale has an empty language,
@@ -197,40 +190,43 @@ public final class Locale implements Cloneable, Serializable {
      *
      * @since 1.6
      */
-    public static final Locale ROOT = new Locale("", "", "");
+    public static final Locale ROOT = new Locale(true, "", "");
 
     /**
      * Locale constant for zh_CN.
      */
-    public static final Locale SIMPLIFIED_CHINESE = new Locale("zh", "CN");
+    public static final Locale SIMPLIFIED_CHINESE = new Locale(true, "zh", "CN");
 
     /**
      * Locale constant for zh_TW.
      */
-    public static final Locale TAIWAN = new Locale("zh", "TW");
+    public static final Locale TAIWAN = new Locale(true, "zh", "TW");
 
     /**
      * Locale constant for zh_TW.
      */
-    public static final Locale TRADITIONAL_CHINESE = new Locale("zh", "TW");
+    public static final Locale TRADITIONAL_CHINESE = new Locale(true, "zh", "TW");
 
     /**
      * Locale constant for en_GB.
      */
-    public static final Locale UK = new Locale("en", "GB");
+    public static final Locale UK = new Locale(true, "en", "GB");
 
     /**
      * Locale constant for en_US.
      */
-    public static final Locale US = new Locale("en", "US");
+    public static final Locale US = new Locale(true, "en", "US");
 
-    private static final PropertyPermission setLocalePermission = new PropertyPermission(
-            "user.language", "write");
+    /**
+     * The current default locale. It is temporarily assigned to US because we
+     * need a default locale to lookup the real default locale.
+     */
+    private static Locale defaultLocale = US;
 
     static {
-        String language = AccessController.doPrivileged(new PriviAction<String>("user.language", "en"));
-        String region = AccessController.doPrivileged(new PriviAction<String>("user.region", "US"));
-        String variant = AccessController.doPrivileged(new PriviAction<String>("user.variant", ""));
+        String language = System.getProperty("user.language", "en");
+        String region = System.getProperty("user.region", "US");
+        String variant = System.getProperty("user.variant", "");
         defaultLocale = new Locale(language, region, variant);
     }
 
@@ -240,13 +236,16 @@ public final class Locale implements Cloneable, Serializable {
     private transient String cachedToStringResult;
 
     /**
-     * Constructs a default which is used during static initialization of the
-     * default for the platform.
+     * There's a circular dependency between toLowerCase/toUpperCase and
+     * Locale.US. Work around this by avoiding these methods when constructing
+     * the built-in locales.
+     *
+     * @param unused required for this constructor to have a unique signature
      */
-    private Locale() {
-        languageCode = "en";
-        countryCode = "US";
-        variantCode = "";
+    private Locale(boolean unused, String lowerCaseLanguageCode, String upperCaseCountryCode) {
+        this.languageCode = lowerCaseLanguageCode;
+        this.countryCode = upperCaseCountryCode;
+        this.variantCode = "";
     }
 
     /**
@@ -271,17 +270,14 @@ public final class Locale implements Cloneable, Serializable {
         if (language == null || country == null || variant == null) {
             throw new NullPointerException();
         }
-        if(language.isEmpty() && country.isEmpty()){
+        if (language.isEmpty() && country.isEmpty()) {
             languageCode = "";
             countryCode = "";
             variantCode = variant;
             return;
         }
-        // BEGIN android-changed
-        // this.uLocale = new ULocale(language, country, variant);
-        // languageCode = uLocale.getLanguage();
-        languageCode = Util.toASCIILowerCase(language);
-        // END android-changed
+
+        languageCode = language.toLowerCase(Locale.US);
         // Map new language codes to the obsolete language
         // codes so the correct resource bundles will be used.
         if (languageCode.equals("he")) {
@@ -292,11 +288,7 @@ public final class Locale implements Cloneable, Serializable {
             languageCode = "ji";
         }
 
-        // countryCode is defined in ASCII character set
-        // BEGIN android-changed
-        // countryCode = country.length()!=0?uLocale.getCountry():"";
-        countryCode = Util.toASCIIUpperCase(country);
-        // END android-changed
+        countryCode = country.toUpperCase(Locale.US);
 
         // Work around for be compatible with RI
         variantCode = variant;
@@ -560,12 +552,6 @@ public final class Locale implements Cloneable, Serializable {
         if (locale == null) {
             throw new NullPointerException();
         }
-
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(setLocalePermission);
-        }
-
         defaultLocale = locale;
     }
 
@@ -609,10 +595,11 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("country", String.class),
-            new ObjectStreamField("hashcode", Integer.TYPE),
-            new ObjectStreamField("language", String.class),
-            new ObjectStreamField("variant", String.class) };
+        new ObjectStreamField("country", String.class),
+        new ObjectStreamField("hashcode", int.class),
+        new ObjectStreamField("language", String.class),
+        new ObjectStreamField("variant", String.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

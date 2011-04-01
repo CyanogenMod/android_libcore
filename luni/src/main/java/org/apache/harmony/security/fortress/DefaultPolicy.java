@@ -24,7 +24,6 @@ package org.apache.harmony.security.fortress;
 
 import java.io.File;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -270,8 +269,7 @@ public class DefaultPolicy extends Policy {
      */
     public synchronized void refresh() {
         Set<PolicyEntry> fresh = new HashSet<PolicyEntry>();
-        Properties system = new Properties(AccessController
-                .doPrivileged(new PolicyUtils.SystemKit()));
+        Properties system = System.getProperties();
         system.setProperty("/", File.separator);
         URL[] policyLocations = PolicyUtils.getPolicyURLs(system,
                                                           JAVA_SECURITY_POLICY,

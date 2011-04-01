@@ -32,6 +32,7 @@
 
 package java.lang;
 
+import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
 import java.io.Console;
 import java.io.FileDescriptor;
@@ -47,8 +48,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.PropertyPermission;
 import java.util.Set;
+import libcore.icu.ICU;
+import libcore.io.Libcore;
+import libcore.io.StructUtsname;
+import libcore.util.ZoneInfoDB;
 
 /**
  * Provides access to system-related information and resources including
@@ -75,23 +79,15 @@ public final class System {
      */
     public static final PrintStream err;
 
-    /**
-     * The System Properties table.
-     */
+    private static final String lineSeparator;
     private static Properties systemProperties;
 
-    /**
-     * Initialize all the slots in System on first use.
-     */
     static {
-        /*
-         * Set up standard in, out, and err. TODO err and out are
-         * String.ConsolePrintStream. All three are buffered in Harmony. Check
-         * and possibly change this later.
-         */
+        // TODO: all three streams are buffered in Harmony.
         err = new PrintStream(new FileOutputStream(FileDescriptor.err));
         out = new PrintStream(new FileOutputStream(FileDescriptor.out));
         in = new FileInputStream(FileDescriptor.in);
+        lineSeparator = System.getProperty("line.separator");
     }
 
     /**
@@ -100,16 +96,8 @@ public final class System {
      * @param newIn
      *            the user defined input stream to set as the standard input
      *            stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setIn(InputStream newIn) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("in", "Ljava/io/InputStream;", newIn);
     }
 
@@ -119,16 +107,8 @@ public final class System {
      * @param newOut
      *            the user defined output stream to set as the standard output
      *            stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setOut(java.io.PrintStream newOut) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("out", "Ljava/io/PrintStream;", newOut);
     }
 
@@ -139,16 +119,8 @@ public final class System {
      * @param newErr
      *            the user defined output stream to set as the standard error
      *            output stream.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the change of the
-     *             stream.
      */
     public static void setErr(java.io.PrintStream newErr) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if(secMgr != null) {
-            secMgr.checkPermission(RuntimePermission.permissionToSetIO);
-        }
         setFieldImpl("err", "Ljava/io/PrintStream;", newErr);
     }
 
@@ -197,24 +169,20 @@ public final class System {
     public static native long nanoTime();
 
     /**
-     * Causes the virtual machine to stop running and the program to exit. If
+     * Causes the VM to stop running and the program to exit. If
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
      *
      * @param code
      *            the return code.
-     * @throws SecurityException
-     *             if the running thread has not enough permission to exit the
-     *             virtual machine.
-     * @see SecurityManager#checkExit
      */
     public static void exit(int code) {
         Runtime.getRuntime().exit(code);
     }
 
     /**
-     * Indicates to the virtual machine that it would be a good time to run the
+     * Indicates to the VM that it would be a good time to run the
      * garbage collector. Note that this is a hint only. There is no guarantee
      * that the garbage collector will actually be run.
      */
@@ -230,21 +198,17 @@ public final class System {
      *            the name of the environment variable.
      * @return the value of the specified environment variable or {@code null}
      *         if no variable exists with the given name.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the querying of
-     *             single environment variables.
      */
     public static String getenv(String name) {
-        if (name == null) {
-            throw new NullPointerException();
-        }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new RuntimePermission("getenv." + name));
-        }
+        return getenv(name, null);
+    }
 
-        return getEnvByName(name);
+    private static String getenv(String name, String defaultValue) {
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+        String value = Libcore.os.getenv(name);
+        return (value != null) ? value : defaultValue;
     }
 
     /*
@@ -258,42 +222,17 @@ public final class System {
      * Returns an unmodifiable map of all available environment variables.
      *
      * @return the map representing all environment variables.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPermission()} method does not allow the querying of
-     *             all environment variables.
      */
     public static Map<String, String> getenv() {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new RuntimePermission("getenv.*"));
-        }
-
         Map<String, String> map = new HashMap<String, String>();
-
-        int index = 0;
-        String entry = getEnvByIndex(index++);
-        while (entry != null) {
-            int pos = entry.indexOf('=');
-            if (pos != -1) {
-                map.put(entry.substring(0, pos), entry.substring(pos + 1));
+        for (String entry : Libcore.os.environ()) {
+            int index = entry.indexOf('=');
+            if (index != -1) {
+                map.put(entry.substring(0, index), entry.substring(index + 1));
             }
-
-            entry = getEnvByIndex(index++);
         }
-
         return new SystemEnvironment(map);
     }
-
-    /*
-     * Returns an environment variable. No security checks are performed. The
-     * safe way of traversing the environment is to start at index zero and
-     * count upwards until a null pointer is encountered. This marks the end of
-     * the Unix environment.
-     * @param index the index of the environment variable
-     * @return the value of the specified environment variable
-     */
-    private static native String getEnvByIndex(int index);
 
     /**
      * Returns the inherited channel from the creator of the current virtual
@@ -315,41 +254,106 @@ public final class System {
      * subsequent calls to getProperty and getProperties.
      *
      * @return the system properties.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertiesAccess()} method does not allow the operation.
      */
     public static Properties getProperties() {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertiesAccess();
+        if (systemProperties == null) {
+            initSystemProperties();
         }
+        return systemProperties;
+    }
 
-        return internalGetProperties();
+    private static void initSystemProperties() {
+        VMRuntime runtime = VMRuntime.getRuntime();
+        Properties p = new Properties();
+
+        String projectUrl = "http://www.android.com/";
+        String projectName = "The Android Project";
+
+        p.put("java.boot.class.path", runtime.bootClassPath());
+        p.put("java.class.path", runtime.classPath());
+
+        p.put("java.class.version", "46.0");
+        p.put("java.compiler", "");
+        p.put("java.ext.dirs", "");
+
+        p.put("java.home", getenv("JAVA_HOME", "/system"));
+
+        p.put("java.io.tmpdir", "/tmp");
+        p.put("java.library.path", getenv("LD_LIBRARY_PATH"));
+
+        p.put("java.net.preferIPv6Addresses", "true");
+
+        p.put("java.specification.name", "Dalvik Core Library");
+        p.put("java.specification.vendor", projectName);
+        p.put("java.specification.version", "0.9");
+
+        p.put("java.vendor", projectName);
+        p.put("java.vendor.url", projectUrl);
+        p.put("java.version", "0");
+        p.put("java.vm.name", "Dalvik");
+        p.put("java.vm.specification.name", "Dalvik Virtual Machine Specification");
+        p.put("java.vm.specification.vendor", projectName);
+        p.put("java.vm.specification.version", "0.9");
+        p.put("java.vm.vendor", projectName);
+        p.put("java.vm.version", runtime.vmVersion());
+
+        p.put("file.separator", "/");
+        p.put("line.separator", "\n");
+        p.put("path.separator", ":");
+
+        p.put("java.runtime.name", "Android Runtime");
+        p.put("java.runtime.version", "0.9");
+        p.put("java.vm.vendor.url", projectUrl);
+
+        p.put("file.encoding", "UTF-8");
+        p.put("user.language", "en");
+        p.put("user.region", "US");
+
+        p.put("user.home", getenv("HOME", ""));
+        p.put("user.name", getenv("USER", ""));
+
+        StructUtsname info = Libcore.os.uname();
+        p.put("os.arch", info.machine);
+        p.put("os.name", info.sysname);
+        p.put("os.version", info.release);
+
+        // Undocumented Android-only properties.
+        p.put("android.icu.library.version", ICU.getIcuVersion());
+        p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
+        // TODO: it would be nice to have this but currently it causes circularity.
+        // p.put("android.tzdata.version", ZoneInfoDB.getVersion());
+        parsePropertyAssignments(p, specialProperties());
+
+        // Override built-in properties with settings from the command line.
+        parsePropertyAssignments(p, runtime.properties());
+
+        systemProperties = p;
     }
 
     /**
-     * Returns the system properties without any security checks. This is used
-     * for access from within java.lang.
-     *
-     * @return the system properties
+     * Returns an array of "key=value" strings containing information not otherwise
+     * easily available, such as #defined library versions.
      */
-    static Properties internalGetProperties() {
-        if (System.systemProperties == null) {
-            SystemProperties props = new SystemProperties();
-            props.preInit();
-            props.postInit();
-            System.systemProperties = props;
-        }
+    private static native String[] specialProperties();
 
-        return systemProperties;
+    /**
+     * Adds each element of 'assignments' to 'p', treating each element as an
+     * assignment in the form "key=value".
+     */
+    private static void parsePropertyAssignments(Properties p, String[] assignments) {
+        for (String assignment : assignments) {
+            int split = assignment.indexOf('=');
+            String key = assignment.substring(0, split);
+            String value = assignment.substring(split + 1);
+            p.put(key, value);
+        }
     }
 
     /**
      * Returns the value of a particular system property or {@code null} if no
      * such property exists.
      *
-     * <p>The following properties are always provided by the virtual machine:
+     * <p>The following properties are always provided by the Dalvik VM:
      * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
      * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
      *     <td><b>Name</b></td>        <td><b>Meaning</b></td>                    <td><b>Example</b></td></tr>
@@ -376,13 +380,13 @@ public final class System {
      * <tr><td>java.vm.specification.vendor</td>  <td>VM specification vendor</td>     <td>{@code The Android Project}</td></tr>
      * <tr><td>java.vm.specification.name</td>    <td>VM specification name</td>       <td>{@code Dalvik Virtual Machine Specification}</td></tr>
      *
-     * <tr><td>line.separator</td>     <td>Default line separator</td>            <td>{@code \n}</td></tr>
+     * <tr><td>line.separator</td>     <td>The system line separator</td>         <td>{@code \n}</td></tr>
      *
      * <tr><td>os.arch</td>            <td>OS architecture</td>                   <td>{@code armv7l}</td></tr>
      * <tr><td>os.name</td>            <td>OS (kernel) name</td>                  <td>{@code Linux}</td></tr>
      * <tr><td>os.version</td>         <td>OS (kernel) version</td>               <td>{@code 2.6.32.9-g103d848}</td></tr>
      *
-     * <tr><td>path.separator</td>     <td>{@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
+     * <tr><td>path.separator</td>     <td>See {@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
      *
      * <tr><td>user.dir</td>           <td>Base of non-absolute paths</td>        <td>{@code /}</td></tr>
      * <tr><td>user.home</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
@@ -390,13 +394,12 @@ public final class System {
      *
      * </table>
      *
+     * <p>It is a mistake to try to override any of these. Doing so will have unpredictable results.
+     *
      * @param propertyName
      *            the name of the system property to look up.
      * @return the value of the specified system property or {@code null} if the
      *         property doesn't exist.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertyAccess()} method does not allow the operation.
      */
     public static String getProperty(String propertyName) {
         return getProperty(propertyName, null);
@@ -413,20 +416,12 @@ public final class System {
      *            does not exist.
      * @return the value of the specified system property or the {@code
      *         defaultValue} if the property does not exist.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertyAccess()} method does not allow the operation.
      */
     public static String getProperty(String prop, String defaultValue) {
-        if (prop.length() == 0) {
+        if (prop.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertyAccess(prop);
-        }
-
-        return internalGetProperties().getProperty(prop, defaultValue);
+        return getProperties().getProperty(prop, defaultValue);
     }
 
     /**
@@ -438,19 +433,12 @@ public final class System {
      *            the value to associate with the given property {@code prop}.
      * @return the old value of the property or {@code null} if the property
      *         didn't exist.
-     * @throws SecurityException
-     *             if a security manager exists and write access to the
-     *             specified property is not allowed.
      */
     public static String setProperty(String prop, String value) {
-        if (prop.length() == 0) {
+        if (prop.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new PropertyPermission(prop, "write"));
-        }
-        return (String)internalGetProperties().setProperty(prop, value);
+        return (String) getProperties().setProperty(prop, value);
     }
 
     /**
@@ -463,23 +451,15 @@ public final class System {
      *             if the argument {@code key} is {@code null}.
      * @throws IllegalArgumentException
      *             if the argument {@code key} is empty.
-     * @throws SecurityException
-     *             if a security manager exists and write access to the
-     *             specified property is not allowed.
      */
     public static String clearProperty(String key) {
         if (key == null) {
             throw new NullPointerException();
         }
-        if (key.length() == 0) {
+        if (key.isEmpty()) {
             throw new IllegalArgumentException();
         }
-
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPermission(new PropertyPermission(key, "write"));
-        }
-        return (String)internalGetProperties().remove(key);
+        return (String) getProperties().remove(key);
     }
 
     /**
@@ -516,6 +496,18 @@ public final class System {
     public static native int identityHashCode(Object anObject);
 
     /**
+     * Returns the system's line separator. On Android, this is {@code "\n"}. The value
+     * comes from the value of the {@code line.separator} system property when the VM
+     * starts. Later changes to the property will not affect the value returned by this
+     * method.
+     * @since 1.7
+     * @hide 1.7 - fix documentation references to "line.separator" in Formatter.
+     */
+    public static String lineSeparator() {
+        return lineSeparator;
+    }
+
+    /**
      * Loads and links the dynamic library that is identified through the
      * specified path. This method is similar to {@link #loadLibrary(String)},
      * but it accepts a full path specification whereas {@code loadLibrary} just
@@ -523,14 +515,8 @@ public final class System {
      *
      * @param pathName
      *            the path of the file to be loaded.
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded.
      */
     public static void load(String pathName) {
-        SecurityManager smngr = System.getSecurityManager();
-        if (smngr != null) {
-            smngr.checkLink(pathName);
-        }
         Runtime.getRuntime().load(pathName, VMStack.getCallingClassLoader());
     }
 
@@ -543,19 +529,57 @@ public final class System {
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
      *             if the library could not be loaded.
-     * @throws SecurityException
-     *             if the library was not allowed to be loaded.
      */
     public static void loadLibrary(String libName) {
-        SecurityManager smngr = System.getSecurityManager();
-        if (smngr != null) {
-            smngr.checkLink(libName);
-        }
         Runtime.getRuntime().loadLibrary(libName, VMStack.getCallingClassLoader());
     }
 
     /**
-     * Provides a hint to the virtual machine that it would be useful to attempt
+     * @hide internal use only
+     */
+    public static void logE(String message) {
+        log('E', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logE(String message, Throwable th) {
+        log('E', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message) {
+        log('I', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message, Throwable th) {
+        log('I', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message) {
+        log('W', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message, Throwable th) {
+        log('W', message, th);
+    }
+
+    private static native void log(char type, String message, Throwable th);
+
+    /**
+     * Provides a hint to the VM that it would be useful to attempt
      * to perform any outstanding object finalization.
      */
     public static void runFinalization() {
@@ -563,7 +587,7 @@ public final class System {
     }
 
     /**
-     * Ensures that, when the virtual machine is about to exit, all objects are
+     * Ensures that, when the VM is about to exit, all objects are
      * finalized. Note that all finalization which occurs when the system is
      * exiting is performed after all running threads have been terminated.
      *
@@ -578,20 +602,11 @@ public final class System {
     }
 
     /**
-     * Sets all system properties.
-     *
-     * @param p
-     *            the new system property.
-     * @throws SecurityException
-     *             if a {@link SecurityManager} is installed and its {@code
-     *             checkPropertiesAccess()} method does not allow the operation.
+     * Sets all system properties. This does not take a copy; the passed-in object is used
+     * directly. Passing null causes the VM to reinitialize the properties to how they were
+     * when the VM was started.
      */
     public static void setProperties(Properties p) {
-        SecurityManager secMgr = System.getSecurityManager();
-        if (secMgr != null) {
-            secMgr.checkPropertiesAccess();
-        }
-
         systemProperties = p;
     }
 
@@ -635,7 +650,7 @@ public final class System {
 
     /**
      * The unmodifiable environment variables map. System.getenv() specifies
-     * that this map must throw when queried with non-String keys values.
+     * that this map must throw when passed non-String keys.
      */
     static class SystemEnvironment extends AbstractMap<String, String> {
         private final Map<String, String> map;
@@ -667,17 +682,4 @@ public final class System {
             return (String) o;
         }
     }
-}
-
-/**
- * Internal class holding the System properties. Needed by the Dalvik VM for the
- * two native methods. Must not be a local class, since we don't have a System
- * instance.
- */
-class SystemProperties extends Properties {
-    // Dummy, just to make the compiler happy.
-
-    native void preInit();
-
-    native void postInit();
 }

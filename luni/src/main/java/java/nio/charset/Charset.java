@@ -21,8 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.spi.CharsetProvider;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -283,10 +281,11 @@ public abstract class Charset implements Comparable<Charset> {
             }
         }
 
-        // Is this a built-in charset supported by ICU?
         if (charsetName == null) {
-            throw new IllegalCharsetNameException(charsetName);
+            throw new IllegalCharsetNameException(null);
         }
+
+        // Is this a built-in charset supported by ICU?
         checkCharsetName(charsetName);
         cs = NativeConverter.charsetForName(charsetName);
         if (cs != null) {
@@ -331,7 +330,7 @@ public abstract class Charset implements Comparable<Charset> {
      */
     public static boolean isSupported(String charsetName) {
         try {
-            Charset cs = forName(charsetName);
+            forName(charsetName);
             return true;
         } catch (UnsupportedCharsetException ex) {
             return false;
@@ -565,11 +564,7 @@ public abstract class Charset implements Comparable<Charset> {
     }
 
     private static Charset getDefaultCharset() {
-        String encoding = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty("file.encoding", "UTF-8");
-            }
-        });
+        String encoding = System.getProperty("file.encoding", "UTF-8");
         try {
             return Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {

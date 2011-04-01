@@ -17,15 +17,10 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import javax.net.ssl.SSLException;
 
 import junit.framework.TestCase;
-@TestTargetClass(SSLException.class)
+
 /**
  * Tests for <code>SSLException</code> class constructors and methods.
  *
@@ -44,12 +39,6 @@ public class SSLExceptionTest extends TestCase {
      * constructs SSLException with detail message msg. Parameter
      * <code>msg</code> is not null.
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class}
-    )
     public void testSSLException01() {
         SSLException sE;
         for (int i = 0; i < msgs.length; i++) {
@@ -63,12 +52,6 @@ public class SSLExceptionTest extends TestCase {
      * Test for <code>SSLException(String)</code> constructor Assertion:
      * constructs SSLException when <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class}
-    )
     public void testSSLException02() {
         String msg = null;
         SSLException sE = new SSLException(msg);
@@ -80,12 +63,6 @@ public class SSLExceptionTest extends TestCase {
      * Test for <code>SSLException(Throwable)</code> constructor
      * Assertion: constructs SSLException when <code>cause</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.Throwable.class}
-    )
     public void testSSLException03() {
         Throwable cause = null;
         SSLException sE = new SSLException(cause);
@@ -98,12 +75,6 @@ public class SSLExceptionTest extends TestCase {
      * Assertion: constructs SSLException when <code>cause</code> is not
      * null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.Throwable.class}
-    )
     public void testSSLException04() {
         SSLException sE = new SSLException(tCause);
         if (sE.getMessage() != null) {
@@ -121,12 +92,6 @@ public class SSLExceptionTest extends TestCase {
      * Assertion: constructs SSLException when <code>cause</code> is null
      * <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSSLException05() {
         SSLException sE = new SSLException(null, null);
         assertNull("getMessage() must return null", sE.getMessage());
@@ -138,12 +103,6 @@ public class SSLExceptionTest extends TestCase {
      * Assertion: constructs SSLException when <code>cause</code> is null
      * <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSSLException06() {
         SSLException sE;
         for (int i = 0; i < msgs.length; i++) {
@@ -159,12 +118,6 @@ public class SSLExceptionTest extends TestCase {
      * Assertion: constructs SSLException when <code>cause</code> is not
      * null <code>msg</code> is null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSSLException07() {
         SSLException sE = new SSLException(null, tCause);
         if (sE.getMessage() != null) {
@@ -183,12 +136,6 @@ public class SSLExceptionTest extends TestCase {
      * Assertion: constructs SSLException when <code>cause</code> is not
      * null <code>msg</code> is not null
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "SSLException",
-        args = {java.lang.String.class, java.lang.Throwable.class}
-    )
     public void testSSLException08() {
         SSLException sE;
         for (int i = 0; i < msgs.length; i++) {

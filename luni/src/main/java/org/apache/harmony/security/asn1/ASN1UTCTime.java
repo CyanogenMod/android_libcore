@@ -32,29 +32,21 @@ import java.util.TimeZone;
  *
  * @see http://asn1.elibel.tm.fr/en/standards/index.htm
  */
-public class ASN1UTCTime extends ASN1Time {
+public final class ASN1UTCTime extends ASN1Time {
 
-    /**
-     * Length for the pattern: YYMMDDhhmm'Z'
-     */
+    /** Length for the pattern: YYMMDDhhmm'Z' */
     public static final int UTC_HM = 11;
 
-    /**
-     * Length for the pattern: YYMMDDhhmmss'Z'
-     */
+    /** Length for the pattern: YYMMDDhhmmss'Z' */
     public static final int UTC_HMS = 13;
 
-    /**
-     * Length for the pattern: YYMMDDhhmm('+'/'-')hhmm
-     */
+    /** Length for the pattern: YYMMDDhhmm('+'/'-')hhmm */
     public static final int UTC_LOCAL_HM = 15;
 
-    /**
-     * Length for the pattern: YYMMDDhhmmss('+'/'-')hhmm
-     */
+    /** Length for the pattern: YYMMDDhhmmss('+'/'-')hhmm */
     public static final int UTC_LOCAL_HMS = 17;
 
-    // default implementation
+    /** default implementation */
     private static final ASN1UTCTime ASN1 = new ASN1UTCTime();
 
     /**
@@ -81,13 +73,7 @@ public class ASN1UTCTime extends ASN1Time {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
-    public Object decode(BerInputStream in) throws IOException {
+    @Override public Object decode(BerInputStream in) throws IOException {
         in.readUTCTime();
 
         if (in.isVerify) {
@@ -96,12 +82,7 @@ public class ASN1UTCTime extends ASN1Time {
         return getDecodedObject(in);
     }
 
-    //
-    //
-    // Encode
-    //
-    //
-    public void encodeContent(BerOutputStream out) {
+    @Override public void encodeContent(BerOutputStream out) {
         out.encodeUTCTime();
     }
 
@@ -110,9 +91,9 @@ public class ASN1UTCTime extends ASN1Time {
     // According to X.680 coordinated universal time format:
     // two digit year, seconds always presented,
     // no fractional-seconds elements, 'Z' at the end
-    private final static String UTC_PATTERN = "yyMMddHHmmss'Z'";
+    private static final String UTC_PATTERN = "yyMMddHHmmss'Z'";
 
-    public void setEncodingContent(BerOutputStream out) {
+    @Override public void setEncodingContent(BerOutputStream out) {
         SimpleDateFormat sdf = new SimpleDateFormat(UTC_PATTERN);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         out.content = sdf.format(out.content).getBytes(Charsets.UTF_8);

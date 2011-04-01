@@ -35,8 +35,9 @@ final class AllPermissionCollection extends PermissionCollection {
 
     private static final long serialVersionUID = -4023755556366636806L;
 
-    private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-        "all_allowed", Boolean.TYPE), };
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("all_allowed", boolean.class),
+    };
 
     // Single element of collection.
     private transient Permission all;
@@ -67,7 +68,7 @@ final class AllPermissionCollection extends PermissionCollection {
      * An auxiliary implementation for enumerating a single object.
      *
      */
-    final static class SingletonEnumeration<E> implements Enumeration<E> {
+    static final class SingletonEnumeration<E> implements Enumeration<E> {
 
         private E element;
 

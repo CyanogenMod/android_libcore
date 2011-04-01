@@ -41,11 +41,11 @@ import java.io.IOException;
  * Once a lock is acquired, it is immutable in all its state except {@code
  * isValid()}. The lock will initially be valid, but may be rendered invalid by
  * explicit removal of the lock, using {@code release()}, or implicitly by
- * closing the channel or exiting the process (terminating the virtual machine).
+ * closing the channel or exiting the process (terminating the VM).
  * <h3>Platform dependencies</h3>
  * <p>
  * Locks are intended to be true platform operating system file locks, and
- * therefore locks held by the virtual machine process will be visible to other
+ * therefore locks held by the VM will be visible to other
  * operating system processes.
  * <p>
  * The characteristics of the underlying operating system locks will show
@@ -96,9 +96,7 @@ public abstract class FileLock {
      *            the lock's sharing mode of lock; {@code true} is shared,
      *            {@code false} is exclusive.
      */
-    protected FileLock(FileChannel channel, long position, long size,
-            boolean shared) {
-        super();
+    protected FileLock(FileChannel channel, long position, long size, boolean shared) {
         if (position < 0 || size < 0 || position + size < 0) {
             throw new IllegalArgumentException();
         }
@@ -193,16 +191,7 @@ public abstract class FileLock {
      * @return the display string.
      */
     @Override
-    @SuppressWarnings("nls")
     public final String toString() {
-        StringBuilder buffer = new StringBuilder(64); // Guess length of string
-        buffer.append("FileLock: [position=");
-        buffer.append(position);
-        buffer.append(", size=");
-        buffer.append(size);
-        buffer.append(", shared=");
-        buffer.append(Boolean.toString(shared));
-        buffer.append("]");
-        return buffer.toString();
+        return "FileLock[position=" + position + ", size=" + size + ", shared=" + shared + "]";
     }
 }

@@ -25,18 +25,10 @@ package org.apache.harmony.security.fortress;
 import java.security.AccessControlContext;
 import java.util.WeakHashMap;
 
-//FIXME: move this class under umbrella of protected packages -
-// see lib/java.security: property 'package.access',
-// so only trusted classes like Thread and AccessController will
-// have an access to this class.
-// This is to remove dependency on VMStack, to reduce number
-// of VM2API-dependent classes.
-
 /**
  * The class is used to perform an exchange of information between
  * java.lang.Thread and java.security.AccessController.<br>
- * The data to exchange is inherited contexts for the Thread-s.
- *
+ * The data to exchange is inherited contexts for the Threads.
  */
 public final class SecurityUtils {
 
@@ -94,17 +86,7 @@ public final class SecurityUtils {
      * It may also return null if no Thread found in the map - that seems
      * possible during VM startup process.
      */
-    public static AccessControlContext getContext(Thread thread)
-            throws SecurityException {
-
-        // ~fixme: see 'fixme' at the top of the file
-        /*
-         Class cl = VMStack.getCallerClass(0);
-         if (cl != AccessController.class) {
-         throw new SecurityException("You ["+cl+"] do not have access to this resource.");
-         }
-         */
-
+    public static AccessControlContext getContext(Thread thread) throws SecurityException {
         synchronized (ACC_CACHE) {
             return ACC_CACHE.get(thread);
         }

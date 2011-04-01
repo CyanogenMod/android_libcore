@@ -31,7 +31,6 @@ public class IOException extends Exception {
      * Constructs a new {@code IOException} with its stack trace filled in.
      */
     public IOException() {
-        super();
     }
 
     /**

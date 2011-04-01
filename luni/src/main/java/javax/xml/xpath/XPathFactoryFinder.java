@@ -20,14 +20,14 @@ package javax.xml.xpath;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import javax.xml.validation.SchemaFactory;
 import libcore.io.IoUtils;
@@ -50,14 +50,9 @@ final class XPathFactoryFinder {
     private static final int DEFAULT_LINE_LENGTH = 80;
 
     static {
-        // Use try/catch block to support applets
-        try {
-            String val = SecuritySupport.getSystemProperty("jaxp.debug");
-            // Allow simply setting the prop to turn on debug
-            debug = val != null && (! "false".equals(val));
-        } catch (Exception _) {
-            debug = false;
-        }
+        String val = System.getProperty("jaxp.debug");
+        // Allow simply setting the prop to turn on debug
+        debug = val != null && (! "false".equals(val));
     }
 
     /**
@@ -92,43 +87,30 @@ final class XPathFactoryFinder {
      *
      * @param loader
      *      to be used to load resource, {@link SchemaFactory}, and
-     *      {@link SchemaFactoryLoader} implementations during
+     *      {@code SchemaFactoryLoader} implementations during
      *      the resolution process.
      *      If this parameter is null, the default system class loader
      *      will be used.
      */
     public XPathFactoryFinder(ClassLoader loader) {
         this.classLoader = loader;
-        if( debug ) {
+        if (debug) {
             debugDisplayClassLoader();
         }
     }
 
     private void debugDisplayClassLoader() {
-        try {
-            if( classLoader == SecuritySupport.getContextClassLoader() ) {
-                debugPrintln("using thread context class loader ("+classLoader+") for search");
-                return;
-            }
-        }
-        // The VM ran out of memory or there was some other serious problem. Re-throw.
-        catch (VirtualMachineError vme) {
-            throw vme;
-        }
-        // ThreadDeath should always be re-thrown
-        catch (ThreadDeath td) {
-            throw td;
-        }
-        catch (Throwable _) {
-            ; // getContextClassLoader() undefined in JDK1.1
-        }
-
-        if( classLoader==ClassLoader.getSystemClassLoader() ) {
-            debugPrintln("using system class loader ("+classLoader+") for search");
+        if (classLoader == Thread.currentThread().getContextClassLoader()) {
+            debugPrintln("using thread context class loader (" + classLoader + ") for search");
             return;
         }
 
-        debugPrintln("using class loader ("+classLoader+") for search");
+        if (classLoader==ClassLoader.getSystemClassLoader()) {
+            debugPrintln("using system class loader (" + classLoader + ") for search");
+            return;
+        }
+
+        debugPrintln("using class loader (" + classLoader + ") for search");
     }
 
     /**
@@ -160,43 +142,27 @@ final class XPathFactoryFinder {
      * <p>Lookup a {@link XPathFactory} for the given object model.</p>
      *
      * @param uri identifies the object model.
-     *
-     * @return {@link XPathFactory} for the given object model.
      */
     private XPathFactory _newFactory(String uri) {
         XPathFactory xpf;
-
         String propertyName = SERVICE_CLASS.getName() + ":" + uri;
 
         // system property look up
         try {
             if (debug) debugPrintln("Looking up system property '"+propertyName+"'" );
-            String r = SecuritySupport.getSystemProperty(propertyName);
+            String r = System.getProperty(propertyName);
             if (r != null && r.length() > 0) {
                 if (debug) debugPrintln("The value is '"+r+"'");
                 xpf = createInstance(r);
                 if(xpf!=null)    return xpf;
-            }
-            else if (debug) {
+            } else if (debug) {
                 debugPrintln("The property is undefined.");
             }
-        }
-        // The VM ran out of memory or there was some other serious problem. Re-throw.
-        catch (VirtualMachineError vme) {
-            throw vme;
-        }
-        // ThreadDeath should always be re-thrown
-        catch (ThreadDeath td) {
-            throw td;
-        }
-        catch (Throwable t) {
-            if( debug ) {
-                debugPrintln("failed to look up system property '"+propertyName+"'" );
-                t.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        String javah = SecuritySupport.getSystemProperty( "java.home" );
+        String javah = System.getProperty("java.home");
         String configFile = javah + File.separator +
         "lib" + File.separator + "jaxp.properties";
 
@@ -209,9 +175,9 @@ final class XPathFactoryFinder {
                     if(firstTime){
                         File f=new File( configFile );
                         firstTime = false;
-                        if(SecuritySupport.doesFileExist(f)){
+                        if (f.exists()) {
                             if (debug) debugPrintln("Read properties file " + f);
-                            cacheProps.load(SecuritySupport.getFileInputStream(f));
+                            cacheProps.load(new FileInputStream(f));
                         }
                     }
                 }
@@ -232,12 +198,10 @@ final class XPathFactoryFinder {
         }
 
         // try META-INF/services files
-        Iterator sitr = createServiceFileIterator();
-        while(sitr.hasNext()) {
-            URL resource = (URL)sitr.next();
+        for (URL resource : createServiceFileIterator()) {
             if (debug) debugPrintln("looking into " + resource);
             try {
-                xpf = loadFromServicesFile(uri, resource.toExternalForm(), SecuritySupport.getURLInputStream(resource));
+                xpf = loadFromServicesFile(uri, resource.toExternalForm(), resource.openStream());
                 if(xpf!=null)    return xpf;
             } catch(IOException e) {
                 if( debug ) {
@@ -261,14 +225,14 @@ final class XPathFactoryFinder {
      * <p>Creates an instance of the specified and returns it.</p>
      *
      * @param className
-     *      fully qualified class name to be instanciated.
+     *      fully qualified class name to be instantiated.
      *
      * @return null
      *      if it fails. Error messages will be printed by this method.
      */
     XPathFactory createInstance( String className ) {
         try {
-            if (debug) debugPrintln("instanciating "+className);
+            if (debug) debugPrintln("instantiating "+className);
             Class clazz;
             if( classLoader!=null )
                 clazz = classLoader.loadClass(className);
@@ -292,26 +256,11 @@ final class XPathFactoryFinder {
         }
         catch (Throwable t) {
             if (debug) {
-                debugPrintln("failed to instanciate "+className);
+                debugPrintln("failed to instantiate "+className);
                 t.printStackTrace();
             }
         }
         return null;
-    }
-
-    /** Iterator that lazily computes one value and returns it. */
-    private static abstract class SingleIterator implements Iterator {
-        private boolean seen = false;
-
-        public final void remove() { throw new UnsupportedOperationException(); }
-        public final boolean hasNext() { return !seen; }
-        public final Object next() {
-            if(seen)    throw new NoSuchElementException();
-            seen = true;
-            return value();
-        }
-
-        protected abstract Object value();
     }
 
     /** Searches for a XPathFactory for a given uri in a META-INF/services file. */
@@ -326,7 +275,7 @@ final class XPathFactoryFinder {
             rd = new BufferedReader(new InputStreamReader(in), DEFAULT_LINE_LENGTH);
         }
 
-        String factoryClassName = null;
+        String factoryClassName;
         XPathFactory resultFactory = null;
         // See spec for provider-configuration files: http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Provider%20Configuration%20File
         while (true) {
@@ -353,13 +302,13 @@ final class XPathFactoryFinder {
 
                 try {
                     // Found the right XPathFactory if its isObjectModelSupported(String uri) method returns true.
-                    XPathFactory foundFactory = (XPathFactory) createInstance(factoryClassName);
+                    XPathFactory foundFactory = createInstance(factoryClassName);
                     if (foundFactory.isObjectModelSupported(uri)) {
                         resultFactory = foundFactory;
                         break;
                     }
+                } catch (Exception ignored) {
                 }
-                catch (Exception e) {}
             }
             else {
                 break;
@@ -375,51 +324,30 @@ final class XPathFactoryFinder {
      * Returns an {@link Iterator} that enumerates all
      * the META-INF/services files that we care.
      */
-    private Iterator createServiceFileIterator() {
+    private Iterable<URL> createServiceFileIterator() {
         if (classLoader == null) {
-            return new SingleIterator() {
-                protected Object value() {
-                    ClassLoader classLoader = XPathFactoryFinder.class.getClassLoader();
-                    return SecuritySupport.getResourceAsURL(classLoader, SERVICE_ID);
-                    //return (ClassLoader.getSystemResource( SERVICE_ID ));
-                }
-            };
+            URL resource = XPathFactoryFinder.class.getClassLoader().getResource(SERVICE_ID);
+            return Collections.singleton(resource);
         } else {
             try {
-                //final Enumeration e = classLoader.getResources(SERVICE_ID);
-                final Enumeration e = SecuritySupport.getResources(classLoader, SERVICE_ID);
+                Enumeration<URL> e = classLoader.getResources(SERVICE_ID);
                 if (debug && !e.hasMoreElements()) {
                     debugPrintln("no "+SERVICE_ID+" file was found");
                 }
 
-                // wrap it into an Iterator.
-                return new Iterator() {
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    public boolean hasNext() {
-                        return e.hasMoreElements();
-                    }
-
-                    public Object next() {
-                        return e.nextElement();
-                    }
-                };
+                return Collections.list(e);
             } catch (IOException e) {
                 if (debug) {
                     debugPrintln("failed to enumerate resources "+SERVICE_ID);
                     e.printStackTrace();
                 }
-                return new ArrayList().iterator();  // empty iterator
+                return Collections.emptySet();
             }
         }
     }
 
     private static final Class SERVICE_CLASS = XPathFactory.class;
     private static final String SERVICE_ID = "META-INF/services/" + SERVICE_CLASS.getName();
-
-
 
     private static String which( Class clazz ) {
         return which( clazz.getName(), clazz.getClassLoader() );
@@ -434,17 +362,10 @@ final class XPathFactoryFinder {
      * @return the source location of the resource, or null if it wasn't found
      */
     private static String which(String classname, ClassLoader loader) {
-
         String classnameAsResource = classname.replace('.', '/') + ".class";
+        if (loader==null) loader = ClassLoader.getSystemClassLoader();
 
-        if( loader==null )  loader = ClassLoader.getSystemClassLoader();
-
-        //URL it = loader.getResource(classnameAsResource);
-        URL it = SecuritySupport.getResourceAsURL(loader, classnameAsResource);
-        if (it != null) {
-            return it.toString();
-        } else {
-            return null;
-        }
+        URL it = loader.getResource(classnameAsResource);
+        return it != null ? it.toString() : null;
     }
 }

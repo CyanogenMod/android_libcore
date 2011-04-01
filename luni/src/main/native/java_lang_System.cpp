@@ -19,23 +19,41 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedUtfChars.h"
+#include "android/log.h"
+#include "openssl/opensslv.h"
+#include "toStringArray.h"
+#include "zlib.h"
 
+#include <string>
+#include <vector>
+
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-static jstring System_getEnvByName(JNIEnv* env, jclass, jstring javaName) {
-    ScopedUtfChars name(env, javaName);
-    if (name.c_str() == NULL) {
-        return NULL;
+static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jthrowable exception) {
+    ScopedUtfChars message(env, javaMessage);
+    if (message.c_str() == NULL) {
+        // Since this function is used for last-gasp debugging output, be noisy on failure.
+        LOGE("message.c_str() == NULL");
+        return;
     }
-    return env->NewStringUTF(getenv(name.c_str()));
-}
-
-// Pointer to complete environment.
-extern char** environ;
-
-static jstring System_getEnvByIndex(JNIEnv* env, jclass, jint index) {
-    return env->NewStringUTF(environ[index]);
+    int priority;
+    switch (type) {
+    case 'D': case 'd': priority = ANDROID_LOG_DEBUG;   break;
+    case 'E': case 'e': priority = ANDROID_LOG_ERROR;   break;
+    case 'F': case 'f': priority = ANDROID_LOG_FATAL;   break;
+    case 'I': case 'i': priority = ANDROID_LOG_INFO;    break;
+    case 'S': case 's': priority = ANDROID_LOG_SILENT;  break;
+    case 'V': case 'v': priority = ANDROID_LOG_VERBOSE; break;
+    case 'W': case 'w': priority = ANDROID_LOG_WARN;    break;
+    default:            priority = ANDROID_LOG_DEFAULT; break;
+    }
+    LOG_PRI(priority, LOG_TAG, "%s", message.c_str());
+    if (exception != NULL) {
+        jniLogException(env, priority, LOG_TAG, exception);
+    }
 }
 
 // Sets a field via JNI. Used for the standard streams, which are read-only otherwise.
@@ -53,10 +71,22 @@ static void System_setFieldImpl(JNIEnv* env, jclass clazz,
     env->SetStaticObjectField(clazz, fieldID, object);
 }
 
+static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
+    std::vector<std::string> properties;
+
+    char path[PATH_MAX];
+    properties.push_back(std::string("user.dir=") + getcwd(path, sizeof(path)));
+
+    properties.push_back("android.zlib.version=" ZLIB_VERSION);
+    properties.push_back("android.openssl.version=" OPENSSL_VERSION_TEXT);
+
+    return toStringArray(env, properties);
+}
+
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(System, getEnvByIndex, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(System, getEnvByName, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
+    NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
 };
 int register_java_lang_System(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/System", gMethods, NELEM(gMethods));

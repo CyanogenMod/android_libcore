@@ -23,13 +23,13 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
+import libcore.util.EmptyArray;
 
 /**
  * This class represents ASN.1 Bitstring type.
  *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
-
 public class ASN1BitString extends ASN1StringType {
 
     // default implementation
@@ -60,14 +60,7 @@ public class ASN1BitString extends ASN1StringType {
         return ASN1;
     }
 
-    //
-    //
-    // Decode
-    //
-    //
-
-    public Object decode(BerInputStream in) throws IOException {
-
+    @Override public Object decode(BerInputStream in) throws IOException {
         in.readBitString();
 
         if (in.isVerify) {
@@ -82,30 +75,20 @@ public class ASN1BitString extends ASN1StringType {
      * @param in - BER input stream
      * @return BitString object
      */
-    public Object getDecodedObject(BerInputStream in) throws IOException {
+    @Override public Object getDecodedObject(BerInputStream in) throws IOException {
         byte[] bytes = new byte[in.length - 1];
         System.arraycopy(in.buffer, in.contentOffset + 1, bytes, 0,
                 in.length - 1);
         return new BitString(bytes, in.buffer[in.contentOffset]);
     }
 
-    //
-    // Encode
-    //
-
-    public void encodeContent(BerOutputStream out) {
+    @Override public void encodeContent(BerOutputStream out) {
         out.encodeBitString();
     }
 
-    public void setEncodingContent(BerOutputStream out) {
+    @Override public void setEncodingContent(BerOutputStream out) {
         out.length = ((BitString) out.content).bytes.length + 1;
     }
-
-    //
-    //
-    // Named Bit List
-    //
-    //
 
     /**
      * Default implementation for ASN.1 Named Bitstring type
@@ -114,37 +97,20 @@ public class ASN1BitString extends ASN1StringType {
      * that is mapped to array of boolean.
      */
     public static class ASN1NamedBitList extends ASN1BitString {
-
-        private static final byte[] SET_MASK = { (byte) 128, 64, 32, 16, 8, 4,
-                2, 1 };
-
-        private static final BitString emptyString = new BitString(
-                new byte[] {}, 0);
-
+        private static final byte[] SET_MASK = { (byte) 128, 64, 32, 16, 8, 4, 2, 1};
+        private static final BitString emptyString = new BitString(EmptyArray.BYTE, 0);
         private static final int INDEFINITE_SIZE = -1;
 
         private final int minBits;
-
         private final int maxBits;
-
-        public ASN1NamedBitList() {
-            this.minBits = INDEFINITE_SIZE;
-            this.maxBits = INDEFINITE_SIZE;
-        }
 
         public ASN1NamedBitList(int minBits) {
             this.minBits = minBits;
             this.maxBits = INDEFINITE_SIZE;
         }
 
-        public ASN1NamedBitList(int minBits, int maxBits) {
-            this.minBits = minBits;
-            this.maxBits = maxBits;
-        }
-
-        public Object getDecodedObject(BerInputStream in) throws IOException {
-
-            boolean[] value = null;
+        @Override public Object getDecodedObject(BerInputStream in) throws IOException {
+            boolean[] value;
 
             int unusedBits = in.buffer[in.contentOffset];
             int bitsNumber = (in.length - 1) * 8 - unusedBits;
@@ -175,7 +141,6 @@ public class ASN1BitString extends ASN1StringType {
             int j = 0;
             byte octet = in.buffer[in.contentOffset + i];
             for (int size = in.length - 1; i < size; i++) {
-
                 for (int k = 0; k < 8; k++, j++) {
                     value[j] = (SET_MASK[k] & octet) != 0;
                 }
@@ -191,8 +156,7 @@ public class ASN1BitString extends ASN1StringType {
             return value;
         }
 
-        public void setEncodingContent(BerOutputStream out) {
-
+        @Override public void setEncodingContent(BerOutputStream out) {
             boolean[] toEncode = (boolean[]) out.content;
 
             int index = toEncode.length - 1;

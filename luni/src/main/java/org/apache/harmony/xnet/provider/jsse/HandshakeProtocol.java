@@ -43,22 +43,22 @@ public abstract class HandshakeProtocol {
     /**
      * Handshake status NEED_UNWRAP - HandshakeProtocol needs to receive data
      */
-    public final static int NEED_UNWRAP = 1;
+    public static final int NEED_UNWRAP = 1;
 
     /**
      * Handshake status NOT_HANDSHAKING - is not currently handshaking
      */
-    public final static int NOT_HANDSHAKING = 2;
+    public static final int NOT_HANDSHAKING = 2;
 
     /**
      * Handshake status FINISHED - HandshakeProtocol has just finished
      */
-    public final static int FINISHED = 3;
+    public static final int FINISHED = 3;
 
     /**
      * Handshake status NEED_TASK - HandshakeProtocol needs the results of delegated task
      */
-    public final static int NEED_TASK = 4;
+    public static final int NEED_TASK = 4;
 
     /**
      * Current handshake status
@@ -518,8 +518,8 @@ public abstract class HandshakeProtocol {
     }
 
     /**
-     * Shutdownes the protocol. It will be impossiblke to use the instance
-     * after the calling of this method.
+     * Shuts down the protocol. It will be impossible to use the instance
+     * after calling this method.
      */
     protected void shutdown() {
         clearMessages();

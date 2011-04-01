@@ -47,42 +47,25 @@ import org.apache.harmony.security.utils.AlgNameMapper;
  *  }
  * </pre>
  */
-public class AlgorithmIdentifier {
-
-    // the value of algorithm field
+public final class AlgorithmIdentifier {
+    /** the value of algorithm field */
     private String algorithm;
-    // the name of the algorithm
+    /** the name of the algorithm */
     private String algorithmName;
-    // the value of parameters field
+    /** the value of parameters field */
     private byte[] parameters;
-    // the encoding of AlgorithmIdentifier value
+    /** the encoding of AlgorithmIdentifier value */
     private byte[] encoding;
 
-    /**
-     * TODO
-     * @param   algorithm:  String
-     */
     public AlgorithmIdentifier(String algorithm) {
         this(algorithm, null, null);
     }
 
-    /**
-     * TODO
-     * @param   algorithm:  String
-     * @param   parameters: byte[]
-     */
     public AlgorithmIdentifier(String algorithm, byte[] parameters) {
         this(algorithm, parameters, null);
     }
 
-    //
-    // TODO
-    // @param   algorithm:  String
-    // @param   parameters: byte[]
-    // @param   encoding:   byte[]
-    //
-    private AlgorithmIdentifier(String algorithm, byte[] parameters,
-                                byte[] encoding) {
+    private AlgorithmIdentifier(String algorithm, byte[] parameters, byte[] encoding) {
         this.algorithm = algorithm;
         this.parameters = parameters;
         this.encoding = encoding;
@@ -90,7 +73,6 @@ public class AlgorithmIdentifier {
 
     /**
      * Returns the value of algorithm field of the structure.
-     * @return  algorithm
      */
     public String getAlgorithm() {
         return algorithm;
@@ -100,7 +82,6 @@ public class AlgorithmIdentifier {
      * Returns the name of the algorithm corresponding to
      * its OID. If there is no the such correspondence,
      * algorithm OID is returned.
-     * @return  algorithm
      */
     public String getAlgorithmName() {
         if (algorithmName == null) {
@@ -114,7 +95,6 @@ public class AlgorithmIdentifier {
 
     /**
      * Returns the value of parameters field of the structure.
-     * @return  parameters
      */
     public byte[] getParameters() {
         return parameters;
@@ -122,7 +102,6 @@ public class AlgorithmIdentifier {
 
     /**
      * Returns ASN.1 encoded form of this X.509 AlgorithmIdentifier value.
-     * @return a byte array containing ASN.1 encode form.
      */
     public byte[] getEncoded() {
         if (encoding == null) {
@@ -131,7 +110,7 @@ public class AlgorithmIdentifier {
         return encoding;
     }
 
-    public boolean equals(Object ai) {
+    @Override public boolean equals(Object ai) {
         if (!(ai instanceof AlgorithmIdentifier)) {
             return false;
         }
@@ -142,22 +121,19 @@ public class AlgorithmIdentifier {
                     : Arrays.equals(parameters, algid.parameters));
     }
 
-    public int hashCode() {
-        return algorithm.hashCode() * 37 + (parameters != null ? parameters.hashCode() : 0);
+    @Override public int hashCode() {
+        return algorithm.hashCode() * 37 + (parameters != null ? Arrays.hashCode(parameters) : 0);
     }
 
-    /**
-     * Places the string representation into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer) {
-        buffer.append(getAlgorithmName());
+    public void dumpValue(StringBuilder sb) {
+        sb.append(getAlgorithmName());
         if (parameters == null) {
-            buffer.append(", no params, ");
+            sb.append(", no params, ");
         } else {
-            buffer.append(", params unparsed, ");
+            sb.append(", params unparsed, ");
         }
-        buffer.append("OID = ");
-        buffer.append(getAlgorithm());
+        sb.append("OID = ");
+        sb.append(getAlgorithm());
     }
 
     /**
@@ -169,13 +145,13 @@ public class AlgorithmIdentifier {
             setOptional(1); // parameters are optional
         }
 
-        protected Object getDecodedObject(BerInputStream in) {
+        @Override protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new AlgorithmIdentifier(ObjectIdentifier
                     .toString((int[]) values[0]), (byte[]) values[1]);
         }
 
-        protected void getValues(Object object, Object[] values) {
+        @Override protected void getValues(Object object, Object[] values) {
 
             AlgorithmIdentifier aID = (AlgorithmIdentifier) object;
 
@@ -183,5 +159,4 @@ public class AlgorithmIdentifier {
             values[1] = aID.getParameters();
         }
     };
-
 }

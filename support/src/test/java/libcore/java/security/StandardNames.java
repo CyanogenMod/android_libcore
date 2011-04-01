@@ -17,8 +17,14 @@
 package libcore.java.security;
 
 import java.security.Security;
+import java.security.spec.DSAPrivateKeySpec;
+import java.security.spec.DSAPublicKeySpec;
+import java.security.spec.ECPrivateKeySpec;
+import java.security.spec.ECPublicKeySpec;
+import java.security.spec.KeySpec;
+import java.security.spec.RSAPrivateCrtKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +33,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.spec.DHPrivateKeySpec;
+import javax.crypto.spec.DHPublicKeySpec;
 import junit.framework.Assert;
 
 /**
@@ -662,6 +670,39 @@ public final class StandardNames extends Assert {
                 }
             }
         }
+    }
+    
+    public static final Map<String, Class<? extends KeySpec>> PRIVATE_KEY_SPEC_CLASSES;
+    public static final Map<String, Class<? extends KeySpec>> PUBLIC_KEY_SPEC_CLASSES;
+    public static final Map<String, Integer> MINIMUM_KEY_SIZE;
+    static {
+        PRIVATE_KEY_SPEC_CLASSES = new HashMap<String, Class<? extends KeySpec>>();
+        PUBLIC_KEY_SPEC_CLASSES = new HashMap<String, Class<? extends KeySpec>>();
+        MINIMUM_KEY_SIZE = new HashMap<String, Integer>();
+        PRIVATE_KEY_SPEC_CLASSES.put("RSA", RSAPrivateCrtKeySpec.class);
+        PUBLIC_KEY_SPEC_CLASSES.put("RSA", RSAPublicKeySpec.class);
+        MINIMUM_KEY_SIZE.put("RSA", 256);
+        PRIVATE_KEY_SPEC_CLASSES.put("DSA", DSAPrivateKeySpec.class);
+        PUBLIC_KEY_SPEC_CLASSES.put("DSA", DSAPublicKeySpec.class);
+        MINIMUM_KEY_SIZE.put("DSA", 512);
+        PRIVATE_KEY_SPEC_CLASSES.put("DH", DHPrivateKeySpec.class);
+        PUBLIC_KEY_SPEC_CLASSES.put("DH", DHPublicKeySpec.class);
+        MINIMUM_KEY_SIZE.put("DH", 256);
+        PRIVATE_KEY_SPEC_CLASSES.put("EC", ECPrivateKeySpec.class);
+        PUBLIC_KEY_SPEC_CLASSES.put("EC", ECPublicKeySpec.class);
+        MINIMUM_KEY_SIZE.put("EC", 256);
+    }
+    
+    public static Class<? extends KeySpec> getPrivateKeySpecClass(String algName) {
+        return PRIVATE_KEY_SPEC_CLASSES.get(algName);
+    }
+
+    public static Class<? extends KeySpec> getPublicKeySpecClass(String algName) {
+        return PUBLIC_KEY_SPEC_CLASSES.get(algName);
+    }
+
+    public static int getMinimumKeySize(String algName) {
+        return MINIMUM_KEY_SIZE.get(algName);
     }
 
     /**

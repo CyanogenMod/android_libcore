@@ -19,6 +19,7 @@ package java.nio;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.net.PlainServerSocketImpl;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -30,14 +31,12 @@ import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import org.apache.harmony.luni.net.PlainServerSocketImpl;
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
  * The default ServerSocketChannel.
  */
-final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorHandler {
+final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorChannel {
 
     private final FileDescriptor fd = new FileDescriptor();
     private final SocketImpl impl = new PlainServerSocketImpl(fd);
@@ -154,10 +153,6 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                     sockChannel.setConnected();
                     sockChannel.setBound(true);
                     sockChannel.finishAccept();
-                }
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    sm.checkAccept(socket.getInetAddress().getHostAddress(), socket.getPort());
                 }
                 connectOK = true;
             } finally {

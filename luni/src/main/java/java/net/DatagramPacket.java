@@ -72,7 +72,6 @@ public final class DatagramPacket {
      *            the length of the data.
      */
     public DatagramPacket(byte[] data, int offset, int length) {
-        super();
         setData(data, offset, length);
     }
 

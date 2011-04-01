@@ -21,12 +21,6 @@ import junit.framework.TestCase;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.LocatorImpl;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
-@TestTargetClass(LocatorImpl.class)
 public class LocatorImplTest extends TestCase {
 
     public static final String SYS = "mySystemID";
@@ -37,11 +31,6 @@ public class LocatorImplTest extends TestCase {
 
     public static final int COL = 2;
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "LocatorImpl",
-        args = { }
-    )
     public void testLocatorImpl() {
         LocatorImpl l = new LocatorImpl();
 
@@ -51,11 +40,6 @@ public class LocatorImplTest extends TestCase {
         assertEquals(0, l.getColumnNumber());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "LocatorImpl",
-        args = { Locator.class }
-    )
     public void testLocatorImplLocator() {
         LocatorImpl inner = new LocatorImpl();
 
@@ -81,18 +65,6 @@ public class LocatorImplTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setPublicId",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getPublicId",
-            args = { }
-        )
-    })
     public void testSetPublicIdGetPublicId() {
         LocatorImpl l = new LocatorImpl();
 
@@ -103,18 +75,6 @@ public class LocatorImplTest extends TestCase {
         assertEquals(null, l.getPublicId());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setSystemId",
-            args = { String.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getSystemId",
-            args = { }
-        )
-    })
     public void testSetSystemIdGetSystemId() {
         LocatorImpl l = new LocatorImpl();
 
@@ -125,18 +85,6 @@ public class LocatorImplTest extends TestCase {
         assertEquals(null, l.getSystemId());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setLineNumber",
-            args = { int.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getLineNumber",
-            args = { }
-        )
-    })
     public void testSetLineNumberGetLineNumber() {
         LocatorImpl l = new LocatorImpl();
 
@@ -147,18 +95,6 @@ public class LocatorImplTest extends TestCase {
         assertEquals(0, l.getLineNumber());
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setColumnNumber",
-            args = { int.class }
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getColumnNumber",
-            args = { }
-        )
-    })
     public void testSetColumnNumberGetColumnNumber() {
         LocatorImpl l = new LocatorImpl();
 

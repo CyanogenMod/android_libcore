@@ -16,9 +16,6 @@
 
 package tests.api.javax.xml.parsers;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
 import junit.framework.TestCase;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -44,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-@TestTargetClass(DocumentBuilder.class)
 public class DocumentBuilderTest extends TestCase {
 
     private class MockDocumentBuilder extends DocumentBuilder {
@@ -139,12 +135,6 @@ public class DocumentBuilderTest extends TestCase {
         super.tearDown();
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "DocumentBuilder",
-        args = {}
-    )
     public void testDocumentBuilder() {
         try {
             new MockDocumentBuilder();
@@ -154,7 +144,7 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     *  @tests javax.xml.parsers.DocumentBuilder#getSchema()
+     *  javax.xml.parsers.DocumentBuilder#getSchema()
      *  TBD getSchema() is not supported
      */
  /*   public void test_getSchema() {
@@ -172,12 +162,6 @@ public class DocumentBuilderTest extends TestCase {
         }
     }
 */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newDocument",
-        args = { }
-    )
     public void testNewDocument() {
         Document d;
 
@@ -193,12 +177,6 @@ public class DocumentBuilderTest extends TestCase {
         assertNull(d.getNamespaceURI());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getDOMImplementation",
-        args = { }
-    )
     public void testGetImplementation() {
         DOMImplementation d;
 
@@ -211,12 +189,6 @@ public class DocumentBuilderTest extends TestCase {
         assertNotNull(d);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isNamespaceAware",
-        args = {}
-    )
     public void testIsNamespaceAware() {
         try {
             dbf.setNamespaceAware(true);
@@ -228,12 +200,6 @@ public class DocumentBuilderTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No validating parser in Android, hence not tested",
-        method = "isValidating",
-        args = {}
-    )
     public void testIsValidating() {
         try {
             dbf.setValidating(false);
@@ -243,12 +209,6 @@ public class DocumentBuilderTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        notes = "No XInclude-aware parser in Android, hence not tested",
-        method = "isXIncludeAware",
-        args = {}
-    )
     public void testIsXIncludeAware() {
         try {
             dbf.setXIncludeAware(false);
@@ -261,12 +221,6 @@ public class DocumentBuilderTest extends TestCase {
     /**
      * Tests that the Base URI for the document is populated with the file URI.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.io.File.class}
-    )
     public void testGetBaseURI() throws IOException, SAXException {
         File f = Support_Resources.resourceToTempFile("/simple.xml");
         Document d = db.parse(f);
@@ -274,18 +228,12 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.DocumentBuilder#parse(java.io.File)
+     * javax.xml.parsers.DocumentBuilder#parse(java.io.File)
      * Case 1: Try to parse correct xml document.
      * Case 2: Try to call parse() with null argument.
      * Case 3: Try to parse a non-existent file.
      * Case 4: Try to parse incorrect xml file.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.io.File.class}
-    )
     public void test_parseLjava_io_File() throws IOException {
         File f = Support_Resources.resourceToTempFile("/simple.xml");
 
@@ -341,18 +289,12 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream)
+     * javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream)
      * Case 1: Try to parse correct xml document.
      * Case 2: Try to call parse() with null argument.
      * Case 3: Try to parse a non-existent file.
      * Case 4: Try to parse incorrect xml file.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.io.InputStream.class}
-    )
     public void test_parseLjava_io_InputStream() {
         InputStream is = getClass().getResourceAsStream("/simple.xml");
         // case 1: Trivial use.
@@ -407,18 +349,12 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream)
+     * javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream)
      * Case 1: Try to parse correct xml document.
      * Case 2: Try to call parse() with null argument.
      * Case 3: Try to parse a non-existent file.
      * Case 4: Try to parse incorrect xml file.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = { InputSource.class }
-    )
     public void testParseInputSource() {
         InputStream stream = getClass().getResourceAsStream("/simple.xml");
         InputSource is = new InputSource(stream);
@@ -475,19 +411,13 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream,
+     * javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream,
      *     java.lang.String)
      * Case 1: Try to parse correct xml document.
      * Case 2: Try to call parse() with null argument.
      * Case 3: Try to parse a non-existent file.
      * Case 4: Try to parse incorrect xml file.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.io.InputStream.class, java.lang.String.class}
-    )
     public void test_parseLjava_io_InputStreamLjava_lang_String() {
         InputStream is = getClass().getResourceAsStream("/systemid.xml");
         // case 1: Trivial use.
@@ -547,18 +477,12 @@ public class DocumentBuilderTest extends TestCase {
     }
 
     /**
-     * @tests javax.xml.parsers.DocumentBuilder#parse(java.lang.String)
+     * javax.xml.parsers.DocumentBuilder#parse(java.lang.String)
      * Case 1: Try to parse correct xml document.
      * Case 2: Try to call parse() with null argument.
      * Case 3: Try to parse a non-existent uri.
      * Case 4: Try to parse incorrect xml file.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "parse",
-        args = {java.lang.String.class}
-    )
     public void test_parseLjava_lang_String() throws Exception {
         // case 1: Trivial use.
         URL resource = getClass().getResource("/simple.xml");
@@ -598,11 +522,6 @@ public class DocumentBuilderTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "reset",
-        args = { }
-    )
     public void testReset() {
         // Make sure EntityResolver gets reset
         InputStream source = new ByteArrayInputStream("<a>&foo;</a>".getBytes());
@@ -645,11 +564,6 @@ public class DocumentBuilderTest extends TestCase {
         assertEquals(0, logger.size());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setErrorHandler",
-        args = { ErrorHandler.class }
-    )
     public void testSetErrorHandler() {
         // Ordinary case
         InputStream source = new ByteArrayInputStream("</a>".getBytes());
@@ -684,11 +598,6 @@ public class DocumentBuilderTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        method = "setEntityResolver",
-        args = { EntityResolver.class }
-    )
     public void testSetEntityResolver() {
         // Ordinary case
         InputStream source = new ByteArrayInputStream("<a>&foo;</a>".getBytes());

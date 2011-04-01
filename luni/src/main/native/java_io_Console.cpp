@@ -24,10 +24,6 @@
 #include <termios.h>
 #include <unistd.h>
 
-static jboolean Console_isatty(JNIEnv*, jclass, jint fd) {
-    return TEMP_FAILURE_RETRY(isatty(fd));
-}
-
 static jint Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousState) {
     termios state;
     if (TEMP_FAILURE_RETRY(tcgetattr(STDIN_FILENO, &state)) == -1) {
@@ -48,7 +44,6 @@ static jint Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousS
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Console, isatty, "(I)Z"),
     NATIVE_METHOD(Console, setEchoImpl, "(ZI)I"),
 };
 int register_java_io_Console(JNIEnv* env) {

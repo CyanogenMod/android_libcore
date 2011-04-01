@@ -24,7 +24,7 @@ import java.nio.charset.CharsetEncoder;
 import junit.framework.TestCase;
 
 
-/* See bug 1844104.
+/* See bug http://b/1844104.
  * Checks for ICU encoder/decoder buffer corruption.
  */
 public class OldCharsetEncoderDecoderBufferTest extends TestCase {
@@ -77,8 +77,8 @@ public class OldCharsetEncoderDecoderBufferTest extends TestCase {
         assertEquals('a', inArray[0]);
         assertEquals('b', inArray[1]);
 
-        ByteBuffer inWithoutArray = ByteBuffer.allocateDirect(1);
-        inWithoutArray.put(0, (byte)'x');
+        // A read-only ByteBuffer must not expose its array.
+        ByteBuffer inWithoutArray = ByteBuffer.wrap(new byte[] { (byte) 'x' }).asReadOnlyBuffer();
         assertFalse(inWithoutArray.hasArray());
         decoder.decode(inWithoutArray, out, true);
 
@@ -106,7 +106,11 @@ public class OldCharsetEncoderDecoderBufferTest extends TestCase {
         assertEquals(0, buffer[2]);
 
         out = ByteBuffer.allocateDirect(10);
-        assertFalse(out.hasArray());
+        // It's no longer possible to get a byte buffer without a backing byte[] on Android.
+        // This test is useless on Android, unless that changes again. (You can't even
+        // subclass ByteBuffer because -- although it's non-final -- both the RI and Android
+        // have [different] package-private abstract methods you'd need to implement but can't.)
+        //assertFalse(out.hasArray());
         encoder.encode(CharBuffer.wrap("x"), out, true);
 
         // check whether the second decode corrupted the first buffer

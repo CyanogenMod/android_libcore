@@ -71,4 +71,17 @@ public final class RandomAccessFileTest extends TestCase {
             System.runFinalization();
         }
     }
+
+    public void testDirectories() throws Exception {
+        try {
+            new RandomAccessFile(".", "r");
+            fail();
+        } catch (FileNotFoundException expected) {
+        }
+        try {
+            new RandomAccessFile(".", "rw");
+            fail();
+        } catch (FileNotFoundException expected) {
+        }
+    }
 }

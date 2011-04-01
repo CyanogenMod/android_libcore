@@ -50,7 +50,7 @@ public class OldLineNumberReaderTest extends TestCase {
     }
 
     /**
-     * @tests java.io.LineNumberReader#read()
+     * java.io.LineNumberReader#read()
      */
     public void test_read() throws IOException {
         lnr = new LineNumberReader(new StringReader(text));
@@ -72,7 +72,7 @@ public class OldLineNumberReaderTest extends TestCase {
     }
 
     /**
-     * @tests java.io.LineNumberReader#read(char[], int, int)
+     * java.io.LineNumberReader#read(char[], int, int)
      */
     public void test_read$CII() throws IOException {
         lnr = new LineNumberReader(new StringReader(text));

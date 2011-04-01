@@ -66,11 +66,9 @@ import org.apache.harmony.security.x501.Name;
  *  }
  * </pre>
  */
-public class DistributionPointName {
-
+public final class DistributionPointName {
     private final GeneralNames fullName;
     private final Name nameRelativeToCRLIssuer;
-
 
     public DistributionPointName(GeneralNames fullName) {
         this.fullName = fullName;
@@ -82,23 +80,18 @@ public class DistributionPointName {
         this.nameRelativeToCRLIssuer = nameRelativeToCRLIssuer;
     }
 
-    /**
-     * Places the string representation of extension value
-     * into the StringBuffer object.
-     */
-    public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix);
-        buffer.append("Distribution Point Name: [\n");
+    public void dumpValue(StringBuilder sb, String prefix) {
+        sb.append(prefix);
+        sb.append("Distribution Point Name: [\n");
         if (fullName != null) {
-            fullName.dumpValue(buffer, prefix + "  ");
+            fullName.dumpValue(sb, prefix + "  ");
         } else {
-            buffer.append(prefix);
-            buffer.append("  ");
-            buffer.append(nameRelativeToCRLIssuer.getName(
-                        X500Principal.RFC2253));
+            sb.append(prefix);
+            sb.append("  ");
+            sb.append(nameRelativeToCRLIssuer.getName(X500Principal.RFC2253));
         }
-        buffer.append(prefix);
-        buffer.append("]\n");
+        sb.append(prefix);
+        sb.append("]\n");
     }
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
@@ -110,7 +103,7 @@ public class DistributionPointName {
             return (dpn.fullName == null) ? 1 : 0;
         }
 
-        protected Object getDecodedObject(BerInputStream in) throws IOException {
+        @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             DistributionPointName result = null;
             if (in.choiceIndex == 0) {
                 result = new DistributionPointName((GeneralNames) in.content);
@@ -132,4 +125,3 @@ public class DistributionPointName {
         }
     };
 }
-

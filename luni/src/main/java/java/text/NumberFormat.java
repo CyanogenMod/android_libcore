@@ -340,7 +340,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling currency values.
      */
-    public final static NumberFormat getCurrencyInstance() {
+    public static final NumberFormat getCurrencyInstance() {
         return getCurrencyInstance(Locale.getDefault());
     }
 
@@ -363,7 +363,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling integers.
      */
-    public final static NumberFormat getIntegerInstance() {
+    public static final NumberFormat getIntegerInstance() {
         return getIntegerInstance(Locale.getDefault());
     }
 
@@ -387,7 +387,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
-    public final static NumberFormat getInstance() {
+    public static final NumberFormat getInstance() {
         return getNumberInstance();
     }
 
@@ -403,11 +403,9 @@ public abstract class NumberFormat extends Format {
         return getNumberInstance(locale);
     }
 
-    // BEGIN android-added
     private static NumberFormat getInstance(String pattern, Locale locale) {
         return new DecimalFormat(pattern, locale);
     }
-    // END android-added
 
     /**
      * Returns the maximum number of fraction digits that are printed when
@@ -458,7 +456,7 @@ public abstract class NumberFormat extends Format {
      *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
-    public final static NumberFormat getNumberInstance() {
+    public static final NumberFormat getNumberInstance() {
         return getNumberInstance(Locale.getDefault());
     }
 
@@ -484,7 +482,7 @@ public abstract class NumberFormat extends Format {
      * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
      * treated as 5,300%, which is rarely what you intended.
      */
-    public final static NumberFormat getPercentInstance() {
+    public static final NumberFormat getPercentInstance() {
         return getPercentInstance(Locale.getDefault());
     }
 
@@ -682,17 +680,18 @@ public abstract class NumberFormat extends Format {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("groupingUsed", Boolean.TYPE),
-            new ObjectStreamField("maxFractionDigits", Byte.TYPE),
-            new ObjectStreamField("maximumFractionDigits", Integer.TYPE),
-            new ObjectStreamField("maximumIntegerDigits", Integer.TYPE),
-            new ObjectStreamField("maxIntegerDigits", Byte.TYPE),
-            new ObjectStreamField("minFractionDigits", Byte.TYPE),
-            new ObjectStreamField("minimumFractionDigits", Integer.TYPE),
-            new ObjectStreamField("minimumIntegerDigits", Integer.TYPE),
-            new ObjectStreamField("minIntegerDigits", Byte.TYPE),
-            new ObjectStreamField("parseIntegerOnly", Boolean.TYPE),
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), };
+        new ObjectStreamField("groupingUsed", boolean.class),
+        new ObjectStreamField("maxFractionDigits", byte.class),
+        new ObjectStreamField("maximumFractionDigits", int.class),
+        new ObjectStreamField("maximumIntegerDigits", int.class),
+        new ObjectStreamField("maxIntegerDigits", byte.class),
+        new ObjectStreamField("minFractionDigits", byte.class),
+        new ObjectStreamField("minimumFractionDigits", int.class),
+        new ObjectStreamField("minimumIntegerDigits", int.class),
+        new ObjectStreamField("minIntegerDigits", byte.class),
+        new ObjectStreamField("parseIntegerOnly", boolean.class),
+        new ObjectStreamField("serialVersionOnStream", int.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

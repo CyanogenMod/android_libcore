@@ -16,12 +16,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-
 import junit.framework.TestCase;
 
 import org.apache.harmony.security.tests.support.KeyStoreTestSupport;
@@ -37,7 +31,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-@TestTargetClass(KeyStore.Builder.class)
+
 public class KeyStoreBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
@@ -76,26 +70,6 @@ public class KeyStoreBuilderTest extends TestCase {
     /*
      * test for constructor KeyStoreBuilder
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "Builder",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getKeyStore",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getProtectionParameter",
-            args = {java.lang.String.class}
-        )
-    })
     public void testConstructor() {
         KeyStoreBuilder ksb;
         try {
@@ -112,12 +86,6 @@ public class KeyStoreBuilderTest extends TestCase {
     /*
      * test for method newInstance(KeyStore, KeyStore.ProtectionParameter)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.security.KeyStore.class, java.security.KeyStore.ProtectionParameter.class}
-    )
     public void testNewInstanceKeyStoreProtectionParameter()
             throws KeyStoreException, NoSuchAlgorithmException, IOException,
             CertificateException {
@@ -234,12 +202,6 @@ public class KeyStoreBuilderTest extends TestCase {
      * ProtectionParameter which is used in newInstance(...)
      *
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.String.class, java.security.Provider.class, java.io.File.class, java.security.KeyStore.ProtectionParameter.class}
-    )
     public void testNewInstanceStringProviderFileProtectionParameter()
             throws Exception {
 
@@ -418,12 +380,6 @@ public class KeyStoreBuilderTest extends TestCase {
      * when alias is not available
      *
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "newInstance",
-        args = {java.lang.String.class, java.security.Provider.class, java.security.KeyStore.ProtectionParameter.class}
-    )
     public void testNewInstanceStringProviderProtectionParameter()
             throws KeyStoreException {
 

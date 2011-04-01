@@ -24,7 +24,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
-import org.apache.harmony.luni.util.HistoricalNamesUtil;
 
 /**
  * A class for turning a character stream into a byte stream. Data written to
@@ -126,8 +125,8 @@ public class OutputStreamWriter extends Writer {
      * Closes this writer. This implementation flushes the buffer as well as the
      * target stream. The target stream is then closed and the resources for the
      * buffer and converter are released.
-     * <p>
-     * Only the first invocation of this method has any effect. Subsequent calls
+     *
+     * <p>Only the first invocation of this method has any effect. Subsequent calls
      * do nothing.
      *
      * @throws IOException
@@ -137,9 +136,8 @@ public class OutputStreamWriter extends Writer {
     public void close() throws IOException {
         synchronized (lock) {
             if (encoder != null) {
-                encoder.flush(bytes);
-                flush();
-                out.flush();
+                drainEncoder();
+                flushBytes(false);
                 out.close();
                 encoder = null;
                 bytes = null;
@@ -157,15 +155,66 @@ public class OutputStreamWriter extends Writer {
      */
     @Override
     public void flush() throws IOException {
+        flushBytes(true);
+    }
+
+    private void flushBytes(boolean flushUnderlyingStream) throws IOException {
         synchronized (lock) {
             checkStatus();
-            int position;
-            if ((position = bytes.position()) > 0) {
+            int position = bytes.position();
+            if (position > 0) {
                 bytes.flip();
-                out.write(bytes.array(), 0, position);
+                out.write(bytes.array(), bytes.arrayOffset(), position);
                 bytes.clear();
             }
-            out.flush();
+            if (flushUnderlyingStream) {
+                out.flush();
+            }
+        }
+    }
+
+    private void convert(CharBuffer chars) throws IOException {
+        while (true) {
+            CoderResult result = encoder.encode(chars, bytes, false);
+            if (result.isOverflow()) {
+                // Make room and try again.
+                flushBytes(false);
+                continue;
+            } else if (result.isError()) {
+                result.throwException();
+            }
+            break;
+        }
+    }
+
+    private void drainEncoder() throws IOException {
+        // Strictly speaking, I think it's part of the CharsetEncoder contract that you call
+        // encode with endOfInput true before flushing. Our ICU-based implementations don't
+        // actually need this, and you'd hope that any reasonable implementation wouldn't either.
+        // CharsetEncoder.encode doesn't actually pass the boolean through to encodeLoop anyway!
+        CharBuffer chars = CharBuffer.allocate(0);
+        while (true) {
+            CoderResult result = encoder.encode(chars, bytes, true);
+            if (result.isError()) {
+                result.throwException();
+            } else if (result.isOverflow()) {
+                flushBytes(false);
+                continue;
+            }
+            break;
+        }
+
+        // Some encoders (such as ISO-2022-JP) have stuff to write out after all the
+        // characters (such as shifting back into a default state). In our implementation,
+        // this is actually the first time ICU is told that we've run out of input.
+        CoderResult result = encoder.flush(bytes);
+        while (!result.isUnderflow()) {
+            if (result.isOverflow()) {
+                flushBytes(false);
+                result = encoder.flush(bytes);
+            } else {
+                result.throwException();
+            }
         }
     }
 
@@ -176,17 +225,16 @@ public class OutputStreamWriter extends Writer {
     }
 
     /**
-     * Gets the name of the encoding that is used to convert characters to
-     * bytes.
-     *
-     * @return the string describing the converter or {@code null} if this
-     *         writer is closed.
+     * Returns the historical name of the encoding used by this writer to convert characters to
+     * bytes, or null if this writer has been closed. Most callers should probably keep
+     * track of the String or Charset they passed in; this method may not return the same
+     * name.
      */
     public String getEncoding() {
         if (encoder == null) {
             return null;
         }
-        return HistoricalNamesUtil.getHistoricalName(encoder.charset().name());
+        return HistoricalCharsetNames.get(encoder.charset());
     }
 
     /**
@@ -216,21 +264,6 @@ public class OutputStreamWriter extends Writer {
             Arrays.checkOffsetAndCount(buffer.length, offset, count);
             CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
-        }
-    }
-
-    private void convert(CharBuffer chars) throws IOException {
-        CoderResult result = encoder.encode(chars, bytes, true);
-        while (true) {
-            if (result.isError()) {
-                throw new IOException(result.toString());
-            } else if (result.isOverflow()) {
-                // flush the output buffer
-                flush();
-                result = encoder.encode(chars, bytes, true);
-                continue;
-            }
-            break;
         }
     }
 

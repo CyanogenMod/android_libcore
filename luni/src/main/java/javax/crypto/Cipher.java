@@ -32,7 +32,6 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Set;
-import java.util.StringTokenizer;
 import org.apache.harmony.crypto.internal.NullCipherSpi;
 import org.apache.harmony.security.fortress.Engine;
 
@@ -124,7 +123,7 @@ public class Cipher {
      */
     private String transformation;
 
-    private static SecureRandom sec_rand;
+    private static SecureRandom secureRandom;
 
     /**
      * Creates a new Cipher instance.
@@ -327,31 +326,33 @@ public class Cipher {
         return c;
     }
 
-    private static String[] checkTransformation(String transformation)
-            throws NoSuchAlgorithmException {
-        String[] transf = { null, null, null };
-        StringTokenizer st;
-        int i = 0;
-        for (st = new StringTokenizer(transformation, "/"); st.hasMoreElements();) {
-            if (i > 2) {
-                throw invalidTransformation(transformation);
-            }
-            transf[i] = st.nextToken();
-            if (transf[i] != null) {
-                transf[i] = transf[i].trim();
-                if (transf[i].isEmpty()) {
-                    transf[i] = null;
-                }
-                i++;
-            }
+    private static String[] checkTransformation(String transformation) throws NoSuchAlgorithmException {
+        // ignore an extra prefix / characters such as in
+        // "/DES/CBC/PKCS5Paddin" http://b/3387688
+        if (transformation.startsWith("/")) {
+            transformation = transformation.substring(1);
         }
-        if (transf[0] == null) {
+        // 'transformation' should be of the form "algorithm/mode/padding".
+        String[] pieces = transformation.split("/");
+        if (pieces.length > 3) {
             throw invalidTransformation(transformation);
         }
-        if (!(transf[1] == null && transf[2] == null) && (transf[1] == null || transf[2] == null)) {
+        // Empty or missing pieces are represented by null.
+        String[] result = new String[3];
+        for (int i = 0; i < pieces.length; ++i) {
+            String piece = pieces[i].trim();
+            if (!piece.isEmpty()) {
+                result[i] = piece;
+            }
+        }
+        // You MUST specify an algorithm.
+        if (result[0] == null) {
             throw invalidTransformation(transformation);
         }
-        return transf;
+        if (!(result[1] == null && result[2] == null) && (result[1] == null || result[2] == null)) {
+            throw invalidTransformation(transformation);
+        }
+        return result;
     }
 
     /**
@@ -469,13 +470,13 @@ public class Cipher {
      *             cipher instance.
      */
     public final void init(int opmode, Key key) throws InvalidKeyException {
-        if (sec_rand == null) {
+        if (secureRandom == null) {
             // In theory it might be thread-unsafe but in the given case it's OK
             // since it does not matter which SecureRandom instance is passed
             // to the init()
-            sec_rand = new SecureRandom();
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, sec_rand);
+        init(opmode, key, secureRandom);
     }
 
     /**
@@ -559,10 +560,10 @@ public class Cipher {
      */
     public final void init(int opmode, Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, params, sec_rand);
+        init(opmode, key, params, secureRandom);
     }
 
     /**
@@ -651,10 +652,10 @@ public class Cipher {
      */
     public final void init(int opmode, Key key, AlgorithmParameters params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, key, params, sec_rand);
+        init(opmode, key, params, secureRandom);
     }
 
     /**
@@ -741,10 +742,10 @@ public class Cipher {
      */
     public final void init(int opmode, Certificate certificate)
             throws InvalidKeyException {
-        if (sec_rand == null) {
-            sec_rand = new SecureRandom();
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
         }
-        init(opmode, certificate, sec_rand);
+        init(opmode, certificate, secureRandom);
     }
 
     /**

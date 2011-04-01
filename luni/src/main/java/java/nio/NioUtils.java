@@ -16,8 +16,8 @@
 
 package java.nio;
 
+import java.io.FileDescriptor;
 import java.nio.channels.FileChannel;
-import org.apache.harmony.luni.platform.IFileSystem;
 
 /**
  * @hide internal use only
@@ -61,27 +61,30 @@ public final class NioUtils {
     /**
      * Returns the int file descriptor from within the given FileChannel 'fc'.
      */
-    public static int getFd(FileChannel fc) {
-        return ((FileChannelImpl) fc).getHandle();
+    public static FileDescriptor getFD(FileChannel fc) {
+        return ((FileChannelImpl) fc).getFD();
     }
 
     /**
      * Helps bridge between io and nio.
      */
-    public static FileChannel newFileChannel(Object stream, int fd, int mode) {
-        switch (mode) {
-        case IFileSystem.O_RDONLY:
-            return new ReadOnlyFileChannel(stream, fd);
-        case IFileSystem.O_WRONLY:
-            return new WriteOnlyFileChannel(stream, fd);
-        case IFileSystem.O_RDWR:
-            return new ReadWriteFileChannel(stream, fd);
-        case IFileSystem.O_RDWRSYNC:
-            return new ReadWriteFileChannel(stream, fd);
-        case IFileSystem.O_APPEND:
-            return new WriteOnlyFileChannel(stream, fd, true);
-        default:
-            throw new RuntimeException("Unknown mode: " + mode);
-        }
+    public static FileChannel newFileChannel(Object stream, FileDescriptor fd, int mode) {
+        return new FileChannelImpl(stream, fd, mode);
+    }
+
+    /**
+     * Exposes the array backing a non-direct ByteBuffer, even if the ByteBuffer is read-only.
+     * Normally, attempting to access the array backing a read-only buffer throws.
+     */
+    public static byte[] unsafeArray(ByteBuffer b) {
+        return ((HeapByteBuffer) b).backingArray;
+    }
+
+    /**
+     * Exposes the array offset for the array backing a non-direct ByteBuffer,
+     * even if the ByteBuffer is read-only.
+     */
+    public static int unsafeArrayOffset(ByteBuffer b) {
+        return ((HeapByteBuffer) b).offset;
     }
 }

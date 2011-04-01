@@ -118,7 +118,7 @@ public class OldBigDecimalConvertTest extends TestCase {
     }
 
     /**
-     * @tests java.math.BigDecimal#longValueExact() Long value of a positive
+     * java.math.BigDecimal#longValueExact() Long value of a positive
      *        BigDecimal
      */
     public void test_LongValueExactFloatPos() {

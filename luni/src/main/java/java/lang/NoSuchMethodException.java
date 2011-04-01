@@ -18,10 +18,10 @@
 package java.lang;
 
 /**
- * Thrown when the virtual machine notices that a program tries to reference,
+ * Thrown when the VM notices that a program tries to reference,
  * on a class or object, a method that does not exist.
  */
-public class NoSuchMethodException extends java.lang.Exception {
+public class NoSuchMethodException extends Exception {
 
     private static final long serialVersionUID = 5034388446362600923L;
 
@@ -29,11 +29,10 @@ public class NoSuchMethodException extends java.lang.Exception {
      * Constructs a new {@code NoSuchMethodException} that includes the current
      * stack trace.
      */
-   public NoSuchMethodException() {
-        super();
+    public NoSuchMethodException() {
     }
 
-   /**
+    /**
      * Constructs a new {@code NoSuchMethodException} with the current stack
      * trace and the specified detail message.
      *

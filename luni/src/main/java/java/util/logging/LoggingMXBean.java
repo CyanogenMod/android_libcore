@@ -73,9 +73,6 @@ public interface LoggingMXBean {
      * @throws IllegalArgumentException
      *             if {@code loggerName} is not a registered logger or if
      *             {@code levelName} is not null and not valid.
-     * @throws SecurityException
-     *             if a security manager exists and the caller doesn't have
-     *             LoggingPermission("control").
      * @see Level#parse(String)
      */
     void setLoggerLevel(String loggerName, String levelName);

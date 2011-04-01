@@ -15,12 +15,6 @@
  */
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -33,27 +27,11 @@ import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-@TestTargetClass(InetSocketAddress.class)
 public class InetSocketAddressTest extends TestCase {
 
     /**
-     * @tests java.net.InetSocketAddress#InetSocketAddress(String, int)
+     * java.net.InetSocketAddress#InetSocketAddress(String, int)
      */
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "InetSocketAddress",
-            args = {java.lang.String.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = SocketAddress.class,
-            method = "SocketAddress",
-            args = {}
-        )
-    })
     public void test_ConstructorLjava_lang_StringI() throws Exception {
         // regression test for Harmony-1042
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 0);
@@ -74,33 +52,6 @@ public class InetSocketAddressTest extends TestCase {
         }
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "InetSocketAddress",
-            args = {java.net.InetAddress.class, int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getHostName",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            method = "getPort",
-            args = {}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                clazz = SocketAddress.class,
-                method = "SocketAddress",
-                args = {}
-        )
-    })
     public void test_ConstructorLInetAddressI() {
         String validIPAddresses[] = { "::1.2.3.4", "::", "::", "1::0", "1::",
                 "::1", "0",
@@ -155,21 +106,6 @@ public class InetSocketAddressTest extends TestCase {
             fail("UnknownHostException was thrown.");
         }
     }
-    @TestTargets ({
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                method = "InetSocketAddress",
-                args = {int.class}
-        ),
-        @TestTargetNew(
-                level = TestLevel.COMPLETE,
-                notes = "",
-                clazz = SocketAddress.class,
-                method = "SocketAddress",
-                args = {}
-        )
-    })
     public void test_ConstructorI() {
 
         InetSocketAddress isa = new  InetSocketAddress(65535);
@@ -192,14 +128,8 @@ public class InetSocketAddressTest extends TestCase {
     }
 
     /**
-     * @tests java.net.InetSocketAddress#createUnresolved(String, int)
+     * java.net.InetSocketAddress#createUnresolved(String, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is the complete subset of tests for createUnresolved method.",
-        method = "createUnresolved",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_createUnresolvedLjava_lang_StringI() {
         HostPortPair[] legalHostPortPairs = { new HostPortPair("127.0.0.1", 1234),
                 new HostPortPair("192.168.0.1", 10000), new HostPortPair("127.0.0", 0),
@@ -216,14 +146,8 @@ public class InetSocketAddressTest extends TestCase {
     }
 
     /**
-     * @tests java.net.InetSocketAddress#createUnresolved(String, int)
+     * java.net.InetSocketAddress#createUnresolved(String, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "This is the complete subset of tests for createUnresolved method.",
-        method = "createUnresolved",
-        args = {java.lang.String.class, int.class}
-    )
     public void test_createUnresolvedLjava_lang_StringI_IllegalArgumentException() {
         HostPortPair[] illegalHostPortPairs = { new HostPortPair(null, 1),
                 new HostPortPair("host", -1), new HostPortPair("host", 65536) };
@@ -270,14 +194,8 @@ public class InetSocketAddressTest extends TestCase {
     };
 
     /**
-     * @tests serialization/deserialization compatibility.
+     * serialization/deserialization compatibility.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks serialization",
-        method = "!SerializationSelf",
-        args = {}
-    )
     public void testSerializationSelf() throws Exception {
 
         Object[] testCases = {
@@ -288,14 +206,8 @@ public class InetSocketAddressTest extends TestCase {
     }
 
     /**
-     * @tests serialization/deserialization compatibility with RI.
+     * serialization/deserialization compatibility with RI.
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Checks serialization",
-        method = "!SerializationGolden",
-        args = {}
-    )
     public void testSerializationCompatibility() throws Exception {
         InetAddress localhost = InetAddress.getByAddress("Localhost", new byte[]{127, 0, 0, 1});
         Object[] testCases = {
@@ -305,12 +217,6 @@ public class InetSocketAddressTest extends TestCase {
         SerializationTest.verifyGolden(this, testCases, COMPARATOR);
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
     public void test_equals() throws Exception {
         InetSocketAddress isa1 = new InetSocketAddress(1);
         InetSocketAddress isa2 = new InetSocketAddress(2);
@@ -324,12 +230,6 @@ public class InetSocketAddressTest extends TestCase {
         assertTrue(isa1.equals(isa2));
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "getAddress",
-        args = {}
-    )
     public void test_getAddress() {
 
         String validIPAddresses[] = { "::1.2.3.4", "::", "::", "1::0", "1::",
@@ -353,12 +253,6 @@ public class InetSocketAddressTest extends TestCase {
         assertNotNull(isa.getAddress());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "hashCode",
-        args = {}
-    )
     public void test_hashCode() throws Exception {
         InetAddress localhost = InetAddress.getByName("localhost");
         InetSocketAddress isa1 = new InetSocketAddress(localhost.getHostName(), 8080);
@@ -369,12 +263,6 @@ public class InetSocketAddressTest extends TestCase {
         assertFalse(isa1.hashCode() == isa3.hashCode());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isUnresolved",
-        args = {}
-    )
     public void test_isUnresolved() {
         InetSocketAddress isa1 = new InetSocketAddress("localhost", 80);
         assertFalse(isa1.isUnresolved());
@@ -383,14 +271,21 @@ public class InetSocketAddressTest extends TestCase {
         assertTrue(sockAddr.isUnresolved());
     }
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "toString",
-        args = {}
-    )
     public void test_toString() {
         InetSocketAddress isa = new InetSocketAddress("localhost", 80);
         assertNotNull(isa.toString());
+    }
+
+    public void test_getHostString() throws Exception {
+        // When we have a hostname, we'll get it back because that doesn't cost a DNS lookup...
+        InetSocketAddress hasHostname = InetSocketAddress.createUnresolved("some host", 1234);
+        assertEquals("some host", hasHostname.getHostString());
+        assertEquals("some host", hasHostname.getHostName());
+        // When we don't have a hostname, whether or not we do the reverse lookup is the difference
+        // between getHostString and getHostName...
+        InetAddress address = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
+        InetSocketAddress noHostname = new InetSocketAddress(address, 1234);
+        assertEquals("127.0.0.1", noHostname.getHostString());
+        assertEquals("localhost", noHostname.getHostName());
     }
 }

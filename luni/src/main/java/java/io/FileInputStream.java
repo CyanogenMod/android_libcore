@@ -22,10 +22,11 @@ import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.luni.platform.Platform;
+import libcore.io.Libcore;
+import libcore.io.Streams;
+import static libcore.io.OsConstants.*;
 
 /**
  * An input stream that reads bytes from a file.
@@ -55,12 +56,11 @@ public class FileInputStream extends InputStream implements Closeable {
 
     private final FileDescriptor fd;
 
+    /** The same as 'fd' if we own the file descriptor, null otherwise. */
+    private final FileDescriptor ownedFd;
+
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
-
-    private final boolean shouldCloseFd;
-
-    private final Object repositioningLock = new Object();
 
     private final CloseGuard guard = CloseGuard.get();
 
@@ -71,22 +71,13 @@ public class FileInputStream extends InputStream implements Closeable {
      *            the file from which this stream reads.
      * @throws FileNotFoundException
      *             if {@code file} does not exist.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public FileInputStream(File file) throws FileNotFoundException {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkRead(file.getPath());
-        }
-        fd = new FileDescriptor();
-        fd.readOnly = true;
-        fd.descriptor = Platform.FILE_SYSTEM.open(file.getAbsolutePath(), IFileSystem.O_RDONLY);
-        shouldCloseFd = true;
+        this.fd = IoUtils.open(file.getAbsolutePath(), O_RDONLY);
+        this.ownedFd = fd;
         guard.open("close");
     }
 
@@ -97,20 +88,13 @@ public class FileInputStream extends InputStream implements Closeable {
      *            the FileDescriptor from which this stream reads.
      * @throws NullPointerException
      *             if {@code fd} is {@code null}.
-     * @throws SecurityException
-     *             if a {@code SecurityManager} is installed and it denies the
-     *             read request.
      */
     public FileInputStream(FileDescriptor fd) {
         if (fd == null) {
             throw new NullPointerException("fd == null");
         }
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkRead(fd);
-        }
         this.fd = fd;
-        this.shouldCloseFd = false;
+        this.ownedFd = null;
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -124,8 +108,7 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public int available() throws IOException {
-        checkOpen();
-        return Platform.FILE_SYSTEM.ioctlAvailable(fd);
+        return IoUtils.available(fd);
     }
 
     @Override
@@ -135,9 +118,7 @@ public class FileInputStream extends InputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            if (shouldCloseFd && fd.valid()) {
-                IoUtils.close(fd);
-            }
+            IoUtils.close(ownedFd);
         }
     }
 
@@ -172,7 +153,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd.descriptor, IFileSystem.O_RDONLY);
+                channel = NioUtils.newFileChannel(this, fd, O_RDONLY);
             }
             return channel;
         }
@@ -185,56 +166,33 @@ public class FileInputStream extends InputStream implements Closeable {
         return fd;
     }
 
-    @Override
-    public int read() throws IOException {
-        byte[] buffer = new byte[1];
-        int result = read(buffer, 0, 1);
-        return result == -1 ? -1 : buffer[0] & 0xff;
+    @Override public int read() throws IOException {
+        return Streams.readSingleByte(this);
     }
 
-    @Override
-    public int read(byte[] buffer) throws IOException {
-        return read(buffer, 0, buffer.length);
-    }
-
-    @Override
-    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
-        if (byteCount == 0) {
-            return 0;
-        }
-        checkOpen();
-        synchronized (repositioningLock) {
-            return (int) Platform.FILE_SYSTEM.read(fd.descriptor, buffer, offset, byteCount);
-        }
+    @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+        return IoUtils.read(fd, buffer, byteOffset, byteCount);
     }
 
     @Override
     public long skip(long byteCount) throws IOException {
-        checkOpen();
-
         if (byteCount == 0) {
             return 0;
         }
         if (byteCount < 0) {
             throw new IOException("byteCount < 0: " + byteCount);
         }
-
         try {
-            synchronized (repositioningLock) {
-                // Our seek returns the new offset, but we know it will throw an
-                // exception if it couldn't perform exactly the seek we asked for.
-                Platform.FILE_SYSTEM.seek(fd.descriptor, byteCount, IFileSystem.SEEK_CUR);
-                return byteCount;
+            // Try lseek(2). That returns the new offset, but we'll throw an
+            // exception if it couldn't perform exactly the seek we asked for.
+            Libcore.os.lseek(fd, byteCount, SEEK_CUR);
+            return byteCount;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == ESPIPE) {
+                // You can't seek on a pipe, so fall back to the superclass' implementation.
+                return super.skip(byteCount);
             }
-        } catch (IFileSystem.SeekPipeException e) {
-            return super.skip(byteCount);
-        }
-    }
-
-    private synchronized void checkOpen() throws IOException {
-        if (!fd.valid()) {
-            throw new IOException("stream is closed");
+            throw errnoException.rethrowAsIOException();
         }
     }
 }

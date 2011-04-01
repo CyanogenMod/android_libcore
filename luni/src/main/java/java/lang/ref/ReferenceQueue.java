@@ -15,10 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// This implementation is quite different from Harmony. Changes are not marked.
-// END android-note
-
 package java.lang.ref;
 
 /**
@@ -36,7 +32,6 @@ public class ReferenceQueue<T> {
      * Constructs a new instance of this class.
      */
     public ReferenceQueue() {
-        super();
     }
 
     /**
@@ -134,5 +129,20 @@ public class ReferenceQueue<T> {
         }
         head = reference;
         notify();
+    }
+
+    static Reference unenqueued = null;
+
+    static void add(Reference<?> list) {
+        synchronized (ReferenceQueue.class) {
+            if (unenqueued == null) {
+                unenqueued = list;
+            } else {
+                Reference<?> next = unenqueued.pendingNext;
+                unenqueued.pendingNext = list.pendingNext;
+                list.pendingNext = next;
+            }
+            ReferenceQueue.class.notifyAll();
+        }
     }
 }

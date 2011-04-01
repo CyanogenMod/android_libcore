@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
-import java.util.Vector;
 import libcore.icu.LocaleData;
 import libcore.icu.TimeZones;
 
@@ -484,7 +485,7 @@ public class SimpleDateFormat extends DateFormat {
 
     private AttributedCharacterIterator formatToCharacterIteratorImpl(Date date) {
         StringBuffer buffer = new StringBuffer();
-        Vector<FieldPosition> fields = new Vector<FieldPosition>();
+        ArrayList<FieldPosition> fields = new ArrayList<FieldPosition>();
 
         // format the date, and find fields
         formatImpl(date, buffer, null, fields);
@@ -493,8 +494,7 @@ public class SimpleDateFormat extends DateFormat {
         AttributedString as = new AttributedString(buffer.toString());
 
         // add DateFormat field attributes to the AttributedString
-        for (int i = 0; i < fields.size(); i++) {
-            FieldPosition pos = fields.elementAt(i);
+        for (FieldPosition pos : fields) {
             Format.Field attribute = pos.getFieldAttribute();
             as.addAttribute(attribute, attribute, pos.getBeginIndex(), pos.getEndIndex());
         }
@@ -510,7 +510,7 @@ public class SimpleDateFormat extends DateFormat {
      * specified by this FieldPosition is formatted, set the begin and end index
      * of the formatted field in the FieldPosition.
      * <p>
-     * If the Vector {@code fields} is not null, find fields of this
+     * If the list {@code fields} is not null, find fields of this
      * date, set FieldPositions with these fields, and add them to the fields
      * vector.
      *
@@ -522,14 +522,14 @@ public class SimpleDateFormat extends DateFormat {
      *            FieldPosition to set begin and end index of the field
      *            specified, if it is part of the format for this date
      * @param fields
-     *            Vector used to store the FieldPositions for each field in this
+     *            list used to store the FieldPositions for each field in this
      *            date
      * @return the formatted Date
      * @throws IllegalArgumentException
      *            if the object cannot be formatted by this Format.
      */
     private StringBuffer formatImpl(Date date, StringBuffer buffer,
-            FieldPosition field, Vector<FieldPosition> fields) {
+            FieldPosition field, List<FieldPosition> fields) {
 
         boolean quote = false;
         int next, last = -1, count = 0;
@@ -582,7 +582,7 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private void append(StringBuffer buffer, FieldPosition position,
-            Vector<FieldPosition> fields, char format, int count) {
+            List<FieldPosition> fields, char format, int count) {
         int field = -1;
         int index = PATTERN_CHARS.indexOf(format);
         if (index == -1) {
@@ -605,7 +605,7 @@ public class SimpleDateFormat extends DateFormat {
                  *     http://unicode.org/reports/tr35/
                  */
                 if (count == 2) {
-                    appendNumber(buffer, 2, year %= 100);
+                    appendNumber(buffer, 2, year % 100);
                 } else {
                     appendNumber(buffer, count, year);
                 }
@@ -748,7 +748,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             // We can't call TimeZone.getDisplayName() because it would not use
             // the custom DateFormatSymbols of this SimpleDateFormat.
-            String custom = TimeZones.lookupDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
+            String custom = TimeZones.getDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
             if (custom != null) {
                 buffer.append(custom);
                 return;
@@ -780,6 +780,9 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private void appendNumber(StringBuffer buffer, int count, int value) {
+        // TODO: we could avoid using the NumberFormat in most cases for a significant speedup.
+        // The only problem is that we expose the NumberFormat to third-party code, so we'd have
+        // some work to do to work out when the optimization is valid.
         int minimumIntegerDigits = numberFormat.getMinimumIntegerDigits();
         numberFormat.setMinimumIntegerDigits(count);
         numberFormat.format(Integer.valueOf(value), buffer, new FieldPosition(0));
@@ -1268,10 +1271,11 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("defaultCenturyStart", Date.class),
-            new ObjectStreamField("formatData", DateFormatSymbols.class),
-            new ObjectStreamField("pattern", String.class),
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), };
+        new ObjectStreamField("defaultCenturyStart", Date.class),
+        new ObjectStreamField("formatData", DateFormatSymbols.class),
+        new ObjectStreamField("pattern", String.class),
+        new ObjectStreamField("serialVersionOnStream", int.class),
+    };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();

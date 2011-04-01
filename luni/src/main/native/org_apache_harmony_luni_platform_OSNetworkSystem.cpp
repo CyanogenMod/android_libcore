@@ -35,28 +35,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/un.h>
 #include <unistd.h>
-
-// Temporary hack to build on systems that don't have up-to-date libc headers.
-#ifndef IPV6_TCLASS
-#ifdef __linux__
-#define IPV6_TCLASS 67 // Linux
-#else
-#define IPV6_TCLASS -1 // BSD(-like); TODO: Something better than this!
-#endif
-#endif
-
-/*
- * TODO: The multicast code is highly platform-dependent, and for now
- * we just punt on anything but Linux.
- */
-#ifdef __linux__
-#define ENABLE_MULTICAST
-#endif
 
 #define JAVASOCKOPT_IP_MULTICAST_IF 16
 #define JAVASOCKOPT_IP_MULTICAST_IF2 31
@@ -80,18 +62,6 @@
 #define SOCKET_OP_NONE 0
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
-
-static struct CachedFields {
-    jfieldID iaddr_ipaddress;
-    jfieldID integer_class_value;
-    jfieldID boolean_class_value;
-    jfieldID socketimpl_address;
-    jfieldID socketimpl_port;
-    jfieldID socketimpl_localport;
-    jfieldID dpack_address;
-    jfieldID dpack_port;
-    jfieldID dpack_length;
-} gCachedFields;
 
 /**
  * Returns the port number in a sockaddr_storage structure.
@@ -193,34 +163,12 @@ private:
     sockaddr_storage mTmp;
 };
 
-/**
- * Converts an InetAddress object and port number to a native address structure.
- */
-static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress,
-        int port, sockaddr_storage* ss) {
-    // Get the byte array that stores the IP address bytes in the InetAddress.
-    if (inetAddress == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return false;
-    }
-    jbyteArray addressBytes =
-        reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress,
-            gCachedFields.iaddr_ipaddress));
-
-    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
-}
-
 // Converts a number of milliseconds to a timeval.
 static timeval toTimeval(long ms) {
     timeval tv;
     tv.tv_sec = ms / 1000;
     tv.tv_usec = (ms - tv.tv_sec*1000) * 1000;
     return tv;
-}
-
-// Converts a timeval to a number of milliseconds.
-static long toMs(const timeval& tv) {
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 /**
@@ -236,10 +184,10 @@ static long toMs(const timeval& tv) {
  * timeval.tv_usec are long
  */
 static int time_msec_clock() {
-    timeval tp;
+    timeval tv;
     struct timezone tzp;
-    gettimeofday(&tp, &tzp);
-    return toMs(tp);
+    gettimeofday(&tv, &tzp);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 /**
@@ -354,7 +302,6 @@ private:
     JNIEnv* mEnv;
 };
 
-#ifdef ENABLE_MULTICAST
 static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, bool join) {
     group_req groupRequest;
 
@@ -379,7 +326,7 @@ static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, b
     if (rc == -1 && errno == EINVAL) {
         // Maybe we're a 32-bit binary talking to a 64-bit kernel?
         // glibc doesn't automatically handle this.
-        struct group_req64 {
+        struct GCC_HIDDEN group_req64 {
             uint32_t gr_interface;
             uint32_t my_padding;
             sockaddr_storage gr_group;
@@ -393,68 +340,6 @@ static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, b
         jniThrowSocketException(env, errno);
         return;
     }
-}
-#endif // def ENABLE_MULTICAST
-
-static bool initCachedFields(JNIEnv* env) {
-    memset(&gCachedFields, 0, sizeof(gCachedFields));
-    struct CachedFields* c = &gCachedFields;
-
-    struct fieldInfo {
-        jfieldID* field;
-        jclass clazz;
-        const char* name;
-        const char* type;
-    } fields[] = {
-        {&c->iaddr_ipaddress, JniConstants::inetAddressClass, "ipaddress", "[B"},
-        {&c->integer_class_value, JniConstants::integerClass, "value", "I"},
-        {&c->boolean_class_value, JniConstants::booleanClass, "value", "Z"},
-        {&c->socketimpl_port, JniConstants::socketImplClass, "port", "I"},
-        {&c->socketimpl_localport, JniConstants::socketImplClass, "localport", "I"},
-        {&c->socketimpl_address, JniConstants::socketImplClass, "address", "Ljava/net/InetAddress;"},
-        {&c->dpack_address, JniConstants::datagramPacketClass, "address", "Ljava/net/InetAddress;"},
-        {&c->dpack_port, JniConstants::datagramPacketClass, "port", "I"},
-        {&c->dpack_length, JniConstants::datagramPacketClass, "length", "I"}
-    };
-    for (unsigned i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
-        fieldInfo f = fields[i];
-        *f.field = env->GetFieldID(f.clazz, f.name, f.type);
-        if (*f.field == NULL) return false;
-    }
-    return true;
-}
-
-static void OSNetworkSystem_socket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean stream) {
-    if (fileDescriptor == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        errno = EBADF;
-        return;
-    }
-
-    // Try IPv6 but fall back to IPv4...
-    int type = stream ? SOCK_STREAM : SOCK_DGRAM;
-    int fd = socket(AF_INET6, type, 0);
-    if (fd == -1 && errno == EAFNOSUPPORT) {
-        fd = socket(AF_INET, type, 0);
-    }
-    if (fd == -1) {
-        jniThrowSocketException(env, errno);
-        return;
-    } else {
-        jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
-    }
-
-#ifdef __linux__
-    // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
-    // The Linux kernel (at least up to 2.6.32) accidentally defaults to 64 (which would be correct
-    // for the *unicast* hop limit). See http://www.spinics.net/lists/netdev/msg129022.html.
-    // When that bug is fixed, we can remove this code. Until then, we manually set the hop
-    // limit on IPv6 datagram sockets. (IPv4 is already correct.)
-    if (type == SOCK_DGRAM && getSocketAddressFamily(fd) == AF_INET6) {
-        int ttl = 1;
-        setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(int));
-    }
-#endif
 }
 
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
@@ -602,18 +487,6 @@ static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
     }
 }
 
-static void OSNetworkSystem_listen(JNIEnv* env, jobject, jobject fileDescriptor, jint backlog) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    int rc = listen(fd.get(), backlog);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
 static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
         jobject newSocket, jobject clientFileDescriptor) {
 
@@ -670,8 +543,6 @@ static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
             return;
         }
         int remotePort = getSocketAddressPort(&ss);
-        env->SetObjectField(newSocket, gCachedFields.socketimpl_address, remoteAddress);
-        env->SetIntField(newSocket, gCachedFields.socketimpl_port, remotePort);
 
         // Local port.
         memset(&ss, 0, addrLen);
@@ -682,7 +553,13 @@ static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
             return;
         }
         int localPort = getSocketAddressPort(&ss);
-        env->SetIntField(newSocket, gCachedFields.socketimpl_localport, localPort);
+
+        static jfieldID addressFid = env->GetFieldID(JniConstants::socketImplClass, "address", "Ljava/net/InetAddress;");
+        static jfieldID localPortFid = env->GetFieldID(JniConstants::socketImplClass, "localport", "I");
+        static jfieldID portFid = env->GetFieldID(JniConstants::socketImplClass, "port", "I");
+        env->SetObjectField(newSocket, addressFid, remoteAddress);
+        env->SetIntField(newSocket, portFid, remotePort);
+        env->SetIntField(newSocket, localPortFid, localPort);
     }
 
     jniSetFileDescriptorOfFD(env, clientFileDescriptor, clientFd);
@@ -717,11 +594,6 @@ static void OSNetworkSystem_disconnectDatagram(JNIEnv* env, jobject, jobject fil
     if (rc == -1) {
         jniThrowSocketException(env, errno);
     }
-}
-
-static void OSNetworkSystem_setInetAddress(JNIEnv* env, jobject,
-        jobject sender, jbyteArray address) {
-    env->SetObjectField(sender, gCachedFields.iaddr_ipaddress, address);
 }
 
 // TODO: can we merge this with recvDirect?
@@ -804,8 +676,11 @@ static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
         return 0;
     }
 
+    static jfieldID addressFid = env->GetFieldID(JniConstants::datagramPacketClass, "address", "Ljava/net/InetAddress;");
+    static jfieldID lengthFid = env->GetFieldID(JniConstants::datagramPacketClass, "length", "I");
+    static jfieldID portFid = env->GetFieldID(JniConstants::datagramPacketClass, "port", "I");
     if (packet != NULL) {
-        env->SetIntField(packet, gCachedFields.dpack_length, bytesReceived);
+        env->SetIntField(packet, lengthFid, bytesReceived);
         if (!connected) {
             jbyteArray addr = socketAddressToByteArray(env, &ss);
             if (addr == NULL) {
@@ -816,8 +691,8 @@ static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
             if (sender == NULL) {
                 return 0;
             }
-            env->SetObjectField(packet, gCachedFields.dpack_address, sender);
-            env->SetIntField(packet, gCachedFields.dpack_port, port);
+            env->SetObjectField(packet, addressFid, sender);
+            env->SetIntField(packet, portFid, port);
         }
     }
     return bytesReceived;
@@ -991,178 +866,6 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
             translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
 }
 
-static jobject OSNetworkSystem_getSocketLocalAddress(JNIEnv* env,
-        jobject, jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return NULL;
-    }
-
-    sockaddr_storage ss;
-    socklen_t ssLen = sizeof(ss);
-    memset(&ss, 0, ssLen);
-    int rc = getsockname(fd.get(), reinterpret_cast<sockaddr*>(&ss), &ssLen);
-    if (rc == -1) {
-        // TODO: the public API doesn't allow failure, so this whole method
-        // represents a broken design. In practice, though, getsockname can't
-        // fail unless we give it invalid arguments.
-        LOGE("getsockname failed: %s (errno=%i)", strerror(errno), errno);
-        return NULL;
-    }
-    return socketAddressToInetAddress(env, &ss);
-}
-
-static jint OSNetworkSystem_getSocketLocalPort(JNIEnv* env, jobject,
-        jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return 0;
-    }
-
-    sockaddr_storage ss;
-    socklen_t ssLen = sizeof(ss);
-    memset(&ss, 0, sizeof(ss));
-    int rc = getsockname(fd.get(), reinterpret_cast<sockaddr*>(&ss), &ssLen);
-    if (rc == -1) {
-        // TODO: the public API doesn't allow failure, so this whole method
-        // represents a broken design. In practice, though, getsockname can't
-        // fail unless we give it invalid arguments.
-        LOGE("getsockname failed: %s (errno=%i)", strerror(errno), errno);
-        return 0;
-    }
-    return getSocketAddressPort(&ss);
-}
-
-template <typename T>
-static bool getSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
-    socklen_t size = sizeof(*value);
-    int rc = getsockopt(fd.get(), level, option, value, &size);
-    if (rc == -1) {
-        LOGE("getSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd.get(), level, option, strerror(errno), errno);
-        jniThrowSocketException(env, errno);
-        return false;
-    }
-    return true;
-}
-
-static jobject getSocketOption_Boolean(JNIEnv* env, const NetFd& fd, int level, int option) {
-    int value;
-    return getSocketOption(env, fd, level, option, &value) ? booleanValueOf(env, value) : NULL;
-}
-
-static jobject getSocketOption_Integer(JNIEnv* env, const NetFd& fd, int level, int option) {
-    int value;
-    return getSocketOption(env, fd, level, option, &value) ? integerValueOf(env, value) : NULL;
-}
-
-static jobject OSNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return NULL;
-    }
-
-    int family = getSocketAddressFamily(fd.get());
-    if (family != AF_INET && family != AF_INET6) {
-        jniThrowSocketException(env, EAFNOSUPPORT);
-        return NULL;
-    }
-
-    switch (option) {
-    case JAVASOCKOPT_TCP_NODELAY:
-        return getSocketOption_Boolean(env, fd, IPPROTO_TCP, TCP_NODELAY);
-    case JAVASOCKOPT_SO_SNDBUF:
-        return getSocketOption_Integer(env, fd, SOL_SOCKET, SO_SNDBUF);
-    case JAVASOCKOPT_SO_RCVBUF:
-        return getSocketOption_Integer(env, fd, SOL_SOCKET, SO_RCVBUF);
-    case JAVASOCKOPT_SO_BROADCAST:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_BROADCAST);
-    case JAVASOCKOPT_SO_REUSEADDR:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_REUSEADDR);
-    case JAVASOCKOPT_SO_KEEPALIVE:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_KEEPALIVE);
-    case JAVASOCKOPT_SO_OOBINLINE:
-        return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_OOBINLINE);
-    case JAVASOCKOPT_IP_TOS:
-        if (family == AF_INET) {
-            return getSocketOption_Integer(env, fd, IPPROTO_IP, IP_TOS);
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_TCLASS);
-        }
-    case JAVASOCKOPT_SO_LINGER:
-        {
-            linger lingr;
-            bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            if (!ok) {
-                return NULL; // We already threw.
-            } else if (!lingr.l_onoff) {
-                return booleanValueOf(env, false);
-            } else {
-                return integerValueOf(env, lingr.l_linger);
-            }
-        }
-    case JAVASOCKOPT_SO_TIMEOUT:
-        {
-            timeval timeout;
-            bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return ok ? integerValueOf(env, toMs(timeout)) : NULL;
-        }
-#ifdef ENABLE_MULTICAST
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-        {
-            // Although setsockopt(2) can take an ip_mreqn for IP_MULTICAST_IF, getsockopt(2)
-            // always returns an in_addr.
-            sockaddr_storage ss;
-            memset(&ss, 0, sizeof(ss));
-            ss.ss_family = AF_INET; // This call is IPv4-only.
-            sockaddr_in* sa = reinterpret_cast<sockaddr_in*>(&ss);
-            if (!getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &sa->sin_addr)) {
-                return NULL;
-            }
-            return socketAddressToInetAddress(env, &ss);
-        }
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-        if (family == AF_INET) {
-            // The caller's asking for an interface index, but that's not how IPv4 works.
-            // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
-            // that will satisfy us.
-            jniThrowSocketException(env, EAFNOSUPPORT);
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
-        }
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        if (family == AF_INET) {
-            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-            u_char loopback;
-            bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            return ok ? booleanValueOf(env, loopback) : NULL;
-        } else {
-            return getSocketOption_Boolean(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
-        }
-    case JAVASOCKOPT_MULTICAST_TTL:
-        if (family == AF_INET) {
-            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-            // IPv4 multicast TTL uses a byte.
-            u_char ttl;
-            bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            return ok ? integerValueOf(env, ttl) : NULL;
-        } else {
-            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
-        }
-#else
-    case JAVASOCKOPT_MULTICAST_TTL:
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
-        return NULL;
-#endif // def ENABLE_MULTICAST
-    default:
-        jniThrowSocketException(env, ENOPROTOOPT);
-        return NULL;
-    }
-}
-
 template <typename T>
 static void setSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
     int rc = setsockopt(fd.get(), level, option, value, sizeof(*value));
@@ -1182,9 +885,9 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     int intVal;
     bool wasBoolean = false;
     if (env->IsInstanceOf(optVal, JniConstants::integerClass)) {
-        intVal = (int) env->GetIntField(optVal, gCachedFields.integer_class_value);
+        intVal = intValue(env, optVal);
     } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
-        intVal = (int) env->GetBooleanField(optVal, gCachedFields.boolean_class_value);
+        intVal = (int) booleanValue(env, optVal);
         wasBoolean = true;
     } else if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
         // We use optVal directly as an InetAddress for IP_MULTICAST_IF.
@@ -1262,7 +965,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     case JAVASOCKOPT_TCP_NODELAY:
         setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
         return;
-#ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_MCAST_JOIN_GROUP:
         mcastJoinLeaveGroup(env, fd.get(), optVal, true);
         return;
@@ -1323,38 +1025,9 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             }
             return;
         }
-#else
-    case JAVASOCKOPT_MULTICAST_TTL:
-    case JAVASOCKOPT_MCAST_JOIN_GROUP:
-    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
-        return;
-#endif // def ENABLE_MULTICAST
     default:
         jniThrowSocketException(env, ENOPROTOOPT);
     }
-}
-
-static void doShutdown(JNIEnv* env, jobject fileDescriptor, int how) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-    int rc = shutdown(fd.get(), how);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void OSNetworkSystem_shutdownInput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_RD);
-}
-
-static void OSNetworkSystem_shutdownOutput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_WR);
 }
 
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
@@ -1378,11 +1051,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, connectNonBlocking, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketLocalAddress, "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketLocalPort, "(Ljava/io/FileDescriptor;)I"),
-    NATIVE_METHOD(OSNetworkSystem, getSocketOption, "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
-    NATIVE_METHOD(OSNetworkSystem, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),
@@ -1391,17 +1060,12 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
-    NATIVE_METHOD(OSNetworkSystem, setInetAddress, "(Ljava/net/InetAddress;[B)V"),
     NATIVE_METHOD(OSNetworkSystem, setSocketOption, "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V"),
-    NATIVE_METHOD(OSNetworkSystem, shutdownInput, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, shutdownOutput, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, socket, "(Ljava/io/FileDescriptor;Z)V"),
     NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),
 };
 
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
     AsynchronousSocketCloseMonitor::init();
-    return initCachedFields(env) && jniRegisterNativeMethods(env,
-            "org/apache/harmony/luni/platform/OSNetworkSystem", gMethods, NELEM(gMethods));
+    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSNetworkSystem", gMethods, NELEM(gMethods));
 }

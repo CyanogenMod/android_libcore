@@ -31,11 +31,9 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.security.AccessController;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.harmony.luni.util.PriviAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -53,6 +51,13 @@ import org.xml.sax.SAXParseException;
  * {@code Properties} list which specifies the default
  * values to be used when a given key is not found in this {@code Properties}
  * instance.
+ *
+ * <a name="character_encoding"><h3>Character Encoding</h3></a>
+ * <p>Note that in some cases {@code Properties} uses ISO-8859-1 instead of UTF-8.
+ * ISO-8859-1 is only capable of representing a tiny subset of Unicode.
+ * Use either the {@code loadFromXML}/{@code storeToXML} methods (which use UTF-8 by
+ * default) or the {@code load}/{@code store} overloads that take
+ * an {@code OutputStreamWriter} (so you can supply a UTF-8 instance) instead.
  *
  * @see Hashtable
  * @see java.lang.System#getProperties
@@ -85,7 +90,6 @@ public class Properties extends Hashtable<Object, Object> {
      * Constructs a new {@code Properties} object.
      */
     public Properties() {
-        super();
     }
 
     /**
@@ -182,80 +186,58 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     /**
-     * Lists the mappings in this {@code Properties} to the specified
-     * {@code PrintStream} in a
-     * human readable form.
-     *
-     * @param out
-     *            the {@code PrintStream} to write the content to in human readable
-     *            form.
+     * Lists the mappings in this {@code Properties} to {@code out} in a human-readable form.
+     * Note that values are truncated to 37 characters, so this method is rarely useful.
      */
     public void list(PrintStream out) {
-        if (out == null) {
-            throw new NullPointerException();
-        }
-        StringBuilder buffer = new StringBuilder(80);
-        Enumeration<?> keys = propertyNames();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            buffer.append(key);
-            buffer.append('=');
-            String property = (String) super.get(key);
-            Properties def = defaults;
-            while (property == null) {
-                property = (String) def.get(key);
-                def = def.defaults;
-            }
-            if (property.length() > 40) {
-                buffer.append(property.substring(0, 37));
-                buffer.append("...");
-            } else {
-                buffer.append(property);
-            }
-            out.println(buffer.toString());
-            buffer.setLength(0);
-        }
+        listToAppendable(out);
     }
 
     /**
-     * Lists the mappings in this {@code Properties} to the specified
-     * {@code PrintWriter} in a
-     * human readable form.
-     *
-     * @param writer
-     *            the {@code PrintWriter} to write the content to in human
-     *            readable form.
+     * Lists the mappings in this {@code Properties} to {@code out} in a human-readable form.
+     * Note that values are truncated to 37 characters, so this method is rarely useful.
      */
-    public void list(PrintWriter writer) {
-        if (writer == null) {
-            throw new NullPointerException();
-        }
-        StringBuilder buffer = new StringBuilder(80);
-        Enumeration<?> keys = propertyNames();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            buffer.append(key);
-            buffer.append('=');
-            String property = (String) super.get(key);
-            Properties def = defaults;
-            while (property == null) {
-                property = (String) def.get(key);
-                def = def.defaults;
+    public void list(PrintWriter out) {
+        listToAppendable(out);
+    }
+
+    private void listToAppendable(Appendable out) {
+        try {
+            if (out == null) {
+                throw new NullPointerException("out == null");
             }
-            if (property.length() > 40) {
-                buffer.append(property.substring(0, 37));
-                buffer.append("...");
-            } else {
-                buffer.append(property);
+            StringBuilder sb = new StringBuilder(80);
+            Enumeration<?> keys = propertyNames();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                sb.append(key);
+                sb.append('=');
+                String property = (String) super.get(key);
+                Properties def = defaults;
+                while (property == null) {
+                    property = (String) def.get(key);
+                    def = def.defaults;
+                }
+                if (property.length() > 40) {
+                    sb.append(property.substring(0, 37));
+                    sb.append("...");
+                } else {
+                    sb.append(property);
+                }
+                sb.append(System.lineSeparator());
+                out.append(sb.toString());
+                sb.setLength(0);
             }
-            writer.println(buffer.toString());
-            buffer.setLength(0);
+        } catch (IOException ex) {
+            // Appendable.append throws IOException, but PrintStream and PrintWriter don't.
+            throw new AssertionError(ex);
         }
     }
 
     /**
-     * Loads properties from the specified {@code InputStream}. The encoding is
-     * ISO-8859-1.
+     * Loads properties from the specified {@code InputStream}, assumed to be ISO-8859-1.
+     * See "<a href="#character_encoding">Character Encoding</a>".
+     *
      * @param in the {@code InputStream}
      * @throws IOException
      */
@@ -530,9 +512,8 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     /**
-     * Stores the mappings in this {@code Properties} object to {@code out},
-     * putting the specified comment at the beginning. The encoding is
-     * ISO-8859-1.
+     * Stores properties to the specified {@code OutputStream}, using ISO-8859-1.
+     * See "<a href="#character_encoding">Character Encoding</a>".
      *
      * @param out the {@code OutputStream}
      * @param comment an optional comment to be written, or null
@@ -542,8 +523,6 @@ public class Properties extends Hashtable<Object, Object> {
     public synchronized void store(OutputStream out, String comment) throws IOException {
         store(new OutputStreamWriter(out, "ISO-8859-1"), comment);
     }
-
-    private static String lineSeparator;
 
     /**
      * Stores the mappings in this {@code Properties} object to {@code out},
@@ -556,28 +535,24 @@ public class Properties extends Hashtable<Object, Object> {
      * @since 1.6
      */
     public synchronized void store(Writer writer, String comment) throws IOException {
-        if (lineSeparator == null) {
-            lineSeparator = AccessController.doPrivileged(new PriviAction<String>("line.separator"));
-        }
-
         if (comment != null) {
             writer.write("#");
             writer.write(comment);
-            writer.write(lineSeparator);
+            writer.write(System.lineSeparator());
         }
         writer.write("#");
         writer.write(new Date().toString());
-        writer.write(lineSeparator);
+        writer.write(System.lineSeparator());
 
-        StringBuilder buffer = new StringBuilder(200);
+        StringBuilder sb = new StringBuilder(200);
         for (Map.Entry<Object, Object> entry : entrySet()) {
             String key = (String) entry.getKey();
-            dumpString(buffer, key, true);
-            buffer.append('=');
-            dumpString(buffer, (String) entry.getValue(), false);
-            buffer.append(lineSeparator);
-            writer.write(buffer.toString());
-            buffer.setLength(0);
+            dumpString(sb, key, true);
+            sb.append('=');
+            dumpString(sb, (String) entry.getValue(), false);
+            sb.append(System.lineSeparator());
+            writer.write(sb.toString());
+            sb.setLength(0);
         }
         writer.flush();
     }
@@ -658,7 +633,7 @@ public class Properties extends Hashtable<Object, Object> {
             for (int i = 0; i < entriesListLength; i++) {
                 Element entry = (Element) entries.item(i);
                 String key = entry.getAttribute("key");
-                String value = getTextContent(entry);
+                String value = entry.getTextContent();
 
                 /*
                  * key != null & value != null but key or(and) value can be
@@ -772,28 +747,12 @@ public class Properties extends Hashtable<Object, Object> {
     }
 
     private String substitutePredefinedEntries(String s) {
-
-        /*
-         * substitution for predefined character entities to use them safely in
-         * XML
-         */
-        return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(
-                ">", "&gt;").replaceAll("\u0027", "&apos;").replaceAll("\"",
-                "&quot;");
+        // substitution for predefined character entities to use them safely in XML.
+        s = s.replaceAll("&", "&amp;");
+        s = s.replaceAll("<", "&lt;");
+        s = s.replaceAll(">", "&gt;");
+        s = s.replaceAll("'", "&apos;");
+        s = s.replaceAll("\"", "&quot;");
+        return s;
     }
-
-    // BEGIN android-added: our SAX parser still doesn't do this for us.
-    private String getTextContent(Node node) {
-        String result = (node instanceof Text ? ((Text) node).getData() : "");
-
-        Node child = node.getFirstChild();
-        while (child != null) {
-            result = result + getTextContent(child);
-            child = child.getNextSibling();
-        }
-
-        return result;
-    }
-    // END android-added
-
 }

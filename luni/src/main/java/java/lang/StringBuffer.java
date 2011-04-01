@@ -47,16 +47,16 @@ public final class StringBuffer extends AbstractStringBuilder implements
 
     private static final long serialVersionUID = 3388685877147921107L;
 
-    private static final ObjectStreamField serialPersistentFields[] = {
-            new ObjectStreamField("count", int.class),
-            new ObjectStreamField("shared", boolean.class),
-            new ObjectStreamField("value", char[].class), };
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("count", int.class),
+        new ObjectStreamField("shared", boolean.class),
+        new ObjectStreamField("value", char[].class),
+    };
 
     /**
      * Constructs a new StringBuffer using the default capacity which is 16.
      */
     public StringBuffer() {
-        super();
     }
 
     /**

@@ -41,7 +41,6 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
 
     private final byte[] key;
     private final String algorithm;
-    private final String format = "RAW";
 
     /**
      * Creates a new <code>SecretKeySpec</code> for the specified key data and
@@ -98,11 +97,9 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
         if (key.length == 0) {
             throw new IllegalArgumentException("key.length == 0");
         }
-        // BEGIN android-changed
         if (len < 0 || offset < 0) {
             throw new ArrayIndexOutOfBoundsException("len < 0 || offset < 0");
         }
-        // END android-changed
         if (key.length - offset < len) {
             throw new IllegalArgumentException("key too short");
         }
@@ -129,7 +126,7 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      * @return the format name "RAW".
      */
     public String getFormat() {
-        return format;
+        return "RAW";
     }
 
     /**

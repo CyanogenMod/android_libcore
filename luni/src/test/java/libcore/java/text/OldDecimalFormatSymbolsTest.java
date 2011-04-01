@@ -63,7 +63,7 @@ public class OldDecimalFormatSymbolsTest extends TestCase {
     }
 
     /**
-     * @tests java.text.DecimalFormatSymbols#DecimalFormatSymbols(java.util.Locale)
+     * java.text.DecimalFormatSymbols#DecimalFormatSymbols(java.util.Locale)
      */
     public void test_ConstructorLjava_util_Locale() {
         try {

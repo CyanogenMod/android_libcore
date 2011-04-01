@@ -20,227 +20,207 @@ package java.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.LongBuffer;
+import libcore.io.SizeOf;
 
 /**
- * The {@code BitSet} class implements a bit field. Each element in a
- * {@code BitSet} can be on(1) or off(0). A {@code BitSet} is created with a
- * given size and grows if this size is exceeded. Growth is always rounded to a
- * 64 bit boundary.
+ * The {@code BitSet} class implements a
+ * <a href="http://en.wikipedia.org/wiki/Bit_array">bit array</a>.
+ * Each element is either true or false. A {@code BitSet} is created with a given size and grows
+ * automatically if this size is exceeded.
  */
 public class BitSet implements Serializable, Cloneable {
     private static final long serialVersionUID = 7997698588986878753L;
 
-    private static final int OFFSET = 6;
+    private static final long ALL_ONES = ~0L;
 
-    private static final int ELM_SIZE = 1 << OFFSET;
-
-    private static final int RIGHT_BITS = ELM_SIZE - 1;
-
-    private static final long[] TWO_N_ARRAY = new long[] { 0x1L, 0x2L, 0x4L,
-            0x8L, 0x10L, 0x20L, 0x40L, 0x80L, 0x100L, 0x200L, 0x400L, 0x800L,
-            0x1000L, 0x2000L, 0x4000L, 0x8000L, 0x10000L, 0x20000L, 0x40000L,
-            0x80000L, 0x100000L, 0x200000L, 0x400000L, 0x800000L, 0x1000000L,
-            0x2000000L, 0x4000000L, 0x8000000L, 0x10000000L, 0x20000000L,
-            0x40000000L, 0x80000000L, 0x100000000L, 0x200000000L, 0x400000000L,
-            0x800000000L, 0x1000000000L, 0x2000000000L, 0x4000000000L,
-            0x8000000000L, 0x10000000000L, 0x20000000000L, 0x40000000000L,
-            0x80000000000L, 0x100000000000L, 0x200000000000L, 0x400000000000L,
-            0x800000000000L, 0x1000000000000L, 0x2000000000000L,
-            0x4000000000000L, 0x8000000000000L, 0x10000000000000L,
-            0x20000000000000L, 0x40000000000000L, 0x80000000000000L,
-            0x100000000000000L, 0x200000000000000L, 0x400000000000000L,
-            0x800000000000000L, 0x1000000000000000L, 0x2000000000000000L,
-            0x4000000000000000L, 0x8000000000000000L };
-
+    /**
+     * The bits. Access bit n thus:
+     *
+     *   boolean bit = (bits[n / 64] | (1 << n)) != 0;
+     *
+     * Note that Java's shift operators truncate their rhs to the log2 size of the lhs.
+     * That is, there's no "% 64" needed because it's implicit in the shift.
+     *
+     * TODO: would int[] be significantly more efficient for Android at the moment?
+     */
     private long[] bits;
 
-    private transient boolean needClear;
-
-    private transient int actualArrayLength;
-
-    private transient boolean isLengthActual;
+    /**
+     * The number of elements of 'bits' that are actually in use (non-zero). Amongst other
+     * things, this guarantees that isEmpty is cheap, because we never have to examine the array.
+     */
+    private transient int longCount;
 
     /**
-     * Create a new {@code BitSet} with size equal to 64 bits.
-     *
-     * @see #clear(int)
-     * @see #set(int)
-     * @see #clear()
-     * @see #clear(int, int)
-     * @see #set(int, boolean)
-     * @see #set(int, int)
-     * @see #set(int, int, boolean)
+     * Updates 'longCount' by inspecting 'bits'. Assumes that the new longCount is <= the current
+     * longCount, to avoid scanning large tracts of empty array. This means it's safe to call
+     * directly after a clear operation that may have cleared the highest set bit, but
+     * not safe after an xor operation that may have cleared the highest set bit or
+     * made a new highest set bit. In that case, you'd need to set 'longCount' to a conservative
+     * estimate before calling this method.
+     */
+    private void shrinkSize() {
+        int i = longCount - 1;
+        while (i >= 0 && bits[i] == 0) {
+            --i;
+        }
+        this.longCount = i + 1;
+    }
+
+    /**
+     * Creates a new {@code BitSet} with size equal to 64 bits.
      */
     public BitSet() {
-        bits = new long[1];
-        actualArrayLength = 0;
-        isLengthActual = true;
+        this(new long[1]);
     }
 
     /**
-     * Create a new {@code BitSet} with size equal to nbits. If nbits is not a
-     * multiple of 64, then create a {@code BitSet} with size nbits rounded to
-     * the next closest multiple of 64.
+     * Creates a new {@code BitSet} with size equal to {@code bitCount}, rounded up to
+     * a multiple of 64.
      *
-     * @param nbits
-     *            the size of the bit set.
-     * @throws NegativeArraySizeException
-     *             if {@code nbits} is negative.
-     * @see #clear(int)
-     * @see #set(int)
-     * @see #clear()
-     * @see #clear(int, int)
-     * @see #set(int, boolean)
-     * @see #set(int, int)
-     * @see #set(int, int, boolean)
+     * @throws NegativeArraySizeException if {@code bitCount < 0}.
      */
-    public BitSet(int nbits) {
-        if (nbits < 0) {
+    public BitSet(int bitCount) {
+        if (bitCount < 0) {
             throw new NegativeArraySizeException();
         }
-        bits = new long[(nbits >> OFFSET) + ((nbits & RIGHT_BITS) > 0 ? 1 : 0)];
-        actualArrayLength = 0;
-        isLengthActual = true;
+        this.bits = arrayForBits(bitCount);
+        this.longCount = 0;
     }
 
-    /**
-     * Private constructor called from get(int, int) method
-     *
-     * @param bits
-     *            the size of the bit set
-     */
-    private BitSet(long[] bits, boolean needClear, int actualArrayLength, boolean isLengthActual) {
+    private BitSet(long[] bits) {
         this.bits = bits;
-        this.needClear = needClear;
-        this.actualArrayLength = actualArrayLength;
-        this.isLengthActual = isLengthActual;
+        this.longCount = bits.length;
+        shrinkSize();
     }
 
-    /**
-     * Creates a copy of this {@code BitSet}.
-     *
-     * @return a copy of this {@code BitSet}.
-     */
-    @Override
-    public Object clone() {
+    private static long[] arrayForBits(int bitCount) {
+        return new long[(bitCount + 63)/ 64];
+    }
+
+    @Override public Object clone() {
         try {
             BitSet clone = (BitSet) super.clone();
             clone.bits = bits.clone();
+            clone.shrinkSize();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // android-changed
+            throw new AssertionError(e);
         }
     }
 
-    /**
-     * Compares the argument to this {@code BitSet} and returns whether they are
-     * equal. The object must be an instance of {@code BitSet} with the same
-     * bits set.
-     *
-     * @param obj
-     *            the {@code BitSet} object to compare.
-     * @return a {@code boolean} indicating whether or not this {@code BitSet} and
-     *         {@code obj} are equal.
-     * @see #hashCode
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    @Override public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj instanceof BitSet) {
-            long[] bsBits = ((BitSet) obj).bits;
-            int length1 = this.actualArrayLength, length2 = ((BitSet) obj).actualArrayLength;
-            if (this.isLengthActual && ((BitSet) obj).isLengthActual
-                    && length1 != length2) {
+        if (!(o instanceof BitSet)) {
+            return false;
+        }
+        BitSet lhs = (BitSet) o;
+        if (this.longCount != lhs.longCount) {
+            return false;
+        }
+        for (int i = 0; i < longCount; ++i) {
+            if (bits[i] != lhs.bits[i]) {
                 return false;
             }
-            // If one of the BitSets is larger than the other, check to see if
-            // any of its extra bits are set. If so return false.
-            if (length1 <= length2) {
-                for (int i = 0; i < length1; i++) {
-                    if (bits[i] != bsBits[i]) {
-                        return false;
-                    }
-                }
-                for (int i = length1; i < length2; i++) {
-                    if (bsBits[i] != 0) {
-                        return false;
-                    }
-                }
-            } else {
-                for (int i = 0; i < length2; i++) {
-                    if (bits[i] != bsBits[i]) {
-                        return false;
-                    }
-                }
-                for (int i = length2; i < length1; i++) {
-                    if (bits[i] != 0) {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
-        return false;
+        return true;
     }
 
     /**
-     * Increase the size of the internal array to accommodate {@code len} bits.
-     * The new array max index will be a multiple of 64.
-     *
-     * @param len
-     *            the index the new array needs to be able to access.
+     * Ensures that our long[] can hold at least 64 * desiredLongCount bits.
      */
-    private final void growLength(int len) {
-        long[] tempBits = new long[Math.max(len, bits.length * 2)];
-        System.arraycopy(bits, 0, tempBits, 0, this.actualArrayLength);
-        bits = tempBits;
+    private void ensureCapacity(int desiredLongCount) {
+        if (desiredLongCount <= bits.length) {
+            return;
+        }
+        int newLength = Math.max(desiredLongCount, bits.length * 2);
+        long[] newBits = new long[newLength];
+        System.arraycopy(bits, 0, newBits, 0, longCount);
+        this.bits = newBits;
+        // 'longCount' is unchanged by this operation: the long[] is larger,
+        // but you're not yet using any more of it.
     }
 
-    /**
-     * Computes the hash code for this {@code BitSet}. If two {@code BitSet}s are equal
-     * the have to return the same result for {@code hashCode()}.
-     *
-     * @return the {@code int} representing the hash code for this bit
-     *         set.
-     * @see #equals
-     * @see java.util.Hashtable
-     */
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
+        // The RI doesn't use Arrays.hashCode, and explicitly specifies this algorithm.
         long x = 1234;
-        for (int i = 0, length = actualArrayLength; i < length; i++) {
+        for (int i = 0; i < longCount; ++i) {
             x ^= bits[i] * (i + 1);
         }
         return (int) ((x >> 32) ^ x);
     }
 
     /**
-     * Retrieves the bit at index {@code index}. Grows the {@code BitSet} if
-     * {@code index > size}.
+     * Returns the bit at index {@code index}. Indexes greater than the current length return false.
      *
-     * @param index
-     *            the index of the bit to be retrieved.
-     * @return {@code true} if the bit at {@code index} is set,
-     *         {@code false} otherwise.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative.
-     * @see #clear(int)
-     * @see #set(int)
-     * @see #clear()
-     * @see #clear(int, int)
-     * @see #set(int, boolean)
-     * @see #set(int, int)
-     * @see #set(int, int, boolean)
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public boolean get(int index) {
-        checkIndex(index);
-        int arrayPos = index >> OFFSET;
-        if (arrayPos < actualArrayLength) {
-            return (bits[arrayPos] & TWO_N_ARRAY[index & RIGHT_BITS]) != 0;
+        if (index < 0) { // TODO: until we have an inlining JIT.
+            checkIndex(index);
         }
-        return false;
+        int arrayIndex = index / 64;
+        if (arrayIndex >= longCount) {
+            return false;
+        }
+        return (bits[arrayIndex] & (1L << index)) != 0;
+    }
+
+    /**
+     * Sets the bit at index {@code index} to true.
+     *
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
+     */
+    public void set(int index) {
+        if (index < 0) { // TODO: until we have an inlining JIT.
+            checkIndex(index);
+        }
+        int arrayIndex = index / 64;
+        if (arrayIndex >= bits.length) {
+            ensureCapacity(arrayIndex + 1);
+        }
+        bits[arrayIndex] |= (1L << index);
+        longCount = Math.max(longCount, arrayIndex + 1);
+    }
+
+    /**
+     * Clears the bit at index {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
+     */
+    public void clear(int index) {
+        if (index < 0) { // TODO: until we have an inlining JIT.
+            checkIndex(index);
+        }
+        int arrayIndex = index / 64;
+        if (arrayIndex >= longCount) {
+            return;
+        }
+        bits[arrayIndex] &= ~(1L << index);
+        shrinkSize();
+    }
+
+    /**
+     * Flips the bit at index {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
+     */
+    public void flip(int index) {
+        if (index < 0) { // TODO: until we have an inlining JIT.
+            checkIndex(index);
+        }
+        int arrayIndex = index / 64;
+        if (arrayIndex >= bits.length) {
+            ensureCapacity(arrayIndex + 1);
+        }
+        bits[arrayIndex] ^= (1L << index);
+        longCount = Math.max(longCount, arrayIndex + 1);
+        shrinkSize();
     }
 
     private void checkIndex(int index) {
@@ -256,23 +236,18 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Retrieves the bits starting from {@code fromIndex} to {@code toIndex} and returns
-     * back a new bitset made of these bits. Grows the {@code BitSet} if {@code toIndex > size}.
+     * Returns a new {@code BitSet} containing the
+     * range of bits {@code [fromIndex, toIndex)}, shifted down so that the bit
+     * at {@code fromIndex} is at bit 0 in the new {@code BitSet}.
      *
-     * @param fromIndex
-     *            inclusive beginning position.
-     * @param toIndex
-     *            exclusive ending position.
-     * @return new bitset of the range specified.
      * @throws IndexOutOfBoundsException
      *             if {@code fromIndex} or {@code toIndex} is negative, or if
      *             {@code toIndex} is smaller than {@code fromIndex}.
-     * @see #get(int)
      */
     public BitSet get(int fromIndex, int toIndex) {
         checkRange(fromIndex, toIndex);
 
-        int last = actualArrayLength << OFFSET;
+        int last = 64 * longCount;
         if (fromIndex >= last || fromIndex == toIndex) {
             return new BitSet(0);
         }
@@ -280,91 +255,59 @@ public class BitSet implements Serializable, Cloneable {
             toIndex = last;
         }
 
-        int idx1 = fromIndex >> OFFSET;
-        int idx2 = (toIndex - 1) >> OFFSET;
-        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
+        int firstArrayIndex = fromIndex / 64;
+        int lastArrayIndex = (toIndex - 1) / 64;
+        long lowMask = ALL_ONES << fromIndex;
+        long highMask = ALL_ONES >>> -toIndex;
 
-        if (idx1 == idx2) {
-            long result = (bits[idx1] & (factor1 & factor2)) >>> (fromIndex % ELM_SIZE);
+        if (firstArrayIndex == lastArrayIndex) {
+            long result = (bits[firstArrayIndex] & (lowMask & highMask)) >>> fromIndex;
             if (result == 0) {
                 return new BitSet(0);
             }
-            return new BitSet(new long[] { result }, needClear, 1, true);
-        }
-        long[] newbits = new long[idx2 - idx1 + 1];
-        // first fill in the first and last indexes in the new bitset
-        newbits[0] = bits[idx1] & factor1;
-        newbits[newbits.length - 1] = bits[idx2] & factor2;
-
-        // fill in the in between elements of the new bitset
-        for (int i = 1; i < idx2 - idx1; i++) {
-            newbits[i] = bits[idx1 + i];
+            return new BitSet(new long[] { result });
         }
 
-        // shift all the elements in the new bitset to the right by fromIndex % ELM_SIZE
-        int numBitsToShift = fromIndex & RIGHT_BITS;
-        int actualLen = newbits.length;
+        long[] newBits = new long[lastArrayIndex - firstArrayIndex + 1];
+
+        // first fill in the first and last indexes in the new BitSet
+        newBits[0] = bits[firstArrayIndex] & lowMask;
+        newBits[newBits.length - 1] = bits[lastArrayIndex] & highMask;
+
+        // fill in the in between elements of the new BitSet
+        for (int i = 1; i < lastArrayIndex - firstArrayIndex; i++) {
+            newBits[i] = bits[firstArrayIndex + i];
+        }
+
+        // shift all the elements in the new BitSet to the right
+        int numBitsToShift = fromIndex % 64;
+        int actualLen = newBits.length;
         if (numBitsToShift != 0) {
-            for (int i = 0; i < newbits.length; i++) {
+            for (int i = 0; i < newBits.length; i++) {
                 // shift the current element to the right regardless of
                 // sign
-                newbits[i] = newbits[i] >>> (numBitsToShift);
+                newBits[i] = newBits[i] >>> (numBitsToShift);
 
-                // apply the last x bits of newbits[i+1] to the current
+                // apply the last x bits of newBits[i+1] to the current
                 // element
-                if (i != newbits.length - 1) {
-                    newbits[i] |= newbits[i + 1] << (ELM_SIZE - (numBitsToShift));
+                if (i != newBits.length - 1) {
+                    newBits[i] |= newBits[i + 1] << -numBitsToShift;
                 }
-                if (newbits[i] != 0) {
+                if (newBits[i] != 0) {
                     actualLen = i + 1;
                 }
             }
         }
-        return new BitSet(newbits, needClear, actualLen,
-                newbits[actualLen - 1] != 0);
+        return new BitSet(newBits);
     }
 
     /**
-     * Sets the bit at index {@code index} to 1. Grows the {@code BitSet} if
-     * {@code index > size}.
+     * Sets the bit at index {@code index} to {@code state}.
      *
-     * @param index
-     *            the index of the bit to set.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative.
-     * @see #clear(int)
-     * @see #clear()
-     * @see #clear(int, int)
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
-    public void set(int index) {
-        checkIndex(index);
-        int len = (index >> OFFSET) + 1;
-        if (len > bits.length) {
-            growLength(len);
-        }
-        bits[len - 1] |= TWO_N_ARRAY[index & RIGHT_BITS];
-        if (len > actualArrayLength) {
-            actualArrayLength = len;
-            isLengthActual = true;
-        }
-        needClear();
-    }
-
-    /**
-     * Sets the bit at index {@code index} to {@code val}. Grows the
-     * {@code BitSet} if {@code index > size}.
-     *
-     * @param index
-     *            the index of the bit to set.
-     * @param val
-     *            value to set the bit.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative.
-     * @see #set(int)
-     */
-    public void set(int index, boolean val) {
-        if (val) {
+    public void set(int index, boolean state) {
+        if (state) {
             set(index);
         } else {
             clear(index);
@@ -372,71 +315,14 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
-     * {@code BitSet} if {@code toIndex > size}.
+     * Sets the range of bits {@code [fromIndex, toIndex)} to {@code state}.
      *
-     * @param fromIndex
-     *            inclusive beginning position.
-     * @param toIndex
-     *            exclusive ending position.
      * @throws IndexOutOfBoundsException
      *             if {@code fromIndex} or {@code toIndex} is negative, or if
      *             {@code toIndex} is smaller than {@code fromIndex}.
-     * @see #set(int)
      */
-    public void set(int fromIndex, int toIndex) {
-        checkRange(fromIndex, toIndex);
-
-        if (fromIndex == toIndex) {
-            return;
-        }
-        int len2 = ((toIndex - 1) >> OFFSET) + 1;
-        if (len2 > bits.length) {
-            growLength(len2);
-        }
-
-        int idx1 = fromIndex >> OFFSET;
-        int idx2 = (toIndex - 1) >> OFFSET;
-        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
-
-        if (idx1 == idx2) {
-            bits[idx1] |= (factor1 & factor2);
-        } else {
-            bits[idx1] |= factor1;
-            bits[idx2] |= factor2;
-            for (int i = idx1 + 1; i < idx2; i++) {
-                bits[i] |= (~0L);
-            }
-        }
-        if (idx2 + 1 > actualArrayLength) {
-            actualArrayLength = idx2 + 1;
-            isLengthActual = true;
-        }
-        needClear();
-    }
-
-    private void needClear() {
-        this.needClear = true;
-    }
-
-    /**
-     * Sets the bits starting from {@code fromIndex} to {@code toIndex} to the given
-     * {@code val}. Grows the {@code BitSet} if {@code toIndex > size}.
-     *
-     * @param fromIndex
-     *            inclusive beginning position.
-     * @param toIndex
-     *            exclusive ending position.
-     * @param val
-     *            value to set these bits.
-     * @throws IndexOutOfBoundsException
-     *             if {@code fromIndex} or {@code toIndex} is negative, or if
-     *             {@code toIndex} is smaller than {@code fromIndex}.
-     * @see #set(int,int)
-     */
-    public void set(int fromIndex, int toIndex, boolean val) {
-        if (val) {
+    public void set(int fromIndex, int toIndex, boolean state) {
+        if (state) {
             set(fromIndex, toIndex);
         } else {
             clear(fromIndex, toIndex);
@@ -444,383 +330,231 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Clears all the bits in this {@code BitSet}.
-     *
-     * @see #clear(int)
-     * @see #clear(int, int)
+     * Clears all the bits in this {@code BitSet}. This method does not change the capacity.
+     * Use {@code clear} if you want to reuse this {@code BitSet} with the same capacity, but
+     * create a new {@code BitSet} if you're trying to potentially reclaim memory.
      */
     public void clear() {
-        if (needClear) {
-            for (int i = 0; i < bits.length; i++) {
-                bits[i] = 0L;
-            }
-            actualArrayLength = 0;
-            isLengthActual = true;
-            needClear = false;
-        }
+        Arrays.fill(bits, 0, longCount, 0L);
+        longCount = 0;
     }
 
     /**
-     * Clears the bit at index {@code index}. Grows the {@code BitSet} if
-     * {@code index > size}.
+     * Sets the range of bits {@code [fromIndex, toIndex)}.
      *
-     * @param index
-     *            the index of the bit to clear.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative.
-     * @see #clear(int, int)
-     */
-    public void clear(int index) {
-        checkIndex(index);
-        if (!needClear) {
-            return;
-        }
-        int arrayPos = index >> OFFSET;
-        if (arrayPos < actualArrayLength) {
-            bits[arrayPos] &= ~(TWO_N_ARRAY[index & RIGHT_BITS]);
-            if (bits[actualArrayLength - 1] == 0) {
-                isLengthActual = false;
-            }
-        }
-    }
-
-    /**
-     * Clears the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
-     * {@code BitSet} if {@code toIndex > size}.
-     *
-     * @param fromIndex
-     *            inclusive beginning position.
-     * @param toIndex
-     *            exclusive ending position.
      * @throws IndexOutOfBoundsException
      *             if {@code fromIndex} or {@code toIndex} is negative, or if
      *             {@code toIndex} is smaller than {@code fromIndex}.
-     * @see #clear(int)
+     */
+    public void set(int fromIndex, int toIndex) {
+        checkRange(fromIndex, toIndex);
+        if (fromIndex == toIndex) {
+            return;
+        }
+        int firstArrayIndex = fromIndex / 64;
+        int lastArrayIndex = (toIndex - 1) / 64;
+        if (lastArrayIndex >= bits.length) {
+            ensureCapacity(lastArrayIndex + 1);
+        }
+
+        long lowMask = ALL_ONES << fromIndex;
+        long highMask = ALL_ONES >>> -toIndex;
+        if (firstArrayIndex == lastArrayIndex) {
+            bits[firstArrayIndex] |= (lowMask & highMask);
+        } else {
+            int i = firstArrayIndex;
+            bits[i++] |= lowMask;
+            while (i < lastArrayIndex) {
+                bits[i++] |= ALL_ONES;
+            }
+            bits[i++] |= highMask;
+        }
+        longCount = Math.max(longCount, lastArrayIndex + 1);
+    }
+
+    /**
+     * Clears the range of bits {@code [fromIndex, toIndex)}.
+     *
+     * @throws IndexOutOfBoundsException
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      */
     public void clear(int fromIndex, int toIndex) {
         checkRange(fromIndex, toIndex);
-
-        if (!needClear) {
+        if (fromIndex == toIndex || longCount == 0) {
             return;
         }
-        int last = (actualArrayLength << OFFSET);
-        if (fromIndex >= last || fromIndex == toIndex) {
+        int last = 64 * longCount;
+        if (fromIndex >= last) {
             return;
         }
         if (toIndex > last) {
             toIndex = last;
         }
+        int firstArrayIndex = fromIndex / 64;
+        int lastArrayIndex = (toIndex - 1) / 64;
 
-        int idx1 = fromIndex >> OFFSET;
-        int idx2 = (toIndex - 1) >> OFFSET;
-        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
-
-        if (idx1 == idx2) {
-            bits[idx1] &= ~(factor1 & factor2);
+        long lowMask = ALL_ONES << fromIndex;
+        long highMask = ALL_ONES >>> -toIndex;
+        if (firstArrayIndex == lastArrayIndex) {
+            bits[firstArrayIndex] &= ~(lowMask & highMask);
         } else {
-            bits[idx1] &= ~factor1;
-            bits[idx2] &= ~factor2;
-            for (int i = idx1 + 1; i < idx2; i++) {
-                bits[i] = 0L;
+            int i = firstArrayIndex;
+            bits[i++] &= ~lowMask;
+            while (i < lastArrayIndex) {
+                bits[i++] = 0L;
             }
+            bits[i++] &= ~highMask;
         }
-        if ((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0)) {
-            isLengthActual = false;
-        }
+        shrinkSize();
     }
 
     /**
-     * Flips the bit at index {@code index}. Grows the {@code BitSet} if
-     * {@code index > size}.
+     * Flips the range of bits {@code [fromIndex, toIndex)}.
      *
-     * @param index
-     *            the index of the bit to flip.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative.
-     * @see #flip(int, int)
-     */
-    public void flip(int index) {
-        checkIndex(index);
-        int len = (index >> OFFSET) + 1;
-        if (len > bits.length) {
-            growLength(len);
-        }
-        bits[len - 1] ^= TWO_N_ARRAY[index & RIGHT_BITS];
-        if (len > actualArrayLength) {
-            actualArrayLength = len;
-        }
-        isLengthActual = !((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0));
-        needClear();
-    }
-
-    /**
-     * Flips the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
-     * {@code BitSet} if {@code toIndex > size}.
-     *
-     * @param fromIndex
-     *            inclusive beginning position.
-     * @param toIndex
-     *            exclusive ending position.
      * @throws IndexOutOfBoundsException
      *             if {@code fromIndex} or {@code toIndex} is negative, or if
      *             {@code toIndex} is smaller than {@code fromIndex}.
-     * @see #flip(int)
      */
     public void flip(int fromIndex, int toIndex) {
         checkRange(fromIndex, toIndex);
-
         if (fromIndex == toIndex) {
             return;
         }
-        int len2 = ((toIndex - 1) >> OFFSET) + 1;
-        if (len2 > bits.length) {
-            growLength(len2);
+        int firstArrayIndex = fromIndex / 64;
+        int lastArrayIndex = (toIndex - 1) / 64;
+        if (lastArrayIndex >= bits.length) {
+            ensureCapacity(lastArrayIndex + 1);
         }
 
-        int idx1 = fromIndex >> OFFSET;
-        int idx2 = (toIndex - 1) >> OFFSET;
-        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
-
-        if (idx1 == idx2) {
-            bits[idx1] ^= (factor1 & factor2);
+        long lowMask = ALL_ONES << fromIndex;
+        long highMask = ALL_ONES >>> -toIndex;
+        if (firstArrayIndex == lastArrayIndex) {
+            bits[firstArrayIndex] ^= (lowMask & highMask);
         } else {
-            bits[idx1] ^= factor1;
-            bits[idx2] ^= factor2;
-            for (int i = idx1 + 1; i < idx2; i++) {
-                bits[i] ^= (~0L);
+            int i = firstArrayIndex;
+            bits[i++] ^= lowMask;
+            while (i < lastArrayIndex) {
+                bits[i++] ^= ALL_ONES;
             }
+            bits[i++] ^= highMask;
         }
-        if (len2 > actualArrayLength) {
-            actualArrayLength = len2;
-        }
-        isLengthActual = !((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0));
-        needClear();
+        longCount = Math.max(longCount, lastArrayIndex + 1);
+        shrinkSize();
     }
 
     /**
-     * Checks if these two {@code BitSet}s have at least one bit set to true in the same
-     * position.
-     *
-     * @param bs
-     *            {@code BitSet} used to calculate the intersection.
-     * @return {@code true} if bs intersects with this {@code BitSet},
-     *         {@code false} otherwise.
+     * Returns true if {@code this.and(bs)} is non-empty, but may be faster than computing that.
      */
     public boolean intersects(BitSet bs) {
         long[] bsBits = bs.bits;
-        int length1 = actualArrayLength, length2 = bs.actualArrayLength;
-
-        if (length1 <= length2) {
-            for (int i = 0; i < length1; i++) {
-                if ((bits[i] & bsBits[i]) != 0L) {
-                    return true;
-                }
-            }
-        } else {
-            for (int i = 0; i < length2; i++) {
-                if ((bits[i] & bsBits[i]) != 0L) {
-                    return true;
-                }
+        int length = Math.min(this.longCount, bs.longCount);
+        for (int i = 0; i < length; ++i) {
+            if ((bits[i] & bsBits[i]) != 0L) {
+                return true;
             }
         }
-
         return false;
     }
 
     /**
-     * Performs the logical AND of this {@code BitSet} with another
-     * {@code BitSet}. The values of this {@code BitSet} are changed accordingly.
-     *
-     * @param bs
-     *            {@code BitSet} to AND with.
-     * @see #or
-     * @see #xor
+     * Logically ands the bits of this {@code BitSet} with {@code bs}.
      */
     public void and(BitSet bs) {
-        long[] bsBits = bs.bits;
-        if (!needClear) {
-            return;
+        int minSize = Math.min(this.longCount, bs.longCount);
+        for (int i = 0; i < minSize; ++i) {
+            bits[i] &= bs.bits[i];
         }
-        int length1 = actualArrayLength, length2 = bs.actualArrayLength;
-        if (length1 <= length2) {
-            for (int i = 0; i < length1; i++) {
-                bits[i] &= bsBits[i];
-            }
-        } else {
-            for (int i = 0; i < length2; i++) {
-                bits[i] &= bsBits[i];
-            }
-            for (int i = length2; i < length1; i++) {
-                bits[i] = 0;
-            }
-            actualArrayLength = length2;
-        }
-        isLengthActual = !((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0));
+        Arrays.fill(bits, minSize, longCount, 0L);
+        shrinkSize();
     }
 
     /**
-     * Clears all bits in the receiver which are also set in the parameter
-     * {@code BitSet}. The values of this {@code BitSet} are changed accordingly.
-     *
-     * @param bs
-     *            {@code BitSet} to ANDNOT with.
+     * Clears all bits in this {@code BitSet} which are also set in {@code bs}.
      */
     public void andNot(BitSet bs) {
-        long[] bsBits = bs.bits;
-        if (!needClear) {
-            return;
+        int minSize = Math.min(this.longCount, bs.longCount);
+        for (int i = 0; i < minSize; ++i) {
+            bits[i] &= ~bs.bits[i];
         }
-        int range = actualArrayLength < bs.actualArrayLength ? actualArrayLength
-                : bs.actualArrayLength;
-        for (int i = 0; i < range; i++) {
-            bits[i] &= ~bsBits[i];
-        }
-
-        if (actualArrayLength < range) {
-            actualArrayLength = range;
-        }
-        isLengthActual = !((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0));
+        shrinkSize();
     }
 
     /**
-     * Performs the logical OR of this {@code BitSet} with another {@code BitSet}.
-     * The values of this {@code BitSet} are changed accordingly.
-     *
-     * @param bs
-     *            {@code BitSet} to OR with.
-     * @see #xor
-     * @see #and
+     * Logically ors the bits of this {@code BitSet} with {@code bs}.
      */
     public void or(BitSet bs) {
-        int bsActualLen = bs.getActualArrayLength();
-        if (bsActualLen > bits.length) {
-            long[] tempBits = new long[bsActualLen];
-            System.arraycopy(bs.bits, 0, tempBits, 0, bs.actualArrayLength);
-            for (int i = 0; i < actualArrayLength; i++) {
-                tempBits[i] |= bits[i];
-            }
-            bits = tempBits;
-            actualArrayLength = bsActualLen;
-            isLengthActual = true;
-        } else {
-            long[] bsBits = bs.bits;
-            for (int i = 0; i < bsActualLen; i++) {
-                bits[i] |= bsBits[i];
-            }
-            if (bsActualLen > actualArrayLength) {
-                actualArrayLength = bsActualLen;
-                isLengthActual = true;
-            }
+        int minSize = Math.min(this.longCount, bs.longCount);
+        int maxSize = Math.max(this.longCount, bs.longCount);
+        ensureCapacity(maxSize);
+        for (int i = 0; i < minSize; ++i) {
+            bits[i] |= bs.bits[i];
         }
-        needClear();
+        if (bs.longCount > minSize) {
+            System.arraycopy(bs.bits, minSize, bits, minSize, maxSize - minSize);
+        }
+        longCount = maxSize;
     }
 
     /**
-     * Performs the logical XOR of this {@code BitSet} with another {@code BitSet}.
-     * The values of this {@code BitSet} are changed accordingly.
-     *
-     * @param bs
-     *            {@code BitSet} to XOR with.
-     * @see #or
-     * @see #and
+     * Logically xors the bits of this {@code BitSet} with {@code bs}.
      */
     public void xor(BitSet bs) {
-        int bsActualLen = bs.getActualArrayLength();
-        if (bsActualLen > bits.length) {
-            long[] tempBits = new long[bsActualLen];
-            System.arraycopy(bs.bits, 0, tempBits, 0, bs.actualArrayLength);
-            for (int i = 0; i < actualArrayLength; i++) {
-                tempBits[i] ^= bits[i];
-            }
-            bits = tempBits;
-            actualArrayLength = bsActualLen;
-            isLengthActual = !((actualArrayLength > 0) && (bits[actualArrayLength - 1] == 0));
-        } else {
-            long[] bsBits = bs.bits;
-            for (int i = 0; i < bsActualLen; i++) {
-                bits[i] ^= bsBits[i];
-            }
-            if (bsActualLen > actualArrayLength) {
-                actualArrayLength = bsActualLen;
-                isLengthActual = true;
-            }
+        int minSize = Math.min(this.longCount, bs.longCount);
+        int maxSize = Math.max(this.longCount, bs.longCount);
+        ensureCapacity(maxSize);
+        for (int i = 0; i < minSize; ++i) {
+            bits[i] ^= bs.bits[i];
         }
-        needClear();
+        if (bs.longCount > minSize) {
+            System.arraycopy(bs.bits, minSize, bits, minSize, maxSize - minSize);
+        }
+        longCount = maxSize;
+        shrinkSize();
     }
 
     /**
-     * Returns the number of bits this {@code BitSet} has.
-     *
-     * @return the number of bits contained in this {@code BitSet}.
-     * @see #length
+     * Returns the capacity in bits of the array implementing this {@code BitSet}. This is
+     * unrelated to the length of the {@code BitSet}, and not generally useful.
+     * Use {@link #nextSetBit} to iterate, or {@link #length} to find the highest set bit.
      */
     public int size() {
-        return bits.length << OFFSET;
+        return bits.length * 64;
     }
 
     /**
-     * Returns the number of bits up to and including the highest bit set.
-     *
-     * @return the length of the {@code BitSet}.
+     * Returns the number of bits up to and including the highest bit set. This is unrelated to
+     * the {@link #size} of the {@code BitSet}.
      */
     public int length() {
-        int idx = actualArrayLength - 1;
-        while (idx >= 0 && bits[idx] == 0) {
-            --idx;
-        }
-        actualArrayLength = idx + 1;
-        if (idx == -1) {
+        if (longCount == 0) {
             return 0;
         }
-        int i = ELM_SIZE - 1;
-        long val = bits[idx];
-        while ((val & (TWO_N_ARRAY[i])) == 0 && i > 0) {
-            i--;
-        }
-        return (idx << OFFSET) + i + 1;
-    }
-
-    private final int getActualArrayLength() {
-        if (isLengthActual) {
-            return actualArrayLength;
-        }
-        int idx = actualArrayLength - 1;
-        while (idx >= 0 && bits[idx] == 0) {
-            --idx;
-        }
-        actualArrayLength = idx + 1;
-        isLengthActual = true;
-        return actualArrayLength;
+        return 64 * (longCount - 1) + (64 - Long.numberOfLeadingZeros(bits[longCount - 1]));
     }
 
     /**
      * Returns a string containing a concise, human-readable description of the
-     * receiver.
-     *
-     * @return a comma delimited list of the indices of all bits that are set.
+     * receiver: a comma-delimited list of the indexes of all set bits.
+     * For example: {@code "{0,1,8}"}.
      */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(bits.length / 2);
-        int bitCount = 0;
+    @Override public String toString() {
+        //System.err.println("BitSet[longCount=" + longCount + ",bits=" + Arrays.toString(bits) + "]");
+        StringBuilder sb = new StringBuilder(longCount / 2);
         sb.append('{');
         boolean comma = false;
-        for (int i = 0; i < bits.length; i++) {
-            if (bits[i] == 0) {
-                bitCount += ELM_SIZE;
-                continue;
-            }
-            for (int j = 0; j < ELM_SIZE; j++) {
-                if (((bits[i] & (TWO_N_ARRAY[j])) != 0)) {
-                    if (comma) {
-                        sb.append(", ");
+        for (int i = 0; i < longCount; ++i) {
+            if (bits[i] != 0) {
+                for (int j = 0; j < 64; ++j) {
+                    if ((bits[i] & 1L << j) != 0) {
+                        if (comma) {
+                            sb.append(", ");
+                        } else {
+                            comma = true;
+                        }
+                        sb.append(64 * i + j);
                     }
-                    sb.append(bitCount);
-                    comma = true;
                 }
-                bitCount++;
             }
         }
         sb.append('}');
@@ -828,149 +562,192 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the position of the first bit that is {@code true} on or after {@code index}.
-     *
-     * @param index
-     *            the starting position (inclusive).
-     * @return -1 if there is no bits that are set to {@code true} on or after {@code index}.
+     * Returns the index of the first bit that is set on or after {@code index}, or -1
+     * if no higher bits are set.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
      */
     public int nextSetBit(int index) {
         checkIndex(index);
-
-        if (index >= actualArrayLength << OFFSET) {
+        int arrayIndex = index / 64;
+        if (arrayIndex >= longCount) {
             return -1;
         }
-
-        int idx = index >> OFFSET;
-        // first check in the same bit set element
-        if (bits[idx] != 0L) {
-            for (int j = index & RIGHT_BITS; j < ELM_SIZE; j++) {
-                if (((bits[idx] & (TWO_N_ARRAY[j])) != 0)) {
-                    return (idx << OFFSET) + j;
-                }
-            }
-
+        long mask = ALL_ONES << index;
+        if ((bits[arrayIndex] & mask) != 0) {
+            return 64 * arrayIndex + Long.numberOfTrailingZeros(bits[arrayIndex] & mask);
         }
-        idx++;
-        while (idx < actualArrayLength && bits[idx] == 0L) {
-            idx++;
+        while (++arrayIndex < longCount && bits[arrayIndex] == 0) {
         }
-        if (idx == actualArrayLength) {
+        if (arrayIndex == longCount) {
             return -1;
         }
+        return 64 * arrayIndex + Long.numberOfTrailingZeros(bits[arrayIndex]);
+    }
 
-        // we know for sure there is a bit set to true in this element
-        // since the bitset value is not 0L
-        for (int j = 0; j < ELM_SIZE; j++) {
-            if (((bits[idx] & (TWO_N_ARRAY[j])) != 0)) {
-                return (idx << OFFSET) + j;
+    /**
+     * Returns the index of the first bit that is clear on or after {@code index}.
+     * Since all bits past the end are implicitly clear, this never returns -1.
+     * @throws IndexOutOfBoundsException if {@code index < 0}.
+     */
+    public int nextClearBit(int index) {
+        checkIndex(index);
+        int arrayIndex = index / 64;
+        if (arrayIndex >= longCount) {
+            return index;
+        }
+        long mask = ALL_ONES << index;
+        if ((~bits[arrayIndex] & mask) != 0) {
+            return 64 * arrayIndex + Long.numberOfTrailingZeros(~bits[arrayIndex] & mask);
+        }
+        while (++arrayIndex < longCount && bits[arrayIndex] == ALL_ONES) {
+        }
+        if (arrayIndex == longCount) {
+            return size();
+        }
+        return 64 * arrayIndex + Long.numberOfTrailingZeros(~bits[arrayIndex]);
+    }
+
+    /**
+     * Returns the index of the first bit that is set on or before {@code index}, or -1 if
+     * no lower bits are set or {@code index == -1}.
+     * @throws IndexOutOfBoundsException if {@code index < -1}.
+     * @hide 1.7
+     */
+    public int previousSetBit(int index) {
+        if (index == -1) {
+            return -1;
+        }
+        checkIndex(index);
+        // TODO: optimize this.
+        for (int i = index; i >= 0; --i) {
+            if (get(i)) {
+                return i;
             }
         }
-
         return -1;
     }
 
     /**
-     * Returns the position of the first bit that is {@code false} on or after {@code index}.
-     *
-     * @param index
-     *            the starting position (inclusive).
-     * @return the position of the next bit set to {@code false}, even if it is further
-     *         than this {@code BitSet}'s size.
+     * Returns the index of the first bit that is clear on or before {@code index}, or -1 if
+     * no lower bits are clear or {@code index == -1}.
+     * @throws IndexOutOfBoundsException if {@code index < -1}.
+     * @hide 1.7
      */
-    public int nextClearBit(int index) {
+    public int previousClearBit(int index) {
+        if (index == -1) {
+            return -1;
+        }
         checkIndex(index);
-
-        int length = actualArrayLength;
-        int bssize = length << OFFSET;
-        if (index >= bssize) {
-            return index;
-        }
-
-        int idx = index >> OFFSET;
-        // first check in the same bit set element
-        if (bits[idx] != (~0L)) {
-            for (int j = index % ELM_SIZE; j < ELM_SIZE; j++) {
-                if (((bits[idx] & (TWO_N_ARRAY[j])) == 0)) {
-                    return idx * ELM_SIZE + j;
-                }
+        // TODO: optimize this.
+        for (int i = index; i >= 0; --i) {
+            if (!get(i)) {
+                return i;
             }
         }
-        idx++;
-        while (idx < length && bits[idx] == (~0L)) {
-            idx++;
-        }
-        if (idx == length) {
-            return bssize;
-        }
-
-        // we know for sure there is a bit set to true in this element
-        // since the bitset value is not 0L
-        for (int j = 0; j < ELM_SIZE; j++) {
-            if (((bits[idx] & (TWO_N_ARRAY[j])) == 0)) {
-                return (idx << OFFSET) + j;
-            }
-        }
-
-        return bssize;
+        return -1;
     }
 
     /**
-     * Returns true if all the bits in this {@code BitSet} are set to false.
-     *
-     * @return {@code true} if the {@code BitSet} is empty,
-     *         {@code false} otherwise.
+     * Returns true if all the bits in this {@code BitSet} are set to false, false otherwise.
      */
     public boolean isEmpty() {
-        if (!needClear) {
-            return true;
-        }
-        int length = bits.length;
-        for (int idx = 0; idx < length; idx++) {
-            if (bits[idx] != 0L) {
-                return false;
-            }
-        }
-        return true;
+        return (longCount == 0);
     }
 
     /**
      * Returns the number of bits that are {@code true} in this {@code BitSet}.
-     *
-     * @return the number of {@code true} bits in the set.
      */
     public int cardinality() {
-        if (!needClear) {
-            return 0;
+        int result = 0;
+        for (int i = 0; i < longCount; ++i) {
+            result += Long.bitCount(bits[i]);
         }
-        int count = 0;
-        int length = bits.length;
-        // FIXME: need to test performance, if still not satisfied, change it to
-        // 256-bits table based
-        for (int idx = 0; idx < length; idx++) {
-            count += pop(bits[idx] & 0xffffffffL);
-            count += pop(bits[idx] >>> 32);
-        }
-        return count;
+        return result;
     }
 
-    private final int pop(long x) {
-        // BEGIN android-note
-        // delegate to Integer.bitCount(i); consider using native code
-        // END android-note
-        x = x - ((x >>> 1) & 0x55555555);
-        x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
-        x = (x + (x >>> 4)) & 0x0f0f0f0f;
-        x = x + (x >>> 8);
-        x = x + (x >>> 16);
-        return (int) x & 0x0000003f;
+    /**
+     * Equivalent to {@code BitSet.valueOf(LongBuffer.wrap(longs))}, but likely to be faster.
+     * This is likely to be the fastest way to create a {@code BitSet} because it's closest
+     * to the internal representation.
+     * @hide 1.7
+     */
+    public static BitSet valueOf(long[] longs) {
+        return new BitSet(longs.clone());
     }
 
-    private void readObject(ObjectInputStream ois) throws IOException,
-            ClassNotFoundException {
+    /**
+     * Returns a {@code BitSet} corresponding to {@code longBuffer}, interpreted as a little-endian
+     * sequence of bits. This method does not alter the {@code LongBuffer}.
+     * @hide 1.7
+     */
+    public static BitSet valueOf(LongBuffer longBuffer) {
+        // The bulk get would mutate LongBuffer (even if we reset position later), and it's not
+        // clear that's allowed. My assumption is that it's the long[] variant that's the common
+        // case anyway, so copy the buffer into a long[].
+        long[] longs = new long[longBuffer.remaining()];
+        for (int i = 0; i < longs.length; ++i) {
+            longs[i] = longBuffer.get(longBuffer.position() + i);
+        }
+        return BitSet.valueOf(longs);
+    }
+
+    /**
+     * Equivalent to {@code BitSet.valueOf(ByteBuffer.wrap(bytes))}.
+     * @hide 1.7
+     */
+    public static BitSet valueOf(byte[] bytes) {
+        return BitSet.valueOf(ByteBuffer.wrap(bytes));
+    }
+
+    /**
+     * Returns a {@code BitSet} corresponding to {@code byteBuffer}, interpreted as a little-endian
+     * sequence of bits. This method does not alter the {@code ByteBuffer}.
+     * @hide 1.7
+     */
+    public static BitSet valueOf(ByteBuffer byteBuffer) {
+        byteBuffer = byteBuffer.slice().order(ByteOrder.LITTLE_ENDIAN);
+        long[] longs = arrayForBits(byteBuffer.remaining() * 8);
+        int i = 0;
+        while (byteBuffer.remaining() >= SizeOf.LONG) {
+            longs[i++] = byteBuffer.getLong();
+        }
+        for (int j = 0; byteBuffer.hasRemaining(); ++j) {
+            longs[i] |= ((((long) byteBuffer.get()) & 0xff) << (8*j));
+        }
+        return BitSet.valueOf(longs);
+    }
+
+    /**
+     * Returns a new {@code long[]} containing a little-endian representation of the bits of
+     * this {@code BitSet}, suitable for passing to {@code valueOf} to reconstruct
+     * this {@code BitSet}.
+     * @hide 1.7
+     */
+    public long[] toLongArray() {
+        return Arrays.copyOf(bits, longCount);
+    }
+
+    /**
+     * Returns a new {@code byte[]} containing a little-endian representation the bits of
+     * this {@code BitSet}, suitable for passing to {@code valueOf} to reconstruct
+     * this {@code BitSet}.
+     * @hide 1.7
+     */
+    public byte[] toByteArray() {
+        int bitCount = length();
+        byte[] result = new byte[(bitCount + 7)/ 8];
+        for (int i = 0; i < result.length; ++i) {
+            int lowBit = 8 * i;
+            int arrayIndex = lowBit / 64;
+            result[i] = (byte) (bits[arrayIndex] >>> lowBit);
+        }
+        return result;
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        this.isLengthActual = false;
-        this.actualArrayLength = bits.length;
-        this.needClear = this.getActualArrayLength() != 0;
+        // The serialized form doesn't include a 'longCount' field, so we'll have to scan the array.
+        this.longCount = this.bits.length;
+        shrinkSize();
     }
 }
