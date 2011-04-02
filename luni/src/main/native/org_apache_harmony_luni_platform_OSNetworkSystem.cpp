@@ -42,8 +42,6 @@
 
 #define JAVASOCKOPT_IP_MULTICAST_IF 16
 #define JAVASOCKOPT_IP_MULTICAST_IF2 31
-#define JAVASOCKOPT_MCAST_JOIN_GROUP 19
-#define JAVASOCKOPT_MCAST_LEAVE_GROUP 20
 #define JAVASOCKOPT_SO_BINDTODEVICE 8192
 
 /* constants for OSNetworkSystem_selectImpl */
@@ -242,46 +240,6 @@ public:
 private:
     JNIEnv* mEnv;
 };
-
-static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, bool join) {
-    group_req groupRequest;
-
-    // Get the IPv4 or IPv6 multicast address to join or leave.
-    static jfieldID grGroupFid = env->GetFieldID(JniConstants::multicastGroupRequestClass,
-            "gr_group", "Ljava/net/InetAddress;");
-    jobject group = env->GetObjectField(javaGroupRequest, grGroupFid);
-    if (!inetAddressToSocketAddress(env, group, 0, &groupRequest.gr_group)) {
-        return;
-    }
-
-    // Get the interface index to use (or 0 for "whatever").
-    static jfieldID grInterfaceFid =
-            env->GetFieldID(JniConstants::multicastGroupRequestClass, "gr_interface", "I");
-    groupRequest.gr_interface = env->GetIntField(javaGroupRequest, grInterfaceFid);
-
-    // Decide exactly what we're trying to do...
-    int level = groupRequest.gr_group.ss_family == AF_INET ? IPPROTO_IP : IPPROTO_IPV6;
-    int option = join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
-
-    int rc = setsockopt(fd, level, option, &groupRequest, sizeof(groupRequest));
-    if (rc == -1 && errno == EINVAL) {
-        // Maybe we're a 32-bit binary talking to a 64-bit kernel?
-        // glibc doesn't automatically handle this.
-        struct GCC_HIDDEN group_req64 {
-            uint32_t gr_interface;
-            uint32_t my_padding;
-            sockaddr_storage gr_group;
-        };
-        group_req64 groupRequest64;
-        groupRequest64.gr_interface = groupRequest.gr_interface;
-        memcpy(&groupRequest64.gr_group, &groupRequest.gr_group, sizeof(groupRequest.gr_group));
-        rc = setsockopt(fd, level, option, &groupRequest64, sizeof(groupRequest64));
-    }
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-        return;
-    }
-}
 
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
@@ -832,8 +790,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         wasBoolean = true;
     } else if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
         // We use optVal directly as an InetAddress for IP_MULTICAST_IF.
-    } else if (env->IsInstanceOf(optVal, JniConstants::multicastGroupRequestClass)) {
-        // We use optVal directly as a MulticastGroupRequest for MCAST_JOIN_GROUP/MCAST_LEAVE_GROUP.
     } else {
         jniThrowSocketException(env, EINVAL);
         return;
@@ -856,12 +812,6 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
           }
           return;
         }
-    case JAVASOCKOPT_MCAST_JOIN_GROUP:
-        mcastJoinLeaveGroup(env, fd.get(), optVal, true);
-        return;
-    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
-        mcastJoinLeaveGroup(env, fd.get(), optVal, false);
-        return;
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
             sockaddr_storage sockVal;

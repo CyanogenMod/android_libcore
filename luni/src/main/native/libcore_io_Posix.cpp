@@ -609,6 +609,36 @@ static void Posix_setsockoptInt(JNIEnv* env, jobject, jobject javaFd, jint level
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
 
+static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jobject javaGroupReq) {
+    struct group_req value;
+
+    static jfieldID grInterfaceFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_interface", "I");
+    value.gr_interface = env->GetIntField(javaGroupReq, grInterfaceFid);
+    // Get the IPv4 or IPv6 multicast address to join or leave.
+    static jfieldID grGroupFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_group", "Ljava/net/InetAddress;");
+    jobject javaGroup = env->GetObjectField(javaGroupReq, grGroupFid);
+    if (!inetAddressToSocketAddress(env, javaGroup, 0, &value.gr_group)) {
+        return;
+    }
+
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value)));
+    if (rc == -1 && errno == EINVAL) {
+        // Maybe we're a 32-bit binary talking to a 64-bit kernel?
+        // glibc doesn't automatically handle this.
+        struct GCC_HIDDEN group_req64 {
+            uint32_t gr_interface;
+            uint32_t my_padding;
+            sockaddr_storage gr_group;
+        };
+        group_req64 value64;
+        value64.gr_interface = value.gr_interface;
+        memcpy(&value64.gr_group, &value.gr_group, sizeof(value.gr_group));
+        rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value64, sizeof(value64)));
+    }
+    throwIfMinusOne(env, "setsockopt", rc);
+}
+
 static void Posix_setsockoptLinger(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jobject javaLinger) {
     static jfieldID lOnoffFid = env->GetFieldID(JniConstants::structLingerClass, "l_onoff", "I");
     static jfieldID lLingerFid = env->GetFieldID(JniConstants::structLingerClass, "l_linger", "I");
@@ -759,6 +789,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
     NATIVE_METHOD(Posix, setsockoptByte, "(Ljava/io/FileDescriptor;III)V"),
     NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
+    NATIVE_METHOD(Posix, setsockoptGroupReq, "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupReq;)V"),
     NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILlibcore/io/StructLinger;)V"),
     NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILlibcore/io/StructTimeval;)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),

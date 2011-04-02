@@ -24,12 +24,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastGroupRequest;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import libcore.io.IoUtils;
+import libcore.io.StructGroupReq;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -116,29 +116,34 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         return (byte) getTimeToLive();
     }
 
+    private static StructGroupReq makeGroupReq(InetAddress gr_group, NetworkInterface networkInterface) {
+        int gr_interface = (networkInterface != null) ? networkInterface.getIndex() : 0;
+        return new StructGroupReq(gr_interface, gr_group);
+    }
+
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 

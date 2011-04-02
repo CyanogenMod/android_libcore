@@ -62,7 +62,6 @@ struct JniConstants {
     static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;
-    static jclass multicastGroupRequestClass;
     static jclass mutableIntClass;
     static jclass mutableLongClass;
     static jclass parsePositionClass;
@@ -73,6 +72,7 @@ struct JniConstants {
     static jclass stringArrayClass;
     static jclass stringClass;
     static jclass structFlockClass;
+    static jclass structGroupReqClass;
     static jclass structLingerClass;
     static jclass structStatClass;
     static jclass structStatFsClass;
