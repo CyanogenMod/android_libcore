@@ -34,7 +34,7 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {
         checkBounds(buffer, offset, count);
         checkNotClosed();
-        if (in == null) {
+        if (in == null || inputExhausted) {
             return -1;
         }
         int read = in.read(buffer, offset, count);
