@@ -74,6 +74,7 @@ public final class Posix implements Os {
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public native void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public native void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
     public native void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public native void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;

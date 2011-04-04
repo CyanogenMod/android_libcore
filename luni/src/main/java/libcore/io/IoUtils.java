@@ -374,6 +374,13 @@ public final class IoUtils {
         case SocketOptions.TCP_NODELAY:
             Libcore.os.setsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY, booleanToInt((Boolean) value));
             return;
+        case IoUtils.JAVA_MCAST_JOIN_GROUP:
+        case IoUtils.JAVA_MCAST_LEAVE_GROUP:
+            StructGroupReq groupReq = (StructGroupReq) value;
+            int level = (groupReq.gr_group instanceof Inet4Address) ? IPPROTO_IP : IPPROTO_IPV6;
+            int op = (option == JAVA_MCAST_JOIN_GROUP) ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
+            Libcore.os.setsockoptGroupReq(fd, level, op, groupReq);
+            return;
         default:
             // TODO
             org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
