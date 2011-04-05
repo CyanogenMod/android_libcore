@@ -175,17 +175,11 @@ public final class NetworkInterface extends Object {
     }
 
     /**
-     * Gets the specific network interface according to the given address.
+     * Returns the {@code NetworkInterface} corresponding to the given address, or null if no
+     * interface has this address.
      *
-     * @param address
-     *            the address to identify the searched network interface.
-     * @return the network interface with the specified address if one exists or
-     *         {@code null} otherwise.
-     * @throws SocketException
-     *             if an error occurs while getting the network interface
-     *             information.
-     * @throws NullPointerException
-     *             if the given interface address is invalid.
+     * @throws SocketException if an error occurs.
+     * @throws NullPointerException if {@code address == null}.
      */
     public static NetworkInterface getByInetAddress(InetAddress address) throws SocketException {
         if (address == null) {
@@ -193,6 +187,23 @@ public final class NetworkInterface extends Object {
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.addresses.contains(address)) {
+                return networkInterface;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the NetworkInterface corresponding to the given interface index, or null if no
+     * interface has this index.
+     *
+     * @throws SocketException if an error occurs.
+     * @throws NullPointerException if {@code address == null}.
+     * @hide 1.7
+     */
+    public static NetworkInterface getByIndex(int index) throws SocketException {
+        for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
+            if (networkInterface.interfaceIndex == index) {
                 return networkInterface;
             }
         }

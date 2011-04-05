@@ -68,37 +68,33 @@ public class MulticastSocket extends DatagramSocket {
      */
     public InetAddress getInterface() throws SocketException {
         checkClosedAndBind(false);
-        if (interfaceSet == null) {
-            InetAddress ipvXaddress = (InetAddress) impl
-                    .getOption(SocketOptions.IP_MULTICAST_IF);
-            if (ipvXaddress.isAnyLocalAddress()) {
-                // the address was not set at the IPv4 level so check the IPv6
-                // level
-                NetworkInterface theInterface = getNetworkInterface();
-                if (theInterface != null) {
-                    Enumeration<InetAddress> addresses = theInterface
-                            .getInetAddresses();
-                    if (addresses != null) {
-                        while (addresses.hasMoreElements()) {
-                            InetAddress nextAddress = addresses.nextElement();
-                            if (nextAddress instanceof Inet6Address) {
-                                return nextAddress;
-                            }
+        if (interfaceSet != null) {
+            return interfaceSet;
+        }
+        InetAddress ipvXaddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
+        if (ipvXaddress.isAnyLocalAddress()) {
+            // the address was not set at the IPv4 level so check the IPv6
+            // level
+            NetworkInterface theInterface = getNetworkInterface();
+            if (theInterface != null) {
+                Enumeration<InetAddress> addresses = theInterface.getInetAddresses();
+                if (addresses != null) {
+                    while (addresses.hasMoreElements()) {
+                        InetAddress nextAddress = addresses.nextElement();
+                        if (nextAddress instanceof Inet6Address) {
+                            return nextAddress;
                         }
                     }
                 }
             }
-            return ipvXaddress;
         }
-        return interfaceSet;
+        return ipvXaddress;
     }
 
     /**
-     * Gets the network interface used by this socket. This is useful on
+     * Returns the outgoing network interface used by this socket. This is useful on
      * multihomed machines.
      *
-     * @return the network interface used by this socket or {@code null} if no
-     *         interface is set.
      * @throws SocketException
      *                if an error occurs while getting the interface.
      * @since 1.4
@@ -106,46 +102,20 @@ public class MulticastSocket extends DatagramSocket {
     public NetworkInterface getNetworkInterface() throws SocketException {
         checkClosedAndBind(false);
 
-        // check if it is set at the IPv6 level. If so then use that. Otherwise
-        // do it at the IPv4 level
-        Integer theIndex = Integer.valueOf(0);
-        try {
-            theIndex = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
-        } catch (SocketException e) {
-            // we may get an exception if IPv6 is not enabled.
+        int index = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
+        if (index != 0) {
+            return NetworkInterface.getByIndex(index);
         }
 
-        if (theIndex.intValue() != 0) {
-            Enumeration<NetworkInterface> theInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (theInterfaces.hasMoreElements()) {
-                NetworkInterface nextInterface = theInterfaces.nextElement();
-                if (nextInterface.getIndex() == theIndex.intValue()) {
-                    return nextInterface;
-                }
-            }
+        // This is what the RI returns for a MulticastSocket that hasn't been constrained
+        // to a specific interface.
+        InetAddress[] addresses;
+        if (InetAddress.preferIPv6Addresses()) {
+            addresses = new InetAddress[] { Inet6Address.ANY };
+        } else {
+            addresses = new InetAddress[] { Inet4Address.ANY };
         }
-
-        // ok it was not set at the IPv6 level so try at the IPv4 level
-        InetAddress theAddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
-        if (theAddress != null) {
-            if (!theAddress.isAnyLocalAddress()) {
-                return NetworkInterface.getByInetAddress(theAddress);
-            }
-
-            // not set as we got the any address so return a dummy network
-            // interface with only the any address. We do this to be
-            // compatible
-            InetAddress theAddresses[] = new InetAddress[1];
-            if (InetAddress.preferIPv6Addresses()) {
-                theAddresses[0] = Inet6Address.ANY;
-            } else {
-                theAddresses[0] = Inet4Address.ANY;
-            }
-            return new NetworkInterface(null, null, theAddresses, UNSET_INTERFACE_INDEX);
-        }
-
-        // ok not set at all so return null
-        return null;
+        return new NetworkInterface(null, null, addresses, UNSET_INTERFACE_INDEX);
     }
 
     /**
@@ -341,15 +311,13 @@ public class MulticastSocket extends DatagramSocket {
         NetworkInterface theInterface = NetworkInterface.getByInetAddress(addr);
         if ((theInterface != null) && (theInterface.getIndex() != 0)) {
             try {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(theInterface.getIndex()));
+                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer.valueOf(theInterface.getIndex()));
             } catch (SocketException e) {
                 // Ignored
             }
         } else if (addr.isAnyLocalAddress()) {
             try {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(0));
+                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer.valueOf(0));
             } catch (SocketException e) {
                 // Ignored
             }
@@ -480,8 +448,7 @@ public class MulticastSocket extends DatagramSocket {
 
     @Override
     synchronized void createSocket(int aPort, InetAddress addr) throws SocketException {
-        impl = factory != null ? factory.createDatagramSocketImpl()
-                : new PlainDatagramSocketImpl();
+        impl = factory != null ? factory.createDatagramSocketImpl() : new PlainDatagramSocketImpl();
         impl.create();
         try {
             impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.TRUE);
@@ -522,8 +489,7 @@ public class MulticastSocket extends DatagramSocket {
      */
     public boolean getLoopbackMode() throws SocketException {
         checkClosedAndBind(false);
-        return !((Boolean) impl.getOption(SocketOptions.IP_MULTICAST_LOOP))
-                .booleanValue();
+        return !((Boolean) impl.getOption(SocketOptions.IP_MULTICAST_LOOP)).booleanValue();
     }
 
     /**
