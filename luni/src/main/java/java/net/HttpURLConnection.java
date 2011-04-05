@@ -708,7 +708,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * @param contentLength
      *            the fixed length of the HTTP request body.
      * @throws IllegalStateException
-     *             if already connected or an other mode already set.
+     *             if already connected or another mode already set.
      * @throws IllegalArgumentException
      *             if {@code contentLength} is less than zero.
      */

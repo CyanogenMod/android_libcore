@@ -45,7 +45,7 @@ public interface SocketOptions {
     public static final int SO_LINGER = 128;
 
     /**
-     * Timeout in milliseconds for blocking accept or read/receive operations (but not
+     * Integer timeout in milliseconds for blocking accept or read/receive operations (but not
      * write/send operations). A timeout of 0 means no timeout. Negative
      * timeouts are not allowed.
      *
@@ -54,38 +54,30 @@ public interface SocketOptions {
     public static final int SO_TIMEOUT = 4102;
 
     /**
-     * Whether data is sent immediately on this socket.
+     * This boolean option specifies whether data is sent immediately on this socket.
      * As a side-effect this could lead to low packet efficiency. The
      * socket implementation uses the Nagle's algorithm to try to reach a higher
      * packet efficiency if this option is disabled.
      */
     public static final int TCP_NODELAY = 1;
 
-    // For 5 and 6 see MulticastSocket
-
-    // For 7 see PlainDatagramSocketImpl
-
     /**
-     * The interface used to send multicast packets.
-     * This option is only available on a {@link MulticastSocket}.
+     * This is an IPv4-only socket option whose functionality is subsumed by
+     * {@link #IP_MULTICAST_IF} and not implemented on Android.
      */
     public static final int IP_MULTICAST_IF = 16;
 
     /**
-     * This option can be used to set one specific interface on a multihomed
-     * host on which incoming connections are accepted. It's only available on
-     * server-side sockets.
+     * This option does not correspond to any Unix socket option and is not implemented on Android.
      */
     public static final int SO_BINDADDR = 15;
 
     /**
-     * This option specifies whether a reuse of a local address is allowed even
-     * if an other socket is not yet removed by the operating system. It's only
+     * This boolean option specifies whether a reuse of a local address is allowed even
+     * if another socket is not yet removed by the operating system. It's only
      * available on a {@code MulticastSocket}.
      */
     public static final int SO_REUSEADDR = 4;
-
-    // 10 not currently used
 
     /**
      * The size in bytes of a socket's send buffer. This must be an integer greater than 0.
@@ -105,27 +97,24 @@ public interface SocketOptions {
     public static final int SO_RCVBUF = 4098;
 
     /**
-     * This option can be used to bind a datagram socket to a
+     * This integer option can be used to bind a datagram socket to a
      * particular network interface.  When this is done, only packets
      * received on the specified interface will be processed by the
      * socket.  Packets sent via this socket will be transmitted by
      * the specified interface.  The argument to this operation is the
-     * network-interface index.
+     * network interface index.
      * @hide
      */
     public static final int SO_BINDTODEVICE = 8192;
 
-    // For 13, see DatagramSocket
-
     /**
-     * This option specifies whether socket implementations can send keepalive
-     * messages if no data has been sent for a longer time.
+     * This boolean option specifies whether the kernel sends keepalive messages.
      */
     public static final int SO_KEEPALIVE = 8;
 
     /**
-     * This option specifies the value for the type-of-service field of the IPv4 header, or the
-     * traffic class field of the IPv6 header. These correspond to the IP_TOS and IPV6_TCLASS
+     * This integer option specifies the value for the type-of-service field of the IPv4 header,
+     * or the traffic class field of the IPv6 header. These correspond to the IP_TOS and IPV6_TCLASS
      * socket options. These may be ignored by the underlying OS. Values must be between 0 and 255
      * inclusive.
      *
@@ -135,14 +124,16 @@ public interface SocketOptions {
     public static final int IP_TOS = 3;
 
     /**
-     * This option specifies whether the local loopback of multicast packets is
+     * This boolean option specifies whether the local loopback of multicast packets is
      * enabled or disabled. This option is enabled by default on multicast
-     * sockets.
+     * sockets. Note that the sense of this option in Java is the
+     * <i>opposite</i> of the underlying Unix {@code IP_MULTICAST_LOOP}.
+     * See {@link MulticastSocket#setLoopbackMode}.
      */
     public static final int IP_MULTICAST_LOOP = 18;
 
     /**
-     * This option can be used to enable broadcasting on datagram sockets.
+     * This boolean option can be used to enable broadcasting on datagram sockets.
      */
     public static final int SO_BROADCAST = 32;
 
@@ -153,10 +144,8 @@ public interface SocketOptions {
     public static final int SO_OOBINLINE = 4099;
 
     /**
-     * This option can be used to set one specific interface on a multihomed
-     * host on which incoming connections are accepted. It's only available on
-     * server-side sockets. This option supports setting outgoing interfaces
-     * with either IPv4 or IPv6 addresses.
+     * This integer option sets the outgoing interface for multicast packets
+     * using an interface index.
      */
     public static final int IP_MULTICAST_IF2 = 31;
 
