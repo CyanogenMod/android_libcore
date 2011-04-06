@@ -132,7 +132,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            IoUtils.close(fd);
+            IoUtils.close(ownedFd);
         }
     }
 

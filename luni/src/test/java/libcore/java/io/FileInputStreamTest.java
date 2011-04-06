@@ -16,6 +16,7 @@
 
 package libcore.java.io;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -85,6 +86,27 @@ public final class FileInputStreamTest extends TestCase {
             new FileInputStream(".");
             fail();
         } catch (FileNotFoundException expected) {
+        }
+    }
+
+    public void testFileDescriptorOwnership() throws Exception {
+        File tmp = File.createTempFile("FileOutputStreamTest", "tmp");
+        FileOutputStream fos = new FileOutputStream(tmp);
+        fos.write(1);
+        fos.write(1);
+        fos.close();
+
+        FileInputStream fis1 = new FileInputStream(tmp);
+        FileInputStream fis2 = new FileInputStream(fis1.getFD());
+        fis2.close();
+        // The underlying FileDescriptor shouldn't be closed, so this should succeed.
+        assertFalse(fis1.read() == -1);
+        fis1.close();
+        try {
+            // This should fail.
+            fis1.read();
+            fail();
+        } catch (IOException expected) {
         }
     }
 }
