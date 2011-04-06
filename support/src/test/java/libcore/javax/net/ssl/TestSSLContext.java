@@ -16,13 +16,14 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.security.SecureRandom;
-import libcore.java.security.StandardNames;
-import libcore.java.security.TestKeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -30,10 +31,14 @@ import java.util.Collections;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.Assert;
+import libcore.java.security.StandardNames;
+import libcore.java.security.TestKeyStore;
 
 /**
  * TestSSLContext is a convenience class for other tests that
@@ -254,5 +259,49 @@ public final class TestSSLContext extends Assert {
             throws CertificateException {
         X509Certificate[] chain = (X509Certificate[]) clientChain;
         trustManager.checkClientTrusted(chain, chain[0].getPublicKey().getAlgorithm());
+    }
+
+    /**
+     * Returns an SSLSocketFactory that calls setWantClientAuth and
+     * setNeedClientAuth as specified on all returned sockets.
+     */
+    public static SSLSocketFactory clientAuth(final SSLSocketFactory sf,
+                                              final boolean want,
+                                              final boolean need) {
+        return new SSLSocketFactory() {
+            private SSLSocket set(Socket socket) {
+                SSLSocket s = (SSLSocket) socket;
+                s.setWantClientAuth(want);
+                s.setNeedClientAuth(need);
+                return s;
+            }
+            public Socket createSocket(String host, int port)
+                    throws IOException, UnknownHostException {
+                return set(sf.createSocket(host, port));
+            }
+            public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
+                    throws IOException, UnknownHostException {
+                return set(sf.createSocket(host, port, localHost, localPort));
+            }
+            public Socket createSocket(InetAddress host, int port) throws IOException {
+                return set(sf.createSocket(host, port));
+            }
+            public Socket createSocket(InetAddress address, int port,
+                                       InetAddress localAddress, int localPort) throws IOException {
+                return set(sf.createSocket(address, port));
+            }
+
+            public String[] getDefaultCipherSuites() {
+                return sf.getDefaultCipherSuites();
+            }
+            public String[] getSupportedCipherSuites() {
+                return sf.getSupportedCipherSuites();
+            }
+
+            public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+                    throws IOException {
+                return set(sf.createSocket(s, host, port, autoClose));
+            }
+        };
     }
 }
