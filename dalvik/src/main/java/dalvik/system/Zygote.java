@@ -16,6 +16,7 @@
 
 package dalvik.system;
 
+import java.io.File;
 import java.lang.FinalizerThread;
 import java.lang.ref.ReferenceQueueThread;
 
@@ -51,6 +52,23 @@ public class Zygote {
     private static void preFork() {
         ReferenceQueueThread.stopReferenceQueue();
         FinalizerThread.stopFinalizer();
+        waitUntilAllThreadsStopped();
+    }
+
+    /**
+     * We must not fork until we're single-threaded again. Wait until /proc shows we're
+     * down to just one thread.
+     */
+    private static void waitUntilAllThreadsStopped() {
+        File tasks = new File("/proc/self/task");
+        while (tasks.list().length > 1) {
+            try {
+                // Experimentally, booting and playing about with a stingray, I never saw us
+                // go round this loop more than once with a 10ms sleep.
+                Thread.sleep(10);
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     private static void postFork() {
