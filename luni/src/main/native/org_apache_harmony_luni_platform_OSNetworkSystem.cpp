@@ -40,10 +40,6 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define JAVASOCKOPT_IP_MULTICAST_IF 16
-#define JAVASOCKOPT_IP_MULTICAST_IF2 31
-#define JAVASOCKOPT_SO_BINDTODEVICE 8192
-
 /* constants for OSNetworkSystem_selectImpl */
 #define SOCKET_OP_NONE 0
 #define SOCKET_OP_READ 1
@@ -765,80 +761,6 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
             translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
 }
 
-template <typename T>
-static void setSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
-    int rc = setsockopt(fd.get(), level, option, value, sizeof(*value));
-    if (rc == -1) {
-        LOGE("setSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd.get(), level, option, strerror(errno), errno);
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option, jobject optVal) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    int intVal;
-    bool wasBoolean = false;
-    if (env->IsInstanceOf(optVal, JniConstants::integerClass)) {
-        intVal = intValue(env, optVal);
-    } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
-        intVal = (int) booleanValue(env, optVal);
-        wasBoolean = true;
-    } else if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
-        // We use optVal directly as an InetAddress for IP_MULTICAST_IF.
-    } else {
-        jniThrowSocketException(env, EINVAL);
-        return;
-    }
-
-    switch (option) {
-    case JAVASOCKOPT_SO_BINDTODEVICE: {
-          // intVal contains the interface index
-          char ifname[IF_NAMESIZE];
-
-          if (if_indextoname(intVal, ifname) == NULL) {
-              jniThrowSocketException(env, ENODEV);
-          } else {
-              ifreq ifr;
-
-              memset(&ifr, 0, sizeof(ifr));
-              strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
-              ifr.ifr_name[sizeof(ifr.ifr_name) - 1] = '\0';
-              setSocketOption(env, fd, SOL_SOCKET, SO_BINDTODEVICE, &ifr);
-          }
-          return;
-        }
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-        {
-            sockaddr_storage sockVal;
-            if (!env->IsInstanceOf(optVal, JniConstants::inetAddressClass) ||
-                    !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
-                return;
-            }
-            ip_mreqn mcast_req;
-            memset(&mcast_req, 0, sizeof(mcast_req));
-            mcast_req.imr_address = reinterpret_cast<sockaddr_in*>(&sockVal)->sin_addr;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &mcast_req);
-            return;
-        }
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-        // IP_MULTICAST_IF expects a pointer to an ip_mreqn struct.
-        ip_mreqn multicastRequest;
-        memset(&multicastRequest, 0, sizeof(multicastRequest));
-        multicastRequest.imr_ifindex = intVal;
-        setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-        // IPV6_MULTICAST_IF expects a pointer to an integer.
-        setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
-        return;
-    default:
-        jniThrowSocketException(env, ENOPROTOOPT);
-    }
-}
-
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
@@ -869,7 +791,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
-    NATIVE_METHOD(OSNetworkSystem, setSocketOption, "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V"),
     NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),
 };

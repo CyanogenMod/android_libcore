@@ -96,17 +96,6 @@ public interface INetworkSystem {
             int numReadable, int numWritable, long timeout, int[] flags)
             throws SocketException;
 
-    /*
-     * Set the nominated socket option in the IP stack.
-     *
-     * @param fd the socket descriptor @param opt the option selector @param
-     * optVal the nominated option value
-     *
-     * @throws SocketException if the option is invalid or cannot be set
-     */
-    public void setSocketOption(FileDescriptor fd, int opt, Object optVal)
-            throws SocketException;
-
     /**
      * It is an error to close the same file descriptor from multiple threads
      * concurrently.

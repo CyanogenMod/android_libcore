@@ -289,7 +289,7 @@ public final class IoUtils {
         case SocketOptions.TCP_NODELAY:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY));
         default:
-            throw new SocketException("unknown socket option " + option);
+            throw new SocketException("Unknown socket option: " + option);
         }
     }
 
@@ -316,12 +316,11 @@ public final class IoUtils {
     private static void setSocketOptionErrno(FileDescriptor fd, int option, Object value) throws SocketException {
         switch (option) {
         case SocketOptions.IP_MULTICAST_IF:
-            // TODO
-            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
-            return;
+            throw new UnsupportedOperationException("Use IP_MULTICAST_IF2 on Android");
         case SocketOptions.IP_MULTICAST_IF2:
-            // TODO
-            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
+            // Although IPv6 was cleaned up to use int, IPv4 uses an ip_mreqn containing an int.
+            Libcore.os.setsockoptIpMreqn(fd, IPPROTO_IP, IP_MULTICAST_IF, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (Integer) value);
             return;
         case SocketOptions.IP_MULTICAST_LOOP:
             // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
@@ -382,10 +381,7 @@ public final class IoUtils {
             Libcore.os.setsockoptGroupReq(fd, level, op, groupReq);
             return;
         default:
-            // TODO
-            org.apache.harmony.luni.platform.Platform.NETWORK.setSocketOption(fd, option, value);
-            return;
-            //throw new SocketException("unknown socket option " + option);
+            throw new SocketException("Unknown socket option: " + option);
         }
     }
 

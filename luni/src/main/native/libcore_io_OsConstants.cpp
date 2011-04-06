@@ -210,6 +210,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SOCK_SEQPACKET", SOCK_SEQPACKET);
     initConstant(env, c, "SOCK_STREAM", SOCK_STREAM);
     initConstant(env, c, "SOL_SOCKET", SOL_SOCKET);
+    initConstant(env, c, "SO_BINDTODEVICE", SO_BINDTODEVICE);
     initConstant(env, c, "SO_BROADCAST", SO_BROADCAST);
     initConstant(env, c, "SO_DEBUG", SO_DEBUG);
     initConstant(env, c, "SO_DONTROUTE", SO_DONTROUTE);

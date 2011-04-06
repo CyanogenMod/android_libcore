@@ -207,6 +207,7 @@ public final class OsConstants {
     public static final int SOCK_SEQPACKET = placeholder();
     public static final int SOCK_STREAM = placeholder();
     public static final int SOL_SOCKET = placeholder();
+    public static final int SO_BINDTODEVICE = placeholder();
     public static final int SO_BROADCAST = placeholder();
     public static final int SO_DEBUG = placeholder();
     public static final int SO_DONTROUTE = placeholder();

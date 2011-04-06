@@ -264,11 +264,6 @@ public final class BlockGuard {
             return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
         }
 
-        public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
-                throws SocketException {
-            mNetwork.setSocketOption(aFD, opt, optVal);
-        }
-
         public void close(FileDescriptor aFD) throws IOException {
             // We exclude sockets without SO_LINGER so that apps can close their network connections
             // in methods like onDestroy, which will run on the UI thread, without jumping through
