@@ -46,7 +46,7 @@ final class ReadOnlyHeapByteBuffer extends HeapByteBuffer {
 
     @Override
     public ByteBuffer asReadOnlyBuffer() {
-        return copy(this, mark);
+        return ReadOnlyHeapByteBuffer.copy(this, mark);
     }
 
     @Override
