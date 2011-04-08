@@ -49,8 +49,9 @@ class RuleBasedBreakIterator extends BreakIterator {
      */
     private void validateOffset(int offset) {
         CharacterIterator it = wrapped.getText();
-        if (offset < it.getBeginIndex() || offset >= it.getEndIndex()) {
-            throw new IllegalArgumentException();
+        if (offset < it.getBeginIndex() || offset > it.getEndIndex()) {
+            String message = "Valid range is [" + it.getBeginIndex() + " " + it.getEndIndex() + "]";
+            throw new IllegalArgumentException(message);
         }
     }
 
