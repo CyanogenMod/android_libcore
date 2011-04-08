@@ -40,7 +40,7 @@ public:
 private:
     JNIEnv* mEnv;
     jstring mString;
-    const UChar* mChars;
+    const jchar* mChars;
     size_t mSize;
 
     // Disallow copy and assignment.
