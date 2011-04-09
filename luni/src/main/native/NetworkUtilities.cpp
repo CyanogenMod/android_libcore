@@ -52,9 +52,8 @@ bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int por
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
         // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-        char buf[64];
-        snprintf(buf, sizeof(buf), "byteArrayToSocketAddress bad array length (%i)", addressLength);
-        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+                "byteArrayToSocketAddress bad array length (%i)", addressLength);
         return false;
     }
     return true;
@@ -75,9 +74,8 @@ jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss) {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
         // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-        char buf[64];
-        snprintf(buf, sizeof(buf), "socketAddressToByteArray bad ss_family (%i)", ss->ss_family);
-        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
+        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+                "socketAddressToByteArray bad ss_family (%i)", ss->ss_family);
         return NULL;
     }
 

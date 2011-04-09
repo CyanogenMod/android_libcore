@@ -136,10 +136,8 @@ static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaNam
         jniThrowException(env, "java/lang/SecurityException",
                 "Permission denied (maybe missing INTERNET permission)");
     } else {
-        char buf[256];
-        snprintf(buf, sizeof(buf), "Unable to resolve host \"%s\": %s",
-                name.c_str(), gai_strerror(result));
-        jniThrowException(env, "java/net/UnknownHostException", buf);
+        jniThrowExceptionFmt(env, "java/net/UnknownHostException",
+                "Unable to resolve host \"%s\": %s", name.c_str(), gai_strerror(result));
     }
 
     if (addressList) {
