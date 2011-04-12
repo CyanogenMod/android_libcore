@@ -65,12 +65,18 @@ import libcore.net.http.HttpURLConnectionImpl;
  * }</pre>
  *
  * <h3>Secure Communication with HTTPS</h3>
- * Calling {@link URL#openConnection()} on a URL with the "https" scheme will
- * return an {@link javax.net.ssl.HttpsURLConnection HttpsURLConnection}.
- *
- * <p>This class attempts to create secure connections using common TLS
- * extensions and SSL deflate compression. Should that fail, the connection
- * will be retried with SSL3 only.
+
+ * Calling {@link URL#openConnection()} on a URL with the "https"
+ * scheme will return an {@code HttpsURLConnection}, which allows for
+ * overriding the default {@link javax.net.ssl.HostnameVerifier
+ * HostnameVerifier} and {@link javax.net.ssl.SSLSocketFactory
+ * SSLSocketFactory}. An application-supplied {@code SSLSocketFactory}
+ * created from an {@link javax.net.ssl.SSLContext SSLContext} can
+ * provide a custom {@link javax.net.ssl.X509TrustManager
+ * X509TrustManager} for verifying certificate chains and a custom
+ * {@link javax.net.ssl.X509KeyManager X509KeyManager} for supplying
+ * client certificates. See {@link javax.net.ssl.HttpsURLConnection
+ * HttpsURLConnection} for more details.
  *
  * <h3>Response Handling</h3>
  * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
