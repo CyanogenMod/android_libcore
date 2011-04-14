@@ -49,9 +49,15 @@ import java.net.URL;
  * @see java.lang.ClassLoader
  */
 public class Package implements AnnotatedElement {
+    private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
 
-    private final String name, specTitle, specVersion, specVendor, implTitle,
-            implVersion, implVendor;
+    private final String name;
+    private final String specTitle;
+    private final String specVersion;
+    private final String specVendor;
+    private final String implTitle;
+    private final String implVersion;
+    private final String implVendor;
     private final URL sealBase;
 
     Package(String name, String specTitle, String specVersion, String specVendor,
@@ -86,36 +92,18 @@ public class Package implements AnnotatedElement {
     }
 
     /**
-     * Gets all annotations associated with this package, if any.
-     *
-     * @return an array of {@link Annotation} instances, which may be empty.
-     * @see java.lang.reflect.AnnotatedElement#getAnnotations()
+     * Returns an empty array. Package annotations are not supported on Android.
      */
     public Annotation[] getAnnotations() {
-        return getDeclaredAnnotations(this, true);
+        return NO_ANNOTATIONS;
     }
 
     /**
-     * Gets all annotations directly declared on this package, if any.
-     *
-     * @return an array of {@link Annotation} instances, which may be empty.
-     * @see java.lang.reflect.AnnotatedElement#getDeclaredAnnotations()
+     * Returns an empty array. Package annotations are not supported on Android.
      */
     public Annotation[] getDeclaredAnnotations() {
-        return getDeclaredAnnotations(this, false);
+        return NO_ANNOTATIONS;
     }
-
-    /*
-     * Returns the list of declared annotations of the given package.
-     * If no annotations exist, an empty array is returned.
-     *
-     * @param pkg the package of interest
-     * @param publicOnly reflects whether we want only public annotation or all
-     * of them.
-     * @return the list of annotations
-     */
-    // TODO(Google) Provide proper (native) implementation.
-    private static native Annotation[] getDeclaredAnnotations(Package pkg, boolean publicOnly);
 
     /**
      * Indicates whether the specified annotation is present.
