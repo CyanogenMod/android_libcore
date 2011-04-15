@@ -499,8 +499,8 @@ public class MyModifiablePublicKey implements PublicKey {
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
             "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public void testSerializationCompatibility() throws Exception {
-        //create test file (once)
-//        SerializationTest.createGoldenFile("device/dalvik/libcore/security/src/test/resources/serialization", this, TestUtils.rootCertificateSS);
+        // create test file (once)
+        // SerializationTest.createGoldenFile("/sdcard", this, TestUtils.rootCertificateSS);
         TestUtils.initCertPathSSCertChain();
 
         SerializationTest.verifyGolden(this, TestUtils.rootCertificateSS);

@@ -92,9 +92,12 @@ public class KeyGeneratorTest extends TestCase {
         putKeySize("AES", 128);
         putKeySize("AES", 192);
         putKeySize("AES", 256);
+        putKeySize("ARC4", 1024);
+        putKeySize("ARC4", 40);
+        putKeySize("ARC4", 41);
+        putKeySize("ARCFOUR", 1024);
         putKeySize("ARCFOUR", 40);
         putKeySize("ARCFOUR", 41);
-        putKeySize("ARCFOUR", 1024);
         putKeySize("Blowfish", 32);
         putKeySize("Blowfish", 32+8);
         putKeySize("Blowfish", 448);

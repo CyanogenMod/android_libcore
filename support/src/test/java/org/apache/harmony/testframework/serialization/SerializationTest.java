@@ -193,7 +193,7 @@ public abstract class SerializationTest extends TestCase {
      * Serializes specified object to an output stream.
      */
     public static void putObjectToStream(Object obj, OutputStream os)
-        throws IOException {
+            throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(os);
         oos.writeObject(obj);
         oos.flush();
@@ -203,8 +203,8 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Deserializes single object from an input stream.
      */
-    public static Serializable getObjectFromStream(InputStream is) throws IOException,
-        ClassNotFoundException {
+    public static Serializable getObjectFromStream(InputStream is)
+            throws IOException, ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(is);
         Object result = ois.readObject();
         ois.close();
@@ -222,20 +222,16 @@ public abstract class SerializationTest extends TestCase {
         /**
          * Compares deserialized and reference objects.
          *
-         * @param initial -
-         *            initial object used for creating serialized form
-         * @param deserialized -
-         *            deserialized object
+         * @param initial - initial object used for creating serialized form
+         * @param deserialized - deserialized object
          */
         void assertDeserialized(Serializable initial, Serializable deserialized);
     }
 
     // default comparator for a class that has equals(Object) method
     private final static SerializableAssert DEFAULT_COMPARATOR = new SerializableAssert() {
-        public void assertDeserialized(Serializable initial,
-                Serializable deserialized) {
-
-            Assert.assertEquals(initial, deserialized);
+        public void assertDeserialized(Serializable initial, Serializable deserialized) {
+            assertEquals(initial, deserialized);
         }
     };
 
@@ -243,34 +239,30 @@ public abstract class SerializationTest extends TestCase {
      * Comparator for verifying that deserialized object is the same as initial.
      */
     public final static SerializableAssert SAME_COMPARATOR = new SerializableAssert() {
-        public void assertDeserialized(Serializable initial,
-                Serializable deserialized) {
-
-            Assert.assertSame(initial, deserialized);
+        public void assertDeserialized(Serializable initial, Serializable deserialized) {
+            assertSame(initial, deserialized);
         }
     };
 
     /**
-     * Comparator for java.lang.Throwable objects
+     * Comparator for Throwable objects
      */
     public final static SerializableAssert THROWABLE_COMPARATOR = new SerializableAssert() {
         public void assertDeserialized(Serializable initial, Serializable deserialized) {
-
             Throwable initThr = (Throwable) initial;
             Throwable dserThr = (Throwable) deserialized;
 
             // verify class
-            Assert.assertEquals(initThr.getClass(), dserThr.getClass());
+            assertEquals(initThr.getClass(), dserThr.getClass());
 
             // verify message
-            Assert.assertEquals(initThr.getMessage(), dserThr.getMessage());
+            assertEquals(initThr.getMessage(), dserThr.getMessage());
 
             // verify cause
             if (initThr.getCause() == null) {
-                Assert.assertNull(dserThr.getCause());
+                assertNull(dserThr.getCause());
             } else {
-                Assert.assertNotNull(dserThr.getCause());
-
+                assertNotNull(dserThr.getCause());
                 THROWABLE_COMPARATOR.assertDeserialized(initThr.getCause(),
                         dserThr.getCause());
             }
@@ -278,7 +270,7 @@ public abstract class SerializationTest extends TestCase {
     };
 
     /**
-     * Comparator for java.security.PermissionCollection objects
+     * Comparator for PermissionCollection objects
      */
     public final static SerializableAssert PERMISSION_COLLECTION_COMPARATOR = new SerializableAssert() {
         public void assertDeserialized(Serializable initial, Serializable deserialized) {
@@ -287,10 +279,10 @@ public abstract class SerializationTest extends TestCase {
             PermissionCollection dserPC = (PermissionCollection) deserialized;
 
             // verify class
-            Assert.assertEquals(initPC.getClass(), dserPC.getClass());
+            assertEquals(initPC.getClass(), dserPC.getClass());
 
             // verify 'readOnly' field
-            Assert.assertEquals(initPC.isReadOnly(), dserPC.isReadOnly());
+            assertEquals(initPC.isReadOnly(), dserPC.isReadOnly());
 
             // verify collection of permissions
             Collection<Permission> refCollection = new HashSet<Permission>(
@@ -298,7 +290,7 @@ public abstract class SerializationTest extends TestCase {
             Collection<Permission> tstCollection = new HashSet<Permission>(
                     Collections.list(dserPC.elements()));
 
-            Assert.assertEquals(refCollection, tstCollection);
+            assertEquals(refCollection, tstCollection);
         }
     };
 
@@ -306,32 +298,27 @@ public abstract class SerializationTest extends TestCase {
      * Returns <code>comparator</code> for provided serializable
      * <code>object</code>.
      *
-     * The <code>comparator</code> is searched in the following order: <br>-
-     * if <code>test</code> implements SerializableAssert interface then it is
+     * The <code>comparator</code> is searched in the following order: <br>
+     * - if <code>test</code> implements SerializableAssert interface then it is
      * selected as </code>comparator</code>.<br>- if passed <code>object</code>
      * has class in its classes hierarchy that overrides <code>equals(Object)</code>
      * method then <code>DEFAULT_COMPARATOR</code> is selected.<br> - the
      * method tries to select one of known comparators basing on <code>object's</code>
      * class,for example, if passed <code>object</code> is instance of
-     * java.lang.Throwable then <code>THROWABLE_COMPARATOR</code> is used.<br>-
-     * otherwise RuntimeException is thrown
+     * Throwable then <code>THROWABLE_COMPARATOR</code> is used.<br>
+     * - otherwise RuntimeException is thrown
      *
-     * @param test -
-     *            test case
-     * @param object -
-     *            object to be compared
+     * @param test - test case
+     * @param object - object to be compared
      * @return object's comparator
      */
-    public static SerializableAssert defineComparator(TestCase test,
-            Object object) throws Exception {
-
+    public static SerializableAssert defineComparator(TestCase test, Object object)
+            throws Exception {
         if (test instanceof SerializableAssert) {
             return (SerializableAssert) test;
         }
 
-        Method m = object.getClass().getMethod("equals",
-                new Class[] { Object.class });
-
+        Method m = object.getClass().getMethod("equals", new Class[] { Object.class });
         if (m.getDeclaringClass() != Object.class) {
             // one of classes overrides Object.equals(Object) method
             // use default comparator
@@ -340,12 +327,12 @@ public abstract class SerializationTest extends TestCase {
 
         // TODO use generics to detect comparator
         // instead of 'instanceof' for the first element
-        if (object instanceof java.lang.Throwable) {
+        if (object instanceof Throwable) {
             return THROWABLE_COMPARATOR;
-        } else if (object instanceof java.security.PermissionCollection) {
+        } 
+        if (object instanceof PermissionCollection) {
             return PERMISSION_COLLECTION_COMPARATOR;
         }
-
         throw new RuntimeException("Failed to detect comparator");
     }
 
@@ -355,14 +342,11 @@ public abstract class SerializationTest extends TestCase {
      * The method invokes <br>
      * verifyGolden(test, object, defineComparator(test, object));
      *
-     * @param test -
-     *            test case
-     * @param object -
-     *            to be compared
+     * @param test - test case
+     * @param object - to be compared
      */
     public static void verifyGolden(TestCase test, Object object)
             throws Exception {
-
         verifyGolden(test, object, defineComparator(test, object));
     }
 
@@ -374,20 +358,14 @@ public abstract class SerializationTest extends TestCase {
      * folder, reads an object from the loaded file and compares it with
      * <code>object</code> using specified <code>comparator</code>.
      *
-     * @param test-
-     *            test case
-     * @param object-
-     *            to be compared
-     * @param comparator -
-     *            for comparing (de)serialized objects
+     * @param test - test case
+     * @param object - to be compared
+     * @param comparator - for comparing (de)serialized objects
      */
-    public static void verifyGolden(TestCase test, Object object,
-            SerializableAssert comparator) throws Exception {
-
-        Assert.assertNotNull("Null comparator", comparator);
-
+    public static void verifyGolden(TestCase test, Object object, SerializableAssert comparator)
+            throws Exception {
+        assertNotNull("Null comparator", comparator);
         Serializable deserialized = getObject(test, ".golden.ser");
-
         comparator.assertDeserialized((Serializable) object, deserialized);
     }
 
@@ -398,15 +376,12 @@ public abstract class SerializationTest extends TestCase {
      * The method invokes <br>
      * verifyGolden(test, objects, defineComparator(test, object[0]));
      *
-     * @param test -
-     *            test case
-     * @param objects -
-     *            array of objects to be compared
+     * @param test - test case
+     * @param objects - array of objects to be compared
      */
     public static void verifyGolden(TestCase test, Object[] objects)
             throws Exception {
-
-        Assert.assertFalse("Empty array", objects.length == 0);
+        assertFalse("Empty array", objects.length == 0);
         verifyGolden(test, objects, defineComparator(test, objects[0]));
     }
 
@@ -421,21 +396,16 @@ public abstract class SerializationTest extends TestCase {
      * using specified <code>comparator</code>. (<code>N</code> is index
      * in object's array.)
      *
-     * @param test-
-     *            test case
-     * @param objects -
-     *            array of objects to be compared
-     * @param comparator -
-     *            for comparing (de)serialized objects
+     * @param test - test case
+     * @param objects - array of objects to be compared
+     * @param comparator - for comparing (de)serialized objects
      */
-    public static void verifyGolden(TestCase test, Object[] objects,
-            SerializableAssert comparator) throws Exception {
-
-        Assert.assertFalse("Empty array", objects.length == 0);
+    public static void verifyGolden(TestCase test, Object[] objects, SerializableAssert comparator)
+            throws Exception {
+        assertFalse("Empty array", objects.length == 0);
         for (int i = 0; i < objects.length; i++) {
             Serializable deserialized = getObject(test, ".golden." + i + ".ser");
-            comparator.assertDeserialized((Serializable) objects[i],
-                    deserialized);
+            comparator.assertDeserialized((Serializable) objects[i], deserialized);
         }
     }
 
@@ -445,12 +415,10 @@ public abstract class SerializationTest extends TestCase {
      * The method invokes <br>
      * verifySelf(object, defineComparator(null, object));
      *
-     * @param object -
-     *            to be serialized/deserialized
+     * @param object - to be serialized/deserialized
      */
     public static void verifySelf(Object object)
             throws Exception {
-
         verifySelf(object, defineComparator(null, object));
     }
 
@@ -460,17 +428,12 @@ public abstract class SerializationTest extends TestCase {
      * The method serialize/deserialize <code>object</code> and compare it
      * with initial <code>object</code>.
      *
-     * @param object -
-     *            object to be serialized/deserialized
-     * @param comparator -
-     *            for comparing serialized/deserialized object with initial
-     *            object
+     * @param object - object to be serialized/deserialized
+     * @param comparator - for comparing serialized/deserialized object with initial object
      */
     public static void verifySelf(Object object, SerializableAssert comparator)
             throws Exception {
-
         Serializable initial = (Serializable) object;
-
         comparator.assertDeserialized(initial, copySerializable(initial));
     }
 
@@ -481,13 +444,10 @@ public abstract class SerializationTest extends TestCase {
      * The method invokes <br>
      * verifySelf(objects, defineComparator(null, object[0]));
      *
-     * @param objects -
-     *            array of objects to be serialized/deserialized
+     * @param objects - array of objects to be serialized/deserialized
      */
-    public static void verifySelf(Object[] objects)
-            throws Exception {
-
-        Assert.assertFalse("Empty array", objects.length == 0);
+    public static void verifySelf(Object[] objects) throws Exception {
+        assertFalse("Empty array", objects.length == 0);
         verifySelf(objects, defineComparator(null, objects[0]));
     }
 
@@ -498,36 +458,26 @@ public abstract class SerializationTest extends TestCase {
      * The method serialize/deserialize each object in <code>objects</code>
      * array and compare it with initial object.
      *
-     * @param objects -
-     *            array of objects to be serialized/deserialized
-     * @param comparator -
-     *            for comparing serialized/deserialized object with initial
-     *            object
+     * @param objects - array of objects to be serialized/deserialized
+     * @param comparator - for comparing serialized/deserialized object with initial object
      */
     public static void verifySelf(Object[] objects, SerializableAssert comparator)
             throws Exception {
-
-        Assert.assertFalse("Empty array", objects.length == 0);
-        for(Object entry: objects){
+        assertFalse("Empty array", objects.length == 0);
+        for (Object entry: objects){
             verifySelf(entry, comparator);
         }
     }
 
     private static Serializable getObject(TestCase test, String toAppend)
             throws Exception {
-
         StringBuilder path = new StringBuilder("/serialization");
-
         path.append(File.separatorChar);
         path.append(test.getClass().getName().replace('.', File.separatorChar));
         path.append(toAppend);
 
-        InputStream in = SerializationTest.class
-                .getResourceAsStream(path.toString());
-
-        Assert.assertNotNull("Failed to load serialization resource file: "
-                + path, in);
-
+        InputStream in = SerializationTest.class.getResourceAsStream(path.toString());
+        assertNotNull("Failed to load serialization resource file: " + path, in);
         return getObjectFromStream(in);
     }
 
@@ -537,52 +487,41 @@ public abstract class SerializationTest extends TestCase {
      * The folder for created file is: <code>root + test's package name</code>.
      * The file name is: <code>test's name + "golden.ser"</code>
      *
-     * @param root -
-     *            root directory for serialization resource files
-     * @param test -
-     *            test case
-     * @param object -
-     *            object to be serialized
-     * @throws IOException -
-     *             if I/O error
+     * @param root - root directory for serialization resource files
+     * @param test - test case
+     * @param object - to be serialized
+     * @throws IOException - if I/O error
      */
-    public static void createGoldenFile(String root, TestCase test,
-            Object object) throws IOException {
-
-        String goldenPath = test.getClass().getName().replace('.',
-                File.separatorChar)
-                + ".golden.ser";
-
+    public static void createGoldenFile(String root, TestCase test, Object object)
+            throws IOException {
+        String goldenPath = (test.getClass().getName().replace('.', File.separatorChar)
+                             + ".golden.ser");
         if (root != null) {
             goldenPath = root + File.separatorChar + goldenPath;
         }
 
-
         File goldenFile = new File(goldenPath);
         goldenFile.getParentFile().mkdirs();
+        assertTrue("Could not create " + goldenFile.getParentFile(),
+                   goldenFile.getParentFile().isDirectory());
         goldenFile.createNewFile();
-
         putObjectToStream(object, new FileOutputStream(goldenFile));
 
         // don't forget to remove it from test case after using
-        Assert.fail("Generating golden file.\nGolden file name:"
-                + goldenFile.getAbsolutePath());
+        fail("Generating golden file. Golden file name: " + goldenFile.getAbsolutePath());
     }
 
     /**
      * Copies an object by serializing/deserializing it.
      *
-     * @param initial -
-     *            an object to be copied
+     * @param initial - an object to be copied
      * @return copy of provided object
      */
     public static Serializable copySerializable(Serializable initial)
             throws IOException, ClassNotFoundException {
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         putObjectToStream(initial, out);
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-
         return getObjectFromStream(in);
     }
 }

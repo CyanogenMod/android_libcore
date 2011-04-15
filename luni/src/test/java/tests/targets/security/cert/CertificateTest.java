@@ -20,10 +20,10 @@ import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorResult;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -33,6 +33,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
 
 public class CertificateTest extends TestCase {
 
@@ -591,8 +592,7 @@ public class CertificateTest extends TestCase {
     public void testVerifyMD5() throws Exception {
         Provider[] providers = Security.getProviders("CertificateFactory.X509");
         for (Provider provider : providers) {
-            CertificateFactory certificateFactory = CertificateFactory
-                    .getInstance("X509", provider);
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509", provider);
 
             Certificate certificate = certificateFactory
                     .generateCertificate(new ByteArrayInputStream(selfSignedCertMD5
@@ -606,8 +606,7 @@ public class CertificateTest extends TestCase {
     public void testVerifyMD2() throws Exception {
         Provider[] providers = Security.getProviders("CertificateFactory.X509");
         for (Provider provider : providers) {
-            CertificateFactory certificateFactory = CertificateFactory
-                    .getInstance("X509", provider);
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509", provider);
 
             Certificate certificate = certificateFactory
                     .generateCertificate(new ByteArrayInputStream(selfSignedCertMD2
@@ -622,27 +621,21 @@ public class CertificateTest extends TestCase {
     }
 
     public void testVerifyMD2_chain() throws Exception {
-        CertificateFactory certificateFactory = CertificateFactory
-                .getInstance("X509");
-
-        CertPath path;
-        CertPathValidator certPathValidator;
-        PKIXParameters params;
-        CertPathValidatorResult res;
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
 
         // First check with the trust anchor not included in the chain
-        path = certificateFactory.generateCertPath(getCertList(true, false));
+        CertPath path = certificateFactory.generateCertPath(getCertList(true, false));
 
-        certPathValidator = CertPathValidator.getInstance("PKIX");
-        params = createPKIXParams();
+        CertPathValidator certPathValidator = CertPathValidator.getInstance("PKIX");
+        PKIXParameters params = createPKIXParams();
 
-        res = certPathValidator.validate(path, params);
+        CertPathValidatorResult res = certPathValidator.validate(path, params);
         assertTrue("wrong result type",
-                res instanceof PKIXCertPathValidatorResult);
+                   res instanceof PKIXCertPathValidatorResult);
 
         PKIXCertPathValidatorResult r = (PKIXCertPathValidatorResult) res;
-        assertTrue("Wrong trust anchor returned", params.getTrustAnchors()
-                .contains(r.getTrustAnchor()));
+        assertTrue("Wrong trust anchor returned",
+                   params.getTrustAnchors().contains(r.getTrustAnchor()));
 
         // Now check with the trust anchor included in the chain
         path = certificateFactory.generateCertPath(getCertList(true, true));
@@ -650,37 +643,38 @@ public class CertificateTest extends TestCase {
         certPathValidator = CertPathValidator.getInstance("PKIX");
         params = createPKIXParams();
 
-        res = certPathValidator.validate(path, params);
-        assertTrue("wrong result type",
-                res instanceof PKIXCertPathValidatorResult);
+        if (StandardNames.IS_RI) {
+            res = certPathValidator.validate(path, params);
+            assertTrue("wrong result type", res instanceof PKIXCertPathValidatorResult);
 
-        r = (PKIXCertPathValidatorResult) res;
-        assertTrue("Wrong trust anchor returned", params.getTrustAnchors()
-                .contains(r.getTrustAnchor()));
+            r = (PKIXCertPathValidatorResult) res;
+            assertTrue("Wrong trust anchor returned",
+                       params.getTrustAnchors().contains(r.getTrustAnchor()));
+        } else {
+            try {
+                certPathValidator.validate(path, params);
+                fail();
+            } catch (CertPathValidatorException expected) {
+            }
+        }
     }
 
     public void testVerifyMD5_chain() throws Exception {
-        CertificateFactory certificateFactory = CertificateFactory
-                .getInstance("X509");
-
-        CertPath path;
-        CertPathValidator certPathValidator;
-        PKIXParameters params;
-        CertPathValidatorResult res;
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
 
         // First check with the trust anchor not included in the chain
-        path = certificateFactory.generateCertPath(getCertList(false, false));
+        CertPath path = certificateFactory.generateCertPath(getCertList(false, false));
 
-        certPathValidator = CertPathValidator.getInstance("PKIX");
-        params = createPKIXParams();
+        CertPathValidator certPathValidator = CertPathValidator.getInstance("PKIX");
+        PKIXParameters params = createPKIXParams();
 
-        res = certPathValidator.validate(path, params);
+        CertPathValidatorResult res = certPathValidator.validate(path, params);
         assertTrue("wrong result type",
-                res instanceof PKIXCertPathValidatorResult);
+                   res instanceof PKIXCertPathValidatorResult);
 
         PKIXCertPathValidatorResult r = (PKIXCertPathValidatorResult) res;
-        assertTrue("Wrong trust anchor returned", params.getTrustAnchors()
-                .contains(r.getTrustAnchor()));
+        assertTrue("Wrong trust anchor returned",
+                   params.getTrustAnchors().contains(r.getTrustAnchor()));
 
         // Now check with the trust anchor included in the chain
         path = certificateFactory.generateCertPath(getCertList(false, true));
@@ -693,8 +687,8 @@ public class CertificateTest extends TestCase {
                 res instanceof PKIXCertPathValidatorResult);
 
         r = (PKIXCertPathValidatorResult) res;
-        assertTrue("Wrong trust anchor returned", params.getTrustAnchors()
-                .contains(r.getTrustAnchor()));
+        assertTrue("Wrong trust anchor returned",
+                   params.getTrustAnchors().contains(r.getTrustAnchor()));
     }
 
     private X509Certificate[] certs= new X509Certificate[3];
@@ -702,8 +696,7 @@ public class CertificateTest extends TestCase {
     private List<Certificate> getCertList(boolean useMD2root,
             boolean includeRootInChain) throws Exception {
 
-        CertificateFactory certificateFactory = CertificateFactory
-                .getInstance("X509");
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
 
         if (useMD2root) {
             certs[0] = (X509Certificate) certificateFactory

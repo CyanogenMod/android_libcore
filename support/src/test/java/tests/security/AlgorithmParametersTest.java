@@ -21,7 +21,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import junit.framework.TestCase;
 
-public class AlgorithmParametersTest extends TestCase {
+public abstract class AlgorithmParametersTest extends TestCase {
 
     private final String algorithmName;
     private final TestHelper<AlgorithmParameters> helper;
