@@ -72,8 +72,7 @@ public class SystemTest extends TestCase {
             System.arraycopy(new char[5], 0, "Hello", 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("source and destination must be arrays, but were "
-                    + "[C and Ljava/lang/String;", e.getMessage());
+            assertEquals("destination of type java.lang.String is not an array", e.getMessage());
         }
     }
 
@@ -82,8 +81,7 @@ public class SystemTest extends TestCase {
             System.arraycopy("Hello", 0, new char[5], 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("source and destination must be arrays, but were "
-                    + "Ljava/lang/String; and [C", e.getMessage());
+            assertEquals("source of type java.lang.String is not an array", e.getMessage());
         }
     }
 
@@ -92,8 +90,7 @@ public class SystemTest extends TestCase {
             System.arraycopy(new char[5], 0, new Object[5], 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("source and destination arrays are incompatible: "
-                    + "[C and [Ljava/lang/Object;", e.getMessage());
+            assertEquals("char[] and java.lang.Object[] are incompatible array types", e.getMessage());
         }
     }
 
@@ -103,9 +100,7 @@ public class SystemTest extends TestCase {
                     new Integer[] { 1, 2, 3, null, null }, 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("source[2] of type Ljava/lang/String; cannot be "
-                    + "stored in destination array of type [Ljava/lang/Integer;",
-                    e.getMessage());
+            assertEquals("source[2] of type java.lang.String cannot be stored in destination array of type java.lang.Integer[]", e.getMessage());
         }
     }
 }
