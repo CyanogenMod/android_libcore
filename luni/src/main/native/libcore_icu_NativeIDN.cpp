@@ -16,7 +16,6 @@
 
 #define LOG_TAG "NativeIDN"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"

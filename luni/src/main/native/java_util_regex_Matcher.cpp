@@ -18,9 +18,9 @@
 
 #include <stdlib.h>
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
@@ -72,7 +72,7 @@ public:
         if (mJavaInput) {
             mEnv->ReleaseStringChars(mJavaInput, mChars);
         }
-        icu4jni_error(mEnv, mStatus);
+        maybeThrowIcuException(mEnv, mStatus);
     }
 
     RegexMatcher* operator->() {
@@ -174,7 +174,7 @@ static jint Matcher_openImpl(JNIEnv* env, jclass, jint patternAddr) {
     RegexPattern* pattern = reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(patternAddr));
     UErrorCode status = U_ZERO_ERROR;
     RegexMatcher* result = pattern->matcher(status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 

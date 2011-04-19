@@ -16,28 +16,28 @@
 
 #define LOG_TAG "NativeNormalizer"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "unicode/normlzr.h"
 
 static jstring NativeNormalizer_normalizeImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
     ScopedJavaUnicodeString src(env, s);
     UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
-    UErrorCode errorCode = U_ZERO_ERROR;
+    UErrorCode status = U_ZERO_ERROR;
     UnicodeString dst;
-    Normalizer::normalize(src.unicodeString(), mode, 0, dst, errorCode);
-    icu4jni_error(env, errorCode);
+    Normalizer::normalize(src.unicodeString(), mode, 0, dst, status);
+    maybeThrowIcuException(env, status);
     return dst.isBogus() ? NULL : env->NewString(dst.getBuffer(), dst.length());
 }
 
 static jboolean NativeNormalizer_isNormalizedImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
     ScopedJavaUnicodeString src(env, s);
     UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
-    UErrorCode errorCode = U_ZERO_ERROR;
-    UBool result = Normalizer::isNormalized(src.unicodeString(), mode, errorCode);
-    icu4jni_error(env, errorCode);
+    UErrorCode status = U_ZERO_ERROR;
+    UBool result = Normalizer::isNormalized(src.unicodeString(), mode, status);
+    maybeThrowIcuException(env, status);
     return result;
 }
 

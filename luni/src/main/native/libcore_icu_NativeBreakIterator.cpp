@@ -18,7 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "ErrorCode.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedUtfChars.h"
 #include "unicode/ubrk.h"
@@ -32,7 +32,7 @@ static jint getIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
         return 0;
     }
     UBreakIterator* it = ubrk_open(type, localeChars.c_str(), NULL, 0, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return reinterpret_cast<uintptr_t>(it);
 }
 
@@ -64,7 +64,7 @@ static jint NativeBreakIterator_cloneImpl(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
     UBreakIterator* it = ubrk_safeClone(breakIterator(address), NULL, &bufferSize, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return reinterpret_cast<uintptr_t>(it);
 }
 
@@ -73,7 +73,7 @@ static void NativeBreakIterator_setTextImpl(JNIEnv* env, jclass, jint address, j
     UnicodeString& s(text.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
     ubrk_setText(breakIterator(address), s.getBuffer(), s.length(), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
 }
 
 static jboolean NativeBreakIterator_isBoundaryImpl(JNIEnv*, jclass, jint address, jint offset) {

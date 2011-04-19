@@ -9,9 +9,9 @@
 
 #define LOG_TAG "NativeCollation"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -46,7 +46,7 @@ static jint NativeCollation_compare(JNIEnv* env, jclass, jint address, jstring l
 static jint NativeCollation_getAttribute(JNIEnv* env, jclass, jint address, jint type) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_getAttribute(toCollator(address), (UColAttribute) type, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return result;
 }
 
@@ -55,7 +55,7 @@ static jint NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jin
     UErrorCode status = U_ZERO_ERROR;
     UCollationElements* result = ucol_openElements(toCollator(address),
             source.unicodeString().getBuffer(), source.unicodeString().length(), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
@@ -99,7 +99,7 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jint address, 
 static jint NativeCollation_next(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_next(toCollationElements(address), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return result;
 }
 
@@ -110,7 +110,7 @@ static jint NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName
     }
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_open(localeChars.c_str(), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
@@ -119,14 +119,14 @@ static jint NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring r
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_openRules(rules.unicodeString().getBuffer(), rules.unicodeString().length(),
             UColAttributeValue(mode), UCollationStrength(strength), NULL, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
 static jint NativeCollation_previous(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_previous(toCollationElements(address), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return result;
 }
 
@@ -138,20 +138,20 @@ static jint NativeCollation_safeClone(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint bufferSize = U_COL_SAFECLONE_BUFFERSIZE;
     UCollator* c = ucol_safeClone(toCollator(address), NULL, &bufferSize, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
 static void NativeCollation_setAttribute(JNIEnv* env, jclass, jint address, jint type, jint value) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setAttribute(toCollator(address), (UColAttribute)type, (UColAttributeValue)value, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
 }
 
 static void NativeCollation_setOffset(JNIEnv* env, jclass, jint address, jint offset) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setOffset(toCollationElements(address), offset, &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
 }
 
 static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring source0) {
@@ -159,7 +159,7 @@ static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring s
     UErrorCode status = U_ZERO_ERROR;
     ucol_setText(toCollationElements(address),
             source.unicodeString().getBuffer(), source.unicodeString().length(), &status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
 }
 
 static JNINativeMethod gMethods[] = {

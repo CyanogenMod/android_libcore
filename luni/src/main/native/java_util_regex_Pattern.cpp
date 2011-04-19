@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"

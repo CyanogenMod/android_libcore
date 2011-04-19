@@ -45,6 +45,10 @@
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
 
+static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
+    jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
+}
+
 /**
  * Returns the port number in a sockaddr_storage structure.
  *
@@ -223,9 +227,9 @@ public:
 
         if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
                 result == -EADDRINUSE || result == -ENETUNREACH) {
-            jniThrowConnectException(mEnv, -result);
+            jniThrowExceptionWithErrno(mEnv, "java/net/ConnectException", -result);
         } else if (result == -EACCES) {
-            jniThrowSecurityException(mEnv, -result);
+            jniThrowExceptionWithErrno(mEnv, "java/lang/SecurityException", -result);
         } else if (result == -ETIMEDOUT) {
             jniThrowSocketTimeoutException(mEnv, -result);
         } else {
@@ -378,7 +382,7 @@ static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
     const CompatibleSocketAddress compatibleAddress(ss, false);
     int rc = TEMP_FAILURE_RETRY(bind(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)));
     if (rc == -1) {
-        jniThrowBindException(env, errno);
+        jniThrowExceptionWithErrno(env, "java/net/BindException", errno);
     }
 }
 

@@ -15,9 +15,9 @@
 
 #define LOG_TAG "NativeConverter"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedStringChars.h"
@@ -72,9 +72,9 @@ static jlong NativeConverter_openConverter(JNIEnv* env, jclass, jstring converte
     if (converterNameChars.c_str() == NULL) {
         return 0;
     }
-    UErrorCode errorCode = U_ZERO_ERROR;
-    UConverter* cnv = ucnv_open(converterNameChars.c_str(), &errorCode);
-    icu4jni_error(env, errorCode);
+    UErrorCode status = U_ZERO_ERROR;
+    UConverter* cnv = ucnv_open(converterNameChars.c_str(), &status);
+    maybeThrowIcuException(env, status);
     return reinterpret_cast<uintptr_t>(cnv);
 }
 

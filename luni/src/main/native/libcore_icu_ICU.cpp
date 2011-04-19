@@ -16,9 +16,9 @@
 
 #define LOG_TAG "ICU"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedFd.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
@@ -551,7 +551,7 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
     EnumerationCounter counter(uenum_count(e, &status));
     EnumerationGetter getter(e, &status);
     jobject result = toStringArray16(env, &counter, &getter);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     uenum_close(e);
     return result;
 }
