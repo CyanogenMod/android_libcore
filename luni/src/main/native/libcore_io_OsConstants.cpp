@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdlib.h>
@@ -48,6 +49,17 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "EADDRNOTAVAIL", EADDRNOTAVAIL);
     initConstant(env, c, "EAFNOSUPPORT", EAFNOSUPPORT);
     initConstant(env, c, "EAGAIN", EAGAIN);
+    initConstant(env, c, "EAI_AGAIN", EAI_AGAIN);
+    initConstant(env, c, "EAI_BADFLAGS", EAI_BADFLAGS);
+    initConstant(env, c, "EAI_FAIL", EAI_FAIL);
+    initConstant(env, c, "EAI_FAMILY", EAI_FAMILY);
+    initConstant(env, c, "EAI_MEMORY", EAI_MEMORY);
+    initConstant(env, c, "EAI_NODATA", EAI_NODATA);
+    initConstant(env, c, "EAI_NONAME", EAI_NONAME);
+    initConstant(env, c, "EAI_OVERFLOW", EAI_OVERFLOW);
+    initConstant(env, c, "EAI_SERVICE", EAI_SERVICE);
+    initConstant(env, c, "EAI_SOCKTYPE", EAI_SOCKTYPE);
+    initConstant(env, c, "EAI_SYSTEM", EAI_SYSTEM);
     initConstant(env, c, "EALREADY", EALREADY);
     initConstant(env, c, "EBADF", EBADF);
     initConstant(env, c, "EBADMSG", EBADMSG);
@@ -183,6 +195,11 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "MS_ASYNC", MS_ASYNC);
     initConstant(env, c, "MS_INVALIDATE", MS_INVALIDATE);
     initConstant(env, c, "MS_SYNC", MS_SYNC);
+    initConstant(env, c, "NI_DGRAM", NI_DGRAM);
+    initConstant(env, c, "NI_NAMEREQD", NI_NAMEREQD);
+    initConstant(env, c, "NI_NOFQDN", NI_NOFQDN);
+    initConstant(env, c, "NI_NUMERICHOST", NI_NUMERICHOST);
+    initConstant(env, c, "NI_NUMERICSERV", NI_NUMERICSERV);
     initConstant(env, c, "O_ACCMODE", O_ACCMODE);
     initConstant(env, c, "O_APPEND", O_APPEND);
     initConstant(env, c, "O_CREAT", O_CREAT);

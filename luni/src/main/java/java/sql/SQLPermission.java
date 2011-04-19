@@ -22,17 +22,7 @@ import java.security.BasicPermission;
 import java.security.Guard;
 
 /**
- * A Permission relating to security access control in the {@code java.sql}
- * package.
- * <p>
- * Currently, the only permission supported has the name " {@code setLog}". The
- * {@code setLog} permission controls whether a Java application or applet can
- * open a logging stream using the {@code DriverManager.setLogWriter} method or
- * the {@code DriverManager.setLogStream} method. This is a potentially
- * dangerous operation since the logging stream can contain sensitive
- * information such as usernames and passwords.
- *
- * @see DriverManager
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class SQLPermission extends BasicPermission implements Guard,
         Serializable {

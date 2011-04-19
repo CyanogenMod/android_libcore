@@ -24,8 +24,9 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
 
-bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int port, sockaddr_storage* ss) {
+static bool byteArrayToSocketAddress(JNIEnv* env, jbyteArray byteArray, int port, sockaddr_storage* ss) {
     if (byteArray == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
@@ -112,7 +113,7 @@ bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sock
     }
     static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
     jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
-    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
+    return byteArrayToSocketAddress(env, addressBytes, port, ss);
 }
 
 bool setBlocking(int fd, bool blocking) {

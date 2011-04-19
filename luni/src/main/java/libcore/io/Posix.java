@@ -39,7 +39,9 @@ public final class Posix implements Os {
     public native StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
+    public native String gai_strerror(int error);
     public native String getenv(String name);
+    public native String getnameinfo(InetAddress address, int flags) throws GaiException;
     public native SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public native int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;

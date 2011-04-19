@@ -36,7 +36,10 @@ public interface Os {
     public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
+    public String gai_strerror(int error);
     public String getenv(String name);
+    /* TODO: break into getnameinfoHost and getnameinfoService? */
+    public String getnameinfo(InetAddress address, int flags) throws GaiException;
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;

@@ -33,9 +33,16 @@ public final class Inet6Address extends InetAddress {
 
     private static final int AF_INET6 = 10;
 
-    static final InetAddress ANY =
+    /**
+     * @hide
+     */
+    public static final InetAddress ANY =
             new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, null, 0);
-    static final InetAddress LOOPBACK =
+
+    /**
+     * @hide
+     */
+    public static final InetAddress LOOPBACK =
             new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
                     "localhost", 0);
 
@@ -63,10 +70,8 @@ public final class Inet6Address extends InetAddress {
      * @param scope_id
      *            the scope id for link- or site-local addresses.
      */
-    Inet6Address(byte[] address, String name, int scope_id) {
-        this.family = AF_INET6;
-        this.hostName = name;
-        this.ipaddress = address;
+    Inet6Address(byte[] ipaddress, String hostName, int scope_id) {
+        super(AF_INET6, ipaddress, hostName);
         this.scope_id = scope_id;
         this.scope_id_set = (scope_id != 0);
     }

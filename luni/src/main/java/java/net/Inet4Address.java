@@ -49,10 +49,8 @@ public final class Inet4Address extends InetAddress {
     public static final InetAddress LOOPBACK =
             new Inet4Address(new byte[] { 127, 0, 0, 1 }, "localhost");
 
-    Inet4Address(byte[] address, String name) {
-        family = AF_INET;
-        ipaddress = address;
-        hostName = name;
+    Inet4Address(byte[] ipaddress, String hostName) {
+        super(AF_INET, ipaddress, hostName);
     }
 
     /**

@@ -45,7 +45,9 @@ public class ForwardingOs implements Os {
     public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException { return os.fstatfs(fd); }
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
+    public String gai_strerror(int error) { return os.gai_strerror(error); }
     public String getenv(String name) { return os.getenv(name); }
+    public String getnameinfo(InetAddress address, int flags) throws GaiException { return os.getnameinfo(address, flags); }
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException { return os.getsockname(fd); }
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptByte(fd, level, option); }
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInAddr(fd, level, option); }

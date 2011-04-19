@@ -26,26 +26,7 @@ import java.security.Principal;
 import java.util.Set;
 
 /**
- * Protects private credential objects belonging to a {@code Subject}. It has
- * only one action which is "read". The target name of this permission has a
- * special syntax:
- *
- * <pre>
- * targetName = CredentialClass {PrincipalClass &quot;PrincipalName&quot;}*
- * </pre>
- *
- * First it states a credential class and is followed then by a list of one or
- * more principals identifying the subject.
- * <p>
- * The principals on their part are specified as the name of the {@code
- * Principal} class followed by the principal name in quotes. For example, the
- * following file may define permission to read the private credentials of a
- * principal named "Bob": "com.sun.PrivateCredential com.sun.Principal \"Bob\""
- * <p>
- * The syntax also allows the use of the wildcard "*" in place of {@code
- * CredentialClass} or {@code PrincipalClass} and/or {@code PrincipalName}.
- *
- * @see Principal
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class PrivateCredentialPermission extends Permission {
 

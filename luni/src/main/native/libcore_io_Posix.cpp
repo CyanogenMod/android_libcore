@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -42,17 +43,16 @@
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
 
-static void throwErrnoException(JNIEnv* env, const char* name) {
-    int errnum = errno;
-
+static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
+        const char* functionName, int error) {
     jthrowable cause = NULL;
     if (env->ExceptionCheck()) {
         cause = env->ExceptionOccurred();
         env->ExceptionClear();
     }
 
-    ScopedLocalRef<jstring> javaName(env, env->NewStringUTF(name));
-    if (javaName.get() == NULL) {
+    ScopedLocalRef<jstring> detailMessage(env, env->NewStringUTF(functionName));
+    if (detailMessage.get() == NULL) {
         // Not really much we can do here. We're probably dead in the water,
         // but let's try to stumble on...
         env->ExceptionClear();
@@ -60,16 +60,34 @@ static void throwErrnoException(JNIEnv* env, const char* name) {
 
     jobject exception;
     if (cause != NULL) {
-        static jmethodID ctor = env->GetMethodID(JniConstants::errnoExceptionClass, "<init>",
-                "(Ljava/lang/String;ILjava/lang/Throwable;)V");
-        exception = env->NewObject(JniConstants::errnoExceptionClass, ctor,
-                javaName.get(), errnum, cause);
+        exception = env->NewObject(exceptionClass, ctor3, detailMessage.get(), error, cause);
     } else {
-        static jmethodID ctor = env->GetMethodID(JniConstants::errnoExceptionClass, "<init>",
-                "(Ljava/lang/String;I)V");
-        exception = env->NewObject(JniConstants::errnoExceptionClass, ctor, javaName.get(), errnum);
+        exception = env->NewObject(exceptionClass, ctor2, detailMessage.get(), error);
     }
     env->Throw(reinterpret_cast<jthrowable>(exception));
+}
+
+static void throwErrnoException(JNIEnv* env, const char* functionName) {
+    int error = errno;
+    static jmethodID ctor3 = env->GetMethodID(JniConstants::errnoExceptionClass,
+            "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
+    static jmethodID ctor2 = env->GetMethodID(JniConstants::errnoExceptionClass,
+            "<init>", "(Ljava/lang/String;I)V");
+    throwException(env, JniConstants::errnoExceptionClass, ctor3, ctor2, functionName, error);
+}
+
+static void throwGaiException(JNIEnv* env, const char* functionName, int error) {
+    if (error == EAI_SYSTEM) {
+        // EAI_SYSTEM means "look at errno instead", so we want our GaiException to have the
+        // relevant ErrnoException as its cause.
+        throwErrnoException(env, functionName);
+        // Deliberately fall through to throw another exception...
+    }
+    static jmethodID ctor3 = env->GetMethodID(JniConstants::gaiExceptionClass,
+            "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
+    static jmethodID ctor2 = env->GetMethodID(JniConstants::gaiExceptionClass,
+            "<init>", "(Ljava/lang/String;I)V");
+    throwException(env, JniConstants::gaiExceptionClass, ctor3, ctor2, functionName, error);
 }
 
 template <typename rc_t>
@@ -349,12 +367,35 @@ static void Posix_ftruncate(JNIEnv* env, jobject, jobject javaFd, jlong length) 
     throwIfMinusOne(env, "ftruncate", TEMP_FAILURE_RETRY(ftruncate64(fd, length)));
 }
 
+static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
+    return env->NewStringUTF(gai_strerror(error));
+}
+
 static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
         return NULL;
     }
     return env->NewStringUTF(getenv(name.c_str()));
+}
+
+static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
+    sockaddr_storage ss;
+    if (!inetAddressToSocketAddress(env, javaAddress, 0, &ss)) {
+        return NULL;
+    }
+    // TODO: bionic's getnameinfo(3) seems to want its length parameter to be exactly
+    // sizeof(sockaddr_in) for an IPv4 address and sizeof (sockaddr_in6) for an
+    // IPv6 address. Fix getnameinfo so it accepts sizeof(sockaddr_storage), and
+    // then remove this hack.
+    socklen_t size = (ss.ss_family == AF_INET) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
+    char buf[NI_MAXHOST]; // NI_MAXHOST is longer than INET6_ADDRSTRLEN.
+    int rc = getnameinfo(reinterpret_cast<sockaddr*>(&ss), size, buf, sizeof(buf), NULL, 0, flags);
+    if (rc != 0) {
+        throwGaiException(env, "getnameinfo", rc);
+        return NULL;
+    }
+    return env->NewStringUTF(buf);
 }
 
 static jobject Posix_getsockname(JNIEnv* env, jobject, jobject javaFd) {
@@ -782,7 +823,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fstatfs, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
+    NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
     NATIVE_METHOD(Posix, getsockoptByte, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(Posix, getsockoptInAddr, "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;"),

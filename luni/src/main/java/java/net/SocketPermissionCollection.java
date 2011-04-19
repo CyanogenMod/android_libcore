@@ -23,9 +23,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- * This class represents a list of {@code SocketPermission} objects and provides
- * a method to check whether or not a specific permission is implied by this
- * {@code SocketPermissionCollection}.
+ * Legacy security code; this class exists for compatibility only.
  */
 final class SocketPermissionCollection extends PermissionCollection {
 

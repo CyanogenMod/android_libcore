@@ -54,6 +54,7 @@ struct JniConstants {
     static jclass fieldClass;
     static jclass fieldPositionIteratorClass;
     static jclass fileDescriptorClass;
+    static jclass gaiExceptionClass;
     static jclass inetAddressClass;
     static jclass inetSocketAddressClass;
     static jclass inflaterClass;

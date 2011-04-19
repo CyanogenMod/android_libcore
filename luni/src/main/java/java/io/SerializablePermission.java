@@ -20,21 +20,7 @@ package java.io;
 import java.security.BasicPermission;
 
 /**
- * Is used to enable access to potentially unsafe serialization operations. It
- * does have a name but no action list. The following table lists valid
- * permission names:
- * <table>
- * <tr>
- * <td>enableSubclassImplementation</td>
- * <td>Subclasses can override serialization behavior.</td>
- * </tr>
- * <tr>
- * <td>enableSubstitution</td>
- * <td>Object substitution is allowed.</td>
- * </tr>
- * </table>
- *
- * @see ObjectStreamConstants
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class SerializablePermission extends BasicPermission {
     private static final long serialVersionUID = 8537212141160296410L;

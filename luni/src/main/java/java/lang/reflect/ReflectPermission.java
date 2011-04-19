@@ -20,8 +20,7 @@ package java.lang.reflect;
 import java.security.BasicPermission;
 
 /**
- * A {@code ReflectPermission} object represents a permission to access
- * operations in the reflection layer.
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class ReflectPermission extends BasicPermission {
 

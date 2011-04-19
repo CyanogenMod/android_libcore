@@ -30,11 +30,7 @@ import java.security.cert.CertificateFactory;
 import org.apache.harmony.security.fortress.PolicyUtils;
 
 /**
- * An {@code UnresolvedPermission} represents a {@code Permission} whose type
- * should be resolved lazy and not during initialization time of the {@code
- * Policy}. {@code UnresolvedPermission}s contain all information to be replaced
- * by a concrete typed {@code Permission} right before the access checks are
- * performed.
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class UnresolvedPermission extends Permission
     implements Serializable {

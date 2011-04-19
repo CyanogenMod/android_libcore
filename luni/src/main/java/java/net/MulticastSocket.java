@@ -19,6 +19,7 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import libcore.io.IoUtils;
 
 /**
  * This class implements a multicast socket for sending and receiving IP
@@ -114,7 +115,7 @@ public class MulticastSocket extends DatagramSocket {
         // This is what the RI returns for a MulticastSocket that hasn't been constrained
         // to a specific interface.
         InetAddress[] addresses;
-        if (InetAddress.preferIPv6Addresses()) {
+        if (IoUtils.preferIPv6Addresses()) {
             addresses = new InetAddress[] { Inet6Address.ANY };
         } else {
             addresses = new InetAddress[] { Inet4Address.ANY };

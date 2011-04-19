@@ -45,6 +45,17 @@ public final class OsConstants {
     public static final int EADDRNOTAVAIL = placeholder();
     public static final int EAFNOSUPPORT = placeholder();
     public static final int EAGAIN = placeholder();
+    public static final int EAI_AGAIN = placeholder();
+    public static final int EAI_BADFLAGS = placeholder();
+    public static final int EAI_FAIL = placeholder();
+    public static final int EAI_FAMILY = placeholder();
+    public static final int EAI_MEMORY = placeholder();
+    public static final int EAI_NODATA = placeholder();
+    public static final int EAI_NONAME = placeholder();
+    public static final int EAI_OVERFLOW = placeholder();
+    public static final int EAI_SERVICE = placeholder();
+    public static final int EAI_SOCKTYPE = placeholder();
+    public static final int EAI_SYSTEM = placeholder();
     public static final int EALREADY = placeholder();
     public static final int EBADF = placeholder();
     public static final int EBADMSG = placeholder();
@@ -180,6 +191,11 @@ public final class OsConstants {
     public static final int MS_ASYNC = placeholder();
     public static final int MS_INVALIDATE = placeholder();
     public static final int MS_SYNC = placeholder();
+    public static final int NI_DGRAM = placeholder();
+    public static final int NI_NAMEREQD = placeholder();
+    public static final int NI_NOFQDN = placeholder();
+    public static final int NI_NUMERICHOST = placeholder();
+    public static final int NI_NUMERICSERV = placeholder();
     public static final int O_ACCMODE = placeholder();
     public static final int O_APPEND = placeholder();
     public static final int O_CREAT = placeholder();
@@ -348,6 +364,43 @@ public final class OsConstants {
     public static final int _SC_XOPEN_UNIX = placeholder();
     public static final int _SC_XOPEN_VERSION = placeholder();
     public static final int _SC_XOPEN_XCU_VERSION = placeholder();
+
+    public static String gaiName(int error) {
+        if (error == EAI_AGAIN) {
+            return "EAI_AGAIN";
+        }
+        if (error == EAI_BADFLAGS) {
+            return "EAI_BADFLAGS";
+        }
+        if (error == EAI_FAIL) {
+            return "EAI_FAIL";
+        }
+        if (error == EAI_FAMILY) {
+            return "EAI_FAMILY";
+        }
+        if (error == EAI_MEMORY) {
+            return "EAI_MEMORY";
+        }
+        if (error == EAI_NODATA) {
+            return "EAI_NODATA";
+        }
+        if (error == EAI_NONAME) {
+            return "EAI_NONAME";
+        }
+        if (error == EAI_OVERFLOW) {
+            return "EAI_OVERFLOW";
+        }
+        if (error == EAI_SERVICE) {
+            return "EAI_SERVICE";
+        }
+        if (error == EAI_SOCKTYPE) {
+            return "EAI_SOCKTYPE";
+        }
+        if (error == EAI_SYSTEM) {
+            return "EAI_SYSTEM";
+        }
+        return null;
+    }
 
     public static String errnoName(int errno) {
         if (errno == E2BIG) {

@@ -147,58 +147,6 @@ static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaNam
     return addressArray;
 }
 
-/**
- * Looks up the name corresponding to an IP address.
- *
- * @param javaAddress: a byte array containing the raw IP address bytes. Must be
- *         4 or 16 bytes long.
- * @return the hostname.
- * @throws UnknownHostException: the IP address has no associated hostname.
- */
-static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
-                                         jbyteArray javaAddress)
-{
-    if (javaAddress == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return NULL;
-    }
-
-    // Convert the raw address bytes into a socket address structure.
-    sockaddr_storage ss;
-    memset(&ss, 0, sizeof(ss));
-
-    size_t socklen;
-    const size_t addressLength = env->GetArrayLength(javaAddress);
-    if (addressLength == 4) {
-        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
-        sin->sin_family = AF_INET;
-        socklen = sizeof(sockaddr_in);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-        env->GetByteArrayRegion(javaAddress, 0, 4, dst);
-    } else if (addressLength == 16) {
-        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
-        sin6->sin6_family = AF_INET6;
-        socklen = sizeof(sockaddr_in6);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
-        env->GetByteArrayRegion(javaAddress, 0, 16, dst);
-    } else {
-        // The caller already throws an exception in this case. Don't worry
-        // about it here.
-        return NULL;
-    }
-
-    // Look up the host name from the IP address.
-    char name[NI_MAXHOST];
-    int ret = getnameinfo(reinterpret_cast<sockaddr*>(&ss), socklen,
-                          name, sizeof(name), NULL, 0, NI_NAMEREQD);
-    if (ret != 0) {
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(ret));
-        return NULL;
-    }
-
-    return env->NewStringUTF(name);
-}
-
 static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring javaString) {
     // Convert the String to UTF-8 bytes.
     ScopedUtfChars chars(env, javaString);
@@ -263,42 +211,8 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
     return result;
 }
 
-static jstring InetAddress_byteArrayToIpString(JNIEnv* env, jobject, jbyteArray byteArray) {
-    if (byteArray == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return NULL;
-    }
-    sockaddr_storage ss;
-    if (!byteArrayToSocketAddress(env, NULL, byteArray, 0, &ss)) {
-        return NULL;
-    }
-    // TODO: getnameinfo seems to want its length parameter to be exactly
-    // sizeof(sockaddr_in) for an IPv4 address and sizeof (sockaddr_in6) for an
-    // IPv6 address. Fix getnameinfo so it accepts sizeof(sockaddr_storage), and
-    // then remove this hack.
-    int sa_size;
-    if (ss.ss_family == AF_INET) {
-        sa_size = sizeof(sockaddr_in);
-    } else if (ss.ss_family == AF_INET6) {
-        sa_size = sizeof(sockaddr_in6);
-    } else {
-        // byteArrayToSocketAddress already threw.
-        return NULL;
-    }
-    char ipString[INET6_ADDRSTRLEN];
-    int rc = getnameinfo(reinterpret_cast<sockaddr*>(&ss), sa_size,
-            ipString, sizeof(ipString), NULL, 0, NI_NUMERICHOST);
-    if (rc != 0) {
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(rc));
-        return NULL;
-    }
-    return env->NewStringUTF(ipString);
-}
-
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(InetAddress, byteArrayToIpString, "([B)Ljava/lang/String;"),
     NATIVE_METHOD(InetAddress, getaddrinfo, "(Ljava/lang/String;)[[B"),
-    NATIVE_METHOD(InetAddress, getnameinfo, "([B)Ljava/lang/String;"),
     NATIVE_METHOD(InetAddress, ipStringToByteArray, "(Ljava/lang/String;)[B"),
 };
 int register_java_net_InetAddress(JNIEnv* env) {

@@ -18,21 +18,7 @@
 package java.net;
 
 /**
- * This class represents permissions to configure the access to network
- * resources.
- * <p>
- * There are three valid target names:
- * <dl>
- * <dt>setDefaultAuthenticator</dt>
- * <dd>Allows the default authenticator to be set.</dd>
- * <dt>requestPasswordAuthentication</dt>
- * <dd>Allows the default authenticator to be retrieved.</dd>
- * <dt>specifyStreamHandler</dt>
- * <dd>Allows a stream (protocol) handler to be set when constructing an URL
- * object</dd>
- * </dl>
- *
- * @see java.security.BasicPermission
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class NetPermission extends java.security.BasicPermission {
 
