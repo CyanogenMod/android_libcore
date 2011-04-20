@@ -581,15 +581,11 @@ static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     if (packet != NULL) {
         env->SetIntField(packet, lengthFid, bytesReceived);
         if (!connected) {
-            jbyteArray addr = socketAddressToByteArray(env, &ss);
-            if (addr == NULL) {
-                return 0;
-            }
-            int port = getSocketAddressPort(&ss);
-            jobject sender = byteArrayToInetAddress(env, addr);
+            jobject sender = socketAddressToInetAddress(env, &ss);
             if (sender == NULL) {
                 return 0;
             }
+            int port = getSocketAddressPort(&ss);
             env->SetObjectField(packet, addressFid, sender);
             env->SetIntField(packet, portFid, port);
         }

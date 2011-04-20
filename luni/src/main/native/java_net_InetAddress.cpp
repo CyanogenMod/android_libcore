@@ -16,44 +16,31 @@
 
 #define LOG_TAG "InetAddress"
 
-#define LOG_DNS 0
-
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "LocalArray.h"
 #include "NetworkUtilities.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
+#include "UniquePtr.h"
 #include "jni.h"
 #include "utils/Log.h"
 
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
-#include <netdb.h>
-#include <errno.h>
-
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/socket.h>
 
-#if LOG_DNS
-static void logIpString(addrinfo* ai, const char* name)
-{
-    char ipString[INET6_ADDRSTRLEN];
-    int result = getnameinfo(ai->ai_addr, ai->ai_addrlen, ipString,
-                             sizeof(ipString), NULL, 0, NI_NUMERICHOST);
-    if (result == 0) {
-        LOGD("%s: %s (family %d, proto %d)", name, ipString, ai->ai_family,
-             ai->ai_protocol);
-    } else {
-        LOGE("%s: getnameinfo: %s", name, gai_strerror(result));
+struct addrinfo_deleter {
+    void operator()(addrinfo* p) const {
+        if (p != NULL) { // bionic's freeaddrinfo(3) crashes when passed NULL.
+            freeaddrinfo(p);
+        }
     }
-}
-#else
-static inline void logIpString(addrinfo*, const char*)
-{
-}
-#endif
+};
 
 static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaName) {
     ScopedUtfChars name(env, javaName);
@@ -73,78 +60,52 @@ static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaNam
     hints.ai_socktype = SOCK_STREAM;
 
     addrinfo* addressList = NULL;
-    jobjectArray addressArray = NULL;
     int result = getaddrinfo(name.c_str(), NULL, &hints, &addressList);
+    UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
     if (result == 0 && addressList) {
         // Count results so we know how to size the output array.
         int addressCount = 0;
         for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
             if (ai->ai_family == AF_INET || ai->ai_family == AF_INET6) {
-                addressCount++;
+                ++addressCount;
             }
         }
 
         // Prepare output array.
-        addressArray = env->NewObjectArray(addressCount, JniConstants::byteArrayClass, NULL);
-        if (addressArray == NULL) {
-            // Appropriate exception will be thrown.
-            LOGE("getaddrinfo: could not allocate array of size %i", addressCount);
-            freeaddrinfo(addressList);
+        jobjectArray result = env->NewObjectArray(addressCount, JniConstants::byteArrayClass, NULL);
+        if (result == NULL) {
             return NULL;
         }
 
         // Examine returned addresses one by one, save them in the output array.
         int index = 0;
         for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
-            sockaddr* address = ai->ai_addr;
-            size_t addressLength = 0;
-            void* rawAddress;
-
-            switch (ai->ai_family) {
-                // Find the raw address length and start pointer.
-                case AF_INET6:
-                    addressLength = 16;
-                    rawAddress = &reinterpret_cast<sockaddr_in6*>(address)->sin6_addr.s6_addr;
-                    logIpString(ai, name.c_str());
-                    break;
-                case AF_INET:
-                    addressLength = 4;
-                    rawAddress = &reinterpret_cast<sockaddr_in*>(address)->sin_addr.s_addr;
-                    logIpString(ai, name.c_str());
-                    break;
-                default:
-                    // Unknown address family. Skip this address.
-                    LOGE("getaddrinfo: Unknown address family %d", ai->ai_family);
-                    continue;
+            if (ai->ai_family != AF_INET && ai->ai_family != AF_INET6) {
+                // Unknown address family. Skip this address.
+                continue;
             }
 
             // Convert each IP address into a Java byte array.
-            ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(addressLength));
+            sockaddr_storage* address = reinterpret_cast<sockaddr_storage*>(ai->ai_addr);
+            ScopedLocalRef<jbyteArray> byteArray(env, socketAddressToByteArray(env, address));
             if (byteArray.get() == NULL) {
-                // Out of memory error will be thrown on return.
-                LOGE("getaddrinfo: Can't allocate %d-byte array", addressLength);
-                addressArray = NULL;
-                break;
+                return NULL;
             }
-            env->SetByteArrayRegion(byteArray.get(),
-                    0, addressLength, reinterpret_cast<jbyte*>(rawAddress));
-            env->SetObjectArrayElement(addressArray, index, byteArray.get());
-            index++;
+            env->SetObjectArrayElement(result, index, byteArray.get());
+            ++index;
         }
+
+        return result;
     } else if (result == EAI_SYSTEM && errno == EACCES) {
         /* No permission to use network */
         jniThrowException(env, "java/lang/SecurityException",
                 "Permission denied (maybe missing INTERNET permission)");
+        return NULL;
     } else {
         jniThrowExceptionFmt(env, "java/net/UnknownHostException",
                 "Unable to resolve host \"%s\": %s", name.c_str(), gai_strerror(result));
+        return NULL;
     }
-
-    if (addressList) {
-        freeaddrinfo(addressList);
-    }
-
-    return addressArray;
 }
 
 static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring javaString) {
@@ -164,7 +125,6 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
         ipString[byteCount - 2] = '\0';
     }
 
-    jbyteArray result = NULL;
     addrinfo hints;
     memset(&hints, 0, sizeof(hints));
     hints.ai_flags = AI_NUMERICHOST;
@@ -174,6 +134,7 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
 
     addrinfo* res = NULL;
     int ret = getaddrinfo(ipString, NULL, &hints, &res);
+    UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(res);
     if (ret == 0 && res) {
         // Convert IPv4-mapped addresses to IPv4 addresses.
         // The RI states "Java will never return an IPv4-mapped address".
@@ -183,9 +144,9 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
             sin->sin_family = AF_INET;
             sin->sin_port = sin6->sin6_port;
             memcpy(&sin->sin_addr.s_addr, &sin6->sin6_addr.s6_addr[12], 4);
-            result = socketAddressToByteArray(env, &ss);
+            return socketAddressToByteArray(env, &ss);
         } else {
-            result = socketAddressToByteArray(env, reinterpret_cast<sockaddr_storage*>(res->ai_addr));
+            return socketAddressToByteArray(env, reinterpret_cast<sockaddr_storage*>(res->ai_addr));
         }
     } else {
         // For backwards compatibility, deal with address formats that
@@ -196,19 +157,10 @@ static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring 
         if (inet_aton(ipString, &sin->sin_addr)) {
             sin->sin_family = AF_INET;
             sin->sin_port = 0;
-            result = socketAddressToByteArray(env, &ss);
+            return socketAddressToByteArray(env, &ss);
         }
     }
-
-    if (res) {
-        freeaddrinfo(res);
-    }
-
-    if (!result) {
-        env->ExceptionClear();
-    }
-
-    return result;
+    return NULL;
 }
 
 static JNINativeMethod gMethods[] = {
