@@ -48,4 +48,9 @@ public class InetAddressTest extends junit.framework.TestCase {
     public void test_getLoopbackAddress() throws Exception {
         assertTrue(InetAddress.getLoopbackAddress().isLoopbackAddress());
     }
+
+    public void test_0() throws Exception {
+        // The RI special-cases "0" for legacy IPv4 applications.
+        assertTrue(InetAddress.getByName("0").isAnyLocalAddress());
+    }
 }

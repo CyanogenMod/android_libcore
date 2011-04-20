@@ -261,11 +261,6 @@ public class InetAddress implements Serializable {
             return loopbackAddresses();
         }
 
-        // Special-case "0" for legacy IPv4 applications.
-        if (host.equals("0")) {
-            return new InetAddress[] { Inet4Address.ANY };
-        }
-
         // Is it a numeric address?
         byte[] bytes = ipStringToByteArray(host);
         if (bytes != null) {
