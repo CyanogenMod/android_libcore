@@ -33,7 +33,9 @@ public final class IDN {
     public static final int ALLOW_UNASSIGNED = 1;
 
     /**
-     * When set, ASCII strings are checked against RFC 1122 & RFC 1123.
+     * When set, ASCII strings are checked against
+     * <a href="http://www.ietf.org/rfc/rfc1122.txt">RFC 1122</a> and
+     * <a href="http://www.ietf.org/rfc/rfc1123.txt">RFC 1123</a>.
      */
     public static final int USE_STD3_ASCII_RULES = 2;
 
@@ -42,7 +44,7 @@ public final class IDN {
 
     /**
      * Transform a Unicode String to ASCII Compatible Encoding String according
-     * to the algorithm defined in RFC 3490.
+     * to the algorithm defined in <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>.
      *
      * <p>If the transformation fails (because the input is not a valid IDN), an
      * exception will be thrown.
@@ -56,7 +58,7 @@ public final class IDN {
      * @param flags 0, {@code ALLOW_UNASSIGNED}, {@code USE_STD3_ASCII_RULES},
      *         or {@code ALLOW_UNASSIGNED | USE_STD3_ASCII_RULES}
      * @return the ACE name
-     * @throws IllegalArgumentException if {@code input} does not conform to RFC 3490
+     * @throws IllegalArgumentException if {@code input} does not conform to <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>
      */
     public static String toASCII(String input, int flags) {
         return NativeIDN.toASCII(input, flags);
@@ -67,7 +69,7 @@ public final class IDN {
      *
      * @param input the Unicode name
      * @return the ACE name
-     * @throws IllegalArgumentException if {@code input} does not conform to RFC 3490
+     * @throws IllegalArgumentException if {@code input} does not conform to <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>
      */
     public static String toASCII(String input) {
         return toASCII(input, 0);
@@ -75,7 +77,7 @@ public final class IDN {
 
     /**
      * Translates a string from ASCII Compatible Encoding (ACE) to Unicode
-     * according to the algorithm defined in RFC 3490.
+     * according to the algorithm defined in <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>.
      *
      * <p>Unlike {@code toASCII}, this transformation cannot fail.
      *

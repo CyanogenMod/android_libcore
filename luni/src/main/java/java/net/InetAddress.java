@@ -204,16 +204,9 @@ public class InetAddress implements Serializable {
         return ipaddress.clone();
     }
 
-    private static final Comparator<byte[]> SHORTEST_FIRST = new Comparator<byte[]>() {
-        public int compare(byte[] a1, byte[] a2) {
-            return a1.length - a2.length;
-        }
-    };
-
     /**
      * Converts an array of byte arrays representing raw IP addresses of a host
-     * to an array of InetAddress objects, sorting to respect the value of the
-     * system property {@code "java.net.preferIPv6Addresses"}.
+     * to an array of InetAddress objects.
      *
      * @param rawAddresses the raw addresses to convert.
      * @param hostName the hostname corresponding to the IP address.
@@ -221,13 +214,6 @@ public class InetAddress implements Serializable {
      */
     private static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName)
             throws UnknownHostException {
-        // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo(3)
-        // and always put IPv4 addresses first. Arrays.sort() is stable, so the
-        // internal ordering will not be changed.
-        if (!IoUtils.preferIPv6Addresses()) {
-            Arrays.sort(rawAddresses, SHORTEST_FIRST);
-        }
-
         // Convert the byte arrays to InetAddresses.
         InetAddress[] returnedAddresses = new InetAddress[rawAddresses.length];
         for (int i = 0; i < rawAddresses.length; i++) {
@@ -483,7 +469,7 @@ public class InetAddress implements Serializable {
      */
     public static InetAddress parseNumericAddress(String numericAddress) {
         if (numericAddress == null || numericAddress.isEmpty()) {
-            return loopbackAddresses()[0];
+            return Inet6Address.LOOPBACK;
         }
         byte[] bytes = ipStringToByteArray(numericAddress);
         if (bytes == null) {
@@ -498,11 +484,7 @@ public class InetAddress implements Serializable {
     }
 
     private static InetAddress[] loopbackAddresses() {
-        if (IoUtils.preferIPv6Addresses()) {
-            return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
-        } else {
-            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
-        }
+        return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
     }
 
     /**
@@ -511,7 +493,7 @@ public class InetAddress implements Serializable {
      * @hide 1.7
      */
     public static InetAddress getLoopbackAddress() {
-        return loopbackAddresses()[0];
+        return Inet6Address.LOOPBACK;
     }
 
     /**

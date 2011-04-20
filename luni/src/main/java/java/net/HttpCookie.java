@@ -223,7 +223,8 @@ public final class HttpCookie implements Cloneable {
 
     /**
      * Constructs a cookie from a string. The string should comply with
-     * set-cookie or set-cookie2 header format as specified in RFC 2965. Since
+     * set-cookie or set-cookie2 header format as specified in
+     * <a href="http://www.ietf.org/rfc/rfc2965.txt">RFC 2965</a>. Since
      * set-cookies2 syntax allows more than one cookie definitions in one
      * header, the returned object is a list.
      *

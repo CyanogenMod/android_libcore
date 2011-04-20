@@ -25,7 +25,8 @@ import java.util.Locale;
 import libcore.net.UriCodec;
 
 /**
- * This class represents an instance of a URI as defined by RFC 2396.
+ * This class represents an instance of a URI as defined by
+ * <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>.
  */
 public final class URI implements Comparable<URI>, Serializable {
 
@@ -55,7 +56,7 @@ public final class URI implements Comparable<URI>, Serializable {
      * Encodes the unescaped characters of {@code s} that are not permitted.
      * Permitted characters are:
      * <ul>
-     *   <li>Unreserved characters in RFC 2396.
+     *   <li>Unreserved characters in <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>.
      *   <li>{@code extraOkayChars},
      *   <li>non-ASCII, non-control, non-whitespace characters
      * </ul>
@@ -99,8 +100,9 @@ public final class URI implements Comparable<URI>, Serializable {
      * @param uri
      *            the textual URI representation to be parsed into a URI object.
      * @throws URISyntaxException
-     *             if the given string {@code uri} doesn't fit to the
-     *             specification RFC2396 or could not be parsed correctly.
+     *         if the given {@code uri} isn't an
+     *         <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> URI
+     *         or could not be parsed correctly.
      */
     public URI(String uri) throws URISyntaxException {
         parseURI(uri, false);
@@ -120,11 +122,11 @@ public final class URI implements Comparable<URI>, Serializable {
      * @param frag
      *            the fragment part of the URI.
      * @throws URISyntaxException
-     *             if the temporary created string doesn't fit to the
-     *             specification RFC2396 or could not be parsed correctly.
+     *         if the resulting URI isn't an
+     *         <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> URI
+     *         or could not be parsed correctly.
      */
-    public URI(String scheme, String ssp, String frag)
-            throws URISyntaxException {
+    public URI(String scheme, String ssp, String frag) throws URISyntaxException {
         StringBuilder uri = new StringBuilder();
         if (scheme != null) {
             uri.append(scheme);
@@ -165,8 +167,9 @@ public final class URI implements Comparable<URI>, Serializable {
      * @param fragment
      *            the fragment part of the URI.
      * @throws URISyntaxException
-     *             if the temporary created string doesn't fit to the
-     *             specification RFC2396 or could not be parsed correctly.
+     *         if the resulting URI isn't an
+     *         <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> URI
+     *         or could not be parsed correctly.
      */
     public URI(String scheme, String userInfo, String host, int port,
             String path, String query, String fragment)
@@ -246,11 +249,11 @@ public final class URI implements Comparable<URI>, Serializable {
      * @param fragment
      *            the fragment part of the URI.
      * @throws URISyntaxException
-     *             if the temporary created string doesn't fit to the
-     *             specification RFC2396 or could not be parsed correctly.
+     *         if the resulting URI isn't an
+     *         <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> URI
+     *         or could not be parsed correctly.
      */
-    public URI(String scheme, String host, String path, String fragment)
-            throws URISyntaxException {
+    public URI(String scheme, String host, String path, String fragment) throws URISyntaxException {
         this(scheme, null, host, -1, path, null, fragment);
     }
 
@@ -273,8 +276,9 @@ public final class URI implements Comparable<URI>, Serializable {
      * @param fragment
      *            the fragment part of the URI.
      * @throws URISyntaxException
-     *             if the temporary created string doesn't fit to the
-     *             specification RFC2396 or could not be parsed correctly.
+     *         if the resulting URI isn't an
+     *         <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> URI
+     *         or could not be parsed correctly.
      */
     public URI(String scheme, String authority, String path, String query,
             String fragment) throws URISyntaxException {

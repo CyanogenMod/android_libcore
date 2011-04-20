@@ -58,8 +58,8 @@ import java.util.Map;
  *      Resources from the local file system can be loaded using {@code file:}
  *      URIs. File connections can only be used for input.
  *   <li><strong>FTP</strong><br>
- *      File Transfer Protocol (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC
- *      959</a>) is supported, but with no public subclass. FTP connections can
+ *      File Transfer Protocol (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC 959</a>)
+ *      is supported, but with no public subclass. FTP connections can
  *      be used for input or output but not both.
  *      <p>By default, FTP connections will be made using {@code anonymous} as
  *      the username and the empty string as the password. Specify alternate

@@ -114,12 +114,7 @@ public class MulticastSocket extends DatagramSocket {
 
         // This is what the RI returns for a MulticastSocket that hasn't been constrained
         // to a specific interface.
-        InetAddress[] addresses;
-        if (IoUtils.preferIPv6Addresses()) {
-            addresses = new InetAddress[] { Inet6Address.ANY };
-        } else {
-            addresses = new InetAddress[] { Inet4Address.ANY };
-        }
+        InetAddress[] addresses = new InetAddress[] { Inet6Address.ANY };
         return new NetworkInterface(null, null, addresses, -1);
     }
 

@@ -411,9 +411,4 @@ public final class IoUtils {
             IoUtils.closeQuietly(f);
         }
     }
-
-    public static boolean preferIPv6Addresses() {
-        String propertyValue = System.getProperty("java.net.preferIPv6Addresses");
-        return Boolean.parseBoolean(propertyValue);
-    }
 }

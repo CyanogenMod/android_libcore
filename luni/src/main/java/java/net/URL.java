@@ -30,7 +30,8 @@ import libcore.net.url.JarHandler;
 
 /**
  * A URL instance specifies the location of a resource on the internet as
- * specified by RFC 1738. Such a resource can be a simple file or a service
+ * specified by <a href="http://www.ietf.org/rfc/rfc1738.txt">RFC 1738</a>.
+ * Such a resource can be a simple file or a service
  * which generates the output dynamically. A URL is divided in its parts
  * protocol, host name, port, path, file, user-info, query, reference and
  * authority. However, not each of this parts has to be defined.

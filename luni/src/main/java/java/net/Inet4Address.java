@@ -96,8 +96,8 @@ public final class Inet4Address extends InetAddress {
 
     /**
      * Returns whether this address has a link-local scope or not.
-     * <p>
-     * RFC 3484 <br>
+     *
+     * <p><a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a>
      * Default Address Selection for Internet Protocol Version 6 (IPv6) states
      * IPv4 auto-configuration addresses, prefix 169.254/16, IPv4 loopback
      * addresses, prefix 127/8, are assigned link-local scope.
@@ -114,8 +114,8 @@ public final class Inet4Address extends InetAddress {
 
     /**
      * Returns whether this address has a site-local scope or not.
-     * <p>
-     * RFC 3484 <br>
+     *
+     * <p><a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a>
      * Default Address Selection for Internet Protocol Version 6 (IPv6) states
      * IPv4 private addresses, prefixes 10/8, 172.16/12, and 192.168/16, are
      * assigned site-local scope.
