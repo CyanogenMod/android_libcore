@@ -301,11 +301,6 @@ public class InetAddress implements Serializable {
         if (hostName == null) {
             try {
                 hostName = getHostByAddrImpl(this).hostName;
-                // If the unqualified name happens to be "localhost", it would be misleading to
-                // return that, so use the numeric representation instead in that case.
-                if (hostName.equals("localhost") && !isLoopbackAddress()) {
-                    hostName = getHostAddress();
-                }
             } catch (UnknownHostException ex) {
                 hostName = getHostAddress();
             }
