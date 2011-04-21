@@ -27,17 +27,13 @@ public class NoRouteToHostException extends SocketException {
     private static final long serialVersionUID = -1897550894873493790L;
 
     /**
-     * Constructs a new instance of this exception with its walkback filled in.
+     * Constructs a new instance with the current stack trace.
      */
     public NoRouteToHostException() {
     }
 
     /**
-     * Constructs a new instance of this exception with its walkback and message
-     * filled in.
-     *
-     * @param detailMessage
-     *            the detail message for this exception.
+     * Constructs a new instance with the current stack trace and given detail message.
      */
     public NoRouteToHostException(String detailMessage) {
         super(detailMessage);

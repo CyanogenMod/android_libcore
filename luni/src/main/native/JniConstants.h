@@ -59,7 +59,6 @@ struct JniConstants {
     static jclass inetSocketAddressClass;
     static jclass inflaterClass;
     static jclass integerClass;
-    static jclass interfaceAddressClass;
     static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;

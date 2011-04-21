@@ -241,6 +241,17 @@ static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
             sysname, nodename, release, version, machine);
 };
 
+static bool fillIfreq(JNIEnv* env, jstring javaInterfaceName, struct ifreq& req) {
+    ScopedUtfChars interfaceName(env, javaInterfaceName);
+    if (interfaceName.c_str() == NULL) {
+        return false;
+    }
+    memset(&req, 0, sizeof(req));
+    strncpy(req.ifr_name, interfaceName.c_str(), sizeof(req.ifr_name));
+    req.ifr_name[sizeof(req.ifr_name) - 1] = '\0';
+    return true;
+}
+
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -469,6 +480,27 @@ static jobject Posix_getsockoptTimeval(JNIEnv* env, jobject, jobject javaFd, jin
     return makeStructTimeval(env, tv);
 }
 
+static jstring Posix_if_indextoname(JNIEnv* env, jobject, jint index) {
+    char buf[IF_NAMESIZE];
+    char* name = if_indextoname(index, buf);
+    // if_indextoname(3) returns NULL on failure, which will come out of NewStringUTF unscathed.
+    // There's no useful information in errno, so we don't bother throwing. Callers can null-check.
+    return env->NewStringUTF(name);
+}
+
+static jobject Posix_ioctlInetAddress(JNIEnv* env, jobject, jobject javaFd, jint cmd, jstring javaInterfaceName) {
+    struct ifreq req;
+    if (!fillIfreq(env, javaInterfaceName, req)) {
+        return NULL;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int rc = throwIfMinusOne(env, "ioctl", TEMP_FAILURE_RETRY(ioctl(fd, cmd, &req)));
+    if (rc == -1) {
+        return NULL;
+    }
+    return socketAddressToInetAddress(env, reinterpret_cast<sockaddr_storage*>(&req.ifr_addr));
+}
+
 static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
     // This is complicated because ioctls may return their result by updating their argument
     // or via their return value, so we need to support both.
@@ -646,15 +678,11 @@ static void Posix_setsockoptByte(JNIEnv* env, jobject, jobject javaFd, jint leve
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &byte, sizeof(byte))));
 }
 
-static void Posix_setsockoptIfreq(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jstring value) {
-    ScopedUtfChars interfaceName(env, value);
-    if (interfaceName.c_str() == NULL) {
+static void Posix_setsockoptIfreq(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jstring javaInterfaceName) {
+    struct ifreq req;
+    if (!fillIfreq(env, javaInterfaceName, req)) {
         return;
     }
-    struct ifreq req;
-    memset(&req, 0, sizeof(req));
-    strncpy(req.ifr_name, interfaceName.c_str(), sizeof(req.ifr_name));
-    req.ifr_name[sizeof(req.ifr_name) - 1] = '\0';
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &req, sizeof(req))));
 }
@@ -832,6 +860,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getsockoptInt, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
     NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
+    NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),

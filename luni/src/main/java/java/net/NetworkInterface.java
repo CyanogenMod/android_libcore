@@ -17,14 +17,22 @@
 
 package java.net;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import libcore.util.EmptyArray;
+import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /**
  * This class is used to represent a network interface of the local device. An
@@ -33,145 +41,176 @@ import libcore.util.EmptyArray;
  * system or to identify the local interface of a joined multicast group.
  */
 public final class NetworkInterface extends Object {
-
-    private static final int CHECK_CONNECT_NO_PORT = -1;
-
     private final String name;
-    private final String displayName;
-    private final List<InterfaceAddress> interfaceAddresses = new LinkedList<InterfaceAddress>();
-
     private final int interfaceIndex;
-    private final List<InetAddress> addresses = new LinkedList<InetAddress>();
+    private final List<InterfaceAddress> interfaceAddresses;
+    private final List<InetAddress> addresses;
 
     private final List<NetworkInterface> children = new LinkedList<NetworkInterface>();
 
     private NetworkInterface parent = null;
 
-    private static NetworkInterface[] getNetworkInterfacesImpl() throws SocketException {
-        Map<String, NetworkInterface> networkInterfaces = new LinkedHashMap<String, NetworkInterface>();
-        for (InterfaceAddress ia : getAllInterfaceAddressesImpl()) {
-            if (ia != null) { // The array may contain harmless null elements.
-                String name = ia.name;
-                NetworkInterface ni = networkInterfaces.get(name);
-                if (ni == null) {
-                    ni = new NetworkInterface(name, name, new InetAddress[] { ia.address }, ia.index);
-                    ni.interfaceAddresses.add(ia);
-                    networkInterfaces.put(name, ni);
-                } else {
-                    ni.addresses.add(ia.address);
-                    ni.interfaceAddresses.add(ia);
-                }
-            }
-        }
-        return networkInterfaces.values().toArray(new NetworkInterface[networkInterfaces.size()]);
-    }
-    private static native InterfaceAddress[] getAllInterfaceAddressesImpl() throws SocketException;
-
-    /**
-     * This constructor is used by the native method in order to construct the
-     * NetworkInterface objects in the array that it returns.
-     *
-     * @param name
-     *            internal name associated with the interface.
-     * @param displayName
-     *            a user interpretable name for the interface.
-     * @param addresses
-     *            the Internet addresses associated with the interface.
-     * @param interfaceIndex
-     *            an index for the interface. Only set for platforms that
-     *            support IPv6.
-     */
-    NetworkInterface(String name, String displayName, InetAddress[] addresses,
-            int interfaceIndex) {
+    private NetworkInterface(String name, int interfaceIndex,
+            List<InetAddress> addresses, List<InterfaceAddress> interfaceAddresses) {
         this.name = name;
-        this.displayName = displayName;
         this.interfaceIndex = interfaceIndex;
-        if (addresses != null) {
-            for (InetAddress address : addresses) {
-                this.addresses.add(address);
-            }
-        }
+        this.addresses = addresses;
+        this.interfaceAddresses = interfaceAddresses;
+    }
+
+    static NetworkInterface forUnboundMulticastSocket() {
+        // This is what the RI returns for a MulticastSocket that hasn't been constrained
+        // to a specific interface.
+        return new NetworkInterface(null, -1,
+                Arrays.asList(Inet6Address.ANY), Collections.<InterfaceAddress>emptyList());
     }
 
     /**
-     * Returns the index for the network interface. Unless the system supports
-     * IPv6 this will be 0.
+     * Returns the index for the network interface, or -1 if unknown.
      *
-     * @return the index
+     * @hide 1.7
      */
-    int getIndex() {
+    public int getIndex() {
         return interfaceIndex;
     }
 
     /**
-     * Returns the first address for the network interface. This is used in the
-     * natives when we need one of the addresses for the interface and any one
-     * will do
-     *
-     * @return the first address if one exists, otherwise null.
-     */
-    InetAddress getFirstAddress() {
-        if (addresses.size() >= 1) {
-            return addresses.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * Gets the name associated with this network interface.
-     *
-     * @return the name of this {@code NetworkInterface} instance.
+     * Returns the name of this network interface (such as "eth0" or "lo").
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Gets a list of addresses bound to this network interface.
-     *
-     * @return the address list of the represented network interface.
+     * Returns an enumeration of the addresses bound to this network interface.
      */
     public Enumeration<InetAddress> getInetAddresses() {
         return Collections.enumeration(addresses);
     }
 
     /**
-     * Gets the human-readable name associated with this network interface.
-     *
-     * @return the display name of this network interface or the name if the
-     *         display name is not available.
+     * Returns a human-readable name for this network interface. On Android, this is the same
+     * string as returned by {@link #getName}.
      */
     public String getDisplayName() {
-        /*
-         * we should return the display name unless it is blank in this case
-         * return the name so that something is displayed.
-         */
-        return displayName.isEmpty() ? name : displayName;
+        return name;
     }
 
     /**
-     * Gets the specific network interface according to a given name.
+     * Returns the {@code NetworkInterface} corresponding to the named network interface, or null
+     * if no interface has this name.
      *
-     * @param interfaceName
-     *            the name to identify the searched network interface.
-     * @return the network interface with the specified name if one exists or
-     *         {@code null} otherwise.
-     * @throws SocketException
-     *             if an error occurs while getting the network interface
-     *             information.
-     * @throws NullPointerException
-     *             if the given interface's name is {@code null}.
+     * @throws SocketException if an error occurs.
+     * @throws NullPointerException if {@code interfaceName == null}.
      */
     public static NetworkInterface getByName(String interfaceName) throws SocketException {
         if (interfaceName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("interfaceName == null");
         }
-        for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
-            if (networkInterface.name.equals(interfaceName)) {
-                return networkInterface;
+        if (!isValidInterfaceName(interfaceName)) {
+            return null;
+        }
+
+        int interfaceIndex = readIntFile("/sys/class/net/" + interfaceName + "/ifindex");
+        List<InetAddress> addresses = new ArrayList<InetAddress>();
+        List<InterfaceAddress> interfaceAddresses = new ArrayList<InterfaceAddress>();
+        collectIpv6Addresses(interfaceName, interfaceIndex, addresses, interfaceAddresses);
+        collectIpv4Address(interfaceName, addresses, interfaceAddresses);
+
+        return new NetworkInterface(interfaceName, interfaceIndex, addresses, interfaceAddresses);
+    }
+
+    private static void collectIpv6Addresses(String interfaceName, int interfaceIndex,
+            List<InetAddress> addresses, List<InterfaceAddress> interfaceAddresses) throws SocketException {
+        // Format of /proc/net/if_inet6 (all numeric fields are implicit hex).
+        // 1. IPv6 address
+        // 2. interface index
+        // 3. prefix length
+        // 4. scope
+        // 5. flags
+        // 6. interface name
+        // "00000000000000000000000000000001 01 80 10 80       lo"
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new FileReader("/proc/net/if_inet6"));
+            String suffix = " " + interfaceName;
+            String line;
+            while ((line = in.readLine()) != null) {
+                if (!line.endsWith(suffix)) {
+                    continue;
+                }
+                byte[] addressBytes = new byte[16];
+                for (int i = 0; i < addressBytes.length; ++i) {
+                    addressBytes[i] = (byte) Integer.parseInt(line.substring(2*i, 2*i + 2), 16);
+                }
+                short prefixLength = Short.parseShort(line.substring(36, 38), 16);
+                Inet6Address inet6Address = new Inet6Address(addressBytes, null, interfaceIndex);
+
+                addresses.add(inet6Address);
+                interfaceAddresses.add(new InterfaceAddress(inet6Address, prefixLength));
+            }
+        } catch (Exception ex) {
+            throw rethrowAsSocketException(ex);
+        } finally {
+            IoUtils.closeQuietly(in);
+        }
+    }
+
+    private static void collectIpv4Address(String interfaceName, List<InetAddress> addresses,
+            List<InterfaceAddress> interfaceAddresses) throws SocketException {
+        FileDescriptor fd = null;
+        try {
+            fd = Libcore.os.socket(AF_INET, SOCK_DGRAM, 0);
+            InetAddress address = Libcore.os.ioctlInetAddress(fd, SIOCGIFADDR, interfaceName);
+            InetAddress broadcast = Libcore.os.ioctlInetAddress(fd, SIOCGIFBRDADDR, interfaceName);
+            InetAddress netmask = Libcore.os.ioctlInetAddress(fd, SIOCGIFNETMASK, interfaceName);
+            if (broadcast.equals(Inet4Address.ANY)) {
+                broadcast = null;
+            }
+
+            addresses.add(address);
+            interfaceAddresses.add(new InterfaceAddress((Inet4Address) address,
+                    (Inet4Address) broadcast, (Inet4Address) netmask));
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno != EADDRNOTAVAIL) {
+                // EADDRNOTAVAIL just means no IPv4 address for this interface.
+                // Anything else is a real error.
+                throw rethrowAsSocketException(errnoException);
+            }
+        } catch (Exception ex) {
+            throw rethrowAsSocketException(ex);
+        } finally {
+            IoUtils.closeQuietly(fd);
+        }
+    }
+
+    private static boolean isValidInterfaceName(String interfaceName) {
+        // Don't just stat because a crafty user might have / or .. in the supposed interface name.
+        for (String validName : new File("/sys/class/net").list()) {
+            if (interfaceName.equals(validName)) {
+                return true;
             }
         }
-        return null;
+        return false;
+    }
+
+    private static int readIntFile(String path) throws SocketException {
+        try {
+            String s = IoUtils.readFileAsString(path).trim();
+            if (s.startsWith("0x")) {
+                return Integer.parseInt(s.substring(2), 16);
+            } else {
+                return Integer.parseInt(s);
+            }
+        } catch (Exception ex) {
+            throw rethrowAsSocketException(ex);
+        }
+    }
+
+    private static SocketException rethrowAsSocketException(Exception ex) throws SocketException {
+        SocketException result = new SocketException();
+        result.initCause(ex);
+        throw result;
     }
 
     /**
@@ -198,16 +237,14 @@ public final class NetworkInterface extends Object {
      * interface has this index.
      *
      * @throws SocketException if an error occurs.
-     * @throws NullPointerException if {@code address == null}.
      * @hide 1.7
      */
     public static NetworkInterface getByIndex(int index) throws SocketException {
-        for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
-            if (networkInterface.interfaceIndex == index) {
-                return networkInterface;
-            }
+        String name = Libcore.os.if_indextoname(index);
+        if (name == null) {
+            return null;
         }
-        return null;
+        return NetworkInterface.getByName(name);
     }
 
     /**
@@ -225,20 +262,10 @@ public final class NetworkInterface extends Object {
     }
 
     private static List<NetworkInterface> getNetworkInterfacesList() throws SocketException {
-        NetworkInterface[] interfaces = getNetworkInterfacesImpl();
-
-        for (NetworkInterface netif : interfaces) {
-            // Ensure that current NetworkInterface is bound to at least
-            // one InetAddress before processing
-            for (InetAddress addr : netif.addresses) {
-                if (addr.ipaddress.length == 16) {
-                    if (addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
-                        ((Inet6Address) addr).scopedIf = netif;
-                        ((Inet6Address) addr).ifname = netif.name;
-                        ((Inet6Address) addr).scope_ifname_set = true;
-                    }
-                }
-            }
+        String[] interfaceNames = new File("/sys/class/net").list();
+        NetworkInterface[] interfaces = new NetworkInterface[interfaceNames.length];
+        for (int i = 0; i < interfaceNames.length; ++i) {
+            interfaces[i] = NetworkInterface.getByName(interfaceNames[i]);
         }
 
         List<NetworkInterface> result = new ArrayList<NetworkInterface>();
@@ -272,8 +299,8 @@ public final class NetworkInterface extends Object {
     /**
      * Compares the specified object to this {@code NetworkInterface} and
      * returns whether they are equal or not. The object must be an instance of
-     * {@code NetworkInterface} with the same name, {@code displayName} and list
-     * of network interfaces to be equal.
+     * {@code NetworkInterface} with the same name, display name, and list
+     * of interface addresses.
      *
      * @param obj
      *            the object to compare with this instance.
@@ -292,51 +319,32 @@ public final class NetworkInterface extends Object {
         NetworkInterface rhs = (NetworkInterface) obj;
         // TODO: should the order of the addresses matter (we use List.equals)?
         return interfaceIndex == rhs.interfaceIndex &&
-                name.equals(rhs.name) && displayName.equals(rhs.displayName) &&
+                name.equals(rhs.name) &&
                 addresses.equals(rhs.addresses);
     }
 
     /**
      * Returns the hash code for this {@code NetworkInterface}. Since the
      * name should be unique for each network interface the hash code is
-     * generated using this name.
+     * generated using the name.
      */
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return name.hashCode();
     }
 
-    /**
-     * Gets a string containing a concise, human-readable description of this
-     * network interface.
-     *
-     * @return the textual representation for this network interface.
-     */
-    @Override
-    public String toString() {
-        StringBuilder string = new StringBuilder(25);
-        string.append("[");
-        string.append(name);
-        string.append("][");
-        string.append(displayName);
-        string.append("][");
-        string.append(interfaceIndex);
-        string.append("]");
-
-        /*
-         * get the addresses through this call to make sure we only reveal those
-         * that we should
-         */
-        Enumeration<InetAddress> theAddresses = getInetAddresses();
-        if (theAddresses != null) {
-            while (theAddresses.hasMoreElements()) {
-                InetAddress nextAddress = theAddresses.nextElement();
-                string.append("[");
-                string.append(nextAddress.toString());
-                string.append("]");
-            }
+    @Override public String toString() {
+        StringBuilder sb = new StringBuilder(25);
+        sb.append("[");
+        sb.append(name);
+        sb.append("][");
+        sb.append(interfaceIndex);
+        sb.append("]");
+        for (InetAddress address : addresses) {
+            sb.append("[");
+            sb.append(address.toString());
+            sb.append("]");
         }
-        return string.toString();
+        return sb.toString();
     }
 
     /**
@@ -348,10 +356,10 @@ public final class NetworkInterface extends Object {
     }
 
     /**
-     * Returns an {@code Enumeration} of all the sub-interfaces of this network interface.
+     * Returns an enumeration of all the sub-interfaces of this network interface.
      * Sub-interfaces are also known as virtual interfaces.
-     * <p>
-     * For example, {@code eth0:1} would be a sub-interface of {@code eth0}.
+     *
+     * <p>For example, {@code eth0:1} would be a sub-interface of {@code eth0}.
      *
      * @return an Enumeration of all the sub-interfaces of this network interface
      * @since 1.6
@@ -379,12 +387,8 @@ public final class NetworkInterface extends Object {
      * @since 1.6
      */
     public boolean isUp() throws SocketException {
-        if (addresses.isEmpty()) {
-            return false;
-        }
-        return isUpImpl(name);
+        return hasFlag(IFF_UP);
     }
-    private static native boolean isUpImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface is a loopback interface.
@@ -394,12 +398,8 @@ public final class NetworkInterface extends Object {
      * @since 1.6
      */
     public boolean isLoopback() throws SocketException {
-        if (addresses.isEmpty()) {
-            return false;
-        }
-        return isLoopbackImpl(name);
+        return hasFlag(IFF_LOOPBACK);
     }
-    private static native boolean isLoopbackImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface is a point-to-point interface.
@@ -410,12 +410,8 @@ public final class NetworkInterface extends Object {
      * @since 1.6
      */
     public boolean isPointToPoint() throws SocketException {
-        if (addresses.isEmpty()) {
-            return false;
-        }
-        return isPointToPointImpl(name);
+        return hasFlag(IFF_POINTOPOINT);
     }
-    private static native boolean isPointToPointImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface supports multicast.
@@ -424,29 +420,39 @@ public final class NetworkInterface extends Object {
      * @since 1.6
      */
     public boolean supportsMulticast() throws SocketException {
-        if (addresses.isEmpty()) {
-            return false;
-        }
-        return supportsMulticastImpl(name);
+        return hasFlag(IFF_MULTICAST);
     }
-    private static native boolean supportsMulticastImpl(String n) throws SocketException;
+
+    private boolean hasFlag(int mask) throws SocketException {
+        int flags = readIntFile("/sys/class/net/" + name + "/flags");
+        return (flags & mask) != 0;
+    }
 
     /**
-     * Returns the hardware address of the interface, if it has one, and the
-     * user has the necessary privileges to access the address.
+     * Returns the hardware address of the interface, if it has one, or null otherwise.
      *
-     * @return a byte array containing the address or null if the address
-     *         doesn't exist or is not accessible.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
      */
     public byte[] getHardwareAddress() throws SocketException {
-        if (addresses.isEmpty()) {
-            return EmptyArray.BYTE;
+        try {
+            // Parse colon-separated bytes with a trailing newline: "aa:bb:cc:dd:ee:ff\n".
+            String s = IoUtils.readFileAsString("/sys/class/net/" + name + "/address");
+            byte[] result = new byte[s.length()/3];
+            for (int i = 0; i < result.length; ++i) {
+                result[i] = (byte) Integer.parseInt(s.substring(3*i, 3*i + 2), 16);
+            }
+            // We only want to return non-zero hardware addresses.
+            for (int i = 0; i < result.length; ++i) {
+                if (result[i] != 0) {
+                    return result;
+                }
+            }
+            return null;
+        } catch (Exception ex) {
+            throw rethrowAsSocketException(ex);
         }
-        return getHardwareAddressImpl(name);
     }
-    private static native byte[] getHardwareAddressImpl(String n) throws SocketException;
 
     /**
      * Returns the Maximum Transmission Unit (MTU) of this interface.
@@ -456,12 +462,8 @@ public final class NetworkInterface extends Object {
      * @since 1.6
      */
     public int getMTU() throws SocketException {
-        if (addresses.isEmpty()) {
-            return 0;
-        }
-        return getMTUImpl(name);
+        return readIntFile("/sys/class/net/" + name + "/mtu");
     }
-    private static native int getMTUImpl(String n) throws SocketException;
 
     /**
      * Returns true if this interface is a virtual interface (also called

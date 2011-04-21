@@ -28,6 +28,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
+import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
@@ -401,12 +402,29 @@ public final class IoUtils {
      * Returns the contents of 'path' as a byte array.
      */
     public static byte[] readFileAsByteArray(String path) throws IOException {
+        return readFileAsBytes(path).toByteArray();
+    }
+
+    /**
+     * Returns the contents of 'path' as a string. The contents are assumed to be UTF-8.
+     */
+    public static String readFileAsString(String path) throws IOException {
+        return readFileAsBytes(path).toString(Charsets.UTF_8);
+    }
+
+    private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
         RandomAccessFile f = null;
         try {
             f = new RandomAccessFile(path, "r");
-            byte[] buf = new byte[(int) f.length()];
-            f.readFully(buf);
-            return buf;
+            UnsafeByteSequence bytes = new UnsafeByteSequence((int) f.length());
+            byte[] buffer = new byte[8192];
+            while (true) {
+                int byteCount = f.read(buffer);
+                if (byteCount == -1) {
+                    return bytes;
+                }
+                bytes.write(buffer, 0, byteCount);
+            }
         } finally {
             IoUtils.closeQuietly(f);
         }

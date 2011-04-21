@@ -54,6 +54,8 @@ public class ForwardingOs implements Os {
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInt(fd, level, option); }
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptLinger(fd, level, option); }
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptTimeval(fd, level, option); }
+    public String if_indextoname(int index) { return os.if_indextoname(index); }
+    public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException { return os.ioctlInetAddress(fd, cmd, interfaceName); }
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException { os.listen(fd, backlog); }

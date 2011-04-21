@@ -37,7 +37,6 @@ jclass JniConstants::inetAddressClass;
 jclass JniConstants::inetSocketAddressClass;
 jclass JniConstants::inflaterClass;
 jclass JniConstants::integerClass;
-jclass JniConstants::interfaceAddressClass;
 jclass JniConstants::localeDataClass;
 jclass JniConstants::longClass;
 jclass JniConstants::methodClass;
@@ -87,7 +86,6 @@ void JniConstants::init(JNIEnv* env) {
     inetSocketAddressClass = findClass(env, "java/net/InetSocketAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
     integerClass = findClass(env, "java/lang/Integer");
-    interfaceAddressClass = findClass(env, "java/net/InterfaceAddress");
     localeDataClass = findClass(env, "libcore/icu/LocaleData");
     longClass = findClass(env, "java/lang/Long");
     methodClass = findClass(env, "java/lang/reflect/Method");

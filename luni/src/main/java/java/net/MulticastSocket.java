@@ -106,16 +106,11 @@ public class MulticastSocket extends DatagramSocket {
      */
     public NetworkInterface getNetworkInterface() throws SocketException {
         checkClosedAndBind(false);
-
         int index = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
         if (index != 0) {
             return NetworkInterface.getByIndex(index);
         }
-
-        // This is what the RI returns for a MulticastSocket that hasn't been constrained
-        // to a specific interface.
-        InetAddress[] addresses = new InetAddress[] { Inet6Address.ANY };
-        return new NetworkInterface(null, null, addresses, -1);
+        return NetworkInterface.forUnboundMulticastSocket();
     }
 
     /**
@@ -213,7 +208,7 @@ public class MulticastSocket extends DatagramSocket {
             throw new IllegalArgumentException("groupAddress == null");
         }
 
-        if ((netInterface != null) && (netInterface.getFirstAddress() == null)) {
+        if (netInterface != null && !netInterface.getInetAddresses().hasMoreElements()) {
             throw new SocketException("No address associated with interface: " + netInterface);
         }
 

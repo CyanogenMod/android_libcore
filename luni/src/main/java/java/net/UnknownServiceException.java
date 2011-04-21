@@ -30,18 +30,13 @@ public class UnknownServiceException extends IOException {
     private static final long serialVersionUID = -4169033248853639508L;
 
     /**
-     * Constructs a new {@code UnknownServiceException} instance with its
-     * walkback filled in.
+     * Constructs a new instance with the current stack trace.
      */
     public UnknownServiceException() {
     }
 
     /**
-     * Constructs a new {@code UnknownServiceException} instance with its
-     * walkback and message filled in.
-     *
-     * @param detailMessage
-     *            the detail message for this exception.
+     * Constructs a new instance with the current stack trace and given detail message.
      */
     public UnknownServiceException(String detailMessage) {
         super(detailMessage);

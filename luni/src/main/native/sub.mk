@@ -10,7 +10,6 @@ LOCAL_SRC_FILES := \
 	NetworkUtilities.cpp \
 	Register.cpp \
 	cbigint.cpp \
-	ifaddrs-android.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
 	java_io_ObjectStreamClass.cpp \
@@ -22,7 +21,6 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_math_NativeBN.cpp \
 	java_net_InetAddress.cpp \
-	java_net_NetworkInterface.cpp \
 	java_nio_ByteOrder.cpp \
 	java_nio_charset_Charsets.cpp \
 	java_text_Bidi.cpp \

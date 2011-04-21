@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -154,6 +155,22 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "F_SETOWN", F_SETOWN);
     initConstant(env, c, "F_UNLCK", F_UNLCK);
     initConstant(env, c, "F_WRLCK", F_WRLCK);
+    initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
+    initConstant(env, c, "IFF_AUTOMEDIA", IFF_AUTOMEDIA);
+    initConstant(env, c, "IFF_BROADCAST", IFF_BROADCAST);
+    initConstant(env, c, "IFF_DEBUG", IFF_DEBUG);
+    initConstant(env, c, "IFF_DYNAMIC", IFF_DYNAMIC);
+    initConstant(env, c, "IFF_LOOPBACK", IFF_LOOPBACK);
+    initConstant(env, c, "IFF_MASTER", IFF_MASTER);
+    initConstant(env, c, "IFF_MULTICAST", IFF_MULTICAST);
+    initConstant(env, c, "IFF_NOARP", IFF_NOARP);
+    initConstant(env, c, "IFF_NOTRAILERS", IFF_NOTRAILERS);
+    initConstant(env, c, "IFF_POINTOPOINT", IFF_POINTOPOINT);
+    initConstant(env, c, "IFF_PORTSEL", IFF_PORTSEL);
+    initConstant(env, c, "IFF_PROMISC", IFF_PROMISC);
+    initConstant(env, c, "IFF_RUNNING", IFF_RUNNING);
+    initConstant(env, c, "IFF_SLAVE", IFF_SLAVE);
+    initConstant(env, c, "IFF_UP", IFF_UP);
     initConstant(env, c, "IPPROTO_ICMP", IPPROTO_ICMP);
     initConstant(env, c, "IPPROTO_IP", IPPROTO_IP);
     initConstant(env, c, "IPPROTO_IPV6", IPPROTO_IPV6);
@@ -222,6 +239,10 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SHUT_RD", SHUT_RD);
     initConstant(env, c, "SHUT_RDWR", SHUT_RDWR);
     initConstant(env, c, "SHUT_WR", SHUT_WR);
+    initConstant(env, c, "SIOCGIFADDR", SIOCGIFADDR);
+    initConstant(env, c, "SIOCGIFBRDADDR", SIOCGIFBRDADDR);
+    initConstant(env, c, "SIOCGIFDSTADDR", SIOCGIFDSTADDR);
+    initConstant(env, c, "SIOCGIFNETMASK", SIOCGIFNETMASK);
     initConstant(env, c, "SOCK_DGRAM", SOCK_DGRAM);
     initConstant(env, c, "SOCK_RAW", SOCK_RAW);
     initConstant(env, c, "SOCK_SEQPACKET", SOCK_SEQPACKET);

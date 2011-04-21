@@ -46,6 +46,8 @@ public interface Os {
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public String if_indextoname(int index);
+    public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
