@@ -50,6 +50,48 @@ public class BreakIteratorTest extends junit.framework.TestCase {
         assertTrue("Incorrect BreakIterator", it2 != BreakIterator.getWordInstance());
     }
 
+    public void testWordBoundaries() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 1024; ++i) {
+            if (i > 0) {
+                sb.append(' ');
+            }
+            sb.append("12345");
+        }
+        String s = sb.toString();
+
+        BreakIterator it = BreakIterator.getWordInstance(Locale.US);
+        it.setText(s);
+
+        // Check we're not leaking global references. 2048 would bust the VM's hard-coded limit.
+        for (int i = 0; i < 2048; ++i) {
+            it.setText(s);
+        }
+
+        BreakIterator clone = (BreakIterator) it.clone();
+
+        assertExpectedWordBoundaries(it, s);
+        assertExpectedWordBoundaries(clone, s);
+    }
+
+    private void assertExpectedWordBoundaries(BreakIterator it, String s) {
+        int expectedPos = 0;
+        int pos = it.first();
+        assertEquals(expectedPos, pos);
+        while (pos != BreakIterator.DONE) {
+            expectedPos += 5; // The five characters until the end of this word.
+            pos = it.next();
+            assertEquals(expectedPos, pos);
+
+            expectedPos += 1; // The space before the start of the next word...
+            if (expectedPos > s.length()) {
+                expectedPos = BreakIterator.DONE; // ...unless we're done.
+            }
+            pos = it.next();
+            assertEquals(expectedPos, pos);
+        }
+    }
+
     public void testIsBoundary() {
         BreakIterator it = BreakIterator.getCharacterInstance(Locale.US);
         it.setText("hello");

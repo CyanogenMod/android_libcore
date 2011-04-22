@@ -107,16 +107,20 @@ public final class NativeBreakIterator implements Cloneable {
     }
 
     public void setText(CharacterIterator newText) {
-        this.charIter = newText;
         StringBuilder sb = new StringBuilder();
         for (char c = newText.first(); c != CharacterIterator.DONE; c = newText.next()) {
             sb.append(c);
         }
-        setTextImpl(this.address, sb.toString());
+        setText(sb.toString(), newText);
     }
 
     public void setText(String newText) {
-        setText(new StringCharacterIterator(newText));
+        setText(newText, new StringCharacterIterator(newText));
+    }
+
+    private void setText(String s, CharacterIterator it) {
+        this.charIter = it;
+        setTextImpl(this.address, s);
     }
 
     public boolean isBoundary(int offset) {

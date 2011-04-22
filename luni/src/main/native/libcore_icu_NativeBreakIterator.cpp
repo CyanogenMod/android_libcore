@@ -19,61 +19,143 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ErrorCode.h"
-#include "ScopedJavaUnicodeString.h"
+#include "JniException.h"
 #include "ScopedUtfChars.h"
 #include "unicode/ubrk.h"
 #include "unicode/putil.h"
 #include <stdlib.h>
 
-static jint getIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
+/**
+ * ICU4C 4.6 doesn't let us update the pointers inside a UBreakIterator to track our char[] as it
+ * moves around the heap. This class pins the char[] for the lifetime of the
+ * java.text.BreakIterator. It also holds a global reference to the java.lang.String that owns the
+ * char[] so that the char[] can't be GCed.
+ */
+class BreakIteratorPeer {
+public:
+    static BreakIteratorPeer* fromAddress(jint address) {
+        return reinterpret_cast<BreakIteratorPeer*>(static_cast<uintptr_t>(address));
+    }
+
+    uintptr_t toAddress() {
+        return reinterpret_cast<uintptr_t>(this);
+    }
+
+    BreakIteratorPeer(UBreakIterator* it) : mIt(it), mString(NULL), mChars(NULL) {
+    }
+
+    void setText(JNIEnv* env, jstring s) {
+        releaseString(env);
+
+        mString = reinterpret_cast<jstring>(env->NewGlobalRef(s));
+        mChars = env->GetStringChars(mString, NULL);
+        if (mChars == NULL) {
+            return;
+        }
+
+        size_t charCount = env->GetStringLength(mString);
+        UErrorCode status = U_ZERO_ERROR;
+        ubrk_setText(mIt, mChars, charCount, &status);
+        icu4jni_error(env, status);
+    }
+
+    BreakIteratorPeer* clone(JNIEnv* env) {
+        UErrorCode status = U_ZERO_ERROR;
+        jint bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
+        UBreakIterator* it = ubrk_safeClone(mIt, NULL, &bufferSize, &status);
+        if (icu4jni_error(env, status)) {
+            return NULL;
+        }
+        BreakIteratorPeer* result = new BreakIteratorPeer(it);
+        if (mString != NULL) {
+            result->setText(env, mString);
+        }
+        return result;
+    }
+
+    void close(JNIEnv* env) {
+        if (mIt != NULL) {
+            ubrk_close(mIt);
+            mIt = NULL;
+        }
+        releaseString(env);
+    }
+
+    ~BreakIteratorPeer() {
+        if (mIt != NULL || mString != NULL) {
+            LOG_ALWAYS_FATAL("BreakIteratorPeer deleted but not closed");
+        }
+    }
+
+    UBreakIterator* breakIterator() {
+        return mIt;
+    }
+
+private:
+    UBreakIterator* mIt;
+
+    jstring mString;
+    const jchar* mChars;
+
+    void releaseString(JNIEnv* env) {
+        if (mString != NULL) {
+            env->ReleaseStringChars(mString, mChars);
+            env->DeleteGlobalRef(mString);
+            mString = NULL;
+        }
+    }
+
+    // Disallow copy and assignment.
+    BreakIteratorPeer(const BreakIteratorPeer&);
+    void operator=(const BreakIteratorPeer&);
+};
+
+static UBreakIterator* breakIterator(jint address) {
+    return BreakIteratorPeer::fromAddress(address)->breakIterator();
+}
+
+static jint makeIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
     UErrorCode status = U_ZERO_ERROR;
-    ScopedUtfChars localeChars(env, locale);
+    const ScopedUtfChars localeChars(env, locale);
     if (localeChars.c_str() == NULL) {
         return 0;
     }
     UBreakIterator* it = ubrk_open(type, localeChars.c_str(), NULL, 0, &status);
-    icu4jni_error(env, status);
-    return reinterpret_cast<uintptr_t>(it);
+    if (icu4jni_error(env, status)) {
+        return NULL;
+    }
+    return (new BreakIteratorPeer(it))->toAddress();
 }
 
 static jint NativeBreakIterator_getCharacterInstanceImpl(JNIEnv* env, jclass, jstring locale) {
-    return getIterator(env, locale, UBRK_CHARACTER);
+    return makeIterator(env, locale, UBRK_CHARACTER);
 }
 
 static jint NativeBreakIterator_getLineInstanceImpl(JNIEnv* env, jclass, jstring locale) {
-    return getIterator(env, locale, UBRK_LINE);
+    return makeIterator(env, locale, UBRK_LINE);
 }
 
 static jint NativeBreakIterator_getSentenceInstanceImpl(JNIEnv* env, jclass, jstring locale) {
-    return getIterator(env, locale, UBRK_SENTENCE);
+    return makeIterator(env, locale, UBRK_SENTENCE);
 }
 
 static jint NativeBreakIterator_getWordInstanceImpl(JNIEnv* env, jclass, jstring locale) {
-    return getIterator(env, locale, UBRK_WORD);
+    return makeIterator(env, locale, UBRK_WORD);
 }
 
-static UBreakIterator* breakIterator(jint address) {
-    return reinterpret_cast<UBreakIterator*>(static_cast<uintptr_t>(address));
-}
-
-static void NativeBreakIterator_closeBreakIteratorImpl(JNIEnv*, jclass, jint address) {
-    ubrk_close(breakIterator(address));
+static void NativeBreakIterator_closeBreakIteratorImpl(JNIEnv* env, jclass, jint address) {
+    BreakIteratorPeer* peer = BreakIteratorPeer::fromAddress(address);
+    peer->close(env);
+    delete peer;
 }
 
 static jint NativeBreakIterator_cloneImpl(JNIEnv* env, jclass, jint address) {
-    UErrorCode status = U_ZERO_ERROR;
-    jint bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
-    UBreakIterator* it = ubrk_safeClone(breakIterator(address), NULL, &bufferSize, &status);
-    icu4jni_error(env, status);
-    return reinterpret_cast<uintptr_t>(it);
+    return BreakIteratorPeer::fromAddress(address)->clone(env)->toAddress();
 }
 
 static void NativeBreakIterator_setTextImpl(JNIEnv* env, jclass, jint address, jstring javaText) {
-    ScopedJavaUnicodeString text(env, javaText);
-    UnicodeString& s(text.unicodeString());
-    UErrorCode status = U_ZERO_ERROR;
-    ubrk_setText(breakIterator(address), s.getBuffer(), s.length(), &status);
-    icu4jni_error(env, status);
+    BreakIteratorPeer* peer = BreakIteratorPeer::fromAddress(address);
+    peer->setText(env, javaText);
 }
 
 static jboolean NativeBreakIterator_isBoundaryImpl(JNIEnv*, jclass, jint address, jint offset) {
