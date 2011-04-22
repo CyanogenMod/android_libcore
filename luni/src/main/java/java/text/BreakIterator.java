@@ -477,10 +477,7 @@ public abstract class BreakIterator implements Cloneable {
     public abstract void setText(CharacterIterator newText);
 
     /**
-     * Creates a copy of this iterator, all status information including the
-     * current position are kept the same.
-     *
-     * @return a copy of this iterator.
+     * Returns a copy of this iterator.
      */
     @Override
     public Object clone() {

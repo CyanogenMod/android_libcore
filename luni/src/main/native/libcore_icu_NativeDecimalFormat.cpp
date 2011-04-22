@@ -21,6 +21,7 @@
 #include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
@@ -125,11 +126,13 @@ static void NativeDecimalFormat_setRoundingMode(JNIEnv*, jclass, jint addr, jint
 }
 
 static void NativeDecimalFormat_setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring javaValue) {
-    ScopedJavaUnicodeString value(env, javaValue);
-    UnicodeString& s(value.unicodeString());
+    ScopedStringChars value(env, javaValue);
+    if (value.get() == NULL) {
+        return;
+    }
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatSymbol symbol = static_cast<UNumberFormatSymbol>(javaSymbol);
-    unum_setSymbol(toUNumberFormat(addr), symbol, s.getBuffer(), s.length(), &status);
+    unum_setSymbol(toUNumberFormat(addr), symbol, value.get(), value.size(), &status);
     maybeThrowIcuException(env, status);
 }
 
@@ -144,11 +147,13 @@ static jint NativeDecimalFormat_getAttribute(JNIEnv*, jclass, jint addr, jint ja
 }
 
 static void NativeDecimalFormat_setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstring javaValue) {
-    ScopedJavaUnicodeString value(env, javaValue);
-    UnicodeString& s(value.unicodeString());
+    ScopedStringChars value(env, javaValue);
+    if (value.get() == NULL) {
+        return;
+    }
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
-    unum_setTextAttribute(toUNumberFormat(addr), attr, s.getBuffer(), s.length(), &status);
+    unum_setTextAttribute(toUNumberFormat(addr), attr, value.get(), value.size(), &status);
     maybeThrowIcuException(env, status);
 }
 
