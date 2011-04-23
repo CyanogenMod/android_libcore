@@ -21,7 +21,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 #include "jni.h"
