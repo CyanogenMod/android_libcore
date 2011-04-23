@@ -61,7 +61,7 @@ extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
 
 // DalvikVM calls this on startup, so we can statically register all our native methods.
-extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
+int registerCoreLibrariesJni(JNIEnv* env) {
     ScopedLocalFrame localFrame(env);
 
     JniConstants::init(env);
