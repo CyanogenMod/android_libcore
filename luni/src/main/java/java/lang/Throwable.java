@@ -18,9 +18,13 @@
 package java.lang;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import libcore.util.EmptyArray;
 
 /**
  * The superclass of all classes which can be thrown by the VM. The
@@ -54,6 +58,12 @@ public class Throwable implements java.io.Serializable {
      * The cause of this Throwable. Null when there is no cause.
      */
     private Throwable cause = this;
+
+    /**
+     * Throwables suppressed by this throwable. Null when suppressed exceptions
+     * are disabled.
+     */
+    private List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
 
     /**
      * An intermediate representation of the stack trace.  This field may
@@ -111,6 +121,22 @@ public class Throwable implements java.io.Serializable {
         this();
         this.detailMessage = throwable == null ? null : throwable.toString();
         cause = throwable;
+    }
+
+    /**
+     * Constructs a new {@code Throwable} with the current stack trace, the
+     * specified detail message and the specified cause.
+     *
+     * @param enableSuppression if false, throwables passed to {@link
+     *     #addSuppressed(Throwable)} will be silently discarded.
+     * @since 1.7
+     * @hide 1.7
+     */
+    protected Throwable(String detailMessage, Throwable throwable, boolean enableSuppression) {
+        this(detailMessage, throwable);
+        if (!enableSuppression) {
+            this.suppressedExceptions = null;
+        }
     }
 
     /**
@@ -257,31 +283,11 @@ public class Throwable implements java.io.Serializable {
      *            the stream to write the stack trace on.
      */
     public void printStackTrace(PrintStream err) {
-        err.println(toString());
-        // Don't use getStackTrace() as it calls clone()
-        // Get stackTrace, in case stackTrace is reassigned
-        StackTraceElement[] stack = getInternalStackTrace();
-        if (stack != null) {
-            for (StackTraceElement element : stack) {
-                err.println("\tat " + element);
-            }
-        }
-
-        StackTraceElement[] parentStack = stack;
-        Throwable throwable = getCause();
-        while (throwable != null) {
-            err.print("Caused by: ");
-            err.println(throwable);
-            StackTraceElement[] currentStack = throwable.getInternalStackTrace();
-            int duplicates = countDuplicates(currentStack, parentStack);
-            for (int i = 0; i < currentStack.length - duplicates; i++) {
-                err.println("\tat " + currentStack[i]);
-            }
-            if (duplicates > 0) {
-                err.println("\t... " + duplicates + " more");
-            }
-            parentStack = currentStack;
-            throwable = throwable.getCause();
+        try {
+            printStackTrace(err, "", null);
+        } catch (IOException e) {
+            // Appendable.append throws IOException but PrintStream.append doesn't.
+            throw new AssertionError();
         }
     }
 
@@ -295,31 +301,57 @@ public class Throwable implements java.io.Serializable {
      *            the writer to write the stack trace on.
      */
     public void printStackTrace(PrintWriter err) {
-        err.println(toString());
-        // Don't use getStackTrace() as it calls clone()
-        // Get stackTrace, in case stackTrace is reassigned
+        try {
+            printStackTrace(err, "", null);
+        } catch (IOException e) {
+            // Appendable.append throws IOException, but PrintWriter.append doesn't.
+            throw new AssertionError();
+        }
+    }
+
+    /**
+     * @param indent additional indentation on each line of the stack trace.
+     *     This is the empty string for all but suppressed throwables.
+     * @param parentStack the parent stack trace to suppress duplicates from, or
+     *     null if this stack trace has no parent.
+     */
+    private void printStackTrace(Appendable err, String indent, StackTraceElement[] parentStack)
+            throws IOException {
+        err.append(toString());
+        err.append("\n");
+
         StackTraceElement[] stack = getInternalStackTrace();
         if (stack != null) {
-            for (StackTraceElement element : stack) {
-                err.println("\tat " + element);
+            int duplicates = parentStack != null ? countDuplicates(stack, parentStack) : 0;
+            for (int i = 0; i < stack.length - duplicates; i++) {
+                err.append(indent);
+                err.append("\tat ");
+                err.append(stack[i].toString());
+                err.append("\n");
+            }
+
+            if (duplicates > 0) {
+                err.append(indent);
+                err.append("\t... ");
+                err.append(Integer.toString(duplicates));
+                err.append(" more\n");
             }
         }
 
-        StackTraceElement[] parentStack = stack;
-        Throwable throwable = getCause();
-        while (throwable != null) {
-            err.print("Caused by: ");
-            err.println(throwable);
-            StackTraceElement[] currentStack = throwable.getInternalStackTrace();
-            int duplicates = countDuplicates(currentStack, parentStack);
-            for (int i = 0; i < currentStack.length - duplicates; i++) {
-                err.println("\tat " + currentStack[i]);
+        // Print suppressed exceptions indented one level deeper.
+        if (suppressedExceptions != null) {
+            for (Throwable throwable : suppressedExceptions) {
+                err.append(indent);
+                err.append("\tSuppressed: ");
+                throwable.printStackTrace(err, indent + "\t", stack);
             }
-            if (duplicates > 0) {
-                err.println("\t... " + duplicates + " more");
-            }
-            parentStack = currentStack;
-            throwable = throwable.getCause();
+        }
+
+        Throwable cause = getCause();
+        if (cause != null) {
+            err.append(indent);
+            err.append("Caused by: ");
+            cause.printStackTrace(err, indent, stack);
         }
     }
 
@@ -346,14 +378,14 @@ public class Throwable implements java.io.Serializable {
      *             if the cause has already been initialized.
      */
     public Throwable initCause(Throwable throwable) {
-        if (cause == this) {
-            if (throwable != this) {
-                cause = throwable;
-                return this;
-            }
-            throw new IllegalArgumentException("Cause cannot be the receiver");
+        if (cause != this) {
+            throw new IllegalStateException("Cause already initialized");
         }
-        throw new IllegalStateException("Cause already initialized");
+        if (throwable == this) {
+            throw new IllegalArgumentException("throwable == this");
+        }
+        cause = throwable;
+        return this;
     }
 
     /**
@@ -369,10 +401,52 @@ public class Throwable implements java.io.Serializable {
         return cause;
     }
 
-    private void writeObject(ObjectOutputStream s) throws IOException {
+    /**
+     * Adds {@code throwable} to the list of throwables suppressed by this. The
+     * throwable will included when this exception's stack trace is printed.
+     *
+     * @throws IllegalArgumentException if {@code throwable == this}.
+     * @throws NullPointerException if {@code throwable == null}.
+     * @since 1.7
+     * @hide 1.7
+     */
+    public final void addSuppressed(Throwable throwable) {
+        if (throwable == this) {
+            throw new IllegalArgumentException("suppressed == this");
+        }
+        if (throwable == null) {
+            throw new NullPointerException("suppressed == null");
+        }
+        if (suppressedExceptions != null) {
+            suppressedExceptions.add(throwable);
+        }
+    }
+
+    /**
+     * Returns the throwables suppressed by this.
+     *
+     * @since 1.7
+     * @hide 1.7
+     */
+    public final Throwable[] getSuppressed() {
+        return (suppressedExceptions != null)
+                ? suppressedExceptions.toArray(new Throwable[suppressedExceptions.size()])
+                : EmptyArray.THROWABLE;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
         // ensure the stackTrace field is initialized
         getInternalStackTrace();
-        s.defaultWriteObject();
+        out.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+
+        if (suppressedExceptions != null) {
+            // the deserialized list may be unmodifiable, so just create a mutable copy
+            suppressedExceptions = new ArrayList<Throwable>(suppressedExceptions);
+        }
     }
 
     /*
