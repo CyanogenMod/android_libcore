@@ -34,7 +34,7 @@ package java.sql;
  * @see ResultSet
  * @see Connection#createStatement
  */
-public interface Statement extends Wrapper {
+public interface Statement extends Wrapper, AutoCloseable {
 
     /**
      * Passing this constant to {@link #getMoreResults} implies that all {@code

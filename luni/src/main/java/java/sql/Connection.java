@@ -40,7 +40,7 @@ import java.util.Properties;
  * SQL {@code WHERE} clause</br></li>
  * </ul>
  */
-public interface Connection extends Wrapper {
+public interface Connection extends Wrapper, AutoCloseable {
 
     /**
      * A constant indicating that transactions are not supported.

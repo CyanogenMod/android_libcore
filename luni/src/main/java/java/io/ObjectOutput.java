@@ -23,7 +23,7 @@ package java.io;
  * @see ObjectOutputStream
  * @see ObjectInput
  */
-public interface ObjectOutput extends DataOutput {
+public interface ObjectOutput extends DataOutput, AutoCloseable {
     /**
      * Closes the target stream. Implementations of this method should free any
      * resources used by the stream.

@@ -23,7 +23,7 @@ package java.io;
  * @see ObjectInputStream
  * @see ObjectOutput
  */
-public interface ObjectInput extends DataInput {
+public interface ObjectInput extends DataInput, AutoCloseable {
     /**
      * Indicates the number of bytes of primitive data that can be read without
      * blocking.
