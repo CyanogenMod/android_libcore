@@ -21,9 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static junit.framework.Assert.*;
 import junit.framework.AssertionFailedError;
 
 public class SerializableTester<T> {
@@ -45,6 +43,10 @@ public class SerializableTester<T> {
         return a.equals(b);
     }
 
+    /**
+     * Verifies that {@code deserialized} is valid. Implementations of this
+     * method may mutate {@code deserialized}.
+     */
     protected void verify(T deserialized) {}
 
     public void test() {
@@ -54,19 +56,19 @@ public class SerializableTester<T> {
                         + hexEncode(serialize(value)));
             }
 
-            // just a sanity check! if this fails, verify() is probably broken
-            verify(value);
-
             @SuppressWarnings("unchecked") // deserialize should return the proper type
             T deserialized = (T) deserialize(hexDecode(golden));
             assertTrue("User-constructed value doesn't equal deserialized golden value",
                     equals(value, deserialized));
-            verify(deserialized);
 
             @SuppressWarnings("unchecked") // deserialize should return the proper type
             T reserialized = (T) deserialize(serialize(value));
             assertTrue("User-constructed value doesn't equal itself, reserialized",
                     equals(value, reserialized));
+
+            // just a sanity check! if this fails, verify() is probably broken
+            verify(value);
+            verify(deserialized);
             verify(reserialized);
 
         } catch (Exception e) {
