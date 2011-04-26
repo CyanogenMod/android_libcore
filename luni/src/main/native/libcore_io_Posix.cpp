@@ -99,7 +99,7 @@ static rc_t throwIfMinusOne(JNIEnv* env, const char* name, rc_t rc) {
     return rc;
 }
 
-template <typename T>
+template <typename ScopedT>
 class IoVec {
 public:
     IoVec(JNIEnv* env, size_t bufferCount) : mEnv(env), mBufferCount(bufferCount) {
@@ -121,16 +121,8 @@ public:
         // TODO: Linux actually has a 1024 buffer limit. glibc works around this, and we should too.
         for (size_t i = 0; i < mBufferCount; ++i) {
             jobject buffer = mEnv->GetObjectArrayElement(javaBuffers, i);
-            jbyte* ptr;
-            if (mEnv->IsInstanceOf(buffer, JniConstants::byteArrayClass)) {
-                // We need to pin the array for the duration.
-                jbyteArray byteArray = reinterpret_cast<jbyteArray>(buffer);
-                mScopedByteArrays.push_back(new T(mEnv, byteArray));
-                ptr = const_cast<jbyte*>(mScopedByteArrays.back()->get());
-            } else {
-                // A direct ByteBuffer is easier.
-                ptr = reinterpret_cast<jbyte*>(mEnv->GetDirectBufferAddress(buffer));
-            }
+            mScopedBuffers.push_back(new ScopedT(mEnv, buffer));
+            jbyte* ptr = const_cast<jbyte*>(mScopedBuffers.back()->get());
             if (ptr == NULL) {
                 return false;
             }
@@ -143,8 +135,8 @@ public:
     }
 
     ~IoVec() {
-        for (size_t i = 0; i < mScopedByteArrays.size(); ++i) {
-            delete mScopedByteArrays[i];
+        for (size_t i = 0; i < mScopedBuffers.size(); ++i) {
+            delete mScopedBuffers[i];
         }
         mEnv->PopLocalFrame(NULL);
     }
@@ -161,7 +153,7 @@ private:
     JNIEnv* mEnv;
     size_t mBufferCount;
     std::vector<iovec> mIoVec;
-    std::vector<T*> mScopedByteArrays;
+    std::vector<ScopedT*> mScopedBuffers;
 };
 
 static jobject makeInetSocketAddress(JNIEnv* env, const sockaddr_storage* ss, int port) {
@@ -621,7 +613,7 @@ static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBy
 }
 
 static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
-    IoVec<ScopedByteArrayRW> ioVec(env, env->GetArrayLength(buffers));
+    IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
         return -1;
     }
@@ -819,7 +811,7 @@ static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray ja
 }
 
 static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
-    IoVec<ScopedByteArrayRO> ioVec(env, env->GetArrayLength(buffers));
+    IoVec<ScopedBytesRO> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
         return -1;
     }
