@@ -2458,7 +2458,7 @@ public final class Character implements Serializable, Comparable<Character> {
         String result = getNameImpl(codePoint);
         if (result == null) {
             String blockName = Character.UnicodeBlock.of(codePoint).toString().replace('_', ' ');
-            result = blockName + " " + IntegralToString.intToHexString(codePoint, true);
+            result = blockName + " " + IntegralToString.intToHexString(codePoint, true, 0);
         }
         return result;
     }

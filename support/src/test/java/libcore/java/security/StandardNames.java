@@ -435,6 +435,9 @@ public final class StandardNames extends Assert {
             provide("Signature", "SHA256WITHECDSA");
             provide("Signature", "SHA384WITHECDSA");
             provide("Signature", "SHA512WITHECDSA");
+
+            // Android's CA store
+            provide("KeyStore", "AndroidCAStore");
         }
     }
 

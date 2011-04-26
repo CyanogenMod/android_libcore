@@ -293,7 +293,7 @@ public class Cipher {
                     break;
                 } catch (NoSuchAlgorithmException e) {
                     if (i == searchOrder.length-1) {
-                        throw new NoSuchAlgorithmException(transformation);
+                        throw new NoSuchAlgorithmException(transformation, e);
                     }
                 }
             }

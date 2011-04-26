@@ -50,6 +50,7 @@ import java.util.Set;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 
 public class KeyStoreTest extends TestCase {
 
@@ -160,8 +161,28 @@ public class KeyStoreTest extends TestCase {
         return (ks.getProvider().getName().equals("BC"));
     }
 
+    private static boolean hasDefaultContents(KeyStore ks) {
+        // AndroidCAStore exposes CA cert files via the KeyStore
+        // interface, so it does start out empty like other KeyStores
+        return (ks.getType().equals("AndroidCAStore"));
+    }
+
+    private static boolean isReadOnly(KeyStore ks) {
+        // AndroidCAStore is read only, throwing
+        // UnsupportedOperationException on write operations
+        return (ks.getType().equals("AndroidCAStore"));
+    }
+
     public static void populate(KeyStore ks) throws Exception {
         ks.load(null, null);
+        if (isReadOnly(ks)) {
+            try {
+                setPrivateKey(ks);
+                fail();
+            } catch (UnsupportedOperationException e) {
+            }
+            return;
+        }
         setPrivateKey(ks);
         if (isNullPasswordAllowed(ks)) {
             ks.setKeyEntry(ALIAS_NO_PASSWORD_PRIVATE,
@@ -262,6 +283,7 @@ public class KeyStoreTest extends TestCase {
     }
     public static void assertPrivateKey(Entry actual)
             throws Exception {
+        assertNotNull(actual);
         assertSame(PrivateKeyEntry.class, actual.getClass());
         PrivateKeyEntry privateKey = (PrivateKeyEntry) actual;
         assertEquals(PRIVATE_KEY.getPrivateKey(), privateKey.getPrivateKey());
@@ -438,15 +460,19 @@ public class KeyStoreTest extends TestCase {
             assertNull(keyStore.getKey("", PASSWORD_KEY));
 
             // test case sensitive
-            assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
-            if (isSecretKeyEnabled(keyStore)) {
-                assertSecretKey(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
             } else {
-                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+                if (isSecretKeyEnabled(keyStore)) {
+                    assertSecretKey(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                } else {
+                    assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                }
             }
 
             // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isCaseSensitive(keyStore) || isReadOnly(keyStore)) {
                 assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
                 assertNull(keyStore.getKey(ALIAS_ALT_CASE_SECRET, PASSWORD_KEY));
             } else {
@@ -460,17 +486,23 @@ public class KeyStoreTest extends TestCase {
             if (isKeyPasswordIgnored(keyStore)) {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, null));
             } else {
-                try {
-                    keyStore.getKey(ALIAS_PRIVATE, null);
-                    fail();
-                } catch (Exception e) {
-                    if (e.getClass() != UnrecoverableKeyException.class
-                        && e.getClass() != IllegalArgumentException.class) {
-                        throw e;
+                if (isReadOnly(keyStore)) {
+                    assertNull(keyStore.getKey(ALIAS_PRIVATE, null));
+                } else {
+                    try {
+                        keyStore.getKey(ALIAS_PRIVATE, null);
+                        fail();
+                    } catch (Exception e) {
+                        if (e.getClass() != UnrecoverableKeyException.class
+                            && e.getClass() != IllegalArgumentException.class) {
+                            throw e;
+                        }
                     }
                 }
             }
-            if (isSecretKeyEnabled(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_SECRET, null));
+            } else if (isSecretKeyEnabled(keyStore)) {
                 try {
                     keyStore.getKey(ALIAS_SECRET, null);
                     fail();
@@ -483,7 +515,9 @@ public class KeyStoreTest extends TestCase {
             }
 
             // test with bad passwords
-            if (isKeyPasswordIgnored(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, null));
+            } else if (isKeyPasswordIgnored(keyStore)) {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, null));
             } else {
                 try {
@@ -492,7 +526,9 @@ public class KeyStoreTest extends TestCase {
                 } catch (UnrecoverableKeyException expected) {
                 }
             }
-            if (isSecretKeyEnabled(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_BAD));
+            } else if (isSecretKeyEnabled(keyStore)) {
                 try {
                     keyStore.getKey(ALIAS_SECRET, PASSWORD_BAD);
                     fail();
@@ -526,10 +562,14 @@ public class KeyStoreTest extends TestCase {
             assertNull(keyStore.getCertificateChain(""));
 
             // test case sensitive
-            assertCertificateChain(keyStore.getCertificateChain(ALIAS_PRIVATE));
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getCertificateChain(ALIAS_PRIVATE));
+            } else {
+                assertCertificateChain(keyStore.getCertificateChain(ALIAS_PRIVATE));
+            }
 
             // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore) || isCaseSensitive(keyStore)) {
                 assertNull(keyStore.getCertificateChain(ALIAS_ALT_CASE_PRIVATE));
             } else {
                 assertCertificateChain(keyStore.getCertificateChain(ALIAS_ALT_CASE_PRIVATE));
@@ -561,14 +601,14 @@ public class KeyStoreTest extends TestCase {
             assertNull(keyStore.getCertificate(""));
 
             // test case sensitive
-            if (isCertificateEnabled(keyStore)) {
+            if (!isReadOnly(keyStore) && isCertificateEnabled(keyStore)) {
                 assertCertificate(keyStore.getCertificate(ALIAS_CERTIFICATE));
             } else {
                 assertNull(keyStore.getCertificate(ALIAS_CERTIFICATE));
             }
 
             // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore) || isCaseSensitive(keyStore)) {
                 assertNull(keyStore.getCertificate(ALIAS_ALT_CASE_CERTIFICATE));
             } else {
                 if (isCertificateEnabled(keyStore)) {
@@ -601,7 +641,7 @@ public class KeyStoreTest extends TestCase {
             assertNull(keyStore.getCreationDate(""));
 
             // test case sensitive
-            if (isCertificateEnabled(keyStore)) {
+            if (!isReadOnly(keyStore) && isCertificateEnabled(keyStore)) {
                 Date date = keyStore.getCreationDate(ALIAS_CERTIFICATE);
                 assertNotNull(date);
                 assertTrue(before <= date.getTime());
@@ -611,7 +651,7 @@ public class KeyStoreTest extends TestCase {
             }
 
             // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore) || isCaseSensitive(keyStore)) {
                 assertNull(keyStore.getCreationDate(ALIAS_ALT_CASE_CERTIFICATE));
             } else {
                 if (isCertificateEnabled(keyStore)) {
@@ -634,6 +674,14 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setKeyEntry(null, null, null, null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
 
             // test odd inputs
             try {
@@ -669,6 +717,14 @@ public class KeyStoreTest extends TestCase {
 
             // test case sensitive
             assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setKeyEntry(ALIAS_SECRET, SECRET_KEY, PASSWORD_KEY, null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
             setPrivateKey(keyStore);
             assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
             assertCertificateChain(keyStore.getCertificateChain(ALIAS_PRIVATE));
@@ -691,9 +747,13 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
-            // test case insensitive
 
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_SECRET, PASSWORD_KEY));
+            } else if (isCaseSensitive(keyStore)) {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
                 assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
                 setPrivateKey(keyStore, ALIAS_ALT_CASE_PRIVATE, PRIVATE_KEY_2);
@@ -725,6 +785,17 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setKeyEntry(ALIAS_PRIVATE,
+                                         PRIVATE_KEY.getPrivateKey(),
+                                         null,
+                                         PRIVATE_KEY.getCertificateChain());
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
 
             // test with null passwords
             if (isNullPasswordAllowed(keyStore) || isKeyPasswordIgnored(keyStore)) {
@@ -780,6 +851,15 @@ public class KeyStoreTest extends TestCase {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
 
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setKeyEntry(null, null, null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
+
             // test odd inputs
             try {
                 keyStore.setKeyEntry(null, null, null);
@@ -808,6 +888,14 @@ public class KeyStoreTest extends TestCase {
 
             // test case sensitive
             assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+            if (isReadOnly(keyStore)) {
+                try {
+                    setPrivateKeyBytes(keyStore);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
             setPrivateKeyBytes(keyStore);
             assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
             assertCertificateChain(keyStore.getCertificateChain(ALIAS_PRIVATE));
@@ -836,8 +924,12 @@ public class KeyStoreTest extends TestCase {
 
             populate(keyStore);
 
-            // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_SECRET, PASSWORD_KEY));
+            } else if (isCaseSensitive(keyStore)) {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
                 assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
                 setPrivateKeyBytes(keyStore, ALIAS_ALT_CASE_PRIVATE, PRIVATE_KEY_2);
@@ -880,6 +972,7 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             // test odd inputs
             try {
                 keyStore.setCertificateEntry(null, null);
@@ -891,8 +984,18 @@ public class KeyStoreTest extends TestCase {
                 }
             }
 
+            if (isReadOnly(keyStore)) {
+                try {
+                    assertNull(keyStore.getCertificate(ALIAS_CERTIFICATE));
+                    keyStore.setCertificateEntry(ALIAS_CERTIFICATE, null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
+
             // Sort of delete by setting null.  Note that even though
-            // certificiate is null, size doesn't change,
+            // certificate is null, size doesn't change,
             // isCertificateEntry returns true, and it is still listed in aliases.
             if (isCertificateEnabled(keyStore)) {
                 assertCertificate(keyStore.getCertificate(ALIAS_CERTIFICATE));
@@ -925,6 +1028,14 @@ public class KeyStoreTest extends TestCase {
 
             // test case sensitive
             assertNull(keyStore.getCertificate(ALIAS_CERTIFICATE));
+            if (isReadOnly(keyStore)) {
+                try {
+                    setCertificate(keyStore);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
             setCertificate(keyStore);
             assertCertificate(keyStore.getCertificate(ALIAS_CERTIFICATE));
         }
@@ -936,8 +1047,12 @@ public class KeyStoreTest extends TestCase {
 
             populate(keyStore);
 
-            // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_SECRET, PASSWORD_KEY));
+            } else if (isCaseSensitive(keyStore)) {
                 assertCertificate(keyStore.getCertificate(ALIAS_CERTIFICATE));
                 assertNull(keyStore.getCertificate(ALIAS_ALT_CASE_CERTIFICATE));
                 setCertificate(keyStore,
@@ -968,6 +1083,15 @@ public class KeyStoreTest extends TestCase {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
 
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.deleteEntry(null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
+
             // test odd inputs
             try {
                 keyStore.deleteEntry(null);
@@ -983,6 +1107,14 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.deleteEntry(ALIAS_PRIVATE);
+                } catch (UnsupportedOperationException e) {
+                }
+                continue;
+            }
 
             // test case sensitive
             assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
@@ -1009,6 +1141,7 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             // test case insensitive
 
             if (isCaseSensitive(keyStore)) {
@@ -1046,11 +1179,17 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
-            assertEquals(Collections.EMPTY_SET, new HashSet(Collections.list(keyStore.aliases())));
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.aliases().hasMoreElements());
+            } else {
+                assertEquals(Collections.EMPTY_SET,
+                             new HashSet(Collections.list(keyStore.aliases())));
+            }
         }
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             Set<String> expected = new HashSet<String>();
             expected.add(ALIAS_PRIVATE);
             if (isNullPasswordAllowed(keyStore)) {
@@ -1065,7 +1204,11 @@ public class KeyStoreTest extends TestCase {
             if (isCertificateEnabled(keyStore)) {
                 expected.add(ALIAS_CERTIFICATE);
             }
-            assertEquals(expected, new HashSet<String>(Collections.list(keyStore.aliases())));
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.aliases().hasMoreElements());
+            } else {
+                assertEquals(expected, new HashSet<String>(Collections.list(keyStore.aliases())));
+            }
         }
     }
 
@@ -1092,8 +1235,13 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             assertFalse(keyStore.containsAlias(""));
 
+            if (isReadOnly(keyStore)) {
+                assertFalse(keyStore.containsAlias(ALIAS_PRIVATE));
+                continue;
+            }
             assertTrue(keyStore.containsAlias(ALIAS_PRIVATE));
             assertEquals(isSecretKeyEnabled(keyStore), keyStore.containsAlias(ALIAS_SECRET));
             assertEquals(isCertificateEnabled(keyStore), keyStore.containsAlias(ALIAS_CERTIFICATE));
@@ -1118,11 +1266,20 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
-            assertEquals(0, keyStore.size());
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.size() > 0);
+            } else {
+                assertEquals(0, keyStore.size());
+            }
         }
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.size() > 0);
+                continue;
+            }
+
             int expected = 1;
             if (isNullPasswordAllowed(keyStore)) {
                 expected++;
@@ -1163,8 +1320,12 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
-            assertFalse(keyStore.isKeyEntry(""));
 
+            assertFalse(keyStore.isKeyEntry(""));
+            if (isReadOnly(keyStore)) {
+                assertFalse(keyStore.isKeyEntry(ALIAS_PRIVATE));
+                continue;
+            }
             assertTrue(keyStore.isKeyEntry(ALIAS_PRIVATE));
             assertEquals(isSecretKeyEnabled(keyStore), keyStore.isKeyEntry(ALIAS_SECRET));
             assertFalse(keyStore.isKeyEntry(ALIAS_CERTIFICATE));
@@ -1204,16 +1365,19 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             assertFalse(keyStore.isCertificateEntry(""));
 
             assertFalse(keyStore.isCertificateEntry(ALIAS_PRIVATE));
             assertFalse(keyStore.isCertificateEntry(ALIAS_SECRET));
-            assertEquals(isCertificateEnabled(keyStore),
+            assertEquals(isCertificateEnabled(keyStore) && !isReadOnly(keyStore),
                          keyStore.isCertificateEntry(ALIAS_CERTIFICATE));
 
             assertFalse(keyStore.isCertificateEntry(ALIAS_ALT_CASE_PRIVATE));
             assertFalse(keyStore.isCertificateEntry(ALIAS_ALT_CASE_SECRET));
-            assertEquals(!isCaseSensitive(keyStore) && isCertificateEnabled(keyStore),
+            assertEquals(!isCaseSensitive(keyStore)
+                         && isCertificateEnabled(keyStore)
+                         && !isReadOnly(keyStore),
                          keyStore.isCertificateEntry(ALIAS_ALT_CASE_CERTIFICATE));
         }
     }
@@ -1234,6 +1398,7 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             Set<String> expected = new HashSet<String>();
             expected.add(ALIAS_PRIVATE);
             if (isNullPasswordAllowed(keyStore)) {
@@ -1243,7 +1408,7 @@ public class KeyStoreTest extends TestCase {
                 expected.add(ALIAS_CERTIFICATE);
             }
             String actual = keyStore.getCertificateAlias(PRIVATE_KEY.getCertificate());
-            assertTrue(expected.contains(actual));
+            assertEquals(!isReadOnly(keyStore), expected.contains(actual));
             assertNull(keyStore.getCertificateAlias(PRIVATE_KEY_2.getCertificate()));
         }
     }
@@ -1293,30 +1458,49 @@ public class KeyStoreTest extends TestCase {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.store(out, null);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
+
             if (isNullPasswordAllowed(keyStore)) {
                 keyStore.store(out, null);
                 assertEqualsKeyStores(keyStore, out, null);
-            } else {
-                try {
-                    keyStore.store(out, null);
-                } catch (Exception e) {
-                    if (e.getClass() != IllegalArgumentException.class
-                        && e.getClass() != NullPointerException.class) {
-                        throw e;
-                    }
+                continue;
+            }
+
+            try {
+                keyStore.store(out, null);
+                fail();
+            } catch (Exception e) {
+                if (e.getClass() != IllegalArgumentException.class
+                    && e.getClass() != NullPointerException.class) {
+                    throw e;
                 }
             }
         }
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            if (isNullPasswordAllowed(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.store(out, null);
+                    fail();
+                } catch (UnsupportedOperationException e) {
+                }
+            } else if (isNullPasswordAllowed(keyStore)) {
                 keyStore.store(out, null);
                 assertEqualsKeyStores(keyStore, out, null);
             } else {
                 try {
                     keyStore.store(out, null);
+                    fail();
                 } catch (Exception e) {
                     if (e.getClass() != IllegalArgumentException.class
                         && e.getClass() != NullPointerException.class) {
@@ -1329,6 +1513,14 @@ public class KeyStoreTest extends TestCase {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.store(out, PASSWORD_STORE);
+                    fail();
+                } catch (UnsupportedOperationException e) {
+                }
+                continue;
+            }
             keyStore.store(out, PASSWORD_STORE);
             assertEqualsKeyStores(keyStore, out, PASSWORD_STORE);
         }
@@ -1336,6 +1528,14 @@ public class KeyStoreTest extends TestCase {
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.store(out, PASSWORD_STORE);
+                    fail();
+                } catch (UnsupportedOperationException e) {
+                }
+                continue;
+            }
             keyStore.store(out, PASSWORD_STORE);
             assertEqualsKeyStores(keyStore, out, PASSWORD_STORE);
         }
@@ -1363,12 +1563,20 @@ public class KeyStoreTest extends TestCase {
     public void test_KeyStore_load_InputStream() throws Exception {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
-            assertEquals(0, keyStore.size());
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.size() > 0);
+            } else {
+                assertEquals(0, keyStore.size());
+            }
         }
 
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, PASSWORD_STORE);
-            assertEquals(0, keyStore.size());
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.size() > 0);
+            } else {
+                assertEquals(0, keyStore.size());
+            }
         }
 
         // test_KeyStore_store_OutputStream effectively tests load as well as store
@@ -1377,7 +1585,11 @@ public class KeyStoreTest extends TestCase {
     public void test_KeyStore_load_LoadStoreParameter() throws Exception {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null);
-            assertEquals(0, keyStore.size());
+            if (hasDefaultContents(keyStore)) {
+                assertTrue(keyStore.size() > 0);
+            } else {
+                assertEquals(0, keyStore.size());
+            }
         }
 
         for (KeyStore keyStore : keyStores()) {
@@ -1420,20 +1632,24 @@ public class KeyStoreTest extends TestCase {
             assertNull(keyStore.getEntry("", PARAM_KEY));
 
             // test case sensitive
-            assertPrivateKey(keyStore.getEntry(ALIAS_PRIVATE, PARAM_KEY));
-            if (isSecretKeyEnabled(keyStore)) {
-                assertSecretKey(keyStore.getEntry(ALIAS_SECRET, PARAM_KEY));
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getEntry(ALIAS_PRIVATE, PARAM_KEY));
             } else {
-                assertNull(keyStore.getEntry(ALIAS_SECRET, PARAM_KEY));
-            }
-            if (isCertificateEnabled(keyStore)) {
-                assertCertificate(keyStore.getEntry(ALIAS_CERTIFICATE, null));
-            } else {
-                assertNull(keyStore.getEntry(ALIAS_CERTIFICATE, null));
+                assertPrivateKey(keyStore.getEntry(ALIAS_PRIVATE, PARAM_KEY));
+                if (isSecretKeyEnabled(keyStore)) {
+                    assertSecretKey(keyStore.getEntry(ALIAS_SECRET, PARAM_KEY));
+                } else {
+                    assertNull(keyStore.getEntry(ALIAS_SECRET, PARAM_KEY));
+                }
+                if (isCertificateEnabled(keyStore)) {
+                    assertCertificate(keyStore.getEntry(ALIAS_CERTIFICATE, null));
+                } else {
+                    assertNull(keyStore.getEntry(ALIAS_CERTIFICATE, null));
+                }
             }
 
             // test case insensitive
-            if (isCaseSensitive(keyStore)) {
+            if (isCaseSensitive(keyStore) || isReadOnly(keyStore)) {
                 assertNull(keyStore.getEntry(ALIAS_ALT_CASE_PRIVATE, PARAM_KEY));
                 assertNull(keyStore.getEntry(ALIAS_ALT_CASE_SECRET, PARAM_KEY));
             } else {
@@ -1442,7 +1658,7 @@ public class KeyStoreTest extends TestCase {
                     assertSecretKey(keyStore.getEntry(ALIAS_ALT_CASE_SECRET, PARAM_KEY));
                 }
             }
-            if (isCaseSensitive(keyStore)) {
+            if (isCaseSensitive(keyStore) || isReadOnly(keyStore)) {
                 assertNull(keyStore.getEntry(ALIAS_ALT_CASE_CERTIFICATE, null));
             } else {
                 if (isCertificateEnabled(keyStore)) {
@@ -1451,7 +1667,9 @@ public class KeyStoreTest extends TestCase {
             }
 
             // test with null passwords
-            if (isNullPasswordAllowed(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getEntry(ALIAS_NO_PASSWORD_PRIVATE, null));
+            } else if (isNullPasswordAllowed(keyStore)) {
                 assertPrivateKey(keyStore.getEntry(ALIAS_NO_PASSWORD_PRIVATE, null));
             } else if (isKeyPasswordIgnored(keyStore)) {
                 assertPrivateKey(keyStore.getEntry(ALIAS_PRIVATE, null));
@@ -1466,7 +1684,9 @@ public class KeyStoreTest extends TestCase {
                     }
                 }
             }
-            if (isSecretKeyEnabled(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getEntry(ALIAS_SECRET, null));
+            } else if (isSecretKeyEnabled(keyStore)) {
                 try {
                     keyStore.getEntry(ALIAS_SECRET, null);
                     fail();
@@ -1479,7 +1699,9 @@ public class KeyStoreTest extends TestCase {
             }
 
             // test with bad passwords
-            if (isKeyPasswordIgnored(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getEntry(ALIAS_PRIVATE, PARAM_BAD));
+            } else if (isKeyPasswordIgnored(keyStore)) {
                 assertPrivateKey(keyStore.getEntry(ALIAS_PRIVATE, PARAM_BAD));
             } else {
                 try {
@@ -1488,7 +1710,9 @@ public class KeyStoreTest extends TestCase {
                 } catch (UnrecoverableKeyException expected) {
                 }
             }
-            if (isSecretKeyEnabled(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getEntry(ALIAS_SECRET, PARAM_BAD));
+            } else if (isSecretKeyEnabled(keyStore)) {
                 try {
                     keyStore.getEntry(ALIAS_SECRET, PARAM_BAD);
                     fail();
@@ -1542,6 +1766,14 @@ public class KeyStoreTest extends TestCase {
 
             // test case sensitive
             assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setEntry(ALIAS_PRIVATE, PRIVATE_KEY, PARAM_KEY);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
             keyStore.setEntry(ALIAS_PRIVATE, PRIVATE_KEY, PARAM_KEY);
             assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
             assertCertificateChain(keyStore.getCertificateChain(ALIAS_PRIVATE));
@@ -1575,9 +1807,13 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
-            // test case insensitive
 
-            if (isCaseSensitive(keyStore)) {
+            if (isReadOnly(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_SECRET, PASSWORD_KEY));
+                assertNull(keyStore.getKey(ALIAS_ALT_CASE_SECRET, PASSWORD_KEY));
+            } else if (isCaseSensitive(keyStore)) {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
                 assertNull(keyStore.getKey(ALIAS_ALT_CASE_PRIVATE, PASSWORD_KEY));
                 keyStore.setEntry(ALIAS_ALT_CASE_PRIVATE, PRIVATE_KEY_2, PARAM_KEY);
@@ -1658,6 +1894,16 @@ public class KeyStoreTest extends TestCase {
                     }
                 }
             }
+            if (isReadOnly(keyStore)) {
+                try {
+                    keyStore.setEntry(ALIAS_CERTIFICATE,
+                                      new TrustedCertificateEntry(PRIVATE_KEY.getCertificate()),
+                                      PARAM_KEY);
+                    fail();
+                } catch (UnsupportedOperationException expected) {
+                }
+                continue;
+            }
             if (isCertificateEnabled(keyStore)) {
                 if (isNullPasswordAllowed(keyStore) || isKeyPasswordIgnored(keyStore)) {
                     keyStore.setEntry(ALIAS_CERTIFICATE,
@@ -1716,6 +1962,22 @@ public class KeyStoreTest extends TestCase {
             assertFalse(keyStore.entryInstanceOf("", PrivateKeyEntry.class));
             assertFalse(keyStore.entryInstanceOf("", SecretKeyEntry.class));
             assertFalse(keyStore.entryInstanceOf("", TrustedCertificateEntry.class));
+
+            if (isReadOnly(keyStore)) {
+                assertFalse(keyStore.entryInstanceOf(ALIAS_PRIVATE, PrivateKeyEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_PRIVATE, SecretKeyEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_PRIVATE, TrustedCertificateEntry.class));
+
+                assertFalse(keyStore.entryInstanceOf(ALIAS_SECRET, SecretKeyEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_SECRET, PrivateKeyEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_SECRET, TrustedCertificateEntry.class));
+
+                assertFalse(keyStore.entryInstanceOf(ALIAS_CERTIFICATE,
+                                                     TrustedCertificateEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_CERTIFICATE, PrivateKeyEntry.class));
+                assertFalse(keyStore.entryInstanceOf(ALIAS_CERTIFICATE, SecretKeyEntry.class));
+                continue;
+            }
 
             // test case sensitive
             assertTrue(keyStore.entryInstanceOf(ALIAS_PRIVATE, PrivateKeyEntry.class));
@@ -1813,9 +2075,20 @@ public class KeyStoreTest extends TestCase {
 
         for (KeyStore keyStore : keyStores()) {
             populate(keyStore);
+
             File file = File.createTempFile("keystore", keyStore.getProvider().getName());
+            OutputStream os = null;
             try {
-                OutputStream os = new FileOutputStream(file);
+                os = new FileOutputStream(file);
+                if (isReadOnly(keyStore)) {
+                    try {
+                        keyStore.store(os, PASSWORD_STORE);
+                        fail();
+                    } catch (UnsupportedOperationException expected) {
+                    }
+                    continue;
+                }
+
                 keyStore.store(os, PASSWORD_STORE);
                 os.close();
                 Builder builder = Builder.newInstance(keyStore.getType(),
@@ -1827,6 +2100,7 @@ public class KeyStoreTest extends TestCase {
                 assertEquals(PARAM_STORE, builder.getProtectionParameter(""));
                 assertEqualsKeyStores(file, PASSWORD_STORE, keyStore);
             } finally {
+                IoUtils.closeQuietly(os);
                 file.delete();
             }
         }
@@ -1841,25 +2115,39 @@ public class KeyStoreTest extends TestCase {
         }
     }
 
-    public void test_KeyStore_cacerts_bks() throws Exception {
+    public void test_KeyStore_cacerts() throws Exception {
         if (StandardNames.IS_RI) {
             return;
         }
-        KeyStore ks = KeyStore.getInstance("BKS");
-        InputStream in = new FileInputStream(System.getProperty(
-                "javax.net.ssl.trustStore", "/etc/security/cacerts.bks"));
-        ks.load(in, null);
-        in.close();
+        KeyStore ks = KeyStore.getInstance("AndroidCAStore");
+        assertEquals("AndroidCAStore", ks.getType());
+        assertEquals("HarmonyJSSE", ks.getProvider().getName());
+
+        ks.load(null, null);
         for (String alias : Collections.list(ks.aliases())) {
+            Certificate c = null;
             try {
-                assert(ks.isCertificateEntry(alias));
-                Certificate c = ks.getCertificate(alias);
+                c = ks.getCertificate(alias);
+                assertNotNull(c);
+                assertTrue(ks.isCertificateEntry(alias));
+                assertTrue(ks.entryInstanceOf(alias, TrustedCertificateEntry.class));
+                assertEquals(alias, ks.getCertificateAlias(c));
+
                 assertTrue(c instanceof X509Certificate);
                 X509Certificate cert = (X509Certificate) c;
                 assertEquals(cert.getSubjectUniqueID(), cert.getIssuerUniqueID());
                 assertNotNull(cert.getPublicKey());
-            } catch (Exception e) {
-                throw new Exception("alias=" + alias, e);
+
+                assertTrue(ks.containsAlias(alias));
+                assertNotNull(ks.getCreationDate(alias));
+                assertNotNull(ks.getEntry(alias, null));
+
+                assertFalse(ks.isKeyEntry(alias));
+                assertNull(ks.getKey(alias, null));
+                assertNull(ks.getCertificateChain(alias));
+
+            } catch (Throwable t) {
+                throw new Exception("alias=" + alias + " cert=" + c, t);
             }
         }
     }
