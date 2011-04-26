@@ -20,6 +20,7 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "NetworkUtilities.h"
+#include "ScopedBytes.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
@@ -610,19 +611,13 @@ static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
     return result;
 }
 
-static jint Posix_read(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    ScopedByteArrayRW bytes(env, javaBytes);
+static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
+    ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
-    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
-}
-
-static jint Posix_readDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobject byteBuffer, jint position, jint remaining) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    jbyte* ptr = reinterpret_cast<jbyte*>(env->GetDirectBufferAddress(byteBuffer));
-    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, ptr + position, remaining)));
+    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
 }
 
 static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
@@ -814,19 +809,13 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
     return makeStructUtsname(env, buf);
 }
 
-static jint Posix_write(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    ScopedByteArrayRO bytes(env, javaBytes);
+static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
+    ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
-    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
-}
-
-static jint Posix_writeDirectBuffer(JNIEnv* env, jobject, jobject javaFd, jobject byteBuffer, jint position, jint remaining) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    jbyte* ptr = reinterpret_cast<jbyte*>(env->GetDirectBufferAddress(byteBuffer));
-    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, ptr + position, remaining)));
+    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
 }
 
 static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
@@ -876,8 +865,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
-    NATIVE_METHOD(Posix, read, "(Ljava/io/FileDescriptor;[BII)I"),
-    NATIVE_METHOD(Posix, readDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
+    NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
@@ -897,8 +885,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
-    NATIVE_METHOD(Posix, write, "(Ljava/io/FileDescriptor;[BII)I"),
-    NATIVE_METHOD(Posix, writeDirectBuffer, "(Ljava/io/FileDescriptor;Ljava/nio/ByteBuffer;II)I"),
+    NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
 };
 int register_libcore_io_Posix(JNIEnv* env) {

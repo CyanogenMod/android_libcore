@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedBytes.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 
@@ -76,8 +77,16 @@ static inline void swapLongs(jlong* dstLongs, const jlong* srcLongs, size_t coun
     }
 }
 
-static void Memory_memmove(JNIEnv*, jclass, jint dstAddress, jint srcAddress, jlong length) {
-    memmove(cast<void*>(dstAddress), cast<const void*>(srcAddress), length);
+static void Memory_memmove(JNIEnv* env, jclass, jobject dstObject, jint dstOffset, jobject srcObject, jint srcOffset, jlong length) {
+    ScopedBytesRW dstBytes(env, dstObject);
+    if (dstBytes.get() == NULL) {
+        return;
+    }
+    ScopedBytesRO srcBytes(env, srcObject);
+    if (srcBytes.get() == NULL) {
+        return;
+    }
+    memmove(dstBytes.get() + dstOffset, srcBytes.get() + srcOffset, length);
 }
 
 static jbyte Memory_peekByte(JNIEnv*, jclass, jint srcAddress) {
@@ -316,7 +325,7 @@ static void Memory_unsafeBulkPut(JNIEnv* env, jclass, jbyteArray dstArray, jint 
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Memory, memmove, "(IIJ)V"),
+    NATIVE_METHOD(Memory, memmove, "(Ljava/lang/Object;ILjava/lang/Object;IJ)V"),
     NATIVE_METHOD(Memory, peekByte, "(I)B"),
     NATIVE_METHOD(Memory, peekByteArray, "(I[BII)V"),
     NATIVE_METHOD(Memory, peekCharArray, "(I[CIIZ)V"),

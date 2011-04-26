@@ -490,4 +490,86 @@ public class BufferTest extends TestCase {
         assertEquals(0, directBuffer.arrayOffset());
         assertEquals(1, directSlice.arrayOffset());
     }
+
+    // http://code.google.com/p/android/issues/detail?id=16184
+    public void testPutByteBuffer() throws Exception {
+        ByteBuffer dst = ByteBuffer.allocate(10).asReadOnlyBuffer();
+
+        // Can't put into a read-only buffer.
+        try {
+            dst.put(ByteBuffer.allocate(5));
+            fail();
+        } catch (ReadOnlyBufferException expected) {
+        }
+
+        // Can't put a buffer into itself.
+        dst = ByteBuffer.allocate(10);
+        try {
+            dst.put(dst);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // Can't put the null ByteBuffer.
+        try {
+            dst.put((ByteBuffer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        // Can't put a larger source into a smaller destination.
+        try {
+            dst.put(ByteBuffer.allocate(dst.capacity() + 1));
+            fail();
+        } catch (BufferOverflowException expected) {
+        }
+
+        assertPutByteBuffer(ByteBuffer.allocate(10), ByteBuffer.allocate(8), false);
+        assertPutByteBuffer(ByteBuffer.allocate(10), ByteBuffer.allocateDirect(8), false);
+        assertPutByteBuffer(ByteBuffer.allocate(10), allocateMapped(8), false);
+        assertPutByteBuffer(ByteBuffer.allocate(10), ByteBuffer.allocate(8), true);
+        assertPutByteBuffer(ByteBuffer.allocate(10), ByteBuffer.allocateDirect(8), true);
+        assertPutByteBuffer(ByteBuffer.allocate(10), allocateMapped(8), true);
+
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), ByteBuffer.allocate(8), false);
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), ByteBuffer.allocateDirect(8), false);
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), allocateMapped(8), false);
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), ByteBuffer.allocate(8), true);
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), ByteBuffer.allocateDirect(8), true);
+        assertPutByteBuffer(ByteBuffer.allocateDirect(10), allocateMapped(8), true);
+    }
+
+    private void assertPutByteBuffer(ByteBuffer dst, ByteBuffer src, boolean readOnly) {
+        // Start 'dst' off as the index-identity pattern.
+        for (int i = 0; i < dst.capacity(); ++i) {
+            dst.put(i, (byte) i);
+        }
+        // Deliberately offset the position we'll write to by 1.
+        dst.position(1);
+
+        // Make the source more interesting.
+        for (int i = 0; i < src.capacity(); ++i) {
+            src.put(i, (byte) (16 + i));
+        }
+        if (readOnly) {
+            src = src.asReadOnlyBuffer();
+        }
+
+        ByteBuffer dst2 = dst.put(src);
+        assertSame(dst, dst2);
+        assertEquals(0, src.remaining());
+        assertEquals(src.position(), src.capacity());
+        assertEquals(dst.position(), src.capacity() + 1);
+        for (int i = 0; i < src.capacity(); ++i) {
+            assertEquals(src.get(i), dst.get(i + 1));
+        }
+
+        // No room for another.
+        src.position(0);
+        try {
+            dst.put(src);
+            fail();
+        } catch (BufferOverflowException expected) {
+        }
+    }
 }

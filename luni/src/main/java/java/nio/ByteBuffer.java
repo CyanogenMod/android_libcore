@@ -18,6 +18,7 @@
 package java.nio;
 
 import java.util.Arrays;
+import libcore.io.Memory;
 
 /**
  * A buffer for bytes.
@@ -761,14 +762,30 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     public ByteBuffer put(ByteBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
-        if (src.remaining() > remaining()) {
+        int srcByteCount = src.remaining();
+        if (srcByteCount > remaining()) {
             throw new BufferOverflowException();
         }
-        byte[] contents = new byte[src.remaining()];
-        src.get(contents);
-        put(contents);
+
+        Object srcObject = src.isDirect() ? src : NioUtils.unsafeArray(src);
+        int srcOffset = src.position();
+        if (!src.isDirect()) {
+            srcOffset += NioUtils.unsafeArrayOffset(src);
+        }
+
+        ByteBuffer dst = this;
+        Object dstObject = dst.isDirect() ? dst : NioUtils.unsafeArray(dst);
+        int dstOffset = dst.position();
+        if (!dst.isDirect()) {
+            dstOffset += NioUtils.unsafeArrayOffset(dst);
+        }
+
+        Memory.memmove(dstObject, dstOffset, srcObject, srcOffset, srcByteCount);
+        src.position(src.limit());
+        dst.position(dst.position() + srcByteCount);
+
         return this;
     }
 
