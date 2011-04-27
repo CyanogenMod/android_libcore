@@ -497,7 +497,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             return HttpsURLConnectionImpl.this;
         }
 
-        @Override protected boolean acceptCacheResponse(CacheResponse cacheResponse) {
+        @Override protected boolean acceptCacheResponseType(CacheResponse cacheResponse) {
             return cacheResponse instanceof SecureCacheResponse;
         }
 

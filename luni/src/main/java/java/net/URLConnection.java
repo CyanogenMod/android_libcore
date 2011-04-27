@@ -444,7 +444,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns an unchangeable map of the response-header fields and values. The
+     * Returns an unmodifiable map of the response-header fields and values. The
      * response-header field names are the key values of the map. The map values
      * are lists of header field values associated with a particular key name.
      *
@@ -460,7 +460,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns an unchangeable map of general request properties used by this
+     * Returns an unmodifiable map of general request properties used by this
      * connection. The request property names are the key values of the map. The
      * map values are lists of property values of the corresponding key name.
      *

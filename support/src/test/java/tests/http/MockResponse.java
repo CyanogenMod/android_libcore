@@ -26,7 +26,8 @@ import static tests.http.MockWebServer.ASCII;
 /**
  * A scripted response to be replayed by the mock web server.
  */
-public class MockResponse {
+public class MockResponse implements Cloneable {
+    private static final String RFC_1123_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     private static final String EMPTY_BODY_HEADER = "Content-Length: 0";
     private static final String CHUNKED_BODY_HEADER = "Transfer-encoding: chunked";
     private static final byte[] EMPTY_BODY = new byte[0];
@@ -38,6 +39,16 @@ public class MockResponse {
 
     public MockResponse() {
         headers.add(EMPTY_BODY_HEADER);
+    }
+
+    @Override public MockResponse clone() {
+        try {
+            MockResponse result = (MockResponse) super.clone();
+            result.headers = new ArrayList<String>(result.headers);
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     /**

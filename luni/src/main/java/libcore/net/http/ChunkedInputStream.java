@@ -87,7 +87,7 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         }
         if (bytesRemainingInChunk == 0) {
             hasMoreChunks = false;
-            httpURLConnection.readHeaders(); // actually trailers!
+            httpURLConnection.readTrailers();
             endOfInput(true);
         }
     }
