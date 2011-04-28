@@ -31,6 +31,7 @@
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -512,6 +513,10 @@ static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
     return TEMP_FAILURE_RETRY(isatty(fd)) == 0;
 }
 
+static void Posix_kill(JNIEnv* env, jobject, jint pid, jint sig) {
+    throwIfMinusOne(env, "kill", TEMP_FAILURE_RETRY(kill(pid, sig)));
+}
+
 static void Posix_listen(JNIEnv* env, jobject, jobject javaFd, jint backlog) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "listen", TEMP_FAILURE_RETRY(listen(fd, backlog)));
@@ -845,6 +850,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
+    NATIVE_METHOD(Posix, kill, "(II)V"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),

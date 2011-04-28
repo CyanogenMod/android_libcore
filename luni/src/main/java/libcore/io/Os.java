@@ -50,6 +50,7 @@ public interface Os {
     public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
+    public void kill(int pid, int signal) throws ErrnoException;
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;

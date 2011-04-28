@@ -26,6 +26,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -239,6 +240,39 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SHUT_RD", SHUT_RD);
     initConstant(env, c, "SHUT_RDWR", SHUT_RDWR);
     initConstant(env, c, "SHUT_WR", SHUT_WR);
+    initConstant(env, c, "SIGABRT", SIGABRT);
+    initConstant(env, c, "SIGALRM", SIGALRM);
+    initConstant(env, c, "SIGBUS", SIGBUS);
+    initConstant(env, c, "SIGCHLD", SIGCHLD);
+    initConstant(env, c, "SIGCONT", SIGCONT);
+    initConstant(env, c, "SIGFPE", SIGFPE);
+    initConstant(env, c, "SIGHUP", SIGHUP);
+    initConstant(env, c, "SIGILL", SIGILL);
+    initConstant(env, c, "SIGINT", SIGINT);
+    initConstant(env, c, "SIGIO", SIGIO);
+    initConstant(env, c, "SIGKILL", SIGKILL);
+    initConstant(env, c, "SIGPIPE", SIGPIPE);
+    initConstant(env, c, "SIGPROF", SIGPROF);
+    initConstant(env, c, "SIGPWR", SIGPWR);
+    initConstant(env, c, "SIGQUIT", SIGQUIT);
+    initConstant(env, c, "SIGRTMAX", SIGRTMAX);
+    initConstant(env, c, "SIGRTMIN", SIGRTMIN);
+    initConstant(env, c, "SIGSEGV", SIGSEGV);
+    initConstant(env, c, "SIGSTKFLT", SIGSTKFLT);
+    initConstant(env, c, "SIGSTOP", SIGSTOP);
+    initConstant(env, c, "SIGSYS", SIGSYS);
+    initConstant(env, c, "SIGTERM", SIGTERM);
+    initConstant(env, c, "SIGTRAP", SIGTRAP);
+    initConstant(env, c, "SIGTSTP", SIGTSTP);
+    initConstant(env, c, "SIGTTIN", SIGTTIN);
+    initConstant(env, c, "SIGTTOU", SIGTTOU);
+    initConstant(env, c, "SIGURG", SIGURG);
+    initConstant(env, c, "SIGUSR1", SIGUSR1);
+    initConstant(env, c, "SIGUSR2", SIGUSR2);
+    initConstant(env, c, "SIGVTALRM", SIGVTALRM);
+    initConstant(env, c, "SIGWINCH", SIGWINCH);
+    initConstant(env, c, "SIGXCPU", SIGXCPU);
+    initConstant(env, c, "SIGXFSZ", SIGXFSZ);
     initConstant(env, c, "SIOCGIFADDR", SIOCGIFADDR);
     initConstant(env, c, "SIOCGIFBRDADDR", SIOCGIFBRDADDR);
     initConstant(env, c, "SIOCGIFDSTADDR", SIOCGIFDSTADDR);
