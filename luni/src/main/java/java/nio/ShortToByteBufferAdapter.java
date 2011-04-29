@@ -74,7 +74,8 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public ShortBuffer duplicate() {
-        ShortToByteBufferAdapter buf = new ShortToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        ShortToByteBufferAdapter buf = new ShortToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -171,7 +172,8 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
     public ShortBuffer slice() {
         byteBuffer.limit(limit * SizeOf.SHORT);
         byteBuffer.position(position * SizeOf.SHORT);
-        ShortBuffer result = new ShortToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        ShortBuffer result = new ShortToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }
