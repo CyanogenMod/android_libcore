@@ -48,6 +48,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
+import libcore.io.IoUtils;
 import libcore.io.Streams;
 import org.apache.harmony.luni.util.Base64;
 
@@ -85,7 +86,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public static final int MAX_REDIRECTS = 5;
 
     /**
-     * The subset of HTTP methods that the user may select via {@link #setRequestMethod}.
+     * The subset of HTTP methods that the user may select via {@link
+     * #setRequestMethod(String)}.
      */
     public static String PERMITTED_USER_METHODS[] = {
             OPTIONS,
@@ -115,7 +117,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * HTTP/1.1. Upon receiving a non-HTTP/1.1 response, this client
      * automatically sets its version to HTTP/1.0.
      */
-    private int httpVersion = 1; // Assume HTTP/1.1
+    private int httpMinorVersion = 1; // Assume HTTP/1.1
 
     protected HttpConnection connection;
     private InputStream socketIn;
@@ -139,7 +141,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private CacheRequest cacheRequest;
 
-    private boolean hasTriedCache;
+    private ResponseSource responseSource;
 
     private boolean sentRequestHeaders;
 
@@ -171,6 +173,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * same content, possibly from a different URL or with different headers.
      */
     protected boolean intermediateResponse = false;
+
+    /*
+     * The cache response currently being validated on a conditional get. Null
+     * if the cached response doesn't exist or doesn't need validation. If the
+     * conditional get succeeds, these will be used for the response header and
+     * body. If it fails, these be closed and set to null.
+     */
+    private CacheHeader cacheResponseHeader;
+    private HttpHeaders responseHeaderToValidate;
+    private InputStream responseBodyToValidate;
 
     /**
      * Creates an instance of the <code>HttpURLConnection</code>
@@ -230,7 +242,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new IOException(e);
         }
 
-        if (getFromCache()) {
+        initResponseSource();
+        if (!responseSource.requiresConnection()) {
             return;
         }
 
@@ -294,41 +307,75 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Attempts to load the response headers and body from the response cache.
-     * Returns true if the request was satisfied by the cache.
+     * Attempts to satisfy the request either fully or partially using the
+     * cache. This may mutate the request headers to permit a conditional get.
      */
-    private boolean getFromCache() throws IOException {
-        if (!useCaches || responseCache == null || hasTriedCache) {
-            return false;
+    private void initResponseSource() throws IOException {
+        if (responseSource != null) {
+            return;
         }
 
-        hasTriedCache = true;
+        responseSource = ResponseSource.NETWORK;
+        if (!useCaches || responseCache == null) {
+            return;
+        }
+
         CacheResponse candidate = responseCache.get(uri, method, requestHeader.toMultimap());
-        if (!acceptCacheResponse(candidate)) {
-            return false;
+        if (candidate == null || !acceptCacheResponseType(candidate)) {
+            return;
         }
         Map<String, List<String>> headersMap = candidate.getHeaders();
         if (headersMap == null) {
-            return false;
+            return;
         }
-        InputStream cacheBodyIn = candidate.getBody();
+        InputStream cacheBodyIn = candidate.getBody(); // must be closed
         if (cacheBodyIn == null) {
-            return false;
+            return;
         }
 
-        cacheResponse = candidate;
-        responseHeader = HttpHeaders.fromMultimap(headersMap);
-        parseStatusLine();
-        responseBodyIn = cacheBodyIn;
-        return true;
+        HttpHeaders headers = HttpHeaders.fromMultimap(headersMap);
+        CacheHeader cacheHeader = new CacheHeader(headers);
+        long now = System.currentTimeMillis();
+        responseSource = cacheHeader.chooseResponseSource(now, requestHeader);
+        if (responseSource == ResponseSource.CACHE) {
+            cacheResponse = candidate;
+            setResponse(headers, cacheBodyIn);
+        } else if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
+            cacheResponseHeader = cacheHeader;
+            cacheResponse = candidate;
+            responseHeaderToValidate = headers;
+            responseBodyToValidate = cacheBodyIn;
+        } else if (responseSource == ResponseSource.NETWORK) {
+            IoUtils.closeQuietly(cacheBodyIn);
+        } else {
+            throw new AssertionError();
+        }
     }
 
     /**
-     * Returns true if {@code cacheResponse} is sufficient to forgo a network
-     * request. HTTPS connections require secure cache responses.
+     * @param body the response body, or null if it doesn't exist or isn't
+     *     available.
      */
-    protected boolean acceptCacheResponse(CacheResponse cacheResponse) {
-        return cacheResponse != null;
+    private void setResponse(HttpHeaders headers, InputStream body) throws IOException {
+        if (this.responseBodyIn != null) {
+            throw new IllegalStateException();
+        }
+        this.responseHeader = headers;
+        this.httpMinorVersion = responseHeader.getHttpMinorVersion();
+        this.responseCode = responseHeader.getResponseCode();
+        this.responseMessage = responseHeader.getResponseMessage();
+        if (body != null) {
+            initContentStream(body);
+        }
+    }
+
+    /**
+     * Returns true if {@code cacheResponse} is of the right type. This
+     * condition is necessary but not sufficient for the cached response to
+     * be used.
+     */
+    protected boolean acceptCacheResponseType(CacheResponse cacheResponse) {
+        return true;
     }
 
     private void maybeCache() throws IOException {
@@ -402,14 +449,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         boolean oldIntermediateResponse = intermediateResponse;
         intermediateResponse = true;
         try {
-            if (responseBodyIn != null) {
-                if (!(responseBodyIn instanceof UnknownLengthHttpInputStream)) {
-                    // skip the response so that the connection may be reused for the retry
-                    Streams.skipAll(responseBodyIn);
-                }
-                responseBodyIn.close();
-                responseBodyIn = null;
-            }
+            discardResponseBody(responseBodyIn);
+            responseBodyIn = null;
             sentRequestHeaders = false;
             responseHeader = null;
             responseCode = -1;
@@ -417,9 +458,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             cacheRequest = null;
             uri = null;
             cacheResponse = null;
-            hasTriedCache = false;
+            responseSource = null;
         } finally {
             intermediateResponse = oldIntermediateResponse;
+        }
+    }
+
+    private void discardResponseBody(InputStream in) throws IOException {
+        if (in != null) {
+            if (!(in instanceof UnknownLengthHttpInputStream)) {
+                // skip the response so that the connection may be reused for the retry
+                Streams.skipAll(in);
+            }
+            in.close();
         }
     }
 
@@ -465,7 +516,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      *            java.lang.String the name of the header field
      *
      * @see #getHeaderField(int)
-     * @see #getHeaderFieldKey
+     * @see #getHeaderFieldKey(int)
      */
     @Override
     public final String getHeaderField(String key) {
@@ -531,8 +582,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseBodyIn;
     }
 
-    private void initContentStream() throws IOException {
-        InputStream transferStream = getTransferStream();
+    private void initContentStream(InputStream transferStream) throws IOException {
         if (transparentGzip && "gzip".equalsIgnoreCase(responseHeader.get("Content-Encoding"))) {
             /*
              * If the response was transparently gzipped, remove the gzip header
@@ -620,7 +670,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new IOException("No socket to write to; was a POST cached?");
         }
 
-        if (httpVersion == 0) {
+        if (httpMinorVersion == 0) {
             sendChunked = false;
         }
 
@@ -687,10 +737,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private void readResponseHeaders() throws IOException {
         do {
-            responseHeader = new HttpHeaders();
-            responseHeader.setStatusLine(readLine(socketIn).trim());
-            readHeaders();
-            parseStatusLine();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setStatusLine(readLine(socketIn).trim());
+            readHeaders(headers);
+            setResponse(headers, null);
         } while (responseCode == HTTP_CONTINUE);
     }
 
@@ -729,50 +779,30 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return responseCode;
     }
 
-    private void parseStatusLine() {
-        httpVersion = 1;
-        responseCode = -1;
-        responseMessage = null;
-
-        // Status line sample: "HTTP/1.0 200 OK"
-        String response = responseHeader.getStatusLine();
-        if (response == null || !response.startsWith("HTTP/")) {
-            return;
-        }
-        response = response.trim();
-        int mark = response.indexOf(" ") + 1;
-        if (mark == 0) {
-            return;
-        }
-        if (response.charAt(mark - 2) != '1') {
-            httpVersion = 0;
-        }
-        int last = mark + 3;
-        if (last > response.length()) {
-            last = response.length();
-        }
-        responseCode = Integer.parseInt(response.substring(mark, last));
-        if (last + 1 <= response.length()) {
-            responseMessage = response.substring(last + 1);
-        }
+    /**
+     * Trailers are headers included after the last chunk of a response encoded
+     * with chunked encoding.
+     */
+    void readTrailers() throws IOException {
+        readHeaders(responseHeader);
     }
 
-    void readHeaders() throws IOException {
+    private void readHeaders(HttpHeaders headers) throws IOException {
         // parse the result headers until the first blank line
         String line;
         while ((line = readLine(socketIn)).length() > 1) {
             // Header parsing
             int index = line.indexOf(":");
             if (index == -1) {
-                responseHeader.add("", line.trim());
+                headers.add("", line.trim());
             } else {
-                responseHeader.add(line.substring(0, index), line.substring(index + 1).trim());
+                headers.add(line.substring(0, index), line.substring(index + 1).trim());
             }
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            cookieHandler.put(uri, responseHeader.toMultimap());
+            cookieHandler.put(uri, headers.toMultimap());
         }
     }
 
@@ -792,7 +822,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      *      the request body length is unknown.
      */
     private void writeRequestHeaders(int contentLength) throws IOException {
-        byte[] headerBytes = prepareRequestHeaders().toHeaderString().getBytes(Charsets.ISO_8859_1);
+        HttpHeaders headersToSend = method == CONNECT
+                ? getProxyConnectHeaders()
+                : requestHeader;
+        byte[] headerBytes = headersToSend.toHeaderString().getBytes(Charsets.ISO_8859_1);
 
         if (contentLength != -1
                 && headerBytes.length + contentLength <= MAX_REQUEST_BUFFER_LENGTH) {
@@ -804,47 +837,47 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
+     * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2), send
+     * only the minimum set of headers. This avoids sending potentially
+     * sensitive data like HTTP cookies to the proxy unencrypted.
+     */
+    private HttpHeaders getProxyConnectHeaders() throws IOException {
+        HttpHeaders proxyHeader = new HttpHeaders();
+        proxyHeader.setStatusLine(getStatusLine());
+
+        // always set Host and User-Agent
+        String host = requestHeader.get("Host");
+        if (host == null) {
+            host = getOriginAddress(url);
+        }
+        proxyHeader.set("Host", host);
+
+        String userAgent = requestHeader.get("User-Agent");
+        if (userAgent == null) {
+            userAgent = getDefaultUserAgent();
+        }
+        proxyHeader.set("User-Agent", userAgent);
+
+        // copy over the Proxy-Authorization header if it exists
+        String proxyAuthorization = requestHeader.get("Proxy-Authorization");
+        if (proxyAuthorization != null) {
+            proxyHeader.set("Proxy-Authorization", proxyAuthorization);
+        }
+
+        // Always set the Proxy-Connection to Keep-Alive for the benefit of
+        // HTTP/1.0 proxies like Squid.
+        proxyHeader.set("Proxy-Connection", "Keep-Alive");
+        return proxyHeader;
+    }
+
+    /**
      * Populates requestHeader with the HTTP headers to be sent. Header values are
      * derived from the request itself and the cookie manager.
      *
      * <p>This client doesn't specify a default {@code Accept} header because it
      * doesn't know what content types the application is interested in.
      */
-    private HttpHeaders prepareRequestHeaders() throws IOException {
-        /*
-         * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2),
-         * send only the minimum set of headers. This avoids sending potentially
-         * sensitive data like HTTP cookies to the proxy unencrypted.
-         */
-        if (method == CONNECT) {
-            HttpHeaders proxyHeader = new HttpHeaders();
-            proxyHeader.setStatusLine(getStatusLine());
-
-            // always set Host and User-Agent
-            String host = requestHeader.get("Host");
-            if (host == null) {
-                host = getOriginAddress(url);
-            }
-            proxyHeader.set("Host", host);
-
-            String userAgent = requestHeader.get("User-Agent");
-            if (userAgent == null) {
-                userAgent = getDefaultUserAgent();
-            }
-            proxyHeader.set("User-Agent", userAgent);
-
-            // copy over the Proxy-Authorization header if it exists
-            String proxyAuthorization = requestHeader.get("Proxy-Authorization");
-            if (proxyAuthorization != null) {
-                proxyHeader.set("Proxy-Authorization", proxyAuthorization);
-            }
-
-            // Always set the Proxy-Connection to Keep-Alive for the benefit of
-            // HTTP/1.0 proxies like Squid.
-            proxyHeader.set("Proxy-Connection", "Keep-Alive");
-            return proxyHeader;
-        }
-
+    private void prepareRequestHeaders() throws IOException {
         requestHeader.setStatusLine(getStatusLine());
 
         if (requestHeader.get("User-Agent") == null) {
@@ -855,7 +888,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             requestHeader.add("Host", getOriginAddress(url));
         }
 
-        if (httpVersion > 0) {
+        if (httpMinorVersion > 0) {
             requestHeader.addIfAbsent("Connection", "Keep-Alive");
         }
 
@@ -888,12 +921,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 }
             }
         }
-
-        return requestHeader;
     }
 
     private String getStatusLine() {
-        String protocol = (httpVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
+        String protocol = (httpMinorVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
         return method + " " + requestString() + " " + protocol;
     }
 
@@ -1023,9 +1054,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         redirectionCount = 0;
         while (true) {
+            // TODO: make connect() use this so transparentGzip isn't wrong for cached responses
+            prepareRequestHeaders();
+
             makeConnection();
 
-            if (cacheResponse == null) {
+            if (responseBodyIn == null) {
                 getFromNetwork();
             }
 
@@ -1075,11 +1109,28 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         readResponseHeaders();
 
+        if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
+            if (cacheResponseHeader.validate(requestHeader, responseHeader)) {
+                // discard the network response
+                discardResponseBody(getTransferStream());
+
+                // use the cache response
+                setResponse(responseHeaderToValidate, responseBodyToValidate);
+                responseBodyToValidate = null;
+                responseHeaderToValidate = null;
+                return;
+            } else {
+                IoUtils.closeQuietly(responseBodyToValidate);
+                responseBodyToValidate = null;
+                responseHeaderToValidate = null;
+            }
+        }
+
         if (hasResponseBody()) {
             maybeCache(); // reentrant. this calls into user code which may call back into this!
         }
 
-        initContentStream();
+        initContentStream(getTransferStream());
     }
 
     enum Retry {
@@ -1157,9 +1208,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     /**
      * React to a failed authorization response by looking up new credentials.
      */
-    private Retry processAuthHeader(String responseHeader, String retryHeader) throws IOException {
+    private Retry processAuthHeader(String headerKey, String retryHeader) throws IOException {
         // keep asking for username/password until authorized
-        String challenge = this.responseHeader.get(responseHeader);
+        String challenge = responseHeader.get(headerKey);
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }

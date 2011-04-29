@@ -47,20 +47,69 @@ public final class HttpHeaders implements Cloneable {
 
     private final List<String> alternatingKeysAndValues = new ArrayList<String>(20);
     private String statusLine;
+    private int httpMinorVersion = 1;
+    private int responseCode = -1;
+    private String responseMessage;
 
     public HttpHeaders() {}
 
     public HttpHeaders(HttpHeaders copyFrom) {
-        statusLine = copyFrom.statusLine;
         alternatingKeysAndValues.addAll(copyFrom.alternatingKeysAndValues);
+        statusLine = copyFrom.statusLine;
+        httpMinorVersion = copyFrom.httpMinorVersion;
+        responseCode = copyFrom.responseCode;
+        responseMessage = copyFrom.responseMessage;
     }
 
     public void setStatusLine(String statusLine) {
         this.statusLine = statusLine;
+
+        // Status line sample: "HTTP/1.0 200 OK"
+        if (statusLine == null || !statusLine.startsWith("HTTP/")) {
+            return;
+        }
+        statusLine = statusLine.trim();
+        int mark = statusLine.indexOf(" ") + 1;
+        if (mark == 0) {
+            return;
+        }
+        if (statusLine.charAt(mark - 2) != '1') {
+            this.httpMinorVersion = 0;
+        }
+        int last = mark + 3;
+        if (last > statusLine.length()) {
+            last = statusLine.length();
+        }
+        this.responseCode = Integer.parseInt(statusLine.substring(mark, last));
+        if (last + 1 <= statusLine.length()) {
+            this.responseMessage = statusLine.substring(last + 1);
+        }
     }
 
     public String getStatusLine() {
         return statusLine;
+    }
+
+    /**
+     * Returns the status line's HTTP minor version. This returns 0 for HTTP/1.0
+     * and 1 for HTTP/1.1. This returns 1 if the HTTP version is unknown.
+     */
+    public int getHttpMinorVersion() {
+        return httpMinorVersion != -1 ? httpMinorVersion : 1;
+    }
+
+    /**
+     * Returns the HTTP status code or -1 if it is unknown.
+     */
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    /**
+     * Returns the HTTP status message or null if it is unknown.
+     */
+    public String getResponseMessage() {
+        return responseMessage;
     }
 
     /**
