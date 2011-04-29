@@ -218,6 +218,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (connected) {
             return;
         }
+        prepareRequestHeaders(); // TODO: this work is done 2x
         makeConnection();
     }
 
