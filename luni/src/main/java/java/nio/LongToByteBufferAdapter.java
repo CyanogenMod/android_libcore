@@ -75,7 +75,8 @@ final class LongToByteBufferAdapter extends LongBuffer {
 
     @Override
     public LongBuffer duplicate() {
-        LongToByteBufferAdapter buf = new LongToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        LongToByteBufferAdapter buf = new LongToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -172,7 +173,8 @@ final class LongToByteBufferAdapter extends LongBuffer {
     public LongBuffer slice() {
         byteBuffer.limit(limit * SizeOf.LONG);
         byteBuffer.position(position * SizeOf.LONG);
-        LongBuffer result = new LongToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        LongBuffer result = new LongToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }
