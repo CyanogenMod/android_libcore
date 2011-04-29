@@ -75,7 +75,8 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public IntBuffer duplicate() {
-        IntToByteBufferAdapter buf = new IntToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        IntToByteBufferAdapter buf = new IntToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -172,7 +173,8 @@ final class IntToByteBufferAdapter extends IntBuffer {
     public IntBuffer slice() {
         byteBuffer.limit(limit * SizeOf.INT);
         byteBuffer.position(position * SizeOf.INT);
-        IntBuffer result = new IntToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        IntBuffer result = new IntToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }

@@ -74,7 +74,8 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public FloatBuffer duplicate() {
-        FloatToByteBufferAdapter buf = new FloatToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        FloatToByteBufferAdapter buf = new FloatToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -171,7 +172,8 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
     public FloatBuffer slice() {
         byteBuffer.limit(limit * SizeOf.FLOAT);
         byteBuffer.position(position * SizeOf.FLOAT);
-        FloatBuffer result = new FloatToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        FloatBuffer result = new FloatToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }

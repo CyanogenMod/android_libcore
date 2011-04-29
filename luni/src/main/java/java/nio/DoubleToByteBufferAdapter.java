@@ -75,7 +75,8 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public DoubleBuffer duplicate() {
-        DoubleToByteBufferAdapter buf = new DoubleToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        DoubleToByteBufferAdapter buf = new DoubleToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -172,7 +173,8 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     public DoubleBuffer slice() {
         byteBuffer.limit(limit * SizeOf.DOUBLE);
         byteBuffer.position(position * SizeOf.DOUBLE);
-        DoubleBuffer result = new DoubleToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        DoubleBuffer result = new DoubleToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }
