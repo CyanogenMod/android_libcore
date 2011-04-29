@@ -88,31 +88,34 @@ public class PatternSyntaxException extends IllegalArgumentException {
      */
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder("Syntax error");
-
+        StringBuilder sb = new StringBuilder();
         if (desc != null) {
-            builder.append(' ');
-            builder.append(desc);
+            sb.append(desc);
         }
 
         if (index >= 0) {
-            builder.append(" near index " + index + ":");
+            if (desc != null) {
+                sb.append(' ');
+            }
+            sb.append("near index ");
+            sb.append(index);
+            sb.append(':');
         }
 
         if (pattern != null) {
-            builder.append('\n');
-            builder.append(pattern);
+            sb.append('\n');
+            sb.append(pattern);
 
             if (index >= 0) {
                 char[] spaces = new char[index];
                 Arrays.fill(spaces, ' ');
-                builder.append('\n');
-                builder.append(spaces);
-                builder.append('^');
+                sb.append('\n');
+                sb.append(spaces);
+                sb.append('^');
             }
         }
 
-        return builder.toString();
+        return sb.toString();
     }
 
     /**
