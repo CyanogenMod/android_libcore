@@ -17,16 +17,15 @@
 
 package tests.support.resource;
 
-import libcore.io.Streams;
-import tests.support.Support_Configuration;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import tests.support.Support_Configuration;
 
 public class Support_Resources {
 
@@ -118,11 +117,22 @@ public class Support_Resources {
     public static void copyLocalFileto(File dest, InputStream in) throws IOException {
         if (!dest.exists()) {
             FileOutputStream out = new FileOutputStream(dest);
-            Streams.copy(in, out);
+            copy(in, out);
             out.close();
             dest.deleteOnExit();
         }
         in.close();
+    }
+
+    private static int copy(InputStream in, OutputStream out) throws IOException {
+        int total = 0;
+        byte[] buffer = new byte[8192];
+        int c;
+        while ((c = in.read(buffer)) != -1) {
+            total += c;
+            out.write(buffer, 0, c);
+        }
+        return total;
     }
 
     public static File getExternalLocalFile(String url) throws IOException {

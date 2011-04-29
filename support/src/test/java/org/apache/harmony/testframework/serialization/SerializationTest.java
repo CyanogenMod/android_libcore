@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import libcore.util.Objects;
 
 /**
  * Framework for serialization testing. Subclasses only need to override
@@ -64,55 +63,12 @@ import libcore.util.Objects;
 public abstract class SerializationTest extends TestCase {
 
     /**
-     * Property name for the testing mode.
-     */
-    public static final String MODE_KEY = "test.mode";
-
-
-    /**
-     * Testing mode.
-     */
-    public static String mode = System.getProperty(MODE_KEY);
-
-    /**
-     * Reference files generation mode switch.
-     */
-    public static final String SERIAL_REFERENCE_MODE = "serial.reference";
-
-    /**
      * Key to a system property defining root location of golden files.
      */
     public static final String GOLDEN_PATH = "RESOURCE_DIR";
 
     private static final String outputPath = System.getProperty(GOLDEN_PATH,
             "src/test/resources/serialization");
-
-    /**
-     * Parameterized c-tor inherited from superclass.
-     */
-    public SerializationTest(String name) {
-        super(name);
-    }
-
-    /**
-     * Default c-tor inherited from superclass.
-     */
-    public SerializationTest() {
-        super();
-    }
-
-    /**
-     * Depending on testing mode, produces golden files or performs testing.
-     */
-    @Override
-    public void runBare() throws Throwable {
-
-        if (Objects.equal(mode, SERIAL_REFERENCE_MODE)) {
-            produceGoldenFiles();
-        } else {
-            super.runBare();
-        }
-    }
 
     /**
      * This is the main working method of this framework. Subclasses must
@@ -193,7 +149,7 @@ public abstract class SerializationTest extends TestCase {
      * Serializes specified object to an output stream.
      */
     public static void putObjectToStream(Object obj, OutputStream os)
-        throws IOException {
+            throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(os);
         oos.writeObject(obj);
         oos.flush();
@@ -203,8 +159,8 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Deserializes single object from an input stream.
      */
-    public static Serializable getObjectFromStream(InputStream is) throws IOException,
-        ClassNotFoundException {
+    public static Serializable getObjectFromStream(InputStream is)
+            throws IOException, ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(is);
         Object result = ois.readObject();
         ois.close();
@@ -322,8 +278,8 @@ public abstract class SerializationTest extends TestCase {
      *            object to be compared
      * @return object's comparator
      */
-    public static SerializableAssert defineComparator(TestCase test,
-            Object object) throws Exception {
+    public static SerializableAssert defineComparator(TestCase test, Object object)
+            throws Exception {
 
         if (test instanceof SerializableAssert) {
             return (SerializableAssert) test;
@@ -360,9 +316,7 @@ public abstract class SerializationTest extends TestCase {
      * @param object -
      *            to be compared
      */
-    public static void verifyGolden(TestCase test, Object object)
-            throws Exception {
-
+    public static void verifyGolden(TestCase test, Object object) throws Exception {
         verifyGolden(test, object, defineComparator(test, object));
     }
 
@@ -381,8 +335,8 @@ public abstract class SerializationTest extends TestCase {
      * @param comparator -
      *            for comparing (de)serialized objects
      */
-    public static void verifyGolden(TestCase test, Object object,
-            SerializableAssert comparator) throws Exception {
+    public static void verifyGolden(TestCase test, Object object, SerializableAssert comparator)
+            throws Exception {
 
         Assert.assertNotNull("Null comparator", comparator);
 
@@ -403,8 +357,7 @@ public abstract class SerializationTest extends TestCase {
      * @param objects -
      *            array of objects to be compared
      */
-    public static void verifyGolden(TestCase test, Object[] objects)
-            throws Exception {
+    public static void verifyGolden(TestCase test, Object[] objects) throws Exception {
 
         Assert.assertFalse("Empty array", objects.length == 0);
         verifyGolden(test, objects, defineComparator(test, objects[0]));
@@ -428,8 +381,8 @@ public abstract class SerializationTest extends TestCase {
      * @param comparator -
      *            for comparing (de)serialized objects
      */
-    public static void verifyGolden(TestCase test, Object[] objects,
-            SerializableAssert comparator) throws Exception {
+    public static void verifyGolden(TestCase test, Object[] objects, SerializableAssert comparator)
+            throws Exception {
 
         Assert.assertFalse("Empty array", objects.length == 0);
         for (int i = 0; i < objects.length; i++) {
@@ -448,8 +401,7 @@ public abstract class SerializationTest extends TestCase {
      * @param object -
      *            to be serialized/deserialized
      */
-    public static void verifySelf(Object object)
-            throws Exception {
+    public static void verifySelf(Object object) throws Exception {
 
         verifySelf(object, defineComparator(null, object));
     }
@@ -466,8 +418,7 @@ public abstract class SerializationTest extends TestCase {
      *            for comparing serialized/deserialized object with initial
      *            object
      */
-    public static void verifySelf(Object object, SerializableAssert comparator)
-            throws Exception {
+    public static void verifySelf(Object object, SerializableAssert comparator) throws Exception {
 
         Serializable initial = (Serializable) object;
 
@@ -484,8 +435,7 @@ public abstract class SerializationTest extends TestCase {
      * @param objects -
      *            array of objects to be serialized/deserialized
      */
-    public static void verifySelf(Object[] objects)
-            throws Exception {
+    public static void verifySelf(Object[] objects) throws Exception {
 
         Assert.assertFalse("Empty array", objects.length == 0);
         verifySelf(objects, defineComparator(null, objects[0]));
@@ -513,8 +463,7 @@ public abstract class SerializationTest extends TestCase {
         }
     }
 
-    private static Serializable getObject(TestCase test, String toAppend)
-            throws Exception {
+    private static Serializable getObject(TestCase test, String toAppend) throws Exception {
 
         StringBuilder path = new StringBuilder("/serialization");
 
@@ -546,8 +495,8 @@ public abstract class SerializationTest extends TestCase {
      * @throws IOException -
      *             if I/O error
      */
-    public static void createGoldenFile(String root, TestCase test,
-            Object object) throws IOException {
+    public static void createGoldenFile(String root, TestCase test, Object object)
+            throws IOException {
 
         String goldenPath = test.getClass().getName().replace('.',
                 File.separatorChar)
