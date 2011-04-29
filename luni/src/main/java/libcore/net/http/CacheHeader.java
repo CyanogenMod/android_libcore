@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
  * Caching aspects of an HTTP request or response.
  */
 final class CacheHeader {
-    private int responseCode;
-    private Date servedDate;
-    private Date lastModified;
-    private Date expires;
+    int responseCode;
+    Date servedDate;
+    Date lastModified;
+    Date expires;
 
     /**
      * This header's name "no-cache" is misleading. It doesn't prevent us from
@@ -35,21 +35,21 @@ final class CacheHeader {
      * the origin server before returning it. We can do this with a conditional
      * get.
      */
-    private boolean noCache;
-    private boolean noStore;
-    private int maxAgeSeconds = -1;
-    private int maxStaleSeconds = -1;
-    private int minFreshSeconds = -1;
-    private boolean noTransform;
-    private boolean onlyIfCached;
-    private boolean isPublic;
-    private boolean isPrivate;
-    private String privateField;
-    private String noCacheField;
-    private boolean mustRevalidate;
-    private boolean proxyRevalidate;
-    private int sMaxAgeSeconds;
-    private String etag;
+    boolean noCache;
+    boolean noStore;
+    int maxAgeSeconds = -1;
+    int maxStaleSeconds = -1;
+    int minFreshSeconds = -1;
+    boolean noTransform;
+    boolean onlyIfCached;
+    boolean isPublic;
+    boolean isPrivate;
+    String privateField;
+    String noCacheField;
+    boolean mustRevalidate;
+    boolean proxyRevalidate;
+    int sMaxAgeSeconds;
+    String etag;
 
     public CacheHeader(HttpHeaders headers) {
         this.responseCode = headers.getResponseCode();
@@ -65,56 +65,123 @@ final class CacheHeader {
             } else if ("ETag".equalsIgnoreCase(headers.getKey(i))) {
                 etag = headers.getValue(i);
             } else if ("Pragma".equalsIgnoreCase(headers.getKey(i))) {
-                if (headers.getValue(i).equals("no-cache")) {
+                if (headers.getValue(i).equalsIgnoreCase("no-cache")) {
                     noCache = true;
-                } else {
-                    System.out.println(headers.getKey(i) + " " + headers.getValue(i)); // TODO
                 }
             }
         }
     }
 
+    /**
+     * Parse a comma-separated list of cache control header values.
+     */
     private void parseCacheControl(String value) {
-        String directive = value;
-        String parameter = null;
-        int equals = value.indexOf('=');
-        if (equals != -1) {
-            directive = value.substring(0, equals);
-            parameter = value.substring(equals + 1); // TODO: strip "quotes"
-        }
+        int pos = 0;
+        while (pos < value.length()) {
+            int tokenStart = pos;
+            pos = skipUntil(value, pos, "=,");
+            String directive = value.substring(tokenStart, pos).trim();
 
-        try {
-            if (directive.equals("no-cache")) {
-                noCache = true;
-                noCacheField = parameter;
-            } else if (directive.equals("no-store")) {
-                noStore = true;
-            } else if (directive.equals("max-age")) {
-                maxAgeSeconds = Integer.parseInt(parameter);
-            } else if (directive.equals("s-max-age")) {
-                sMaxAgeSeconds = Integer.parseInt(parameter);
-            } else if (directive.equals("max-stale")) {
-                maxStaleSeconds = Integer.parseInt(parameter);
-            } else if (directive.equals("max-fresh")) {
-                minFreshSeconds = Integer.parseInt(parameter);
-            } else if (directive.equals("no-transform")) {
-                noTransform = true;
-            } else if (directive.equals("only-if-cached")) {
-                onlyIfCached = true;
-            } else if (directive.equals("public")) {
-                isPublic = true;
-            } else if (directive.equals("private")) {
-                isPrivate = true;
-                privateField = parameter;
-            } else if (directive.equals("must-revalidate")) {
-                mustRevalidate = true;
-            } else if (directive.equals("proxy-revalidate")) {
-                proxyRevalidate = true;
+            if (pos == value.length() || value.charAt(pos) == ',') {
+                pos++; // consume ',' (if necessary)
+                handleCacheControlDirective(directive, null);
+                continue;
+            }
+
+            pos++; // consume '='
+            pos = skipWhitespace(value, pos);
+
+            String parameter;
+
+            // quoted string
+            if (pos < value.length() && value.charAt(pos) == '\"') {
+                pos++; // consume '"' open quote
+                int parameterStart = pos;
+                pos = skipUntil(value, pos, "\"");
+                parameter = value.substring(parameterStart, pos);
+                pos++; // consume '"' close quote (if necessary)
+
+            // unquoted string
             } else {
-                System.out.println(value); // TODO
+                int parameterStart = pos;
+                pos = skipUntil(value, pos, ",");
+                parameter = value.substring(parameterStart, pos).trim();
+            }
+
+            handleCacheControlDirective(directive, parameter);
+        }
+    }
+
+    /**
+     * Returns the next index in {@code input} at or after {@code pos} that
+     * contains a character from {@code characters}. Returns the input length if
+     * none of the requested characters can be found.
+     */
+    private int skipUntil(String input, int pos, String characters) {
+        for (; pos < input.length(); pos++) {
+            if (characters.indexOf(input.charAt(pos)) != -1) {
+                break;
+            }
+        }
+        return pos;
+    }
+
+    /**
+     * Returns the next non-whitespace character in {@code input} that is white
+     * space. Result is undefined if input contains newline characters.
+     */
+    private int skipWhitespace(String input, int pos) {
+        for (; pos < input.length(); pos++) {
+            char c = input.charAt(pos);
+            if (c != ' ' && c != '\t') {
+                break;
+            }
+        }
+        return pos;
+    }
+
+    private void handleCacheControlDirective(String directive, String parameter) {
+        if (directive.equalsIgnoreCase("no-cache")) {
+            noCache = true;
+            noCacheField = parameter;
+        } else if (directive.equalsIgnoreCase("no-store")) {
+            noStore = true;
+        } else if (directive.equalsIgnoreCase("max-age")) {
+            maxAgeSeconds = parseSeconds(parameter);
+        } else if (directive.equalsIgnoreCase("s-max-age")) {
+            sMaxAgeSeconds = parseSeconds(parameter);
+        } else if (directive.equalsIgnoreCase("max-stale")) {
+            maxStaleSeconds = parseSeconds(parameter);
+        } else if (directive.equalsIgnoreCase("min-fresh")) {
+            minFreshSeconds = parseSeconds(parameter);
+        } else if (directive.equalsIgnoreCase("no-transform")) {
+            noTransform = true;
+        } else if (directive.equalsIgnoreCase("only-if-cached")) {
+            onlyIfCached = true;
+        } else if (directive.equalsIgnoreCase("public")) {
+            isPublic = true;
+        } else if (directive.equalsIgnoreCase("private")) {
+            isPrivate = true;
+            privateField = parameter;
+        } else if (directive.equalsIgnoreCase("must-revalidate")) {
+            mustRevalidate = true;
+        } else if (directive.equalsIgnoreCase("proxy-revalidate")) {
+            proxyRevalidate = true;
+        }
+    }
+
+    private int parseSeconds(String parameter) {
+        try {
+            long seconds = Long.parseLong(parameter);
+            if (seconds > Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            } else if (seconds < 0) {
+                return 0;
+            } else {
+                return (int) seconds;
             }
         } catch (NumberFormatException e) {
-            System.out.println(value + " " + e); // TODO
+            return -1;
         }
     }
 

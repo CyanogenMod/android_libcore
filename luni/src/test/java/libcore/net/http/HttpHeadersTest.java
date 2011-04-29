@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.java.net;
+package libcore.net.http;
 
 import java.util.Arrays;
 import junit.framework.TestCase;

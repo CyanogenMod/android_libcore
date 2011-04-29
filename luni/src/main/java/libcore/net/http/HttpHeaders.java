@@ -28,8 +28,18 @@ import java.util.TreeMap;
 /**
  * The HTTP status and header lines of a single HTTP message. This class
  * maintains the order of the header lines within the HTTP message.
+ *
+ * <p>This class tracks fields line-by-line. A field with multiple comma-
+ * separated values on the same line will be treated as a field with a single
+ * value by this class. It is the caller's responsibility to detect and split
+ * on commas if their field permits multiple values. This simplifies use of
+ * single-valued fields whose values routinely contain commas, such as cookies
+ * or dates.
+ *
+ * <p>This class trims whitespace from values. It never returns values with
+ * leading or trailing whitespace.
  */
-public final class HttpHeaders implements Cloneable {
+final class HttpHeaders implements Cloneable {
 
     private static final Comparator<String> HEADER_COMPARATOR = new Comparator<String>() {
         @Override public int compare(String a, String b) {
@@ -129,7 +139,7 @@ public final class HttpHeaders implements Cloneable {
             return;
         }
         alternatingKeysAndValues.add(key);
-        alternatingKeysAndValues.add(value);
+        alternatingKeysAndValues.add(value.trim());
     }
 
     public void removeAll(String key) {

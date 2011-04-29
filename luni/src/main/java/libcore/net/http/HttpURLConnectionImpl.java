@@ -794,9 +794,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             // Header parsing
             int index = line.indexOf(":");
             if (index == -1) {
-                headers.add("", line.trim());
+                headers.add("", line);
             } else {
-                headers.add(line.substring(0, index), line.substring(index + 1).trim());
+                headers.add(line.substring(0, index), line.substring(index + 1));
             }
         }
 
