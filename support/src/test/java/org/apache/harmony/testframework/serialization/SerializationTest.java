@@ -38,9 +38,7 @@ import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import junit.framework.Assert;
 import junit.framework.TestCase;
-import libcore.util.Objects;
 
 /**
  * Framework for serialization testing. Subclasses only need to override
@@ -64,55 +62,12 @@ import libcore.util.Objects;
 public abstract class SerializationTest extends TestCase {
 
     /**
-     * Property name for the testing mode.
-     */
-    public static final String MODE_KEY = "test.mode";
-
-
-    /**
-     * Testing mode.
-     */
-    public static String mode = System.getProperty(MODE_KEY);
-
-    /**
-     * Reference files generation mode switch.
-     */
-    public static final String SERIAL_REFERENCE_MODE = "serial.reference";
-
-    /**
      * Key to a system property defining root location of golden files.
      */
     public static final String GOLDEN_PATH = "RESOURCE_DIR";
 
     private static final String outputPath = System.getProperty(GOLDEN_PATH,
             "src/test/resources/serialization");
-
-    /**
-     * Parameterized c-tor inherited from superclass.
-     */
-    public SerializationTest(String name) {
-        super(name);
-    }
-
-    /**
-     * Default c-tor inherited from superclass.
-     */
-    public SerializationTest() {
-        super();
-    }
-
-    /**
-     * Depending on testing mode, produces golden files or performs testing.
-     */
-    @Override
-    public void runBare() throws Throwable {
-
-        if (Objects.equal(mode, SERIAL_REFERENCE_MODE)) {
-            produceGoldenFiles();
-        } else {
-            super.runBare();
-        }
-    }
 
     /**
      * This is the main working method of this framework. Subclasses must
@@ -314,6 +269,7 @@ public abstract class SerializationTest extends TestCase {
      */
     public static SerializableAssert defineComparator(TestCase test, Object object)
             throws Exception {
+
         if (test instanceof SerializableAssert) {
             return (SerializableAssert) test;
         }
@@ -329,7 +285,7 @@ public abstract class SerializationTest extends TestCase {
         // instead of 'instanceof' for the first element
         if (object instanceof Throwable) {
             return THROWABLE_COMPARATOR;
-        } 
+        }
         if (object instanceof PermissionCollection) {
             return PERMISSION_COLLECTION_COMPARATOR;
         }
@@ -345,8 +301,7 @@ public abstract class SerializationTest extends TestCase {
      * @param test - test case
      * @param object - to be compared
      */
-    public static void verifyGolden(TestCase test, Object object)
-            throws Exception {
+    public static void verifyGolden(TestCase test, Object object) throws Exception {
         verifyGolden(test, object, defineComparator(test, object));
     }
 
@@ -379,8 +334,7 @@ public abstract class SerializationTest extends TestCase {
      * @param test - test case
      * @param objects - array of objects to be compared
      */
-    public static void verifyGolden(TestCase test, Object[] objects)
-            throws Exception {
+    public static void verifyGolden(TestCase test, Object[] objects) throws Exception {
         assertFalse("Empty array", objects.length == 0);
         verifyGolden(test, objects, defineComparator(test, objects[0]));
     }
@@ -417,8 +371,7 @@ public abstract class SerializationTest extends TestCase {
      *
      * @param object - to be serialized/deserialized
      */
-    public static void verifySelf(Object object)
-            throws Exception {
+    public static void verifySelf(Object object) throws Exception {
         verifySelf(object, defineComparator(null, object));
     }
 
@@ -431,8 +384,7 @@ public abstract class SerializationTest extends TestCase {
      * @param object - object to be serialized/deserialized
      * @param comparator - for comparing serialized/deserialized object with initial object
      */
-    public static void verifySelf(Object object, SerializableAssert comparator)
-            throws Exception {
+    public static void verifySelf(Object object, SerializableAssert comparator) throws Exception {
         Serializable initial = (Serializable) object;
         comparator.assertDeserialized(initial, copySerializable(initial));
     }
@@ -469,8 +421,7 @@ public abstract class SerializationTest extends TestCase {
         }
     }
 
-    private static Serializable getObject(TestCase test, String toAppend)
-            throws Exception {
+    private static Serializable getObject(TestCase test, String toAppend) throws Exception {
         StringBuilder path = new StringBuilder("/serialization");
         path.append(File.separatorChar);
         path.append(test.getClass().getName().replace('.', File.separatorChar));

@@ -402,7 +402,7 @@ public final class X509CertImpl extends X509Certificate {
                          throws CertificateException, NoSuchAlgorithmException,
                                 InvalidKeyException, NoSuchProviderException,
                                 SignatureException {
-        if (getSigAlgName().endsWith("withRSA")) {
+        if (getSigAlgName().endsWith("withRSA") && sigProvider == null) {
             fastVerify(key);
             return;
         }
