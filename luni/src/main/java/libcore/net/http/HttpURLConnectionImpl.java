@@ -143,6 +143,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private ResponseSource responseSource;
 
+    private long sentRequestMillis;
+    private long receivedResponseMillis;
     private boolean sentRequestHeaders;
 
     /**
@@ -452,6 +454,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         try {
             discardResponseBody(responseBodyIn);
             responseBodyIn = null;
+            sentRequestMillis = 0;
+            receivedResponseMillis = 0;
             sentRequestHeaders = false;
             responseHeader = null;
             responseCode = -1;
@@ -833,6 +837,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             requestOut = new BufferedOutputStream(socketOut, headerBytes.length + contentLength);
         }
 
+        sentRequestMillis = System.currentTimeMillis();
         requestOut.write(headerBytes);
         sentRequestHeaders = true;
     }
@@ -1109,6 +1114,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         requestOut = socketOut;
 
         readResponseHeaders();
+        receivedResponseMillis = System.currentTimeMillis();
+        responseHeader.add(CacheHeader.SENT_MILLIS, Long.toString(sentRequestMillis));
+        responseHeader.add(CacheHeader.RECEIVED_MILLIS, Long.toString(receivedResponseMillis));
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             if (cacheResponseHeader.validate(requestHeader, responseHeader)) {
