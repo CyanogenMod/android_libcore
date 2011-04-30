@@ -514,6 +514,8 @@ public final class HttpResponseCacheTest extends TestCase {
     }
 
     public void testMaxAgeInThePastWithDateHeaderButNoLastModifiedHeader() throws Exception {
+        // TODO: this is bogus; we interpret 'max-age' relative to the server's clock;
+        //       But Chrome uses the local clock
         assertNotCached(new MockResponse()
                 .addHeader("Date: " + formatDate(-120, TimeUnit.SECONDS))
                 .addHeader("Cache-Control: max-age=60"));
@@ -528,6 +530,19 @@ public final class HttpResponseCacheTest extends TestCase {
     public void testMaxAgeInTheFutureWithNoDateHeader() throws Exception {
         // TODO: this is failing until we default 'Date:' to the request date
         assertFullyCached(new MockResponse()
+                .addHeader("Cache-Control: max-age=60"));
+    }
+
+    public void testMaxAgeWithLastModifiedButNoServedDate() throws Exception {
+        assertFullyCached(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-120, TimeUnit.SECONDS))
+                .addHeader("Cache-Control: max-age=60"));
+    }
+
+    public void testMaxAgeInTheFutureWithDateAndLastModifiedHeaders() throws Exception {
+        assertFullyCached(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-120, TimeUnit.SECONDS))
+                .addHeader("Date: " + formatDate(0, TimeUnit.SECONDS))
                 .addHeader("Cache-Control: max-age=60"));
     }
 
@@ -749,6 +764,35 @@ public final class HttpResponseCacheTest extends TestCase {
         assertConditionallyCached(new MockResponse()
                 .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
                 .addHeader("Expires: " + formatDate(-2, TimeUnit.HOURS)));
+    }
+
+    public void testRequestMaxAge() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Last-Modified: " + formatDate(-2, TimeUnit.HOURS))
+                .addHeader("Date: " + formatDate(-1, TimeUnit.MINUTES))
+                .addHeader("Expires: " + formatDate(1, TimeUnit.HOURS)));
+        server.enqueue(new MockResponse().setBody("B"));
+
+        server.play();
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "max-age=30");
+        assertEquals("B", readAscii(connection));
+    }
+
+    public void testRequestMinFresh() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Date: " + formatDate(0, TimeUnit.MINUTES)));
+        server.enqueue(new MockResponse().setBody("B"));
+
+        server.play();
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "min-fresh=120");
+        assertEquals("B", readAscii(connection));
     }
 
     /**

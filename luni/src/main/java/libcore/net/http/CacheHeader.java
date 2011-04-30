@@ -24,6 +24,13 @@ import java.util.concurrent.TimeUnit;
  * Caching aspects of an HTTP request or response.
  */
 final class CacheHeader {
+
+    /** HTTP header name for the local time when the request was sent. */
+    public static final String SENT_MILLIS = "X-Android-Sent-Millis";
+
+    /** HTTP header name for the local time when the response was received. */
+    public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
+
     int responseCode;
     Date servedDate;
     Date lastModified;
@@ -50,6 +57,9 @@ final class CacheHeader {
     boolean proxyRevalidate;
     int sMaxAgeSeconds;
     String etag;
+    int ageSeconds = -1;
+    long sentRequestMillis;
+    long receivedResponseMillis;
 
     public CacheHeader(HttpHeaders headers) {
         this.responseCode = headers.getResponseCode();
@@ -68,6 +78,12 @@ final class CacheHeader {
                 if (headers.getValue(i).equalsIgnoreCase("no-cache")) {
                     noCache = true;
                 }
+            } else if ("Age".equalsIgnoreCase(headers.getKey(i))) {
+                ageSeconds = parseSeconds(headers.getValue(i));
+            } else if (SENT_MILLIS.equalsIgnoreCase(headers.getKey(i))) {
+                sentRequestMillis = Long.parseLong(headers.getValue(i));
+            } else if (RECEIVED_MILLIS.equalsIgnoreCase(headers.getKey(i))) {
+                receivedResponseMillis = Long.parseLong(headers.getValue(i));
             }
         }
     }
@@ -186,20 +202,35 @@ final class CacheHeader {
     }
 
     /**
-     * Returns the time at which this response will require validation.
+     * Returns the current age of the response, in milliseconds. The calculation
+     * is specified by RFC 2616, 13.2.3 Age Calculations.
      */
-    private long getExpiresTimeMillis() {
-        if (servedDate != null && maxAgeSeconds != -1) {
-            return servedDate.getTime() + TimeUnit.SECONDS.toMillis(maxAgeSeconds);
-        } else if (expires != null) {
-            return expires.getTime();
-        } else {
-            /*
-             * This response doesn't specify an expiration time, so for semantic
-             * transparency we just assume it's expired.
-             */
-            return 0;
+    private long computeAge(long nowMillis) {
+        long apparentReceivedAge = servedDate != null
+                ? Math.max(0, receivedResponseMillis - servedDate.getTime())
+                : 0;
+        long receivedAge = ageSeconds != -1
+                ? Math.max(apparentReceivedAge, TimeUnit.SECONDS.toMillis(ageSeconds))
+                : apparentReceivedAge;
+        long responseDuration = receivedResponseMillis - sentRequestMillis;
+        long residentDuration = nowMillis - receivedResponseMillis;
+        return receivedAge + responseDuration + residentDuration;
+    }
+
+    /**
+     * Returns the number of milliseconds that the response was fresh for,
+     * starting from the served date.
+     */
+    private long computeFreshnessLifetime() {
+        if (maxAgeSeconds != -1) {
+            return TimeUnit.SECONDS.toMillis(maxAgeSeconds);
         }
+        if (expires != null) {
+            long servedMillis = servedDate != null ? servedDate.getTime() : receivedResponseMillis;
+            long delta = expires.getTime() - servedMillis;
+            return delta > 0 ? delta : 0;
+        }
+        return 0;
     }
 
     /**
@@ -211,7 +242,7 @@ final class CacheHeader {
         // TODO: if a "If-Modified-Since" or "If-None-Match" header exists, assume the user
         // knows better and just return CONDITIONAL_CACHE
 
-        // TODO: honor request headers, like the client's requested max-age
+        // TODO: honor request headers, like the client's requested max-stale
 
         if (noStore) {
             return ResponseSource.NETWORK;
@@ -222,7 +253,22 @@ final class CacheHeader {
             return ResponseSource.NETWORK;
         }
 
-        if (!noCache && nowMillis < getExpiresTimeMillis()) {
+        long ageMillis = computeAge(nowMillis);
+        long freshMillis = computeFreshnessLifetime();
+
+        CacheHeader requestCacheHeader = new CacheHeader(request);
+
+        long minFreshMillis = 0;
+        if (requestCacheHeader.minFreshSeconds != -1) {
+            minFreshMillis = TimeUnit.SECONDS.toMillis(requestCacheHeader.minFreshSeconds);
+        }
+
+        if (requestCacheHeader.maxAgeSeconds != -1) {
+            freshMillis = Math.min(freshMillis,
+                    TimeUnit.SECONDS.toMillis(requestCacheHeader.maxAgeSeconds));
+        }
+
+        if (!noCache && ageMillis + minFreshMillis < freshMillis) {
             return ResponseSource.CACHE;
         }
 
