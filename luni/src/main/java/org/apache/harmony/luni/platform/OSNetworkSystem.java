@@ -43,11 +43,7 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
 
-    public native void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
-            throws SocketException;
-
-    public native boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
-            throws IOException;
+    public native boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
     public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;

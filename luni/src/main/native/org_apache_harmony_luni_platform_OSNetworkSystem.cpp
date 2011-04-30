@@ -111,25 +111,6 @@ static timeval toTimeval(long ms) {
 }
 
 /**
- * Query OS for timestamp.
- * Retrieve the current value of system clock and convert to milliseconds.
- *
- * @param[in] portLibrary The port library.
- *
- * @return 0 on failure, time value in milliseconds on success.
- * @deprecated Use @ref time_hires_clock and @ref time_hires_delta
- *
- * technically, this should return uint64_t since both timeval.tv_sec and
- * timeval.tv_usec are long
- */
-static int time_msec_clock() {
-    timeval tv;
-    struct timezone tzp;
-    gettimeofday(&tv, &tzp);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
-
-/**
  * Establish a connection to a peer with a timeout.  The member functions are called
  * repeatedly in order to carry out the connect and to allow other tasks to
  * proceed on certain platforms. The caller must first call ConnectHelper::start.
@@ -152,20 +133,24 @@ public:
             return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
         }
 
-        // Set the socket to non-blocking and initiate a connection attempt...
+        // Initiate a connection attempt...
         const CompatibleSocketAddress compatibleAddress(ss, true);
-        if (!setBlocking(fd.get(), false) ||
-                connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)) == -1) {
-            if (fd.isClosed()) {
-                return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
-            }
+        int rc = connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage));
+
+        // Did we get interrupted?
+        if (fd.isClosed()) {
+            return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
+        }
+
+        // Did we fail to connect?
+        if (rc == -1) {
             if (errno != EINPROGRESS) {
-                didFail(fd.get(), -errno);
+                didFail(-errno); // Permanent failure, so throw.
             }
             return -errno;
         }
+
         // We connected straight away!
-        didConnect(fd.get());
         return 0;
     }
 
@@ -214,17 +199,7 @@ public:
         return -EINPROGRESS;
     }
 
-    void didConnect(int fd) {
-        if (fd != -1) {
-            setBlocking(fd, true);
-        }
-    }
-
-    void didFail(int fd, int result) {
-        if (fd != -1) {
-            setBlocking(fd, true);
-        }
-
+    void didFail(int result) {
         if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
                 result == -EADDRINUSE || result == -ENETUNREACH) {
             jniThrowExceptionWithErrno(mEnv, "java/net/ConnectException", -result);
@@ -288,7 +263,7 @@ static jint OSNetworkSystem_write(JNIEnv* env, jobject,
     return result;
 }
 
-static jboolean OSNetworkSystem_connectNonBlocking(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
+static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return JNI_FALSE;
@@ -307,63 +282,13 @@ static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDe
     ConnectHelper context(env);
     int result = context.isConnected(fd.get(), timeout);
     if (result == 0) {
-        context.didConnect(fd.get());
         return JNI_TRUE;
     } else if (result == -EINPROGRESS) {
         // Not yet connected, but not yet denied either... Try again later.
         return JNI_FALSE;
     } else {
-        context.didFail(fd.get(), result);
+        context.didFail(result);
         return JNI_FALSE;
-    }
-}
-
-// TODO: move this into Java, using connectNonBlocking and isConnected!
-static void OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor,
-        jobject inetAddr, jint port, jint timeout) {
-
-    /* if a timeout was specified calculate the finish time value */
-    bool hasTimeout = timeout > 0;
-    int finishTime = 0;
-    if (hasTimeout)  {
-        finishTime = time_msec_clock() + (int) timeout;
-    }
-
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    ConnectHelper context(env);
-    int result = context.start(fd, inetAddr, port);
-    int remainingTimeout = timeout;
-    while (result == -EINPROGRESS) {
-        /*
-         * ok now try and connect. Depending on the platform this may sleep
-         * for up to passedTimeout milliseconds
-         */
-        result = context.isConnected(fd.get(), remainingTimeout);
-        if (fd.isClosed()) {
-            return;
-        }
-        if (result == 0) {
-            context.didConnect(fd.get());
-            return;
-        } else if (result != -EINPROGRESS) {
-            context.didFail(fd.get(), result);
-            return;
-        }
-
-        /* check if the timeout has expired */
-        if (hasTimeout) {
-            remainingTimeout = finishTime - time_msec_clock();
-            if (remainingTimeout <= 0) {
-                context.didFail(fd.get(), -ETIMEDOUT);
-                return;
-            }
-        } else {
-            remainingTimeout = 100;
-        }
     }
 }
 
@@ -779,8 +704,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, connectNonBlocking, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
-    NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V"),
+    NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),

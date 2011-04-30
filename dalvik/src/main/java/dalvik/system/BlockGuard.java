@@ -201,10 +201,9 @@ public final class BlockGuard {
             return mNetwork.writeDirect(fd, address, offset, count);
         }
 
-        public boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
-                throws IOException {
+        public boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connectNonBlocking(fd, inetAddress, port);
+            return mNetwork.connect(fd, inetAddress, port);
         }
 
         public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
@@ -249,12 +248,6 @@ public final class BlockGuard {
 
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
-        }
-
-        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port,
-                int timeout) throws SocketException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connect(aFD, inetAddress, port, timeout);
         }
 
         public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,

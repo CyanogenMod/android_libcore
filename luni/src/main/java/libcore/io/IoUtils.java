@@ -28,12 +28,16 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
+
+// TODO: kill this!
+import org.apache.harmony.luni.platform.Platform;
 
 public final class IoUtils {
     private IoUtils() {
@@ -188,6 +192,67 @@ public final class IoUtils {
                 socket.close();
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    /**
+     * Connects socket 'fd' to 'inetAddress' on 'port', with no timeout. The lack of a timeout
+     * means this method won't throw SocketTimeoutException.
+     */
+    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
+        try {
+            IoUtils.connect(fd, inetAddress, port, 0);
+        } catch (SocketTimeoutException ex) {
+            throw new AssertionError(ex); // Can't happen for a connect without a timeout.
+        }
+    }
+
+    /**
+     * Connects socket 'fd' to 'inetAddress' on 'port', with a the given 'timeoutMs'.
+     * Use timeoutMs == 0 for a blocking connect with no timeout.
+     */
+    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
+        try {
+            connectErrno(fd, inetAddress, port, timeoutMs);
+        } catch (SocketException ex) {
+            throw ex; // We don't want to doubly wrap these.
+        } catch (SocketTimeoutException ex) {
+            throw ex; // We don't want to doubly wrap these.
+        } catch (IOException ex) {
+            throw new SocketException(ex);
+        }
+    }
+
+    // TODO: this is the wrong name now, but when this gets rewritten without Platform.NETWORK...
+    private static void connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
+        // With no timeout, just call connect(2) directly.
+        if (timeoutMs == 0) {
+            Platform.NETWORK.connect(fd, inetAddress, port);
+            return;
+        }
+
+        // With a timeout, we set the socket to non-blocking, connect(2), and then loop
+        // using select(2) to decide whether we're connected, whether we should keep waiting,
+        // or whether we've seen a permanent failure and should give up.
+        long finishTimeMs = System.currentTimeMillis() + timeoutMs;
+        IoUtils.setBlocking(fd, false);
+        try {
+            if (Platform.NETWORK.connect(fd, inetAddress, port)) {
+                return;
+            }
+            int remainingTimeoutMs;
+            do {
+                remainingTimeoutMs = (int) (finishTimeMs - System.currentTimeMillis());
+                if (remainingTimeoutMs <= 0) {
+                    String detail = "failed to connect to " + inetAddress + " (port " + port + ")";
+                    if (timeoutMs > 0) {
+                        detail += " after " + timeoutMs + "ms";
+                    }
+                    throw new SocketTimeoutException(detail);
+                }
+            } while (!Platform.NETWORK.isConnected(fd, remainingTimeoutMs));
+        } finally {
+            IoUtils.setBlocking(fd, true);
         }
     }
 

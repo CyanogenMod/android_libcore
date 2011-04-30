@@ -164,7 +164,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         InetAddress normalAddr = inetSocketAddress.getAddress();
         int port = inetSocketAddress.getPort();
 
-        // When connecting, map ANY address to Localhost
+        // When connecting, map ANY address to localhost
         if (normalAddr.isAnyLocalAddress()) {
             normalAddr = InetAddress.getLocalHost();
         }
@@ -176,16 +176,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         try {
             if (isBlocking()) {
                 begin();
-                Platform.NETWORK.connect(fd, normalAddr, port, 0);
-                finished = true; // Or we'd have thrown an exception.
+                IoUtils.connect(fd, normalAddr, port);
             } else {
-                finished = Platform.NETWORK.connectNonBlocking(fd, normalAddr, port);
-                // set back to nonblocking to work around with a bug in portlib
-                if (!isBlocking()) {
-                    IoUtils.setBlocking(fd, false);
-                }
+                IoUtils.connect(fd, normalAddr, port, 0);
             }
-            isBound = finished;
+            finished = true; // Or we'd have thrown an exception.
+            isBound = true;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
                 status = SOCKET_STATUS_PENDING;
@@ -265,8 +261,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         synchronized (this) {
             status = (finished ? SOCKET_STATUS_CONNECTED : status);
             isBound = finished;
-            // TPE: Workaround for bug that turns socket back to blocking
-            if (!isBlocking()) implConfigureBlocking(false);
         }
         return finished;
     }

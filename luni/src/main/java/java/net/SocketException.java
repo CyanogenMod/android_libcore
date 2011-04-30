@@ -39,4 +39,19 @@ public class SocketException extends IOException {
     public SocketException(String detailMessage) {
         super(detailMessage);
     }
+    /**
+     * Constructs a new instance with the current stack trace and given cause.
+     * @hide internal use only
+     */
+    public SocketException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * Constructs a new instance with the current stack trace, given detail message and given cause.
+     * @hide internal use only
+     */
+    public SocketException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
+    }
 }

@@ -124,11 +124,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
 
         // check the address
         InetSocketAddress inetSocketAddress = SocketChannelImpl.validateAddress(address);
-
         try {
             begin();
-            Platform.NETWORK.connect(fd,
-                    inetSocketAddress.getAddress(), inetSocketAddress.getPort(), 0);
+            IoUtils.connect(fd, inetSocketAddress.getAddress(), inetSocketAddress.getPort());
         } catch (ConnectException e) {
             // ConnectException means connect fail, not exception
         } finally {
