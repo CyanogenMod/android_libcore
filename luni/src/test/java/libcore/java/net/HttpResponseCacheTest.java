@@ -18,6 +18,7 @@ package libcore.java.net;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -795,6 +796,65 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("B", readAscii(connection));
     }
 
+    public void testRequestMaxStale() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Cache-Control: max-age=120")
+                .addHeader("Date: " + formatDate(-4, TimeUnit.MINUTES)));
+        server.enqueue(new MockResponse().setBody("B"));
+
+        server.play();
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "max-stale=180");
+        assertEquals("A", readAscii(connection));
+    }
+
+    public void testRequestOnlyIfCachedWithNoResponseCached() throws IOException {
+        // (no responses enqueued)
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "only-if-cached");
+        assertBadGateway(connection);
+    }
+
+    public void testRequestOnlyIfCachedWithFullResponseCached() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Cache-Control: max-age=30")
+                .addHeader("Date: " + formatDate(0, TimeUnit.MINUTES)));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "only-if-cached");
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+    }
+
+    public void testRequestOnlyIfCachedWithConditionalResponseCached() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Cache-Control: max-age=30")
+                .addHeader("Date: " + formatDate(-1, TimeUnit.MINUTES)));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "only-if-cached");
+        assertBadGateway(connection);
+    }
+
+    public void testRequestOnlyIfCachedWithUnhelpfulResponseCached() throws IOException {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "only-if-cached");
+        assertBadGateway(connection);
+    }
+
+    // TODO: honor the no-cache request header
+
     /**
      * @param delta the offset from the current date to use. Negative
      *     values yield dates in the past; positive values yield dates in the
@@ -901,6 +961,16 @@ public final class HttpResponseCacheTest extends TestCase {
         while (length > 0) {
             length -= in.skip(length);
         }
+    }
+
+    private void assertBadGateway(URLConnection connection) throws IOException {
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (FileNotFoundException expected) {
+        }
+        assertEquals(HttpURLConnection.HTTP_BAD_GATEWAY,
+                ((HttpURLConnection) connection).getResponseCode());
     }
 
     enum TransferKind {

@@ -18,6 +18,7 @@
 package libcore.net.http;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +43,9 @@ import java.net.URL;
 import java.nio.charset.Charsets;
 import java.security.Permission;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +53,7 @@ import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 import libcore.io.IoUtils;
 import libcore.io.Streams;
+import libcore.util.EmptyArray;
 import org.apache.harmony.luni.util.Base64;
 
 /**
@@ -109,6 +113,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * up some uploads by half.
      */
     private static final int MAX_REQUEST_BUFFER_LENGTH = 32768;
+
+    private static final CacheResponse BAD_GATEWAY_RESPONSE = new CacheResponse() {
+        @Override public Map<String, List<String>> getHeaders() throws IOException {
+            Map<String, List<String>> result = new HashMap<String, List<String>>();
+            result.put(null, Collections.singletonList("HTTP/1.1 502 Bad Gateway"));
+            // TODO: other required fields?
+            return result;
+        }
+        @Override public InputStream getBody() throws IOException {
+            return new ByteArrayInputStream(EmptyArray.BYTE);
+        }
+    };
 
     private final int defaultPort;
 
@@ -182,8 +198,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * conditional get succeeds, these will be used for the response header and
      * body. If it fails, these be closed and set to null.
      */
-    private CacheHeader cacheResponseHeader;
-    private HttpHeaders responseHeaderToValidate;
+    private CacheHeader responseHeaderToValidate;
     private InputStream responseBodyToValidate;
 
     /**
@@ -318,6 +333,32 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
 
+        CacheHeader cacheRequestHeader = new CacheHeader(requestHeader);
+        initResponseSourceRaw(cacheRequestHeader);
+
+        /*
+         * The raw response source may require the network, but the request
+         * headers may forbid network use. In that case, dispose of the network
+         * response and use a BAD_GATEWAY response instead.
+         */
+        if (cacheRequestHeader.onlyIfCached && responseSource.requiresConnection()) {
+            if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
+                this.responseHeaderToValidate = null;
+                IoUtils.closeQuietly(responseBodyToValidate);
+                this.responseBodyToValidate = null;
+            }
+            this.responseSource = ResponseSource.CACHE;
+            this.cacheResponse = BAD_GATEWAY_RESPONSE;
+            setResponse(HttpHeaders.fromMultimap(cacheResponse.getHeaders()),
+                    cacheResponse.getBody());
+        }
+    }
+
+    /**
+     * Initialize the source for this response. It may be corrected later if the
+     * request header forbids network use.
+     */
+    private void initResponseSourceRaw(CacheHeader cacheRequestHeader) throws IOException {
         responseSource = ResponseSource.NETWORK;
         if (!useCaches || responseCache == null) {
             return;
@@ -327,8 +368,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (candidate == null || !acceptCacheResponseType(candidate)) {
             return;
         }
-        Map<String, List<String>> headersMap = candidate.getHeaders();
-        if (headersMap == null) {
+        Map<String, List<String>> responseHeaders = candidate.getHeaders();
+        if (responseHeaders == null) {
             return;
         }
         InputStream cacheBodyIn = candidate.getBody(); // must be closed
@@ -336,18 +377,17 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
 
-        HttpHeaders headers = HttpHeaders.fromMultimap(headersMap);
-        CacheHeader cacheHeader = new CacheHeader(headers);
+        HttpHeaders headers = HttpHeaders.fromMultimap(responseHeaders  );
+        CacheHeader cacheResponseHeader = new CacheHeader(headers);
         long now = System.currentTimeMillis();
-        responseSource = cacheHeader.chooseResponseSource(now, requestHeader);
+        this.responseSource = cacheResponseHeader.chooseResponseSource(now, cacheRequestHeader);
         if (responseSource == ResponseSource.CACHE) {
-            cacheResponse = candidate;
+            this.cacheResponse = candidate;
             setResponse(headers, cacheBodyIn);
         } else if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            cacheResponseHeader = cacheHeader;
-            cacheResponse = candidate;
-            responseHeaderToValidate = headers;
-            responseBodyToValidate = cacheBodyIn;
+            this.cacheResponse = candidate;
+            this.responseHeaderToValidate = cacheResponseHeader;
+            this.responseBodyToValidate = cacheBodyIn;
         } else if (responseSource == ResponseSource.NETWORK) {
             IoUtils.closeQuietly(cacheBodyIn);
         } else {
@@ -1119,14 +1159,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         responseHeader.add(CacheHeader.RECEIVED_MILLIS, Long.toString(receivedResponseMillis));
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            if (cacheResponseHeader.validate(requestHeader, responseHeader)) {
+            if (responseHeaderToValidate.validate(requestHeader, responseHeader)) {
                 // discard the network response
                 discardResponseBody(getTransferStream());
 
                 // use the cache response
-                setResponse(responseHeaderToValidate, responseBodyToValidate);
+                setResponse(responseHeaderToValidate.headers, responseBodyToValidate);
                 responseBodyToValidate = null;
-                responseHeaderToValidate = null;
                 return;
             } else {
                 IoUtils.closeQuietly(responseBodyToValidate);

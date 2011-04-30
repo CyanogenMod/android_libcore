@@ -31,16 +31,17 @@ final class CacheHeader {
     /** HTTP header name for the local time when the response was received. */
     public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
+    final HttpHeaders headers;
     int responseCode;
     Date servedDate;
     Date lastModified;
     Date expires;
 
     /**
-     * This header's name "no-cache" is misleading. It doesn't prevent us from
-     * caching the response; it only means we have to validate the response with
-     * the origin server before returning it. We can do this with a conditional
-     * get.
+     * In the response, this field's name "no-cache" is misleading. It doesn't
+     * prevent us from caching the response; it only means we have to validate
+     * the response with the origin server before returning it. We can do this
+     * with a conditional get.
      */
     boolean noCache;
     boolean noStore;
@@ -48,6 +49,14 @@ final class CacheHeader {
     int maxStaleSeconds = -1;
     int minFreshSeconds = -1;
     boolean noTransform;
+
+    /**
+     * This request header field's name "only-if-cached" is misleading. It
+     * actually means "do not use the network". It is set by a client who only
+     * wants to make a request if it can be fully satisfied by the cache.
+     * Cached responses that would require validation (ie. conditional gets) are
+     * not permitted if this header is set.
+     */
     boolean onlyIfCached;
     boolean isPublic;
     boolean isPrivate;
@@ -62,6 +71,7 @@ final class CacheHeader {
     long receivedResponseMillis;
 
     public CacheHeader(HttpHeaders headers) {
+        this.headers = headers;
         this.responseCode = headers.getResponseCode();
         for (int i = 0; i < headers.length(); i++) {
             if ("Cache-Control".equalsIgnoreCase(headers.getKey(i))) {
@@ -236,13 +246,11 @@ final class CacheHeader {
     /**
      * Returns the source to satisfy {@code request} given this cached response.
      */
-    public ResponseSource chooseResponseSource(long nowMillis, HttpHeaders request) {
+    public ResponseSource chooseResponseSource(long nowMillis, CacheHeader requestCacheHeader) {
         boolean hasConditions = false;
 
-        // TODO: if a "If-Modified-Since" or "If-None-Match" header exists, assume the user
+        // TODO: if a "If-Modified-Since" or "If-None-Match" request header exists, assume the user
         // knows better and just return CONDITIONAL_CACHE
-
-        // TODO: honor request headers, like the client's requested max-stale
 
         if (noStore) {
             return ResponseSource.NETWORK;
@@ -256,32 +264,36 @@ final class CacheHeader {
         long ageMillis = computeAge(nowMillis);
         long freshMillis = computeFreshnessLifetime();
 
-        CacheHeader requestCacheHeader = new CacheHeader(request);
+        if (requestCacheHeader.maxAgeSeconds != -1) {
+            freshMillis = Math.min(freshMillis,
+                    TimeUnit.SECONDS.toMillis(requestCacheHeader.maxAgeSeconds));
+        }
 
         long minFreshMillis = 0;
         if (requestCacheHeader.minFreshSeconds != -1) {
             minFreshMillis = TimeUnit.SECONDS.toMillis(requestCacheHeader.minFreshSeconds);
         }
 
-        if (requestCacheHeader.maxAgeSeconds != -1) {
-            freshMillis = Math.min(freshMillis,
-                    TimeUnit.SECONDS.toMillis(requestCacheHeader.maxAgeSeconds));
+        long maxStaleMillis = 0;
+        if (requestCacheHeader.maxStaleSeconds != -1) {
+            maxStaleMillis = TimeUnit.SECONDS.toMillis(requestCacheHeader.maxStaleSeconds);
         }
 
-        if (!noCache && ageMillis + minFreshMillis < freshMillis) {
+        if (!noCache && ageMillis + minFreshMillis < freshMillis + maxStaleMillis) {
+            // TODO: attach a warning if the response is stale
             return ResponseSource.CACHE;
         }
 
         if (lastModified != null) {
-            request.set("If-Modified-Since", HttpDate.format(lastModified));
+            requestCacheHeader.headers.set("If-Modified-Since", HttpDate.format(lastModified));
             hasConditions = true;
         } else if (servedDate != null) {
-            request.set("If-Modified-Since", HttpDate.format(servedDate));
+            requestCacheHeader.headers.set("If-Modified-Since", HttpDate.format(servedDate));
             hasConditions = true;
         }
 
         if (etag != null) {
-            request.set("If-None-Match", etag);
+            requestCacheHeader.headers.set("If-None-Match", etag);
             hasConditions = true;
         }
 
