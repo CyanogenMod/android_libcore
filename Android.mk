@@ -29,6 +29,11 @@ include $(LOCAL_PATH)/JavaLibrary.mk
 
 include $(LOCAL_PATH)/NativeCode.mk
 
+#
+# Include the definitions for the Certificate Authority (CA) certificates
+#
+
+include $(LOCAL_PATH)/CaCerts.mk
 
 #
 # Disable test modules if LIBCORE_SKIP_TESTS envar is set
@@ -49,5 +54,5 @@ endif
 
 ifeq ($(WITH_HOST_DALVIK),true)
     .PHONY: dalvik-host
-    dalvik-host: dalvik $(HOST_OUT)/bin/dalvikvm $(HOST_OUT)/bin/dexopt $(HOST_OUT)/lib/libsqlite.so $(HOST_OUT)/etc/security/cacerts.bks $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version core-hostdex bouncycastle-hostdex apache-xml-hostdex $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
+    dalvik-host: dalvik $(HOST_OUT)/bin/dalvikvm $(HOST_OUT)/bin/dexopt $(HOST_OUT)/lib/libsqlite.so cacerts-host $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version core-hostdex bouncycastle-hostdex apache-xml-hostdex $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 endif

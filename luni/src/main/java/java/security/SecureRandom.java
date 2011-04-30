@@ -152,8 +152,7 @@ public class SecureRandom extends Random {
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}.
      */
-    public static SecureRandom getInstance(String algorithm)
-                                throws NoSuchAlgorithmException {
+    public static SecureRandom getInstance(String algorithm) throws NoSuchAlgorithmException {
         if (algorithm == null) {
             throw new NullPointerException();
         }
@@ -209,7 +208,7 @@ public class SecureRandom extends Random {
      * @throws IllegalArgumentException if {@code provider == null}
      */
     public static SecureRandom getInstance(String algorithm, Provider provider)
-                                throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         if (provider == null) {
             throw new IllegalArgumentException();
         }

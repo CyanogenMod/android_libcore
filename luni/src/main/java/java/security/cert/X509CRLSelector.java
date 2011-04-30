@@ -293,14 +293,16 @@ public class X509CRLSelector implements CRLSelector {
      * <p>
      * The CRL issuer must match at least one of the distinguished names.
      *
-     * @return a copy of the list of issuer distinguished names to match, or
-     *         {@code null} if any issuer distinguished name will do.
+     * @return a copy of the list of issuer distinguished names to
+     *         match, or {@code null} if any issuer distinguished name
+     *         will do. The elements may be strings or ASN.1 DER
+     *         encoded byte arrays.
      */
     public Collection<Object> getIssuerNames() {
         if (issuerNames == null) {
             return null;
         }
-        return Collections.unmodifiableCollection((ArrayList<?>) issuerNames);
+        return (Collection<Object>) issuerNames.clone();
     }
 
     /**

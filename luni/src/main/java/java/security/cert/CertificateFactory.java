@@ -156,7 +156,7 @@ public class CertificateFactory {
             Object spi = ENGINE.getInstance(type, provider, null);
             return new CertificateFactory((CertificateFactorySpi) spi, provider, type);
         } catch (NoSuchAlgorithmException e) {
-            throw new CertificateException(e.getMessage());
+            throw new CertificateException(e);
         }
     }
 

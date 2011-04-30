@@ -96,7 +96,7 @@ public final class Name {
      * @return equivalent X500Principal object
      */
     public X500Principal getX500Principal(){
-        return new X500Principal(getName0(X500Principal.RFC2253));
+        return new X500Principal(getEncoded());
     }
 
     /**

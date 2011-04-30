@@ -110,21 +110,12 @@ endif
 
 include $(BUILD_STATIC_LIBRARY)
 
-# Deal with keystores required for security. Note: The path to this file
-# is hardcoded in TrustManagerFactoryImpl.java.
-ALL_PREBUILT += $(TARGET_OUT)/etc/security/cacerts.bks
-$(TARGET_OUT)/etc/security/cacerts.bks : $(LOCAL_PATH)/luni/src/main/files/cacerts.bks | $(ACP)
-	$(transform-prebuilt-to-target)
-
-
 #
 # Build for the host.
 #
 
 ifeq ($(WITH_HOST_DALVIK),true)
-
     include $(CLEAR_VARS)
-
     # Define the rules.
     LOCAL_SRC_FILES := $(core_src_files)
     LOCAL_CFLAGS += $(core_cflags)
@@ -133,9 +124,5 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore-host
-    LOCAL_ADDITIONAL_DEPENDENCIES += $(HOST_OUT)/etc/security/cacerts.bks
     include $(BUILD_HOST_STATIC_LIBRARY)
-
-    $(eval $(call copy-one-file,$(LOCAL_PATH)/luni/src/main/files/cacerts.bks,$(HOST_OUT)/etc/security/cacerts.bks))
-
 endif

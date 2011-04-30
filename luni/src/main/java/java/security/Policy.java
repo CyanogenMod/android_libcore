@@ -127,7 +127,7 @@ public abstract class Policy {
             if (e.getCause() == null) {
                 throw e;
             }
-            throw new IllegalArgumentException("Unrecognized policy parameter: " + params);
+            throw new IllegalArgumentException("Unrecognized policy parameter: " + params, e);
         }
     }
 
@@ -223,7 +223,7 @@ public abstract class Policy {
             if (e.getCause() == null) {
                 throw e;
             }
-            throw new IllegalArgumentException("Unrecognized policy parameter: " + params);
+            throw new IllegalArgumentException("Unrecognized policy parameter: " + params, e);
         }
     }
 

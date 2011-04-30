@@ -116,7 +116,7 @@ public class KeyStore {
             Engine.SpiAndProvider sap = ENGINE.getInstance(type, null);
             return new KeyStore((KeyStoreSpi) sap.spi, sap.provider, type);
         } catch (NoSuchAlgorithmException e) {
-                throw new KeyStoreException(e.getMessage());
+            throw new KeyStoreException(e);
         }
     }
 
@@ -153,7 +153,7 @@ public class KeyStore {
         try {
             return getInstance(type, impProvider);
         } catch (Exception e) {
-            throw new KeyStoreException(e.getMessage(), e);
+            throw new KeyStoreException(e);
         }
     }
 
@@ -190,7 +190,7 @@ public class KeyStore {
             return new KeyStore((KeyStoreSpi) spi, provider, type);
         } catch (Exception e) {
             // override exception
-            throw new KeyStoreException(e.getMessage());
+            throw new KeyStoreException(e);
         }
     }
 
